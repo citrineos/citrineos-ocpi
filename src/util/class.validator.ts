@@ -66,9 +66,6 @@ const getIsArray = (meta: ValidationMetadata): boolean => {
 
 const additionalConverters: ISchemaConverters = {
   [IS_ENUM]: (meta: ValidationMetadata, _: IOptions) => {
-    if (meta.propertyName === 'versionId') {
-      console.log('h');
-    }
 
     const enumObject = meta.constraints[0]; // Assuming the first constraint is the enum object
 

@@ -14,10 +14,8 @@ export class BaseController {
     (schema as any).components = {
       schemas: getAllSchemas(),
     };
-    console.log('schema', schema);
     try {
       const response = JSONSchemaFaker.generate(schema as any);
-      console.log('response', response);
       return new Promise((resolve) => {
         resolve(response);
       });

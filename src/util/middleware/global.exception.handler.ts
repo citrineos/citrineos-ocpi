@@ -20,8 +20,6 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
       await next();
     } catch (err) {
       // todo implement other errors
-      const isnst = err instanceof UnauthorizedError;
-      console.log('isnst', isnst, OcpiErrorResponse);
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:

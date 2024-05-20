@@ -121,10 +121,6 @@ function getParamSchema(
 ): oa.SchemaObject | oa.ReferenceObject {
   const {explicitType, index, object, method} = param;
 
-  if (method === 'postCommand' && param.type === 'body') {
-    console.log('jh');
-  }
-
   const type: Constructor = Reflect.getMetadata(
     'design:paramtypes',
     object,
@@ -158,7 +154,6 @@ function getParamSchema(
         `${param.method}.${param.index}`,
       );
       if (types) {
-        console.log(types);
         return {
           oneOf: types.map((tipe: Constructor) => {
             SchemaStore.addToSchemaStore(tipe);

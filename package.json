@@ -8,6 +8,7 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
     "start": "nodemon src/index.ts"
   },
   "keywords": [
@@ -43,5 +44,8 @@
     "lodash.startcase": "^4.4.0",
     "reflect-metadata": "^0.2.2",
     "routing-controllers": "^0.10.4"
-  }
+  },
+  "workspaces": [
+    "../../"
+  ]
 }
