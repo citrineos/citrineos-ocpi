@@ -1,21 +1,33 @@
-import {Controller, Get, Param} from "routing-controllers";
+import {Controller, Get, HeaderParam} from "routing-controllers";
 import {OcpiModules} from "../apis/BaseApi";
 import {BaseController} from "./base.controller";
 import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
 import {ResponseSchema} from "../util/openapi";
-import {HttpStatus} from "@citrineos/base";
+import {HttpHeader, HttpStatus} from "@citrineos/base";
 import {VersionDetailsDTOResponse, VersionDTOListResponse} from "../model/Version";
+import {VersionService} from "../modules/temp/service/version.service";
+import {VersionNumberParam} from "../util/decorators/version.number.param";
+import {VersionNumber} from "../model/VersionNumber";
 
 @Controller(`/${OcpiModules.Versions}`)
 export class VersionsController extends BaseController {
+
+  constructor(
+    readonly versionService: VersionService
+  ) {
+    super();
+  }
+
 
   @Get()
   @ResponseSchema(VersionDTOListResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
-  async getVersions(): Promise<VersionDTOListResponse> {
-    return this.generateMockOcpiResponse(VersionDTOListResponse);
+  async getVersions(
+    @HeaderParam(HttpHeader.Authorization) token: string
+  ): Promise<VersionDTOListResponse> {
+    return this.versionService.getVersions(token);
   }
 
   @Get('/:versionId')
@@ -25,8 +37,9 @@ export class VersionsController extends BaseController {
     description: 'Successful response',
   })
   async getVersion(
-    @Param('versionId') _versionId: string
+    @HeaderParam(HttpHeader.Authorization) token: string,
+    @VersionNumberParam() versionId: VersionNumber,
   ): Promise<VersionDetailsDTOResponse> {
-    return this.generateMockOcpiResponse(VersionDetailsDTOResponse);
+    return this.versionService.getVersion(token, versionId);
   }
 }

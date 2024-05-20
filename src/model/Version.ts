@@ -22,6 +22,15 @@ export class VersionDTOListResponse extends OcpiResponse<VersionDTO[]> {
   @ValidateNested({each: true})
   @Type(() => VersionDTO)
   data!: VersionDTO[];
+
+  static build(statusCode: number, data: VersionDTO[], status_message?: string): VersionDTOListResponse {
+    const response = new VersionDTOListResponse();
+    response.status_code = statusCode;
+    response.status_message = status_message;
+    response.data = data;
+    response.timestamp = new Date();
+    return response;
+  }
 }
 
 export class VersionDetailsDTO {
@@ -41,6 +50,15 @@ export class VersionDetailsDTOResponse extends OcpiResponse<VersionDetailsDTO> {
   @Type(() => VersionDetailsDTO)
   @ValidateNested()
   data!: VersionDetailsDTO;
+
+  static build(statusCode: number, data: VersionDetailsDTO, status_message?: string): VersionDetailsDTOResponse {
+    const response = new VersionDetailsDTOResponse();
+    response.status_code = statusCode;
+    response.status_message = status_message;
+    response.data = data;
+    response.timestamp = new Date();
+    return response;
+  }
 }
 
 @Table

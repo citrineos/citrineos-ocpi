@@ -44,6 +44,19 @@ export class CredentialsResponse extends OcpiResponse<Credentials> {
   @Type(() => Credentials)
   @ValidateNested()
   data!: Credentials;
+
+  static build(
+    status_code: number,
+    data?: Credentials,
+    status_message?: string,
+  ) {
+    const response = new CredentialsResponse();
+    response.status_code = status_code;
+    response.status_message = status_message;
+    response.data = data!;
+    response.timestamp = new Date();
+    return response;
+  }
 }
 
 export class CredentialsListResponse extends OcpiResponse<Credentials[]> {

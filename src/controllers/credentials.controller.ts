@@ -1,11 +1,13 @@
-import {Body, Controller, Delete, Get, Post, Put} from "routing-controllers";
+import {Body, Controller, Delete, Get, HeaderParam, Post, Put} from "routing-controllers";
 import {OcpiModules} from "../apis/BaseApi";
 import {BaseController} from "./base.controller";
 import {Credentials, CredentialsResponse} from "../model/Credentials";
 import {ResponseSchema} from "../util/openapi";
-import {HttpStatus} from "@citrineos/base";
+import {HttpHeader, HttpStatus} from "@citrineos/base";
 import {OcpiEmptyResponse} from "../util/ocpi.empty.response";
 import {CredentialsService} from "../modules/temp/service/credentials.service";
+import {VersionNumber} from "../model/VersionNumber";
+import {VersionNumberParam} from "../util/decorators/version.number.param";
 
 @Controller(`/${OcpiModules.Credentials}`)
 export class CredentialsController extends BaseController {
@@ -19,8 +21,10 @@ export class CredentialsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
-  async getCredentials(): Promise<CredentialsResponse> {
-    return this.credentialsService?.getCredentials({} as any) as any; // todo
+  async getCredentials(
+    @HeaderParam(HttpHeader.Authorization) token: string
+  ): Promise<CredentialsResponse> {
+    return this.credentialsService?.getCredentials(token);
   }
 
   @Post()
@@ -29,9 +33,11 @@ export class CredentialsController extends BaseController {
     description: 'Successful response',
   })
   async postCredentials(
-    @Body() _credentials: Credentials
+    @HeaderParam(HttpHeader.Authorization) token: string,
+    @Body() credentials: Credentials,
+    @VersionNumberParam() version: VersionNumber
   ): Promise<CredentialsResponse> {
-    return this.generateMockOcpiResponse(CredentialsResponse);
+    return this.credentialsService?.postCredentials(token, credentials, version);
   }
 
   @Put()
@@ -40,9 +46,11 @@ export class CredentialsController extends BaseController {
     description: 'Successful response',
   })
   async putCredentials(
-    @Body() _credentials: Credentials
+    @HeaderParam(HttpHeader.Authorization) token: string,
+    @Body() credentials: Credentials,
+    @VersionNumberParam() version: VersionNumber
   ): Promise<CredentialsResponse> {
-    return this.generateMockOcpiResponse(CredentialsResponse);
+    return this.credentialsService?.putCredentials(token, credentials, version);
   }
 
   @Delete()
@@ -50,7 +58,9 @@ export class CredentialsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
-  async deleteCredentials(): Promise<OcpiEmptyResponse> {
-    return this.generateMockOcpiResponse(OcpiEmptyResponse);
+  async deleteCredentials(
+    @HeaderParam(HttpHeader.Authorization) token: string,
+  ): Promise<OcpiEmptyResponse> {
+    return this.credentialsService?.deleteCredentials(token);
   }
 }
