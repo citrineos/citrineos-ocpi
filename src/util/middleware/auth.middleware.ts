@@ -1,11 +1,11 @@
-import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
-import { HttpStatus } from '@citrineos/base';
-import { Context } from 'vm';
-import { buildOcpiErrorResponse } from '../ocpi.error.response';
+import {KoaMiddlewareInterface, Middleware} from 'routing-controllers';
+import {HttpStatus} from '@citrineos/base';
+import {Context} from 'vm';
+import {buildOcpiErrorResponse} from '../ocpi.error.response';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
-@Middleware({ type: 'before' })
+@Middleware({type: 'before'})
 export class AuthMiddleware implements KoaMiddlewareInterface {
   throwError(ctx: Context) {
     ctx.throw(
@@ -19,7 +19,7 @@ export class AuthMiddleware implements KoaMiddlewareInterface {
 
     if (!permittedRoutes.includes(ctx.request.originalUrl)) {
       if (!authHeader) {
-        this.throwError(ctx);
+        return this.throwError(ctx);
       }
 
       try {
@@ -27,10 +27,10 @@ export class AuthMiddleware implements KoaMiddlewareInterface {
         const token = authHeader.split(' ')[1];
         const isValid = await this.validateToken(token);
         if (!isValid) {
-          this.throwError(ctx);
+          return this.throwError(ctx);
         }
       } catch (error) {
-        this.throwError(ctx);
+        return this.throwError(ctx);
       }
     }
 

@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
-    "start": "nodemon src/index.ts"
+    "start": "nodemon src/index.ts",
+    "test": "jest --config jest.config.js"
   },
   "keywords": [
     "ocpp",
@@ -17,11 +18,13 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@types/koa": "^2.15.0",
     "@types/koa-bodyparser": "^4.3.12",
     "@types/lodash.capitalize": "^4.2.9",
     "@types/lodash.merge": "^4.6.9",
     "@types/lodash.startcase": "^4.4.9",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.0.4"
   },
