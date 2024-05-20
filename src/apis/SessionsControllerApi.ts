@@ -1,137 +1,115 @@
-import {
-  OcpiParams,
-  setAuthHeader,
-  getOcpiHeaders,
-} from './util';
-import { BaseAPI, HTTPHeaders } from './BaseApi';
-import { OcpiResponse } from '../util/ocpi.response';
-import { Session } from '../model/Session';
-import { VersionNumber } from '../model/VersionNumber';
-
-export interface GetSessionRequest extends OcpiParams {
-  countryCode: string;
-  partyID: string;
-  sessionID: string;
-}
-
-export interface PatchSessionRequest extends OcpiParams {
-  countryCode: string;
-  partyID: string;
-  sessionID: string;
-  requestBody: { [key: string]: object };
-}
-
-export interface PutSessionRequest extends OcpiParams {
-  countryCode: string;
-  partyID: string;
-  sessionID: string;
-  session: Session;
-}
+import {getOcpiHeaders, OcpiParams, setAuthHeader,} from './util';
+import {BaseAPI, HTTPHeaders} from './BaseApi';
+import {OcpiResponse} from '../util/ocpi.response';
+import {Session} from '../model/Session';
+import {GetSessionParams} from "./params/sessions/get.session.params";
+import {PatchSessionParams} from "./params/sessions/patch.session.params";
+import {PutSessionParams} from "./params/sessions/put.session.params";
 
 export class SessionsControllerApi extends BaseAPI {
-  async getSession(
-    requestParameters: GetSessionRequest,
-    versionId: string = VersionNumber.TWO_DOT_TWO_DOT_ONE,
-  ): Promise<OcpiResponse<Session>> {
+  async getSession(params: GetSessionParams): Promise<OcpiResponse<Session>> {
+
+    this.validateOcpiParams(params);
+
     this.validateRequiredParam(
-      requestParameters,
+      params,
       'countryCode',
-      'partyID',
-      'sessionID',
+      'partyId',
+      'sessionId',
     );
 
     const headerParameters: HTTPHeaders =
-      getOcpiHeaders(requestParameters);
+      getOcpiHeaders(params);
 
     setAuthHeader(headerParameters);
     return await this.request({
-      path: `${this.getBasePath(versionId)}/sessions/{countryCode}/{partyID}/{sessionID}`
+      path: `${this.getBasePath(params)}/{countryCode}/{partyId}/{sessionId}`
         .replace(
           'countryCode',
-          encodeURIComponent(String(requestParameters.countryCode)),
+          encodeURIComponent(String(params.countryCode)),
         )
         .replace(
-          'partyID',
-          encodeURIComponent(String(requestParameters.partyID)),
+          'partyId',
+          encodeURIComponent(String(params.partyId)),
         )
         .replace(
-          'sessionID',
-          encodeURIComponent(String(requestParameters.sessionID)),
+          'sessionId',
+          encodeURIComponent(String(params.sessionId)),
         ),
       method: 'GET',
       headers: headerParameters,
     });
   }
 
-  async patchSession(
-    requestParameters: PatchSessionRequest,
-    versionId: string = VersionNumber.TWO_DOT_TWO_DOT_ONE,
-  ): Promise<OcpiResponse<void>> {
+  async patchSession(params: PatchSessionParams): Promise<OcpiResponse<void>> {
+
+    this.validateOcpiParams(params);
+
     this.validateRequiredParam(
-      requestParameters,
+      params,
       'countryCode',
-      'partyID',
-      'sessionID',
+      'partyId',
+      'sessionId',
       'requestBody',
     );
 
     const headerParameters: HTTPHeaders =
-      getOcpiHeaders(requestParameters);
+      getOcpiHeaders(params);
 
     setAuthHeader(headerParameters);
     return await this.request({
-      path: `${this.getBasePath(versionId)}/sessions/{countryCode}/{partyID}/{sessionID}`
+      path: `${this.getBasePath(params)}/{countryCode}/{partyId}/{sessionId}`
         .replace(
           'countryCode',
-          encodeURIComponent(String(requestParameters.countryCode)),
+          encodeURIComponent(String(params.countryCode)),
         )
         .replace(
-          'partyID',
-          encodeURIComponent(String(requestParameters.partyID)),
+          'partyId',
+          encodeURIComponent(String(params.partyId)),
         )
         .replace(
-          'sessionID',
-          encodeURIComponent(String(requestParameters.sessionID)),
+          'sessionId',
+          encodeURIComponent(String(params.sessionId)),
         ),
       method: 'PATCH',
       headers: headerParameters,
-      body: requestParameters.requestBody,
+      body: params.requestBody,
     });
   }
 
-  async putSession(
-    requestParameters: PutSessionRequest,
-    versionId: string = VersionNumber.TWO_DOT_TWO_DOT_ONE,
-  ): Promise<OcpiResponse<void>> {
+  async putSession(params: PutSessionParams): Promise<OcpiResponse<void>> {
+
+    this.validateOcpiParams(params);
+
     this.validateRequiredParam(
-      requestParameters,
+      params,
       'countryCode',
-      'partyID',
-      'sessionID',
+      'partyId',
+      'sessionId',
       'session',
     );
 
     const headerParameters: HTTPHeaders =
-      getOcpiHeaders(requestParameters);
+      getOcpiHeaders(params);
 
     setAuthHeader(headerParameters);
     return await this.request({
-      path: `${this.getBasePath(versionId)}/sessions/{countryCode}/{partyID}/{sessionID}`
+      path: `${this.getBasePath(params)}/{countryCode}/{partyId}/{sessionId}`
         .replace(
           'countryCode',
-          encodeURIComponent(String(requestParameters.countryCode)),
+          encodeURIComponent(String(params.countryCode)),
         )
         .replace(
-          'partyID',
-          encodeURIComponent(String(requestParameters.partyID)),
+          'partyId',
+          encodeURIComponent(String(params.partyId)),
         )
         .replace(
-          'sessionID',
-          encodeURIComponent(String(requestParameters.sessionID)),
+          'sessionId',
+          encodeURIComponent(String(params.sessionId)),
         ),
       method: 'PUT',
       headers: headerParameters,
-      body: requestParameters.session,
+      body: params.session,
     });
   }
 }

@@ -9,14 +9,15 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Price } from './Price';
-import { ChargingPeriod } from './ChargingPeriod';
-import { CdrToken } from './CdrToken';
-import { AuthMethod } from './AuthMethod';
-import { SessionStatus } from './SessionStatus';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
+import {Price} from './Price';
+import {ChargingPeriod} from './ChargingPeriod';
+import {AuthMethod} from './AuthMethod';
+import {SessionStatus} from './SessionStatus';
+import {Type} from 'class-transformer';
+import {Optional} from '../util/decorators/optional';
+import {Enum} from '../util/decorators/enum';
+import {OcpiResponse} from "../util/ocpi.response";
+import {CdrToken} from "./CdrToken";
 
 export class Session {
   @MaxLength(2)
@@ -95,7 +96,7 @@ export class Session {
   @IsArray()
   @Optional()
   @Type(() => ChargingPeriod)
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   charging_periods?: ChargingPeriod[] | null;
 
   @Optional()
@@ -112,4 +113,19 @@ export class Session {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
+}
+
+export class SessionResponse extends OcpiResponse<Session> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => Session)
+  @ValidateNested()
+  data!: Session;
+}
+
+export class SessionListResponse extends OcpiResponse<Session[]> {
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(() => Session)
+  data!: Session[];
 }

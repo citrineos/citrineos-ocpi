@@ -7,6 +7,7 @@ export enum OcpiModules {
   ChargingProfiles = 'chargingprofiles',
   Commands = 'commands',
   Locations = 'locations',
+  Sessions = 'sessions',
 }
 
 export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
