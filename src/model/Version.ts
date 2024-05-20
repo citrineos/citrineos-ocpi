@@ -1,21 +1,11 @@
-import { VersionNumber } from './VersionNumber';
-import {
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-} from 'class-validator';
-import {
-  Column,
-  DataType,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
-import { Endpoint } from './Endpoint';
-import { Enum } from '../util/decorators/enum';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import {VersionNumber} from './VersionNumber';
+import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested,} from 'class-validator';
+import {Column, DataType, Model, PrimaryKey, Table,} from 'sequelize-typescript';
+import {Endpoint} from './Endpoint';
+import {Enum} from '../util/decorators/enum';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {OcpiResponse} from "../util/ocpi.response";
+import {Type} from "class-transformer";
 
 export class VersionDTO {
   @IsNotEmpty()
@@ -27,6 +17,13 @@ export class VersionDTO {
   url!: string;
 }
 
+export class VersionDTOListResponse extends OcpiResponse<VersionDTO[]> {
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(() => VersionDTO)
+  data!: VersionDTO[];
+}
+
 export class VersionDetailsDTO {
   @IsNotEmpty()
   @Enum(VersionNumber, 'VersionNumber')
@@ -36,6 +33,14 @@ export class VersionDetailsDTO {
   @IsArray()
   @IsNotEmpty()
   endpoints!: Endpoint[];
+}
+
+export class VersionDetailsDTOResponse extends OcpiResponse<VersionDetailsDTO> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => VersionDetailsDTO)
+  @ValidateNested()
+  data!: VersionDetailsDTO;
 }
 
 @Table

@@ -2,12 +2,14 @@ import {OcpiResponse} from '../util/ocpi.response';
 import {OcpiParams} from "./util/ocpi.params";
 
 export enum OcpiModules {
+  Credentials = 'credentials',
   Cdrs = 'cdrs',
   Tariffs = 'tariffs',
   ChargingProfiles = 'chargingprofiles',
   Commands = 'commands',
   Locations = 'locations',
   Sessions = 'sessions',
+  Versions = 'versions',
 }
 
 export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
