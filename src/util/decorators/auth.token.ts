@@ -1,4 +1,4 @@
-import {HeaderParam} from 'routing-controllers';
+import {createParamDecorator} from 'routing-controllers';
 
 // Define the function that processes the Authorization header
 function extractToken(authorization: string): string | undefined {
@@ -10,18 +10,15 @@ function extractToken(authorization: string): string | undefined {
 }
 
 export function AuthToken() {
-  return function (object: any, methodName: string, index: number) {
-    HeaderParam('authorization')(object, methodName, index);
-
-    // Modify the parameter injector to process the header value
-    const reflectedParameterInjectors = Reflect.getMetadata('routing-controllers:parameterinjectors', object.constructor, methodName) || [];
-    const injector = reflectedParameterInjectors.find((i: any) => i.index === index);
-    if (injector) {
-      const originalValueHandler = injector.valueHandler;
-      injector.valueHandler = (actionProperties: any) => {
-        const authorizationHeader = originalValueHandler(actionProperties);
+  return createParamDecorator({
+    required: true,
+    value: (action) => {
+      const authorizationHeader = action.request.headers['authorization'];
+      if (authorizationHeader) {
         return extractToken(authorizationHeader);
-      };
+      } else {
+        return undefined; // todo handle non-existent or improperly formatted Authorization header
+      }
     }
-  };
+  });
 }

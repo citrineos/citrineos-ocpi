@@ -9,6 +9,7 @@ import {VersionService} from "../service/version.service";
 import {VersionNumberParam} from "../util/decorators/version.number.param";
 import {VersionNumber} from "../model/VersionNumber";
 import {Service} from "typedi";
+import {AuthToken} from "../util/decorators/auth.token";
 
 @Controller(`/${OcpiModules.Versions}`)
 @Service()
@@ -27,7 +28,7 @@ export class VersionsController extends BaseController {
     description: 'Successful response',
   })
   async getVersions(
-    @HeaderParam(HttpHeader.Authorization) token: string
+    @AuthToken() token: string
   ): Promise<VersionDTOListResponse> {
     return this.versionService.getVersions(token);
   }
@@ -39,7 +40,7 @@ export class VersionsController extends BaseController {
     description: 'Successful response',
   })
   async getVersion(
-    @HeaderParam(HttpHeader.Authorization) token: string,
+    @AuthToken() token: string,
     @VersionNumberParam() versionId: VersionNumber,
   ): Promise<VersionDetailsDTOResponse> {
     return this.versionService.getVersion(token, versionId);
