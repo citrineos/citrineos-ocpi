@@ -6,8 +6,10 @@ import {FromToOffsetLimitQuery} from '../modules/temp/schema/from.to.offset.limi
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
 import {OcpiModules} from "../apis/BaseApi";
 import {ResponseSchema} from "../util/openapi";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.Cdrs}`)
+@Service()
 export class CdrsController extends BaseController {
 
   // todo pg 101 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf

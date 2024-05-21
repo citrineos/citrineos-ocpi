@@ -1,16 +1,11 @@
-import {
-  KoaMiddlewareInterface,
-  Middleware,
-  UnauthorizedError,
-} from 'routing-controllers';
-import { Context } from 'vm';
-import { HttpStatus } from '@citrineos/base';
-import {
-  buildOcpiErrorResponse,
-  OcpiErrorResponse,
-} from '../ocpi.error.response';
+import {KoaMiddlewareInterface, Middleware, UnauthorizedError,} from 'routing-controllers';
+import {Context} from 'vm';
+import {HttpStatus} from '@citrineos/base';
+import {buildOcpiErrorResponse,} from '../ocpi.error.response';
+import {Service} from "typedi";
 
-@Middleware({ type: 'before', priority: 10 })
+@Middleware({type: 'before', priority: 10})
+@Service()
 export class GlobalExceptionHandler implements KoaMiddlewareInterface {
   public async use(
     ctx: Context,
@@ -20,6 +15,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
       await next();
     } catch (err) {
       // todo implement other errors
+      console.error('GlobalExceptionHandler error', err);
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:

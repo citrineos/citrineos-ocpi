@@ -8,8 +8,10 @@ import {FromToOffsetLimitQuery} from "../modules/temp/schema/from.to.offset.limi
 import {EvseResponse} from "../model/Evse";
 import {ConnectorResponse} from "../model/Connector";
 import {ResponseSchema} from "../util/openapi";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.Locations}`)
+@Service()
 export class LocationsController extends BaseController {
 
   // todo pg 60 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf

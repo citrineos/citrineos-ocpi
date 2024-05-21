@@ -2,10 +2,12 @@ import {KoaMiddlewareInterface, Middleware} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {Context} from 'vm';
 import {buildOcpiErrorResponse} from '../ocpi.error.response';
+import {Service} from "typedi";
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
 @Middleware({type: 'before'})
+@Service()
 export class AuthMiddleware implements KoaMiddlewareInterface {
   throwError(ctx: Context) {
     ctx.throw(
@@ -34,7 +36,7 @@ export class AuthMiddleware implements KoaMiddlewareInterface {
       }
     }
 
-    return next();
+    return await next();
   }
 
   private async validateToken(token: string): Promise<boolean> {

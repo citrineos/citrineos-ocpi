@@ -11,12 +11,13 @@ import {HttpStatus} from '@citrineos/base';
 import {Version} from '../../../model/Version';
 import {VersionNumber} from '../../../model/VersionNumber';
 import {OcpiEmptyResponse} from "../../../util/ocpi.empty.response";
-import {injectable} from "tsyringe";
+import {Service} from "typedi";
+import {OcpiLogger} from "../../../util/logger";
 
-@injectable()
+@Service()
 export class CredentialsService {
   constructor(
-    private _logger: Logger<ILogObj>,
+    private _logger: OcpiLogger,
     private credentialsRepository: CredentialsRepository,
     private versionRepository: VersionRepository,
   ) {

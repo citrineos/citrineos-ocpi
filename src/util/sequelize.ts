@@ -1,13 +1,12 @@
 import {Sequelize} from "sequelize-typescript";
-import {SystemConfig} from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
 import {Dialect} from "sequelize";
 import {Credentials} from "../model/Credentials";
 import {Version} from "../model/Version";
-import {singleton} from "tsyringe";
 import {OcpiServerConfig} from "../config/ocpi.server.config";
+import {Service} from "typedi";
 
-@singleton()
+@Service()
 export class OcpiSequelizeInstance {
 
   sequelize: Sequelize;
@@ -18,13 +17,13 @@ export class OcpiSequelizeInstance {
     sequelizeLogger.info('Creating default Sequelize instance');
 
     this.sequelize = new Sequelize({
-      host: config.sequelize.host,
-      port: config.sequelize.port,
-      database: config.sequelize.database,
-      dialect: config.sequelize.dialect as Dialect,
-      username: config.sequelize.username,
-      password: config.sequelize.password,
-      storage: config.sequelize.storage,
+      host: config.data.sequelize.host,
+      port: config.data.sequelize.port,
+      database: config.data.sequelize.database,
+      dialect: config.data.sequelize.dialect as Dialect,
+      username: config.data.sequelize.username,
+      password: config.data.sequelize.password,
+      storage: config.data.sequelize.storage,
       models: [
         Credentials,
         Version
@@ -35,11 +34,11 @@ export class OcpiSequelizeInstance {
       },
     });
 
-    if (config.sequelize.alter) {
+    if (config.data.sequelize.alter) {
       this.sequelize.sync({alter: true}).then(() => {
         sequelizeLogger.info('Database altered');
       });
-    } else if (config.sequelize.sync) {
+    } else if (config.data.sequelize.sync) {
       this.sequelize.sync({force: true}).then(() => {
         sequelizeLogger.info('Database synchronized');
       });

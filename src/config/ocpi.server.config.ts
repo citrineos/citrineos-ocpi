@@ -1,5 +1,7 @@
-import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString} from "class-validator";
-import {injectable} from "tsyringe";
+import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, ValidateNested} from "class-validator";
+import {Service} from "typedi";
+import {Type} from "class-transformer";
+import {Enum} from "../util/decorators/enum";
 
 class SequelizeConfig {
 
@@ -74,12 +76,48 @@ const defaultSequelizeConfig: SequelizeConfig = new SequelizeConfig(
   true,
 );
 
-@injectable()
-export class OcpiServerConfig {
+export enum LogLevel {
+  SILLY = 0,
+  TRACE = 1,
+  DEBUG = 2,
+  INFO = 3,
+  WARN = 4,
+  ERROR = 5,
+  FATAL = 6
+}
+
+export enum OcpiEnv {
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+}
+
+export class OcpiServerConfigData {
+  @IsNotEmpty()
+  @Type(() => SequelizeConfig)
+  @ValidateNested()
   sequelize!: SequelizeConfig;
+}
+
+@Service()
+export class OcpiServerConfig {
+
+  @Enum(OcpiEnv, 'OcpiEnv')
+  @IsNotEmpty()
+  env = OcpiEnv.DEVELOPMENT;
+
+  @IsNotEmpty()
+  @Type(() => OcpiServerConfigData)
+  @ValidateNested()
+  data!: OcpiServerConfigData;
+
+  @Enum(LogLevel, 'LogLevel')
+  @IsNotEmpty()
+  logLevel: LogLevel;
 
 
   constructor() {
-    this.sequelize = defaultSequelizeConfig; // todo envs
+    this.data = new OcpiServerConfigData();
+    this.data.sequelize = defaultSequelizeConfig; // todo envs
+    this.logLevel = LogLevel.DEBUG;
   }
 }

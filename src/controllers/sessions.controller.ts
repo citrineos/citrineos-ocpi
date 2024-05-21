@@ -8,8 +8,10 @@ import {HttpStatus} from "@citrineos/base";
 import {FromToOffsetLimitQuery} from "../modules/temp/schema/from.to.offset.limit.query.schema";
 import {ChargingPreferencesResponse} from "../model/ChargingPreferencesResponse";
 import {ChargingPreferences} from "../model/ChargingPreferences";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.Sessions}`)
+@Service()
 export class SessionsController extends BaseController {
 
   // todo pg 90 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf

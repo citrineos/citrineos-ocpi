@@ -3,10 +3,10 @@ import {HttpStatus} from '@citrineos/base';
 import {CredentialsRepository} from '../repository/credentials.repository';
 import {Version, VersionDetailsDTOResponse, VersionDTOListResponse} from '../../../model/Version';
 import {OcpiNamespace} from '../../../util/ocpi.namespace';
-import {injectable} from "tsyringe";
 import {VersionNumber} from "../../../model/VersionNumber";
+import {Service} from "typedi";
 
-@injectable()
+@Service()
 export class VersionService {
   constructor(
     private credentialsRepository: CredentialsRepository,

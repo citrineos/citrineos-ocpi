@@ -12,8 +12,10 @@ import {UnlockConnector} from "../model/UnlockConnector";
 import {OcpiCommandResponse} from "../model/CommandResponse";
 import {ResponseSchema} from "../util/openapi";
 import {MultipleTypes} from "../util/decorators/multiple.types";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.Commands}`)
+@Service()
 export class CommandsController extends BaseController {
 
   @Post('/:commandType')

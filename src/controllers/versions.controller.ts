@@ -8,8 +8,10 @@ import {VersionDetailsDTOResponse, VersionDTOListResponse} from "../model/Versio
 import {VersionService} from "../modules/temp/service/version.service";
 import {VersionNumberParam} from "../util/decorators/version.number.param";
 import {VersionNumber} from "../model/VersionNumber";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.Versions}`)
+@Service()
 export class VersionsController extends BaseController {
 
   constructor(

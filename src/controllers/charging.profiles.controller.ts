@@ -9,8 +9,10 @@ import {OcpiModules} from "../apis/BaseApi";
 import {ClearChargingProfileResult} from "../model/ChargingprofilesClearProfileResult";
 import {ChargingProfileResult} from "../model/ChargingProfileResponse";
 import {ResponseSchema} from "../util/openapi";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.ChargingProfiles}`)
+@Service()
 export class ChargingProfilesController extends BaseController {
   @Post('/:id')
   @AsOcpiEndpoint()

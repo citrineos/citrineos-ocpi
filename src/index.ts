@@ -1,7 +1,10 @@
 import 'reflect-metadata';
-import {container} from 'tsyringe';
+import {Container} from "typedi";
+import {useContainer} from "routing-controllers";
 import {OcpiServer} from "./ocpiServer";
 
 export {OcpiModule} from './modules/temp/module';
 
-const instance = container.resolve(OcpiServer);
+useContainer(Container);
+let server = Container.get(OcpiServer);
+console.log('initialized server', server);

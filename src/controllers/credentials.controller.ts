@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, HeaderParam, Post, Put} from "routing-controllers";
+import {Body, Controller, Delete, Get, HeaderParam, Post, Put, UseAfter} from "routing-controllers";
 import {OcpiModules} from "../apis/BaseApi";
 import {BaseController} from "./base.controller";
 import {Credentials, CredentialsResponse} from "../model/Credentials";
@@ -8,8 +8,10 @@ import {OcpiEmptyResponse} from "../util/ocpi.empty.response";
 import {CredentialsService} from "../modules/temp/service/credentials.service";
 import {VersionNumber} from "../model/VersionNumber";
 import {VersionNumberParam} from "../util/decorators/version.number.param";
+import {Service} from "typedi";
 
 @Controller(`/${OcpiModules.Credentials}`)
+@Service()
 export class CredentialsController extends BaseController {
 
   constructor(readonly credentialsService: CredentialsService) {
