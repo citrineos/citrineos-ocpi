@@ -10,6 +10,7 @@ import {OcpiNamespace} from '../util/ocpi.namespace';
 import {Service} from "typedi";
 import {OcpiServerConfig} from "../config/ocpi.server.config";
 import {OcpiLogger} from "../util/logger";
+import {OcpiSequelizeInstance} from "../util/sequelize";
 
 @Service()
 export class CredentialsRepository extends SequelizeRepository<Credentials> {
@@ -17,8 +18,9 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     logger: OcpiLogger,
+    ocpiSequelizeInstance: OcpiSequelizeInstance
   ) {
-    super(ocpiSystemConfig as SystemConfig, logger);
+    super(ocpiSystemConfig as SystemConfig, logger, ocpiSequelizeInstance.sequelize);
   }
 
   public async authorizeToken(token: string): Promise<boolean> {

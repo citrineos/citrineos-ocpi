@@ -9,6 +9,7 @@ import {Service} from "typedi";
 import {OcpiServerConfig} from "../config/ocpi.server.config";
 import {OcpiLogger} from "../util/logger";
 import {SystemConfig} from "@citrineos/base";
+import {OcpiSequelizeInstance} from "../util/sequelize";
 
 @Service()
 export class VersionRepository extends SequelizeRepository<Version> {
@@ -16,8 +17,9 @@ export class VersionRepository extends SequelizeRepository<Version> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     logger: OcpiLogger,
+    ocpiSequelizeInstance: OcpiSequelizeInstance
   ) {
-    super(ocpiSystemConfig as SystemConfig, logger);
+    super(ocpiSystemConfig as SystemConfig, logger, ocpiSequelizeInstance.sequelize);
   }
 
 }
