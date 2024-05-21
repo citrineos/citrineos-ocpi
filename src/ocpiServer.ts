@@ -18,6 +18,7 @@ import {Service} from 'typedi';
 import {OpenAPIObject} from "openapi3-ts";
 import {OcpiSequelizeInstance} from "./util/sequelize";
 import {LoggingMiddleware} from "./util/middleware/logging.middleware";
+import KoaLogger from "koa-logger";
 
 @Service()
 export class OcpiServer {
@@ -32,13 +33,18 @@ export class OcpiServer {
   ) {
     try {
       this.koa = new Koa();
+      this.initLogger();
       this.initApp();
-      this.initKoaSwagger();
+      this.initKoaSwaggerAndLogger();
       this.startApp();
     } catch (error) {
       console.error(error);
       process.exit(1);
     }
+  }
+
+  private initLogger() {
+    this.koa.use(KoaLogger());
   }
 
   private initApp() {
@@ -63,7 +69,7 @@ export class OcpiServer {
     });
   }
 
-  private initKoaSwagger() {
+  private initKoaSwaggerAndLogger() {
     this.storage = getMetadataArgsStorage();
     this.spec = routingControllersToSpec(
       this.storage,
