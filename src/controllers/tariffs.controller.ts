@@ -1,12 +1,12 @@
 import {Controller, Get, QueryParams} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController} from './base.controller';
-import {FromToOffsetLimitQuery} from '../schema/from.to.offset.limit.query.schema';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
 import {OcpiModules} from "../apis/BaseApi";
 import {TariffListResponse} from "../model/Tariff";
 import {ResponseSchema} from "../util/openapi";
 import {Service} from "typedi";
+import {FromToOffsetLimitQuery} from "../apis/params/from.to.offset.limit.query";
 
 @Controller(`/${OcpiModules.Tariffs}`)
 @Service()
