@@ -1,6 +1,5 @@
 import Koa from 'koa';
-import {Action, getMetadataArgsStorage, MetadataArgsStorage, useKoaServer} from 'routing-controllers';
-import {authorizationChecker} from './util/authorization.checker';
+import {getMetadataArgsStorage, MetadataArgsStorage, useKoaServer} from 'routing-controllers';
 import {CredentialsController} from './controllers/credentials.controller';
 import {CdrsController} from './controllers/cdrs.controller';
 import {ChargingProfilesController} from './controllers/charging.profiles.controller';
@@ -44,7 +43,6 @@ export class OcpiServer {
 
   private initApp() {
     this.app = useKoaServer(this.koa, {
-      authorizationChecker: this.authorizationChecker,
       controllers: [
         CredentialsController,
         CdrsController,
@@ -64,23 +62,6 @@ export class OcpiServer {
       defaultErrorHandler: false, // Important: Disable the default error handler
     });
   }
-
-  private authorizationChecker = async (action: Action, roles: string[]) => {
-    // here you can use request/response objects from action
-    // also if decorator defines roles it needs to access the action
-    // you can use them to provide granular access check
-    // checker must return either boolean (true or false)
-    // either promise that resolves a boolean value
-    // demo code:
-    const token = action.request.headers['authorization'];
-
-    // const user = await getEntityManager().findOneByToken(User, token);
-    // if (user && !roles.length) return true;
-    // if (user && roles.find(role => user.roles.indexOf(role) !== -1)) return true;
-
-    console.log('authorizationChecker', token, roles);
-    return true;
-  };
 
   private initKoaSwagger() {
     this.storage = getMetadataArgsStorage();

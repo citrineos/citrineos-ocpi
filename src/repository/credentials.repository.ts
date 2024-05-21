@@ -36,7 +36,12 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
     token: string,
   ): Promise<boolean> => {
     try {
-      return await this.existsByKey(token, OcpiNamespace.Credentials);
+      return await this.existsByQuery(
+        {
+          where: {token}
+        },
+        OcpiNamespace.Credentials
+      );
     } catch (e) {
       return Promise.resolve(false);
     }

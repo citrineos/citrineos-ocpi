@@ -17,7 +17,7 @@ import {OcpiLogger} from "../util/logger";
 @Service()
 export class CredentialsService {
   constructor(
-    private _logger: OcpiLogger,
+    private logger: OcpiLogger,
     private credentialsRepository: CredentialsRepository,
     private versionRepository: VersionRepository,
   ) {
@@ -26,7 +26,7 @@ export class CredentialsService {
   async getCredentials(
     token: string,
   ): Promise<CredentialsResponse> {
-    this._logger.info('getCredentials');
+    this.logger.info('getCredentials');
     const credentials = await this.credentialsRepository.readByQuery(
       {
         where: {

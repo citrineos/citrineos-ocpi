@@ -1,7 +1,6 @@
 import {createParamDecorator} from 'routing-controllers';
 
-// Define the function that processes the Authorization header
-function extractToken(authorization: string): string | undefined {
+export function extractToken(authorization: string): string {
   if (authorization && authorization.indexOf(' ') > -1) {
     return authorization.split(' ')[1];
   } else {

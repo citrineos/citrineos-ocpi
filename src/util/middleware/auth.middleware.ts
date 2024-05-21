@@ -3,12 +3,20 @@ import {HttpStatus} from '@citrineos/base';
 import {Context} from 'vm';
 import {buildOcpiErrorResponse} from '../ocpi.error.response';
 import {Service} from "typedi";
+import {CredentialsRepository} from "../../repository/credentials.repository";
+import {extractToken} from "../decorators/auth.token";
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
 @Middleware({type: 'before'})
 @Service()
 export class AuthMiddleware implements KoaMiddlewareInterface {
+
+  constructor(
+    readonly credentialsRepository: CredentialsRepository
+  ) {
+  }
+
   throwError(ctx: Context) {
     ctx.throw(
       HttpStatus.UNAUTHORIZED,
@@ -18,29 +26,17 @@ export class AuthMiddleware implements KoaMiddlewareInterface {
 
   async use(ctx: Context, next: (err?: any) => Promise<any>): Promise<any> {
     const authHeader = ctx.request.headers['authorization'];
-
     if (!permittedRoutes.includes(ctx.request.originalUrl)) {
-      if (!authHeader) {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return this.throwError(ctx);
       }
-
       try {
-        // todo implement authentication logic here
-        const token = authHeader.split(' ')[1];
-        const isValid = await this.validateToken(token);
-        if (!isValid) {
-          return this.throwError(ctx);
-        }
+        const token = extractToken(authHeader);
+        await this.credentialsRepository.authorizeToken(token);
       } catch (error) {
         return this.throwError(ctx);
       }
     }
-
     return await next();
-  }
-
-  private async validateToken(token: string): Promise<boolean> {
-    // todo placeholder implement token validation logic here
-    return token === '123'; // Example logic
   }
 }
