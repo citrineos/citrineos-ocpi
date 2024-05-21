@@ -5,7 +5,7 @@ import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
 import {ResponseSchema} from "../util/openapi";
 import {SessionListResponse} from "../model/Session";
 import {HttpStatus} from "@citrineos/base";
-import {FromToOffsetLimitQuery} from "../modules/temp/schema/from.to.offset.limit.query.schema";
+import {FromToOffsetLimitQuery} from "../schema/from.to.offset.limit.query.schema";
 import {ChargingPreferencesResponse} from "../model/ChargingPreferencesResponse";
 import {ChargingPreferences} from "../model/ChargingPreferences";
 import {Service} from "typedi";

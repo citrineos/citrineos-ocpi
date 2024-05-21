@@ -1,18 +1,18 @@
 import {CredentialsRepository} from '../repository/credentials.repository';
-import {VersionsControllerApi} from '../../../apis/VersionsControllerApi';
+import {VersionsControllerApi} from '../apis/VersionsControllerApi';
 import {VersionRepository} from '../repository/version.repository';
 import {v4 as uuidv4} from 'uuid';
-import {Configuration} from '../../../apis/BaseApi';
+import {Configuration} from '../apis/BaseApi';
 import {NotFoundException} from '../exceptions/not.found.exception';
 import {ILogObj, Logger} from 'tslog';
-import {OcpiNamespace} from '../../../util/ocpi.namespace';
-import {Credentials, CredentialsResponse} from '../../../model/Credentials';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {Credentials, CredentialsResponse} from '../model/Credentials';
 import {HttpStatus} from '@citrineos/base';
-import {Version} from '../../../model/Version';
-import {VersionNumber} from '../../../model/VersionNumber';
-import {OcpiEmptyResponse} from "../../../util/ocpi.empty.response";
+import {Version} from '../model/Version';
+import {VersionNumber} from '../model/VersionNumber';
+import {OcpiEmptyResponse} from "../util/ocpi.empty.response";
 import {Service} from "typedi";
-import {OcpiLogger} from "../../../util/logger";
+import {OcpiLogger} from "../util/logger";
 
 @Service()
 export class CredentialsService {

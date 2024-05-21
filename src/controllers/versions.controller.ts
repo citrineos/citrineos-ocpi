@@ -5,7 +5,7 @@ import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
 import {ResponseSchema} from "../util/openapi";
 import {HttpHeader, HttpStatus} from "@citrineos/base";
 import {VersionDetailsDTOResponse, VersionDTOListResponse} from "../model/Version";
-import {VersionService} from "../modules/temp/service/version.service";
+import {VersionService} from "../service/version.service";
 import {VersionNumberParam} from "../util/decorators/version.number.param";
 import {VersionNumber} from "../model/VersionNumber";
 import {Service} from "typedi";

@@ -3,7 +3,7 @@ import {Container} from "typedi";
 import {useContainer} from "routing-controllers";
 import {OcpiServer} from "./ocpiServer";
 
-export {OcpiModule} from './modules/temp/module';
+export {OcpiModule} from './module';
 
 useContainer(Container);
 let server = Container.get(OcpiServer);

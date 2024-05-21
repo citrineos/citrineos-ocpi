@@ -1,9 +1,9 @@
 import {VersionRepository} from '../repository/version.repository';
 import {HttpStatus} from '@citrineos/base';
 import {CredentialsRepository} from '../repository/credentials.repository';
-import {Version, VersionDetailsDTOResponse, VersionDTOListResponse} from '../../../model/Version';
-import {OcpiNamespace} from '../../../util/ocpi.namespace';
-import {VersionNumber} from "../../../model/VersionNumber";
+import {Version, VersionDetailsDTOResponse, VersionDTOListResponse} from '../model/Version';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {VersionNumber} from "../model/VersionNumber";
 import {Service} from "typedi";
 
 @Service()
