@@ -11,6 +11,11 @@ import {OcpiHeaderMiddleware} from "../middleware/ocpi.header.middleware";
 import {UniqueMessageIdsMiddleware} from "../middleware/unique.message.ids.middleware";
 import {HttpHeader} from "@citrineos/base";
 
+export const uniqueMessageIdHeaders = {
+  [OcpiHttpHeader.XRequestId]: {required: true},
+  [OcpiHttpHeader.XCorrelationId]: {required: true}
+}
+
 function applyHeaders(headers: { [key: string]: ParamOptions }) {
   return function (object: any, methodName: string) {
     for (const [key, options] of Object.entries(headers)) {
@@ -33,8 +38,7 @@ export const AsOcpiEndpoint = function () {
     [OcpiHttpHeader.OcpiFromPartyId]: {required: true},
     [OcpiHttpHeader.OcpiToCountryCode]: {required: true},
     [OcpiHttpHeader.OcpiToPartyId]: {required: true},
-    [OcpiHttpHeader.XRequestId]: {required: false},
-    [OcpiHttpHeader.XCorrelationId]: {required: false},
+    ...uniqueMessageIdHeaders
   };
   return applyHeaders(headers);
 };
