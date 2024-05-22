@@ -170,10 +170,6 @@ const additionalConverters: ISchemaConverters = {
   ) => {
     if (typeof meta.target === 'function') {
 
-      if (meta.target.name === 'TariffListResponse') {
-        console.log('hi');
-      }
-
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
           meta.target,

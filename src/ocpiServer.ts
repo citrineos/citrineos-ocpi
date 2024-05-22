@@ -8,7 +8,6 @@ import {CommandsController} from './controllers/commands.controller';
 import {LocationsController} from './controllers/locations.controller';
 import {SessionsController} from './controllers/sessions.controller';
 import {VersionsController} from './controllers/versions.controller';
-import {AuthMiddleware} from './util/middleware/auth.middleware';
 import {GlobalExceptionHandler} from './util/middleware/global.exception.handler';
 import {routingControllersToSpec} from './util/openapi';
 import {VersionNumber} from './model/VersionNumber';
@@ -19,7 +18,6 @@ import {OpenAPIObject} from 'openapi3-ts';
 import {OcpiSequelizeInstance} from './util/sequelize';
 import {LoggingMiddleware} from './util/middleware/logging.middleware';
 import KoaLogger from 'koa-logger';
-import {OcpiHeaderMiddleware} from './util/middleware/ocpi.header.middleware';
 
 @Service()
 export class OcpiServer {
@@ -62,10 +60,8 @@ export class OcpiServer {
       ],
       routePrefix: '/ocpi/:versionId', // dynamic API version in the prefix
       middlewares: [
-        AuthMiddleware,
         GlobalExceptionHandler,
         LoggingMiddleware,
-        OcpiHeaderMiddleware
       ],
       defaultErrorHandler: false, // Important: Disable the default error handler
     });
