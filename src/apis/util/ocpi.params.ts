@@ -24,11 +24,11 @@ export class OcpiParams {
 
   @IsString()
   @IsOptional()
-  xRequestID?: string;
+  xRequestId?: string;
 
   @IsString()
   @IsOptional()
-  xCorrelationID?: string;
+  xCorrelationId?: string;
 
   versionId: string = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 }

@@ -46,7 +46,6 @@ export class CredentialsService {
     credentials: Credentials,
     versionId: VersionNumber
   ): Promise<CredentialsResponse> {
-    await this.credentialsRepository.authorizeToken(token);
     await this.getAndUpdateVersions(
       credentials.url,
       credentials.token,
@@ -60,7 +59,6 @@ export class CredentialsService {
     credentials: Credentials,
     versionId: VersionNumber
   ): Promise<CredentialsResponse> {
-    await this.credentialsRepository.authorizeToken(token);
     await this.getAndUpdateVersions(
       credentials.url,
       credentials.token,

@@ -39,9 +39,7 @@ export class CredentialsController extends BaseController {
     @AuthToken() token: string,
     @Body() credentials: Credentials,
     @VersionNumberParam() version: VersionNumber
-  ):
-
-    Promise<CredentialsResponse> {
+  ): Promise<CredentialsResponse> {
     return this.credentialsService?.postCredentials(token, credentials, version);
   }
 
@@ -54,9 +52,7 @@ export class CredentialsController extends BaseController {
     @AuthToken() token: string,
     @Body() credentials: Credentials,
     @VersionNumberParam() version: VersionNumber
-  ):
-
-    Promise<CredentialsResponse> {
+  ): Promise<CredentialsResponse> {
     return this.credentialsService?.putCredentials(token, credentials, version);
   }
 

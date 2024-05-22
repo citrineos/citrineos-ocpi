@@ -1,5 +1,6 @@
 import {HTTPHeaders} from './BaseApi';
 import {OcpiParams} from "./util/ocpi.params";
+import {OcpiHttpHeader} from "../util/ocpi.http.header";
 
 export const setAuthHeader = (headerParameters: HTTPHeaders) => {
   const tokenString = 'todo'; // todo get token from credentials
@@ -12,28 +13,28 @@ export const getOcpiHeaders = (
 
   const headerParameters: HTTPHeaders = {};
 
-  if (params.xRequestID != null) {
-    headerParameters['X-Request-ID'] = String(params.xRequestID);
+  if (params.xRequestId != null) {
+    headerParameters[OcpiHttpHeader.XRequestId] = String(params.xRequestId);
   }
 
-  if (params.xCorrelationID != null) {
-    headerParameters['X-Correlation-ID'] = String(params.xCorrelationID);
+  if (params.xCorrelationId != null) {
+    headerParameters[OcpiHttpHeader.XCorrelationId] = String(params.xCorrelationId);
   }
 
   if (params.fromCountryCode != null) {
-    headerParameters['OCPI-from-country-code'] = String(params.fromCountryCode);
+    headerParameters[OcpiHttpHeader.OcpiFromCountryCode] = String(params.fromCountryCode);
   }
 
   if (params.fromPartyId != null) {
-    headerParameters['OCPI-from-party-id'] = String(params.fromPartyId);
+    headerParameters[OcpiHttpHeader.OcpiFromPartyId] = String(params.fromPartyId);
   }
 
   if (params.toCountryCode != null) {
-    headerParameters['OCPI-to-country-code'] = String(params.toCountryCode);
+    headerParameters[OcpiHttpHeader.OcpiToCountryCode] = String(params.toCountryCode);
   }
 
   if (params.toPartyId != null) {
-    headerParameters['OCPI-to-party-id'] = String(params.toPartyId);
+    headerParameters[OcpiHttpHeader.OcpiToPartyId] = String(params.toPartyId);
   }
 
   return headerParameters;

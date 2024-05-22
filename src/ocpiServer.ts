@@ -19,6 +19,7 @@ import {OpenAPIObject} from "openapi3-ts";
 import {OcpiSequelizeInstance} from "./util/sequelize";
 import {LoggingMiddleware} from "./util/middleware/logging.middleware";
 import KoaLogger from "koa-logger";
+import {OcpiHeaderMiddleware} from "./util/middleware/ocpi.header.middleware";
 
 @Service()
 export class OcpiServer {
@@ -63,7 +64,8 @@ export class OcpiServer {
       middlewares: [
         AuthMiddleware,
         GlobalExceptionHandler,
-        LoggingMiddleware
+        LoggingMiddleware,
+        OcpiHeaderMiddleware
       ],
       defaultErrorHandler: false, // Important: Disable the default error handler
     });
