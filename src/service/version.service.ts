@@ -28,7 +28,7 @@ export class VersionService {
     );
   }
 
-  async getVersion(
+  async getVersionDetails(
     token: string,
     versionId: VersionNumber
   ): Promise<VersionDetailsDTOResponse> {

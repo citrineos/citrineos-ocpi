@@ -39,10 +39,10 @@ export class VersionsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
-  async getVersion(
+  async getVersionDetails(
     @AuthToken() token: string,
     @VersionNumberParam() versionId: VersionNumber,
   ): Promise<VersionDetailsDTOResponse> {
-    return this.versionService.getVersion(token, versionId);
+    return this.versionService.getVersionDetails(token, versionId);
   }
 }

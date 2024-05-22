@@ -29,17 +29,17 @@ export class SessionsController extends BaseController {
     return this.generateMockOcpiResponse(SessionListResponse);
   }
 
-  @Put('/{session_id}/charging_preferences')
+  @Put('/{sessionId}/charging_preferences')
   @AsOcpiEndpoint()
   @ResponseSchema(ChargingPreferencesResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
   async updateChargingPreferences(
-    @Param('session_id') _sessionId: string,
-    @Body() _body: ChargingPreferences
+    @Param('sessionId') sessionId: string,
+    @Body() body: ChargingPreferences
   ): Promise<ChargingPreferencesResponse> {
-    console.log('updateChargingPreferences', _sessionId, _body);
+    console.log('updateChargingPreferences', sessionId, body);
     return this.generateMockOcpiResponse(ChargingPreferencesResponse);
   }
 

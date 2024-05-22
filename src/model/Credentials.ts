@@ -32,9 +32,11 @@ export class Credentials extends Model {
   url!: string;
 
   @Column(DataType.JSON)
-  @ArrayMinSize(1)
   @IsArray()
+  @ArrayMinSize(1)
   @IsNotEmpty()
+  @ValidateNested({each: true})
+  @Type(() => CredentialsRole)
   roles!: CredentialsRole[];
 }
 
