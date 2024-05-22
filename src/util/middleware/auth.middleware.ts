@@ -27,7 +27,7 @@ export class AuthMiddleware implements KoaMiddlewareInterface {
   async use(ctx: Context, next: (err?: any) => Promise<any>): Promise<any> {
     const authHeader = ctx.request.headers['authorization'];
     if (!permittedRoutes.includes(ctx.request.originalUrl)) {
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      if (!authHeader) {
         return this.throwError(ctx);
       }
       try {
