@@ -44,7 +44,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
           default:
             context.status = HttpStatus.INTERNAL_SERVER_ERROR;
             context.body = JSON.stringify(
-              buildOcpiErrorResponse(OcpiResponseStatusCode.ClientGenericError, `Internal Server Error, ${(err as Error).message}`),
+              buildOcpiErrorResponse(OcpiResponseStatusCode.ClientGenericError, `Internal Server Error, ${(err as Error).message}: ${JSON.stringify((err as any).errors)}`),
             );
         }
       }

@@ -345,18 +345,24 @@ export function getQueryParams(
     const paramSchema = getParamSchema(queriesMeta) as oa.ReferenceObject;
     // the last segment after '/'
     const paramSchemaName = paramSchema.$ref.split('/').pop() || '';
-    const currentSchema = schemas[paramSchemaName];
-
-    for (const [name, schema] of Object.entries(
-      currentSchema?.properties || {},
-    )) {
-      queries.push({
-        in: 'query',
-        name,
-        required: currentSchema.required?.includes(name),
-        schema,
-      });
-    }
+    queries.push({
+      in: 'query',
+      name: paramSchemaName,
+      // required: isRequired(queriesMeta, route), // todo
+      schema: paramSchema,
+    });
+    // const currentSchema = schemas[paramSchemaName];
+    //
+    // for (const [name, schema] of Object.entries(
+    //   currentSchema?.properties || {},
+    // )) {
+    //   queries.push({
+    //     in: 'query',
+    //     name,
+    //     required: currentSchema.required?.includes(name),
+    //     schema,
+    //   });
+    // }
   }
   return queries;
 }
@@ -386,7 +392,7 @@ export function getOperation(
       operation.security = [];
     }
     operation.security.push({
-      Token: []
+      authorization: []
     });
   }
 

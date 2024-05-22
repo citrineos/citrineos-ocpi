@@ -11,6 +11,7 @@ import {Service} from 'typedi';
 import {OcpiServerConfig} from '../config/ocpi.server.config';
 import {OcpiLogger} from '../util/logger';
 import {OcpiSequelizeInstance} from '../util/sequelize';
+import {CredentialsRole} from "../model/CredentialsRole";
 
 @Service()
 export class CredentialsRepository extends SequelizeRepository<Credentials> {
@@ -36,19 +37,18 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
     token: string,
     countryCode?: string,
     partyId?: string
-  ): Promise<Credentials> => {
+  ): Promise<Credentials | undefined> => {
     const query: any = {
       where: {token}
     };
-    if (countryCode && partyId) {
-      query.where['roles'] = {
-        country_code: countryCode,
-        party_id: partyId
-      };
-    }
-    return await this.readByQuery(
+    // todo test
+    const credentials = await this.readAllByQuery(
       query,
       OcpiNamespace.Credentials
     );
+    if (credentials && credentials.length > 0 && countryCode && partyId) {
+      return credentials.find(creds => creds.dataValues.roles.some((role: CredentialsRole) => role.country_code === countryCode && role.party_id === partyId));
+    }
+    return credentials[0];
   };
 }

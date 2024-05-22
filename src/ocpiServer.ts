@@ -79,14 +79,14 @@ export class OcpiServer {
         })),
         security: [
           {
-            Token: [],
+            authorization: [],
           },
         ],
       },
     );
     this.spec['components'] = {
       securitySchemes: {
-        Token: {
+        authorization: {
           type: 'apiKey',
           in: 'header',
           name: 'Authorization',

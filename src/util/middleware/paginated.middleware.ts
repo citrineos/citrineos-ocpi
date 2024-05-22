@@ -10,7 +10,11 @@ export class PaginatedMiddleware extends BaseMiddleware implements KoaMiddleware
     context: Context,
     next: (err?: any) => Promise<any>,
   ): Promise<any> {
-    // todo create @Paginated() annotation and set X-Total-Count and X-Limit headers as per pg 28 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf
+    /* const xRequestId = this.getHeader(context, OcpiHttpHeader.XRequestId);
+    const xCorrelationId = this.getHeader(context, OcpiHttpHeader.XCorrelationId);
+    context.response.set(OcpiHttpHeader.XRequestId, xRequestId);
+    context.response.set(OcpiHttpHeader.XCorrelationId, xCorrelationId); */
+    console.log(context);
     await next();
   }
 }

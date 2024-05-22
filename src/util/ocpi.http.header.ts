@@ -4,5 +4,8 @@ export enum OcpiHttpHeader {
   OcpiFromCountryCode = 'OCPI-from-country-code',
   OcpiFromPartyId = 'OCPI-from-party-id',
   OcpiToCountryCode = 'OCPI-to-country-code',
-  OcpiToPartyId = 'OCPI-to-party-id'
+  OcpiToPartyId = 'OCPI-to-party-id',
+  Link = 'Link',
+  XTotalCount = 'X-Total-Count',
+  XLimit = 'X-Limit'
 }
