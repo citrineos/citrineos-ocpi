@@ -3,10 +3,10 @@ import {HttpStatus} from '@citrineos/base';
 import {CdrListResponse} from '../model/Cdr';
 import {BaseController} from './base.controller';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
-import {OcpiModules} from "../apis/BaseApi";
-import {ResponseSchema} from "../util/openapi";
-import {Service} from "typedi";
-import {FromToOffsetLimitQuery} from "../apis/params/from.to.offset.limit.query";
+import {OcpiModules} from '../apis/BaseApi';
+import {ResponseSchema} from '../util/openapi';
+import {Service} from 'typedi';
+import {FromToOffsetLimitQuery} from '../apis/params/from.to.offset.limit.query';
 
 @Controller(`/${OcpiModules.Cdrs}`)
 @Service()

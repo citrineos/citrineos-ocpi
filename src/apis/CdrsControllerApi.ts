@@ -1,9 +1,9 @@
-import {getOcpiHeaders, setAuthHeader,} from './util';
+import {getOcpiHeaders, setAuthHeader, } from './util';
 import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
 import {Cdr} from '../model/Cdr';
 import {OcpiResponse} from '../util/ocpi.response';
-import {GetCdrParams} from "./params/cdr/get.cdr.params";
-import {PostCdrParams} from "./params/cdr/post.cdr.params";
+import {GetCdrParams} from './params/cdr/get.cdr.params';
+import {PostCdrParams} from './params/cdr/post.cdr.params';
 
 export class CdrsControllerApi extends BaseAPI {
 

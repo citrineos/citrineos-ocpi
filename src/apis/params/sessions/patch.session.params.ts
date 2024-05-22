@@ -1,4 +1,4 @@
-import {OcpiParams} from "../../util/ocpi.params";
+import {OcpiParams} from '../../util/ocpi.params';
 
 export interface PatchSessionParams extends OcpiParams {
   countryCode: string;

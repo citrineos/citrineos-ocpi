@@ -1,10 +1,10 @@
-import {getOcpiHeaders, OcpiParams, setAuthHeader,} from './util';
+import {getOcpiHeaders, setAuthHeader, } from './util';
 import {BaseAPI, HTTPHeaders} from './BaseApi';
 import {OcpiResponse} from '../util/ocpi.response';
 import {Session} from '../model/Session';
-import {GetSessionParams} from "./params/sessions/get.session.params";
-import {PatchSessionParams} from "./params/sessions/patch.session.params";
-import {PutSessionParams} from "./params/sessions/put.session.params";
+import {GetSessionParams} from './params/sessions/get.session.params';
+import {PatchSessionParams} from './params/sessions/patch.session.params';
+import {PutSessionParams} from './params/sessions/put.session.params';
 
 export class SessionsControllerApi extends BaseAPI {
   async getSession(params: GetSessionParams): Promise<OcpiResponse<Session>> {

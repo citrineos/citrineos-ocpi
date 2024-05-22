@@ -7,10 +7,10 @@ import {SequelizeRepository} from '@citrineos/data';
 import {SystemConfig, UnauthorizedException} from '@citrineos/base';
 import {Credentials} from '../model/Credentials';
 import {OcpiNamespace} from '../util/ocpi.namespace';
-import {Service} from "typedi";
-import {OcpiServerConfig} from "../config/ocpi.server.config";
-import {OcpiLogger} from "../util/logger";
-import {OcpiSequelizeInstance} from "../util/sequelize";
+import {Service} from 'typedi';
+import {OcpiServerConfig} from '../config/ocpi.server.config';
+import {OcpiLogger} from '../util/logger';
+import {OcpiSequelizeInstance} from '../util/sequelize';
 
 @Service()
 export class CredentialsRepository extends SequelizeRepository<Credentials> {

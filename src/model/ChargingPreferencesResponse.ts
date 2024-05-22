@@ -1,6 +1,6 @@
-import {OcpiResponse} from "../util/ocpi.response";
-import {IsNotEmpty} from "class-validator";
-import {Enum} from "../util/decorators/enum";
+import {OcpiResponse} from '../util/ocpi.response';
+import {IsNotEmpty} from 'class-validator';
+import {Enum} from '../util/decorators/enum';
 
 export enum ChargingPreferencesResponseType {
   ACCEPTED = 'ACCEPTED',

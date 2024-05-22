@@ -1,10 +1,11 @@
-import {getOcpiHeaders, OcpiParams, setAuthHeader,} from './util';
+import {getOcpiHeaders, setAuthHeader, } from './util';
 import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
-import {ChargingProfileResponse} from '../model/ChargingProfileResponse';
+import {ChargingProfileResult} from '../model/ChargingProfileResult';
 import {OcpiResponse} from '../util/ocpi.response';
-import {DeleteChargingProfileParams} from "./params/charging.profile/delete.charging.profile.params";
-import {GetChargingProfileParams} from "./params/charging.profile/get.charging.profile.params";
-import {PutChargingProfileParams} from "./params/charging.profile/put.charging.profile.params";
+import {DeleteChargingProfileParams} from './params/charging.profile/delete.charging.profile.params';
+import {GetChargingProfileParams} from './params/charging.profile/get.charging.profile.params';
+import {PutChargingProfileParams} from './params/charging.profile/put.charging.profile.params';
+import {ChargingProfileResponse} from '../model/ChargingProfileResponse';
 
 export class ChargingProfilesControllerApi extends BaseAPI {
 
@@ -12,7 +13,7 @@ export class ChargingProfilesControllerApi extends BaseAPI {
 
   async deleteChargingProfile(
     params: DeleteChargingProfileParams
-  ): Promise<OcpiResponse<ChargingProfileResponse>> {
+  ): Promise<OcpiResponse<ChargingProfileResult>> {
 
     this.validateOcpiParams(params);
 

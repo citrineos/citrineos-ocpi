@@ -1,14 +1,14 @@
-import {Body, Controller, Get, Param, Put, QueryParams} from "routing-controllers";
-import {OcpiModules} from "../apis/BaseApi";
-import {BaseController} from "./base.controller";
-import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
-import {ResponseSchema} from "../util/openapi";
-import {SessionListResponse} from "../model/Session";
-import {HttpStatus} from "@citrineos/base";
-import {ChargingPreferencesResponse} from "../model/ChargingPreferencesResponse";
-import {ChargingPreferences} from "../model/ChargingPreferences";
-import {Service} from "typedi";
-import {FromToOffsetLimitQuery} from "../apis/params/from.to.offset.limit.query";
+import {Body, Controller, Get, Param, Put, QueryParams} from 'routing-controllers';
+import {OcpiModules} from '../apis/BaseApi';
+import {BaseController} from './base.controller';
+import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {ResponseSchema} from '../util/openapi';
+import {SessionListResponse} from '../model/Session';
+import {HttpStatus} from '@citrineos/base';
+import {ChargingPreferencesResponse} from '../model/ChargingPreferencesResponse';
+import {ChargingPreferences} from '../model/ChargingPreferences';
+import {Service} from 'typedi';
+import {FromToOffsetLimitQuery} from '../apis/params/from.to.offset.limit.query';
 
 @Controller(`/${OcpiModules.Sessions}`)
 @Service()

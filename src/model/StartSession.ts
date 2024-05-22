@@ -1,8 +1,8 @@
-import {IsNotEmpty, IsObject, IsString, MaxLength, ValidateNested,} from 'class-validator';
+import {IsNotEmpty, IsObject, IsString, MaxLength, ValidateNested, } from 'class-validator';
 import {Token} from './Token';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
-import {ResponseUrl} from "./ResponseUrl";
+import {ResponseUrl} from './ResponseUrl';
 
 export class StartSession extends ResponseUrl {
 

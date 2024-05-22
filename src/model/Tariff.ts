@@ -16,7 +16,7 @@ import {EnergyMix} from './EnergyMix';
 import {Displaytext} from './Displaytext';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
-import {OcpiResponse} from "../util/ocpi.response";
+import {OcpiResponse} from '../util/ocpi.response';
 
 export class Tariff {
   @MaxLength(36)

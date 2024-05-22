@@ -1,5 +1,5 @@
-import {OcpiParams} from "../../util/ocpi.params";
-import {IsNotEmpty, IsString, Length} from "class-validator";
+import {OcpiParams} from '../../util/ocpi.params';
+import {IsNotEmpty, IsString, Length} from 'class-validator';
 
 export class GetConnectorParams extends OcpiParams {
 

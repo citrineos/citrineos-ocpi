@@ -1,5 +1,5 @@
-import {IsNotEmpty, IsOptional, IsString, Length} from "class-validator";
-import {VersionNumber} from "../../model/VersionNumber";
+import {IsNotEmpty, IsOptional, IsString, Length} from 'class-validator';
+import {VersionNumber} from '../../model/VersionNumber';
 
 export class OcpiParams {
   @IsString()

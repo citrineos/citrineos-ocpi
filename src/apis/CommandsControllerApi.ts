@@ -1,8 +1,8 @@
-import {getOcpiHeaders, OcpiParams, setAuthHeader,} from './util';
+import {getOcpiHeaders, setAuthHeader, } from './util';
 import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
 import {CommandResponse} from '../model/CommandResponse';
 import {OcpiResponse} from '../util/ocpi.response';
-import {PostCommandParams} from "./params/commands/post.command.params";
+import {PostCommandParams} from './params/commands/post.command.params';
 
 export class CommandsControllerApi extends BaseAPI {
 

@@ -5,11 +5,11 @@ import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult'
 import {ActiveChargingProfile} from '../model/ActiveChargingProfile';
 import {OcpiEmptyResponse} from '../util/ocpi.empty.response';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
-import {OcpiModules} from "../apis/BaseApi";
-import {ClearChargingProfileResult} from "../model/ChargingprofilesClearProfileResult";
-import {ChargingProfileResult} from "../model/ChargingProfileResponse";
-import {ResponseSchema} from "../util/openapi";
-import {Service} from "typedi";
+import {OcpiModules} from '../apis/BaseApi';
+import {ClearChargingProfileResult} from '../model/ChargingprofilesClearProfileResult';
+import {ChargingProfileResult} from '../model/ChargingProfileResult';
+import {ResponseSchema} from '../util/openapi';
+import {Service} from 'typedi';
 
 @Controller(`/${OcpiModules.ChargingProfiles}`)
 @Service()

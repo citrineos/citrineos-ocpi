@@ -1,21 +1,25 @@
-import {IsNotEmpty, ValidateNested} from 'class-validator';
+import {IsInt, IsNotEmpty, ValidateNested} from 'class-validator';
 import {Displaytext} from './Displaytext';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {Enum} from '../util/decorators/enum';
-import {OcpiResponse} from "../util/ocpi.response";
+import {OcpiResponse} from '../util/ocpi.response';
 
 export enum CommandResponseType {
-  ACCEPTED = 'ACCEPTED',
   NOT_SUPPORTED = 'NOT_SUPPORTED',
   REJECTED = 'REJECTED',
-  UNKNOWN = 'UNKNOWN',
+  ACCEPTED = 'ACCEPTED',
+  UNKNOWN_SESSION = 'UNKNOWN_SESSION',
 }
 
-export class CommandResult {
+export class CommandResponse {
   @Enum(CommandResponseType, 'CommandResponseType')
   @IsNotEmpty()
   result!: CommandResponseType;
+
+  @IsInt()
+  @IsNotEmpty()
+  timeout!: number;
 
   @Optional()
   @Type(() => Displaytext)
@@ -23,9 +27,9 @@ export class CommandResult {
   message?: Displaytext;
 }
 
-export class OcpiCommandResponse extends OcpiResponse<CommandResult> {
+export class OcpiCommandResponse extends OcpiResponse<CommandResponse> {
   @IsNotEmpty()
-  @Type(() => CommandResult)
+  @Type(() => CommandResponse)
   @ValidateNested()
-  data!: CommandResult;
+  data!: CommandResponse;
 }

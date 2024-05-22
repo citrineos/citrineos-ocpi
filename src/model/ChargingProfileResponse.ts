@@ -1,7 +1,7 @@
-import {IsNotEmpty} from 'class-validator';
+import {IsInt, IsNotEmpty} from 'class-validator';
 import {Enum} from '../util/decorators/enum';
 
-export enum ChargingProfileResultType {
+export enum ChargingProfileResponseType {
   ACCEPTED = 'ACCEPTED',
   NOT_SUPPORTED = 'NOT_SUPPORTED',
   REJECTED = 'REJECTED',
@@ -9,8 +9,12 @@ export enum ChargingProfileResultType {
   UNKNOWN_SESSION = 'UNKNOWN_SESSION',
 }
 
-export class ChargingProfileResult {
-  @Enum(ChargingProfileResultType, 'ChargingProfileResultType')
+export class ChargingProfileResponse {
+  @Enum(ChargingProfileResponseType, 'ChargingProfileResponseType')
   @IsNotEmpty()
-  result!: ChargingProfileResultType;
+  result!: ChargingProfileResponseType;
+
+  @IsInt()
+  @IsNotEmpty()
+  timeout!: number;
 }

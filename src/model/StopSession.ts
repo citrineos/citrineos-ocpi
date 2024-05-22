@@ -1,5 +1,5 @@
 import {IsNotEmpty, IsString, MaxLength} from 'class-validator';
-import {ResponseUrl} from "./ResponseUrl";
+import {ResponseUrl} from './ResponseUrl';
 
 export class StopSession extends ResponseUrl {
 

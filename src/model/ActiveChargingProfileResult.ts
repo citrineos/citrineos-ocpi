@@ -1,6 +1,6 @@
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { ActiveChargingProfile } from './ActiveChargingProfile';
-import { ChargingProfileResultType } from './ChargingProfileResponse';
+import { ChargingProfileResultType } from './ChargingProfileResult';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';

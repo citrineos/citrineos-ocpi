@@ -1,10 +1,10 @@
-import {Sequelize} from "sequelize-typescript";
-import {ILogObj, Logger} from "tslog";
-import {Dialect} from "sequelize";
-import {Credentials} from "../model/Credentials";
-import {Version} from "../model/Version";
-import {OcpiServerConfig} from "../config/ocpi.server.config";
-import {Service} from "typedi";
+import {Sequelize} from 'sequelize-typescript';
+import {ILogObj, Logger} from 'tslog';
+import {Dialect} from 'sequelize';
+import {Credentials} from '../model/Credentials';
+import {Version} from '../model/Version';
+import {OcpiServerConfig} from '../config/ocpi.server.config';
+import {Service} from 'typedi';
 
 @Service()
 export class OcpiSequelizeInstance {

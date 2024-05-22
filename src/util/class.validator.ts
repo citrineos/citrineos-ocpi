@@ -1,4 +1,4 @@
-import {getMetadataStorage, IS_ARRAY, IS_ENUM, ValidationTypes,} from 'class-validator';
+import {getMetadataStorage, IS_ARRAY, IS_ENUM, ValidationTypes, } from 'class-validator';
 import {targetConstructorToSchema} from 'class-validator-jsonschema';
 import {ISchemaConverters} from 'class-validator-jsonschema/build/defaultConverters';
 import {IOptions} from 'class-validator-jsonschema/build/options';

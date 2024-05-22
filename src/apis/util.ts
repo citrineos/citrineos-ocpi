@@ -1,6 +1,6 @@
 import {HTTPHeaders} from './BaseApi';
-import {OcpiParams} from "./util/ocpi.params";
-import {OcpiHttpHeader} from "../util/ocpi.http.header";
+import {OcpiParams} from './util/ocpi.params';
+import {OcpiHttpHeader} from '../util/ocpi.http.header';
 
 export const setAuthHeader = (headerParameters: HTTPHeaders) => {
   const tokenString = 'todo'; // todo get token from credentials

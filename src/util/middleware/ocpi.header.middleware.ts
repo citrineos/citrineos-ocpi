@@ -1,6 +1,6 @@
-import {KoaMiddlewareInterface, Middleware,} from 'routing-controllers';
+import {KoaMiddlewareInterface, Middleware, } from 'routing-controllers';
 import {Context} from 'vm';
-import {Service} from "typedi";
+import {Service} from 'typedi';
 
 @Middleware({type: 'before'})
 @Service()

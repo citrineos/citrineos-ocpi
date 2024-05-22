@@ -1,4 +1,4 @@
-import {getOcpiHeaders, setAuthHeader,} from './util';
+import {getOcpiHeaders, setAuthHeader, } from './util';
 import {BaseAPI, HTTPHeaders} from './BaseApi';
 import {ConnectorResponse} from '../model/Connector';
 import {EvseResponse} from '../model/Evse';

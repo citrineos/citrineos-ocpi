@@ -1,15 +1,15 @@
-import {Body, Controller, Delete, Get, Post, Put} from "routing-controllers";
-import {OcpiModules} from "../apis/BaseApi";
-import {BaseController} from "./base.controller";
-import {Credentials, CredentialsResponse} from "../model/Credentials";
-import {ResponseSchema} from "../util/openapi";
-import {HttpStatus} from "@citrineos/base";
-import {OcpiEmptyResponse} from "../util/ocpi.empty.response";
-import {CredentialsService} from "../service/credentials.service";
-import {VersionNumber} from "../model/VersionNumber";
-import {VersionNumberParam} from "../util/decorators/version.number.param";
-import {Service} from "typedi";
-import {AuthToken} from "../util/decorators/auth.token";
+import {Body, Controller, Delete, Get, Post, Put} from 'routing-controllers';
+import {OcpiModules} from '../apis/BaseApi';
+import {BaseController} from './base.controller';
+import {Credentials, CredentialsResponse} from '../model/Credentials';
+import {ResponseSchema} from '../util/openapi';
+import {HttpStatus} from '@citrineos/base';
+import {OcpiEmptyResponse} from '../util/ocpi.empty.response';
+import {CredentialsService} from '../service/credentials.service';
+import {VersionNumber} from '../model/VersionNumber';
+import {VersionNumberParam} from '../util/decorators/version.number.param';
+import {Service} from 'typedi';
+import {AuthToken} from '../util/decorators/auth.token';
 
 @Controller(`/${OcpiModules.Credentials}`)
 @Service()

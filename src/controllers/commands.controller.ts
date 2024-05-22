@@ -2,17 +2,17 @@ import {Body, Controller, Param, Post} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController} from './base.controller';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
-import {OcpiModules} from "../apis/BaseApi";
-import {CommandType} from "../model/CommandType";
-import {CancelReservation} from "../model/CancelReservation";
-import {ReserveNow} from "../model/ReserveNow";
-import {StartSession} from "../model/StartSession";
-import {StopSession} from "../model/StopSession";
-import {UnlockConnector} from "../model/UnlockConnector";
-import {OcpiCommandResponse} from "../model/CommandResponse";
-import {ResponseSchema} from "../util/openapi";
-import {MultipleTypes} from "../util/decorators/multiple.types";
-import {Service} from "typedi";
+import {OcpiModules} from '../apis/BaseApi';
+import {CommandType} from '../model/CommandType';
+import {CancelReservation} from '../model/CancelReservation';
+import {ReserveNow} from '../model/ReserveNow';
+import {StartSession} from '../model/StartSession';
+import {StopSession} from '../model/StopSession';
+import {UnlockConnector} from '../model/UnlockConnector';
+import {OcpiCommandResponse} from '../model/CommandResponse';
+import {ResponseSchema} from '../util/openapi';
+import {MultipleTypes} from '../util/decorators/multiple.types';
+import {Service} from 'typedi';
 
 @Controller(`/${OcpiModules.Commands}`)
 @Service()

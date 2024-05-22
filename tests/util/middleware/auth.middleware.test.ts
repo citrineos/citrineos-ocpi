@@ -1,13 +1,17 @@
 import {AuthMiddleware} from "../../../src/util/middleware/auth.middleware";
 import {Context} from "vm";
 import {HttpStatus} from "@citrineos/base";
+import {CredentialsRepository} from "../../../src/repository/credentials.repository";
+import {Container} from "typedi";
 
 describe("GivenTestingAuthMiddleware", () => {
 
+  let mockCredentialsRepository = jest.fn();
   let authMiddleware: AuthMiddleware;
 
   beforeEach(() => {
-    authMiddleware = new AuthMiddleware();
+    Container.set(CredentialsRepository, mockCredentialsRepository);
+    authMiddleware = Container.get(AuthMiddleware);
   });
 
   test("AuthMiddleware_ThrowsWhen_AuthorizationHeader_IsMissing", async () => {

@@ -1,5 +1,5 @@
 import {OcpiResponse} from '../util/ocpi.response';
-import {OcpiParams} from "./util/ocpi.params";
+import {OcpiParams} from './util/ocpi.params';
 
 export enum OcpiModules {
   Credentials = 'credentials',
@@ -246,13 +246,13 @@ function isFormData(value: any): value is FormData {
 
 export class BaseAPI {
 
-  CONTROLLER_PATH = 'null';
-
   private static readonly jsonRegex = new RegExp(
     // eslint-disable-next-line no-control-regex
     '^(:?application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(:?;.*)?$',
     'i',
   );
+
+  CONTROLLER_PATH = 'null';
 
   constructor(protected configuration = DefaultConfig) {
   }

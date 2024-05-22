@@ -1,8 +1,8 @@
-import {KoaMiddlewareInterface, Middleware, UnauthorizedError,} from 'routing-controllers';
+import {KoaMiddlewareInterface, Middleware, UnauthorizedError, } from 'routing-controllers';
 import {Context} from 'vm';
 import {HttpStatus} from '@citrineos/base';
-import {buildOcpiErrorResponse,} from '../ocpi.error.response';
-import {Service} from "typedi";
+import {buildOcpiErrorResponse, } from '../ocpi.error.response';
+import {Service} from 'typedi';
 
 @Middleware({type: 'before', priority: 10})
 @Service()

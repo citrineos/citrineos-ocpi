@@ -10,10 +10,10 @@ import {mergeDeep} from './merge.deep';
 import {capitalize} from './capitalize';
 import {smartcase} from './smart.case';
 import {ENUM_PARAM} from '../decorators/enum.param';
-import {refPointerPrefix,} from '../class.validator';
+import {refPointerPrefix, } from '../class.validator';
 import {SchemaStore} from '../schema.store';
-import {MULTIPLE_TYPES} from "../decorators/multiple.types";
-import {Constructor} from "../util";
+import {MULTIPLE_TYPES} from '../decorators/multiple.types';
+import {Constructor} from '../util';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -117,7 +117,7 @@ export function getFullPath(route: IRoute): string {
  */
 function getParamSchema(
   param: ParamMetadataArgs,
-  forBody: boolean = false
+  _forBody: boolean = false
 ): oa.SchemaObject | oa.ReferenceObject {
   const {explicitType, index, object, method} = param;
 
@@ -170,12 +170,6 @@ function getParamSchema(
   }
 
   return {};
-}
-
-function getParamSchemaForBody(
-  param: ParamMetadataArgs,
-): oa.SchemaObject | oa.ReferenceObject {
-  return getParamSchema(param, true);
 }
 
 /**

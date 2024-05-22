@@ -1,5 +1,5 @@
-import {Constructor} from "./util";
-import {defaultClassValidatorJsonSchemaOptions, nestedClassToJsonSchema} from "./class.validator";
+import {Constructor} from './util';
+import {defaultClassValidatorJsonSchemaOptions, nestedClassToJsonSchema} from './class.validator';
 
 export const SchemaStore = {
   components: {

@@ -6,7 +6,7 @@
 import {HeaderParam, UseBefore} from 'routing-controllers';
 import {ParamOptions} from 'routing-controllers/types/decorator-options/ParamOptions';
 import {AuthMiddleware} from '../middleware/auth.middleware';
-import {OcpiHttpHeader} from "../ocpi.http.header";
+import {OcpiHttpHeader} from '../ocpi.http.header';
 
 function applyHeaders(headers: { [key: string]: ParamOptions }) {
   return function (object: any, methodName: string) {

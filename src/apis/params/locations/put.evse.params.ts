@@ -1,7 +1,7 @@
-import {OcpiParams} from "../../util/ocpi.params";
-import {IsNotEmpty, IsString, Length, ValidateNested} from "class-validator";
-import {Type} from "class-transformer";
-import {Evse} from "../../../model/Evse";
+import {OcpiParams} from '../../util/ocpi.params';
+import {IsNotEmpty, IsString, Length, ValidateNested} from 'class-validator';
+import {Type} from 'class-transformer';
+import {Evse} from '../../../model/Evse';
 
 export class PutEvseParams extends OcpiParams {
 
