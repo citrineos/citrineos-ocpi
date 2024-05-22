@@ -6,12 +6,12 @@ import {Configuration} from '../apis/BaseApi';
 import {NotFoundException} from '../exceptions/not.found.exception';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {Credentials, CredentialsResponse} from '../model/Credentials';
-import {HttpStatus} from '@citrineos/base';
 import {Version} from '../model/Version';
 import {VersionNumber} from '../model/VersionNumber';
 import {OcpiEmptyResponse} from '../util/ocpi.empty.response';
 import {Service} from 'typedi';
 import {OcpiLogger} from '../util/logger';
+import {OcpiResponseStatusCode} from "../util/ocpi.response";
 
 @Service()
 export class CredentialsService {
@@ -29,7 +29,7 @@ export class CredentialsService {
     const credentials = await this.credentialsRepository.readByQuery(
       {
         where: {
-          token,
+          token: 'asd'
         },
       },
       OcpiNamespace.Credentials,
@@ -37,7 +37,7 @@ export class CredentialsService {
     if (!credentials) {
       throw new NotFoundException('Credentials not found');
     }
-    return CredentialsResponse.build(HttpStatus.OK, credentials);
+    return CredentialsResponse.build(OcpiResponseStatusCode.GenericSuccessCode, credentials);
   }
 
   async postCredentials(
@@ -78,7 +78,7 @@ export class CredentialsService {
         },
         OcpiNamespace.Credentials,
       );
-      return OcpiEmptyResponse.build(HttpStatus.OK);
+      return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
     } catch (e) {
       throw new Error('todo'); // todo error handling
     }
@@ -109,7 +109,7 @@ export class CredentialsService {
         if (!updatedCredentials) {
           throw new Error('todo'); // todo error handling
         }
-        return CredentialsResponse.build(HttpStatus.OK, updatedCredentials);
+        return CredentialsResponse.build(OcpiResponseStatusCode.GenericSuccessCode, updatedCredentials);
       } else {
         throw new Error('todo'); // todo error handling
       }

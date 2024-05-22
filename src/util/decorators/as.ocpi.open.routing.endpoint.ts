@@ -7,7 +7,6 @@ import {HeaderParam, UseBefore} from 'routing-controllers';
 import {ParamOptions} from 'routing-controllers/types/decorator-options/ParamOptions';
 import {AuthMiddleware} from '../middleware/auth.middleware';
 import {OcpiHttpHeader} from '../ocpi.http.header';
-import {OcpiHeaderMiddleware} from "../middleware/ocpi.header.middleware";
 import {UniqueMessageIdsMiddleware} from "../middleware/unique.message.ids.middleware";
 import {HttpHeader} from "@citrineos/base";
 
@@ -17,7 +16,6 @@ function applyHeaders(headers: { [key: string]: ParamOptions }) {
       HeaderParam(key, options)(object, methodName);
     }
     UseBefore(AuthMiddleware)(object, methodName);
-    UseBefore(OcpiHeaderMiddleware)(object, methodName);
     UseBefore(UniqueMessageIdsMiddleware)(object, methodName);
   };
 }
@@ -26,13 +24,9 @@ function applyHeaders(headers: { [key: string]: ParamOptions }) {
  * Decorator for to inject OCPI headers
  *
  */
-export const AsOcpiEndpoint = function () {
+export const AsOcpiOpenRoutingEndpoint = function () {
   const headers: { [key: string]: ParamOptions } = {
     [HttpHeader.Authorization]: {required: true},
-    [OcpiHttpHeader.OcpiFromCountryCode]: {required: true},
-    [OcpiHttpHeader.OcpiFromPartyId]: {required: true},
-    [OcpiHttpHeader.OcpiToCountryCode]: {required: true},
-    [OcpiHttpHeader.OcpiToPartyId]: {required: true},
     [OcpiHttpHeader.XRequestId]: {required: false},
     [OcpiHttpHeader.XCorrelationId]: {required: false},
   };

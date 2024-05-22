@@ -10,10 +10,11 @@ import {mergeDeep} from './merge.deep';
 import {capitalize} from './capitalize';
 import {smartcase} from './smart.case';
 import {ENUM_PARAM} from '../decorators/enum.param';
-import {refPointerPrefix, } from '../class.validator';
+import {refPointerPrefix,} from '../class.validator';
 import {SchemaStore} from '../schema.store';
 import {MULTIPLE_TYPES} from '../decorators/multiple.types';
 import {Constructor} from '../util';
+import {HttpHeader} from "@citrineos/base";
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -379,6 +380,15 @@ export function getOperation(
     summary: getSummary(route),
     tags: getTags(route),
   };
+
+  if (operation.parameters?.find(param => (param as any).name === HttpHeader.Authorization)) {
+    if (!operation.security) {
+      operation.security = [];
+    }
+    operation.security.push({
+      Token: []
+    });
+  }
 
   const cleanedOperation = Object.entries(operation)
     .filter(

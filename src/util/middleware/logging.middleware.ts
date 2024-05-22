@@ -1,4 +1,4 @@
-import {KoaMiddlewareInterface, Middleware, } from 'routing-controllers';
+import {KoaMiddlewareInterface, Middleware,} from 'routing-controllers';
 import {Context} from 'vm';
 import {Service} from 'typedi';
 
@@ -7,7 +7,7 @@ import {Service} from 'typedi';
 @Service()
 export class LoggingMiddleware implements KoaMiddlewareInterface {
   public async use(
-    ctx: Context,
+    context: Context,
     next: (err?: any) => Promise<any>,
   ): Promise<any> {
     console.log('do something before execution...');

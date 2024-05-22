@@ -1,10 +1,10 @@
 import {VersionRepository} from '../repository/version.repository';
-import {HttpStatus} from '@citrineos/base';
 import {CredentialsRepository} from '../repository/credentials.repository';
 import {Version, VersionDetailsDTOResponse, VersionDTOListResponse} from '../model/Version';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
+import {OcpiResponseStatusCode} from "../util/ocpi.response";
 
 @Service()
 export class VersionService {
@@ -23,7 +23,7 @@ export class VersionService {
       OcpiNamespace.Version,
     );
     return VersionDTOListResponse.build(
-      HttpStatus.OK,
+      OcpiResponseStatusCode.GenericSuccessCode,
       versions.map((version) => version.toVersionDTO()),
     );
   }
@@ -37,6 +37,6 @@ export class VersionService {
       versionId,
       OcpiNamespace.Version,
     );
-    return VersionDetailsDTOResponse.build(HttpStatus.OK, version.toVersionDetailsDTO());
+    return VersionDetailsDTOResponse.build(OcpiResponseStatusCode.GenericSuccessCode, version.toVersionDetailsDTO());
   }
 }

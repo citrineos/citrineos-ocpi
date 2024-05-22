@@ -10,6 +10,7 @@ import {VersionNumber} from '../model/VersionNumber';
 import {VersionNumberParam} from '../util/decorators/version.number.param';
 import {Service} from 'typedi';
 import {AuthToken} from '../util/decorators/auth.token';
+import {AsOcpiOpenRoutingEndpoint} from "../util/decorators/as.ocpi.open.routing.endpoint";
 
 @Controller(`/${OcpiModules.Credentials}`)
 @Service()
@@ -20,6 +21,7 @@ export class CredentialsController extends BaseController {
   }
 
   @Get()
+  @AsOcpiOpenRoutingEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -31,6 +33,7 @@ export class CredentialsController extends BaseController {
   }
 
   @Post()
+  @AsOcpiOpenRoutingEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -44,6 +47,7 @@ export class CredentialsController extends BaseController {
   }
 
   @Put()
+  @AsOcpiOpenRoutingEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -57,6 +61,7 @@ export class CredentialsController extends BaseController {
   }
 
   @Delete()
+  @AsOcpiOpenRoutingEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

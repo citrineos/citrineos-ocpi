@@ -1,14 +1,16 @@
-import {KoaMiddlewareInterface, Middleware, UnauthorizedError, } from 'routing-controllers';
+import {KoaMiddlewareInterface, Middleware, UnauthorizedError,} from 'routing-controllers';
 import {Context} from 'vm';
 import {HttpStatus} from '@citrineos/base';
-import {buildOcpiErrorResponse, } from '../ocpi.error.response';
+import {buildOcpiErrorResponse,} from '../ocpi.error.response';
 import {Service} from 'typedi';
+import {NotFoundException} from "../../exceptions/not.found.exception";
+import {OcpiResponseStatusCode} from "../ocpi.response";
 
 @Middleware({type: 'before', priority: 10})
 @Service()
 export class GlobalExceptionHandler implements KoaMiddlewareInterface {
   public async use(
-    ctx: Context,
+    context: Context,
     next: (err?: any) => Promise<any>,
   ): Promise<any> {
     try {
@@ -19,24 +21,30 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:
-            ctx.status = HttpStatus.UNAUTHORIZED;
-            ctx.body = JSON.stringify(
-              buildOcpiErrorResponse(HttpStatus.UNAUTHORIZED, 'Not Authorized'),
+            context.status = HttpStatus.UNAUTHORIZED;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(OcpiResponseStatusCode.ClientNotEnoughInformation, 'Not Authorized'),
+            );
+            break;
+          case NotFoundException.name:
+            context.status = HttpStatus.NOT_FOUND;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(OcpiResponseStatusCode.ClientInvalidOrMissingParameters, 'Credentials not found'),
             );
             break;
           case 'ParamRequiredError':
-            ctx.status = HttpStatus.BAD_REQUEST;
-            ctx.body = JSON.stringify(
+            context.status = HttpStatus.BAD_REQUEST;
+            context.body = JSON.stringify(
               buildOcpiErrorResponse(
-                HttpStatus.BAD_REQUEST,
+                OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
                 (err as any).message,
               ),
             );
             break;
           default:
-            ctx.status = HttpStatus.INTERNAL_SERVER_ERROR;
-            ctx.body = JSON.stringify(
-              buildOcpiErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR),
+            context.status = HttpStatus.INTERNAL_SERVER_ERROR;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(OcpiResponseStatusCode.ClientGenericError, `Internal Server Error, ${(err as Error).message}`),
             );
         }
       }

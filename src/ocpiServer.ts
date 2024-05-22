@@ -34,7 +34,7 @@ export class OcpiServer {
       this.koa = new Koa();
       this.initLogger();
       this.initApp();
-      this.initKoaSwaggerAndLogger();
+      this.initKoaSwagger();
       this.startApp();
     } catch (error) {
       console.error(error);
@@ -67,7 +67,7 @@ export class OcpiServer {
     });
   }
 
-  private initKoaSwaggerAndLogger() {
+  private initKoaSwagger() {
     this.storage = getMetadataArgsStorage();
     this.spec = routingControllersToSpec(
       this.storage,
@@ -79,23 +79,19 @@ export class OcpiServer {
         })),
         security: [
           {
-            authorization: [],
+            Token: [],
           },
         ],
       },
     );
     this.spec['components'] = {
       securitySchemes: {
-        // authorization: {
-        //   type: 'http',
-        //   scheme: 'bearer',
-        // },
-        authorization: {
+        Token: {
           type: 'apiKey',
           in: 'header',
           name: 'Authorization',
-          description: 'Token based authentication. Use "Token <base64_token>"',
-        },
+          description: 'Token <base64_token>'
+        }
       },
       schemas: getAllSchemas(),
     };

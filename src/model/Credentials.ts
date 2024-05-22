@@ -11,7 +11,7 @@ import {
 import {Column, DataType, Index, Model, Table} from 'sequelize-typescript';
 import {CredentialsRole} from './CredentialsRole';
 import {OcpiNamespace} from '../util/ocpi.namespace';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse, OcpiResponseStatusCode} from '../util/ocpi.response';
 import {Type} from 'class-transformer';
 
 @Table
@@ -46,7 +46,7 @@ export class CredentialsResponse extends OcpiResponse<Credentials> {
   data!: Credentials;
 
   static build(
-    status_code: number,
+    status_code: OcpiResponseStatusCode,
     data?: Credentials,
     status_message?: string,
   ) {

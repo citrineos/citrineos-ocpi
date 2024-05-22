@@ -8,6 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Optional } from './decorators/optional';
+import {OcpiResponseStatusCode} from "./ocpi.response";
 
 export class OcpiErrorResponse {
   @Optional()
@@ -18,7 +19,7 @@ export class OcpiErrorResponse {
   @Min(2000)
   @IsInt()
   @IsNotEmpty()
-  status_code!: number;
+  status_code!: OcpiResponseStatusCode;
 
   @Optional()
   status_message?: string;
@@ -30,7 +31,7 @@ export class OcpiErrorResponse {
 }
 
 export const buildOcpiErrorResponse = (
-  status_code: number,
+  status_code: OcpiResponseStatusCode,
   status_message?: string,
 ) => {
   const response = new OcpiErrorResponse();

@@ -23,27 +23,32 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
     super(ocpiSystemConfig as SystemConfig, logger, ocpiSequelizeInstance.sequelize);
   }
 
-  public async authorizeToken(token: string): Promise<boolean> {
-    const exists = await this.credentialsExistForGivenToken(token);
-    if (!exists) {
+  public async authorizeToken(token: string, countryCode?: string, partyId?: string): Promise<boolean> {
+    const existingCredentials = await this.getExistingCredentials(token, countryCode, partyId);
+    if (!existingCredentials) {
       throw new UnauthorizedException('Credentials not found for given token');
     } else {
       return true;
     }
   }
 
-  private credentialsExistForGivenToken = async (
+  private getExistingCredentials = async (
     token: string,
-  ): Promise<boolean> => {
-    try {
-      return await this.existsByQuery(
-        {
-          where: {token}
-        },
-        OcpiNamespace.Credentials
-      );
-    } catch (e) {
-      return Promise.resolve(false);
+    countryCode?: string,
+    partyId?: string
+  ): Promise<Credentials> => {
+    const query: any = {
+      where: {token}
+    };
+    if (countryCode && partyId) {
+      query.where['roles'] = {
+        country_code: countryCode,
+        party_id: partyId
+      };
     }
+    return await this.readByQuery(
+      query,
+      OcpiNamespace.Credentials
+    );
   };
 }

@@ -1,10 +1,10 @@
 import {VersionNumber} from './VersionNumber';
-import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested, } from 'class-validator';
-import {Column, DataType, Model, PrimaryKey, Table, } from 'sequelize-typescript';
+import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested,} from 'class-validator';
+import {Column, DataType, Model, PrimaryKey, Table,} from 'sequelize-typescript';
 import {Endpoint} from './Endpoint';
 import {Enum} from '../util/decorators/enum';
 import {OcpiNamespace} from '../util/ocpi.namespace';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse, OcpiResponseStatusCode} from '../util/ocpi.response';
 import {Type} from 'class-transformer';
 
 export class VersionDTO {
@@ -23,7 +23,7 @@ export class VersionDTOListResponse extends OcpiResponse<VersionDTO[]> {
   @Type(() => VersionDTO)
   data!: VersionDTO[];
 
-  static build(statusCode: number, data: VersionDTO[], status_message?: string): VersionDTOListResponse {
+  static build(statusCode: OcpiResponseStatusCode, data: VersionDTO[], status_message?: string): VersionDTOListResponse {
     const response = new VersionDTOListResponse();
     response.status_code = statusCode;
     response.status_message = status_message;
@@ -51,7 +51,7 @@ export class VersionDetailsDTOResponse extends OcpiResponse<VersionDetailsDTO> {
   @ValidateNested()
   data!: VersionDetailsDTO;
 
-  static build(statusCode: number, data: VersionDetailsDTO, status_message?: string): VersionDetailsDTOResponse {
+  static build(statusCode: OcpiResponseStatusCode, data: VersionDetailsDTO, status_message?: string): VersionDetailsDTOResponse {
     const response = new VersionDetailsDTOResponse();
     response.status_code = statusCode;
     response.status_message = status_message;
