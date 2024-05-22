@@ -86,9 +86,15 @@ export class OcpiServer {
     );
     this.spec['components'] = {
       securitySchemes: {
+        // authorization: {
+        //   type: 'http',
+        //   scheme: 'bearer',
+        // },
         authorization: {
-          type: 'http',
-          scheme: 'bearer',
+          type: 'apiKey',
+          in: 'header',
+          name: 'Authorization',
+          description: 'Token based authentication. Use "Token <base64_token>"',
         },
       },
       schemas: getAllSchemas(),

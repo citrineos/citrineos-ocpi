@@ -1,14 +1,10 @@
 import {BadRequestError, createParamDecorator} from 'routing-controllers';
 
 const tokenPrefix = 'Token ';
-const bearerPrefix = 'Bearer ';
+
 
 export function extractToken(authorization: string): string {
     let token = authorization;
-    // Check for and remove Bearer prefix which is automatically added by swagger
-    if (authorization.startsWith(bearerPrefix)) {
-        token = authorization.slice(bearerPrefix.length).trim();
-    }
     if (token.startsWith(tokenPrefix)) {
         token = authorization.slice(tokenPrefix.length).trim();
 
