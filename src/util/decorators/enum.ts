@@ -1,10 +1,8 @@
-import { IsEnum } from 'class-validator';
+import {IsEnum} from 'class-validator';
 
 /**
- * Extends @IsEnum decorator to add custom metadata so that it is easily available in additionalConverters
- * @param enumType - the enum
- * @param enumName - name of the resulting enum schema
- * @constructor
+ * Extends @IsEnum decorator to add custom metadata so that it is easily available in additionalConverters and is
+ * easily available to convert Swagger UI schema route params to have $refs appropriately
  */
 export const Enum = (enumType: any, enumName: string) =>
   function (object: NonNullable<unknown>, propertyName: string) {

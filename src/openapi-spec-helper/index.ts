@@ -1,5 +1,5 @@
 import * as oa from 'openapi3-ts';
-import {MetadataArgsStorage, RoutingControllersOptions, } from 'routing-controllers';
+import {MetadataArgsStorage, RoutingControllersOptions,} from 'routing-controllers';
 
 import {getSpec} from './generate.spec.helpers';
 import {parseRoutes} from './parse.metadata';
@@ -9,11 +9,15 @@ export * from './decorators';
 export * from './generate.spec.helpers';
 export * from './parse.metadata';
 
-
-// todo create fork with changes instead
 /**
- * Convert routing-controllers metadata into an OpenAPI specification.
+ * Convert routing-controllers metadata into an OpenAPI specification. Similar to {@link defaultClassValidatorJsonSchemaOptions}
+ * copying the code into our codebase for the purposes
+ * of generating the OpenAPI specification from routing-controllers with class-validator metadata, was the easiest way
+ * of achieving $refs being used in the generated spec. Refs help create organization by allowing for clear objects to be
+ * defined and reused while the open source implementation was generating flat spec objects.
  * Original source - https://github.com/epiphone/routing-controllers-openapi/blob/master/src/index.ts
+ *
+ * TODO: Consider creating a fork and submitting changes as enhancements which may require additional work
  *
  * @param storage routing-controllers metadata storage
  * @param routingControllerOptions routing-controllers options

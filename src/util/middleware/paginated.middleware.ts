@@ -5,6 +5,11 @@ import {BaseMiddleware} from "./base.middleware";
 import {DEFAULT_LIMIT, DEFAULT_OFFSET, PaginatedResponse} from "../../model/PaginatedResponse";
 import {OcpiHttpHeader} from "../ocpi.http.header";
 
+/**
+ * PaginatedMiddleware will handle pulling limit, offset and total out of the {@link PaginatedResponse} and ensuring
+ * that the Link, X-Total-Count and X-Limit headers are set while preventing these values from being included in the
+ * response body.
+ */
 @Middleware({type: 'before'})
 @Service()
 export class PaginatedMiddleware extends BaseMiddleware implements KoaMiddlewareInterface {

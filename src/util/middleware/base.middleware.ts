@@ -1,5 +1,8 @@
 import {Context} from "vm";
 
+/**
+ * Helper Base class for middlewares
+ */
 export class BaseMiddleware {
 
   protected getHeader(context: Context, header: string) {

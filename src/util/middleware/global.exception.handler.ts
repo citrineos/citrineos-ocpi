@@ -6,6 +6,9 @@ import {Service} from 'typedi';
 import {NotFoundException} from "../../exception/not.found.exception";
 import {OcpiResponseStatusCode} from "../../model/ocpi.response";
 
+/**
+ * GlobalExceptionHandler handles all exceptions
+ */
 @Middleware({type: 'before', priority: 10})
 @Service()
 export class GlobalExceptionHandler implements KoaMiddlewareInterface {

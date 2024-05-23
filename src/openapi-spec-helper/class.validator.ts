@@ -243,6 +243,13 @@ const additionalConverters: ISchemaConverters = {
     }
   },
 } as any;
+
+/**
+ * Since we are using class-validator annotations and class-validator-jsonschema dependency to generate JSON schemas
+ * for the classes, we needed to extend / customize the schema generation behavior via the additionalConverters defined
+ * above. Similar to {@link routingControllersToSpec}, this is needed to ensure that the generated OpenAPI specification is
+ * using $refs.
+ */
 export const defaultClassValidatorJsonSchemaOptions: Partial<IOptions> = {
   refPointerPrefix,
   additionalConverters,

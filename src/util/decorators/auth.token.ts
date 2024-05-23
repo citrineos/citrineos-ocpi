@@ -19,6 +19,15 @@ export function extractToken(authorization: string): string {
   }
 }
 
+/**
+ * AuthToken convenience decorator will extract the token from the Authorization header. Allows to easilly access auth
+ * token in request handler like so:
+ *
+ * @Get()
+ * some(@AuthToken() token: string) {
+ *   console.log(token);
+ * }
+ */
 export function AuthToken() {
   return createParamDecorator({
     required: true,

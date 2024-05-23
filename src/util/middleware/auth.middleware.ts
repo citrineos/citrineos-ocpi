@@ -11,6 +11,13 @@ import {OcpiResponseStatusCode} from '../../model/ocpi.response';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
+/**
+ * AuthMiddleware is applied via the {@link AsOcpiEndpoint} and {@link AsOcpiOpenRoutingEndpoint} decorators. Endpoints
+ * that are annotated with these decorators will have this middleware running. The middleware will check for presense
+ * of the auth header, and try and call {@link CredentialsRepository#authorizeToken} with token, countryCode and partyId.
+ * If authentication fails, {@link OcpiErrorResponse} will be thrown with HttpStatus.UNAUTHORIZED which should be handled
+ * by global exception handler.
+ */
 @Middleware({type: 'before'})
 @Service()
 export class AuthMiddleware extends BaseMiddleware implements KoaMiddlewareInterface {

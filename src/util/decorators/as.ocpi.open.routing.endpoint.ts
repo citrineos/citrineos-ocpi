@@ -21,8 +21,8 @@ function applyHeaders(headers: { [key: string]: ParamOptions }) {
 }
 
 /**
- * Decorator for to inject OCPI headers
- *
+ * Decorator for to inject OCPI headers and apply {@link AuthMiddleware} and {@link UniqueMessageIdsMiddleware}
+ * on the endpoint
  */
 export const AsOcpiOpenRoutingEndpoint = function () {
   const headers: { [key: string]: ParamOptions } = {
