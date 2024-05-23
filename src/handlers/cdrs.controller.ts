@@ -1,6 +1,6 @@
 import {Controller, Get} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
-import {CdrListResponse} from '../model/Cdr';
+import {PaginatedCdrResponse} from '../model/Cdr';
 import {BaseController} from './base.controller';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
 import {OcpiModules} from '../trigger/BaseApi';
@@ -17,14 +17,14 @@ export class CdrsController extends BaseController {
   // todo This request is paginated, it supports the pagination related URL parameters
   @Get()
   @AsOcpiEndpoint()
-  @ResponseSchema(CdrListResponse, {
+  @ResponseSchema(PaginatedCdrResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
   async getCdrs(
-    @Paginated() paginationParams?: PaginatedParams,
-  ): Promise<CdrListResponse> {
+    @Paginated() paginationParams: PaginatedParams,
+  ): Promise<PaginatedCdrResponse> {
     console.log('getCdrs', paginationParams);
-    return this.generateMockOcpiResponse(CdrListResponse);
+    return await this.generateMockOcpiPaginatedResponse(PaginatedCdrResponse, paginationParams);
   }
 }

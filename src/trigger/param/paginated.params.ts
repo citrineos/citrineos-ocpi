@@ -1,4 +1,4 @@
-import {IsDateString, IsInt} from 'class-validator';
+import {IsDateString, IsInt, IsPositive} from 'class-validator';
 import {Optional} from '../../util/decorators/optional';
 
 export class PaginatedParams {
@@ -25,10 +25,12 @@ export class PaginatedParams {
   }
 
   @IsInt()
+  @IsPositive()
   @Optional()
   offset?: number;
 
   @IsInt()
+  @IsPositive()
   @Optional()
   limit?: number = 10;
 }

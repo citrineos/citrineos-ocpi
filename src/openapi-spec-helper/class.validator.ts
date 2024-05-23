@@ -9,6 +9,7 @@ import {ValidationMetadata} from 'class-validator/types/metadata/ValidationMetad
 // @ts-expect-error importing js directly from class-transformer
 import {defaultMetadataStorage} from 'class-transformer/cjs/storage.js';
 import {SchemaStore} from './schema.store';
+import {OPTIONAL_PARAM} from "../util/decorators/optional";
 
 export const refPointerPrefix = '#/components/schemas/';
 
@@ -88,7 +89,7 @@ const additionalConverters: ISchemaConverters = {
     }
 
     const isOptional = Reflect.getMetadata(
-      'isOptional',
+      OPTIONAL_PARAM,
       (meta.target as any).prototype,
       meta.propertyName,
     );
@@ -111,7 +112,7 @@ const additionalConverters: ISchemaConverters = {
   },
   [IS_ARRAY]: (meta: ValidationMetadata, options: IOptions) => {
     const isOptional = Reflect.getMetadata(
-      'isOptional',
+      OPTIONAL_PARAM,
       (meta.target as any).prototype,
       meta.propertyName,
     );
@@ -200,7 +201,7 @@ const additionalConverters: ISchemaConverters = {
       }
 
       const isOptional = Reflect.getMetadata(
-        'isOptional',
+        OPTIONAL_PARAM,
         meta.target.prototype,
         meta.propertyName,
       );

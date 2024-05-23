@@ -1,7 +1,9 @@
-import { JSONSchemaFaker } from 'json-schema-faker';
-import { classToJsonSchema } from '../openapi-spec-helper/class.validator';
-import { getAllSchemas } from '../openapi-spec-helper/schemas';
-import { SchemaObject } from 'openapi3-ts';
+import {JSONSchemaFaker} from 'json-schema-faker';
+import {classToJsonSchema} from '../openapi-spec-helper/class.validator';
+import {getAllSchemas} from '../openapi-spec-helper/schemas';
+import {SchemaObject} from 'openapi3-ts';
+import {PaginatedCdrResponse} from "../model/Cdr";
+import {PaginatedParams} from "../trigger/param/paginated.params";
 
 export class BaseController {
   generateMockOcpiResponse(model: any): Promise<any> {
@@ -26,4 +28,12 @@ export class BaseController {
       });
     }
   }
+
+  generateMockOcpiPaginatedResponse = async (model: any, paginationParams: PaginatedParams): Promise<any> => {
+    const response = await this.generateMockOcpiResponse(model) as PaginatedCdrResponse;
+    response.limit = paginationParams.limit;
+    response.offset = paginationParams.offset;
+    response.total = 50; // todo for now but will be set
+    return response;
+  };
 }
