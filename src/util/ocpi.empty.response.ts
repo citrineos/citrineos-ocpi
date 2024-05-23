@@ -1,19 +1,17 @@
 import {IsDateString, IsNotEmpty, IsString, ValidateNested,} from 'class-validator';
 import {Optional} from './decorators/optional';
-import {OcpiResponseStatusCode} from "./ocpi.response";
-import {Enum} from "./decorators/enum";
+import {OcpiResponse, OcpiResponseStatusCode} from "./ocpi.response";
 
-export class OcpiEmptyResponse {
+export class OcpiEmptyResponse extends OcpiResponse<void> {
   @Optional()
   @ValidateNested() // needed for json schema
-  data?: null;
+  data?: undefined;
 
-  @Enum(OcpiResponseStatusCode, 'OcpiResponseStatusCode')
-  @IsNotEmpty()
-  status_code!: OcpiResponseStatusCode;
+  status_code = OcpiResponseStatusCode.GenericSuccessCode;
 
+  @IsString()
   @Optional()
-  status_message?: null;
+  status_message?: string;
 
   @IsString()
   @IsDateString()

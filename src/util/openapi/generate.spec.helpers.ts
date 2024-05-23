@@ -15,6 +15,7 @@ import {SchemaStore} from '../schema.store';
 import {MULTIPLE_TYPES} from '../decorators/multiple.types';
 import {Constructor} from '../util';
 import {HttpHeader} from "@citrineos/base";
+import {ENUM_QUERY_PARAM} from "../decorators/enum.query.param";
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -332,12 +333,28 @@ export function getQueryParams(
     .filter((p) => p.type === 'query')
     .map((queryMeta) => {
       const schema = getParamSchema(queryMeta) as oa.SchemaObject;
-      return {
-        in: 'query' as oa.ParameterLocation,
-        name: queryMeta.name || '',
-        required: isRequired(queryMeta, route),
-        schema,
-      };
+      const enumName = Reflect.getMetadata(
+        ENUM_QUERY_PARAM,
+        queryMeta.object,
+        `${queryMeta.method}.${queryMeta.name}`,
+      );
+      if (enumName) {
+        return {
+          in: 'query' as oa.ParameterLocation,
+          name: queryMeta.name || '',
+          required: isRequired(queryMeta, route),
+          schema: {
+            $ref: `${refPointerPrefix}${enumName}`,
+          },
+        };
+      } else {
+        return {
+          in: 'query' as oa.ParameterLocation,
+          name: queryMeta.name || '',
+          required: isRequired(queryMeta, route),
+          schema,
+        };
+      }
     });
 
   const queriesMeta = route.params.find((p) => p.type === 'queries');

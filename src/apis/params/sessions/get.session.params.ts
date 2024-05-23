@@ -1,7 +1,9 @@
 import {OcpiParams} from '../../util/ocpi.params';
+import {IsNotEmpty, IsString, Length} from "class-validator";
 
-export interface GetSessionParams extends OcpiParams {
-  countryCode: string;
-  partyId: string;
-  sessionId: string;
+export class GetSessionParams extends OcpiParams {
+  @IsString()
+  @IsNotEmpty()
+  @Length(36, 36)
+  sessionId!: string;
 }

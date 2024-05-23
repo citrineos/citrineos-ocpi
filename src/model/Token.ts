@@ -1,17 +1,20 @@
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsNotEmpty,
+  IsObject,
   IsString,
   MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { TokenEnergyContract } from './TokenEnergyContract';
-import { WhitelistType } from './WhitelistType';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
+import {TokenEnergyContract} from './TokenEnergyContract';
+import {WhitelistType} from './WhitelistType';
+import {Type} from 'class-transformer';
+import {Optional} from '../util/decorators/optional';
+import {Enum} from '../util/decorators/enum';
+import {OcpiResponse} from "../util/ocpi.response";
 
 export class Token {
   @MaxLength(2)
@@ -83,3 +86,19 @@ export class Token {
   @Type(() => Date)
   last_updated!: Date;
 }
+
+export class TokenResponse extends OcpiResponse<Token> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => Token)
+  @ValidateNested()
+  data!: Token;
+}
+
+export class TokenListResponse extends OcpiResponse<Token[]> {
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(() => Token)
+  data!: Token[];
+}
+

@@ -18,6 +18,7 @@ import {OpenAPIObject} from 'openapi3-ts';
 import {OcpiSequelizeInstance} from './util/sequelize';
 import {LoggingMiddleware} from './util/middleware/logging.middleware';
 import KoaLogger from 'koa-logger';
+import {TokensController} from "./controllers/tokens.controller";
 
 @Service()
 export class OcpiServer {
@@ -56,7 +57,8 @@ export class OcpiServer {
         CommandsController,
         LocationsController,
         SessionsController,
-        VersionsController
+        VersionsController,
+        TokensController
       ],
       routePrefix: '/ocpi/:versionId', // dynamic API version in the prefix
       middlewares: [

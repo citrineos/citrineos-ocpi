@@ -1,4 +1,4 @@
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse, OcpiResponseStatusCode} from '../util/ocpi.response';
 import {OcpiParams} from './util/ocpi.params';
 
 export enum OcpiModules {
@@ -10,6 +10,7 @@ export enum OcpiModules {
   Locations = 'locations',
   Sessions = 'sessions',
   Versions = 'versions',
+  Tokens = 'tokens',
 }
 
 export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
@@ -331,14 +332,14 @@ export class BaseAPI {
     return await this.fetchApi(url, init);
   }
 
-  protected async request<T>(context: RequestOpts): Promise<OcpiResponse<T>> {
+  protected async request<T extends OcpiResponse<any>>(context: RequestOpts): Promise<T> {
     const response = await this.baseRequest(context);
     if (response && response.status >= 200 && response.status < 300) {
       const ocpiResponse: OcpiResponse<T> = new OcpiResponse();
-      ocpiResponse.status_code = response.status;
+      ocpiResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
       ocpiResponse.data = (await response.json()) as T;
       ocpiResponse.timestamp = new Date();
-      return ocpiResponse;
+      return ocpiResponse as T;
     }
     throw new ResponseError(response, 'Response returned an error code');
   }
