@@ -13,8 +13,6 @@ import {Paginated} from "../util/decorators/paginated";
 @Service()
 export class CdrsController extends BaseController {
 
-  // todo pg 101 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf
-  // todo This request is paginated, it supports the pagination related URL parameters
   @Get()
   @AsOcpiEndpoint()
   @ResponseSchema(PaginatedCdrResponse, {
@@ -22,7 +20,7 @@ export class CdrsController extends BaseController {
     description: 'Successful response',
   })
   async getCdrs(
-    @Paginated() paginationParams: PaginatedParams,
+    @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedCdrResponse> {
     console.log('getCdrs', paginationParams);
     return await this.generateMockOcpiPaginatedResponse(PaginatedCdrResponse, paginationParams);

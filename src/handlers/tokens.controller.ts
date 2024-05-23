@@ -6,7 +6,7 @@ import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
 import {ResponseSchema} from "../openapi-spec-helper";
 import {HttpStatus} from "@citrineos/base";
 import {PaginatedParams} from "../trigger/param/paginated.params";
-import {TokenListResponse} from "../model/Token";
+import {PaginatedTokenResponse} from "../model/Token";
 import {Paginated} from "../util/decorators/paginated";
 import {AuthorizationInfo} from "../model/AuthorizationInfo";
 import {TokenType} from "../model/TokenType";
@@ -16,19 +16,17 @@ import {EnumQueryParam} from "../util/decorators/enum.query.param";
 @Service()
 export class TokensController extends BaseController {
 
-  // todo pg 146 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf
-  // todo This request is paginated, it supports the pagination related URL parameters
   @Get()
   @AsOcpiEndpoint()
-  @ResponseSchema(TokenListResponse, {
+  @ResponseSchema(PaginatedTokenResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
   async getTokens(
     @Paginated() paginationParams?: PaginatedParams,
-  ): Promise<TokenListResponse> {
+  ): Promise<PaginatedTokenResponse> {
     console.log('getTokens', paginationParams);
-    return this.generateMockOcpiResponse(TokenListResponse);
+    return await this.generateMockOcpiPaginatedResponse(PaginatedTokenResponse, paginationParams);
   }
 
   @Post('/:tokenId/authorize')

@@ -17,6 +17,8 @@ import {Displaytext} from './Displaytext';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {OcpiResponse} from './ocpi.response';
+import {PaginatedResponse} from "./PaginatedResponse";
+import {Session} from "./Session";
 
 export class Tariff {
   @MaxLength(36)
@@ -97,18 +99,11 @@ export class Tariff {
   last_updated!: Date;
 }
 
-
-export class TariffResponse extends OcpiResponse<Tariff> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => Tariff)
-  @ValidateNested()
-  data!: Tariff;
-}
-
-export class TariffListResponse extends OcpiResponse<Tariff[]> {
+export class PaginatedTariffResponse extends PaginatedResponse<Tariff> {
   @IsArray()
   @ValidateNested({each: true})
+  @IsNotEmpty()
+  @Optional(false)
   @Type(() => Tariff)
   data!: Tariff[];
 }

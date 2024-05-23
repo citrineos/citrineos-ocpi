@@ -1,5 +1,6 @@
-import {IsDateString, IsInt, IsPositive} from 'class-validator';
+import {IsDateString, IsInt, IsPositive, Min} from 'class-validator';
 import {Optional} from '../../util/decorators/optional';
+import {DEFAULT_LIMIT, DEFAULT_OFFSET} from "../../model/PaginatedResponse";
 
 export class PaginatedParams {
   @IsDateString()
@@ -25,12 +26,12 @@ export class PaginatedParams {
   }
 
   @IsInt()
-  @IsPositive()
+  @Min(0)
   @Optional()
-  offset?: number;
+  offset?: number = DEFAULT_OFFSET;
 
   @IsInt()
   @IsPositive()
   @Optional()
-  limit?: number = 10;
+  limit?: number = DEFAULT_LIMIT;
 }

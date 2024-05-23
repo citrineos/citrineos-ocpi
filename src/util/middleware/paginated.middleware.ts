@@ -21,6 +21,9 @@ export class PaginatedMiddleware extends BaseMiddleware implements KoaMiddleware
     }
     context.response.set(OcpiHttpHeader.XTotalCount, paginatedResponse.total);
     context.response.set(OcpiHttpHeader.XLimit, paginatedResponse.limit);
+    delete paginatedResponse.limit;
+    delete paginatedResponse.offset;
+    delete paginatedResponse.total;
   }
 
   private createLink(context: Context, paginatedResponse: PaginatedResponse<any>) {

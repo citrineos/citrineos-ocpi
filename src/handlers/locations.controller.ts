@@ -1,32 +1,32 @@
-import {Controller, Get, Param, QueryParams} from 'routing-controllers';
+import {Controller, Get, Param} from 'routing-controllers';
 import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
 import {HttpStatus} from '@citrineos/base';
-import {LocationListResponse, LocationResponse} from '../model/Location';
+import {LocationResponse, PaginatedLocationResponse} from '../model/Location';
 import {EvseResponse} from '../model/Evse';
 import {ConnectorResponse} from '../model/Connector';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
+import {Paginated} from "../util/decorators/paginated";
+import {PaginatedCdrResponse} from "../model/Cdr";
 
 @Controller(`/${OcpiModules.Locations}`)
 @Service()
 export class LocationsController extends BaseController {
 
-  // todo pg 60 https://evroaming.org/app/uploads/2021/11/OCPI-2.2.1.pdf
-  // todo This request is paginated, it supports the pagination related URL parameters
   @Get()
   @AsOcpiEndpoint()
-  @ResponseSchema(LocationListResponse, {
+  @ResponseSchema(PaginatedLocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
   })
   async getLocations(
-    @QueryParams() _query?: PaginatedParams,
-  ): Promise<LocationListResponse> {
-    console.log('getLocations', _query);
-    return this.generateMockOcpiResponse(LocationListResponse);
+    @Paginated() paginationParams?: PaginatedParams,
+  ): Promise<PaginatedLocationResponse> {
+    console.log('getLocations', paginationParams);
+    return await this.generateMockOcpiPaginatedResponse(PaginatedLocationResponse, paginationParams);
   }
 
   @Get('/:locationId')

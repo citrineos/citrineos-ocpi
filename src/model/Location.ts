@@ -20,6 +20,8 @@ import {EnergyMix} from './EnergyMix';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {OcpiResponse} from './ocpi.response';
+import {PaginatedResponse} from "./PaginatedResponse";
+import {Cdr} from "./Cdr";
 
 export class Location {
   @MaxLength(2)
@@ -161,9 +163,11 @@ export class LocationResponse extends OcpiResponse<Location> {
   data!: Location;
 }
 
-export class LocationListResponse extends OcpiResponse<Location[]> {
+export class PaginatedLocationResponse extends PaginatedResponse<Location> {
   @IsArray()
   @ValidateNested({each: true})
+  @IsNotEmpty()
+  @Optional(false)
   @Type(() => Location)
   data!: Location[];
 }

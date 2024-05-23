@@ -29,10 +29,10 @@ export class BaseController {
     }
   }
 
-  generateMockOcpiPaginatedResponse = async (model: any, paginationParams: PaginatedParams): Promise<any> => {
+  generateMockOcpiPaginatedResponse = async (model: any, paginationParams?: PaginatedParams): Promise<any> => {
     const response = await this.generateMockOcpiResponse(model) as PaginatedCdrResponse;
-    response.limit = paginationParams.limit;
-    response.offset = paginationParams.offset;
+    response.limit = paginationParams?.limit;
+    response.offset = paginationParams?.offset;
     response.total = 50; // todo for now but will be set
     return response;
   };

@@ -15,6 +15,8 @@ import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {Enum} from '../util/decorators/enum';
 import {OcpiResponse} from "./ocpi.response";
+import {PaginatedResponse} from "./PaginatedResponse";
+import {Tariff} from "./Tariff";
 
 export class Token {
   @MaxLength(2)
@@ -95,9 +97,11 @@ export class TokenResponse extends OcpiResponse<Token> {
   data!: Token;
 }
 
-export class TokenListResponse extends OcpiResponse<Token[]> {
+export class PaginatedTokenResponse extends PaginatedResponse<Token> {
   @IsArray()
   @ValidateNested({each: true})
+  @IsNotEmpty()
+  @Optional(false)
   @Type(() => Token)
   data!: Token[];
 }
