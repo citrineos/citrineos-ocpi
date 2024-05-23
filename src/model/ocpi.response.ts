@@ -1,6 +1,6 @@
 import {IsDate, IsNotEmpty, IsString, ValidateNested} from 'class-validator';
-import {Optional} from './decorators/optional';
-import {Enum} from "./decorators/enum";
+import {Optional} from '../util/decorators/optional';
+import {Enum} from "../util/decorators/enum";
 
 export enum OcpiResponseStatusCode {
   GenericSuccessCode = 1000,

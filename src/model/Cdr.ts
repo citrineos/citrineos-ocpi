@@ -21,7 +21,7 @@ import { Tariff } from './Tariff';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from '../util/ocpi.response';
+import { OcpiResponse } from './ocpi.response';
 
 export class Cdr {
   @MaxLength(2)

@@ -1,4 +1,4 @@
-import {OcpiResponse, OcpiResponseStatusCode} from '../util/ocpi.response';
+import {OcpiResponse, OcpiResponseStatusCode} from '../model/ocpi.response';
 import {OcpiParams} from './util/ocpi.params';
 
 export enum OcpiModules {

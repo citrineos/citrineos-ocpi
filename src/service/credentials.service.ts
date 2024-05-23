@@ -1,17 +1,17 @@
 import {CredentialsRepository} from '../repository/credentials.repository';
-import {VersionsControllerApi} from '../apis/VersionsControllerApi';
+import {VersionsControllerApi} from '../trigger/VersionsControllerApi';
 import {VersionRepository} from '../repository/version.repository';
 import {v4 as uuidv4} from 'uuid';
-import {Configuration} from '../apis/BaseApi';
-import {NotFoundException} from '../exceptions/not.found.exception';
+import {Configuration} from '../trigger/BaseApi';
+import {NotFoundException} from '../exception/not.found.exception';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {Credentials, CredentialsResponse} from '../model/Credentials';
 import {Version} from '../model/Version';
 import {VersionNumber} from '../model/VersionNumber';
-import {OcpiEmptyResponse} from '../util/ocpi.empty.response';
+import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
 import {Service} from 'typedi';
 import {OcpiLogger} from '../util/logger';
-import {OcpiResponseStatusCode} from "../util/ocpi.response";
+import {OcpiResponseStatusCode} from "../model/ocpi.response";
 
 @Service()
 export class CredentialsService {

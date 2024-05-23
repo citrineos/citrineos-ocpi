@@ -1,4 +1,4 @@
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse} from './ocpi.response';
 import {IsNotEmpty} from 'class-validator';
 import {Enum} from '../util/decorators/enum';
 

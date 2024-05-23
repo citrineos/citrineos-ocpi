@@ -1,10 +1,10 @@
 import {KoaMiddlewareInterface, Middleware, UnauthorizedError,} from 'routing-controllers';
 import {Context} from 'vm';
 import {HttpStatus} from '@citrineos/base';
-import {buildOcpiErrorResponse,} from '../ocpi.error.response';
+import {buildOcpiErrorResponse,} from '../../model/ocpi.error.response';
 import {Service} from 'typedi';
-import {NotFoundException} from "../../exceptions/not.found.exception";
-import {OcpiResponseStatusCode} from "../ocpi.response";
+import {NotFoundException} from "../../exception/not.found.exception";
+import {OcpiResponseStatusCode} from "../../model/ocpi.response";
 
 @Middleware({type: 'before', priority: 10})
 @Service()

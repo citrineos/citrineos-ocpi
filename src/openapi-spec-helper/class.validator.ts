@@ -2,7 +2,7 @@ import {getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes,}
 import {targetConstructorToSchema} from 'class-validator-jsonschema';
 import {ISchemaConverters} from 'class-validator-jsonschema/build/defaultConverters';
 import {IOptions} from 'class-validator-jsonschema/build/options';
-import {Constructor} from './util';
+import {Constructor} from '../util/util';
 import type {SchemaObject} from 'openapi3-ts';
 import {ReferenceObject} from 'openapi3-ts';
 import {ValidationMetadata} from 'class-validator/types/metadata/ValidationMetadata';

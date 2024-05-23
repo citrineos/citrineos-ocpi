@@ -19,7 +19,7 @@ import {Evse} from './Evse';
 import {EnergyMix} from './EnergyMix';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse} from './ocpi.response';
 
 export class Location {
   @MaxLength(2)

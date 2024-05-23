@@ -3,7 +3,7 @@ import {Displaytext} from './Displaytext';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {Enum} from '../util/decorators/enum';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse} from './ocpi.response';
 
 export enum CommandResponseType {
   NOT_SUPPORTED = 'NOT_SUPPORTED',

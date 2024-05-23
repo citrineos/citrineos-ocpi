@@ -4,7 +4,7 @@ import {Version, VersionDetailsDTOResponse, VersionDTOListResponse} from '../mod
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
-import {OcpiResponseStatusCode} from "../util/ocpi.response";
+import {OcpiResponseStatusCode} from "../model/ocpi.response";
 
 @Service()
 export class VersionService {

@@ -3,12 +3,12 @@ import {BaseController} from './base.controller';
 import {HttpStatus} from '@citrineos/base';
 import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult';
 import {ActiveChargingProfile} from '../model/ActiveChargingProfile';
-import {OcpiEmptyResponse} from '../util/ocpi.empty.response';
+import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
-import {OcpiModules} from '../apis/BaseApi';
+import {OcpiModules} from '../trigger/BaseApi';
 import {ClearChargingProfileResult} from '../model/ChargingprofilesClearProfileResult';
 import {ChargingProfileResult} from '../model/ChargingProfileResult';
-import {ResponseSchema} from '../util/openapi';
+import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 
 @Controller(`/${OcpiModules.ChargingProfiles}`)

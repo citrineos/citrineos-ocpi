@@ -1,7 +1,7 @@
 import {Controller, Get} from 'routing-controllers';
-import {OcpiModules} from '../apis/BaseApi';
+import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
-import {ResponseSchema} from '../util/openapi';
+import {ResponseSchema} from '../openapi-spec-helper';
 import {HttpStatus} from '@citrineos/base';
 import {VersionDetailsDTOResponse, VersionDTOListResponse} from '../model/Version';
 import {VersionService} from '../service/version.service';

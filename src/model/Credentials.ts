@@ -11,7 +11,7 @@ import {
 import {Column, DataType, Index, Model, Table} from 'sequelize-typescript';
 import {CredentialsRole} from './CredentialsRole';
 import {OcpiNamespace} from '../util/ocpi.namespace';
-import {OcpiResponse, OcpiResponseStatusCode} from '../util/ocpi.response';
+import {OcpiResponse, OcpiResponseStatusCode} from './ocpi.response';
 import {Type} from 'class-transformer';
 
 @Table

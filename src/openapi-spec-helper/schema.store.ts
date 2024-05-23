@@ -1,4 +1,4 @@
-import {Constructor} from './util';
+import {Constructor} from '../util/util';
 import {defaultClassValidatorJsonSchemaOptions, nestedClassToJsonSchema} from './class.validator';
 
 export const SchemaStore = {

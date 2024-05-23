@@ -1,11 +1,11 @@
 import {getOcpiHeaders, setAuthHeader,} from './util';
 import {BaseAPI, HTTPHeaders} from './BaseApi';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse} from '../model/ocpi.response';
 import {TokenResponse} from '../model/Token';
-import {GetTokenParams} from './params/token/get.token.params';
-import {PatchTokenParams} from './params/token/patch.token.params';
-import {PutTokenParams} from './params/token/put.token.params';
-import {OcpiEmptyResponse} from "../util/ocpi.empty.response";
+import {GetTokenParams} from './param/tokens/get.token.params';
+import {PatchTokenParams} from './param/tokens/patch.token.params';
+import {PutTokenParams} from './param/tokens/put.token.params';
+import {OcpiEmptyResponse} from "../model/ocpi.empty.response";
 
 
 export class TokensControllerApi extends BaseAPI {

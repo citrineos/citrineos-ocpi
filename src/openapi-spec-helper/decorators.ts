@@ -3,8 +3,8 @@ import 'reflect-metadata';
 import {IRoute} from './parse.metadata';
 import {getContentType, getStatusCode} from './generate.spec.helpers';
 import {mergeDeep} from './merge.deep';
-import {SchemaStore} from '../schema.store';
-import {Constructor} from '../util';
+import {SchemaStore} from './schema.store';
+import {Constructor} from '../util/util';
 
 const OPEN_API_KEY = Symbol('routing-controllers-openapi:OpenAPI');
 

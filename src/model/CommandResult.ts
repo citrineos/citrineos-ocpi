@@ -3,7 +3,7 @@ import {IsNotEmpty, ValidateNested} from 'class-validator';
 import {Optional} from '../util/decorators/optional';
 import {Type} from 'class-transformer';
 import {Displaytext} from './Displaytext';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse} from './ocpi.response';
 
 export enum CommandResultType {
   ACCEPTED = 'ACCEPTED',

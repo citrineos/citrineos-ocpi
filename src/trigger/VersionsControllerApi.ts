@@ -1,6 +1,6 @@
 import {BaseAPI, HTTPHeaders} from './BaseApi';
 import {setAuthHeader} from './util';
-import {OcpiResponse} from '../util/ocpi.response';
+import {OcpiResponse} from '../model/ocpi.response';
 import {VersionDetailsDTO, VersionDTO} from '../model/Version';
 
 export interface GetVersionRequest {

@@ -1,24 +1,24 @@
 import Koa from 'koa';
 import {getMetadataArgsStorage, MetadataArgsStorage, useKoaServer} from 'routing-controllers';
-import {CredentialsController} from './controllers/credentials.controller';
-import {CdrsController} from './controllers/cdrs.controller';
-import {ChargingProfilesController} from './controllers/charging.profiles.controller';
-import {TariffsController} from './controllers/tariffs.controller';
-import {CommandsController} from './controllers/commands.controller';
-import {LocationsController} from './controllers/locations.controller';
-import {SessionsController} from './controllers/sessions.controller';
-import {VersionsController} from './controllers/versions.controller';
+import {CredentialsController} from './handlers/credentials.controller';
+import {CdrsController} from './handlers/cdrs.controller';
+import {ChargingProfilesController} from './handlers/charging.profiles.controller';
+import {TariffsController} from './handlers/tariffs.controller';
+import {CommandsController} from './handlers/commands.controller';
+import {LocationsController} from './handlers/locations.controller';
+import {SessionsController} from './handlers/sessions.controller';
+import {VersionsController} from './handlers/versions.controller';
 import {GlobalExceptionHandler} from './util/middleware/global.exception.handler';
-import {routingControllersToSpec} from './util/openapi';
+import {routingControllersToSpec} from './openapi-spec-helper';
 import {VersionNumber} from './model/VersionNumber';
-import {getAllSchemas} from './schemas';
+import {getAllSchemas} from './openapi-spec-helper/schemas';
 import {koaSwagger} from 'koa2-swagger-ui';
 import {Service} from 'typedi';
 import {OpenAPIObject} from 'openapi3-ts';
 import {OcpiSequelizeInstance} from './util/sequelize';
 import {LoggingMiddleware} from './util/middleware/logging.middleware';
 import KoaLogger from 'koa-logger';
-import {TokensController} from "./controllers/tokens.controller";
+import {TokensController} from "./handlers/tokens.controller";
 
 @Service()
 export class OcpiServer {

@@ -1,10 +1,10 @@
 import {getOcpiHeaders, setAuthHeader, } from './util';
 import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
 import {ChargingProfileResult} from '../model/ChargingProfileResult';
-import {OcpiResponse} from '../util/ocpi.response';
-import {DeleteChargingProfileParams} from './params/charging.profile/delete.charging.profile.params';
-import {GetChargingProfileParams} from './params/charging.profile/get.charging.profile.params';
-import {PutChargingProfileParams} from './params/charging.profile/put.charging.profile.params';
+import {OcpiResponse} from '../model/ocpi.response';
+import {DeleteChargingProfileParams} from './param/charging.profiles/delete.charging.profile.params';
+import {GetChargingProfileParams} from './param/charging.profiles/get.charging.profile.params';
+import {PutChargingProfileParams} from './param/charging.profiles/put.charging.profile.params';
 import {ChargingProfileResponse} from '../model/ChargingProfileResponse';
 
 export class ChargingProfilesControllerApi extends BaseAPI {

@@ -1,6 +1,6 @@
 import { JSONSchemaFaker } from 'json-schema-faker';
-import { classToJsonSchema } from '../util/class.validator';
-import { getAllSchemas } from '../schemas';
+import { classToJsonSchema } from '../openapi-spec-helper/class.validator';
+import { getAllSchemas } from '../openapi-spec-helper/schemas';
 import { SchemaObject } from 'openapi3-ts';
 
 export class BaseController {

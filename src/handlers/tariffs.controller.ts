@@ -2,11 +2,11 @@ import {Controller, Get, QueryParams} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController} from './base.controller';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
-import {OcpiModules} from '../apis/BaseApi';
+import {OcpiModules} from '../trigger/BaseApi';
 import {TariffListResponse} from '../model/Tariff';
-import {ResponseSchema} from '../util/openapi';
+import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
-import {PaginatedParams} from '../apis/params/paginated.params';
+import {PaginatedParams} from '../trigger/param/paginated.params';
 
 @Controller(`/${OcpiModules.Tariffs}`)
 @Service()

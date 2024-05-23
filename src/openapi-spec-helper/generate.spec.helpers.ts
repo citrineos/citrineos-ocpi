@@ -9,13 +9,13 @@ import {IRoute} from './index';
 import {mergeDeep} from './merge.deep';
 import {capitalize} from './capitalize';
 import {smartcase} from './smart.case';
-import {ENUM_PARAM} from '../decorators/enum.param';
-import {refPointerPrefix,} from '../class.validator';
-import {SchemaStore} from '../schema.store';
-import {MULTIPLE_TYPES} from '../decorators/multiple.types';
-import {Constructor} from '../util';
+import {ENUM_PARAM} from '../util/decorators/enum.param';
+import {refPointerPrefix,} from './class.validator';
+import {SchemaStore} from './schema.store';
+import {MULTIPLE_TYPES} from '../util/decorators/multiple.types';
+import {Constructor} from '../util/util';
 import {HttpHeader} from "@citrineos/base";
-import {ENUM_QUERY_PARAM} from "../decorators/enum.query.param";
+import {ENUM_QUERY_PARAM} from "../util/decorators/enum.query.param";
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {

@@ -4,7 +4,7 @@ import {Column, DataType, Model, PrimaryKey, Table,} from 'sequelize-typescript'
 import {Endpoint} from './Endpoint';
 import {Enum} from '../util/decorators/enum';
 import {OcpiNamespace} from '../util/ocpi.namespace';
-import {OcpiResponse, OcpiResponseStatusCode} from '../util/ocpi.response';
+import {OcpiResponse, OcpiResponseStatusCode} from './ocpi.response';
 import {Type} from 'class-transformer';
 
 export class VersionDTO {

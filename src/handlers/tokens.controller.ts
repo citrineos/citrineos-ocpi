@@ -1,11 +1,11 @@
 import {Controller, Get, Param, Post} from "routing-controllers";
-import {OcpiModules} from "../apis/BaseApi";
+import {OcpiModules} from "../trigger/BaseApi";
 import {Service} from "typedi";
 import {BaseController} from "./base.controller";
 import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
-import {ResponseSchema} from "../util/openapi";
+import {ResponseSchema} from "../openapi-spec-helper";
 import {HttpStatus} from "@citrineos/base";
-import {PaginatedParams} from "../apis/params/paginated.params";
+import {PaginatedParams} from "../trigger/param/paginated.params";
 import {TokenListResponse} from "../model/Token";
 import {Paginated} from "../util/decorators/paginated";
 import {AuthorizationInfo} from "../model/AuthorizationInfo";

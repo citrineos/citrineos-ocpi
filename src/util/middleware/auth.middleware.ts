@@ -1,13 +1,13 @@
 import {KoaMiddlewareInterface, Middleware} from 'routing-controllers';
 import {HttpHeader, HttpStatus} from '@citrineos/base';
 import {Context} from 'vm';
-import {buildOcpiErrorResponse} from '../ocpi.error.response';
+import {buildOcpiErrorResponse} from '../../model/ocpi.error.response';
 import {Service} from 'typedi';
 import {CredentialsRepository} from '../../repository/credentials.repository';
 import {extractToken} from '../decorators/auth.token';
 import {OcpiHttpHeader} from '../ocpi.http.header';
 import {BaseMiddleware} from './base.middleware';
-import {OcpiResponseStatusCode} from '../ocpi.response';
+import {OcpiResponseStatusCode} from '../../model/ocpi.response';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 

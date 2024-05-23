@@ -3,16 +3,16 @@ import {BaseAPI, HTTPHeaders} from './BaseApi';
 import {ConnectorResponse} from '../model/Connector';
 import {EvseResponse} from '../model/Evse';
 import {LocationResponse} from '../model/Location';
-import {OcpiResponse} from '../util/ocpi.response';
-import {GetConnectorParams} from './params/locations/get.connector.params';
-import {GetEvseParams} from './params/locations/get.evse.params';
-import {GetLocationParams} from './params/locations/get.location.params';
-import {PatchConnectorParams} from './params/locations/patch.connector.params';
-import {PatchEvseParams} from './params/locations/patch.evse.params';
-import {PatchLocationParams} from './params/locations/patch.location.params';
-import {PutConnectorParams} from './params/locations/put.connector.params';
-import {PutEvseParams} from './params/locations/put.evse.params';
-import {PutLocationParams} from './params/locations/put.location.params';
+import {OcpiResponse} from '../model/ocpi.response';
+import {GetConnectorParams} from './param/locations/get.connector.params';
+import {GetEvseParams} from './param/locations/get.evse.params';
+import {GetLocationParams} from './param/locations/get.location.params';
+import {PatchConnectorParams} from './param/locations/patch.connector.params';
+import {PatchEvseParams} from './param/locations/patch.evse.params';
+import {PatchLocationParams} from './param/locations/patch.location.params';
+import {PutConnectorParams} from './param/locations/put.connector.params';
+import {PutEvseParams} from './param/locations/put.evse.params';
+import {PutLocationParams} from './param/locations/put.location.params';
 
 export class LocationsControllerApi extends BaseAPI {
   async getConnector(
