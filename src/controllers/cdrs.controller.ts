@@ -1,4 +1,4 @@
-import {Controller, Get, QueryParams} from 'routing-controllers';
+import {Controller, Get} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {CdrListResponse} from '../model/Cdr';
 import {BaseController} from './base.controller';
@@ -6,7 +6,8 @@ import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
 import {OcpiModules} from '../apis/BaseApi';
 import {ResponseSchema} from '../util/openapi';
 import {Service} from 'typedi';
-import {FromToOffsetLimitQuery} from '../apis/params/from.to.offset.limit.query';
+import {PaginatedParams} from '../apis/params/paginated.params';
+import {Paginated} from "../util/decorators/paginated";
 
 @Controller(`/${OcpiModules.Cdrs}`)
 @Service()
@@ -21,9 +22,9 @@ export class CdrsController extends BaseController {
     description: 'Successful response',
   })
   async getCdrs(
-    @QueryParams() _query?: FromToOffsetLimitQuery,
+    @Paginated() paginationParams?: PaginatedParams,
   ): Promise<CdrListResponse> {
-    console.log('getCdrs', _query);
+    console.log('getCdrs', paginationParams);
     return this.generateMockOcpiResponse(CdrListResponse);
   }
 }

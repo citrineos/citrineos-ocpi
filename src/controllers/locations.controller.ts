@@ -8,7 +8,7 @@ import {EvseResponse} from '../model/Evse';
 import {ConnectorResponse} from '../model/Connector';
 import {ResponseSchema} from '../util/openapi';
 import {Service} from 'typedi';
-import {FromToOffsetLimitQuery} from '../apis/params/from.to.offset.limit.query';
+import {PaginatedParams} from '../apis/params/paginated.params';
 
 @Controller(`/${OcpiModules.Locations}`)
 @Service()
@@ -23,7 +23,7 @@ export class LocationsController extends BaseController {
     description: 'Successful response',
   })
   async getLocations(
-    @QueryParams() _query?: FromToOffsetLimitQuery,
+    @QueryParams() _query?: PaginatedParams,
   ): Promise<LocationListResponse> {
     console.log('getLocations', _query);
     return this.generateMockOcpiResponse(LocationListResponse);

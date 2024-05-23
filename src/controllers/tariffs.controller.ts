@@ -6,7 +6,7 @@ import {OcpiModules} from '../apis/BaseApi';
 import {TariffListResponse} from '../model/Tariff';
 import {ResponseSchema} from '../util/openapi';
 import {Service} from 'typedi';
-import {FromToOffsetLimitQuery} from '../apis/params/from.to.offset.limit.query';
+import {PaginatedParams} from '../apis/params/paginated.params';
 
 @Controller(`/${OcpiModules.Tariffs}`)
 @Service()
@@ -21,7 +21,7 @@ export class TariffsController extends BaseController {
     description: 'Successful response',
   })
   async getTariffs(
-    @QueryParams() _query?: FromToOffsetLimitQuery,
+    @QueryParams() _query?: PaginatedParams,
   ): Promise<TariffListResponse> {
     console.log('getTariffs', _query);
     return this.generateMockOcpiResponse(TariffListResponse);

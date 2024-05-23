@@ -8,7 +8,7 @@ import {HttpStatus} from '@citrineos/base';
 import {ChargingPreferencesResponse} from '../model/ChargingPreferencesResponse';
 import {ChargingPreferences} from '../model/ChargingPreferences';
 import {Service} from 'typedi';
-import {FromToOffsetLimitQuery} from '../apis/params/from.to.offset.limit.query';
+import {PaginatedParams} from '../apis/params/paginated.params';
 
 @Controller(`/${OcpiModules.Sessions}`)
 @Service()
@@ -23,7 +23,7 @@ export class SessionsController extends BaseController {
     description: 'Successful response',
   })
   async getSessions(
-    @QueryParams() _query?: FromToOffsetLimitQuery,
+    @QueryParams() _query?: PaginatedParams,
   ): Promise<SessionListResponse> {
     console.log('getSessions', _query);
     return this.generateMockOcpiResponse(SessionListResponse);

@@ -1,7 +1,7 @@
 import {IsDateString, IsInt} from 'class-validator';
 import {Optional} from '../../util/decorators/optional';
 
-export class FromToOffsetLimitQuery {
+export class PaginatedParams {
   @IsDateString()
   @Optional()
   private _date_from?: string;
