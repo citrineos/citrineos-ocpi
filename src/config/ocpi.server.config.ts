@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, ValidateNested} from 'class-validator';
+import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested} from 'class-validator';
 import {Service} from 'typedi';
 import {Type} from 'class-transformer';
 import {Enum} from '../util/decorators/enum';
@@ -10,7 +10,7 @@ class SequelizeConfig {
   host!: string;
 
   @IsInt()
-  @IsPositive()
+  @Min(0)
   @IsNotEmpty()
   port!: number;
 

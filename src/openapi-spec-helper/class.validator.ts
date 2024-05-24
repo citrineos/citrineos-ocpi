@@ -109,6 +109,12 @@ const additionalConverters: ISchemaConverters = {
     );
     if (isOptional) {
       if (schema && schema.$ref) {
+        if (!SchemaStore.getSchema(childType.name)) {
+          SchemaStore.addSchema(
+            childType.name,
+            nestedClassToJsonSchema(childType, options),
+          );
+        }
         return {
           type: 'array',
           nullable: true,
@@ -122,12 +128,24 @@ const additionalConverters: ISchemaConverters = {
         };
       }
     } else {
-      return {
-        type: 'array',
-        items: {
-          $ref: schema.$ref,
-        },
-      };
+      if (schema && schema.$ref) {
+        if (!SchemaStore.getSchema(childType.name)) {
+          SchemaStore.addSchema(
+            childType.name,
+            nestedClassToJsonSchema(childType, options),
+          );
+        }
+        return {
+          type: 'array',
+          items: {
+            $ref: schema.$ref,
+          },
+        };
+      } else {
+        return {
+          type: 'array',
+        };
+      }
     }
   },
 

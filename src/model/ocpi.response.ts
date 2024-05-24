@@ -46,8 +46,6 @@ export class OcpiResponse<T> {
    * @memberof OcpiResponseDTO
    */
   @Optional()
-  @ValidateNested()
-    // @Type(() => T)  // Use class-transformer to indicate the type
   data?: T;
 }
 
