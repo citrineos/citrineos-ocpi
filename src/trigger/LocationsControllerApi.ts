@@ -1,4 +1,3 @@
-import {getOcpiHeaders, } from './util';
 import {BaseApi} from './BaseApi';
 import {ConnectorResponse} from '../model/Connector';
 import {EvseResponse} from '../model/Evse';
@@ -28,7 +27,7 @@ export class LocationsControllerApi extends BaseApi {
       'evseUId',
       'connectorId',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<ConnectorResponse>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
@@ -52,7 +51,7 @@ export class LocationsControllerApi extends BaseApi {
       'locationId',
       'evseUId',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<EvseResponse>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUId}'
@@ -74,7 +73,7 @@ export class LocationsControllerApi extends BaseApi {
       'partyId',
       'locationId',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<LocationResponse>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}'
@@ -98,7 +97,7 @@ export class LocationsControllerApi extends BaseApi {
       'connectorId',
       'requestBody',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.update<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
@@ -123,7 +122,7 @@ export class LocationsControllerApi extends BaseApi {
       'evseUId',
       'requestBody',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.update<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUId}'
@@ -146,7 +145,7 @@ export class LocationsControllerApi extends BaseApi {
       'locationId',
       'requestBody',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return this.update<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}'
@@ -170,7 +169,7 @@ export class LocationsControllerApi extends BaseApi {
       'connectorId',
       'connector',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
@@ -195,7 +194,7 @@ export class LocationsControllerApi extends BaseApi {
       'evseUId',
       'evse',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUId}'
@@ -218,7 +217,7 @@ export class LocationsControllerApi extends BaseApi {
       'locationId',
       'location',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}'

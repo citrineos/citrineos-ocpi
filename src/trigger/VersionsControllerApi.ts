@@ -1,5 +1,4 @@
 import {BaseApi} from './BaseApi';
-import {setAuthHeader} from './util';
 import {OcpiResponse} from '../model/ocpi.response';
 import {VersionDetailsDTO, VersionDTO} from '../model/Version';
 import {IHeaders} from 'typed-rest-client/Interfaces';
@@ -20,7 +19,7 @@ export class VersionsControllerApi extends BaseApi {
   ): Promise<OcpiResponse<VersionDetailsDTO>> {
     this.validateRequiredParam(requestParameters, 'authorization');
     const additionalHeaders: IHeaders = {};
-    setAuthHeader(additionalHeaders);
+    this.setAuthHeader(additionalHeaders, requestParameters.authorization);
     return await this.get<OcpiResponse<VersionDetailsDTO>>({
       version: requestParameters.version,
       additionalHeaders,
@@ -35,7 +34,7 @@ export class VersionsControllerApi extends BaseApi {
   ): Promise<OcpiResponse<VersionDTO[]>> {
     this.validateRequiredParam(requestParameters, 'authorization');
     const additionalHeaders: IHeaders = {};
-    setAuthHeader(additionalHeaders);
+    this.setAuthHeader(additionalHeaders, requestParameters.authorization);
     return await this.getRaw<OcpiResponse<VersionDTO[]>>('/ocpi/versions', {
       additionalHeaders
     }).then((response) => this.handleResponse(response));

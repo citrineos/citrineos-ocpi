@@ -1,4 +1,3 @@
-import {getOcpiHeaders, } from './util';
 import {BaseApi, OcpiModules} from './BaseApi';
 import {OcpiResponse} from '../model/ocpi.response';
 import {Tariff} from '../model/Tariff';
@@ -21,7 +20,7 @@ export class TariffsControllerApi extends BaseApi {
       'partyId',
       'tariffId',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<OcpiResponse<Tariff>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{tariffId}'
@@ -43,7 +42,7 @@ export class TariffsControllerApi extends BaseApi {
       'tariffId',
       'tariff',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiResponse<Tariff>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{tariffId}'
@@ -64,7 +63,7 @@ export class TariffsControllerApi extends BaseApi {
       'partyId',
       'tariffId',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.del<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{tariffId}'

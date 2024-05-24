@@ -1,4 +1,3 @@
-import {getOcpiHeaders, } from './util';
 import {BaseApi, OcpiModules} from './BaseApi';
 import {CommandResponse} from '../model/CommandResponse';
 import {OcpiResponse} from '../model/ocpi.response';
@@ -14,7 +13,7 @@ export class CommandsControllerApi extends BaseApi {
   ): Promise<OcpiResponse<CommandResponse>> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'url', 'commandResult');
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.create<OcpiResponse<CommandResponse>>({
       version: params.version,
       additionalHeaders,

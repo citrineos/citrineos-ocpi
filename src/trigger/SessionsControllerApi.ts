@@ -1,4 +1,3 @@
-import {getOcpiHeaders, } from './util';
 import {BaseApi} from './BaseApi';
 import {OcpiResponse} from '../model/ocpi.response';
 import {Session} from '../model/Session';
@@ -16,7 +15,7 @@ export class SessionsControllerApi extends BaseApi {
       'partyId',
       'sessionId',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<OcpiResponse<Session>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{sessionId}'
@@ -36,7 +35,7 @@ export class SessionsControllerApi extends BaseApi {
       'sessionId',
       'requestBody',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.update<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{sessionId}'
@@ -56,7 +55,7 @@ export class SessionsControllerApi extends BaseApi {
       'sessionId',
       'session',
     );
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiResponse<void>>({
       version: params.version,
       path: '{countryCode}/{partyId}/{sessionId}'

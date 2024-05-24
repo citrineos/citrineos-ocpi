@@ -1,4 +1,3 @@
-import {getOcpiHeaders, } from './util';
 import {BaseApi, OcpiModules} from './BaseApi';
 import {CdrResponse} from '../model/Cdr';
 import {GetCdrParams} from './param/cdrs/get.cdr.params';
@@ -18,7 +17,7 @@ export class CdrsControllerApi extends BaseApi {
     params: GetCdrParams
   ): Promise<CdrResponse> {
     this.validateOcpiParams(params);
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<CdrResponse>({
       version: params.version,
       additionalHeaders
@@ -30,7 +29,7 @@ export class CdrsControllerApi extends BaseApi {
   ): Promise<string> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'cdr');
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     const response = await this.createRaw<void>(this.getPath(params.version), params.cdr, {
       additionalHeaders
     });

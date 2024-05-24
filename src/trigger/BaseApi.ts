@@ -2,7 +2,9 @@ import {OcpiParams} from './util/ocpi.params';
 import {IRequestOptions, IRestResponse, RestClient} from 'typed-rest-client';
 import {UnsuccessfulRequestException} from '../exception/unsuccessful.request.exception';
 import {VersionNumber} from '../model/VersionNumber';
-import {IRequestQueryParams} from 'typed-rest-client/Interfaces';
+import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
+import {OcpiHttpHeader} from "../util/ocpi.http.header";
+import {HttpHeader} from "@citrineos/base";
 
 export enum OcpiModules {
   Credentials = 'credentials',
@@ -170,4 +172,45 @@ export class BaseApi {
       throw new UnsuccessfulRequestException('Request did not return a successful status code', response);
     }
   }
+
+  protected setAuthHeader = (headerParameters: IHeaders, token: string) => {
+    if (token && headerParameters) {
+      headerParameters[HttpHeader.Authorization] = `Token ${token}`;
+    }
+  };
+
+  protected getOcpiHeaders = (
+    params: OcpiParams,
+  ): IHeaders => {
+
+    const headerParameters: IHeaders = {};
+
+    if (params.xRequestId != null) {
+      headerParameters[OcpiHttpHeader.XRequestId] = String(params.xRequestId);
+    }
+
+    if (params.xCorrelationId != null) {
+      headerParameters[OcpiHttpHeader.XCorrelationId] = String(params.xCorrelationId);
+    }
+
+    if (params.fromCountryCode != null) {
+      headerParameters[OcpiHttpHeader.OcpiFromCountryCode] = String(params.fromCountryCode);
+    }
+
+    if (params.fromPartyId != null) {
+      headerParameters[OcpiHttpHeader.OcpiFromPartyId] = String(params.fromPartyId);
+    }
+
+    if (params.toCountryCode != null) {
+      headerParameters[OcpiHttpHeader.OcpiToCountryCode] = String(params.toCountryCode);
+    }
+
+    if (params.toPartyId != null) {
+      headerParameters[OcpiHttpHeader.OcpiToPartyId] = String(params.toPartyId);
+    }
+
+    this.setAuthHeader(headerParameters, params.authorization);
+
+    return headerParameters;
+  };
 }

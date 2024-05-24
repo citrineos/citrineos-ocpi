@@ -1,4 +1,3 @@
-import {getOcpiHeaders, } from './util';
 import {BaseApi} from './BaseApi';
 import {TokenResponse} from '../model/Token';
 import {GetTokenParams} from './param/tokens/get.token.params';
@@ -19,7 +18,7 @@ export class TokensControllerApi extends BaseApi {
     );
     const queryParameters: IRequestQueryParams = this.newQueryParams();
     queryParameters.params['type'] = params.type as string;
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<TokenResponse>({
       version: params.version,
       path: '{countryCode}/{partyId}/{tokenId}'
@@ -42,7 +41,7 @@ export class TokensControllerApi extends BaseApi {
     );
     const queryParameters: IRequestQueryParams = this.newQueryParams();
     queryParameters.params['type'] = params.type as string;
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return this.update<OcpiEmptyResponse>({
       version: params.version,
       path: '{countryCode}/{partyId}/{tokenId}'
@@ -66,7 +65,7 @@ export class TokensControllerApi extends BaseApi {
     const queryParameters: IRequestQueryParams = this.newQueryParams();
 
     queryParameters.params['type'] = params.type as string;
-    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiEmptyResponse>({
       version: params.version,
       path: '{countryCode}/{partyId}/{tokenId}'

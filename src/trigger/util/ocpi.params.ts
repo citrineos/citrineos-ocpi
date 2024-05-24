@@ -2,6 +2,10 @@ import {IsNotEmpty, IsOptional, IsString, Length} from 'class-validator';
 import {VersionNumber} from '../../model/VersionNumber';
 
 export class OcpiParams {
+
+  @IsString()
+  authorization!: string;
+
   @IsString()
   @IsNotEmpty()
   @Length(2)
