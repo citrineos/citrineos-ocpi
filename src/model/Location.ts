@@ -20,8 +20,7 @@ import {EnergyMix} from './EnergyMix';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {OcpiResponse} from './ocpi.response';
-import {PaginatedResponse} from "./PaginatedResponse";
-import {Cdr} from "./Cdr";
+import {PaginatedResponse} from './PaginatedResponse';
 
 export class Location {
   @MaxLength(2)

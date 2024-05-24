@@ -1,56 +1,44 @@
-import {getOcpiHeaders, setAuthHeader, } from './util';
-import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
-import {Cdr} from '../model/Cdr';
-import {OcpiResponse} from '../model/ocpi.response';
+import {getOcpiHeaders, } from './util';
+import {BaseApi, OcpiModules} from './BaseApi';
+import {CdrResponse} from '../model/Cdr';
 import {GetCdrParams} from './param/cdrs/get.cdr.params';
 import {PostCdrParams} from './param/cdrs/post.cdr.params';
+import {IHeaders} from 'typed-rest-client/Interfaces';
+import {NotFoundException} from '../exception/not.found.exception';
 
-export class CdrsControllerApi extends BaseAPI {
+interface PostCdrResponseHeaders {
+  Location: string;
+}
+
+export class CdrsControllerApi extends BaseApi {
 
   CONTROLLER_PATH = OcpiModules.Cdrs;
 
   async getCdr(
     params: GetCdrParams
-  ): Promise<OcpiResponse<Cdr>> {
-
+  ): Promise<CdrResponse> {
     this.validateOcpiParams(params);
-
-    const headerParameters: HTTPHeaders =
-      getOcpiHeaders(params);
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: this.getBasePath(params),
-      method: 'GET',
-      headers: headerParameters,
+    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    return await this.get<CdrResponse>({
+      version: params.version,
+      additionalHeaders
     });
   }
 
   async postCdr(
     params: PostCdrParams,
   ): Promise<string> {
-
     this.validateOcpiParams(params);
-
     this.validateRequiredParam(params, 'cdr');
-
-    const headerParameters: HTTPHeaders =
-      getOcpiHeaders(params);
-
-    setAuthHeader(headerParameters);
-    const response = await this.baseRequest({
-      path: this.getBasePath(params),
-      method: 'POST',
-      headers: headerParameters,
-      body: params.cdr,
+    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    const response = await this.createRaw<void>(this.getPath(params.version), params.cdr, {
+      additionalHeaders
     });
-
-    const cdrLocationUrl = response.headers.get('Location');
-
+    const headers = response.headers as PostCdrResponseHeaders;
+    const cdrLocationUrl = headers.Location;
     if (!cdrLocationUrl) {
-      throw new Error('No Location header in OCPI response');
+      throw new NotFoundException('No Location header in OCPI response');
     }
-
     return cdrLocationUrl;
   }
 }

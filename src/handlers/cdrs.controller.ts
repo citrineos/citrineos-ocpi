@@ -7,7 +7,7 @@ import {OcpiModules} from '../trigger/BaseApi';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
-import {Paginated} from "../util/decorators/paginated";
+import {Paginated} from '../util/decorators/paginated';
 
 @Controller(`/${OcpiModules.Cdrs}`)
 @Service()

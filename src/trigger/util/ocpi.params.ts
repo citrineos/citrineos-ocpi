@@ -30,5 +30,5 @@ export class OcpiParams {
   @IsOptional()
   xCorrelationId?: string;
 
-  versionId: string = VersionNumber.TWO_DOT_TWO_DOT_ONE;
+  version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 }

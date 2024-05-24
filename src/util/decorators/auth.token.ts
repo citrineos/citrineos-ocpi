@@ -1,5 +1,5 @@
 import {BadRequestError, createParamDecorator} from 'routing-controllers';
-import {HttpHeader} from "@citrineos/base";
+import {HttpHeader} from '@citrineos/base';
 
 const tokenPrefix = 'Token ';
 

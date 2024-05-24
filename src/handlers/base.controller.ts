@@ -2,8 +2,8 @@ import {JSONSchemaFaker} from 'json-schema-faker';
 import {classToJsonSchema} from '../openapi-spec-helper/class.validator';
 import {getAllSchemas} from '../openapi-spec-helper/schemas';
 import {SchemaObject} from 'openapi3-ts';
-import {PaginatedCdrResponse} from "../model/Cdr";
-import {PaginatedParams} from "../trigger/param/paginated.params";
+import {PaginatedCdrResponse} from '../model/Cdr';
+import {PaginatedParams} from '../trigger/param/paginated.params';
 
 export class BaseController {
   generateMockOcpiResponse(model: any): Promise<any> {

@@ -9,8 +9,7 @@ import {ConnectorResponse} from '../model/Connector';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
-import {Paginated} from "../util/decorators/paginated";
-import {PaginatedCdrResponse} from "../model/Cdr";
+import {Paginated} from '../util/decorators/paginated';
 
 @Controller(`/${OcpiModules.Locations}`)
 @Service()

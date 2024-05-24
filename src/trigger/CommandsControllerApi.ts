@@ -1,30 +1,23 @@
-import {getOcpiHeaders, setAuthHeader, } from './util';
-import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
+import {getOcpiHeaders, } from './util';
+import {BaseApi, OcpiModules} from './BaseApi';
 import {CommandResponse} from '../model/CommandResponse';
 import {OcpiResponse} from '../model/ocpi.response';
 import {PostCommandParams} from './param/commands/post.command.params';
+import {IHeaders} from 'typed-rest-client/Interfaces';
 
-export class CommandsControllerApi extends BaseAPI {
+export class CommandsControllerApi extends BaseApi {
 
   CONTROLLER_PATH = OcpiModules.Commands;
 
   async postCommand(
     params: PostCommandParams
   ): Promise<OcpiResponse<CommandResponse>> {
-
     this.validateOcpiParams(params);
-
     this.validateRequiredParam(params, 'url', 'commandResult');
-
-    const headerParameters: HTTPHeaders =
-      getOcpiHeaders(params);
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: params.url,
-      method: 'POST',
-      headers: headerParameters,
-      body: params.commandResult,
-    });
+    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    return await this.create<OcpiResponse<CommandResponse>>({
+      version: params.version,
+      additionalHeaders,
+    }, params.commandResult);
   }
 }

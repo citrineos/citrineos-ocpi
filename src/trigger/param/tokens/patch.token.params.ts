@@ -1,7 +1,7 @@
-import {OcpiParams} from "../../util/ocpi.params";
-import {TokenType} from "../../../model/TokenType";
-import {IsNotEmpty, IsString, Length} from "class-validator";
-import {Enum} from "../../../util/decorators/enum";
+import {OcpiParams} from '../../util/ocpi.params';
+import {TokenType} from '../../../model/TokenType';
+import {IsNotEmpty, IsString, Length} from 'class-validator';
+import {Enum} from '../../../util/decorators/enum';
 
 export class PatchTokenParams extends OcpiParams {
   @IsString()

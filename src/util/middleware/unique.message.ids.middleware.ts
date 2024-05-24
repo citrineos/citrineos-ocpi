@@ -1,8 +1,8 @@
-import {KoaMiddlewareInterface, Middleware,} from 'routing-controllers';
+import {KoaMiddlewareInterface, Middleware, } from 'routing-controllers';
 import {Context} from 'vm';
 import {Service} from 'typedi';
-import {OcpiHttpHeader} from "../ocpi.http.header";
-import {BaseMiddleware} from "./base.middleware";
+import {OcpiHttpHeader} from '../ocpi.http.header';
+import {BaseMiddleware} from './base.middleware';
 
 /**
  * UniqueMessageIdsMiddleware will apply the {@link OcpiHttpHeader.XRequestId} and {@link OcpiHttpHeader.XCorrelationId}

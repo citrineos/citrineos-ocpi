@@ -16,10 +16,8 @@ import {SessionStatus} from './SessionStatus';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {Enum} from '../util/decorators/enum';
-import {OcpiResponse} from './ocpi.response';
 import {CdrToken} from './CdrToken';
-import {PaginatedResponse} from "./PaginatedResponse";
-import {Location} from "./Location";
+import {PaginatedResponse} from './PaginatedResponse';
 
 export class Session {
   @MaxLength(2)

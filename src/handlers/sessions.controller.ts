@@ -9,7 +9,7 @@ import {ChargingPreferencesResponse} from '../model/ChargingPreferencesResponse'
 import {ChargingPreferences} from '../model/ChargingPreferences';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
-import {Paginated} from "../util/decorators/paginated";
+import {Paginated} from '../util/decorators/paginated';
 
 @Controller(`/${OcpiModules.Sessions}`)
 @Service()

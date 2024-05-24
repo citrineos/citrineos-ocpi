@@ -1,6 +1,6 @@
-import {OcpiResponse} from "./ocpi.response";
-import {IsInt, IsNotEmpty, IsPositive, Max, Min} from "class-validator";
-import {Exclude} from "class-transformer";
+import {OcpiResponse} from './ocpi.response';
+import {IsInt, IsNotEmpty, IsPositive, Max, Min} from 'class-validator';
+import {Exclude} from 'class-transformer';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;

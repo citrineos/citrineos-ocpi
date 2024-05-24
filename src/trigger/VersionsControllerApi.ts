@@ -1,36 +1,29 @@
-import {BaseAPI, HTTPHeaders} from './BaseApi';
+import {BaseApi} from './BaseApi';
 import {setAuthHeader} from './util';
 import {OcpiResponse} from '../model/ocpi.response';
 import {VersionDetailsDTO, VersionDTO} from '../model/Version';
+import {IHeaders} from 'typed-rest-client/Interfaces';
+import {VersionNumber} from '../model/VersionNumber';
 
 export interface GetVersionRequest {
   authorization: string;
-  versionId: string;
+  version: VersionNumber;
 }
 
 export interface GetVersionsRequest {
   authorization: string;
 }
 
-export class VersionsControllerApi extends BaseAPI {
+export class VersionsControllerApi extends BaseApi {
   async getVersion(
     requestParameters: GetVersionRequest,
   ): Promise<OcpiResponse<VersionDetailsDTO>> {
     this.validateRequiredParam(requestParameters, 'authorization');
-
-    const headerParameters: HTTPHeaders = {};
-
-    if (requestParameters.authorization != null) {
-      headerParameters['Authorization'] = String(
-        requestParameters.authorization,
-      );
-    }
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: `/ocpi/${requestParameters.versionId}`,
-      method: 'GET',
-      headers: headerParameters,
+    const additionalHeaders: IHeaders = {};
+    setAuthHeader(additionalHeaders);
+    return await this.get<OcpiResponse<VersionDetailsDTO>>({
+      version: requestParameters.version,
+      additionalHeaders,
     });
   }
 
@@ -41,20 +34,10 @@ export class VersionsControllerApi extends BaseAPI {
     requestParameters: GetVersionsRequest,
   ): Promise<OcpiResponse<VersionDTO[]>> {
     this.validateRequiredParam(requestParameters, 'authorization');
-
-    const headerParameters: HTTPHeaders = {};
-
-    if (requestParameters.authorization != null) {
-      headerParameters['Authorization'] = String(
-        requestParameters.authorization,
-      );
-    }
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: '/ocpi/versions',
-      method: 'GET',
-      headers: headerParameters,
-    });
+    const additionalHeaders: IHeaders = {};
+    setAuthHeader(additionalHeaders);
+    return await this.getRaw<OcpiResponse<VersionDTO[]>>('/ocpi/versions', {
+      additionalHeaders
+    }).then((response) => this.handleResponse(response));
   }
 }

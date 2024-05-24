@@ -11,7 +11,7 @@ import {Service} from 'typedi';
 import {OcpiServerConfig} from '../config/ocpi.server.config';
 import {OcpiLogger} from '../util/logger';
 import {OcpiSequelizeInstance} from '../util/sequelize';
-import {CredentialsRole} from "../model/CredentialsRole";
+import {CredentialsRole} from '../model/CredentialsRole';
 
 @Service()
 export class CredentialsRepository extends SequelizeRepository<Credentials> {

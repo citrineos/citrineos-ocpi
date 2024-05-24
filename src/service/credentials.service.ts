@@ -2,7 +2,6 @@ import {CredentialsRepository} from '../repository/credentials.repository';
 import {VersionsControllerApi} from '../trigger/VersionsControllerApi';
 import {VersionRepository} from '../repository/version.repository';
 import {v4 as uuidv4} from 'uuid';
-import {Configuration} from '../trigger/BaseApi';
 import {NotFoundException} from '../exception/not.found.exception';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {Credentials, CredentialsResponse} from '../model/Credentials';
@@ -11,7 +10,7 @@ import {VersionNumber} from '../model/VersionNumber';
 import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
 import {Service} from 'typedi';
 import {OcpiLogger} from '../util/logger';
-import {OcpiResponseStatusCode} from "../model/ocpi.response";
+import {OcpiResponseStatusCode} from '../model/ocpi.response';
 
 @Service()
 export class CredentialsService {
@@ -29,7 +28,7 @@ export class CredentialsService {
     const credentials = await this.credentialsRepository.readByQuery(
       {
         where: {
-          token: 'asd'
+          token
         },
       },
       OcpiNamespace.Credentials,
@@ -121,32 +120,28 @@ export class CredentialsService {
   private async getAndUpdateVersions(
     url: string,
     token: string,
-    versionId: string,
+    versionNumber: VersionNumber,
   ) {
-    const versionsControllerApi = new VersionsControllerApi(
-      new Configuration({
-        basePath: url,
-      }),
-    );
+    const versionsControllerApi = new VersionsControllerApi(url);
     const versions = await versionsControllerApi.getVersions({
       authorization: token,
     });
     if (!versions || !versions.data) {
       throw new NotFoundException('Versions not found');
     }
-    const version = versions.data?.find((v: any) => v.version === versionId);
+    const version = versions.data?.find((v: any) => v.version === versionNumber);
     if (!version) {
       throw new Error('todo'); // todo error handling
     }
     const versionDetails = await versionsControllerApi.getVersion({
       authorization: token,
-      versionId: versionId,
+      version: versionNumber,
     });
     if (!versionDetails) {
       throw new Error('todo'); // todo error handling
     }
     const existingVersion: Version = await this.versionRepository.readByKey(
-      versionId,
+      versionNumber,
       OcpiNamespace.Version,
     );
     if (!existingVersion) {
@@ -158,7 +153,7 @@ export class CredentialsService {
         url: version.url,
         endpoints: versionDetails.data?.endpoints,
       } as Version,
-      versionId,
+      versionNumber,
       OcpiNamespace.Version,
     );
   }

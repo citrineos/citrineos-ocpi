@@ -3,7 +3,6 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsObject,
   IsString,
   IsUrl,
   MaxLength,
@@ -16,9 +15,7 @@ import {EnergyMix} from './EnergyMix';
 import {Displaytext} from './Displaytext';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
-import {OcpiResponse} from './ocpi.response';
-import {PaginatedResponse} from "./PaginatedResponse";
-import {Session} from "./Session";
+import {PaginatedResponse} from './PaginatedResponse';
 
 export class Tariff {
   @MaxLength(36)

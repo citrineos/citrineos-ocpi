@@ -10,7 +10,7 @@ import {VersionNumber} from '../model/VersionNumber';
 import {VersionNumberParam} from '../util/decorators/version.number.param';
 import {Service} from 'typedi';
 import {AuthToken} from '../util/decorators/auth.token';
-import {AsOcpiOpenRoutingEndpoint} from "../util/decorators/as.ocpi.open.routing.endpoint";
+import {AsOcpiOpenRoutingEndpoint} from '../util/decorators/as.ocpi.open.routing.endpoint';
 
 @Controller(`/${OcpiModules.Credentials}`)
 @Service()

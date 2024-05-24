@@ -1,9 +1,9 @@
-import {OcpiParams} from "../../util/ocpi.params";
-import {Token} from "../../../model/Token";
-import {TokenType} from "../../../model/TokenType";
-import {IsNotEmpty, IsString, Length, ValidateNested} from "class-validator";
-import {Enum} from "../../../util/decorators/enum";
-import {Type} from "class-transformer";
+import {OcpiParams} from '../../util/ocpi.params';
+import {Token} from '../../../model/Token';
+import {TokenType} from '../../../model/TokenType';
+import {IsNotEmpty, IsString, Length, ValidateNested} from 'class-validator';
+import {Enum} from '../../../util/decorators/enum';
+import {Type} from 'class-transformer';
 
 export class PutTokenParams extends OcpiParams {
   @IsString()

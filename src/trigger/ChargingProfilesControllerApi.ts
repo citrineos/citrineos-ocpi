@@ -1,111 +1,73 @@
-import {getOcpiHeaders, setAuthHeader, } from './util';
-import {BaseAPI, HTTPHeaders, OcpiModules} from './BaseApi';
+import {getOcpiHeaders, } from './util';
+import {BaseApi, OcpiModules} from './BaseApi';
 import {ChargingProfileResult} from '../model/ChargingProfileResult';
 import {OcpiResponse} from '../model/ocpi.response';
 import {DeleteChargingProfileParams} from './param/charging.profiles/delete.charging.profile.params';
 import {GetChargingProfileParams} from './param/charging.profiles/get.charging.profile.params';
 import {PutChargingProfileParams} from './param/charging.profiles/put.charging.profile.params';
 import {ChargingProfileResponse} from '../model/ChargingProfileResponse';
+import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
 
-export class ChargingProfilesControllerApi extends BaseAPI {
+export class ChargingProfilesControllerApi extends BaseApi {
 
   CONTROLLER_PATH = OcpiModules.ChargingProfiles;
 
   async deleteChargingProfile(
     params: DeleteChargingProfileParams
   ): Promise<OcpiResponse<ChargingProfileResult>> {
-
     this.validateOcpiParams(params);
-
     this.validateRequiredParam(
       params,
       'sessionId',
       'responseUrl',
     );
-
-    const queryParameters: any = {};
-
-    if (params.responseUrl != null) {
-      queryParameters['response_url'] = params.responseUrl;
-    }
-
-    const headerParameters: HTTPHeaders =
-      getOcpiHeaders(params);
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: '/chargingprofiles/{sessionId}'.replace(
-        'sessionId',
-        encodeURIComponent(String(params.sessionId)),
-      ),
-      method: 'DELETE',
-      headers: headerParameters,
-      query: queryParameters,
+    const queryParameters: IRequestQueryParams = this.newQueryParams();
+    queryParameters.params['response_url'] = params.responseUrl;
+    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    return await this.del<OcpiResponse<ChargingProfileResult>>({
+      version: params.version,
+      path: `${encodeURIComponent(params.sessionId)}`,
+      additionalHeaders,
+      queryParameters,
     });
   }
 
   async getChargingProfile(
     params: GetChargingProfileParams
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
-
     this.validateOcpiParams(params);
-
     this.validateRequiredParam(
       params,
       'sessionId',
       'duration',
       'responseUrl',
     );
-
-    const queryParameters: any = {};
-
-    if (params.duration != null) {
-      queryParameters['duration'] = params.duration;
-    }
-
-    if (params.responseUrl != null) {
-      queryParameters['response_url'] = params.responseUrl;
-    }
-
-    const headerParameters: HTTPHeaders =
-      getOcpiHeaders(params);
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: '/chargingprofiles/{sessionId}'.replace(
-        'sessionId',
-        encodeURIComponent(String(params.sessionId)),
-      ),
-      method: 'GET',
-      headers: headerParameters,
-      query: queryParameters,
+    const queryParameters: IRequestQueryParams = this.newQueryParams();
+    queryParameters.params['duration'] = params.duration;
+    queryParameters.params['response_url'] = params.responseUrl;
+    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    return await this.get<OcpiResponse<ChargingProfileResponse>>({
+      version: params.version,
+      path: `${encodeURIComponent(params.sessionId)}`,
+      additionalHeaders,
+      queryParameters,
     });
   }
 
   async putChargingProfile(
     params: PutChargingProfileParams
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
-
     this.validateOcpiParams(params);
-
     this.validateRequiredParam(
       params,
       'sessionId',
       'setChargingProfile',
     );
-
-    const headerParameters: HTTPHeaders =
-      getOcpiHeaders(params);
-
-    setAuthHeader(headerParameters);
-    return await this.request({
-      path: '/chargingprofiles/{sessionId}'.replace(
-        'sessionId',
-        encodeURIComponent(String(params.sessionId)),
-      ),
-      method: 'PUT',
-      headers: headerParameters,
-      body: params.setChargingProfile,
-    });
+    const additionalHeaders: IHeaders = getOcpiHeaders(params);
+    return await this.replace<OcpiResponse<ChargingProfileResponse>>({
+      version: params.version,
+      path: `${encodeURIComponent(params.sessionId)}`,
+      additionalHeaders,
+    }, params.setChargingProfile);
   }
 }

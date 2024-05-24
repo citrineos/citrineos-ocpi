@@ -1,6 +1,6 @@
 import {VersionNumber} from './VersionNumber';
-import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested,} from 'class-validator';
-import {Column, DataType, Model, PrimaryKey, Table,} from 'sequelize-typescript';
+import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested, } from 'class-validator';
+import {Column, DataType, Model, PrimaryKey, Table, } from 'sequelize-typescript';
 import {Endpoint} from './Endpoint';
 import {Enum} from '../util/decorators/enum';
 import {OcpiNamespace} from '../util/ocpi.namespace';

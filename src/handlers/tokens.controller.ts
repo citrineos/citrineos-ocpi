@@ -1,16 +1,16 @@
-import {Controller, Get, Param, Post} from "routing-controllers";
-import {OcpiModules} from "../trigger/BaseApi";
-import {Service} from "typedi";
-import {BaseController} from "./base.controller";
-import {AsOcpiEndpoint} from "../util/decorators/as.ocpi.endpoint";
-import {ResponseSchema} from "../openapi-spec-helper";
-import {HttpStatus} from "@citrineos/base";
-import {PaginatedParams} from "../trigger/param/paginated.params";
-import {PaginatedTokenResponse} from "../model/Token";
-import {Paginated} from "../util/decorators/paginated";
-import {AuthorizationInfo} from "../model/AuthorizationInfo";
-import {TokenType} from "../model/TokenType";
-import {EnumQueryParam} from "../util/decorators/enum.query.param";
+import {Controller, Get, Param, Post} from 'routing-controllers';
+import {OcpiModules} from '../trigger/BaseApi';
+import {Service} from 'typedi';
+import {BaseController} from './base.controller';
+import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {ResponseSchema} from '../openapi-spec-helper';
+import {HttpStatus} from '@citrineos/base';
+import {PaginatedParams} from '../trigger/param/paginated.params';
+import {PaginatedTokenResponse} from '../model/Token';
+import {Paginated} from '../util/decorators/paginated';
+import {AuthorizationInfo} from '../model/AuthorizationInfo';
+import {TokenType} from '../model/TokenType';
+import {EnumQueryParam} from '../util/decorators/enum.query.param';
 
 @Controller(`/${OcpiModules.Tokens}`)
 @Service()

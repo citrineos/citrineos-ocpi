@@ -1,17 +1,17 @@
-import {HTTPHeaders} from './BaseApi';
 import {OcpiParams} from './util/ocpi.params';
 import {OcpiHttpHeader} from '../util/ocpi.http.header';
+import {IHeaders} from 'typed-rest-client/Interfaces';
 
-export const setAuthHeader = (headerParameters: HTTPHeaders) => {
+export const setAuthHeader = (headerParameters: IHeaders) => {
   const tokenString = 'todo'; // todo get token from credentials
   headerParameters['Authorization'] = `Bearer ${tokenString}`;
 };
 
 export const getOcpiHeaders = (
   params: OcpiParams,
-): HTTPHeaders => {
+): IHeaders => {
 
-  const headerParameters: HTTPHeaders = {};
+  const headerParameters: IHeaders = {};
 
   if (params.xRequestId != null) {
     headerParameters[OcpiHttpHeader.XRequestId] = String(params.xRequestId);
@@ -36,6 +36,8 @@ export const getOcpiHeaders = (
   if (params.toPartyId != null) {
     headerParameters[OcpiHttpHeader.OcpiToPartyId] = String(params.toPartyId);
   }
+
+  setAuthHeader(headerParameters);
 
   return headerParameters;
 };

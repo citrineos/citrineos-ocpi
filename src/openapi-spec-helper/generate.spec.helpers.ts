@@ -10,12 +10,12 @@ import {mergeDeep} from './merge.deep';
 import {capitalize} from './capitalize';
 import {smartcase} from './smart.case';
 import {ENUM_PARAM} from '../util/decorators/enum.param';
-import {refPointerPrefix,} from './class.validator';
+import {refPointerPrefix, } from './class.validator';
 import {SchemaStore} from './schema.store';
 import {MULTIPLE_TYPES} from '../util/decorators/multiple.types';
 import {Constructor} from '../util/util';
-import {HttpHeader} from "@citrineos/base";
-import {ENUM_QUERY_PARAM} from "../util/decorators/enum.query.param";
+import {HttpHeader} from '@citrineos/base';
+import {ENUM_QUERY_PARAM} from '../util/decorators/enum.query.param';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -327,7 +327,7 @@ export function getPathParams(route: IRoute): oa.ParameterObject[] {
  */
 export function getQueryParams(
   route: IRoute,
-  schemas: { [p: string]: oa.SchemaObject },
+  _schemas: { [p: string]: oa.SchemaObject },
 ): oa.ParameterObject[] {
   const queries: oa.ParameterObject[] = route.params
     .filter((p) => p.type === 'query')

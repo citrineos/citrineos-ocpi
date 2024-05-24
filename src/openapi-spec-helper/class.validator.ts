@@ -1,4 +1,4 @@
-import {getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes,} from 'class-validator';
+import {getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes, } from 'class-validator';
 import {targetConstructorToSchema} from 'class-validator-jsonschema';
 import {ISchemaConverters} from 'class-validator-jsonschema/build/defaultConverters';
 import {IOptions} from 'class-validator-jsonschema/build/options';
@@ -9,7 +9,7 @@ import {ValidationMetadata} from 'class-validator/types/metadata/ValidationMetad
 // @ts-expect-error importing js directly from class-transformer
 import {defaultMetadataStorage} from 'class-transformer/cjs/storage.js';
 import {SchemaStore} from './schema.store';
-import {OPTIONAL_PARAM} from "../util/decorators/optional";
+import {OPTIONAL_PARAM} from '../util/decorators/optional';
 
 export const refPointerPrefix = '#/components/schemas/';
 
@@ -61,12 +61,10 @@ const getIsArray = (meta: ValidationMetadata): boolean => {
 };
 
 const additionalConverters: ISchemaConverters = {
-  [IS_DATE_STRING]: (_meta: ValidationMetadata, _: IOptions) => {
-    return {
+  [IS_DATE_STRING]: (_meta: ValidationMetadata, _: IOptions) => ({
       format: 'date-time',
       type: 'string',
-    };
-  },
+    }),
   [IS_ENUM]: (meta: ValidationMetadata, _: IOptions) => {
 
     const enumObject = meta.constraints[0]; // Assuming the first constraint is the enum object

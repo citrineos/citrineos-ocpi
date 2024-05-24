@@ -1,9 +1,9 @@
-import {KoaMiddlewareInterface, Middleware,} from 'routing-controllers';
+import {KoaMiddlewareInterface, Middleware, } from 'routing-controllers';
 import {Context} from 'vm';
 import {Service} from 'typedi';
-import {BaseMiddleware} from "./base.middleware";
-import {DEFAULT_LIMIT, DEFAULT_OFFSET, PaginatedResponse} from "../../model/PaginatedResponse";
-import {OcpiHttpHeader} from "../ocpi.http.header";
+import {BaseMiddleware} from './base.middleware';
+import {DEFAULT_LIMIT, DEFAULT_OFFSET, PaginatedResponse} from '../../model/PaginatedResponse';
+import {OcpiHttpHeader} from '../ocpi.http.header';
 
 /**
  * PaginatedMiddleware will handle pulling limit, offset and total out of the {@link PaginatedResponse} and ensuring

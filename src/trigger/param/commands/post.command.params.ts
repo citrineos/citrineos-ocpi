@@ -1,7 +1,7 @@
 import {OcpiParams} from '../../util/ocpi.params';
 import {IsNotEmpty, IsString, ValidateNested} from 'class-validator';
 import {Type} from 'class-transformer';
-import {CommandResult} from "../../../model/CommandResult";
+import {CommandResult} from '../../../model/CommandResult';
 
 export class PostCommandParams extends OcpiParams {
   @IsNotEmpty()

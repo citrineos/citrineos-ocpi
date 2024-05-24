@@ -18,7 +18,7 @@ import {OpenAPIObject} from 'openapi3-ts';
 import {OcpiSequelizeInstance} from './util/sequelize';
 import {LoggingMiddleware} from './util/middleware/logging.middleware';
 import KoaLogger from 'koa-logger';
-import {TokensController} from "./handlers/tokens.controller";
+import {TokensController} from './handlers/tokens.controller';
 
 /**
  * Main server class that starts Koa app and Swagger UI

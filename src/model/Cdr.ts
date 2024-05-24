@@ -21,7 +21,8 @@ import {Tariff} from './Tariff';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {Enum} from '../util/decorators/enum';
-import {PaginatedResponse} from "./PaginatedResponse";
+import {PaginatedResponse} from './PaginatedResponse';
+import {OcpiResponse} from './ocpi.response';
 
 export class Cdr {
   @MaxLength(2)
@@ -177,6 +178,14 @@ export class Cdr {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
+}
+
+export class CdrResponse extends OcpiResponse<Cdr> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => Cdr)
+  @ValidateNested()
+  data!: Cdr;
 }
 
 export class PaginatedCdrResponse extends PaginatedResponse<Cdr> {
