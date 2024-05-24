@@ -1,10 +1,9 @@
-import {getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes, } from 'class-validator';
+import {getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes,} from 'class-validator';
 import {targetConstructorToSchema} from 'class-validator-jsonschema';
 import {ISchemaConverters} from 'class-validator-jsonschema/build/defaultConverters';
 import {IOptions} from 'class-validator-jsonschema/build/options';
 import {Constructor} from '../util/util';
 import type {SchemaObject} from 'openapi3-ts';
-import {ReferenceObject} from 'openapi3-ts';
 import {ValidationMetadata} from 'class-validator/types/metadata/ValidationMetadata';
 // @ts-expect-error importing js directly from class-transformer
 import {defaultMetadataStorage} from 'class-transformer/cjs/storage.js';
@@ -62,9 +61,9 @@ const getIsArray = (meta: ValidationMetadata): boolean => {
 
 const additionalConverters: ISchemaConverters = {
   [IS_DATE_STRING]: (_meta: ValidationMetadata, _: IOptions) => ({
-      format: 'date-time',
-      type: 'string',
-    }),
+    format: 'date-time',
+    type: 'string',
+  }),
   [IS_ENUM]: (meta: ValidationMetadata, _: IOptions) => {
 
     const enumObject = meta.constraints[0]; // Assuming the first constraint is the enum object
@@ -86,80 +85,48 @@ const additionalConverters: ISchemaConverters = {
       }
     }
 
-    const isOptional = Reflect.getMetadata(
-      OPTIONAL_PARAM,
-      (meta.target as any).prototype,
-      meta.propertyName,
-    );
-    if (isOptional) {
-      return {
-        oneOf: [
-          {
-            type: null,
-          },
-          {
-            $ref: `#/components/schemas/${enumName}`,
-          },
-        ],
-      };
-    } else {
-      return {
-        $ref: `#/components/schemas/${enumName}`,
-      };
-    }
+    return {
+      $ref: `#/components/schemas/${enumName}`,
+    };
   },
   [IS_ARRAY]: (meta: ValidationMetadata, options: IOptions) => {
+    const typeMeta = options.classTransformerMetadataStorage
+      ? options.classTransformerMetadataStorage.findTypeMetadata(
+        meta.target as any,
+        meta.propertyName,
+      )
+      : null;
+
+    const childType = typeMeta
+      ? typeMeta.typeFunction()
+      : getPropType((meta.target as any).prototype, meta.propertyName);
+
+    const schema = targetToSchema(childType, options);
     const isOptional = Reflect.getMetadata(
       OPTIONAL_PARAM,
       (meta.target as any).prototype,
       meta.propertyName,
     );
     if (isOptional) {
-      const typeMeta = options.classTransformerMetadataStorage
-        ? options.classTransformerMetadataStorage.findTypeMetadata(
-          meta.target as any,
-          meta.propertyName,
-        )
-        : null;
-
-      const childType = typeMeta
-        ? typeMeta.typeFunction()
-        : getPropType((meta.target as any).prototype, meta.propertyName);
-
-      const schema = targetToSchema(childType, options);
-
-      const anyOf: (SchemaObject | ReferenceObject)[] = [
-        {
-          type: null,
-        } as any,
-      ];
       if (schema && schema.$ref) {
-        anyOf.unshift({
+        return {
           type: 'array',
+          nullable: true,
           items: {
             $ref: schema.$ref,
           },
-        });
-      }
-      if (anyOf.length === 1) {
-        return {
-          type: null,
-          anyOf: [
-            {
-              type: null,
-            },
-          ],
         };
       } else {
         return {
-          anyOf,
-          type: null,
+          nullable: true,
         };
       }
     } else {
       return {
-        items: {},
         type: 'array',
+        items: {
+          $ref: schema.$ref,
+        },
       };
     }
   },
@@ -217,22 +184,14 @@ const additionalConverters: ISchemaConverters = {
       }
 
       if (isOptional) {
-        const anyOf: (SchemaObject | ReferenceObject)[] = [
-          {
-            type: null,
-          } as any,
-        ];
         if (schema && schema.$ref) {
-          const obj: SchemaObject | ReferenceObject = {$ref: schema.$ref};
-          anyOf.unshift(obj);
-        }
-        if (anyOf.length === 1) {
           return {
-            type: null,
+            nullable: true,
+            $ref: schema.$ref
           };
         } else {
           return {
-            anyOf,
+            nullable: true
           };
         }
       } else {
