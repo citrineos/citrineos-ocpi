@@ -18,6 +18,7 @@ export class CredentialsService {
     private logger: OcpiLogger,
     private credentialsRepository: CredentialsRepository,
     private versionRepository: VersionRepository,
+    private versionsControllerApi: VersionsControllerApi,
   ) {
   }
 
@@ -42,25 +43,20 @@ export class CredentialsService {
   async postCredentials(
     token: string,
     credentials: Credentials,
-    versionId: VersionNumber
+    version: VersionNumber
   ): Promise<CredentialsResponse> {
-    await this.getAndUpdateVersions(
-      credentials.url,
-      credentials.token,
-      versionId
-    );
+    await this.getAndUpdateVersions(version, credentials);
     return this.updateExistingCredentialsTokenWithNewGeneratedToken(token);
   }
 
   async putCredentials(
     token: string,
     credentials: Credentials,
-    versionId: VersionNumber
+    version: VersionNumber
   ): Promise<CredentialsResponse> {
     await this.getAndUpdateVersions(
-      credentials.url,
-      credentials.token,
-      versionId
+      version,
+      credentials
     );
     return this.updateExistingCredentialsTokenWithNewGeneratedToken(token);
   }
@@ -118,38 +114,30 @@ export class CredentialsService {
   }
 
   private async getAndUpdateVersions(
-    url: string,
-    token: string,
     versionNumber: VersionNumber,
+    credentials: Credentials
   ) {
-    const versionsControllerApi = new VersionsControllerApi(url);
-    const versions = await versionsControllerApi.getVersions({
-      authorization: token,
+    this.versionsControllerApi.baseUrl = credentials.url;
+    const versions = await this.versionsControllerApi.getVersions({
+      authorization: credentials.token,
     });
     if (!versions || !versions.data) {
       throw new NotFoundException('Versions not found');
     }
     const version = versions.data?.find((v: any) => v.version === versionNumber);
     if (!version) {
-      throw new Error('todo'); // todo error handling
+      throw new NotFoundException('Matching version not found');
     }
-    const versionDetails = await versionsControllerApi.getVersion({
-      authorization: token,
+    const versionDetails = await this.versionsControllerApi.getVersion({
+      authorization: credentials.token,
       version: versionNumber,
     });
     if (!versionDetails) {
-      throw new Error('todo'); // todo error handling
+      throw new NotFoundException('Matching version details not found');
     }
-    const existingVersion: Version = await this.versionRepository.readByKey(
-      versionNumber,
-      OcpiNamespace.Version,
-    );
-    if (!existingVersion) {
-      throw new Error('todo'); // todo error handling
-    }
-    await this.versionRepository.updateByKey(
+    return await this.versionRepository.updateByKey(
       {
-        ...existingVersion,
+        version: versionNumber,
         url: version.url,
         endpoints: versionDetails.data?.endpoints,
       } as Version,

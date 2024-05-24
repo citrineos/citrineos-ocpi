@@ -37,10 +37,20 @@ export interface TriggerRequestOptions extends IRequestOptions {
 export class BaseApi {
 
   CONTROLLER_PATH = 'null';
-  private restClient: RestClient;
+  private _baseUrl = 'http://localhost:3000';
+  private restClient!: RestClient;
 
-  constructor(readonly baseUrl: string = 'http://localhost:3000') {
-    this.restClient = new RestClient('CitrineOS OCPI', baseUrl);
+  constructor() {
+    this.initRestClient();
+  }
+
+  get baseUrl(): string {
+    return this._baseUrl;
+  }
+
+  set baseUrl(value: string) {
+    this._baseUrl = value;
+    this.initRestClient();
   }
 
   async optionsRaw<T>(url: string, options?: IRequestOptions): Promise<IRestResponse<T>> {
@@ -213,4 +223,8 @@ export class BaseApi {
 
     return headerParameters;
   };
+
+  private initRestClient() {
+    this.restClient = new RestClient(`CitrineOS OCPI ${this.CONTROLLER_PATH}`, this.baseUrl);
+  }
 }
