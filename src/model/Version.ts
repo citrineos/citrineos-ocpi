@@ -1,6 +1,6 @@
 import {VersionNumber} from './VersionNumber';
 import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested,} from 'class-validator';
-import {Column, DataType, Model, PrimaryKey, Table,} from 'sequelize-typescript';
+import {Column, DataType, Model, PrimaryKey, Table, HasMany} from 'sequelize-typescript';
 import {Endpoint} from './Endpoint';
 import {Enum} from '../util/decorators/enum';
 import {OcpiNamespace} from '../util/ocpi.namespace';
@@ -66,24 +66,21 @@ export class VersionDetailsDTOResponse extends OcpiResponse<VersionDetailsDTO> {
 export class Version extends Model {
   static readonly MODEL_NAME: string = OcpiNamespace.Version;
 
-  @PrimaryKey
   @Column({
     type: DataType.STRING,
     unique: 'version_number_type',
+    primaryKey: true,
   })
   @IsNotEmpty()
   @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+  declare version: VersionNumber;
 
   @Column(DataType.STRING)
   @IsString()
   @IsUrl()
-  url!: string;
+  declare url: string;
 
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsNotEmpty()
-  @Type(() => Endpoint)
+  @HasMany(() => Endpoint)
   endpoints!: Endpoint[];
 
   public toVersionDTO(): VersionDTO {

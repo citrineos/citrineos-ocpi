@@ -30,13 +30,13 @@ export class VersionService {
 
   async getVersionDetails(
     token: string,
-    versionId: VersionNumber
+    version: VersionNumber
   ): Promise<VersionDetailsDTOResponse> {
     await this.credentialsRepository.authorizeToken(token);
-    const version: Version = await this.versionRepository.readByKey(
-      versionId,
+    const versionDetail: Version = await this.versionRepository.readByKey(
+      version,
       OcpiNamespace.Version,
     );
-    return VersionDetailsDTOResponse.build(OcpiResponseStatusCode.GenericSuccessCode, version.toVersionDetailsDTO());
+    return VersionDetailsDTOResponse.build(OcpiResponseStatusCode.GenericSuccessCode, versionDetail.toVersionDetailsDTO());
   }
 }
