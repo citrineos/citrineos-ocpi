@@ -12,7 +12,7 @@ export = {
             await queryInterface.bulkInsert('Credentials', [
                 {
                     token: 'example-token',
-                    url: 'https://citrineos.app/ocpi/versions/',
+                    url: 'https://localhost:8085/ocpi/versions/',
                     roles: JSON.stringify([
                         {
                             role: 'CPO',

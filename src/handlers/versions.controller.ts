@@ -1,4 +1,4 @@
-import {Controller, Get} from 'routing-controllers';
+import {Get, JsonController} from 'routing-controllers';
 import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
 import {ResponseSchema} from '../openapi-spec-helper';
@@ -11,38 +11,38 @@ import {Service} from 'typedi';
 import {AuthToken} from '../util/decorators/auth.token';
 import {AsOcpiOpenRoutingEndpoint} from '../util/decorators/as.ocpi.open.routing.endpoint';
 
-@Controller(`/${OcpiModules.Versions}`)
+@JsonController(`/${OcpiModules.Versions}`)
 @Service()
 export class VersionsController extends BaseController {
 
-  constructor(
-    readonly versionService: VersionService
-  ) {
-    super();
-  }
+    constructor(
+        readonly versionService: VersionService
+    ) {
+        super();
+    }
 
-  @Get()
-  @AsOcpiOpenRoutingEndpoint()
-  @ResponseSchema(VersionDTOListResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-  })
-  async getVersions(
-    @AuthToken() token: string
-  ): Promise<VersionDTOListResponse> {
-    return this.versionService.getVersions(token);
-  }
+    @Get()
+    @AsOcpiOpenRoutingEndpoint()
+    @ResponseSchema(VersionDTOListResponse, {
+        statusCode: HttpStatus.OK,
+        description: 'Successful response',
+    })
+    async getVersions(
+        @AuthToken() token: string
+    ): Promise<VersionDTOListResponse> {
+        return this.versionService.getVersions(token);
+    }
 
-  @Get('/:versionId')
-  @AsOcpiOpenRoutingEndpoint()
-  @ResponseSchema(VersionDetailsDTOResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-  })
-  async getVersionDetails(
-    @AuthToken() token: string,
-    @VersionNumberParam() versionId: VersionNumber,
-  ): Promise<VersionDetailsDTOResponse> {
-    return this.versionService.getVersionDetails(token, versionId);
-  }
+    @Get('/:versionNumberId')
+    @AsOcpiOpenRoutingEndpoint()
+    @ResponseSchema(VersionDetailsDTOResponse, {
+        statusCode: HttpStatus.OK,
+        description: 'Successful response',
+    })
+    async getVersionDetails(
+        @AuthToken() token: string,
+        @VersionNumberParam() versionNumberId: VersionNumber
+    ): Promise<VersionDetailsDTOResponse> {
+        return this.versionService.getVersionDetails(token, versionNumberId);
+    }
 }

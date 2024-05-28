@@ -5,6 +5,7 @@ import {OcpiNamespace} from '../util/ocpi.namespace';
 import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
 import {OcpiResponseStatusCode} from '../model/ocpi.response';
+import {Endpoint} from "../model/Endpoint";
 
 @Service()
 export class VersionService {
@@ -33,9 +34,12 @@ export class VersionService {
     version: VersionNumber
   ): Promise<VersionDetailsDTOResponse> {
     await this.credentialsRepository.authorizeToken(token);
-    const versionDetail: Version = await this.versionRepository.readByKey(
-      version,
-      OcpiNamespace.Version,
+
+    const versionDetail: Version = await this.versionRepository.readByQuery({
+      where: {version: version},
+      include: [Endpoint],
+    },
+      OcpiNamespace.Version
     );
     return VersionDetailsDTOResponse.build(OcpiResponseStatusCode.GenericSuccessCode, versionDetail.toVersionDetailsDTO());
   }

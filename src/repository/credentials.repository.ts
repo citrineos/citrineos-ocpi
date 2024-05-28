@@ -47,7 +47,7 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
       OcpiNamespace.Credentials
     );
     if (credentials && credentials.length > 0 && countryCode && partyId) {
-      return credentials.find(creds => creds.dataValues.roles.some((role: CredentialsRole) => role.country_code === countryCode && role.party_id === partyId));
+      return credentials.find(creds =>  creds.roles.some((role: CredentialsRole) => role.country_code === countryCode && role.party_id === partyId));
     }
     return credentials[0];
   };
