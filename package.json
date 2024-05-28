@@ -10,7 +10,10 @@
   "scripts": {
     "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
     "start": "nodemon src/index.ts",
-    "test": "jest --config jest.config.js"
+    "test": "jest --config jest.config.js",
+    "init-db": "sequelize-cli db:migrate && sequelize-cli db:migrate:schema:timestamps:add",
+    "seed-db": "sequelize-cli db:seed:all"
+
   },
   "keywords": [
     "ocpp",
