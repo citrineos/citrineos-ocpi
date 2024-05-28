@@ -5,6 +5,7 @@ import {Credentials} from '../model/Credentials';
 import {Version} from '../model/Version';
 import {OcpiServerConfig} from '../config/ocpi.server.config';
 import {Service} from 'typedi';
+import {Endpoint} from "../model/Endpoint";
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -26,7 +27,8 @@ export class OcpiSequelizeInstance {
       storage: config.data.sequelize.storage,
       models: [
         Credentials,
-        Version
+        Version,
+        Endpoint
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

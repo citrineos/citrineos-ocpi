@@ -2,6 +2,7 @@ import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested}
 import {Service} from 'typedi';
 import {Type} from 'class-transformer';
 import {Enum} from '../util/decorators/enum';
+import 'reflect-metadata';
 
 class SequelizeConfig {
 
@@ -71,7 +72,7 @@ const defaultSequelizeConfig: SequelizeConfig = new SequelizeConfig(
   'postgres',
   'citrine',
   'citrine',
-  '',
+  'squelize',
   false,
   true,
 );
