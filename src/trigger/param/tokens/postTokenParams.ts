@@ -1,11 +1,12 @@
 import {OcpiParams} from '../../util/ocpi.params';
-import {Token} from '../../../model/Token';
 import {TokenType} from '../../../model/TokenType';
 import {IsNotEmpty, IsString, Length, ValidateNested} from 'class-validator';
 import {Enum} from '../../../util/decorators/enum';
 import {Type} from 'class-transformer';
+import {LocationReferences} from "../../../model/LocationReferences";
+import {Optional} from "../../../util/decorators/optional";
 
-export class PutTokenParams extends OcpiParams {
+export class PostTokenParams extends OcpiParams {
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
@@ -15,8 +16,8 @@ export class PutTokenParams extends OcpiParams {
   @IsNotEmpty()
   type?: TokenType;
 
-  @IsNotEmpty()
-  @Type(() => Token)
+  @Optional()
+  @Type(() => LocationReferences)
   @ValidateNested()
-  token!: Token;
+  locationReferences?: LocationReferences;
 }

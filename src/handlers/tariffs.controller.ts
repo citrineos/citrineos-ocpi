@@ -5,7 +5,7 @@ import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.en
 import {PaginatedTariffResponse} from '../model/Tariff';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
-import {PaginatedParams} from '../trigger/param/paginated.params';
+import {PaginatedParams} from './param/paginated.params';
 import {Paginated} from '../util/decorators/paginated';
 import {ModuleId} from "../model/ModuleId";
 

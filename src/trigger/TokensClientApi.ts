@@ -1,61 +1,30 @@
 import {BaseClientApi} from './BaseClientApi';
-import {TokenResponse} from '../model/Token';
-import {GetTokenParams} from './param/tokens/get.token.params';
-import {PatchTokenParams} from './param/tokens/patch.token.params';
-import {PutTokenParams} from './param/tokens/put.token.params';
-import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
+import {PaginatedTokenResponse} from '../model/Token';
+import {PostTokenParams} from './param/tokens/postTokenParams';
 import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
-
+import {AuthorizationInfo} from "../model/AuthorizationInfo";
+import {PaginatedOcpiParams} from "./param/paginated.ocpi.params";
 
 export class TokensClientApi extends BaseClientApi {
-  async getToken(
-    params: GetTokenParams
-  ): Promise<TokenResponse> {
+
+  async getTokens(
+    params: PaginatedOcpiParams
+  ): Promise<PaginatedTokenResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
       'tokenId',
     );
-    const queryParameters: IRequestQueryParams = this.newQueryParams();
-    queryParameters.params['type'] = params.type as string;
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<TokenResponse>({
+    return await this.get<PaginatedTokenResponse>({
       version: params.version,
-      path: '{countryCode}/{partyId}/{tokenId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('tokenId', encodeURIComponent(params.tokenId)),
       additionalHeaders,
-      queryParameters
     });
   }
 
-  async patchToken(
-    params: PatchTokenParams
-  ): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(
-      params,
-      'tokenId',
-      'requestBody',
-    );
-    const queryParameters: IRequestQueryParams = this.newQueryParams();
-    queryParameters.params['type'] = params.type as string;
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return this.update<OcpiEmptyResponse>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{tokenId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('tokenId', encodeURIComponent(params.tokenId)),
-      additionalHeaders,
-      queryParameters
-    }, params.requestBody);
-  }
-
-  async putToken(
-    params: PutTokenParams
-  ): Promise<OcpiEmptyResponse> {
+  async postToken(
+    params: PostTokenParams
+  ): Promise<AuthorizationInfo> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -63,17 +32,14 @@ export class TokensClientApi extends BaseClientApi {
       'token',
     );
     const queryParameters: IRequestQueryParams = this.newQueryParams();
-
     queryParameters.params['type'] = params.type as string;
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace<OcpiEmptyResponse>({
+    return await this.create<AuthorizationInfo>({
       version: params.version,
-      path: '{countryCode}/{partyId}/{tokenId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
+      path: '{tokenId}/authorize'
         .replace('tokenId', encodeURIComponent(params.tokenId)),
       additionalHeaders,
       queryParameters
-    }, params.token);
+    }, params.locationReferences);
   }
 }

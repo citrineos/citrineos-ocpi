@@ -7,7 +7,7 @@ import {EvseResponse} from '../model/Evse';
 import {ConnectorResponse} from '../model/Connector';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
-import {PaginatedParams} from '../trigger/param/paginated.params';
+import {PaginatedParams} from './param/paginated.params';
 import {Paginated} from '../util/decorators/paginated';
 import {ModuleId} from "../model/ModuleId";
 
