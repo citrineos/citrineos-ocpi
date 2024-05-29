@@ -10,7 +10,7 @@ import {mergeDeep} from './merge.deep';
 import {capitalize} from './capitalize';
 import {smartcase} from './smart.case';
 import {ENUM_PARAM} from '../util/decorators/enum.param';
-import {refPointerPrefix, } from './class.validator';
+import {refPointerPrefix,} from './class.validator';
 import {SchemaStore} from './schema.store';
 import {MULTIPLE_TYPES} from '../util/decorators/multiple.types';
 import {Constructor} from '../util/util';
@@ -48,7 +48,7 @@ function isRequired(meta: { required?: boolean }, route: IRoute) {
  */
 export function getContentType(route: IRoute): string {
   const defaultContentType =
-    route.controller.type === 'json'
+    ['json', 'default'].indexOf(route.controller.type) > -1
       ? 'application/json'
       : 'text/html; charset=utf-8';
   const contentMeta = route.responseHandlers.find(

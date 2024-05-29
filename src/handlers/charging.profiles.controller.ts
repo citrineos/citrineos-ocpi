@@ -1,5 +1,5 @@
 import {Body, Controller, Param, Post, Put} from 'routing-controllers';
-import {BaseController} from './base.controller';
+import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {HttpStatus} from '@citrineos/base';
 import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult';
 import {ActiveChargingProfile} from '../model/ActiveChargingProfile';
@@ -11,6 +11,8 @@ import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {ModuleId} from "../model/ModuleId";
 
+const MOCK = generateMockOcpiResponse(OcpiEmptyResponse);
+
 @Controller(`/${ModuleId.Chargingprofiles}`)
 @Service()
 export class ChargingProfilesController extends BaseController {
@@ -19,12 +21,15 @@ export class ChargingProfilesController extends BaseController {
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {
+      success: MOCK
+    }
   })
   async postGenericChargingProfileResult(
     @Param('id') _id: string,
     @Body() _activeChargingProfileResult: ActiveChargingProfileResult | ChargingProfileResult | ClearChargingProfileResult
   ): Promise<OcpiEmptyResponse> {
-    return this.generateMockOcpiResponse(OcpiEmptyResponse);
+    return MOCK;
   }
 
   @Put('/:sessionId')
@@ -32,11 +37,14 @@ export class ChargingProfilesController extends BaseController {
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {
+      success: MOCK
+    }
   })
   async putSenderChargingProfile(
     @Param('sessionId') _sessionId: string,
     @Body() _activeChargingProfile: ActiveChargingProfile,
   ): Promise<OcpiEmptyResponse> {
-    return this.generateMockOcpiResponse(OcpiEmptyResponse);
+    return MOCK;
   }
 }

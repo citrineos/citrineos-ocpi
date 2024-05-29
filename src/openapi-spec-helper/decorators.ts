@@ -1,4 +1,4 @@
-import {OperationObject, ReferenceObject, ResponsesObject, SchemaObject, } from 'openapi3-ts';
+import {OperationObject, ReferenceObject, ResponsesObject, SchemaObject,} from 'openapi3-ts';
 import 'reflect-metadata';
 import {IRoute} from './parse.metadata';
 import {getContentType, getStatusCode} from './generate.spec.helpers';
@@ -84,7 +84,6 @@ export function applyOpenAPIDecorator(
   ) as OperationObject;
 }
 
-
 /**
  * Supplement action with response body type annotation.
  */
@@ -96,6 +95,7 @@ export function ResponseSchema(
     description?: string;
     statusCode?: string | number;
     isArray?: boolean;
+    examples?: any;
   } = {},
 ) {
   const setResponseSchema = (source: OperationObject, route: IRoute) => {
@@ -119,13 +119,18 @@ export function ResponseSchema(
       const schema: SchemaObject | ReferenceObject = isArray
         ? {items: reference, type: 'array'}
         : reference;
+
+      const content = {
+        [contentType]: {
+          schema,
+        },
+      };
+      if (options.examples) {
+        (content[contentType] as any).examples = options.examples;
+      }
       const responses: ResponsesObject = {
         [statusCode]: {
-          content: {
-            [contentType]: {
-              schema,
-            },
-          },
+          content,
           description,
         },
       };

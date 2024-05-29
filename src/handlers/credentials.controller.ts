@@ -12,6 +12,7 @@ import {AuthToken} from '../util/decorators/auth.token';
 import {AsOcpiRegistrationEndpoint} from '../util/decorators/as.ocpi.registration.endpoint';
 import {ModuleId} from "../model/ModuleId";
 
+
 @Controller(`/${ModuleId.Credentials}`)
 @Service()
 export class CredentialsController extends BaseController {
@@ -25,6 +26,7 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {} // todo real example
   })
   async getCredentials(
     @AuthToken() token: string,
@@ -37,6 +39,7 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {} // todo real example
   })
   async postCredentials(
     @AuthToken() token: string,
@@ -51,6 +54,7 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {} // todo real example
   })
   async putCredentials(
     @AuthToken() token: string,
@@ -65,6 +69,7 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {} // todo real example
   })
   async deleteCredentials(
     @AuthToken() token: string

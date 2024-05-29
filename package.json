@@ -12,8 +12,8 @@
     "start": "nodemon src/index.ts",
     "test": "jest --config jest.config.js",
     "init-db": "sequelize-cli db:migrate && sequelize-cli db:migrate:schema:timestamps:add",
-    "seed-db": "sequelize-cli db:seed:all"
-
+    "seed-db": "sequelize-cli db:seed:all",
+    "mock": "mockoon-cli start --data http://localhost:8085/docs/spec --port 3000"
   },
   "keywords": [
     "ocpp",
@@ -40,6 +40,7 @@
     "@citrineos/util": "1.1.1",
     "@koa/multer": "^3.0.2",
     "@koa/router": "^12.0.1",
+    "@mockoon/cli": "^8.1.1",
     "@types/event-emitter": "^0.3.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

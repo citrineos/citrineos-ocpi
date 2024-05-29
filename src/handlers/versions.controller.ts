@@ -15,34 +15,36 @@ import {ModuleId} from "../model/ModuleId";
 @Service()
 export class VersionsController extends BaseController {
 
-    constructor(
-        readonly versionService: VersionService
-    ) {
-        super();
-    }
+  constructor(
+    readonly versionService: VersionService
+  ) {
+    super();
+  }
 
-    @Get()
-    @AsOcpiRegistrationEndpoint()
-    @ResponseSchema(VersionDTOListResponse, {
-        statusCode: HttpStatus.OK,
-        description: 'Successful response',
-    })
-    async getVersions(
-        @AuthToken() token: string
-    ): Promise<VersionDTOListResponse> {
-        return this.versionService.getVersions(token);
-    }
+  @Get()
+  @AsOcpiRegistrationEndpoint()
+  @ResponseSchema(VersionDTOListResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {} // todo real example
+  })
+  async getVersions(
+    @AuthToken() token: string
+  ): Promise<VersionDTOListResponse> {
+    return this.versionService.getVersions(token);
+  }
 
-    @Get('/:versionNumberId')
-    @AsOcpiRegistrationEndpoint()
-    @ResponseSchema(VersionDetailsDTOResponse, {
-        statusCode: HttpStatus.OK,
-        description: 'Successful response',
-    })
-    async getVersionDetails(
-        @AuthToken() token: string,
-        @VersionNumberParam() versionNumberId: VersionNumber
-    ): Promise<VersionDetailsDTOResponse> {
-        return this.versionService.getVersionDetails(token, versionNumberId);
-    }
+  @Get('/:versionNumberId')
+  @AsOcpiRegistrationEndpoint()
+  @ResponseSchema(VersionDetailsDTOResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {} // todo real example
+  })
+  async getVersionDetails(
+    @AuthToken() token: string,
+    @VersionNumberParam() versionNumberId: VersionNumber
+  ): Promise<VersionDetailsDTOResponse> {
+    return this.versionService.getVersionDetails(token, versionNumberId);
+  }
 }
