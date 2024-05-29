@@ -3,13 +3,13 @@ import {HttpStatus} from '@citrineos/base';
 import {PaginatedCdrResponse} from '../model/Cdr';
 import {BaseController} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {OcpiModules} from '../trigger/BaseApi';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
 import {Paginated} from '../util/decorators/paginated';
+import {ModuleId} from "../model/ModuleId";
 
-@Controller(`/${OcpiModules.Cdrs}`)
+@Controller(`/${ModuleId.Cdrs}`)
 @Service()
 export class CdrsController extends BaseController {
 

@@ -1,4 +1,4 @@
-import {BaseApi} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {OcpiResponse} from '../model/ocpi.response';
 import {VersionDetailsDTO, VersionDTO} from '../model/Version';
 import {IHeaders} from 'typed-rest-client/Interfaces';
@@ -13,7 +13,7 @@ export interface GetVersionsRequest {
   authorization: string;
 }
 
-export class VersionsControllerApi extends BaseApi {
+export class VersionsClientApi extends BaseClientApi {
   async getVersion(
     requestParameters: GetVersionRequest,
   ): Promise<OcpiResponse<VersionDetailsDTO>> {

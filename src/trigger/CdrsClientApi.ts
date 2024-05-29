@@ -1,17 +1,18 @@
-import {BaseApi, OcpiModules} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {CdrResponse} from '../model/Cdr';
 import {GetCdrParams} from './param/cdrs/get.cdr.params';
 import {PostCdrParams} from './param/cdrs/post.cdr.params';
 import {IHeaders} from 'typed-rest-client/Interfaces';
 import {NotFoundException} from '../exception/not.found.exception';
+import {ModuleId} from "../model/ModuleId";
 
 interface PostCdrResponseHeaders {
   Location: string;
 }
 
-export class CdrsControllerApi extends BaseApi {
+export class CdrsClientApi extends BaseClientApi {
 
-  CONTROLLER_PATH = OcpiModules.Cdrs;
+  CONTROLLER_PATH = ModuleId.Cdrs;
 
   async getCdr(
     params: GetCdrParams

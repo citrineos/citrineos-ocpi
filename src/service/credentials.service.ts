@@ -1,5 +1,5 @@
 import {CredentialsRepository} from '../repository/credentials.repository';
-import {VersionsControllerApi} from '../trigger/VersionsControllerApi';
+import {VersionsClientApi} from '../trigger/VersionsClientApi';
 import {VersionRepository} from '../repository/version.repository';
 import {v4 as uuidv4} from 'uuid';
 import {NotFoundException} from '../exception/not.found.exception';
@@ -18,7 +18,7 @@ export class CredentialsService {
     private logger: OcpiLogger,
     private credentialsRepository: CredentialsRepository,
     private versionRepository: VersionRepository,
-    private versionsControllerApi: VersionsControllerApi,
+    private versionsControllerApi: VersionsClientApi,
   ) {
   }
 

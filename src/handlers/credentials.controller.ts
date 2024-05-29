@@ -1,5 +1,4 @@
 import {Body, Controller, Delete, Get, Post, Put} from 'routing-controllers';
-import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
 import {Credentials, CredentialsResponse} from '../model/Credentials';
 import {ResponseSchema} from '../openapi-spec-helper';
@@ -11,8 +10,9 @@ import {VersionNumberParam} from '../util/decorators/version.number.param';
 import {Service} from 'typedi';
 import {AuthToken} from '../util/decorators/auth.token';
 import {AsOcpiRegistrationEndpoint} from '../util/decorators/as.ocpi.registration.endpoint';
+import {ModuleId} from "../model/ModuleId";
 
-@Controller(`/${OcpiModules.Credentials}`)
+@Controller(`/${ModuleId.Credentials}`)
 @Service()
 export class CredentialsController extends BaseController {
 

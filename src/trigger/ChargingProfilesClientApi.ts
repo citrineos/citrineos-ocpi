@@ -1,4 +1,4 @@
-import {BaseApi, OcpiModules} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {ChargingProfileResult} from '../model/ChargingProfileResult';
 import {OcpiResponse} from '../model/ocpi.response';
 import {DeleteChargingProfileParams} from './param/charging.profiles/delete.charging.profile.params';
@@ -6,10 +6,11 @@ import {GetChargingProfileParams} from './param/charging.profiles/get.charging.p
 import {PutChargingProfileParams} from './param/charging.profiles/put.charging.profile.params';
 import {ChargingProfileResponse} from '../model/ChargingProfileResponse';
 import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
+import {ModuleId} from "../model/ModuleId";
 
-export class ChargingProfilesControllerApi extends BaseApi {
+export class ChargingProfilesClientApi extends BaseClientApi {
 
-  CONTROLLER_PATH = OcpiModules.ChargingProfiles;
+  CONTROLLER_PATH = ModuleId.Chargingprofiles;
 
   async deleteChargingProfile(
     params: DeleteChargingProfileParams

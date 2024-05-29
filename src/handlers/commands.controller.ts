@@ -2,7 +2,6 @@ import {Body, Controller, Param, Post} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {OcpiModules} from '../trigger/BaseApi';
 import {CommandType} from '../model/CommandType';
 import {CancelReservation} from '../model/CancelReservation';
 import {ReserveNow} from '../model/ReserveNow';
@@ -13,8 +12,9 @@ import {OcpiCommandResponse} from '../model/CommandResponse';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {MultipleTypes} from '../util/decorators/multiple.types';
 import {Service} from 'typedi';
+import {ModuleId} from "../model/ModuleId";
 
-@Controller(`/${OcpiModules.Commands}`)
+@Controller(`/${ModuleId.Commands}`)
 @Service()
 export class CommandsController extends BaseController {
 

@@ -6,18 +6,6 @@ import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
 import {OcpiHttpHeader} from "../util/ocpi.http.header";
 import {HttpHeader} from "@citrineos/base";
 
-export enum OcpiModules {
-  Credentials = 'credentials',
-  Cdrs = 'cdrs',
-  Tariffs = 'tariffs',
-  ChargingProfiles = 'chargingprofiles',
-  Commands = 'commands',
-  Locations = 'locations',
-  Sessions = 'sessions',
-  Versions = 'versions',
-  Tokens = 'tokens',
-}
-
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
 
@@ -34,7 +22,7 @@ export interface TriggerRequestOptions extends IRequestOptions {
   path?: string;
 }
 
-export class BaseApi {
+export class BaseClientApi {
 
   CONTROLLER_PATH = 'null';
   private _baseUrl = 'http://localhost:3000';

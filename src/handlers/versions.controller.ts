@@ -1,5 +1,4 @@
 import {Get, JsonController} from 'routing-controllers';
-import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {HttpStatus} from '@citrineos/base';
@@ -10,8 +9,9 @@ import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
 import {AuthToken} from '../util/decorators/auth.token';
 import {AsOcpiRegistrationEndpoint} from '../util/decorators/as.ocpi.registration.endpoint';
+import {ModuleId} from "../model/ModuleId";
 
-@JsonController(`/${OcpiModules.Versions}`)
+@JsonController(`/${ModuleId.Versions}`)
 @Service()
 export class VersionsController extends BaseController {
 

@@ -1,4 +1,4 @@
-import {BaseApi} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {TokenResponse} from '../model/Token';
 import {GetTokenParams} from './param/tokens/get.token.params';
 import {PatchTokenParams} from './param/tokens/patch.token.params';
@@ -7,7 +7,7 @@ import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
 import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
 
 
-export class TokensControllerApi extends BaseApi {
+export class TokensClientApi extends BaseClientApi {
   async getToken(
     params: GetTokenParams
   ): Promise<TokenResponse> {

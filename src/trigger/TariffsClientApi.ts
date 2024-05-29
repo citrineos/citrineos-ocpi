@@ -1,14 +1,15 @@
-import {BaseApi, OcpiModules} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {OcpiResponse} from '../model/ocpi.response';
 import {Tariff} from '../model/Tariff';
 import {GetTariffParams} from './param/tariffs/get.tariff.params';
 import {PutTariffParams} from './param/tariffs/put.tariff.params';
 import {DeleteTariffParams} from './param/tariffs/delete.tariff.params';
 import {IHeaders} from 'typed-rest-client/Interfaces';
+import {ModuleId} from "../model/ModuleId";
 
-export class TariffsControllerApi extends BaseApi {
+export class TariffsClientApi extends BaseClientApi {
 
-  CONTROLLER_PATH = OcpiModules.Tariffs;
+  CONTROLLER_PATH = ModuleId.Tariffs;
 
   async getTariff(
     params: GetTariffParams

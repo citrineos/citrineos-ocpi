@@ -1,4 +1,4 @@
-import {BaseApi} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {ConnectorResponse} from '../model/Connector';
 import {EvseResponse} from '../model/Evse';
 import {LocationResponse} from '../model/Location';
@@ -14,7 +14,7 @@ import {PutEvseParams} from './param/locations/put.evse.params';
 import {PutLocationParams} from './param/locations/put.location.params';
 import {IHeaders} from 'typed-rest-client/Interfaces';
 
-export class LocationsControllerApi extends BaseApi {
+export class LocationsClientApi extends BaseClientApi {
   async getConnector(
     params: GetConnectorParams
   ): Promise<ConnectorResponse> {

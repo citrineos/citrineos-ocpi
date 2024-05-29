@@ -1,5 +1,4 @@
 import {Controller, Get, Param, Post} from 'routing-controllers';
-import {OcpiModules} from '../trigger/BaseApi';
 import {Service} from 'typedi';
 import {BaseController} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
@@ -11,8 +10,9 @@ import {Paginated} from '../util/decorators/paginated';
 import {AuthorizationInfo} from '../model/AuthorizationInfo';
 import {TokenType} from '../model/TokenType';
 import {EnumQueryParam} from '../util/decorators/enum.query.param';
+import {ModuleId} from "../model/ModuleId";
 
-@Controller(`/${OcpiModules.Tokens}`)
+@Controller(`/${ModuleId.Tokens}`)
 @Service()
 export class TokensController extends BaseController {
 

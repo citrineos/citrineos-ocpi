@@ -1,4 +1,4 @@
-import {BaseApi} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {OcpiResponse} from '../model/ocpi.response';
 import {Session} from '../model/Session';
 import {GetSessionParams} from './param/sessions/get.session.params';
@@ -6,7 +6,7 @@ import {PatchSessionParams} from './param/sessions/patch.session.params';
 import {PutSessionParams} from './param/sessions/put.session.params';
 import {IHeaders} from 'typed-rest-client/Interfaces';
 
-export class SessionsControllerApi extends BaseApi {
+export class SessionsControllerApi extends BaseClientApi {
   async getSession(params: GetSessionParams): Promise<OcpiResponse<Session>> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(

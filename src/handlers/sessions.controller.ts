@@ -1,5 +1,4 @@
 import {Body, Controller, Get, Param, Put} from 'routing-controllers';
-import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {ResponseSchema} from '../openapi-spec-helper';
@@ -10,8 +9,9 @@ import {ChargingPreferences} from '../model/ChargingPreferences';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
 import {Paginated} from '../util/decorators/paginated';
+import {ModuleId} from "../model/ModuleId";
 
-@Controller(`/${OcpiModules.Sessions}`)
+@Controller(`/${ModuleId.Sessions}`)
 @Service()
 export class SessionsController extends BaseController {
 

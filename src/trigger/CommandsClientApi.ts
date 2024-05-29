@@ -1,12 +1,13 @@
-import {BaseApi, OcpiModules} from './BaseApi';
+import {BaseClientApi} from './BaseClientApi';
 import {CommandResponse} from '../model/CommandResponse';
 import {OcpiResponse} from '../model/ocpi.response';
 import {PostCommandParams} from './param/commands/post.command.params';
 import {IHeaders} from 'typed-rest-client/Interfaces';
+import {ModuleId} from "../model/ModuleId";
 
-export class CommandsControllerApi extends BaseApi {
+export class CommandsClientApi extends BaseClientApi {
 
-  CONTROLLER_PATH = OcpiModules.Commands;
+  CONTROLLER_PATH = ModuleId.Commands;
 
   async postCommand(
     params: PostCommandParams
