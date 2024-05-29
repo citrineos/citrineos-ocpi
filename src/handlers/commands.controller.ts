@@ -1,7 +1,7 @@
 import {Body, Controller, Param, Post} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController} from './base.controller';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {OcpiModules} from '../trigger/BaseApi';
 import {CommandType} from '../model/CommandType';
 import {CancelReservation} from '../model/CancelReservation';
@@ -19,7 +19,7 @@ import {Service} from 'typedi';
 export class CommandsController extends BaseController {
 
   @Post('/:commandType')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiCommandResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

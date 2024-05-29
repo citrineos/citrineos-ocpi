@@ -6,9 +6,15 @@
 import {HeaderParam, UseBefore} from 'routing-controllers';
 import {ParamOptions} from 'routing-controllers/types/decorator-options/ParamOptions';
 import {AuthMiddleware} from '../middleware/auth.middleware';
+import {OcpiHttpHeader} from '../ocpi.http.header';
+import {OcpiHeaderMiddleware} from '../middleware/ocpi.header.middleware';
 import {UniqueMessageIdsMiddleware} from '../middleware/unique.message.ids.middleware';
 import {HttpHeader} from '@citrineos/base';
-import {uniqueMessageIdHeaders} from './as.ocpi.endpoint';
+
+export const uniqueMessageIdHeaders = {
+  [OcpiHttpHeader.XRequestId]: {required: true},
+  [OcpiHttpHeader.XCorrelationId]: {required: true}
+};
 
 function applyHeaders(headers: { [key: string]: ParamOptions }) {
   return function (object: any, methodName: string) {
@@ -16,17 +22,22 @@ function applyHeaders(headers: { [key: string]: ParamOptions }) {
       HeaderParam(key, options)(object, methodName);
     }
     UseBefore(AuthMiddleware)(object, methodName);
+    UseBefore(OcpiHeaderMiddleware)(object, methodName);
     UseBefore(UniqueMessageIdsMiddleware)(object, methodName);
   };
 }
 
 /**
- * Decorator for to inject OCPI headers and apply {@link AuthMiddleware} and {@link UniqueMessageIdsMiddleware}
- * on the endpoint
+ * Decorator for to inject OCPI headers and apply {@link AuthMiddleware}, {@link OcpiHeaderMiddleware} and
+ * {@link UniqueMessageIdsMiddleware} on the endpoint
  */
-export const AsOcpiOpenRoutingEndpoint = function () {
+export const AsOcpiFunctionalEndpoint = function () {
   const headers: { [key: string]: ParamOptions } = {
     [HttpHeader.Authorization]: {required: true},
+    [OcpiHttpHeader.OcpiFromCountryCode]: {required: true},
+    [OcpiHttpHeader.OcpiFromPartyId]: {required: true},
+    [OcpiHttpHeader.OcpiToCountryCode]: {required: true},
+    [OcpiHttpHeader.OcpiToPartyId]: {required: true},
     ...uniqueMessageIdHeaders
   };
   return applyHeaders(headers);

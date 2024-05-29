@@ -1,7 +1,7 @@
 import {Body, Controller, Get, Param, Put} from 'routing-controllers';
 import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {PaginatedSessionResponse} from '../model/Session';
 import {HttpStatus} from '@citrineos/base';
@@ -16,7 +16,7 @@ import {Paginated} from '../util/decorators/paginated';
 export class SessionsController extends BaseController {
 
   @Get()
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedSessionResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -29,7 +29,7 @@ export class SessionsController extends BaseController {
   }
 
   @Put('/{sessionId}/charging_preferences')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(ChargingPreferencesResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

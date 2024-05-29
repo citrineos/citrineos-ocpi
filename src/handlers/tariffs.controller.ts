@@ -1,7 +1,7 @@
 import {Controller, Get} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController} from './base.controller';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {OcpiModules} from '../trigger/BaseApi';
 import {PaginatedTariffResponse} from '../model/Tariff';
 import {ResponseSchema} from '../openapi-spec-helper';
@@ -14,7 +14,7 @@ import {Paginated} from '../util/decorators/paginated';
 export class TariffsController extends BaseController {
 
   @Get()
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedTariffResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

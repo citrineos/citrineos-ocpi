@@ -2,7 +2,7 @@ import {Controller, Get, Param, Post} from 'routing-controllers';
 import {OcpiModules} from '../trigger/BaseApi';
 import {Service} from 'typedi';
 import {BaseController} from './base.controller';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {HttpStatus} from '@citrineos/base';
 import {PaginatedParams} from '../trigger/param/paginated.params';
@@ -17,7 +17,7 @@ import {EnumQueryParam} from '../util/decorators/enum.query.param';
 export class TokensController extends BaseController {
 
   @Get()
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedTokenResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -30,7 +30,7 @@ export class TokensController extends BaseController {
   }
 
   @Post('/:tokenId/authorize')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(AuthorizationInfo, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

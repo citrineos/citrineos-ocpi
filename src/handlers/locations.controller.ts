@@ -1,7 +1,7 @@
 import {Controller, Get, Param} from 'routing-controllers';
 import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {HttpStatus} from '@citrineos/base';
 import {LocationResponse, PaginatedLocationResponse} from '../model/Location';
 import {EvseResponse} from '../model/Evse';
@@ -16,7 +16,7 @@ import {Paginated} from '../util/decorators/paginated';
 export class LocationsController extends BaseController {
 
   @Get()
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedLocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -29,7 +29,7 @@ export class LocationsController extends BaseController {
   }
 
   @Get('/:locationId')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(LocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -42,7 +42,7 @@ export class LocationsController extends BaseController {
   }
 
   @Get('/:id/:evseId')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(EvseResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -56,7 +56,7 @@ export class LocationsController extends BaseController {
   }
 
   @Get('/:id/:evseId/:connectorId')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(ConnectorResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

@@ -4,7 +4,7 @@ import {HttpStatus} from '@citrineos/base';
 import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult';
 import {ActiveChargingProfile} from '../model/ActiveChargingProfile';
 import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {OcpiModules} from '../trigger/BaseApi';
 import {ClearChargingProfileResult} from '../model/ChargingprofilesClearProfileResult';
 import {ChargingProfileResult} from '../model/ChargingProfileResult';
@@ -15,7 +15,7 @@ import {Service} from 'typedi';
 @Service()
 export class ChargingProfilesController extends BaseController {
   @Post('/:id')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -28,7 +28,7 @@ export class ChargingProfilesController extends BaseController {
   }
 
   @Put('/:sessionId')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
