@@ -14,7 +14,7 @@ import {ParkingRestriction} from './ParkingRestriction';
 import {EvseStatus} from './EvseStatus';
 import {Connector} from './Connector';
 import {GeoLocation} from './GeoLocation';
-import {Displaytext} from './Displaytext';
+import {DisplayText} from './DisplayText';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {Enum} from '../util/decorators/enum';
@@ -71,9 +71,9 @@ export class Evse {
 
   @IsArray()
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested()
-  directions?: Displaytext[] | null;
+  directions?: DisplayText[] | null;
 
   @IsArray()
   @Optional()

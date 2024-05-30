@@ -13,7 +13,7 @@ import {
 import {Price} from './Price';
 import {TariffElement} from './TariffElement';
 import {EnergyMix} from './EnergyMix';
-import {Displaytext} from './Displaytext';
+import {DisplayText} from './DisplayText';
 import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {OcpiResponse} from './ocpi.response';
@@ -49,9 +49,9 @@ export class Tariff {
 
   @IsArray()
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested({each: true})
-  tariff_alt_text?: Displaytext[] | null;
+  tariff_alt_text?: DisplayText[] | null;
 
   @IsString()
   @IsUrl()

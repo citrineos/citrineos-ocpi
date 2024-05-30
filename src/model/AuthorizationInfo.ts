@@ -1,5 +1,5 @@
 import {LocationReferences} from './LocationReferences';
-import {Displaytext} from './Displaytext';
+import {DisplayText} from './DisplayText';
 import {Token} from './Token';
 import {AuthorizationInfoAllowed} from './AuthorizationInfoAllowed';
 import {IsNotEmpty, IsString, ValidateNested} from 'class-validator';
@@ -21,9 +21,9 @@ export class AuthorizationInfo {
   authorizationReference!: string;
 
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested()
-  info?: Displaytext;
+  info?: DisplayText;
 
   @Optional()
   @Type(() => LocationReferences)
