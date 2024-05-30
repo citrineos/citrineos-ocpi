@@ -1,4 +1,4 @@
-import {Controller, Get, Param} from 'routing-controllers';
+import {Controller, Get, Param, QueryParam} from 'routing-controllers';
 import {OcpiModules} from '../trigger/BaseApi';
 import {BaseController} from './base.controller';
 import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
@@ -10,11 +10,16 @@ import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {PaginatedParams} from '../trigger/param/paginated.params';
 import {Paginated} from "../util/decorators/paginated";
-import {PaginatedCdrResponse} from "../model/Cdr";
+import { LocationsService } from '../service/locations.service';
+import { IsDate } from 'class-validator';
 
 @Controller(`/${OcpiModules.Locations}`)
 @Service()
 export class LocationsController extends BaseController {
+
+  constructor(readonly locationsService: LocationsService) {
+    super();
+  }
 
   @Get()
   @AsOcpiEndpoint()
@@ -23,10 +28,12 @@ export class LocationsController extends BaseController {
     description: 'Successful response',
   })
   async getLocations(
-    @Paginated() paginationParams?: PaginatedParams,
+    @Paginated() paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    console.log('getLocations', paginationParams);
-    return await this.generateMockOcpiPaginatedResponse(PaginatedLocationResponse, paginationParams);
+    console.log('getLocations', paginatedParams);
+    // return await this.generateMockOcpiPaginatedResponse(PaginatedLocationResponse, paginationParams);
+    return await this.locationsService.getLocations(paginatedParams);
+
   }
 
   @Get('/:locationId')
@@ -53,7 +60,8 @@ export class LocationsController extends BaseController {
     @Param('evseId') _evseId: string,
   ): Promise<EvseResponse> {
     console.log('getEvse', _locationId, _evseId);
-    return this.generateMockOcpiResponse(EvseResponse);
+    return this.locations
+    // return this.generateMockOcpiResponse(EvseResponse);
   }
 
   @Get('/:id/:evseId/:connectorId')

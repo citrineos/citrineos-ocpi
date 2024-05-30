@@ -21,7 +21,6 @@ import {Type} from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {OcpiResponse} from './ocpi.response';
 import {PaginatedResponse} from "./PaginatedResponse";
-import {Cdr} from "./Cdr";
 
 export class Location {
   @MaxLength(2)
