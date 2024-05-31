@@ -11,16 +11,18 @@ import {
 } from 'class-validator';
 import {PublishTokenType} from './PublishTokenType';
 import {AdditionalGeoLocation} from './AdditionalGeoLocation';
-import {Businessdetails} from './Businessdetails';
-import {Facilities} from './Facilities';
+import {Facilities, facilityToString} from './Facilities';
 import {Hours} from './Hours';
 import {GeoLocation} from './GeoLocation';
 import {Evse} from './Evse';
 import {EnergyMix} from './EnergyMix';
-import {Type} from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {Optional} from '../util/decorators/optional';
 import {OcpiResponse} from './ocpi.response';
 import {PaginatedResponse} from "./PaginatedResponse";
+import { BusinessDetails } from './BusinessDetails';
+import { DisplayText } from './DisplayText';
+import { Image } from './Image';
 
 export class Location {
   @MaxLength(2)
@@ -104,24 +106,25 @@ export class Location {
 
   @IsArray()
   @Optional()
-  directions?: null;
+  @Type(() => DisplayText)
+  directions?: DisplayText | null;
 
   @Optional()
-  @Type(() => Businessdetails)
+  @Type(() => BusinessDetails)
   @ValidateNested()
-  operator?: Businessdetails | null;
+  operator?: BusinessDetails | null;
 
   @Optional()
-  @Type(() => Businessdetails)
+  @Type(() => BusinessDetails)
   @ValidateNested()
-  suboperator?: Businessdetails | null;
+  suboperator?: BusinessDetails | null;
 
   @Optional()
-  owner?: Businessdetails | null;
+  owner?: BusinessDetails | null;
 
   @IsArray()
   @Optional()
-  // @Type(() => Facilities) todo handle array of enum
+  @Transform(({ value }) => facilityToString(value))
   @ValidateNested({each: true})
   facilities?: Facilities[] | null;
 
@@ -135,12 +138,14 @@ export class Location {
   @ValidateNested()
   opening_times?: Hours | null;
 
+  @IsBoolean()
   @Optional()
-  charging_when_closed?: null;
+  charging_when_closed?: boolean;
 
   @IsArray()
   @Optional()
-  images?: null;
+  @Type(() => Image)
+  images?: Image[] | null;
 
   @Optional()
   @Type(() => EnergyMix)
