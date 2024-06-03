@@ -3,17 +3,17 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {HeaderParam, UseBefore} from 'routing-controllers';
-import {ParamOptions} from 'routing-controllers/types/decorator-options/ParamOptions';
-import {AuthMiddleware} from '../middleware/auth.middleware';
-import {OcpiHttpHeader} from '../ocpi.http.header';
-import {OcpiHeaderMiddleware} from '../middleware/ocpi.header.middleware';
-import {UniqueMessageIdsMiddleware} from '../middleware/unique.message.ids.middleware';
-import {HttpHeader} from '@citrineos/base';
+import { HeaderParam, UseBefore } from 'routing-controllers';
+import { ParamOptions } from 'routing-controllers/types/decorator-options/ParamOptions';
+import { AuthMiddleware } from '../middleware/auth.middleware';
+import { OcpiHttpHeader } from '../ocpi.http.header';
+import { OcpiHeaderMiddleware } from '../middleware/ocpi.header.middleware';
+import { UniqueMessageIdsMiddleware } from '../middleware/unique.message.ids.middleware';
+import { HttpHeader } from '@citrineos/base';
 
 export const uniqueMessageIdHeaders = {
-  [OcpiHttpHeader.XRequestId]: {required: true},
-  [OcpiHttpHeader.XCorrelationId]: {required: true}
+  [OcpiHttpHeader.XRequestId]: { required: true },
+  [OcpiHttpHeader.XCorrelationId]: { required: true },
 };
 
 /**
@@ -22,12 +22,12 @@ export const uniqueMessageIdHeaders = {
  */
 export const AsOcpiFunctionalEndpoint = function () {
   const headers: { [key: string]: ParamOptions } = {
-    [HttpHeader.Authorization]: {required: true},
-    [OcpiHttpHeader.OcpiFromCountryCode]: {required: true},
-    [OcpiHttpHeader.OcpiFromPartyId]: {required: true},
-    [OcpiHttpHeader.OcpiToCountryCode]: {required: true},
-    [OcpiHttpHeader.OcpiToPartyId]: {required: true},
-    ...uniqueMessageIdHeaders
+    [HttpHeader.Authorization]: { required: true },
+    [OcpiHttpHeader.OcpiFromCountryCode]: { required: true },
+    [OcpiHttpHeader.OcpiFromPartyId]: { required: true },
+    [OcpiHttpHeader.OcpiToCountryCode]: { required: true },
+    [OcpiHttpHeader.OcpiToPartyId]: { required: true },
+    ...uniqueMessageIdHeaders,
   };
   return function (object: any, methodName: string) {
     for (const [key, options] of Object.entries(headers)) {

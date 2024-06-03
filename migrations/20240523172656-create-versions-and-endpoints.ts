@@ -1,12 +1,10 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-import { QueryInterface, DataTypes } from 'sequelize';
-import {Version} from "../src/model/Version";
+import { DataTypes, QueryInterface } from 'sequelize';
 
 export = {
   up: async (queryInterface: QueryInterface) => {
-
     await queryInterface.createTable('Versions', {
       version: {
         type: DataTypes.STRING,
@@ -24,7 +22,7 @@ export = {
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-      }
+      },
     });
 
     await queryInterface.createTable('Endpoints', {
@@ -62,12 +60,12 @@ export = {
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-      }
+      },
     });
   },
 
   down: async (queryInterface: QueryInterface) => {
     await queryInterface.dropTable('Endpoints');
     await queryInterface.dropTable('Versions');
-  }
+  },
 };

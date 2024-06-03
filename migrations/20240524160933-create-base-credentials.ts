@@ -8,32 +8,32 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       token: {
         type: DataTypes.STRING(64),
         allowNull: false,
-        unique: true
+        unique: true,
       },
       url: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       roles: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE
-      }
+        type: DataTypes.DATE,
+      },
     });
   },
   async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('Credentials');
-  }
+  },
 };

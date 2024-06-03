@@ -1,4 +1,4 @@
-import {IsEnum} from 'class-validator';
+import { IsEnum } from 'class-validator';
 
 /**
  * Extends @IsEnum decorator to add custom metadata so that it is easily available in additionalConverters and is

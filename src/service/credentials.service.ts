@@ -1,16 +1,16 @@
-import {CredentialsRepository} from '../repository/credentials.repository';
-import {VersionsClientApi} from '../trigger/VersionsClientApi';
-import {VersionRepository} from '../repository/version.repository';
-import {v4 as uuidv4} from 'uuid';
-import {NotFoundException} from '../exception/not.found.exception';
-import {OcpiNamespace} from '../util/ocpi.namespace';
-import {Credentials, CredentialsResponse} from '../model/Credentials';
-import {Version} from '../model/Version';
-import {VersionNumber} from '../model/VersionNumber';
-import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
-import {Service} from 'typedi';
-import {OcpiLogger} from '../util/logger';
-import {OcpiResponseStatusCode} from '../model/ocpi.response';
+import { CredentialsRepository } from '../repository/credentials.repository';
+import { VersionsClientApi } from '../trigger/VersionsClientApi';
+import { VersionRepository } from '../repository/version.repository';
+import { v4 as uuidv4 } from 'uuid';
+import { NotFoundException } from '../exception/not.found.exception';
+import { OcpiNamespace } from '../util/ocpi.namespace';
+import { Credentials, CredentialsResponse } from '../model/Credentials';
+import { Version } from '../model/Version';
+import { VersionNumber } from '../model/VersionNumber';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { Service } from 'typedi';
+import { OcpiLogger } from '../util/logger';
+import { OcpiResponseStatusCode } from '../model/ocpi.response';
 
 @Service()
 export class CredentialsService {
@@ -19,17 +19,14 @@ export class CredentialsService {
     private credentialsRepository: CredentialsRepository,
     private versionRepository: VersionRepository,
     private versionsControllerApi: VersionsClientApi,
-  ) {
-  }
+  ) {}
 
-  async getCredentials(
-    token: string,
-  ): Promise<CredentialsResponse> {
+  async getCredentials(token: string): Promise<CredentialsResponse> {
     this.logger.info('getCredentials');
     const credentials = await this.credentialsRepository.readOnlyOneByQuery(
       {
         where: {
-          token
+          token,
         },
       },
       OcpiNamespace.Credentials,
@@ -37,13 +34,16 @@ export class CredentialsService {
     if (!credentials) {
       throw new NotFoundException('Credentials not found');
     }
-    return CredentialsResponse.build(OcpiResponseStatusCode.GenericSuccessCode, credentials);
+    return CredentialsResponse.build(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      credentials,
+    );
   }
 
   async postCredentials(
     token: string,
     credentials: Credentials,
-    version: VersionNumber
+    version: VersionNumber,
   ): Promise<CredentialsResponse> {
     await this.getAndUpdateVersions(version, credentials);
     return this.updateExistingCredentialsTokenWithNewGeneratedToken(token);
@@ -52,23 +52,18 @@ export class CredentialsService {
   async putCredentials(
     token: string,
     credentials: Credentials,
-    version: VersionNumber
+    version: VersionNumber,
   ): Promise<CredentialsResponse> {
-    await this.getAndUpdateVersions(
-      version,
-      credentials
-    );
+    await this.getAndUpdateVersions(version, credentials);
     return this.updateExistingCredentialsTokenWithNewGeneratedToken(token);
   }
 
-  async deleteCredentials(
-    token: string,
-  ): Promise<OcpiEmptyResponse> {
+  async deleteCredentials(token: string): Promise<OcpiEmptyResponse> {
     try {
       await this.credentialsRepository.deleteAllByQuery(
         {
           where: {
-            token
+            token,
           },
         },
         OcpiNamespace.Credentials,
@@ -83,7 +78,8 @@ export class CredentialsService {
     oldToken: string,
   ) {
     try {
-      const existingCredentials = await this.credentialsRepository.readByKey(oldToken);
+      const existingCredentials =
+        await this.credentialsRepository.readByKey(oldToken);
       const generateNewToken = uuidv4();
       if (existingCredentials) {
         const updatedCredentials =
@@ -101,7 +97,10 @@ export class CredentialsService {
         if (!updatedCredentials) {
           throw new Error('todo'); // todo error handling
         }
-        return CredentialsResponse.build(OcpiResponseStatusCode.GenericSuccessCode, updatedCredentials[0]);
+        return CredentialsResponse.build(
+          OcpiResponseStatusCode.GenericSuccessCode,
+          updatedCredentials[0],
+        );
       } else {
         throw new Error('todo'); // todo error handling
       }
@@ -112,7 +111,7 @@ export class CredentialsService {
 
   private async getAndUpdateVersions(
     versionNumber: VersionNumber,
-    credentials: Credentials
+    credentials: Credentials,
   ) {
     this.versionsControllerApi.baseUrl = credentials.url;
     const versions = await this.versionsControllerApi.getVersions({
@@ -121,7 +120,9 @@ export class CredentialsService {
     if (!versions || !versions.data) {
       throw new NotFoundException('Versions not found');
     }
-    const version = versions.data?.find((v: any) => v.version === versionNumber);
+    const version = versions.data?.find(
+      (v: any) => v.version === versionNumber,
+    );
     if (!version) {
       throw new NotFoundException('Matching version not found');
     }

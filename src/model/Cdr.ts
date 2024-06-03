@@ -11,18 +11,18 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import {CdrToken} from './CdrToken';
-import {CdrLocation} from './CdrLocation';
-import {ChargingPeriod} from './ChargingPeriod';
-import {SignedData} from './SignedData';
-import {Price} from './Price';
-import {AuthMethod} from './AuthMethod';
-import {Tariff} from './Tariff';
-import {Type} from 'class-transformer';
-import {Optional} from '../util/decorators/optional';
-import {Enum} from '../util/decorators/enum';
-import {PaginatedResponse} from './PaginatedResponse';
-import {OcpiResponse} from './ocpi.response';
+import { CdrToken } from './CdrToken';
+import { CdrLocation } from './CdrLocation';
+import { ChargingPeriod } from './ChargingPeriod';
+import { SignedData } from './SignedData';
+import { Price } from './Price';
+import { AuthMethod } from './AuthMethod';
+import { Tariff } from './Tariff';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
+import { Enum } from '../util/decorators/enum';
+import { PaginatedResponse } from './PaginatedResponse';
+import { OcpiResponse } from './ocpi.response';
 
 export class Cdr {
   @MaxLength(2)
@@ -93,14 +93,14 @@ export class Cdr {
   @IsArray()
   @Optional()
   @Type(() => Tariff)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   tariffs?: Tariff[] | null;
 
   @ArrayMinSize(1)
   @IsArray()
   @IsNotEmpty()
   @Type(() => ChargingPeriod)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   charging_periods!: ChargingPeriod[];
 
   @Optional()
@@ -190,7 +190,7 @@ export class CdrResponse extends OcpiResponse<Cdr> {
 
 export class PaginatedCdrResponse extends PaginatedResponse<Cdr> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Cdr)

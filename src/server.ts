@@ -1,26 +1,24 @@
-import Koa from "koa";
+import Koa from 'koa';
 import {
   getMetadataArgsStorage,
   MetadataArgsStorage,
   RoutingControllersOptions,
-  useKoaServer
-} from "routing-controllers";
-import {OpenAPIObject, InfoObject} from "openapi3-ts";
-import KoaLogger from "koa-logger";
-import {routingControllersToSpec} from "./openapi-spec-helper";
-import {VersionNumber} from "./model/VersionNumber";
-import {getAllSchemas} from "./openapi-spec-helper/schemas";
-import {koaSwagger} from "koa2-swagger-ui";
+  useKoaServer,
+} from 'routing-controllers';
+import { OpenAPIObject, InfoObject } from 'openapi3-ts';
+import KoaLogger from 'koa-logger';
+import { routingControllersToSpec } from './openapi-spec-helper';
+import { VersionNumber } from './model/VersionNumber';
+import { getAllSchemas } from './openapi-spec-helper/schemas';
+import { koaSwagger } from 'koa2-swagger-ui';
 
 export class Server {
-
   koa!: Koa;
   app!: Koa;
   storage!: MetadataArgsStorage;
   spec!: OpenAPIObject;
 
-  constructor() {
-  }
+  constructor() {}
 
   protected initLogger() {
     this.koa.use(KoaLogger());
@@ -37,8 +35,8 @@ export class Server {
       {},
       {
         info,
-        servers: Object.values(VersionNumber).map(version => ({
-          url: `/ocpi/${version}`
+        servers: Object.values(VersionNumber).map((version) => ({
+          url: `/ocpi/${version}`,
         })),
         security: [
           {
@@ -53,8 +51,8 @@ export class Server {
           type: 'apiKey',
           in: 'header',
           name: 'Authorization',
-          description: 'Token <base64_token>'
-        }
+          description: 'Token <base64_token>',
+        },
       },
       schemas: getAllSchemas(),
     };

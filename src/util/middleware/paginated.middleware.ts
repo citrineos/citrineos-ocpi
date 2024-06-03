@@ -1,23 +1,25 @@
-import {KoaMiddlewareInterface, Middleware, } from 'routing-controllers';
-import {Context} from 'vm';
-import {Service} from 'typedi';
-import {BaseMiddleware} from './base.middleware';
-import {DEFAULT_LIMIT, DEFAULT_OFFSET, PaginatedResponse} from '../../model/PaginatedResponse';
-import {OcpiHttpHeader} from '../ocpi.http.header';
+import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
+import { Context } from 'vm';
+import { Service } from 'typedi';
+import { BaseMiddleware } from './base.middleware';
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+  PaginatedResponse,
+} from '../../model/PaginatedResponse';
+import { OcpiHttpHeader } from '../ocpi.http.header';
 
 /**
  * PaginatedMiddleware will handle pulling limit, offset and total out of the {@link PaginatedResponse} and ensuring
  * that the Link, X-Total-Count and X-Limit headers are set while preventing these values from being included in the
  * response body.
  */
-@Middleware({type: 'before'})
+@Middleware({ type: 'before' })
 @Service()
-export class PaginatedMiddleware extends BaseMiddleware implements KoaMiddlewareInterface {
-
-  async use(
-    context: Context,
-    next: (err?: any) => Promise<any>,
-  ): Promise<any> {
+export class PaginatedMiddleware
+  extends BaseMiddleware
+  implements KoaMiddlewareInterface {
+  async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
     await next();
     const paginatedResponse = context.response.body as PaginatedResponse<any>;
     const link = this.createLink(context, paginatedResponse);
@@ -31,8 +33,13 @@ export class PaginatedMiddleware extends BaseMiddleware implements KoaMiddleware
     delete paginatedResponse.total;
   }
 
-  private createLink(context: Context, paginatedResponse: PaginatedResponse<any>) {
-    const url = new URL(`${context.request.protocol}://${context.request.host}${context.request.url}`);
+  private createLink(
+    context: Context,
+    paginatedResponse: PaginatedResponse<any>,
+  ) {
+    const url = new URL(
+      `${context.request.protocol}://${context.request.host}${context.request.url}`,
+    );
     const currentOffset = paginatedResponse.offset || DEFAULT_OFFSET;
     const limit = paginatedResponse.limit || DEFAULT_LIMIT;
     const total = paginatedResponse.total || 0;

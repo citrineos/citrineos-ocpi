@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import {Container} from 'typedi';
-import {useContainer} from 'routing-controllers';
-import {OcpiServer} from './ocpi.server';
+import { Container } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { OcpiServer } from './ocpi.server';
 
 // export {OcpiModule} from './module';
 

@@ -1,17 +1,24 @@
-import {Controller, Get, Param} from 'routing-controllers';
-import {BaseController, generateMockOcpiPaginatedResponse, generateMockOcpiResponse} from './base.controller';
-import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {HttpStatus} from '@citrineos/base';
-import {LocationResponse, PaginatedLocationResponse} from '../model/Location';
-import {EvseResponse} from '../model/Evse';
-import {ConnectorResponse} from '../model/Connector';
-import {ResponseSchema} from '../openapi-spec-helper';
-import {Service} from 'typedi';
-import {PaginatedParams} from './param/paginated.params';
-import {Paginated} from '../util/decorators/paginated';
-import {ModuleId} from "../model/ModuleId";
+import { Controller, Get, Param } from 'routing-controllers';
+import {
+  BaseController,
+  generateMockOcpiPaginatedResponse,
+  generateMockOcpiResponse,
+} from './base.controller';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { HttpStatus } from '@citrineos/base';
+import { LocationResponse, PaginatedLocationResponse } from '../model/Location';
+import { EvseResponse } from '../model/Evse';
+import { ConnectorResponse } from '../model/Connector';
+import { ResponseSchema } from '../openapi-spec-helper';
+import { Service } from 'typedi';
+import { PaginatedParams } from './param/paginated.params';
+import { Paginated } from '../util/decorators/paginated';
+import { ModuleId } from '../model/ModuleId';
 
-const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(PaginatedLocationResponse, new PaginatedParams());
+const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
+  PaginatedLocationResponse,
+  new PaginatedParams(),
+);
 const MOCK_LOCATION = generateMockOcpiResponse(LocationResponse);
 const MOCK_EVSE = generateMockOcpiResponse(EvseResponse);
 const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
@@ -19,15 +26,14 @@ const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
 @Controller(`/${ModuleId.Locations}`)
 @Service()
 export class LocationsController extends BaseController {
-
   @Get()
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedLocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_PAGINATED_LOCATION
-    }
+      success: MOCK_PAGINATED_LOCATION,
+    },
   })
   async getLocations(
     @Paginated() paginationParams?: PaginatedParams,
@@ -42,11 +48,11 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_LOCATION
-    }
+      success: MOCK_LOCATION,
+    },
   })
   async getLocation(
-    @Param('locationId') _locationId: string
+    @Param('locationId') _locationId: string,
   ): Promise<LocationResponse> {
     console.log('getLocation', _locationId);
     return MOCK_LOCATION;
@@ -58,8 +64,8 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_EVSE
-    }
+      success: MOCK_EVSE,
+    },
   })
   async getEvse(
     @Param('locationId') _locationId: string,
@@ -75,13 +81,13 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_CONNECTOR
-    }
+      success: MOCK_CONNECTOR,
+    },
   })
   async getConnector(
     @Param('locationId') _locationId: string,
     @Param('evseId') _evseId: string,
-    @Param('connectorId') _connectorId: string
+    @Param('connectorId') _connectorId: string,
   ): Promise<ConnectorResponse> {
     console.log('getConnector', _locationId, _evseId, _connectorId);
     return MOCK_CONNECTOR;

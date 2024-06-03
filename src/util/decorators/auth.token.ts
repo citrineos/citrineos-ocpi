@@ -1,5 +1,5 @@
-import {BadRequestError, createParamDecorator} from 'routing-controllers';
-import {HttpHeader} from '@citrineos/base';
+import { BadRequestError, createParamDecorator } from 'routing-controllers';
+import { HttpHeader } from '@citrineos/base';
 
 const tokenPrefix = 'Token ';
 
@@ -32,13 +32,14 @@ export function AuthToken() {
   return createParamDecorator({
     required: true,
     value: (action) => {
-      const authorizationHeader = action.request.headers[HttpHeader.Authorization.toLowerCase()];
+      const authorizationHeader =
+        action.request.headers[HttpHeader.Authorization.toLowerCase()];
       if (authorizationHeader) {
         return extractToken(authorizationHeader);
       } else {
         // todo handle non-existent or improperly formatted Authorization header which should be captured in auth middleware and should theoretically be correct by the time this runs
         return undefined;
       }
-    }
+    },
   });
 }

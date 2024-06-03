@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import {Container} from 'typedi';
-import {useContainer} from 'routing-controllers';
-import {EmspServer} from "./emsp.server";
+import { Container } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { EmspServer } from './emsp.server';
 
 useContainer(Container);
 const server = Container.get(EmspServer);

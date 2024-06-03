@@ -1,11 +1,6 @@
 {
-  "watch": [
-    "src"
-  ],
+  "watch": ["src"],
   "ext": "ts,js",
-  "ignore": [
-    "**/dist/**",
-    "**/node_modules/**"
-  ],
-  "exec": "node --nolazy -r ts-node/register"
+  "ignore": ["**/dist/**", "**/node_modules/**"],
+  "exec": "node --inspect-brk --nolazy -r ts-node/register"
 }

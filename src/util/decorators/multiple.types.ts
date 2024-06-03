@@ -11,7 +11,6 @@ export const MULTIPLE_TYPES = 'MultipleTypes';
  */
 export const MultipleTypes = (...types: any[]) =>
   function (object: NonNullable<unknown>, methodName: string, index: number) {
-
     // Add custom metadata for additional use cases
     Reflect.defineMetadata(
       MULTIPLE_TYPES,

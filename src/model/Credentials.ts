@@ -8,11 +8,11 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import {Column, DataType, Index, Model, Table} from 'sequelize-typescript';
-import {CredentialsRole} from './CredentialsRole';
-import {OcpiNamespace} from '../util/ocpi.namespace';
-import {OcpiResponse, OcpiResponseStatusCode} from './ocpi.response';
-import {Type} from 'class-transformer';
+import { Column, DataType, Index, Model, Table } from 'sequelize-typescript';
+import { CredentialsRole } from './CredentialsRole';
+import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
+import { Type } from 'class-transformer';
 
 @Table
 export class Credentials extends Model {
@@ -35,7 +35,7 @@ export class Credentials extends Model {
   @IsArray()
   @ArrayMinSize(1)
   @IsNotEmpty()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @Type(() => CredentialsRole)
   roles!: CredentialsRole[];
 }
@@ -63,7 +63,7 @@ export class CredentialsResponse extends OcpiResponse<Credentials> {
 
 export class CredentialsListResponse extends OcpiResponse<Credentials[]> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @Type(() => Credentials)
   data!: Credentials[];
 }

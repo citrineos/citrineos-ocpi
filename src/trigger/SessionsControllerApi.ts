@@ -1,20 +1,15 @@
-import {BaseClientApi} from './BaseClientApi';
-import {OcpiResponse} from '../model/ocpi.response';
-import {Session} from '../model/Session';
-import {GetSessionParams} from './param/sessions/get.session.params';
-import {PatchSessionParams} from './param/sessions/patch.session.params';
-import {PutSessionParams} from './param/sessions/put.session.params';
-import {IHeaders} from 'typed-rest-client/Interfaces';
+import { BaseClientApi } from './BaseClientApi';
+import { OcpiResponse } from '../model/ocpi.response';
+import { Session } from '../model/Session';
+import { GetSessionParams } from './param/sessions/get.session.params';
+import { PatchSessionParams } from './param/sessions/patch.session.params';
+import { PutSessionParams } from './param/sessions/put.session.params';
+import { IHeaders } from 'typed-rest-client/Interfaces';
 
 export class SessionsControllerApi extends BaseClientApi {
   async getSession(params: GetSessionParams): Promise<OcpiResponse<Session>> {
     this.validateOcpiParams(params);
-    this.validateRequiredParam(
-      params,
-      'countryCode',
-      'partyId',
-      'sessionId',
-    );
+    this.validateRequiredParam(params, 'countryCode', 'partyId', 'sessionId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<OcpiResponse<Session>>({
       version: params.version,
@@ -36,14 +31,17 @@ export class SessionsControllerApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update<OcpiResponse<void>>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{sessionId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('sessionId', encodeURIComponent(params.sessionId)),
-      additionalHeaders,
-    }, params.requestBody);
+    return await this.update<OcpiResponse<void>>(
+      {
+        version: params.version,
+        path: '{countryCode}/{partyId}/{sessionId}'
+          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+          .replace('partyId', encodeURIComponent(params.fromPartyId))
+          .replace('sessionId', encodeURIComponent(params.sessionId)),
+        additionalHeaders,
+      },
+      params.requestBody,
+    );
   }
 
   async putSession(params: PutSessionParams): Promise<OcpiResponse<void>> {
@@ -56,13 +54,16 @@ export class SessionsControllerApi extends BaseClientApi {
       'session',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace<OcpiResponse<void>>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{sessionId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('sessionId', encodeURIComponent(params.sessionId)),
-      additionalHeaders,
-    }, params.session);
+    return await this.replace<OcpiResponse<void>>(
+      {
+        version: params.version,
+        path: '{countryCode}/{partyId}/{sessionId}'
+          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+          .replace('partyId', encodeURIComponent(params.fromPartyId))
+          .replace('sessionId', encodeURIComponent(params.sessionId)),
+        additionalHeaders,
+      },
+      params.session,
+    );
   }
 }
