@@ -16,17 +16,6 @@ export const uniqueMessageIdHeaders = {
   [OcpiHttpHeader.XCorrelationId]: {required: true}
 };
 
-function applyHeaders(headers: { [key: string]: ParamOptions }) {
-  return function (object: any, methodName: string) {
-    for (const [key, options] of Object.entries(headers)) {
-      HeaderParam(key, options)(object, methodName);
-    }
-    UseBefore(AuthMiddleware)(object, methodName);
-    UseBefore(OcpiHeaderMiddleware)(object, methodName);
-    UseBefore(UniqueMessageIdsMiddleware)(object, methodName);
-  };
-}
-
 /**
  * Decorator for to inject OCPI headers and apply {@link AuthMiddleware}, {@link OcpiHeaderMiddleware} and
  * {@link UniqueMessageIdsMiddleware} on the endpoint
@@ -40,5 +29,12 @@ export const AsOcpiFunctionalEndpoint = function () {
     [OcpiHttpHeader.OcpiToPartyId]: {required: true},
     ...uniqueMessageIdHeaders
   };
-  return applyHeaders(headers);
+  return function (object: any, methodName: string) {
+    for (const [key, options] of Object.entries(headers)) {
+      HeaderParam(key, options)(object, methodName);
+    }
+    UseBefore(AuthMiddleware)(object, methodName);
+    UseBefore(OcpiHeaderMiddleware)(object, methodName);
+    UseBefore(UniqueMessageIdsMiddleware)(object, methodName);
+  };
 };

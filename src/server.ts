@@ -5,9 +5,8 @@ import {
   RoutingControllersOptions,
   useKoaServer
 } from "routing-controllers";
-import {OpenAPIObject} from "openapi3-ts";
+import {OpenAPIObject, InfoObject} from "openapi3-ts";
 import KoaLogger from "koa-logger";
-import {InfoObject} from "openapi3-ts/src/model/OpenApi";
 import {routingControllersToSpec} from "./openapi-spec-helper";
 import {VersionNumber} from "./model/VersionNumber";
 import {getAllSchemas} from "./openapi-spec-helper/schemas";

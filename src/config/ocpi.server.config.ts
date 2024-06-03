@@ -4,6 +4,7 @@ import {Type} from 'class-transformer';
 import {Enum} from '../util/decorators/enum';
 import 'reflect-metadata';
 
+@Service()
 class SequelizeConfig {
 
   @IsString()
@@ -92,6 +93,7 @@ export enum OcpiEnv {
   PRODUCTION = 'production',
 }
 
+@Service()
 export class OcpiServerConfigData {
   @IsNotEmpty()
   @Type(() => SequelizeConfig)

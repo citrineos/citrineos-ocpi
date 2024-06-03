@@ -26,7 +26,7 @@ export class CredentialsService {
     token: string,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials');
-    const credentials = await this.credentialsRepository.readByQuery(
+    const credentials = await this.credentialsRepository.readOnlyOneByQuery(
       {
         where: {
           token
@@ -83,14 +83,11 @@ export class CredentialsService {
     oldToken: string,
   ) {
     try {
-      const existingCredentials = await this.credentialsRepository.readByKey(
-        oldToken,
-        OcpiNamespace.Credentials,
-      );
+      const existingCredentials = await this.credentialsRepository.readByKey(oldToken);
       const generateNewToken = uuidv4();
       if (existingCredentials) {
         const updatedCredentials =
-          await this.credentialsRepository.updateByQuery(
+          await this.credentialsRepository.updateAllByQuery(
             {
               token: generateNewToken,
             } as Credentials,
@@ -104,7 +101,7 @@ export class CredentialsService {
         if (!updatedCredentials) {
           throw new Error('todo'); // todo error handling
         }
-        return CredentialsResponse.build(OcpiResponseStatusCode.GenericSuccessCode, updatedCredentials);
+        return CredentialsResponse.build(OcpiResponseStatusCode.GenericSuccessCode, updatedCredentials[0]);
       } else {
         throw new Error('todo'); // todo error handling
       }

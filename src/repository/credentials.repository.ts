@@ -6,12 +6,12 @@
 import {SequelizeRepository} from '@citrineos/data';
 import {SystemConfig, UnauthorizedException} from '@citrineos/base';
 import {Credentials} from '../model/Credentials';
-import {OcpiNamespace} from '../util/ocpi.namespace';
 import {Service} from 'typedi';
 import {OcpiServerConfig} from '../config/ocpi.server.config';
 import {OcpiLogger} from '../util/logger';
 import {OcpiSequelizeInstance} from '../util/sequelize';
 import {CredentialsRole} from '../model/CredentialsRole';
+import {OcpiNamespace} from "../util/ocpi.namespace";
 
 @Service()
 export class CredentialsRepository extends SequelizeRepository<Credentials> {
@@ -21,7 +21,7 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
     logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance
   ) {
-    super(ocpiSystemConfig as SystemConfig, logger, ocpiSequelizeInstance.sequelize);
+    super(ocpiSystemConfig as SystemConfig, OcpiNamespace.Credentials, logger, ocpiSequelizeInstance.sequelize);
   }
 
   public async authorizeToken(token: string, countryCode?: string, partyId?: string): Promise<boolean> {
@@ -42,12 +42,9 @@ export class CredentialsRepository extends SequelizeRepository<Credentials> {
       where: {token}
     };
     // todo test
-    const credentials = await this.readAllByQuery(
-      query,
-      OcpiNamespace.Credentials
-    );
+    const credentials = await this.readAllByQuery(query);
     if (credentials && credentials.length > 0 && countryCode && partyId) {
-      return credentials.find(creds =>  creds.roles.some((role: CredentialsRole) => role.country_code === countryCode && role.party_id === partyId));
+      return credentials.find(creds => creds.roles.some((role: CredentialsRole) => role.country_code === countryCode && role.party_id === partyId));
     }
     return credentials[0];
   };

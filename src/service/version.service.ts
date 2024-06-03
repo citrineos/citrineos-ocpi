@@ -6,6 +6,7 @@ import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
 import {OcpiResponseStatusCode} from '../model/ocpi.response';
 import {Endpoint} from "../model/Endpoint";
+import {NotFoundException} from "../exception/not.found.exception";
 
 @Service()
 export class VersionService {
@@ -19,10 +20,7 @@ export class VersionService {
     token: string
   ): Promise<VersionDTOListResponse> {
     await this.credentialsRepository.authorizeToken(token);
-    const versions: Version[] = await this.versionRepository.readAllByQuery(
-      {},
-      OcpiNamespace.Version,
-    );
+    const versions: Version[] = await this.versionRepository.readAllByQuery({});
     return VersionDTOListResponse.build(
       OcpiResponseStatusCode.GenericSuccessCode,
       versions.map((version) => version.toVersionDTO()),
@@ -34,13 +32,15 @@ export class VersionService {
     version: VersionNumber
   ): Promise<VersionDetailsDTOResponse> {
     await this.credentialsRepository.authorizeToken(token);
-
-    const versionDetail: Version = await this.versionRepository.readByQuery({
-      where: {version: version},
-      include: [Endpoint],
-    },
+    const versionDetail: Version | undefined = await this.versionRepository.readOnlyOneByQuery({
+        where: {version: version},
+        include: [Endpoint],
+      },
       OcpiNamespace.Version
     );
+    if (!versionDetail) {
+      throw new NotFoundException('Version not found');
+    }
     return VersionDetailsDTOResponse.build(OcpiResponseStatusCode.GenericSuccessCode, versionDetail.toVersionDetailsDTO());
   }
 }

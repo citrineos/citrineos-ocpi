@@ -10,6 +10,7 @@ import {OcpiServerConfig} from '../config/ocpi.server.config';
 import {OcpiLogger} from '../util/logger';
 import {SystemConfig} from '@citrineos/base';
 import {OcpiSequelizeInstance} from '../util/sequelize';
+import {OcpiNamespace} from "../util/ocpi.namespace";
 
 @Service()
 export class VersionRepository extends SequelizeRepository<Version> {
@@ -19,7 +20,7 @@ export class VersionRepository extends SequelizeRepository<Version> {
     logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance
   ) {
-    super(ocpiSystemConfig as SystemConfig, logger, ocpiSequelizeInstance.sequelize);
+    super(ocpiSystemConfig as SystemConfig, OcpiNamespace.Version, logger, ocpiSequelizeInstance.sequelize);
   }
 
 }

@@ -1,4 +1,4 @@
-import {Get, JsonController} from 'routing-controllers';
+import {Get, HeaderParam, JsonController} from 'routing-controllers';
 import {BaseController} from './base.controller';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {HttpStatus} from '@citrineos/base';

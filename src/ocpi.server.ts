@@ -1,5 +1,4 @@
 import Koa from 'koa';
-import {getMetadataArgsStorage, RoutingControllersOptions, useKoaServer} from 'routing-controllers';
 import {CredentialsController} from './handlers/credentials.controller';
 import {CdrsController} from './handlers/cdrs.controller';
 import {ChargingProfilesController} from './handlers/charging.profiles.controller';
@@ -9,24 +8,17 @@ import {LocationsController} from './handlers/locations.controller';
 import {SessionsController} from './handlers/sessions.controller';
 import {VersionsController} from './handlers/versions.controller';
 import {GlobalExceptionHandler} from './util/middleware/global.exception.handler';
-import {routingControllersToSpec} from './openapi-spec-helper';
-import {VersionNumber} from './model/VersionNumber';
-import {getAllSchemas} from './openapi-spec-helper/schemas';
-import {koaSwagger} from 'koa2-swagger-ui';
 import {Service} from 'typedi';
 import {OcpiSequelizeInstance} from './util/sequelize';
 import {LoggingMiddleware} from './util/middleware/logging.middleware';
-import KoaLogger from 'koa-logger';
 import {TokensController} from './handlers/tokens.controller';
 import {Server} from "./server";
-import {InfoObject} from "openapi3-ts/src/model/OpenApi";
 
 /**
  * Main server class that starts Koa app and Swagger UI
  */
 @Service()
 export class OcpiServer extends Server {
-
 
   constructor(
     _sequelize: OcpiSequelizeInstance // need to init Sequelize instance otherwise error is throws for Models, for now injecting it here
