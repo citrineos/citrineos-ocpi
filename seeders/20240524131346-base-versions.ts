@@ -1,6 +1,6 @@
 'use strict';
-import { QueryInterface } from 'sequelize';
-import { VersionNumber } from '../src/model/VersionNumber';
+import {QueryInterface} from 'sequelize';
+import {VersionNumber} from '../src/model/VersionNumber';
 
 import 'reflect-metadata';
 
@@ -14,7 +14,7 @@ export = {
         [
           {
             version: VersionNumber.TWO_DOT_TWO_DOT_ONE,
-            url: 'https://localhost:8085/ocpi/versions/2.2.1/',
+            url: 'https://localhost:8086/ocpi/versions/2.2.1/',
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -30,7 +30,7 @@ export = {
             version: VersionNumber.TWO_DOT_TWO_DOT_ONE,
             identifier: 'credentials',
             role: 'SENDER',
-            url: 'https://localhost:8085/ocpi/2.2.1/credentials/',
+            url: 'https://localhost:8086/ocpi/2.2.1/credentials/',
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -38,7 +38,7 @@ export = {
             version: VersionNumber.TWO_DOT_TWO_DOT_ONE,
             identifier: 'locations',
             role: 'SENDER',
-            url: 'https://localhost:8085/ocpi/cpo/2.2.1/locations/',
+            url: 'https://localhost:8086/ocpi/cpo/2.2.1/locations/',
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -56,12 +56,12 @@ export = {
     try {
       await queryInterface.bulkDelete(
         'Endpoints',
-        { version: VersionNumber.TWO_DOT_TWO_DOT_ONE },
+        {version: VersionNumber.TWO_DOT_TWO_DOT_ONE},
         {},
       );
       await queryInterface.bulkDelete(
         'Versions',
-        { version: VersionNumber.TWO_DOT_TWO_DOT_ONE },
+        {version: VersionNumber.TWO_DOT_TWO_DOT_ONE},
         {},
       );
       console.log('Data reverted successfully');
