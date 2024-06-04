@@ -9,20 +9,18 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import {PublishTokenType} from './PublishTokenType';
-import {AdditionalGeoLocation} from './AdditionalGeoLocation';
-import {Facilities, facilityToString} from './Facilities';
-import {Hours} from './Hours';
-import {GeoLocation} from './GeoLocation';
-import {Evse} from './Evse';
-import {EnergyMix} from './EnergyMix';
-import { Type, Transform } from 'class-transformer';
-import {Optional} from '../util/decorators/optional';
-import {OcpiResponse} from './ocpi.response';
-import {PaginatedResponse} from "./PaginatedResponse";
+import { PublishTokenType } from './PublishTokenType';
+import { AdditionalGeoLocation } from './AdditionalGeoLocation';
 import { BusinessDetails } from './BusinessDetails';
-import { DisplayText } from './DisplayText';
-import { Image } from './Image';
+import { Facilities } from './Facilities';
+import { Hours } from './Hours';
+import { GeoLocation } from './GeoLocation';
+import { Evse } from './Evse';
+import { EnergyMix } from './EnergyMix';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
+import { OcpiResponse } from './ocpi.response';
+import { PaginatedResponse } from './PaginatedResponse';
 
 export class Location {
   @MaxLength(2)
@@ -48,7 +46,7 @@ export class Location {
   @IsArray()
   @Optional()
   @Type(() => PublishTokenType)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   publish_allowed_to?: PublishTokenType[] | null;
 
   @MaxLength(255)
@@ -91,7 +89,7 @@ export class Location {
   @IsArray()
   @Optional()
   @Type(() => AdditionalGeoLocation)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   related_locations?: AdditionalGeoLocation[] | null;
 
   @IsString()
@@ -101,7 +99,7 @@ export class Location {
   @IsArray()
   @Optional()
   @Type(() => Evse)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   evses?: Evse[] | null;
 
   @IsArray()
@@ -124,8 +122,8 @@ export class Location {
 
   @IsArray()
   @Optional()
-  @Transform(({ value }) => facilityToString(value))
-  @ValidateNested({each: true})
+  // @Type(() => Facilities) todo handle array of enum
+  @ValidateNested({ each: true })
   facilities?: Facilities[] | null;
 
   @MaxLength(255)
@@ -169,7 +167,7 @@ export class LocationResponse extends OcpiResponse<Location> {
 
 export class PaginatedLocationResponse extends PaginatedResponse<Location> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Location)

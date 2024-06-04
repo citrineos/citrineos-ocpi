@@ -1,5 +1,8 @@
-import {Constructor} from '../util/util';
-import {defaultClassValidatorJsonSchemaOptions, nestedClassToJsonSchema} from './class.validator';
+import { Constructor } from '../util/util';
+import {
+  defaultClassValidatorJsonSchemaOptions,
+  nestedClassToJsonSchema,
+} from './class.validator';
 
 export const SchemaStore = {
   components: {
@@ -27,6 +30,6 @@ export const SchemaStore = {
           defaultClassValidatorJsonSchemaOptions,
         ),
       );
-  }
-}
+    }
+  },
 };

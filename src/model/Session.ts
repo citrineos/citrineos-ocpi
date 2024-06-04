@@ -9,17 +9,15 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import {Price} from './Price';
-import {ChargingPeriod} from './ChargingPeriod';
-import {AuthMethod} from './AuthMethod';
-import {SessionStatus} from './SessionStatus';
-import {Type} from 'class-transformer';
-import {Optional} from '../util/decorators/optional';
-import {Enum} from '../util/decorators/enum';
-import {OcpiResponse} from './ocpi.response';
-import {CdrToken} from './CdrToken';
-import {PaginatedResponse} from "./PaginatedResponse";
-import {Location} from "./Location";
+import { Price } from './Price';
+import { ChargingPeriod } from './ChargingPeriod';
+import { AuthMethod } from './AuthMethod';
+import { SessionStatus } from './SessionStatus';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
+import { Enum } from '../util/decorators/enum';
+import { CdrToken } from './CdrToken';
+import { PaginatedResponse } from './PaginatedResponse';
 
 export class Session {
   @MaxLength(2)
@@ -98,7 +96,7 @@ export class Session {
   @IsArray()
   @Optional()
   @Type(() => ChargingPeriod)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   charging_periods?: ChargingPeriod[] | null;
 
   @Optional()
@@ -119,7 +117,7 @@ export class Session {
 
 export class PaginatedSessionResponse extends PaginatedResponse<Session> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Session)

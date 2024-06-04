@@ -1,9 +1,9 @@
-import {KoaMiddlewareInterface, Middleware,} from 'routing-controllers';
-import {Context} from 'vm';
-import {Service} from 'typedi';
+import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
+import { Context } from 'vm';
+import { Service } from 'typedi';
 
 // todo fix and make sure that requests are adequately logged or may not be needed with KoaLogger
-@Middleware({type: 'after'})
+@Middleware({ type: 'after' })
 @Service()
 export class LoggingMiddleware implements KoaMiddlewareInterface {
   public async use(
@@ -15,7 +15,7 @@ export class LoggingMiddleware implements KoaMiddlewareInterface {
       .then(() => {
         console.log('do something after execution');
       })
-      .catch(error => {
+      .catch((error) => {
         console.log('Error intercepted by Koa:', error.message);
       });
   }

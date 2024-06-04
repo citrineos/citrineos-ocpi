@@ -1,5 +1,4 @@
-import {IsOptional} from 'class-validator';
-
+import { IsOptional } from 'class-validator';
 
 export const OPTIONAL_PARAM = 'isOptional';
 

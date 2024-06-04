@@ -1,8 +1,7 @@
-import {IsNotEmpty, IsString, MaxLength} from 'class-validator';
-import {ResponseUrl} from './ResponseUrl';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ResponseUrl } from './ResponseUrl';
 
 export class UnlockConnector extends ResponseUrl {
-
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()

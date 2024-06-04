@@ -1,5 +1,5 @@
-import {OcpiParams} from '../../util/ocpi.params';
-import {IsInt, IsNotEmpty, IsString, IsUrl, Length} from 'class-validator';
+import { OcpiParams } from '../../util/ocpi.params';
+import { IsInt, IsNotEmpty, IsString, IsUrl, Length } from 'class-validator';
 
 export class GetChargingProfileParams extends OcpiParams {
   @IsString()

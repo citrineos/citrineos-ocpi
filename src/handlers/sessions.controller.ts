@@ -1,45 +1,61 @@
-import {Body, Controller, Get, Param, Put} from 'routing-controllers';
-import {OcpiModules} from '../trigger/BaseApi';
-import {BaseController} from './base.controller';
-import {AsOcpiEndpoint} from '../util/decorators/as.ocpi.endpoint';
-import {ResponseSchema} from '../openapi-spec-helper';
-import {PaginatedSessionResponse} from '../model/Session';
-import {HttpStatus} from '@citrineos/base';
-import {ChargingPreferencesResponse} from '../model/ChargingPreferencesResponse';
-import {ChargingPreferences} from '../model/ChargingPreferences';
-import {Service} from 'typedi';
-import {PaginatedParams} from '../trigger/param/paginated.params';
-import {Paginated} from "../util/decorators/paginated";
+import { Body, Controller, Get, Param, Put } from 'routing-controllers';
+import {
+  BaseController,
+  generateMockOcpiPaginatedResponse,
+  generateMockOcpiResponse,
+} from './base.controller';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { ResponseSchema } from '../openapi-spec-helper';
+import { PaginatedSessionResponse } from '../model/Session';
+import { HttpStatus } from '@citrineos/base';
+import { ChargingPreferencesResponse } from '../model/ChargingPreferencesResponse';
+import { ChargingPreferences } from '../model/ChargingPreferences';
+import { Service } from 'typedi';
+import { PaginatedParams } from './param/paginated.params';
+import { Paginated } from '../util/decorators/paginated';
+import { ModuleId } from '../model/ModuleId';
 
-@Controller(`/${OcpiModules.Sessions}`)
+const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
+  PaginatedSessionResponse,
+  new PaginatedParams(),
+);
+const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
+  ChargingPreferencesResponse,
+);
+
+@Controller(`/${ModuleId.Sessions}`)
 @Service()
 export class SessionsController extends BaseController {
-
   @Get()
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedSessionResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {
+      success: MOCK_PAGINATED_SESSIONS,
+    },
   })
   async getSessions(
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedSessionResponse> {
     console.log('getSessions', paginationParams);
-    return await this.generateMockOcpiPaginatedResponse(PaginatedSessionResponse, paginationParams);
+    return MOCK_PAGINATED_SESSIONS;
   }
 
   @Put('/{sessionId}/charging_preferences')
-  @AsOcpiEndpoint()
+  @AsOcpiFunctionalEndpoint()
   @ResponseSchema(ChargingPreferencesResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
+    examples: {
+      success: MOCK_CHARGING_PREFERENCES,
+    },
   })
   async updateChargingPreferences(
     @Param('sessionId') sessionId: string,
-    @Body() body: ChargingPreferences
+    @Body() body: ChargingPreferences,
   ): Promise<ChargingPreferencesResponse> {
     console.log('updateChargingPreferences', sessionId, body);
-    return this.generateMockOcpiResponse(ChargingPreferencesResponse);
+    return MOCK_CHARGING_PREFERENCES;
   }
-
 }

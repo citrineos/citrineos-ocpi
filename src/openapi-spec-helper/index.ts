@@ -1,9 +1,12 @@
 import * as oa from 'openapi3-ts';
-import {MetadataArgsStorage, RoutingControllersOptions,} from 'routing-controllers';
+import {
+  MetadataArgsStorage,
+  RoutingControllersOptions,
+} from 'routing-controllers';
 
-import {getSpec} from './generate.spec.helpers';
-import {parseRoutes} from './parse.metadata';
-import {mergeDeep} from './merge.deep';
+import { getSpec } from './generate.spec.helpers';
+import { parseRoutes } from './parse.metadata';
+import { mergeDeep } from './merge.deep';
 
 export * from './decorators';
 export * from './generate.spec.helpers';

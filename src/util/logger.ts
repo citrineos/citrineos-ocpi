@@ -1,10 +1,9 @@
-import {Service} from 'typedi';
-import {ILogObj, Logger} from 'tslog';
-import {OcpiEnv, OcpiServerConfig} from '../config/ocpi.server.config';
+import { Service } from 'typedi';
+import { ILogObj, Logger } from 'tslog';
+import { OcpiEnv, OcpiServerConfig } from '../config/ocpi.server.config';
 
 @Service()
 export class OcpiLogger extends Logger<ILogObj> {
-
   constructor(ocpiServerConfig: OcpiServerConfig) {
     super({
       name: 'CitrineOS Ocpi Logger',

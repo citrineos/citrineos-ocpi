@@ -1,19 +1,20 @@
-import {Sequelize} from 'sequelize-typescript';
-import {ILogObj, Logger} from 'tslog';
-import {Dialect} from 'sequelize';
-import {Credentials} from '../model/Credentials';
-import {Version} from '../model/Version';
-import {OcpiServerConfig} from '../config/ocpi.server.config';
-import {Service} from 'typedi';
-import { Location } from '../model/Location';
+import { Sequelize } from 'sequelize-typescript';
+import { ILogObj, Logger } from 'tslog';
+import { Dialect } from 'sequelize';
+import { Credentials } from '../model/Credentials';
+import { Version } from '../model/Version';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
+import { Service } from 'typedi';
+import { Endpoint } from '../model/Endpoint';
 
 @Service()
 export class OcpiSequelizeInstance {
-
   sequelize: Sequelize;
 
   constructor(config: OcpiServerConfig) {
-    const sequelizeLogger = new Logger<ILogObj>({name: OcpiSequelizeInstance.name});
+    const sequelizeLogger = new Logger<ILogObj>({
+      name: OcpiSequelizeInstance.name,
+    });
 
     sequelizeLogger.info('Creating default Sequelize instance');
 
@@ -25,11 +26,7 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [
-        Credentials,
-        Version,
-        Location
-      ],
+      models: [Credentials, Version, Endpoint],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);
@@ -37,11 +34,11 @@ export class OcpiSequelizeInstance {
     });
 
     if (config.data.sequelize.alter) {
-      this.sequelize.sync({alter: true}).then(() => {
+      this.sequelize.sync({ alter: true }).then(() => {
         sequelizeLogger.info('Database altered');
       });
     } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({force: true}).then(() => {
+      this.sequelize.sync({ force: true }).then(() => {
         sequelizeLogger.info('Database synchronized');
       });
     }

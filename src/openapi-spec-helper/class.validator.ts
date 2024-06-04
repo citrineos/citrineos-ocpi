@@ -1,15 +1,20 @@
-import {getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes,} from 'class-validator';
-import {targetConstructorToSchema} from 'class-validator-jsonschema';
-import {ISchemaConverters} from 'class-validator-jsonschema/build/defaultConverters';
-import {IOptions} from 'class-validator-jsonschema/build/options';
-import {Constructor} from '../util/util';
-import type {SchemaObject} from 'openapi3-ts';
-import {ReferenceObject} from 'openapi3-ts';
-import {ValidationMetadata} from 'class-validator/types/metadata/ValidationMetadata';
+import {
+  getMetadataStorage,
+  IS_ARRAY,
+  IS_DATE_STRING,
+  IS_ENUM,
+  ValidationTypes,
+} from 'class-validator';
+import { targetConstructorToSchema } from 'class-validator-jsonschema';
+import { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters';
+import { IOptions } from 'class-validator-jsonschema/build/options';
+import { Constructor } from '../util/util';
+import type { SchemaObject } from 'openapi3-ts';
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 // @ts-expect-error importing js directly from class-transformer
-import {defaultMetadataStorage} from 'class-transformer/cjs/storage.js';
-import {SchemaStore} from './schema.store';
-import {OPTIONAL_PARAM} from "../util/decorators/optional";
+import { defaultMetadataStorage } from 'class-transformer/cjs/storage.js';
+import { SchemaStore } from './schema.store';
+import { OPTIONAL_PARAM } from '../util/decorators/optional';
 
 export const refPointerPrefix = '#/components/schemas/';
 
@@ -17,7 +22,7 @@ function getPropType(target: object, property: string) {
   return Reflect.getMetadata('design:type', target, property);
 }
 
-export {JSONSchema} from 'class-validator-jsonschema';
+export { JSONSchema } from 'class-validator-jsonschema';
 
 export const nestedClassToJsonSchema = (
   clz: Constructor<any>,
@@ -30,14 +35,14 @@ function targetToSchema(type: any, options: IOptions): any | void {
       type.prototype === String.prototype ||
       type.prototype === Symbol.prototype
     ) {
-      return {type: 'string'};
+      return { type: 'string' };
     } else if (type.prototype === Number.prototype) {
-      return {type: 'number'};
+      return { type: 'number' };
     } else if (type.prototype === Boolean.prototype) {
-      return {type: 'boolean'};
+      return { type: 'boolean' };
     }
 
-    return {$ref: options.refPointerPrefix + type.name};
+    return { $ref: options.refPointerPrefix + type.name };
   }
 }
 
@@ -61,14 +66,11 @@ const getIsArray = (meta: ValidationMetadata): boolean => {
 };
 
 const additionalConverters: ISchemaConverters = {
-  [IS_DATE_STRING]: (_meta: ValidationMetadata, _: IOptions) => {
-    return {
-      format: 'date-time',
-      type: 'string',
-    };
-  },
+  [IS_DATE_STRING]: (_meta: ValidationMetadata, _: IOptions) => ({
+    format: 'date-time',
+    type: 'string',
+  }),
   [IS_ENUM]: (meta: ValidationMetadata, _: IOptions) => {
-
     const enumObject = meta.constraints[0]; // Assuming the first constraint is the enum object
 
     const enumName = Reflect.getMetadata(
@@ -88,81 +90,67 @@ const additionalConverters: ISchemaConverters = {
       }
     }
 
-    const isOptional = Reflect.getMetadata(
-      OPTIONAL_PARAM,
-      (meta.target as any).prototype,
-      meta.propertyName,
-    );
-    if (isOptional) {
-      return {
-        oneOf: [
-          {
-            type: null,
-          },
-          {
-            $ref: `#/components/schemas/${enumName}`,
-          },
-        ],
-      };
-    } else {
-      return {
-        $ref: `#/components/schemas/${enumName}`,
-      };
-    }
+    return {
+      $ref: `#/components/schemas/${enumName}`,
+    };
   },
   [IS_ARRAY]: (meta: ValidationMetadata, options: IOptions) => {
-    const isOptional = Reflect.getMetadata(
-      OPTIONAL_PARAM,
-      (meta.target as any).prototype,
-      meta.propertyName,
-    );
-    if (isOptional) {
-      const typeMeta = options.classTransformerMetadataStorage
-        ? options.classTransformerMetadataStorage.findTypeMetadata(
+    const typeMeta = options.classTransformerMetadataStorage
+      ? options.classTransformerMetadataStorage.findTypeMetadata(
           meta.target as any,
           meta.propertyName,
         )
-        : null;
+      : null;
 
-      const childType = typeMeta
-        ? typeMeta.typeFunction()
-        : getPropType((meta.target as any).prototype, meta.propertyName);
+    const childType = typeMeta
+      ? typeMeta.typeFunction()
+      : getPropType((meta.target as any).prototype, meta.propertyName);
 
-      const schema = targetToSchema(childType, options);
-
-      const anyOf: (SchemaObject | ReferenceObject)[] = [
-        {
-          type: null,
-        } as any,
-      ];
+    const schema = targetToSchema(childType, options);
+    const isOptional = Reflect.getMetadata(
+      OPTIONAL_PARAM,
+      (meta.target as any).prototype,
+      meta.propertyName,
+    );
+    if (isOptional) {
       if (schema && schema.$ref) {
-        anyOf.unshift({
+        if (!SchemaStore.getSchema(childType.name)) {
+          SchemaStore.addSchema(
+            childType.name,
+            nestedClassToJsonSchema(childType, options),
+          );
+        }
+        return {
+          type: 'array',
+          nullable: true,
+          items: {
+            $ref: schema.$ref,
+          },
+        };
+      } else {
+        return {
+          nullable: true,
+        };
+      }
+    } else {
+      if (schema && schema.$ref) {
+        if (!SchemaStore.getSchema(childType.name)) {
+          SchemaStore.addSchema(
+            childType.name,
+            nestedClassToJsonSchema(childType, options),
+          );
+        }
+        return {
           type: 'array',
           items: {
             $ref: schema.$ref,
           },
-        });
-      }
-      if (anyOf.length === 1) {
-        return {
-          type: null,
-          anyOf: [
-            {
-              type: null,
-            },
-          ],
         };
       } else {
         return {
-          anyOf,
-          type: null,
+          type: 'array',
         };
       }
-    } else {
-      return {
-        items: {},
-        type: 'array',
-      };
     }
   },
 
@@ -176,12 +164,11 @@ const additionalConverters: ISchemaConverters = {
     options: IOptions,
   ) => {
     if (typeof meta.target === 'function') {
-
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
-          meta.target,
-          meta.propertyName,
-        )
+            meta.target,
+            meta.propertyName,
+          )
         : null;
 
       const childType = typeMeta
@@ -219,22 +206,14 @@ const additionalConverters: ISchemaConverters = {
       }
 
       if (isOptional) {
-        const anyOf: (SchemaObject | ReferenceObject)[] = [
-          {
-            type: null,
-          } as any,
-        ];
         if (schema && schema.$ref) {
-          const obj: SchemaObject | ReferenceObject = {$ref: schema.$ref};
-          anyOf.unshift(obj);
-        }
-        if (anyOf.length === 1) {
           return {
-            type: null,
+            nullable: true,
+            $ref: schema.$ref,
           };
         } else {
           return {
-            anyOf,
+            nullable: true,
           };
         }
       } else {
@@ -257,7 +236,7 @@ export const defaultClassValidatorJsonSchemaOptions: Partial<IOptions> = {
 };
 
 export function classToJsonSchema(clz: Constructor<any>): SchemaObject {
-  const options = {...defaultClassValidatorJsonSchemaOptions};
+  const options = { ...defaultClassValidatorJsonSchemaOptions };
   const schema = targetConstructorToSchema(clz, options) as any;
   return schema;
 }

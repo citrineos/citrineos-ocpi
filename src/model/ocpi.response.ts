@@ -1,6 +1,6 @@
-import {IsDate, IsNotEmpty, IsString, ValidateNested} from 'class-validator';
-import {Optional} from '../util/decorators/optional';
-import {Enum} from "../util/decorators/enum";
+import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { Optional } from '../util/decorators/optional';
+import { Enum } from '../util/decorators/enum';
 
 export enum OcpiResponseStatusCode {
   GenericSuccessCode = 1000,
@@ -16,7 +16,7 @@ export enum OcpiResponseStatusCode {
   HubGenericError = 4000,
   HubUnknownReceiver = 4001,
   HubTimeoutOnForwardedMessage = 4002,
-  HubConnectionProblem = 4003
+  HubConnectionProblem = 4003,
 }
 
 export class OcpiResponse<T> {
@@ -46,8 +46,6 @@ export class OcpiResponse<T> {
    * @memberof OcpiResponseDTO
    */
   @Optional()
-  @ValidateNested()
-    // @Type(() => T)  // Use class-transformer to indicate the type
   data?: T;
 }
 

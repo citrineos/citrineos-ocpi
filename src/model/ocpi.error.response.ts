@@ -8,7 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Optional } from '../util/decorators/optional';
-import {OcpiResponseStatusCode} from "./ocpi.response";
+import { OcpiResponseStatusCode } from './ocpi.response';
 
 export class OcpiErrorResponse {
   @Optional()

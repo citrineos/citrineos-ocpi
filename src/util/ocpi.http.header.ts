@@ -7,5 +7,5 @@ export enum OcpiHttpHeader {
   OcpiToPartyId = 'OCPI-to-party-id',
   Link = 'Link',
   XTotalCount = 'X-Total-Count',
-  XLimit = 'X-Limit'
+  XLimit = 'X-Limit',
 }

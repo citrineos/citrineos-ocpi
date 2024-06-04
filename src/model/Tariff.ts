@@ -3,22 +3,19 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsObject,
   IsString,
   IsUrl,
   MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import {Price} from './Price';
-import {TariffElement} from './TariffElement';
-import {EnergyMix} from './EnergyMix';
-import {DisplayText} from './DisplayText';
-import {Type} from 'class-transformer';
-import {Optional} from '../util/decorators/optional';
-import {OcpiResponse} from './ocpi.response';
-import {PaginatedResponse} from "./PaginatedResponse";
-import {Session} from "./Session";
+import { Price } from './Price';
+import { TariffElement } from './TariffElement';
+import { EnergyMix } from './EnergyMix';
+import { DisplayText } from './DisplayText';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
+import { PaginatedResponse } from './PaginatedResponse';
 
 export class Tariff {
   @MaxLength(36)
@@ -49,9 +46,9 @@ export class Tariff {
 
   @IsArray()
   @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested({each: true})
-  tariff_alt_text?: DisplayText[] | null;
+  @Type(() => Displaytext)
+  @ValidateNested({ each: true })
+  tariff_alt_text?: Displaytext[] | null;
 
   @IsString()
   @IsUrl()
@@ -72,7 +69,7 @@ export class Tariff {
   @IsArray()
   @IsNotEmpty()
   @Type(() => TariffElement)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   elements!: TariffElement[];
 
   @Optional()
@@ -101,7 +98,7 @@ export class Tariff {
 
 export class PaginatedTariffResponse extends PaginatedResponse<Tariff> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Tariff)

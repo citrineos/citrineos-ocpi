@@ -1,16 +1,25 @@
-import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, ValidateNested} from 'class-validator';
-import {Service} from 'typedi';
-import {Type} from 'class-transformer';
-import {Enum} from '../util/decorators/enum';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Service } from 'typedi';
+import { Type } from 'class-transformer';
+import { Enum } from '../util/decorators/enum';
+import 'reflect-metadata';
 
+@Service()
 class SequelizeConfig {
-
   @IsString()
   @IsNotEmpty()
   host!: string;
 
   @IsInt()
-  @IsPositive()
+  @Min(0)
   @IsNotEmpty()
   port!: number;
 
@@ -50,7 +59,7 @@ class SequelizeConfig {
     password: string,
     storage: string,
     sync?: boolean,
-    alter?: boolean
+    alter?: boolean,
   ) {
     this.host = host;
     this.port = port;
@@ -71,7 +80,7 @@ const defaultSequelizeConfig: SequelizeConfig = new SequelizeConfig(
   'postgres',
   'citrine',
   'citrine',
-  '',
+  'squelize',
   false,
   true,
 );
@@ -83,7 +92,7 @@ export enum LogLevel {
   INFO = 3,
   WARN = 4,
   ERROR = 5,
-  FATAL = 6
+  FATAL = 6,
 }
 
 export enum OcpiEnv {
@@ -91,6 +100,7 @@ export enum OcpiEnv {
   PRODUCTION = 'production',
 }
 
+@Service()
 export class OcpiServerConfigData {
   @IsNotEmpty()
   @Type(() => SequelizeConfig)
@@ -100,7 +110,6 @@ export class OcpiServerConfigData {
 
 @Service()
 export class OcpiServerConfig {
-
   @Enum(OcpiEnv, 'OcpiEnv')
   @IsNotEmpty()
   env = OcpiEnv.DEVELOPMENT;
@@ -113,7 +122,6 @@ export class OcpiServerConfig {
   @Enum(LogLevel, 'LogLevel')
   @IsNotEmpty()
   logLevel: LogLevel;
-
 
   constructor() {
     this.data = new OcpiServerConfigData();

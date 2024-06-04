@@ -1,7 +1,10 @@
-import {IsNotEmpty, IsOptional, IsString, Length} from 'class-validator';
-import {VersionNumber} from '../../model/VersionNumber';
+import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import { VersionNumber } from '../../model/VersionNumber';
 
 export class OcpiParams {
+  @IsString()
+  authorization!: string;
+
   @IsString()
   @IsNotEmpty()
   @Length(2)
@@ -30,5 +33,5 @@ export class OcpiParams {
   @IsOptional()
   xCorrelationId?: string;
 
-  versionId: string = VersionNumber.TWO_DOT_TWO_DOT_ONE;
+  version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 }
