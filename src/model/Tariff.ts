@@ -46,9 +46,9 @@ export class Tariff {
 
   @IsArray()
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested({ each: true })
-  tariff_alt_text?: Displaytext[] | null;
+  tariff_alt_text?: DisplayText[] | null;
 
   @IsString()
   @IsUrl()
