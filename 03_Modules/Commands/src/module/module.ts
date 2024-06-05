@@ -5,25 +5,34 @@
 
 import {
   AbstractModule,
-  CallAction,
-  EventGroup,
+  CallAction, EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
+import {
+  RabbitMqReceiver,
+  RabbitMqSender,
+  Timer,
+} from '@citrineos/util';
+import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 
 /**
- * Component that handles transaction related messages.
+ * Component that handles provisioning related messages.
  */
-export class OcpiModule extends AbstractModule {
-  protected _requests: CallAction[] = [];
-  protected _responses: CallAction[] = [];
+export class CommandsModule extends AbstractModule {
+  /**
+   * Fields
+   */
+  protected _requests: CallAction[] = [
+  ];
+  protected _responses: CallAction[] = [
+  ];
 
   /**
-   * This is the constructor function that initializes the {@link TransactionModule}.
+   * This is the constructor function that initializes the {@link CommandsModule}.
    *
    * @param {SystemConfig} config - The `config` contains configuration settings for the module.
    *
@@ -36,7 +45,8 @@ export class OcpiModule extends AbstractModule {
    * It is used to handle incoming messages and dispatch them to the appropriate methods or functions. If no `handler` is provided, a default {@link RabbitMqReceiver} instance is created and used.
    *
    * @param {Logger<ILogObj>} [logger] - The `logger` parameter is an optional parameter that represents an instance of {@link Logger<ILogObj>}.
-   * It is used to propagate system wide logger settings and will serve as the parent logger for any sub-component logging. If no `logger` is provided, a default {@link Logger<ILogObj>} instance is created and used.
+   * It is used to propagate system-wide logger settings and will serve as the parent logger for any sub-component logging. If no `logger` is provided, a default {@link Logger<ILogObj>} instance is created and used.
+   *
    */
   constructor(
     config: SystemConfig,
@@ -48,10 +58,21 @@ export class OcpiModule extends AbstractModule {
     super(
       config,
       cache,
-      (handler || new RabbitMqReceiver(config, logger)) as IMessageHandler,
-      (sender || new RabbitMqSender(config, logger)) as IMessageSender,
-      EventGroup.Ocpi,
+      handler || new RabbitMqReceiver(config, logger),
+      sender || new RabbitMqSender(config, logger),
+      EventGroup.Commands,
       logger,
     );
+
+    const timer = new Timer();
+    this._logger.info('Initializing...');
+
+    if (!deasyncPromise(this._initHandler(this._requests, this._responses))) {
+      throw new Error(
+        'Could not initialize module due to failure in handler initialization.',
+      );
+    }
+
+    this._logger.info(`Initialized in ${timer.end()}ms...`);
   }
 }

@@ -1,6 +1,6 @@
 'use strict';
 import {QueryInterface} from 'sequelize';
-import {VersionNumber} from '../src/model/VersionNumber';
+import {VersionNumber} from '../Server/src/model/VersionNumber';
 
 import 'reflect-metadata';
 

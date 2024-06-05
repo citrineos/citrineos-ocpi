@@ -1,7 +1,7 @@
 'use strict';
 
 import {QueryInterface} from 'sequelize';
-import {CredentialsRole} from '../src/model/CredentialsRole';
+import {CredentialsRole} from '../Server/src/model/CredentialsRole';
 
 /** @type {import('sequelize-cli').Migration} */
 export = {

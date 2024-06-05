@@ -1,0 +1,71 @@
+{
+  "name": "@citrineos/ocpi",
+  "version": "1.1.1",
+  "description": "The monitoring module for OCPP v2.0.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "../dist"
+  ],
+  "scripts": {
+    "compile": "npm run clean && tsc -p tsconfig.json",
+    "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
+    "start": "nodemon src/index.ts",
+    "test": "../node_modules/.bin/jest --config jest.config.js",
+    "init-db": "../node_modules/.bin/sequelize-cli db:migrate && sequelize-cli db:migrate:schema:timestamps:add",
+    "seed-db": "../node_modules/.bin/sequelize-cli db:seed:all",
+    "start-mock-emsp": "nodemon src/mock-client/index.ts",
+    "mock-emsp": "npm run start-mock-emsp && ../node_modules/.bin/mockoon-cli start --data http://localhost:8086/docs/spec --port 3000"
+  },
+  "keywords": [
+    "ocpp",
+    "ocpp_v201"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/uuid": "^9.0.1",
+    "@types/jest": "^29.5.12",
+    "@types/koa": "^2.15.0",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/koa-logger": "^3.1.5",
+    "@types/lodash.capitalize": "^4.2.9",
+    "@types/lodash.merge": "^4.6.9",
+    "@types/lodash.startcase": "^4.4.9",
+    "sequelize-cli": "^6.6.2",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@koa/multer": "^3.0.2",
+    "@koa/router": "^12.0.1",
+    "@mockoon/cli": "^8.1.1",
+    "@types/event-emitter": "^0.3.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "class-validator-jsonschema": "^5.0.0",
+    "json-schema-faker": "^0.5.6",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-logger": "^3.2.1",
+    "koa2-swagger-ui": "^5.10.0",
+    "lodash.capitalize": "^4.2.1",
+    "lodash.merge": "^4.6.2",
+    "lodash.startcase": "^4.4.0",
+    "reflect-metadata": "^0.2.2",
+    "routing-controllers": "^0.10.4",
+    "typed-rest-client": "^1.8.11",
+    "typedi": "^0.10.0",
+    "sequelize-typescript": "^2.1.5",
+    "uuid": "^9.0.0",
+    "@citrineos/data": "1.1.1",
+    "pg": "^8.11.3"
+  },
+  "workspaces": [
+    "../citrineos-core/00_Base",
+    "../citrineos-core/01_Data",
+    "../citrineos-core/02_Util",
+    "03_Modules/Commands"
+  ]
+}

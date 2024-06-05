@@ -14,12 +14,19 @@ import { MultipleTypes } from '../util/decorators/multiple.types';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
 import { EnumParam } from '../util/decorators/enum.param';
+import {IOcppClient} from "../IOcppClient";
+import {CommandsService} from "../service/commands.service";
+import {CredentialsService} from "../service/credentials.service";
 
 const MOCK = generateMockOcpiResponse(OcpiCommandResponse);
 
 @Controller(`/${ModuleId.Commands}`)
 @Service()
 export class CommandsController extends BaseController {
+  constructor(readonly commandsService: CommandsService) {
+    super();
+  }
+
   @Post('/:commandType')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiCommandResponse, {
@@ -48,6 +55,6 @@ export class CommandsController extends BaseController {
       | UnlockConnector,
   ): Promise<OcpiCommandResponse> {
     console.log('postCommand', _commandType, _payload);
-    return MOCK;
+    return this.commandsService.postCommand(_commandType, _payload);
   }
 }
