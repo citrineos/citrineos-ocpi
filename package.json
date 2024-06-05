@@ -23,6 +23,8 @@
     "prettier": "prettier --write ."
   },
   "workspaces": [
+    "Server",
+    "03_Modules/Commands",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"
