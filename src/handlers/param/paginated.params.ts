@@ -21,12 +21,12 @@ export class PaginatedParams {
   @Optional()
   private _date_to?: string;
 
-  get date_from(): Date {
-    return new Date(this._date_from!);
+  get date_from(): Date | undefined {
+    return this._date_from ? new Date(this._date_from) : undefined;
   }
 
-  get date_to(): Date {
-    return new Date(this._date_to!);
+  get date_to(): Date | undefined {
+    return this._date_to ? new Date(this._date_to) : undefined;
   }
 
   set date_from(value: Date) {

@@ -21,6 +21,9 @@ import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { OcpiResponse } from './ocpi.response';
 import { PaginatedResponse } from './PaginatedResponse';
+import { DisplayText } from './DisplayText';
+import { Image } from './Image';
+
 
 export class Location {
   @MaxLength(2)
@@ -138,7 +141,7 @@ export class Location {
 
   @IsBoolean()
   @Optional()
-  charging_when_closed?: boolean;
+  charging_when_closed?: boolean = true;
 
   @IsArray()
   @Optional()

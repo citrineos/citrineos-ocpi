@@ -14,6 +14,8 @@ import { Service } from 'typedi';
 import { PaginatedParams } from './param/paginated.params';
 import { Paginated } from '../util/decorators/paginated';
 import { ModuleId } from '../model/ModuleId';
+import { PaginatedOcpiParams } from '../trigger/param/paginated.ocpi.params';
+import { LocationsService } from '../service/locations.service';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -40,11 +42,11 @@ export class LocationsController extends BaseController {
     },
   })
   async getLocations(
-    @Paginated() paginatedParams?: PaginatedParams,
+    @Paginated() paginatedParams?: PaginatedOcpiParams,
   ): Promise<PaginatedLocationResponse> {
-    console.log('getLocations', paginationParams);
-    // return MOCK_PAGINATED_LOCATION;
-    this.locationsService.getLocations(paginatedParams);  
+    console.log('getLocations', paginatedParams);
+    return MOCK_PAGINATED_LOCATION;
+    // this.locationsService.getLocations(paginatedParams);  
   }
 
   @Get('/:locationId')

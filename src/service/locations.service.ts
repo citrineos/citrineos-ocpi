@@ -1,22 +1,20 @@
-import {LocationsRepository} from '../repository/locations.repository';
-import {Service} from 'typedi';
-import { PaginatedParams } from '../trigger/param/paginated.params';
-import { PaginatedLocationResponse } from '../model/Location';
+import { SequelizeLocationRepository } from '@citrineos/data/src/layers/sequelize';
+import { Service } from 'typedi';
 
 @Service()
 export class LocationsService {
   constructor(
-    private locationsRepository: LocationsRepository,
+    private locationRepository: SequelizeLocationRepository,
   ) {
   }
   
-  async getLocations(
-    paginatedParams: PaginatedParams,
-  ): Promise<PaginatedLocationResponse> {
-    const locations = await this.locationsRepository.getLocations(
-      paginatedParams.limit, paginatedParams.offset,
-      paginatedParams.date_from, paginatedParams.date_to)
-  }
+  // async getLocations(
+  //   paginatedParams: PaginatedParams,
+  // ): Promise<PaginatedLocationResponse> {
+  //   const locations = await this.locationsRepository.getLocations(
+  //     paginatedParams.limit, paginatedParams.offset,
+  //     paginatedParams.date_from, paginatedParams.date_to)
+  // }
 
   // async getVersions(
   //   token: string
