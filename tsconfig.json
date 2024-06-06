@@ -1,26 +1,18 @@
 {
-  "extends": "../../tsconfig.build.json",
-  "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": [
-    "**/dist/**",
-    "**/node_modules/**",
-    "./node_modules/**",
-    "tests/**"
-  ],
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "composite": true
+    "rootDir": "./",
+    "outDir": "./dist"
   },
+  "exclude": [
+    "./dist/**/*",
+    "**/node_modules/**",
+    "DirectusExtensions", // todo for now
+    "Swarm" // todo for now
+  ],
   "references": [
     {
-      "path": "../../00_Base"
-    },
-    {
-      "path": "../../01_Data"
-    },
-    {
-      "path": "../../02_Util"
+      "path": "./Server"
     }
   ]
 }
