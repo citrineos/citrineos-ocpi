@@ -2,6 +2,7 @@
 
 import {QueryInterface} from 'sequelize';
 import {CredentialsRole} from '../src/model/CredentialsRole';
+import {Role} from "../src/model/Role";
 
 /** @type {import('sequelize-cli').Migration} */
 export = {
@@ -12,11 +13,43 @@ export = {
         'Credentials',
         [
           {
-            token: 'example-token',
+            token: 'MTIz',
             url: 'https://localhost:8086/ocpi/versions/',
             roles: JSON.stringify([
               {
-                role: 'CPO',
+                role: Role.EMSP,
+                party_id: 'MSP',
+                country_code: 'US',
+                business_details: {
+                  name: 'Example Operator'
+                },
+              } as CredentialsRole,
+            ]),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            token: 'MTIz',
+            url: 'https://localhost:8086/ocpi/versions/',
+            roles: JSON.stringify([
+              {
+                role: Role.CPO,
+                party_id: 'MSP',
+                country_code: 'US',
+                business_details: {
+                  name: 'Example Operator'
+                },
+              } as CredentialsRole,
+            ]),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            token: 'example-token',
+            url: 'https://localhost:8087/ocpi/versions/',
+            roles: JSON.stringify([
+              {
+                role: Role.CPO,
                 party_id: 'EXA',
                 country_code: 'NL',
                 business_details: {name: 'Example Operator'},

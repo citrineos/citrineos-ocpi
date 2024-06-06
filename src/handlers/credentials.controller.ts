@@ -1,16 +1,17 @@
-import { Body, Controller, Delete, Get, Post, Put } from 'routing-controllers';
-import { BaseController } from './base.controller';
-import { Credentials, CredentialsResponse } from '../model/Credentials';
-import { ResponseSchema } from '../openapi-spec-helper';
-import { HttpStatus } from '@citrineos/base';
-import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
-import { CredentialsService } from '../service/credentials.service';
-import { VersionNumber } from '../model/VersionNumber';
-import { VersionNumberParam } from '../util/decorators/version.number.param';
-import { Service } from 'typedi';
-import { AuthToken } from '../util/decorators/auth.token';
-import { AsOcpiRegistrationEndpoint } from '../util/decorators/as.ocpi.registration.endpoint';
-import { ModuleId } from '../model/ModuleId';
+import {Body, Controller, Delete, Get, Post, Put} from 'routing-controllers';
+import {BaseController} from './base.controller';
+import {CredentialsDTO} from '../model/CredentialsDTO';
+import {ResponseSchema} from '../openapi-spec-helper';
+import {HttpStatus} from '@citrineos/base';
+import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
+import {CredentialsService} from '../service/credentials.service';
+import {VersionNumber} from '../model/VersionNumber';
+import {VersionNumberParam} from '../util/decorators/version.number.param';
+import {Service} from 'typedi';
+import {AuthToken} from '../util/decorators/auth.token';
+import {AsOcpiRegistrationEndpoint} from '../util/decorators/as.ocpi.registration.endpoint';
+import {ModuleId} from '../model/ModuleId';
+import {CredentialsResponse} from "../model/credentials.response";
 
 @Controller(`/${ModuleId.Credentials}`)
 @Service()
@@ -29,7 +30,8 @@ export class CredentialsController extends BaseController {
   async getCredentials(
     @AuthToken() token: string,
   ): Promise<CredentialsResponse> {
-    return this.credentialsService?.getCredentials(token);
+    const credentials = await this.credentialsService?.getCredentials(token);
+    return CredentialsResponse.build(credentials.toCredentialsDTO());
   }
 
   @Post()
@@ -41,14 +43,11 @@ export class CredentialsController extends BaseController {
   })
   async postCredentials(
     @AuthToken() token: string,
-    @Body() credentials: Credentials,
+    @Body() credentials: CredentialsDTO,
     @VersionNumberParam() version: VersionNumber,
   ): Promise<CredentialsResponse> {
-    return this.credentialsService?.postCredentials(
-      token,
-      credentials,
-      version,
-    );
+    const clientInformation = await this.credentialsService?.postCredentials(token, credentials, version);
+    return CredentialsResponse.build(clientInformation.toCredentialsDTO());
   }
 
   @Put()
@@ -60,10 +59,11 @@ export class CredentialsController extends BaseController {
   })
   async putCredentials(
     @AuthToken() token: string,
-    @Body() credentials: Credentials,
+    @Body() credentials: CredentialsDTO,
     @VersionNumberParam() version: VersionNumber,
   ): Promise<CredentialsResponse> {
-    return this.credentialsService?.putCredentials(token, credentials, version);
+    const clientInformation = await this.credentialsService?.putCredentials(token, credentials, version);
+    return CredentialsResponse.build(clientInformation.toCredentialsDTO());
   }
 
   @Delete()

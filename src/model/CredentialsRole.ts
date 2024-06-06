@@ -1,25 +1,14 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import { Businessdetails } from './Businessdetails';
-import { Role } from './Role';
-import { Enum } from '../util/decorators/enum';
+import {BusinessDetails} from './BusinessDetails';
+import {Role} from './Role';
+import {Model} from "sequelize-typescript";
+import {ClientInformation} from "./client.information";
+import {CpoTenant} from "./cpo.tenant";
 
-export class CredentialsRole {
-  @Enum(Role, 'Role')
-  @IsNotEmpty()
+export class CredentialsRole extends Model {
   role!: Role;
-
-  @IsNotEmpty()
-  business_details!: Businessdetails;
-
-  @MaxLength(3)
-  @MinLength(3)
-  @IsString()
-  @IsNotEmpty()
-  party_id!: string;
-
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  country_code!: string;
+  business_details!: BusinessDetails;
+  clientInformationId!: number;
+  clientInformation!: ClientInformation;
+  cpoTenantId!: number;
+  cpoTenant!: CpoTenant;
 }

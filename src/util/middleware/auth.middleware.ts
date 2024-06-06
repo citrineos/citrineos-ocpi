@@ -1,29 +1,30 @@
-import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
-import { HttpHeader, HttpStatus } from '@citrineos/base';
-import { Context } from 'vm';
-import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
-import { Service } from 'typedi';
-import { CredentialsRepository } from '../../repository/credentials.repository';
-import { extractToken } from '../decorators/auth.token';
-import { OcpiHttpHeader } from '../ocpi.http.header';
-import { BaseMiddleware } from './base.middleware';
-import { OcpiResponseStatusCode } from '../../model/ocpi.response';
+import {KoaMiddlewareInterface, Middleware} from 'routing-controllers';
+import {HttpHeader, HttpStatus} from '@citrineos/base';
+import {Context} from 'vm';
+import {buildOcpiErrorResponse} from '../../model/ocpi.error.response';
+import {Service} from 'typedi';
+import {extractToken} from '../decorators/auth.token';
+import {OcpiHttpHeader} from '../ocpi.http.header';
+import {BaseMiddleware} from './base.middleware';
+import {OcpiResponseStatusCode} from '../../model/ocpi.response';
+import {CredentialsService} from "../../service/credentials.service";
+import {ClientInformationRepository} from "../../repository/client.information.repository";
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
 /**
  * AuthMiddleware is applied via the {@link AsOcpiEndpoint} and {@link AsOcpiOpenRoutingEndpoint} decorators. Endpoints
  * that are annotated with these decorators will have this middleware running. The middleware will check for presense
- * of the auth header, and try and call {@link CredentialsRepository#authorizeToken} with token, countryCode and partyId.
+ * of the auth header, and try and call {@link CredentialsService#authorizeToken} with token, countryCode and partyId.
  * If authentication fails, {@link OcpiErrorResponse} will be thrown with HttpStatus.UNAUTHORIZED which should be handled
  * by global exception handler.
  */
-@Middleware({ type: 'before' })
+@Middleware({type: 'before'})
 @Service()
 export class AuthMiddleware
   extends BaseMiddleware
   implements KoaMiddlewareInterface {
-  constructor(readonly credentialsRepository: CredentialsRepository) {
+  constructor(readonly clientInformationRepository: ClientInformationRepository) {
     super();
   }
 
@@ -55,7 +56,7 @@ export class AuthMiddleware
           context,
           OcpiHttpHeader.OcpiFromPartyId,
         );
-        await this.credentialsRepository.authorizeToken(
+        await this.clientInformationRepository.authorizeToken(
           token,
           fromCountryCode,
           fromPartyId,

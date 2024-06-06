@@ -1,8 +1,8 @@
-import { BaseClientApi } from './BaseClientApi';
-import { OcpiResponse } from '../model/ocpi.response';
-import { VersionDetailsDTO, VersionDTO } from '../model/Version';
-import { IHeaders } from 'typed-rest-client/Interfaces';
-import { VersionNumber } from '../model/VersionNumber';
+import {BaseClientApi} from './BaseClientApi';
+import {OcpiResponse} from '../model/ocpi.response';
+import {VersionDetailsDTO, VersionDTO} from '../model/Version';
+import {IHeaders} from 'typed-rest-client/Interfaces';
+import {VersionNumber} from '../model/VersionNumber';
 
 export interface GetVersionRequest {
   authorization: string;
@@ -11,6 +11,7 @@ export interface GetVersionRequest {
 
 export interface GetVersionsRequest {
   authorization: string;
+  version: VersionNumber;
 }
 
 export class VersionsClientApi extends BaseClientApi {
@@ -35,7 +36,7 @@ export class VersionsClientApi extends BaseClientApi {
     this.validateRequiredParam(requestParameters, 'authorization');
     const additionalHeaders: IHeaders = {};
     this.setAuthHeader(additionalHeaders, requestParameters.authorization);
-    return await this.getRaw<OcpiResponse<VersionDTO[]>>('/ocpi/versions', {
+    return await this.getRaw<OcpiResponse<VersionDTO[]>>(this.getPath(requestParameters.version, '/ocpi/versions'), {
       additionalHeaders,
     }).then((response) => this.handleResponse(response));
   }

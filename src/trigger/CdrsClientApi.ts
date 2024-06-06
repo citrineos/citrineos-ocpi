@@ -1,10 +1,10 @@
-import { BaseClientApi } from './BaseClientApi';
-import { CdrResponse } from '../model/Cdr';
-import { GetCdrParams } from './param/cdrs/get.cdr.params';
-import { PostCdrParams } from './param/cdrs/post.cdr.params';
-import { IHeaders } from 'typed-rest-client/Interfaces';
-import { NotFoundException } from '../exception/not.found.exception';
-import { ModuleId } from '../model/ModuleId';
+import {BaseClientApi} from './BaseClientApi';
+import {CdrResponse} from '../model/Cdr';
+import {GetCdrParams} from './param/cdrs/get.cdr.params';
+import {PostCdrParams} from './param/cdrs/post.cdr.params';
+import {IHeaders} from 'typed-rest-client/Interfaces';
+import {ModuleId} from '../model/ModuleId';
+import {NotFoundError} from "routing-controllers";
 
 interface PostCdrResponseHeaders {
   Location: string;
@@ -36,7 +36,7 @@ export class CdrsClientApi extends BaseClientApi {
     const headers = response.headers as PostCdrResponseHeaders;
     const cdrLocationUrl = headers.Location;
     if (!cdrLocationUrl) {
-      throw new NotFoundException('No Location header in OCPI response');
+      throw new NotFoundError('No Location header in OCPI response');
     }
     return cdrLocationUrl;
   }

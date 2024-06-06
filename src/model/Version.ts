@@ -1,19 +1,12 @@
-import { VersionNumber } from './VersionNumber';
-import {
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUrl,
-  ValidateNested,
-} from 'class-validator';
-import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
-import { Endpoint, EndpointDTO } from './Endpoint';
-import { Enum } from '../util/decorators/enum';
-import { OcpiNamespace } from '../util/ocpi.namespace';
-import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
-import { Type } from 'class-transformer';
+import {VersionNumber} from './VersionNumber';
+import {ArrayMinSize, IsArray, IsNotEmpty, IsObject, IsString, IsUrl, ValidateNested,} from 'class-validator';
+import {BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table} from 'sequelize-typescript';
+import {Endpoint, EndpointDTO} from './Endpoint';
+import {Enum} from '../util/decorators/enum';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {OcpiResponse, OcpiResponseStatusCode} from './ocpi.response';
+import {Exclude, Type} from 'class-transformer';
+import {ClientInformation} from "./client.information";
 
 export class VersionDTO {
   @IsNotEmpty()
@@ -27,7 +20,7 @@ export class VersionDTO {
 
 export class VersionDTOListResponse extends OcpiResponse<VersionDTO[]> {
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   @Type(() => VersionDTO)
   data!: VersionDTO[];
 
@@ -82,22 +75,28 @@ export class VersionDetailsDTOResponse extends OcpiResponse<VersionDetailsDTO> {
 export class Version extends Model {
   static readonly MODEL_NAME: string = OcpiNamespace.Version;
 
-  @Column({
-    type: DataType.STRING,
-    unique: 'version_number_type',
-    primaryKey: true,
-  })
+  @Column(DataType.ENUM(...Object.values(VersionNumber)))
   @IsNotEmpty()
   @Enum(VersionNumber, 'VersionNumber')
-  declare version: VersionNumber;
+  version!: VersionNumber;
 
   @Column(DataType.STRING)
   @IsString()
   @IsUrl()
-  declare url: string;
+  url!: string;
 
+  @Exclude()
   @HasMany(() => Endpoint)
   endpoints!: Endpoint[];
+
+  @Exclude()
+  @ForeignKey(() => ClientInformation)
+  @Column(DataType.INTEGER)
+  clientInformationId!: number;
+
+  @Exclude()
+  @BelongsTo(() => ClientInformation)
+  clientInformation!: ClientInformation;
 
   static buildVersion(
     version: VersionNumber,

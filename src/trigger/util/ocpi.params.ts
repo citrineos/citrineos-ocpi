@@ -1,10 +1,7 @@
-import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
-import { VersionNumber } from '../../model/VersionNumber';
+import {IsNotEmpty, IsString, Length} from 'class-validator';
+import {OcpiRegistrationParams} from "./ocpi.registration.params";
 
-export class OcpiParams {
-  @IsString()
-  authorization!: string;
-
+export class OcpiParams extends OcpiRegistrationParams {
   @IsString()
   @IsNotEmpty()
   @Length(2)
@@ -24,14 +21,4 @@ export class OcpiParams {
   @IsNotEmpty()
   @Length(3)
   toPartyId!: string;
-
-  @IsString()
-  @IsOptional()
-  xRequestId?: string;
-
-  @IsString()
-  @IsOptional()
-  xCorrelationId?: string;
-
-  version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 }
