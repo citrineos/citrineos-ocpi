@@ -17,9 +17,6 @@ class CitrineOSServer {
     protected getConfig() {
         const config = new OcpiServerConfig();
 
-        config.routePrefix = '/ocpi/:versionId';
-        config.middlewares = [GlobalExceptionHandler, LoggingMiddleware];
-        config.defaultErrorHandler = false;
         config.modules = [
             new CommandsModule(),
             new VersionsModule()

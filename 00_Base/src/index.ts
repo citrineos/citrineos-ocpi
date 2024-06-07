@@ -58,10 +58,10 @@ import Koa from 'koa';
 
 export class OcpiServerConfig {
     modules?: IOcpiModule[]
-    routePrefix?: string
-    middlewares?: Function[] | string[]
-    defaultErrorHandler?: boolean
 }
+
+import { GlobalExceptionHandler } from "./util/middleware/global.exception.handler";
+import { LoggingMiddleware } from "./util/middleware/logging.middleware";
 
 export class OcpiServer {
     readonly koa: Koa
@@ -70,9 +70,9 @@ export class OcpiServer {
         this.koa.use(KoaLogger());
         useKoaServer(this.koa, {
             controllers: config?.modules?.map(module => module.getController()) || [],
-            defaultErrorHandler: config?.defaultErrorHandler,
-            routePrefix: config?.routePrefix,
-            middlewares: config?.middlewares
+            routePrefix: '/ocpi/:versionId',
+            middlewares: [GlobalExceptionHandler, LoggingMiddleware],
+            defaultErrorHandler: false
         })
     }
 
