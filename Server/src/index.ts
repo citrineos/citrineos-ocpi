@@ -2,8 +2,6 @@ import 'reflect-metadata';
 import {CommandsModule} from "@citrineos/ocpi-commands";
 import {VersionsModule} from "@citrineos/ocpi-versions";
 import {OcpiServer, OcpiServerConfig} from "@citrineos/ocpi-base";
-import {GlobalExceptionHandler} from "@citrineos/ocpi-base";
-import {LoggingMiddleware} from "@citrineos/ocpi-base";
 
 class CitrineOSServer {
     constructor(host: string, port: number) {
