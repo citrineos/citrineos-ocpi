@@ -1,3 +1,5 @@
+import KoaLogger from "koa-logger";
+
 export { generateMockOcpiResponse, BaseController } from './controllers/base.controller';
 
 export { CommandType } from './model/CommandType';
@@ -62,13 +64,22 @@ export class OcpiServerConfig {
 }
 
 export class OcpiServer {
-    constructor(koa?: Koa, config?: OcpiServerConfig) {
-        koa = koa || new Koa()
-        useKoaServer(koa, {
+    readonly koa: Koa
+    constructor(config?: OcpiServerConfig) {
+        this.koa = new Koa()
+        this.koa.use(KoaLogger());
+        useKoaServer(this.koa, {
             controllers: config?.modules?.map(module => module.getController()) || [],
             defaultErrorHandler: config?.defaultErrorHandler,
             routePrefix: config?.routePrefix,
             middlewares: config?.middlewares
+        })
+    }
+
+    public run(host: string, port: number) {
+        this.koa.listen({
+            host: host,
+            port: port
         })
     }
 }
