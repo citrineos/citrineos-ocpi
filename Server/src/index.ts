@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import Koa from 'koa';
-import {CommandsModule, initCommandsApi} from "@citrineos/ocpi-commands";
-import {initVersionsApi} from "@citrineos/ocpi-versions";
+import {CommandsModule} from "@citrineos/ocpi-commands";
+import {VersionsModule} from "@citrineos/ocpi-versions";
 import {
     EventGroup,
     ICache,
@@ -14,11 +14,12 @@ import {
     DirectusUtil, MemoryCache,
     RabbitMqReceiver,
     RabbitMqSender, RedisCache,
-    WebsocketNetworkConnection
 } from "@citrineos/util";
 import {systemConfig} from "./config";
 import {type ILogObj, Logger} from 'tslog';
-import {useKoaServer} from "routing-controllers";
+import {OcpiModuleConfig} from "@citrineos/ocpi-base";
+import {GlobalExceptionHandler} from "@citrineos/ocpi-base";
+import {LoggingMiddleware} from "@citrineos/ocpi-base";
 
 class CitrineOSServer {
     private readonly _config: SystemConfig;
@@ -74,16 +75,16 @@ class CitrineOSServer {
     }
 
     protected _initModules() {
-        const commandsModule = new CommandsModule(
-            this._config,
-            this._cache,
-            this._createSender(),
-            this._createHandler(),
-            this._logger
-        );
-        // const commandsApiModule = new CommandsModuleApi(this._app);
-        initCommandsApi(this._app);
-        initVersionsApi(this._app);
+        const config = new OcpiModuleConfig();
+
+        config.routePrefix = '/ocpi/:versionId';
+        config.middlewares = [GlobalExceptionHandler, LoggingMiddleware];
+        config.defaultErrorHandler = false;
+
+        const modules = [
+            new CommandsModule(this._app, config),
+            new VersionsModule(this._app, config),
+        ]
     }
 
     private initCache(cache?: ICache): ICache {

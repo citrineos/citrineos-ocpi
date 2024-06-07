@@ -39,7 +39,6 @@ export class AuthMiddleware
   }
 
   async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
-    console.log("HOWDY. LEE.")
     const authHeader =
       context.request.headers[HttpHeader.Authorization.toLowerCase()];
     if (!permittedRoutes.includes(context.request.originalUrl)) {

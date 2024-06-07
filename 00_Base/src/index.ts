@@ -20,6 +20,11 @@ export { VersionDetailsDTOResponse } from './model/Version'
 export { VersionDTOListResponse } from './model/Version'
 export { VersionDetailsDTO, VersionDTO } from './model/Version'
 export { OcpiResponse } from './model/ocpi.response'
+export { IOcpiModule } from './model/IOcpiModule'
+export { BaseOcpiModule } from './model/BaseOcpiModule'
+export { OcpiModuleConfig } from './model/OcpiModuleConfig'
+export { VersionRepository } from './repository/version.repository'
+export { CredentialsRepository } from './repository/credentials.repository'
 
 export { NotFoundException } from './exception/not.found.exception'
 
@@ -34,6 +39,8 @@ export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registrati
 export { AuthToken } from './util/decorators//auth.token'
 export { VersionNumberParam } from './util/decorators/version.number.param'
 export { EnumParam } from './util/decorators/enum.param'
+export { GlobalExceptionHandler } from './util/middleware/global.exception.handler'
+export { LoggingMiddleware } from './util/middleware/logging.middleware'
 
 export { ResponseSchema } from './openapi-spec-helper/decorators'
 

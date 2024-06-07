@@ -22,7 +22,7 @@ import { ILogObj, Logger } from 'tslog';
 /**
  * Component that handles provisioning related messages.
  */
-export class CommandsModule extends AbstractModule {
+export class VersionsOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
@@ -32,7 +32,7 @@ export class CommandsModule extends AbstractModule {
   ];
 
   /**
-   * This is the constructor function that initializes the {@link CommandsModule}.
+   * This is the constructor function that initializes the {@link VersionsOcppHandlers}.
    *
    * @param {SystemConfig} config - The `config` contains configuration settings for the module.
    *
@@ -60,7 +60,7 @@ export class CommandsModule extends AbstractModule {
       cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
-      EventGroup.Commands,
+      EventGroup.Versions,
       logger,
     );
 

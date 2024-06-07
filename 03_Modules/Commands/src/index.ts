@@ -3,15 +3,16 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Container } from 'typedi';
-import {useContainer, useKoaServer} from 'routing-controllers';
 import Koa from "koa";
 import { CommandsModuleApi } from "./module/api";
+import {BaseOcpiModule, IOcpiModule, OcpiModuleConfig} from '@citrineos/ocpi-base';
 
 export { CommandsModuleApi } from './module/api';
+export { CommandsOcppHandlers } from './module/handlers';
 export { ICommandsModuleApi } from './module/interface';
-export { CommandsModule } from './module/module';
 
-export function initCommandsApi(koa: Koa) {
-    useKoaServer(koa, { controllers: [CommandsModuleApi] });
+export class CommandsModule extends BaseOcpiModule implements IOcpiModule {
+    constructor(koa: Koa, config: OcpiModuleConfig) {
+        super(koa, config, [CommandsModuleApi]);
+    }
 }

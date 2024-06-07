@@ -6,5 +6,6 @@
 export { CredentialsModuleApi } from './module/api';
 export { ICredentialsModuleApi } from './module/interface';
 export { CredentialsModule } from './module/module';
-export { CredentialsRepository } from '../../../00_Base/src/repository/credentials.repository'
+
+export { CredentialsRepository } from '@citrineos/ocpi-base'
 

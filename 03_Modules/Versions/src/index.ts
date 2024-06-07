@@ -4,16 +4,15 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import Koa from "koa";
-import {useKoaServer} from "routing-controllers";
+import { VersionsModuleApi } from './module/api'
+import {BaseOcpiModule, IOcpiModule, OcpiModuleConfig} from "@citrineos/ocpi-base";
 
-export { VersionsModuleApi } from './module/api';
+export { VersionsModuleApi } from './module/api'
+export { VersionsOcppHandlers } from './module/handlers';
 export { IVersionsModuleApi } from './module/interface';
-export { VersionsModule } from './module/module';
-export { VersionRepository } from '../../../00_Base/src/repository/version.repository';
-export { VersionsClientApi } from '../../../00_Base/src/trigger/VersionsClientApi';
 
-import { VersionsModuleApi} from "./module/api";
-
-export function initVersionsApi(koa: Koa) {
-    useKoaServer(koa, { controllers: [VersionsModuleApi] });
+export class VersionsModule extends BaseOcpiModule implements IOcpiModule {
+    constructor(koa: Koa, config: OcpiModuleConfig) {
+        super(koa, config, [VersionsModuleApi]);
+    }
 }
