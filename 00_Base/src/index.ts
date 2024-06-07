@@ -21,14 +21,10 @@ export { VersionDTOListResponse } from './model/Version'
 export { VersionDetailsDTO, VersionDTO } from './model/Version'
 export { OcpiResponse } from './model/ocpi.response'
 export { IOcpiModule } from './model/IOcpiModule'
-export { BaseOcpiModule } from './model/BaseOcpiModule'
-export { OcpiModuleConfig } from './model/OcpiModuleConfig'
 export { VersionRepository } from './repository/version.repository'
 export { CredentialsRepository } from './repository/credentials.repository'
 
 export { NotFoundException } from './exception/not.found.exception'
-
-export { OcpiServerConfig } from './config/ocpi.server.config'
 
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint'
 export { MultipleTypes } from './util/decorators/multiple.types'
@@ -51,6 +47,28 @@ export { CredentialsService } from './services/credentials.service'
 export { VersionService } from './services/version.service'
 
 import { Container } from 'typedi';
-import { useContainer } from 'routing-controllers';
+import {useContainer, useKoaServer} from 'routing-controllers';
 
 useContainer(Container);
+
+import { IOcpiModule } from "./model/IOcpiModule";
+import Koa from 'koa';
+
+export class OcpiServerConfig {
+    modules?: IOcpiModule[]
+    routePrefix?: string
+    middlewares?: Function[] | string[]
+    defaultErrorHandler?: boolean
+}
+
+export class OcpiServer {
+    constructor(koa?: Koa, config?: OcpiServerConfig) {
+        koa = koa || new Koa()
+        useKoaServer(koa, {
+            controllers: config?.modules?.map(module => module.getController()) || [],
+            defaultErrorHandler: config?.defaultErrorHandler,
+            routePrefix: config?.routePrefix,
+            middlewares: config?.middlewares
+        })
+    }
+}

@@ -38,6 +38,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@citrineos/ocpi-base": "1.1.1",
     "@citrineos/ocpi-commands": "1.1.1",
     "@citrineos/ocpi-versions": "1.1.1",
     "@koa/multer": "^3.0.2",

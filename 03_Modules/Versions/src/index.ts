@@ -3,16 +3,15 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import Koa from "koa";
 import { VersionsModuleApi } from './module/api'
-import {BaseOcpiModule, IOcpiModule, OcpiModuleConfig} from "@citrineos/ocpi-base";
+import {IOcpiModule} from "@citrineos/ocpi-base";
 
 export { VersionsModuleApi } from './module/api'
 export { VersionsOcppHandlers } from './module/handlers';
 export { IVersionsModuleApi } from './module/interface';
 
-export class VersionsModule extends BaseOcpiModule implements IOcpiModule {
-    constructor(koa: Koa, config: OcpiModuleConfig) {
-        super(koa, config, [VersionsModuleApi]);
+export class VersionsModule implements IOcpiModule {
+    getController(): any {
+        return VersionsModuleApi
     }
 }

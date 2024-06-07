@@ -17,9 +17,10 @@ import {
 } from "@citrineos/util";
 import {systemConfig} from "./config";
 import {type ILogObj, Logger} from 'tslog';
-import {OcpiModuleConfig} from "@citrineos/ocpi-base";
+import {OcpiServer, OcpiServerConfig} from "@citrineos/ocpi-base";
 import {GlobalExceptionHandler} from "@citrineos/ocpi-base";
 import {LoggingMiddleware} from "@citrineos/ocpi-base";
+import KoaLogger from 'koa-logger';
 
 class CitrineOSServer {
     private readonly _config: SystemConfig;
@@ -42,7 +43,7 @@ class CitrineOSServer {
 
         this._app = server || new Koa();
 
-        // this._app = useKoaServer(server, { controllers: [CommandsModuleApi] });
+        this._app.use(KoaLogger());
 
         this._logger = this.initLogger();
 
@@ -75,16 +76,18 @@ class CitrineOSServer {
     }
 
     protected _initModules() {
-        const config = new OcpiModuleConfig();
+        const config = new OcpiServerConfig();
 
         config.routePrefix = '/ocpi/:versionId';
         config.middlewares = [GlobalExceptionHandler, LoggingMiddleware];
         config.defaultErrorHandler = false;
-
-        const modules = [
-            new CommandsModule(this._app, config),
-            new VersionsModule(this._app, config),
+        config.modules = [
+            new CommandsModule(),
+            new VersionsModule()
         ]
+
+        const ocpiSerer = new OcpiServer(this._app, config);
+
     }
 
     private initCache(cache?: ICache): ICache {
