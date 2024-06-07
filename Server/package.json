@@ -1,5 +1,5 @@
 {
-  "name": "@citrineos/ocpi",
+  "name": "@citrineos/ocpi-server",
   "version": "1.1.1",
   "description": "The monitoring module for OCPP v2.0.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "npm run clean && tsc -p tsconfig.json",
     "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
-    "start": "nodemon src/index.ts",
+    "start": "export APP_ENV=local && nodemon src/index.ts",
     "test": "../node_modules/.bin/jest --config jest.config.js",
     "init-db": "../node_modules/.bin/sequelize-cli db:migrate && sequelize-cli db:migrate:schema:timestamps:add",
     "seed-db": "../node_modules/.bin/sequelize-cli db:seed:all",
@@ -38,6 +38,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@citrineos/ocpi-commands": "1.1.1",
+    "@citrineos/ocpi-versions": "1.1.1",
     "@koa/multer": "^3.0.2",
     "@koa/router": "^12.0.1",
     "@mockoon/cli": "^8.1.1",
@@ -59,13 +61,6 @@
     "typedi": "^0.10.0",
     "sequelize-typescript": "^2.1.5",
     "uuid": "^9.0.0",
-    "@citrineos/data": "1.1.1",
     "pg": "^8.11.3"
-  },
-  "workspaces": [
-    "../citrineos-core/00_Base",
-    "../citrineos-core/01_Data",
-    "../citrineos-core/02_Util",
-    "03_Modules/Commands"
-  ]
+  }
 }

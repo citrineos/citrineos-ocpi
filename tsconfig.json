@@ -8,11 +8,12 @@
     "./dist/**/*",
     "**/node_modules/**",
     "DirectusExtensions", // todo for now
-    "Swarm" // todo for now
+    "Swarm", // todo for now,
+    "Server_OLD"
   ],
   "references": [
     {
-      "path": "./Server"
+      "path": "Server"
     }
   ]
 }

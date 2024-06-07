@@ -1,5 +1,5 @@
 {
-  "name": "@citrineos/workspace",
+  "name": "@citrineos/ocpi-workspace",
   "version": "1.1.1",
   "private": false,
   "devDependencies": {
@@ -24,7 +24,10 @@
   },
   "workspaces": [
     "Server",
+    "00_Base",
     "03_Modules/Commands",
+    "03_Modules/Credentials",
+    "03_Modules/Versions",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"

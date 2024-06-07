@@ -1,5 +1,5 @@
 {
-  "watch": ["src"],
+  "watch": ["src", "../00_Base", "../03_Modules"],
   "ext": "ts,js",
   "ignore": ["**/dist/**", "**/node_modules/**"],
   "exec": "node --inspect=0.0.0.0:9229 --nolazy -r ts-node/register"
