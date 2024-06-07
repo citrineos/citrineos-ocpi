@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.build.json",
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": ["src/**/*.ts", "src/**/*.json", "../03_Modules/Locations/src/module/mapper/CitrineOcpiLocationMapper.ts", "../03_Modules/Locations/src/module/mapper/IOcpiLocationMapper.ts"],
   "exclude": [
     "**/dist/**",
     "**/node_modules/**",

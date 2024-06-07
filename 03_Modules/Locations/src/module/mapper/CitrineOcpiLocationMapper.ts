@@ -1,13 +1,13 @@
 
 import { IOcpiLocationMapper } from './IOcpiLocationMapper';
-import { Location as OcpiLocation } from '../../model/Location';
-import { Evse } from '../../model/Evse';
-import { Connector } from '../../model/Connector';
-import { GeoLocation } from '../../model/GeoLocation';
+import { Location as OcpiLocation } from '../../../../../Server/src/model/Location';
+import { Evse } from '../../../../../Server/src/model/Evse';
+import { Connector } from '../../../../../Server/src/model/Connector';
+import { GeoLocation } from '../../../../../Server/src/model/GeoLocation';
 import { Location as OcppLocation, ChargingStation, VariableAttribute } from '@citrineos/data/src/layers/sequelize';
-import { EvseStatus } from '../../model/EvseStatus';
+import { EvseStatus } from '../../../../../Server/src/model/EvseStatus';
 import { AttributeEnumType } from '@citrineos/base';
-import { Capability } from '../../model/Capability';
+import { Capability } from '../../../../../Server/src/model/Capability';
 
 // we need some more locations...
 // as in charging stations at the same location
