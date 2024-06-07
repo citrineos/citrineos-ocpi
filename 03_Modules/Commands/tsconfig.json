@@ -1,0 +1,18 @@
+{
+  "extends": "../../../citrineos-core/tsconfig.json",
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": ["**/dist/**", "**/node_modules/**"],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "../../../citrineos-core/00_Base"
+    },
+    {
+      "path": "../../../citrineos-core/02_Util"
+    }
+  ]
+}

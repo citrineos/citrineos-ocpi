@@ -1,0 +1,23 @@
+{
+  "include": [
+    "03_Modules/Commands/**/*.ts",
+    "03_Modules/Commands/**/*.json",
+    "Server/**/*.ts",
+    "Server/**/*.json",
+    "seeders/**/*.ts",
+    "migrations/**/*.ts"
+  ],
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "sourceMap": true
+  }
+}
