@@ -1,11 +1,33 @@
-import { SequelizeLocationRepository } from '@citrineos/data/src/layers/sequelize';
+import { SequelizeDeviceModelRepository, SequelizeLocationRepository, VariableAttribute } from '@citrineos/data/src/layers/sequelize';
 import { Service } from 'typedi';
+import { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
 
 @Service()
 export class LocationsService {
+  // TODO provide flexibility for ocpi location mapper interface
   constructor(
     private locationRepository: SequelizeLocationRepository,
+    private deviceModelRepository: SequelizeDeviceModelRepository,
+    private locationMapper: CitrineOcpiLocationMapper
   ) {
+  }
+
+  async getLocationById(id: string) {
+    const evseVariableAtributesMap: Record<string, VariableAttribute[]> = {};
+    const ocppLocation = await this.locationRepository.readByKey(id);
+    ocppLocation.chargingPool.forEach(async chargingStation => {
+      const variableAttributes = await this.deviceModelRepository.readAllByQuery({
+        stationId: chargingStation.id
+      });
+
+      evseVariableAtributesMap[chargingStation.id] = variableAttributes;
+    });
+
+    return this.locationMapper.mapToOcpiLocation(ocppLocation, evseVariableAtributesMap);
+  }
+
+  async getLocationByEvseId(id: string, evseId: string) {
+
   }
   
   // async getLocations(
@@ -14,31 +36,5 @@ export class LocationsService {
   //   const locations = await this.locationsRepository.getLocations(
   //     paginatedParams.limit, paginatedParams.offset,
   //     paginatedParams.date_from, paginatedParams.date_to)
-  // }
-
-  // async getVersions(
-  //   token: string
-  // ): Promise<VersionDTOListResponse> {
-  //   await this.credentialsRepository.authorizeToken(token);
-  //   const versions: Version[] = await this.versionRepository.readAllByQuery(
-  //     {},
-  //     OcpiNamespace.Version,
-  //   );
-  //   return VersionDTOListResponse.build(
-  //     OcpiResponseStatusCode.GenericSuccessCode,
-  //     versions.map((version) => version.toVersionDTO()),
-  //   );
-  // }
-
-  // async getVersionDetails(
-  //   token: string,
-  //   versionId: VersionNumber
-  // ): Promise<VersionDetailsDTOResponse> {
-  //   await this.credentialsRepository.authorizeToken(token);
-  //   const version: Version = await this.versionRepository.readByKey(
-  //     versionId,
-  //     OcpiNamespace.Version,
-  //   );
-  //   return VersionDetailsDTOResponse.build(OcpiResponseStatusCode.GenericSuccessCode, version.toVersionDetailsDTO());
   // }
 }

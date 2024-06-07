@@ -9,21 +9,27 @@ import { EvseStatus } from '../../../../../Server/src/model/EvseStatus';
 import { AttributeEnumType } from '@citrineos/base';
 import { Capability } from '../../../../../Server/src/model/Capability';
 
-// we need some more locations...
-// as in charging stations at the same location
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   // TODO figure out credentials
   mapToOcpiLocation(
     ocppLocation: OcppLocation,
-    evseVariableAttributesMap: Record<string, VariableAttribute[]>
+    variableAttributes: VariableAttribute[]
   ): OcpiLocation {
+    const evseVariableAtributesMap = variableAttributes.reduce((acc, va) => {
+      if (va.evse) {
+        acc[va.evse.id] = [...(acc[va.evse.id] ?? []), va];
+      }
+
+      return acc;
+    }, {});
+
     const ocpiLocation = new OcpiLocation();
 
     ocpiLocation.id = ocppLocation.id;
 
     // TODO update with credentials
-    ocpiLocation.country_code = 'US'; // TODO update with credentials
-    ocpiLocation.party_id = 'COS'; // TODO update with credentials
+    ocpiLocation.country_code = 'US';
+    ocpiLocation.party_id = 'COS';
 
     // TODO update with dynamic data
     ocpiLocation.publish = true; 
@@ -41,7 +47,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   
     ocpiLocation.coordinates = this.getCoordinates(ocppLocation.coordinates);
     ocpiLocation.evses = ocppLocation.chargingPool
-      .map(chargingStation => this.mapToOcpiEvse(ocppLocation, chargingStation, evseVariableAttributesMap[chargingStation.id])); // TODO confirm that charging station would be related to evse id
+      .map(chargingStation => this.mapToOcpiEvse(ocppLocation, chargingStation, evseVariableAtributesMap[chargingStation.id])); // TODO confirm that charging station would be related to evse id
 
     // TODO make dynamic mappings for the remaining optional fields
     // ocpiLocation.related_locations
@@ -59,7 +65,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   }
 
   mapToOcpiEvse(location: OcppLocation, chargingStation: ChargingStation, variableAttributes: VariableAttribute[]): Evse {
-    const connectorVariableAttributesMap = variableAttributes.reduce((acc: Record<string, VariableAttribute[]>, va) => {
+    const connectorVariableAttributesMap = variableAttributes.reduce((acc, va) => {
       if (va.evse?.connectorId) {
         acc[va.evse.connectorId] = [...(acc[va.evse.connectorId] ?? []), va];
       }
@@ -118,7 +124,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return [];
   }
 
-  getComponent(variableAttributes: VariableAttribute[], component: string, variable: string, attribute: AttributeEnumType): string | null {
+  getComponent(variableAttributes: VariableAttribute[], component: string, variable: string, attribute: AttributeEnumType): string {
     const matchingVariableAttribute = variableAttributes
       .filter(va => va.component.name === component && va.variable.name === variable && va.type === attribute);
 
