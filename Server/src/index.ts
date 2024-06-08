@@ -24,4 +24,4 @@ class CitrineOSServer {
     }
 }
 
-new CitrineOSServer("localhost", 8080);
+new CitrineOSServer("localhost", 8085);
