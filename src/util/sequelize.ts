@@ -23,9 +23,7 @@ export class OcpiSequelizeInstance {
     const sequelizeLogger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
-
     sequelizeLogger.info('Creating default Sequelize instance');
-
     this.sequelize = new Sequelize({
       host: config.data.sequelize.host,
       port: config.data.sequelize.port,

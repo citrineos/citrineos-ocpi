@@ -5,6 +5,7 @@ import {OcpiLogger} from "../util/logger";
 import {OcpiSequelizeInstance} from "../util/sequelize";
 import {SystemConfig, UnauthorizedException} from "@citrineos/base";
 import {ClientInformation} from "../model/client.information";
+import {OcpiNamespace} from "../util/ocpi.namespace";
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
@@ -15,7 +16,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      ClientInformation.name,
+      OcpiNamespace.ClientInformation,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

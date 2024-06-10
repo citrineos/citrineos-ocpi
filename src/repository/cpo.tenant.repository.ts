@@ -5,6 +5,7 @@ import {OcpiLogger} from "../util/logger";
 import {OcpiSequelizeInstance} from "../util/sequelize";
 import {SystemConfig} from "@citrineos/base";
 import {CpoTenant} from "../model/cpo.tenant";
+import {OcpiNamespace} from "../util/ocpi.namespace";
 
 @Service()
 export class CpoTenantRepository extends SequelizeRepository<CpoTenant> {
@@ -15,7 +16,7 @@ export class CpoTenantRepository extends SequelizeRepository<CpoTenant> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      CpoTenant.name,
+      OcpiNamespace.CpoTenant,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

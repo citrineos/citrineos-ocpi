@@ -5,6 +5,7 @@ import {OcpiLogger} from "../util/logger";
 import {OcpiSequelizeInstance} from "../util/sequelize";
 import {SystemConfig} from "@citrineos/base";
 import {ServerCredentialsRole} from "../model/server.credentials.role";
+import {OcpiNamespace} from "../util/ocpi.namespace";
 
 @Service()
 export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerCredentialsRole> {
@@ -15,7 +16,7 @@ export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerC
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      ServerCredentialsRole.name,
+      OcpiNamespace.ServerCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

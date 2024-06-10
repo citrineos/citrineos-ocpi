@@ -73,8 +73,8 @@ const defaultSequelizeConfig: SequelizeConfig = new SequelizeConfig(
   'citrine',
   'citrine',
   'squelize',
-  true,
   false,
+  true,
 );
 
 export enum LogLevel {
