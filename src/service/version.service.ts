@@ -1,5 +1,5 @@
 import {VersionRepository} from '../repository/version.repository';
-import {Version, } from '../model/Version';
+import {Version,} from '../model/Version';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';

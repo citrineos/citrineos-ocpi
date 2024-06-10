@@ -12,6 +12,8 @@ import {ServerCredentialsRole} from "../model/server.credentials.role";
 import {Image} from "../model/Image";
 import {ClientVersion} from "../model/client.version";
 import {ServerVersion} from "../model/server.version";
+import {Version} from "../model/Version";
+import {VersionEndpoint} from "../model/VersionEndpoint";
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -41,7 +43,9 @@ export class OcpiSequelizeInstance {
         Image,
         ClientVersion,
         ServerVersion,
-        Endpoint
+        Endpoint,
+        Version,
+        VersionEndpoint
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

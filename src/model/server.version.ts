@@ -7,10 +7,10 @@ import {Endpoint} from "./Endpoint";
 import {ClientInformation} from "./client.information";
 import {VersionDTO} from "./VersionDTO";
 import {VersionDetailsDTO} from "./VersionDetailsDTO";
-import {Version} from "./Version";
+import {IVersion} from "./Version";
 
 @Table
-export class ServerVersion extends Model implements Version {
+export class ServerVersion extends Model implements IVersion {
   @Column(DataType.ENUM(...Object.values(VersionNumber)))
   @IsNotEmpty()
   @Enum(VersionNumber, 'VersionNumber')

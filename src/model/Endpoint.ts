@@ -7,6 +7,7 @@ import {OcpiNamespace} from '../util/ocpi.namespace';
 import {Exclude} from "class-transformer";
 import {ClientVersion} from "./client.version";
 import {ServerVersion} from "./server.version";
+import {VersionNumber} from "./VersionNumber";
 
 export class EndpointDTO {
   @IsString()
@@ -22,6 +23,8 @@ export class EndpointDTO {
   @IsNotEmpty()
   url!: string;
 
+  @Enum(VersionNumber, 'VersionNumber')
+  @IsNotEmpty()
   version!: string;
 }
 

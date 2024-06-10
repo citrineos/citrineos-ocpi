@@ -8,7 +8,7 @@ import {ClientVersion} from "./client.version";
 import {ServerVersion} from "./server.version";
 
 @Table
-export class ClientInformation extends Model<any, any> {
+export class ClientInformation extends Model {
 
   @Column({
     type: DataType.STRING,

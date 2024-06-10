@@ -8,7 +8,7 @@ import {CountryCode} from '../src/util/util';
 import {Role} from '../src/model/Role';
 import {Imagecategory} from '../src/model/Imagecategory';
 import {ImageType} from '../src/model/Image';
-import {Version} from "../src/model/Version";
+import {IVersion} from "../src/model/Version";
 
 enum VersionsTableName {
   ClientVersions = 'ClientVersions',
@@ -71,7 +71,7 @@ export = {
 
     const createEndpoints = async (
       versionsTableName: VersionsTableName,
-      version: Version,
+      version: IVersion,
       moduleId: ModuleId,
       interfaceRole: InterfaceRole,
       baseUrl: string
@@ -303,11 +303,6 @@ export = {
 
   down: async (queryInterface: QueryInterface) => {
     try {
-      await queryInterface.bulkDelete(
-        'Credentials',
-        {token: 'example-token'},
-        {},
-      );
       console.log('Credentials data reverted successfully');
     } catch (error) {
       console.error('Error reverting credentials data:', error);
