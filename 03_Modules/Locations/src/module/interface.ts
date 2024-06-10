@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-
 /**
  * Interface for the Locations module.
  */
-export interface ILocationsModuleApi {
-}
+export interface ILocationsModuleApi {}

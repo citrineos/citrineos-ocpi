@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { ILogObj, Logger } from 'tslog';
-import {ILocationsModuleApi} from './interface';
+import { ILocationsModuleApi } from './interface';
 import { LocationsModule } from './module';
 
 /**
@@ -18,10 +18,8 @@ export class LocationsModuleApi implements ILocationsModuleApi {
    * @param {Logger<ILogObj>} [logger] - The logger for logging.
    */
   constructor(
-    LocationsModule: LocationsModule,
+    locationsModule: LocationsModule,
     // server: KoaInstance,
     logger?: Logger<ILogObj>,
-  ) {
-
-  }
+  ) {}
 }

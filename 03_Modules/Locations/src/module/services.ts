@@ -1,4 +1,8 @@
-import { SequelizeDeviceModelRepository, SequelizeLocationRepository, VariableAttribute } from '@citrineos/data/src/layers/sequelize';
+import {
+  SequelizeDeviceModelRepository,
+  SequelizeLocationRepository,
+  VariableAttribute,
+} from '@citrineos/data/src/layers/sequelize';
 import { Service } from 'typedi';
 import { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
 
@@ -8,28 +12,29 @@ export class LocationsService {
   constructor(
     private locationRepository: SequelizeLocationRepository,
     private deviceModelRepository: SequelizeDeviceModelRepository,
-    private locationMapper: CitrineOcpiLocationMapper
-  ) {
-  }
+    private locationMapper: CitrineOcpiLocationMapper,
+  ) {}
 
   async getLocationById(id: string) {
     const evseVariableAtributesMap: Record<string, VariableAttribute[]> = {};
     const ocppLocation = await this.locationRepository.readByKey(id);
-    ocppLocation.chargingPool.forEach(async chargingStation => {
-      const variableAttributes = await this.deviceModelRepository.readAllByQuery({
-        stationId: chargingStation.id
-      });
+    ocppLocation.chargingPool.forEach(async (chargingStation) => {
+      const variableAttributes =
+        await this.deviceModelRepository.readAllByQuery({
+          stationId: chargingStation.id,
+        });
 
       evseVariableAtributesMap[chargingStation.id] = variableAttributes;
     });
 
-    return this.locationMapper.mapToOcpiLocation(ocppLocation, evseVariableAtributesMap);
+    return this.locationMapper.mapToOcpiLocation(
+      ocppLocation,
+      evseVariableAtributesMap,
+    );
   }
 
-  async getLocationByEvseId(id: string, evseId: string) {
+  async getLocationByEvseId(id: string, evseId: string) {}
 
-  }
-  
   // async getLocations(
   //   paginatedParams: PaginatedParams,
   // ): Promise<PaginatedLocationResponse> {
