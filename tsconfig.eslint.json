@@ -2,6 +2,8 @@
   "include": [
     "03_Modules/Commands/**/*.ts",
     "03_Modules/Commands/**/*.json",
+    "03_Modules/Locations/**/*.ts",
+    "03_Modules/Locations/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.json",
     "seeders/**/*.ts",
