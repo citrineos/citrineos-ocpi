@@ -1,19 +1,19 @@
-import { Body, Controller, Post } from 'routing-controllers';
-import { HttpStatus } from '@citrineos/base';
-import { BaseController, generateMockOcpiResponse } from './base.controller';
-import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { CommandType } from '../model/CommandType';
-import { CancelReservation } from '../model/CancelReservation';
-import { ReserveNow } from '../model/ReserveNow';
-import { StartSession } from '../model/StartSession';
-import { StopSession } from '../model/StopSession';
-import { UnlockConnector } from '../model/UnlockConnector';
-import { OcpiCommandResponse } from '../model/CommandResponse';
-import { ResponseSchema } from '../openapi-spec-helper';
-import { MultipleTypes } from '../util/decorators/multiple.types';
-import { Service } from 'typedi';
-import { ModuleId } from '../model/ModuleId';
-import { EnumParam } from '../util/decorators/enum.param';
+import {Body, Controller, Post} from 'routing-controllers';
+import {HttpStatus} from '@citrineos/base';
+import {BaseController, generateMockOcpiResponse} from './base.controller';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
+import {CommandType} from '../model/CommandType';
+import {CancelReservation} from '../model/CancelReservation';
+import {ReserveNow} from '../model/ReserveNow';
+import {StartSession} from '../model/StartSession';
+import {StopSession} from '../model/StopSession';
+import {UnlockConnector} from '../model/UnlockConnector';
+import {OcpiCommandResponse} from '../model/CommandResponse';
+import {ResponseSchema} from '../openapi-spec-helper';
+import {MultipleTypes} from '../util/decorators/multiple.types';
+import {Service} from 'typedi';
+import {ModuleId} from '../model/ModuleId';
+import {EnumParam} from '../util/decorators/enum.param';
 
 const MOCK = generateMockOcpiResponse(OcpiCommandResponse);
 
@@ -26,12 +26,15 @@ export class CommandsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK,
+      success: {
+        summary: 'A successful response',
+        value: MOCK
+      },
     },
   })
   async postCommand(
     @EnumParam('commandType', CommandType, 'CommandType')
-    _commandType: CommandType,
+      _commandType: CommandType,
     @Body()
     @MultipleTypes(
       CancelReservation,
@@ -40,7 +43,7 @@ export class CommandsController extends BaseController {
       StopSession,
       UnlockConnector,
     )
-    _payload:
+      _payload:
       | CancelReservation
       | ReserveNow
       | StartSession

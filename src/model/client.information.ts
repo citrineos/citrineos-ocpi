@@ -1,10 +1,11 @@
 import {BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table} from "sequelize-typescript";
 import {IsBoolean, IsNotEmpty, IsString} from "class-validator";
-import {Version} from "./Version";
 import {ClientCredentialsRole} from "./client.credentials.role";
 import {CredentialsDTO} from "./CredentialsDTO";
 import {CpoTenant} from "./cpo.tenant";
 import {Exclude} from "class-transformer";
+import {ClientVersion} from "./client.version";
+import {ServerVersion} from "./server.version";
 
 @Table
 export class ClientInformation extends Model<any, any> {
@@ -35,12 +36,12 @@ export class ClientInformation extends Model<any, any> {
   clientCredentialsRoles!: ClientCredentialsRole[];
 
   @Exclude()
-  @HasMany(() => Version)
-  clientVersionDetails!: Version[];
+  @HasMany(() => ClientVersion)
+  clientVersionDetails!: ClientVersion[];
 
   @Exclude()
-  @HasMany(() => Version)
-  serverVersionDetails!: Version[];
+  @HasMany(() => ServerVersion)
+  serverVersionDetails!: ServerVersion[];
 
   @Exclude()
   @ForeignKey(() => CpoTenant)
@@ -50,6 +51,24 @@ export class ClientInformation extends Model<any, any> {
   @Exclude()
   @BelongsTo(() => CpoTenant)
   cpoTenant!: CpoTenant;
+
+  static buildClientInformation(
+    clientToken: string,
+    serverToken: string,
+    registered: boolean,
+    clientCredentialsRoles: ClientCredentialsRole[],
+    clientVersionDetails: ClientVersion[],
+    serverVersionDetails: ServerVersion[],
+  ): ClientInformation {
+    const clientInformation = new ClientInformation();
+    clientInformation.clientToken = clientToken;
+    clientInformation.serverToken = serverToken;
+    clientInformation.registered = registered;
+    clientInformation.clientCredentialsRoles = clientCredentialsRoles;
+    clientInformation.clientVersionDetails = clientVersionDetails;
+    clientInformation.serverVersionDetails = serverVersionDetails;
+    return clientInformation;
+  }
 
   public toCredentialsDTO(): CredentialsDTO {
     const credentials = new CredentialsDTO();

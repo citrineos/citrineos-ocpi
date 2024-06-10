@@ -4,8 +4,9 @@ import {InterfaceRole} from './InterfaceRole';
 import {Enum} from '../util/decorators/enum';
 import {BelongsTo, Column, DataType, ForeignKey, Model, Table,} from 'sequelize-typescript';
 import {OcpiNamespace} from '../util/ocpi.namespace';
-import {Version} from './Version';
 import {Exclude} from "class-transformer";
+import {ClientVersion} from "./client.version";
+import {ServerVersion} from "./server.version";
 
 export class EndpointDTO {
   @IsString()
@@ -28,15 +29,6 @@ export class EndpointDTO {
 export class Endpoint extends Model {
   static readonly MODEL_NAME: string = OcpiNamespace.Endpoint;
 
-  @Exclude()
-  @ForeignKey(() => Version)
-  @Column(DataType.INTEGER)
-  versionId!: number;
-
-  @Exclude()
-  @BelongsTo(() => Version)
-  version!: Version;
-
   @Column(DataType.STRING)
   @IsString()
   @Enum(ModuleId, 'ModuleId')
@@ -53,6 +45,24 @@ export class Endpoint extends Model {
   @IsUrl()
   @IsNotEmpty()
   url!: string;
+
+  @Exclude()
+  @ForeignKey(() => ClientVersion)
+  @Column(DataType.INTEGER)
+  clientVersionId!: number;
+
+  @Exclude()
+  @BelongsTo(() => ClientVersion)
+  clientVersion!: ClientVersion;
+
+  @Exclude()
+  @ForeignKey(() => ServerVersion)
+  @Column(DataType.INTEGER)
+  serverVersionId!: number;
+
+  @Exclude()
+  @BelongsTo(() => ServerVersion)
+  serverVersion!: ServerVersion;
 
   static buildEndpoint(
     identifier: ModuleId,

@@ -22,7 +22,7 @@ export class ClientCredentialsRole extends CredentialsRole { // todo seems like 
   @IsString()
   @IsNotEmpty()
   @Length(2, 2)
-  country_code!: string;
+  country_code!: string; // todo should we use CountryCode enum?
 
   @Exclude()
   @HasOne(() => BusinessDetails)
@@ -45,4 +45,17 @@ export class ClientCredentialsRole extends CredentialsRole { // todo seems like 
   @Exclude()
   @BelongsTo(() => CpoTenant)
   cpoTenant!: CpoTenant;
+
+
+  static buildClientCredentialsRole(
+    countryCode: string,
+    partyId: string,
+    businessDetails: BusinessDetails
+  ) {
+    const clientCredentialsRole = new ClientCredentialsRole();
+    clientCredentialsRole.country_code = countryCode;
+    clientCredentialsRole.party_id = partyId;
+    clientCredentialsRole.business_details = businessDetails;
+    return clientCredentialsRole;
+  }
 }

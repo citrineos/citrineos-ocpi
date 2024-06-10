@@ -1,11 +1,13 @@
 import {VersionRepository} from '../repository/version.repository';
-import {Version, VersionDetailsDTOResponse, VersionDTOListResponse,} from '../model/Version';
+import {Version, } from '../model/Version';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
 import {Endpoint} from '../model/Endpoint';
 import {NotFoundError} from "routing-controllers";
 import {ClientInformationRepository} from "../repository/client.information.repository";
+import {VersionDetailsResponseDTO} from "../model/VersionDetailsResponseDTO";
+import {VersionListResponseDTO} from "../model/VersionListResponseDTO";
 
 @Service()
 export class VersionService {
@@ -15,10 +17,10 @@ export class VersionService {
   ) {
   }
 
-  async getVersions(token: string): Promise<VersionDTOListResponse> {
+  async getVersions(token: string): Promise<VersionListResponseDTO> {
     await this.clientInformationRepository.authorizeToken(token);
     const versions: Version[] = await this.versionRepository.readAllByQuery({});
-    return VersionDTOListResponse.build(
+    return VersionListResponseDTO.build(
       versions.map((version) => version.toVersionDTO()),
     );
   }
@@ -26,7 +28,7 @@ export class VersionService {
   async getVersionDetails(
     token: string,
     version: VersionNumber,
-  ): Promise<VersionDetailsDTOResponse> {
+  ): Promise<VersionDetailsResponseDTO> {
     await this.clientInformationRepository.authorizeToken(token);
     const versionDetail: Version | undefined =
       await this.versionRepository.readOnlyOneByQuery(
@@ -39,6 +41,6 @@ export class VersionService {
     if (!versionDetail) {
       throw new NotFoundError('Version not found');
     }
-    return VersionDetailsDTOResponse.build(versionDetail.toVersionDetailsDTO());
+    return VersionDetailsResponseDTO.build(versionDetail.toVersionDetailsDTO());
   }
 }

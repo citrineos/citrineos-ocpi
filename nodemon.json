@@ -7,5 +7,5 @@
     "**/dist/**",
     "**/node_modules/**"
   ],
-  "exec": "node --nolazy -r ts-node/register"
+  "exec": "node --inspect --nolazy -r ts-node/register"
 }

@@ -13,4 +13,14 @@ export class CpoTenant extends Model {
   @Exclude()
   @HasMany(() => ClientInformation)
   clientInformation!: ClientInformation[];
+
+  static buildCpoTenant(
+    serverCredentialsRoles: ServerCredentialsRole[],
+    clientInformation: ClientInformation[]
+  ) {
+    const cpoTenant = new CpoTenant();
+    cpoTenant.serverCredentialsRoles = serverCredentialsRoles;
+    cpoTenant.clientInformation = clientInformation;
+    return cpoTenant;
+  }
 }

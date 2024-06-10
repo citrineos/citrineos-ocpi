@@ -1,8 +1,9 @@
 import {BaseClientApi} from './BaseClientApi';
 import {OcpiResponse} from '../model/ocpi.response';
-import {VersionDetailsDTO, VersionDTO} from '../model/Version';
+import {VersionDTO} from '../model/VersionDTO';
 import {IHeaders} from 'typed-rest-client/Interfaces';
 import {VersionNumber} from '../model/VersionNumber';
+import {VersionDetailsDTO} from "../model/VersionDetailsDTO";
 
 export interface GetVersionRequest {
   authorization: string;

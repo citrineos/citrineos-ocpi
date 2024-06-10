@@ -26,7 +26,10 @@ export class TariffsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK,
+      success: {
+        summary: 'A successful response',
+        value: MOCK
+      },
     },
   })
   async getTariffs(

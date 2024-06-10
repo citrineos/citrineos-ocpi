@@ -1,14 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Put } from 'routing-controllers';
-import { Service } from 'typedi';
-import { BaseController, generateMockOcpiResponse } from './base.controller';
-import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../openapi-spec-helper';
-import { HttpStatus } from '@citrineos/base';
-import { Token, TokenResponse } from '../model/Token';
-import { TokenType } from '../model/TokenType';
-import { EnumQueryParam } from '../util/decorators/enum.query.param';
-import { ModuleId } from '../model/ModuleId';
-import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import {Body, Controller, Get, Param, Patch, Put} from 'routing-controllers';
+import {Service} from 'typedi';
+import {BaseController, generateMockOcpiResponse} from './base.controller';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
+import {ResponseSchema} from '../openapi-spec-helper';
+import {HttpStatus} from '@citrineos/base';
+import {Token, TokenResponse} from '../model/Token';
+import {TokenType} from '../model/TokenType';
+import {EnumQueryParam} from '../util/decorators/enum.query.param';
+import {ModuleId} from '../model/ModuleId';
+import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
 
 const MOCK_TOKEN = generateMockOcpiResponse(TokenResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
@@ -22,7 +22,10 @@ export class TokensController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_TOKEN,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_TOKEN
+      },
     },
   })
   async getTokens(
@@ -41,7 +44,10 @@ export class TokensController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_EMPTY,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY
+      },
     },
   })
   async putToken(
@@ -61,7 +67,10 @@ export class TokensController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_EMPTY,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY
+      },
     },
   })
   async patchToken(

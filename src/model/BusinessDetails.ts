@@ -1,7 +1,7 @@
 import {IsNotEmpty, IsString, IsUrl, MaxLength} from 'class-validator';
 import {Image} from './Image';
 import {Optional} from '../util/decorators/optional';
-import {BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table} from "sequelize-typescript";
+import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
 import {ClientCredentialsRole} from "./client.credentials.role";
 import {ServerCredentialsRole} from "./server.credentials.role";
 import {Exclude} from "class-transformer";
@@ -9,22 +9,20 @@ import {Exclude} from "class-transformer";
 @Table // todo note here need for both client and server credential roles models because using base wont work
 export class BusinessDetails extends Model {
 
-  @PrimaryKey
-  @Column(DataType.STRING)
-  id!: number;
-
   @Column(DataType.STRING(100))
   @MaxLength(100)
   @IsString()
   @IsNotEmpty()
   name!: string;
 
+  @Column(DataType.STRING)
   @IsString()
   @IsUrl()
   @Optional()
   website?: string | null;
 
-  @Optional()
+  @Exclude()
+  @HasOne(() => Image)
   logo?: Image | null;
 
   @Exclude()
@@ -44,5 +42,16 @@ export class BusinessDetails extends Model {
   @Exclude()
   @BelongsTo(() => ServerCredentialsRole)
   serverCredentialsRole!: ServerCredentialsRole;
-
 }
+
+// export const buildBusinessDetails = (
+//   name: string,
+//   website: string | null,
+//   logo: Image | null
+// ) => {
+//   const businessDetails = new BusinessDetails();
+//   businessDetails.name = name;
+//   businessDetails.website = website;
+//   businessDetails.logo = logo;
+//   return businessDetails;
+// }

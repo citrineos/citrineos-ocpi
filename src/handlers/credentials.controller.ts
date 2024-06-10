@@ -1,5 +1,5 @@
 import {Body, Controller, Delete, Get, Post, Put} from 'routing-controllers';
-import {BaseController} from './base.controller';
+import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {CredentialsDTO} from '../model/CredentialsDTO';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {HttpStatus} from '@citrineos/base';
@@ -13,6 +13,10 @@ import {AsOcpiRegistrationEndpoint} from '../util/decorators/as.ocpi.registratio
 import {ModuleId} from '../model/ModuleId';
 import {CredentialsResponse} from "../model/credentials.response";
 
+
+const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
+const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
+
 @Controller(`/${ModuleId.Credentials}`)
 @Service()
 export class CredentialsController extends BaseController {
@@ -25,7 +29,12 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
-    examples: {}, // todo real example
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_CREDENTIALS_RESPONSE
+      },
+    },
   })
   async getCredentials(
     @AuthToken() token: string,
@@ -39,7 +48,12 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
-    examples: {}, // todo real example
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_CREDENTIALS_RESPONSE
+      },
+    },
   })
   async postCredentials(
     @AuthToken() token: string,
@@ -55,7 +69,12 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
-    examples: {}, // todo real example
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_CREDENTIALS_RESPONSE
+      },
+    },
   })
   async putCredentials(
     @AuthToken() token: string,
@@ -71,7 +90,12 @@ export class CredentialsController extends BaseController {
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
-    examples: {}, // todo real example
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY
+      },
+    },
   })
   async deleteCredentials(
     @AuthToken() token: string,

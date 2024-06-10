@@ -2,7 +2,6 @@ import {BelongsTo, Column, DataType, ForeignKey, HasOne, Table} from "sequelize-
 import {Role} from "./Role";
 import {CredentialsRole} from "./CredentialsRole";
 import {IsNotEmpty, IsString, Length} from "class-validator";
-import {ClientInformation} from "./client.information";
 import {CpoTenant} from "./cpo.tenant";
 import {BusinessDetails} from "./BusinessDetails";
 import {Exclude} from "class-transformer";
@@ -29,15 +28,6 @@ export class ServerCredentialsRole extends CredentialsRole {
   business_details!: BusinessDetails;
 
   @Exclude()
-  @ForeignKey(() => ClientInformation)
-  @Column(DataType.INTEGER)
-  clientInformationId!: number;
-
-  @Exclude()
-  @BelongsTo(() => ClientInformation)
-  clientInformation!: ClientInformation;
-
-  @Exclude()
   @ForeignKey(() => CpoTenant)
   @Column(DataType.INTEGER)
   cpoTenantId!: number;
@@ -45,4 +35,16 @@ export class ServerCredentialsRole extends CredentialsRole {
   @Exclude()
   @BelongsTo(() => CpoTenant)
   cpoTenant!: CpoTenant;
+
+  static buildServerCredentialsRole(
+    countryCode: string,
+    partyId: string,
+    businessDetails: BusinessDetails
+  ) {
+    const serverCredentialsRole = new ServerCredentialsRole();
+    serverCredentialsRole.country_code = countryCode;
+    serverCredentialsRole.party_id = partyId;
+    serverCredentialsRole.business_details = businessDetails;
+    return serverCredentialsRole;
+  }
 }

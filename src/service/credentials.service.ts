@@ -10,10 +10,10 @@ import {OcpiResponseStatusCode} from '../model/ocpi.response';
 import {BadRequestError, InternalServerError, NotFoundError} from "routing-controllers";
 import {ClientInformationRepository} from "../repository/client.information.repository";
 import {ClientInformation} from "../model/client.information";
-import {Version} from "../model/Version";
 import {Endpoint} from "../model/Endpoint";
 import {invalidClientCredentialsRoles} from "../util/util";
 import {ClientCredentialsRole} from "../model/client.credentials.role";
+import {ClientVersion} from "../model/client.version";
 
 @Service()
 export class CredentialsService {
@@ -156,7 +156,7 @@ export class CredentialsService {
     clientInformation: ClientInformation,
     token: string,
     credentials: CredentialsDTO,
-    freshVersionDetails: Version,
+    freshVersionDetails: ClientVersion,
   ) {
     if (invalidClientCredentialsRoles(credentials.roles)) {
       throw new BadRequestError('Invalid client credentials roles, must be EMSP');
@@ -181,7 +181,7 @@ export class CredentialsService {
     clientInformation: ClientInformation,
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
-  ): Promise<Version> {
+  ): Promise<ClientVersion> {
     const existingVersionDetails = clientInformation.clientVersionDetails.find((v) => v.version === versionNumber);
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
@@ -212,6 +212,6 @@ export class CredentialsService {
       endpoint.role,
       endpoint.url
     ));
-    return Version.buildVersion(versionNumber, version.url, endpoints!);
+    return ClientVersion.buildClientVersion(versionNumber, version.url, endpoints!);
   }
 }

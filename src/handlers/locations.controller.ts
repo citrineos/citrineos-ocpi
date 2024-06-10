@@ -1,19 +1,15 @@
-import { Controller, Get, Param } from 'routing-controllers';
-import {
-  BaseController,
-  generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
-} from './base.controller';
-import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { HttpStatus } from '@citrineos/base';
-import { LocationResponse, PaginatedLocationResponse } from '../model/Location';
-import { EvseResponse } from '../model/Evse';
-import { ConnectorResponse } from '../model/Connector';
-import { ResponseSchema } from '../openapi-spec-helper';
-import { Service } from 'typedi';
-import { PaginatedParams } from './param/paginated.params';
-import { Paginated } from '../util/decorators/paginated';
-import { ModuleId } from '../model/ModuleId';
+import {Controller, Get, Param} from 'routing-controllers';
+import {BaseController, generateMockOcpiPaginatedResponse, generateMockOcpiResponse,} from './base.controller';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
+import {HttpStatus} from '@citrineos/base';
+import {LocationResponse, PaginatedLocationResponse} from '../model/Location';
+import {EvseResponse} from '../model/Evse';
+import {ConnectorResponse} from '../model/Connector';
+import {ResponseSchema} from '../openapi-spec-helper';
+import {Service} from 'typedi';
+import {PaginatedParams} from './param/paginated.params';
+import {Paginated} from '../util/decorators/paginated';
+import {ModuleId} from '../model/ModuleId';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -32,7 +28,10 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_PAGINATED_LOCATION,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_PAGINATED_LOCATION
+      },
     },
   })
   async getLocations(
@@ -48,7 +47,10 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_LOCATION,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_LOCATION
+      },
     },
   })
   async getLocation(
@@ -64,7 +66,10 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_EVSE,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EVSE
+      },
     },
   })
   async getEvse(
@@ -81,7 +86,10 @@ export class LocationsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_CONNECTOR,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_CONNECTOR
+      },
     },
   })
   async getConnector(

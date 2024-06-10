@@ -32,7 +32,10 @@ export class SessionsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_PAGINATED_SESSIONS,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_PAGINATED_SESSIONS
+      },
     },
   })
   async getSessions(
@@ -48,7 +51,10 @@ export class SessionsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_CHARGING_PREFERENCES,
+      success: {
+        summary: 'A successful response',
+        value: MOCK_CHARGING_PREFERENCES
+      },
     },
   })
   async updateChargingPreferences(

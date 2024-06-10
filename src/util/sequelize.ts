@@ -1,7 +1,6 @@
 import {Sequelize} from 'sequelize-typescript';
 import {ILogObj, Logger} from 'tslog';
 import {Dialect} from 'sequelize';
-import {Version} from '../model/Version';
 import {OcpiServerConfig} from '../config/ocpi.server.config';
 import {Service} from 'typedi';
 import {Endpoint} from '../model/Endpoint';
@@ -10,6 +9,9 @@ import {CpoTenant} from "../model/cpo.tenant";
 import {BusinessDetails} from "../model/BusinessDetails";
 import {ClientCredentialsRole} from "../model/client.credentials.role";
 import {ServerCredentialsRole} from "../model/server.credentials.role";
+import {Image} from "../model/Image";
+import {ClientVersion} from "../model/client.version";
+import {ServerVersion} from "../model/server.version";
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -36,8 +38,10 @@ export class OcpiSequelizeInstance {
         ClientCredentialsRole,
         ServerCredentialsRole,
         BusinessDetails,
-        Version,
-        Endpoint,
+        Image,
+        ClientVersion,
+        ServerVersion,
+        Endpoint
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
