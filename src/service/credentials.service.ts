@@ -21,7 +21,6 @@ export class CredentialsService {
     private logger: OcpiLogger,
     private clientInformationRepository: ClientInformationRepository,
     private versionsClientApi: VersionsClientApi,
-    // private credentialsClientApi: CredentialsClientApi
   ) {
   }
 
@@ -31,6 +30,14 @@ export class CredentialsService {
         where: {
           clientToken: token,
         },
+        include: [
+          {
+            model: ClientVersion,
+            include: [
+              Endpoint
+            ]
+          }
+        ]
       },
       OcpiNamespace.Credentials,
     );
@@ -50,7 +57,7 @@ export class CredentialsService {
     version: VersionNumber,
   ): Promise<ClientInformation> {
     let clientInformation = await this.getClientInformation(token);
-    const freshVersionDetails = await this.getVersionDetails(clientInformation, version, credentials);
+    const freshVersionDetails = await this.getClientVersionDetails(clientInformation, version, credentials);
     const newToken = uuidv4();
     const clientInformationList = await this.clientInformationRepository.updateAllByQuery({
       serverToken: newToken,
@@ -74,57 +81,6 @@ export class CredentialsService {
     }
     // todo error handling
     throw new InternalServerError('Could not update client information');
-
-    // todo do we need below logic?
-    /* const credentialsEndpoint = endpoints?.find(
-      endpoint => endpoint.identifier === ModuleId.Credentials
-    );
-    if (credentialsEndpoint) {
-      const credentialsUrl = credentialsEndpoint.url;
-      if (credentialsUrl) {
-        // generate new token and POST
-        const newToken = uuidv4();
-
-        const credentialsDTO = CredentialsDTO.build(
-          newToken,
-          credentialsUrl,
-          clientInformation.cpoTenant.serverCredentialsRoles // todo maybe serverCredentialsRoles should be in ClientInformation?
-        );
-
-        this.credentialsClientApi.baseUrl = credentialsUrl;
-        const credentialsResponse = await this.credentialsClientApi.postCredentials(buildPostCredentialsParams(
-          version,
-          clientInformation.serverToken,
-          credentialsDTO
-        ));
-        if (credentialsResponse) { // todo check successful status code
-
-          clientInformation.registered = true;
-
-          const clientInformationList = await this.clientInformationRepository.updateAllByQuery({
-            serverToken: newToken,
-            registered: true,
-            clientVersionDetails: [
-              ...clientInformation.clientVersionDetails.filter(
-                (versionDetails) => versionDetails.version !== version
-              ),
-              freshVersionDetails
-            ]
-          }, {
-            where: {
-              serverToken: clientInformation.serverToken
-            }
-          });
-          if (clientInformationList) { // todo use update one by query
-            clientInformation = clientInformationList[0];
-            if (clientInformation) {
-
-            }
-          }
-          return clientInformation;
-        }
-      }
-    }*/
   }
 
   async putCredentials(
@@ -133,7 +89,7 @@ export class CredentialsService {
     version: VersionNumber,
   ): Promise<ClientInformation> {
     const clientInformation = await this.getClientInformation(token);
-    const versionDetails = await this.getVersionDetails(clientInformation, version, credentials);
+    const versionDetails = await this.getClientVersionDetails(clientInformation, version, credentials);
     return await this.updateCredentials(clientInformation, token, credentials, versionDetails);
   }
 
@@ -177,7 +133,7 @@ export class CredentialsService {
     return clientInformationList[0];
   }
 
-  private async getVersionDetails(
+  private async getClientVersionDetails(
     clientInformation: ClientInformation,
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,

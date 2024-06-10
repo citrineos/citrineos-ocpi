@@ -5,6 +5,7 @@ import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "seq
 import {ClientCredentialsRole} from "./client.credentials.role";
 import {ServerCredentialsRole} from "./server.credentials.role";
 import {Exclude} from "class-transformer";
+import {ON_DELETE_CASCADE} from "../util/sequelize";
 
 @Table // todo note here need for both client and server credential roles models because using base wont work
 export class BusinessDetails extends Model {
@@ -22,7 +23,9 @@ export class BusinessDetails extends Model {
   website?: string | null;
 
   @Exclude()
-  @HasOne(() => Image)
+  @HasOne(() => Image, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   logo?: Image | null;
 
   @Exclude()

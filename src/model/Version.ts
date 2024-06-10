@@ -7,6 +7,7 @@ import {Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
 import {IsNotEmpty, IsString, IsUrl} from "class-validator";
 import {Enum} from "../util/decorators/enum";
 import {VersionEndpoint} from "./VersionEndpoint";
+import {ON_DELETE_CASCADE} from "../util/sequelize";
 
 export interface IVersion {
   id?: number;
@@ -31,7 +32,9 @@ export class Version extends Model {
   @IsUrl()
   url!: string;
 
-  @HasMany(() => VersionEndpoint)
+  @HasMany(() => VersionEndpoint, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   endpoints!: VersionEndpoint[];
 
   static buildVersion(

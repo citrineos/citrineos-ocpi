@@ -4,6 +4,7 @@ import {VersionDTO} from '../model/VersionDTO';
 import {IHeaders} from 'typed-rest-client/Interfaces';
 import {VersionNumber} from '../model/VersionNumber';
 import {VersionDetailsDTO} from "../model/VersionDetailsDTO";
+import {Service} from "typedi";
 
 export interface GetVersionRequest {
   authorization: string;
@@ -15,6 +16,7 @@ export interface GetVersionsRequest {
   version: VersionNumber;
 }
 
+@Service()
 export class VersionsClientApi extends BaseClientApi {
   async getVersion(
     requestParameters: GetVersionRequest,

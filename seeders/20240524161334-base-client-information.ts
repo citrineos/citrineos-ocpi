@@ -224,17 +224,17 @@ export = {
     };
 
     const createAndServerClientVersionDetails = async (clientInformation: any): Promise<void> => {
+      const clientVersions = await createVersion(VersionsTableName.ClientVersions, clientInformation, VersionNumber.TWO_DOT_TWO_DOT_ONE, baseClientUrl);
+      const clientVersion = clientVersions[0];
       for (let i = 0; i < moduleList.length; i++) {
         const moduleId = moduleList[i];
-        const versions = await createVersion(VersionsTableName.ClientVersions, clientInformation, VersionNumber.TWO_DOT_TWO_DOT_ONE, baseClientUrl);
-        const version = versions[0];
-        await createEndpoints(VersionsTableName.ClientVersions, version, moduleId, InterfaceRole.RECEIVER, baseClientUrl);
+        await createEndpoints(VersionsTableName.ClientVersions, clientVersion, moduleId, InterfaceRole.RECEIVER, baseClientUrl);
       }
+      const serverVersions = await createVersion(VersionsTableName.ServerVersions, clientInformation, VersionNumber.TWO_DOT_TWO_DOT_ONE, baseServerUrl);
+      const serverVersion = serverVersions[0];
       for (let i = 0; i < moduleList.length; i++) {
         const moduleId = moduleList[i];
-        const versions = await createVersion(VersionsTableName.ServerVersions, clientInformation, VersionNumber.TWO_DOT_TWO_DOT_ONE, baseServerUrl);
-        const version = versions[0];
-        await createEndpoints(VersionsTableName.ServerVersions, version, moduleId, InterfaceRole.SENDER, baseServerUrl);
+        await createEndpoints(VersionsTableName.ServerVersions, serverVersion, moduleId, InterfaceRole.SENDER, baseServerUrl);
       }
     };
 

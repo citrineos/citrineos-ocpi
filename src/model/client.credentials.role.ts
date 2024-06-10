@@ -6,6 +6,7 @@ import {ClientInformation} from "./client.information";
 import {CpoTenant} from "./cpo.tenant";
 import {BusinessDetails} from "./BusinessDetails";
 import {Exclude} from "class-transformer";
+import {ON_DELETE_CASCADE} from "../util/sequelize";
 
 @Table
 export class ClientCredentialsRole extends CredentialsRole { // todo seems like CredentialsRole base may be better fit as an interface
@@ -25,7 +26,9 @@ export class ClientCredentialsRole extends CredentialsRole { // todo seems like 
   country_code!: string; // todo should we use CountryCode enum?
 
   @Exclude()
-  @HasOne(() => BusinessDetails)
+  @HasOne(() => BusinessDetails, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   business_details!: BusinessDetails;
 
   @Exclude()

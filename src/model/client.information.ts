@@ -6,6 +6,9 @@ import {CpoTenant} from "./cpo.tenant";
 import {Exclude} from "class-transformer";
 import {ClientVersion} from "./client.version";
 import {ServerVersion} from "./server.version";
+import {ON_DELETE_CASCADE} from "../util/sequelize";
+import {ModuleId} from "./ModuleId";
+import {Endpoint} from "./Endpoint";
 
 @Table
 export class ClientInformation extends Model {
@@ -32,15 +35,21 @@ export class ClientInformation extends Model {
   registered!: boolean;
 
   @Exclude()
-  @HasMany(() => ClientCredentialsRole)
+  @HasMany(() => ClientCredentialsRole, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   clientCredentialsRoles!: ClientCredentialsRole[];
 
   @Exclude()
-  @HasMany(() => ClientVersion)
+  @HasMany(() => ClientVersion, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   clientVersionDetails!: ClientVersion[];
 
   @Exclude()
-  @HasMany(() => ServerVersion)
+  @HasMany(() => ServerVersion, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   serverVersionDetails!: ServerVersion[];
 
   @Exclude()
@@ -73,8 +82,15 @@ export class ClientInformation extends Model {
   public toCredentialsDTO(): CredentialsDTO {
     const credentials = new CredentialsDTO();
     credentials.token = this.clientToken;
-    credentials.url = this.clientVersionDetails[0].url; // todo: what should this URL be?
+    const credentialsEndpoint = this.getClientVersionDetailsByModuleId(ModuleId.Credentials);
+    if (credentialsEndpoint && credentialsEndpoint.url) {
+      credentials.url = credentialsEndpoint.url;
+    }
     credentials.roles = this.clientCredentialsRoles;
     return credentials;
+  }
+
+  public getClientVersionDetailsByModuleId(moduleId: ModuleId): Endpoint | undefined {
+    return this.clientVersionDetails[0].endpoints.find((endpoint) => endpoint.identifier === moduleId);
   }
 }

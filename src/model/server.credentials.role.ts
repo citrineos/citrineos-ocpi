@@ -5,6 +5,8 @@ import {IsNotEmpty, IsString, Length} from "class-validator";
 import {CpoTenant} from "./cpo.tenant";
 import {BusinessDetails} from "./BusinessDetails";
 import {Exclude} from "class-transformer";
+import {ON_DELETE_CASCADE} from "../util/sequelize";
+
 
 @Table
 export class ServerCredentialsRole extends CredentialsRole {
@@ -24,7 +26,9 @@ export class ServerCredentialsRole extends CredentialsRole {
   country_code!: string;
 
   @Exclude()
-  @HasOne(() => BusinessDetails)
+  @HasOne(() => BusinessDetails, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   business_details!: BusinessDetails;
 
   @Exclude()

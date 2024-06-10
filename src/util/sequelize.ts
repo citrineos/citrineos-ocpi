@@ -15,6 +15,12 @@ import {ServerVersion} from "../model/server.version";
 import {Version} from "../model/Version";
 import {VersionEndpoint} from "../model/VersionEndpoint";
 
+export const ON_DELETE_RESTRICT = 'RESTRICT';
+export const ON_DELETE_CASCADE = 'CASCADE';
+export const ON_DELETE_NO_ACTION = 'NO_ACTION';
+export const ON_DELETE_SET_DEFAULT = 'SET_DEFAULT';
+export const ON_DELETE_SET_NULL = 'SET NULL';
+
 @Service()
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;

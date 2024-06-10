@@ -8,6 +8,7 @@ import {ClientInformation} from "./client.information";
 import {VersionDTO} from "./VersionDTO";
 import {VersionDetailsDTO} from "./VersionDetailsDTO";
 import {IVersion} from "./Version";
+import {ON_DELETE_CASCADE} from "../util/sequelize";
 
 @Table
 export class ServerVersion extends Model implements IVersion {
@@ -22,7 +23,9 @@ export class ServerVersion extends Model implements IVersion {
   url!: string;
 
   @Exclude()
-  @HasMany(() => Endpoint)
+  @HasMany(() => Endpoint, {
+    onDelete: ON_DELETE_CASCADE,
+  })
   endpoints!: Endpoint[];
 
   @Exclude()
