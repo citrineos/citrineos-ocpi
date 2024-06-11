@@ -1,8 +1,8 @@
 const path = require('path');
 
 module.exports = {
-  'config': path.resolve('src', 'config','sequalize.bridge.config.js'),
-  'models-path': path.resolve('src','model'),
+  'config': path.resolve('00_Base', 'src', 'config','sequalize.bridge.config.js'),
+  'models-path': path.resolve('00_Base', 'src','model'),
   'seeders-path': path.resolve('seeders'),
   'migrations-path': path.resolve('migrations')
 };

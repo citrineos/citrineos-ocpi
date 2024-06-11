@@ -1,7 +1,6 @@
 'use strict';
 
 import {QueryInterface} from 'sequelize';
-import {CredentialsRole} from '@citrineos/ocpi-base';
 
 /** @type {import('sequelize-cli').Migration} */
 export = {
@@ -20,7 +19,7 @@ export = {
                 party_id: 'EXA',
                 country_code: 'NL',
                 business_details: {name: 'Example Operator'},
-              } as CredentialsRole,
+              },
             ]),
             createdAt: new Date(),
             updatedAt: new Date(),
