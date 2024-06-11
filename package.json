@@ -1,19 +1,15 @@
 {
-  "name": "@citrineos/workspace",
+  "name": "@citrineos/ocpi-workspace",
   "version": "1.1.1",
   "private": false,
   "devDependencies": {
     "@eslint/js": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
     "concurrently": "^8.2.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "globals": "^15.3.0",
     "prettier": "^3.2.5",
-    "typescript-eslint": "^7.6.0",
-    "sequelize-cli": "^6.6.2"
+    "typescript-eslint": "^7.6.0"
   },
   "scripts": {
     "install-all": "npm i --workspaces --verbose",
@@ -28,8 +24,10 @@
   },
   "workspaces": [
     "Server",
+    "00_Base",
     "03_Modules/Commands",
-    "03_Modules/Locations",
+    "03_Modules/Credentials",
+    "03_Modules/Versions",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"

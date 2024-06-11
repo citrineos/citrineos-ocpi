@@ -1,5 +1,5 @@
 {
-  "extends": "../../../citrineos-core/tsconfig.json",
+  "extends": "../../tsconfig.build.json",
   "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["**/dist/**", "**/node_modules/**"],
   "compilerOptions": {
@@ -8,6 +8,9 @@
     "composite": true
   },
   "references": [
+    {
+      "path": "../../00_Base"
+    },
     {
       "path": "../../../citrineos-core/00_Base"
     },

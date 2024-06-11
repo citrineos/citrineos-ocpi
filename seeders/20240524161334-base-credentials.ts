@@ -1,7 +1,7 @@
 'use strict';
 
 import {QueryInterface} from 'sequelize';
-import {CredentialsRole} from '../Server/src/model/CredentialsRole';
+import {CredentialsRole} from '@citrineos/ocpi-base';
 
 /** @type {import('sequelize-cli').Migration} */
 export = {

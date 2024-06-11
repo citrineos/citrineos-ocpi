@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.build.json",
-  "include": ["src/**/*.ts", "src/**/*.json", "../03_Modules/Locations/src/module/mapper/CitrineOcpiLocationMapper.ts", "../03_Modules/Locations/src/module/mapper/IOcpiLocationMapper.ts"],
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": [
     "**/dist/**",
     "**/node_modules/**",
@@ -11,5 +11,16 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true
-  }
+  },
+  "references": [
+    {
+      "path": "../00_Base"
+    },
+    {
+      "path": "../03_Modules/Commands"
+    },
+    {
+      "path": "../03_Modules/Versions"
+    }
+  ]
 }

@@ -1,0 +1,52 @@
+{
+  "name": "@citrineos/ocpi-base",
+  "version": "1.1.1",
+  "description": "The base module for OCPP v2.0.1 including all interfaces. This module is not intended to be used directly, but rather as a dependency for other modules.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "npx eslint ./src",
+    "generate-interfaces": "node json-schema-processor.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "npm run clean && tsc -p tsconfig.json",
+    "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
+    "fresh": "rm -rf node_modules package-lock.json && npm run clean"
+  },
+  "keywords": [
+    "ocpp",
+    "ocpp_v201"
+  ],
+  "author": "S44",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/uuid": "^9.0.3",
+    "@types/validator": "^13.11.1",
+    "eslint": "^8.48.0",
+    "json-schema-to-typescript": "^12.0.0",
+    "json-schema-to-zod": "^1.1.1",
+    "typescript": "5.0.4",
+    "@types/lodash.capitalize": "^4.2.9",
+    "@types/lodash.startcase": "^4.4.9"
+  },
+  "dependencies": {
+    "@citrineos/base": "1.1.1",
+    "@citrineos/data": "1.1.1",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "ajv": "^8.12.0",
+    "class-transformer": "^0.5.1",
+    "reflect-metadata": "^0.1.13",
+    "tslog": "^4.9.2",
+    "uuid": "^9.0.0",
+    "zod": "^3.22.2",
+    "lodash.capitalize": "^4.2.1",
+    "class-validator": "^0.14.1",
+    "class-validator-jsonschema": "^5.0.0",
+    "lodash.startcase": "^4.4.0",
+    "lodash.merge": "^4.6.2",
+    "routing-controllers": "^0.10.4",
+    "typedi": "^0.10.0"
+  }
+}

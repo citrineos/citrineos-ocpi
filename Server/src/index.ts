@@ -1,25 +1,27 @@
 import 'reflect-metadata';
-import { Container } from 'typedi';
-import { useContainer } from 'routing-controllers';
-import { OcpiServer } from './ocpi.server';
-import {DefaultOcppClient} from "./DefaultOcppClient";
-import {IOcppClient} from "./IOcppClient";
+import {CommandsModule} from "@citrineos/ocpi-commands";
+import {VersionsModule} from "@citrineos/ocpi-versions";
+import {OcpiServer, OcpiServerConfig} from "@citrineos/ocpi-base";
 
-export function startOcpiServer(ocppClient: IOcppClient) {
-    if (!ocppClient) {
-        ocppClient = new DefaultOcppClient();
+class CitrineOSServer {
+    constructor(host: string, port: number) {
+        const ocpiSerer = new OcpiServer(this.getConfig());
+
+        ocpiSerer.run(host, port);
+
+        console.log(`Server running on ${host}:${port}`);
     }
 
-    useContainer(Container);
+    protected getConfig() {
+        const config = new OcpiServerConfig();
 
-    Container.set(IOcppClient, ocppClient)
+        config.modules = [
+            new CommandsModule(),
+            new VersionsModule()
+        ]
 
-    const server = Container.get(OcpiServer);
-
-    console.log('Initialized OCPI server', server);
+        return config
+    }
 }
 
-startOcpiServer(new DefaultOcppClient())
-
-export { DefaultOcppClient };
-export { IOcppClient };
+new CitrineOSServer("localhost", 8085);
