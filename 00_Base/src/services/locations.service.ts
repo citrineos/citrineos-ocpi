@@ -10,6 +10,7 @@ import {
 } from '@citrineos/data/src/layers/sequelize';
 import { Service } from 'typedi';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
+import { LocationResponse } from '../model/Location';
 
 @Service()
 export class LocationsService {
@@ -20,9 +21,15 @@ export class LocationsService {
     private locationMapper: CitrineOcpiLocationMapper,
   ) {}
 
-  async getLocationById(id: string) {
+  async getLocationById(id: string): Promise<LocationResponse> {
     const evseVariableAtributesMap: Record<string, VariableAttribute[]> = {};
     const ocppLocation = await this.locationRepository.readByKey(id);
+    const locationResponse = new LocationResponse();
+
+    if (!ocppLocation) {
+      return locationResponse;
+    }
+
     ocppLocation.chargingPool.forEach(async (chargingStation) => {
       const variableAttributes =
         await this.deviceModelRepository.readAllByQuery({
@@ -32,10 +39,12 @@ export class LocationsService {
       evseVariableAtributesMap[chargingStation.id] = variableAttributes;
     });
 
-    return this.locationMapper.mapToOcpiLocation(
+    locationResponse.data = this.locationMapper.mapToOcpiLocation(
       ocppLocation,
       evseVariableAtributesMap,
     );
+
+    return locationResponse;
   }
 
   async getLocationByEvseId(id: string, evseId: string) {}
