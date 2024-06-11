@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Connector } from '../../../../../Server/src/model/Connector';
-import { Evse } from '../../../../../Server/src/model/Evse';
-import { Location } from '../../../../../Server/src/model/Location';
+import { Connector } from '../model/Connector';
+import { Evse } from '../model/Evse';
+import { Location } from '../model/Location';
 
 export interface IOcpiLocationMapper {
   mapToOcpiLocation(...sources: any[]): Location;

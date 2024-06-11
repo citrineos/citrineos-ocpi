@@ -2,29 +2,35 @@ import KoaLogger from "koa-logger";
 
 export { generateMockOcpiResponse, BaseController } from './controllers/base.controller';
 
-export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation'
+export { Capability } from './model/Capability';
+export { CommandType } from './model/CommandType';
+export { Connector } from './model/Connector';
+export { ConnectorFormat } from './model/ConnectorFormat';
+export { ConnectorType } from './model/ConnectorType';
+export { Credentials } from './model/Credentials';
+export { CredentialsRole } from './model/CredentialsRole';
+export { CredentialsResponse } from './model/Credentials';
+export { Endpoint } from './model/Endpoint';
+export { Evse } from './model/Evse';
+export { GeoLocation } from './model/GeoLocation';
+export { IOcpiModule } from './model/IOcpiModule';
+export { Location } from './model/Location';
+export { ModuleId } from './model/ModuleId';
+export { OcpiCommandResponse } from './model/CommandResponse';
+export { OcpiEmptyResponse } from './model/ocpi.empty.response';
+export { OcpiResponse, OcpiResponseStatusCode } from './model/ocpi.response';
+export { PowerType } from './model/PowerType';
 export { ReserveNow } from './model/ReserveNow';
 export { StartSession } from './model/StartSession';
 export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';
-export { OcpiCommandResponse } from './model/CommandResponse';
-export { ModuleId } from './model/ModuleId';
-export { Credentials } from './model/Credentials'
-export { Version } from './model/Version'
-export { Endpoint } from './model/Endpoint'
-export { CredentialsRole } from './model/CredentialsRole'
-export { CredentialsResponse } from './model/Credentials'
-export { OcpiResponseStatusCode } from './model/ocpi.response'
-export { OcpiEmptyResponse } from './model/ocpi.empty.response'
-export { VersionNumber } from './model/VersionNumber'
-export { VersionDetailsDTOResponse } from './model/Version'
-export { VersionDTOListResponse } from './model/Version'
-export { VersionDetailsDTO, VersionDTO } from './model/Version'
-export { OcpiResponse } from './model/ocpi.response'
-export { IOcpiModule } from './model/IOcpiModule'
-export { VersionRepository } from './repository/version.repository'
-export { CredentialsRepository } from './repository/credentials.repository'
+export { Version } from './model/Version';
+export { VersionNumber } from './model/VersionNumber';
+export { VersionDetailsDTO, VersionDTO, VersionDetailsDTOResponse, VersionDTOListResponse } from './model/Version';
+
+export { CredentialsRepository } from './repository/credentials.repository';
+export { VersionRepository } from './repository/version.repository';
 
 export { NotFoundException } from './exception/not.found.exception'
 

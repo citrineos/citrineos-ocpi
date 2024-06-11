@@ -1,10 +1,15 @@
+// Copyright (c) 2023 S44, LLC
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache 2.0
+
 import {
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   VariableAttribute,
 } from '@citrineos/data/src/layers/sequelize';
 import { Service } from 'typedi';
-import { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
+import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 
 @Service()
 export class LocationsService {

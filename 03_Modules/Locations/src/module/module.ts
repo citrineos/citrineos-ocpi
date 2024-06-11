@@ -22,7 +22,7 @@ import { ILogObj, Logger } from 'tslog';
 /**
  * Component that handles provisioning related messages.
  */
-export class CredentialsModule extends AbstractModule {
+export class LocationsModule extends AbstractModule {
   /**
    * Fields
    */
@@ -60,7 +60,7 @@ export class CredentialsModule extends AbstractModule {
       cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
-      EventGroup.Commands,
+      EventGroup.Locations,
       logger,
     );
 

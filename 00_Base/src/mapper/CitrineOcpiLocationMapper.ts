@@ -1,23 +1,23 @@
 import { IOcpiLocationMapper } from './IOcpiLocationMapper';
-import { Location as OcpiLocation } from '../../../../../Server/src/model/Location';
-import { Evse } from '../../../../../Server/src/model/Evse';
-import { Connector } from '../../../../../Server/src/model/Connector';
-import { GeoLocation } from '../../../../../Server/src/model/GeoLocation';
+import { Location as OcpiLocation } from '../model/Location';
+import { Evse } from '../model/Evse';
+import { Connector } from '../model/Connector';
+import { GeoLocation } from '../model/GeoLocation';
 import {
   Location as OcppLocation,
   ChargingStation,
   VariableAttribute,
 } from '@citrineos/data/src/layers/sequelize';
-import { EvseStatus } from '../../../../../Server/src/model/EvseStatus';
+import { EvseStatus } from '../model/EvseStatus';
 import {
   AttributeEnumType,
   ConnectorEnumType,
   ConnectorStatusEnumType,
 } from '@citrineos/base';
-import { Capability } from '../../../../../Server/src/model/Capability';
-import { ConnectorType } from '../../../../../Server/src/model/ConnectorType';
-import { ConnectorFormat } from '../../../../../Server/src/model/ConnectorFormat';
-import { PowerType } from '../../../../../Server/src/model/PowerType';
+import { Capability } from '../model/Capability';
+import { ConnectorType } from '../model/ConnectorType';
+import { ConnectorFormat } from '../model/ConnectorFormat';
+import { PowerType } from '../model/PowerType';
 
 // we need some more locations...
 // as in charging stations at the same location
