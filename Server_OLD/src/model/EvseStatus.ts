@@ -1,0 +1,11 @@
+export enum EvseStatus {
+  AVAILABLE,
+  BLOCKED,
+  CHARGING,
+  INOPERATIVE,
+  OUTOFORDER,
+  PLANNED,
+  REMOVED,
+  RESERVED,
+  UNKNOWN,
+}

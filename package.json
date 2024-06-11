@@ -1,5 +1,5 @@
 {
-  "name": "@citrineos/ocpi",
+  "name": "@citrineos/ocpi-workspace",
   "version": "1.1.1",
   "description": "The monitoring module for OCPP v2.0.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
   "main": "dist/index.js",
@@ -8,15 +8,22 @@
     "dist"
   ],
   "scripts": {
-    "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
-    "start": "nodemon src/index.ts",
-    "build": "tsc --build --verbose",
     "test": "jest --config jest.config.js",
     "sync-db": "ts-node ./db.sync.ts",
     "init-db": "sequelize-cli db:migrate --debug && sequelize-cli db:migrate:schema:timestamps:add --debug",
     "seed-db": "sequelize-cli db:seed:all --debug",
     "start-mock-emsp": "nodemon src/mock-client/index.ts --config src/mock-client/nodemon.json",
-    "mock-emsp": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000"
+    "mock-emsp": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000",
+    "install-all": "npm i --workspaces --verbose",
+    "fresh": "rm -rf package-lock.json **/package-lock.json **/**/package-lock.json dist **/dist **/**/dist node_modules **/node_modules **/**/node_modules tsconfig.tsbuildinfo **/tsconfig.tsbuildinfo **/**/tsconfig.tsbuildinfo",
+    "build": "tsc --build --verbose",
+    "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
+    "start": "cd ./Server && npm run start",
+    "start-docker": "cd ./Server && npm run start-docker",
+    "start-docker-cloud": "cd ./Server && npm run start-docker-cloud",
+    "lint": "npx eslint --ext .ts ./",
+    "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
+    "prettier": "prettier --write ."
   },
   "keywords": [
     "ocpp",
@@ -24,44 +31,22 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "@types/koa": "^2.15.0",
-    "@types/koa-bodyparser": "^4.3.12",
-    "@types/koa-logger": "^3.1.5",
-    "@types/lodash.capitalize": "^4.2.9",
-    "@types/lodash.merge": "^4.6.9",
-    "@types/lodash.startcase": "^4.4.9",
-    "sequelize-cli": "^6.6.2",
-    "ts-jest": "^29.1.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.0.4"
-  },
-  "dependencies": {
-    "@citrineos/base": "1.1.1",
-    "@citrineos/data": "1.1.1",
-    "@citrineos/util": "1.1.1",
-    "@koa/multer": "^3.0.2",
-    "@koa/router": "^12.0.1",
-    "@mockoon/cli": "^8.1.1",
-    "@types/event-emitter": "^0.3.5",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
-    "class-validator-jsonschema": "^5.0.0",
-    "json-schema-faker": "^0.5.6",
-    "koa": "^2.15.3",
-    "koa-bodyparser": "^4.4.1",
-    "koa-logger": "^3.2.1",
-    "koa2-swagger-ui": "^5.10.0",
-    "lodash.capitalize": "^4.2.1",
-    "lodash.merge": "^4.6.2",
-    "lodash.startcase": "^4.4.0",
-    "reflect-metadata": "^0.2.2",
-    "routing-controllers": "^0.10.4",
-    "typed-rest-client": "^1.8.11",
-    "typedi": "^0.10.0"
+    "@eslint/js": "^9.0.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
+    "concurrently": "^8.2.2",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5",
+    "typescript-eslint": "^7.6.0"
   },
   "workspaces": [
-    "../../"
+    "Server",
+    "00_Base",
+    "03_Modules/Commands",
+    "03_Modules/Credentials",
+    "03_Modules/Versions",
+    "../citrineos-core/00_Base",
+    "../citrineos-core/01_Data",
+    "../citrineos-core/02_Util"
   ]
 }
