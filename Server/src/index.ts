@@ -13,8 +13,8 @@ class CitrineOSServer {
     private readonly logger: Logger<ILogObj>;
 
     constructor() {
-        this.cache = this.initCache()
         this.config = createLocalConfig();
+        this.cache = this.initCache()
         this.logger = this.initLogger();
 
         const ocpiServer = new OcpiServer(this.getConfig());
