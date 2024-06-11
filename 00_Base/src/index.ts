@@ -15,7 +15,7 @@ export { Endpoint } from './model/Endpoint';
 export { Evse } from './model/Evse';
 export { GeoLocation } from './model/GeoLocation';
 export { IOcpiModule } from './model/IOcpiModule';
-export { Location } from './model/Location';
+export { Location, LocationResponse, PaginatedLocationResponse } from './model/Location';
 export { ModuleId } from './model/ModuleId';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { OcpiEmptyResponse } from './model/ocpi.empty.response';
@@ -50,9 +50,10 @@ export { ResponseSchema } from './openapi-spec-helper/decorators'
 
 export { BaseClientApi } from './trigger/BaseClientApi'
 
-export { CommandsService } from './services/commands.service'
-export { CredentialsService } from './services/credentials.service'
-export { VersionService } from './services/version.service'
+export { CommandsService } from './services/commands.service';
+export { CredentialsService } from './services/credentials.service';
+export { LocationsService } from './services/locations.service';
+export { VersionService } from './services/version.service';
 
 import { Container } from 'typedi';
 import {useContainer, useKoaServer} from 'routing-controllers';

@@ -3,23 +3,69 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ILogObj, Logger } from 'tslog';
+import { Body, Controller, Get } from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
-import { LocationsModule } from './module';
+import { AsOcpiFunctionalEndpoint, BaseController, LocationsService, ModuleId, PaginatedLocationResponse, ResponseSchema, generateMockOcpiResponse, Location, LocationResponse } from '@citrineos/ocpi-base';
+import { Service } from 'typedi';
+import { HttpStatus } from '@citrineos/base';
 
 /**
  * Server API for the provisioning component.
  */
-export class LocationsModuleApi implements ILocationsModuleApi {
+@Controller(`/${ModuleId.Locations}`)
+@Service()
+export class LocationsModuleApi extends BaseController implements ILocationsModuleApi {
   /**
    * Constructs a new instance of the class.
    *
-   * @param {LocationsModule} LocationsModule - The Locations module.
-   * @param {Logger<ILogObj>} [logger] - The logger for logging.
+   * @param {LocationsService} locatiosnService - The Locations service.
    */
   constructor(
-    locationsModule: LocationsModule,
-    // server: KoaInstance,
-    logger?: Logger<ILogObj>,
-  ) {}
+    locationsService: LocationsService
+  ) {
+      super();
+    }
+
+  // @Get()
+  // @AsOcpiFunctionalEndpoint()
+  // @ResponseSchema(PaginatedLocationResponse, {
+  //   statusCode: HttpStatus.OK,
+  //   description: 'Successful response',
+  //   examples: {
+  //     success: generateMockOcpiResponse(PaginatedLocationResponse)
+  //   }
+  // })
+  // // TODO add query params
+  // async getLocations(
+
+  // ): Promise<PaginatedLocationResponse> {
+  //   return 
+  // }
+
+  // @Get('/:locationId')
+  // @AsOcpiFunctionalEndpoint()
+  // @ResponseSchema(LocationResponse, {
+  //   statusCode: HttpStatus.OK,
+  //   description: 'Successful response',
+  //   examples: {
+  //     success: generateMockOcpiResponse(LocationResponse)
+  //   }
+  // })
+  // async getLocationById() {
+
+  // }
+
+  // @Get('/:locationId/:evseId')
+  // @AsOcpiFunctionalEndpoint()
+  // @ResponseSchema(LocationResponse, {
+  //   statusCode: HttpStatus.OK,
+  //   description: 'Successful response',
+  //   examples: {
+  //     success: generateMockOcpiResponse(LocationResponse)
+  //   }
+  // })
+  // async getEvseById() {
+
+  // }
+
 }
