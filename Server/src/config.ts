@@ -40,10 +40,7 @@ export function createLocalConfig() {
       transactions: {
         endpointPrefix: '/transactions',
         costUpdatedInterval: 60,
-      },
-      commands: {
-        endpointPrefix: '/commands',
-      },
+      }
     },
     data: {
       sequelize: {
@@ -106,7 +103,7 @@ export function createLocalConfig() {
           hubject: {
             baseUrl: 'https://open.plugncharge-test.hubject.com',
             tokenUrl:
-              'https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token',
+                'https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token',
             isoVersion: 'ISO15118-2',
           },
         },
@@ -115,8 +112,8 @@ export function createLocalConfig() {
           acme: {
             env: 'staging',
             accountKeyFilePath: path.resolve(
-              __dirname,
-              '../../assets/certificates/acme_account_key.pem',
+                __dirname,
+                '../../assets/certificates/acme_account_key.pem',
             ),
             email: 'test@citrineos.com',
           },
@@ -126,5 +123,9 @@ export function createLocalConfig() {
     logLevel: 2, // debug
     maxCallLengthSeconds: 5,
     maxCachingSeconds: 10,
+    ocpiServer: {
+      host: '0.0.0.0',
+      port: 8085,
+    },
   });
 }
