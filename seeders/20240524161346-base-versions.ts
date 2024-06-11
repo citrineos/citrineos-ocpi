@@ -1,9 +1,8 @@
 'use strict';
 import {QueryInterface} from 'sequelize';
-import {VersionNumber} from '../src/model/VersionNumber';
+import {ModuleId, VersionNumber} from '@citrineos/ocpi-base';
 
 import 'reflect-metadata';
-import {ModuleId} from "../src/model/ModuleId";
 
 /** @type {import('sequelize-cli').Migration} */
 export = {

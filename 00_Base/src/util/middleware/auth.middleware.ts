@@ -7,7 +7,6 @@ import {extractToken} from '../decorators/auth.token';
 import {OcpiHttpHeader} from '../ocpi.http.header';
 import {BaseMiddleware} from './base.middleware';
 import {OcpiResponseStatusCode} from '../../model/ocpi.response';
-import {CredentialsService} from "../../service/credentials.service";
 import {ClientInformationRepository} from "../../repository/client.information.repository";
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];

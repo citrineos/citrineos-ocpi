@@ -1,4 +1,4 @@
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
 import { ChargingProfileResult } from '../model/ChargingProfileResult';
 import { OcpiResponse } from '../model/ocpi.response';
 import { DeleteChargingProfileParams } from './param/charging.profiles/delete.charging.profile.params';

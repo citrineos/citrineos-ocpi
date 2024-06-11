@@ -22,7 +22,7 @@ import { ILogObj, Logger } from 'tslog';
 /**
  * Component that handles provisioning related messages.
  */
-export class CredentialsModule extends AbstractModule {
+export class CredentialsOcppHandlers extends AbstractModule {
   /**
    * Fields
    */

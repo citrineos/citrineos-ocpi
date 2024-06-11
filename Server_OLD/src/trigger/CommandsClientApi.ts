@@ -1,4 +1,4 @@
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
 import { CommandResponse } from '../model/CommandResponse';
 import { OcpiResponse } from '../model/ocpi.response';
 import { PostCommandParams } from './param/commands/post.command.params';

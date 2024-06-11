@@ -1,4 +1,4 @@
-import {Body, JsonController, Post} from 'routing-controllers';
+import {Body, JsonController, Post} from '@citrineos/ocpi-base';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';

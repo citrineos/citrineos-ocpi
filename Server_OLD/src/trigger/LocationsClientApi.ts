@@ -1,4 +1,4 @@
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
 import { ConnectorResponse } from '../model/Connector';
 import { EvseResponse } from '../model/Evse';
 import { LocationResponse } from '../model/Location';

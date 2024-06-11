@@ -1,4 +1,4 @@
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
 import { OcpiResponse } from '../model/ocpi.response';
 import { Session } from '../model/Session';
 import { GetSessionParams } from './param/sessions/get.session.params';

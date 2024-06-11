@@ -1,4 +1,4 @@
-import {Get, JsonController} from 'routing-controllers';
+import {Get, JsonController} from '@citrineos/ocpi-base';
 import {ModuleId} from '../model/ModuleId';
 import {Service} from 'typedi';
 import {BaseController, generateMockOcpiResponse,} from '../handlers/base.controller';

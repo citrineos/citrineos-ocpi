@@ -1,19 +1,19 @@
-import {Get, JsonController} from 'routing-controllers';
-import {HttpStatus} from '@citrineos/base';
-import {VersionListResponseDTO,} from '../model/VersionListResponseDTO';
-import {versionIdParam} from '../util/decorators/version.number.param';
-import {Service} from 'typedi';
-import {VersionDetailsResponseDTO} from "../model/VersionDetailsResponseDTO";
 import {
   AsOcpiRegistrationEndpoint,
   BaseController,
   ModuleId,
   ResponseSchema,
+  VersionDetailsResponseDTO,
+  versionIdParam,
+  VersionListResponseDTO,
   VersionNumber,
   VersionNumberParam,
   VersionService
 } from '@citrineos/ocpi-base';
+import {HttpStatus} from '@citrineos/base';
+import {Service} from 'typedi';
 import {IVersionsModuleApi} from "./interface";
+import {Get, JsonController} from 'routing-controllers';
 
 @JsonController(`/${ModuleId.Versions}`)
 @Service()

@@ -1,11 +1,11 @@
-import {OcpiParams} from '@citrineos/ocpi-base/dist/trigger/util/ocpi.params';
 import {IRequestOptions, IRestResponse, RestClient} from 'typed-rest-client';
-import {UnsuccessfulRequestException} from '@citrineos/ocpi-base/dist/exception/unsuccessful.request.exception';
-import {VersionNumber} from '@citrineos/ocpi-base/dist/model/VersionNumber';
 import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
-import {OcpiHttpHeader} from '@citrineos/ocpi-base/dist/util/ocpi.http.header';
-import {HttpHeader} from '../citrineos-core/00_Base/src';
-import {OcpiRegistrationParams} from "../../../00_Base/src/trigger/util/ocpi.registration.params";
+import {VersionNumber} from "../model/VersionNumber";
+import {OcpiRegistrationParams} from "./util/ocpi.registration.params";
+import {OcpiParams} from "./util/ocpi.params";
+import {UnsuccessfulRequestException} from "../exception/unsuccessful.request.exception";
+import {HttpHeader} from "../../../../citrineos-core/00_Base";
+import {OcpiHttpHeader} from "../util/ocpi.http.header";
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;

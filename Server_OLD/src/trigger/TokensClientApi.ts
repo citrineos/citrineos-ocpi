@@ -1,4 +1,4 @@
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
 import { PaginatedTokenResponse } from '../model/Token';
 import { PostTokenParams } from './param/tokens/postTokenParams';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';

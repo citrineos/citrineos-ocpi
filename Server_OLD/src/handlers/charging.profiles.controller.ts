@@ -1,4 +1,4 @@
-import {Body, JsonController, Param, Post, Put} from 'routing-controllers';
+import {Body, JsonController, Param, Post, Put} from '@citrineos/ocpi-base';
 import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {HttpStatus} from '@citrineos/base';
 import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult';

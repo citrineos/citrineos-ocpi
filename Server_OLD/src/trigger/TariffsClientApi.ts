@@ -1,4 +1,4 @@
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
 import { OcpiResponse } from '../model/ocpi.response';
 import { Tariff } from '../model/Tariff';
 import { GetTariffParams } from './param/tariffs/get.tariff.params';

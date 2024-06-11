@@ -1,17 +1,21 @@
-import {VersionsClientApi} from '../../../Server_OLD/src/trigger/VersionsClientApi';
 import {v4 as uuidv4} from 'uuid';
-import {OcpiNamespace} from '../util/ocpi.namespace';
-import {CredentialsDTO} from '../model/CredentialsDTO';
-import {VersionNumber} from '../model/VersionNumber';
+import {
+  ClientCredentialsRole,
+  ClientInformation,
+  ClientInformationRepository,
+  ClientVersion,
+  CredentialsDTO,
+  Endpoint,
+  EndpointDTO,
+  invalidClientCredentialsRoles,
+  OcpiLogger,
+  OcpiNamespace,
+  plainToClass,
+  VersionNumber,
+  VersionsClientApi
+} from '@citrineos/ocpi-base';
 import {Service} from 'typedi';
-import {OcpiLogger} from '../util/logger';
 import {BadRequestError, InternalServerError, NotFoundError} from "routing-controllers";
-import {ClientInformationRepository} from "../repository/client.information.repository";
-import {ClientInformation} from "../model/client.information";
-import {Endpoint} from "../model/Endpoint";
-import {invalidClientCredentialsRoles, plainToClass} from "../util/util";
-import {ClientCredentialsRole} from "../model/client.credentials.role";
-import {ClientVersion} from "../model/client.version";
 
 @Service()
 export class CredentialsService {
@@ -65,7 +69,7 @@ export class CredentialsService {
       registered: true,
       clientVersionDetails: [
         ...clientInformation.clientVersionDetails.filter(
-          (versionDetails) => versionDetails.version !== version
+          (versionDetails: ClientVersion) => versionDetails.version !== version
         ),
         freshVersionDetails
       ]
@@ -122,7 +126,7 @@ export class CredentialsService {
     const clientInformationList = await this.clientInformationRepository.updateAllByQuery({ // todo need to use update one by query so that one item is returned
         clientCredentialsRoles: credentials.roles as ClientCredentialsRole[],
         clientVersionDetails: [
-          ...clientInformation.clientVersionDetails.filter((versionDetails) => versionDetails.version !== freshVersionDetails.version),
+          ...clientInformation.clientVersionDetails.filter((versionDetails: ClientVersion) => versionDetails.version !== freshVersionDetails.version),
           freshVersionDetails
         ]
       }, {
@@ -140,7 +144,7 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails.map(result => result.dataValues).find((v: ClientVersion) => v.version === versionNumber);
+    const existingVersionDetails = clientInformation.clientVersionDetails.map((result: ClientVersion) => result.dataValues).find((v: ClientVersion) => v.version === versionNumber);
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
     }
@@ -165,7 +169,7 @@ export class CredentialsService {
     if (!versionDetails) { // todo check for successful status globally
       throw new NotFoundError('Matching version details not found');
     }
-    const endpoints = versionDetails.data?.endpoints.map(endpoint => Endpoint.buildEndpoint(
+    const endpoints = versionDetails.data?.endpoints.map((endpoint: EndpointDTO) => Endpoint.buildEndpoint(
       endpoint.identifier,
       endpoint.role,
       endpoint.url

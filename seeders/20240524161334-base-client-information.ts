@@ -1,14 +1,16 @@
 'use strict';
 
 import {QueryInterface, QueryOptions} from 'sequelize';
-import {VersionNumber} from '../src/model/VersionNumber';
-import {ModuleId} from '../src/model/ModuleId';
-import {InterfaceRole} from '../src/model/InterfaceRole';
-import {CountryCode} from '../src/util/util';
-import {Role} from '../src/model/Role';
-import {Imagecategory} from '../src/model/Imagecategory';
-import {ImageType} from '../src/model/Image';
-import {IVersion} from "../src/model/Version";
+import {
+  CountryCode,
+  Imagecategory,
+  ImageType,
+  InterfaceRole,
+  IVersion,
+  ModuleId,
+  Role,
+  VersionNumber
+} from '@citrineos/ocpi-base';
 
 enum VersionsTableName {
   ClientVersions = 'ClientVersions',
