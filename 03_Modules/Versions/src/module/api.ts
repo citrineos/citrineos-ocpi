@@ -1,9 +1,7 @@
 import {Get, JsonController} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {VersionListResponseDTO,} from '../model/VersionListResponseDTO';
-import {VersionService} from '../service/version.service';
 import {versionIdParam} from '../util/decorators/version.number.param';
-import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
 import {VersionDetailsResponseDTO} from "../model/VersionDetailsResponseDTO";
 import {

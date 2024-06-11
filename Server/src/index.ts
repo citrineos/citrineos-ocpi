@@ -6,6 +6,7 @@ import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from 
 import {MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache} from "@citrineos/util";
 import {type ILogObj, Logger} from 'tslog';
 import {createLocalConfig} from "./config";
+import {CredentialsModule} from "@citrineos/ocpi-credentials";
 
 class CitrineOSServer {
     private readonly cache: ICache;
@@ -26,6 +27,22 @@ class CitrineOSServer {
         const config = new OcpiServerConfig();
 
         config.modules = [
+            new VersionsModule(
+              this.config,
+              this.cache,
+              this._createHandler(),
+              this._createSender(),
+              EventGroup.Versions,
+              this.logger,
+            ),
+            new CredentialsModule(
+              this.config,
+              this.cache,
+              this._createHandler(),
+              this._createSender(),
+              EventGroup.Versions,
+              this.logger,
+            ),
             new CommandsModule(
                 this.config,
                 this.cache,
@@ -34,14 +51,6 @@ class CitrineOSServer {
                 EventGroup.Commands,
                 this.logger,
             ),
-            new VersionsModule(
-                this.config,
-                this.cache,
-                this._createHandler(),
-                this._createSender(),
-                EventGroup.Versions,
-                this.logger,
-            )
         ]
 
         return config

@@ -1,9 +1,9 @@
 import {BaseClientApi} from './BaseClientApi';
-import {OcpiResponse} from '../model/ocpi.response';
-import {VersionDTO} from '../model/VersionDTO';
+import {OcpiResponse} from '@citrineos/ocpi-base/dist/model/ocpi.response';
+import {VersionDTO} from '../../../00_Base/src/model/VersionDTO';
 import {IHeaders} from 'typed-rest-client/Interfaces';
-import {VersionNumber} from '../model/VersionNumber';
-import {VersionDetailsDTO} from "../model/VersionDetailsDTO";
+import {VersionNumber} from '@citrineos/ocpi-base/dist/model/VersionNumber';
+import {VersionDetailsDTO} from "../../../00_Base/src/model/VersionDetailsDTO";
 import {Service} from "typedi";
 
 export interface GetVersionRequest {

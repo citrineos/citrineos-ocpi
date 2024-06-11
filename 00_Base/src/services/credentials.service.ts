@@ -1,4 +1,4 @@
-import {VersionsClientApi} from '../trigger/VersionsClientApi';
+import {VersionsClientApi} from '../../../Server_OLD/src/trigger/VersionsClientApi';
 import {v4 as uuidv4} from 'uuid';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {CredentialsDTO} from '../model/CredentialsDTO';

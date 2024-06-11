@@ -42,7 +42,7 @@ export { LoggingMiddleware } from './util/middleware/logging.middleware'
 
 export { ResponseSchema } from './openapi-spec-helper/decorators'
 
-export { BaseClientApi } from './trigger/BaseClientApi'
+export { BaseClientApi } from '../../Server_OLD/src/trigger/BaseClientApi'
 
 export { CommandsService } from './services/commands.service'
 export { CredentialsService } from './services/credentials.service'
