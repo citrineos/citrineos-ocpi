@@ -28,7 +28,7 @@
     "03_Modules/Commands",
     "03_Modules/Credentials",
     "03_Modules/Versions",
-    "../citrineos-core/00_Base",
+    "../citrineos-core",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"
   ]

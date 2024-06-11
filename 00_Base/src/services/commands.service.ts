@@ -6,12 +6,14 @@ import {StopSession} from "../model/StopSession";
 import {UnlockConnector} from "../model/UnlockConnector";
 import {CommandType} from "../model/CommandType";
 import {OcpiCommandResponse} from "../model/CommandResponse";
+
 import {IMessageSender} from "@citrineos/base";
+import {CommandExecutor} from "../model/CommandExecutor";
 
 @Service()
 export class CommandsService {
   constructor(
-      private ocppClient: IMessageSender
+      private commandExecutor: CommandExecutor,
   ) {}
 
   async postCommand(commandType: CommandType, payload:
@@ -21,6 +23,8 @@ export class CommandsService {
       | StopSession
       | UnlockConnector): Promise<OcpiCommandResponse> {
     // this.ocppClient.sendRequest();
+    // this.responseUrlRepository.createResponseUrl("url");
+    this.commandExecutor.execute(payload);
     return new OcpiCommandResponse();
   }
 
