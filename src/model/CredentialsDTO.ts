@@ -12,7 +12,7 @@ export class CredentialsDTO {
   token!: string;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @IsNotEmpty()
   url!: string;
 

@@ -3,15 +3,13 @@ import {v4 as uuidv4} from 'uuid';
 import {OcpiNamespace} from '../util/ocpi.namespace';
 import {CredentialsDTO} from '../model/CredentialsDTO';
 import {VersionNumber} from '../model/VersionNumber';
-import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
 import {Service} from 'typedi';
 import {OcpiLogger} from '../util/logger';
-import {OcpiResponseStatusCode} from '../model/ocpi.response';
 import {BadRequestError, InternalServerError, NotFoundError} from "routing-controllers";
 import {ClientInformationRepository} from "../repository/client.information.repository";
 import {ClientInformation} from "../model/client.information";
 import {Endpoint} from "../model/Endpoint";
-import {invalidClientCredentialsRoles} from "../util/util";
+import {invalidClientCredentialsRoles, plainToClass} from "../util/util";
 import {ClientCredentialsRole} from "../model/client.credentials.role";
 import {ClientVersion} from "../model/client.version";
 
@@ -25,7 +23,7 @@ export class CredentialsService {
   }
 
   async getClientInformation(token: string): Promise<ClientInformation> {
-    const clientInformation = await this.clientInformationRepository.readOnlyOneByQuery(
+    const clientInformationResponse = await this.clientInformationRepository.readOnlyOneByQuery(
       {
         where: {
           clientToken: token,
@@ -41,10 +39,13 @@ export class CredentialsService {
       },
       OcpiNamespace.Credentials,
     );
-    if (!clientInformation) {
+    if (!clientInformationResponse) {
       throw new NotFoundError('Credentials not found');
     }
-    return clientInformation;
+    const clientInformationObj = clientInformationResponse.dataValues;
+    clientInformationObj.clientVersionDetails = clientInformationResponse.dataValues.clientVersionDetails.map((obj: any) => obj.dataValues);
+    const result = plainToClass(ClientInformation, clientInformationObj as ClientInformation);
+    return result;
   }
 
   async getCredentials(token: string): Promise<ClientInformation> {
@@ -93,8 +94,9 @@ export class CredentialsService {
     return await this.updateCredentials(clientInformation, token, credentials, versionDetails);
   }
 
-  async deleteCredentials(token: string): Promise<OcpiEmptyResponse> {
+  async deleteCredentials(token: string): Promise<void> {
     try {
+      // todo, is it okay to delete ClientInformation?
       await this.clientInformationRepository.deleteAllByQuery({
           where: {
             clientToken: token,
@@ -102,7 +104,7 @@ export class CredentialsService {
         },
         OcpiNamespace.Credentials,
       );
-      return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+      return;
     } catch (e) {
       throw new Error('todo'); // todo error handling
     }
@@ -138,7 +140,7 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails.find((v) => v.version === versionNumber);
+    const existingVersionDetails = clientInformation.clientVersionDetails.map(result => result.dataValues).find((v: ClientVersion) => v.version === versionNumber);
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
     }

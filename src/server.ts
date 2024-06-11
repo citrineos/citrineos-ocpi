@@ -5,12 +5,12 @@ import {
   RoutingControllersOptions,
   useKoaServer,
 } from 'routing-controllers';
-import { OpenAPIObject, InfoObject } from 'openapi3-ts';
+import {InfoObject, OpenAPIObject} from 'openapi3-ts';
 import KoaLogger from 'koa-logger';
-import { routingControllersToSpec } from './openapi-spec-helper';
-import { VersionNumber } from './model/VersionNumber';
-import { getAllSchemas } from './openapi-spec-helper/schemas';
-import { koaSwagger } from 'koa2-swagger-ui';
+import {routingControllersToSpec} from './openapi-spec-helper';
+import {getAllSchemas} from './openapi-spec-helper/schemas';
+import {koaSwagger} from 'koa2-swagger-ui';
+import {ServerObject} from "openapi3-ts/src/model/OpenApi";
 
 export class Server {
   koa!: Koa;
@@ -18,7 +18,8 @@ export class Server {
   storage!: MetadataArgsStorage;
   spec!: OpenAPIObject;
 
-  constructor() {}
+  constructor() {
+  }
 
   protected initLogger() {
     this.koa.use(KoaLogger());
@@ -28,16 +29,14 @@ export class Server {
     this.app = useKoaServer(this.koa, options);
   }
 
-  protected initKoaSwagger(info: InfoObject) {
+  protected initKoaSwagger(info: InfoObject, servers: ServerObject[] = []) {
     this.storage = getMetadataArgsStorage();
     this.spec = routingControllersToSpec(
       this.storage,
       {},
       {
         info,
-        servers: Object.values(VersionNumber).map((version) => ({
-          url: `/ocpi/${version}`,
-        })),
+        servers,
         security: [
           {
             authorization: [],

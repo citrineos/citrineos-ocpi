@@ -18,7 +18,7 @@ export class BusinessDetails extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @Optional()
   website?: string | null;
 

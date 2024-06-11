@@ -1,14 +1,22 @@
 import {BusinessDetails} from './BusinessDetails';
 import {Role} from './Role';
-import {Model} from "sequelize-typescript";
 import {ClientInformation} from "./client.information";
 import {CpoTenant} from "./cpo.tenant";
 
-export class CredentialsRole extends Model {
+export interface ICredentialsRole {
+  role: Role;
+  business_details: BusinessDetails;
+  cpoTenantId: number;
+  cpoTenant: CpoTenant;
+  clientInformationId?: number;
+  clientInformation?: ClientInformation;
+}
+
+export class CredentialsRole {
   role!: Role;
   business_details!: BusinessDetails;
-  clientInformationId!: number;
-  clientInformation!: ClientInformation;
   cpoTenantId!: number;
   cpoTenant!: CpoTenant;
+  clientInformationId!: number;
+  clientInformation!: ClientInformation;
 }

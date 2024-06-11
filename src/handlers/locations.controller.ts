@@ -1,4 +1,4 @@
-import {Controller, Get, Param} from 'routing-controllers';
+import {Get, JsonController, Param} from 'routing-controllers';
 import {BaseController, generateMockOcpiPaginatedResponse, generateMockOcpiResponse,} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
 import {HttpStatus} from '@citrineos/base';
@@ -10,6 +10,8 @@ import {Service} from 'typedi';
 import {PaginatedParams} from './param/paginated.params';
 import {Paginated} from '../util/decorators/paginated';
 import {ModuleId} from '../model/ModuleId';
+import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
+import {VersionNumber} from "../model/VersionNumber";
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -19,7 +21,7 @@ const MOCK_LOCATION = generateMockOcpiResponse(LocationResponse);
 const MOCK_EVSE = generateMockOcpiResponse(EvseResponse);
 const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
 
-@Controller(`/${ModuleId.Locations}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Locations}`)
 @Service()
 export class LocationsController extends BaseController {
   @Get()
@@ -35,6 +37,7 @@ export class LocationsController extends BaseController {
     },
   })
   async getLocations(
+    @VersionNumberParam() _version: VersionNumber,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     console.log('getLocations', paginationParams);
@@ -54,6 +57,7 @@ export class LocationsController extends BaseController {
     },
   })
   async getLocation(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('locationId') _locationId: string,
   ): Promise<LocationResponse> {
     console.log('getLocation', _locationId);
@@ -73,6 +77,7 @@ export class LocationsController extends BaseController {
     },
   })
   async getEvse(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('locationId') _locationId: string,
     @Param('evseId') _evseId: string,
   ): Promise<EvseResponse> {
@@ -93,6 +98,7 @@ export class LocationsController extends BaseController {
     },
   })
   async getConnector(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('locationId') _locationId: string,
     @Param('evseId') _evseId: string,
     @Param('connectorId') _connectorId: string,

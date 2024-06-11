@@ -8,6 +8,6 @@ export class VersionDTO {
   version!: VersionNumber;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   url!: string;
 }

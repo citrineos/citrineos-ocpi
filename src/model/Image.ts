@@ -17,13 +17,13 @@ export class Image extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @IsNotEmpty()
   url!: string;
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @Optional()
   thumbnail?: string | null;
 

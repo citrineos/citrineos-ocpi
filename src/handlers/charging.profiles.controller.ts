@@ -1,4 +1,4 @@
-import {Body, Controller, Param, Post, Put} from 'routing-controllers';
+import {Body, JsonController, Param, Post, Put} from 'routing-controllers';
 import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {HttpStatus} from '@citrineos/base';
 import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult';
@@ -10,10 +10,12 @@ import {ChargingProfileResult} from '../model/ChargingProfileResult';
 import {ResponseSchema} from '../openapi-spec-helper';
 import {Service} from 'typedi';
 import {ModuleId} from '../model/ModuleId';
+import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
+import {VersionNumber} from "../model/VersionNumber";
 
 const MOCK = generateMockOcpiResponse(OcpiEmptyResponse);
 
-@Controller(`/${ModuleId.Chargingprofiles}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Chargingprofiles}`)
 @Service()
 export class ChargingProfilesController extends BaseController {
   @Post('/:id')
@@ -29,6 +31,7 @@ export class ChargingProfilesController extends BaseController {
     },
   })
   async postGenericChargingProfileResult(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('id') _id: string,
     @Body()
       _activeChargingProfileResult:
@@ -52,6 +55,7 @@ export class ChargingProfilesController extends BaseController {
     },
   })
   async putSenderChargingProfile(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('sessionId') _sessionId: string,
     @Body() _activeChargingProfile: ActiveChargingProfile,
   ): Promise<OcpiEmptyResponse> {

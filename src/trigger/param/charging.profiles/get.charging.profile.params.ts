@@ -13,6 +13,6 @@ export class GetChargingProfileParams extends OcpiParams {
 
   @IsString()
   @IsNotEmpty()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   responseUrl!: string;
 }

@@ -22,7 +22,7 @@ export class VersionEndpoint extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @IsNotEmpty()
   url!: string;
 

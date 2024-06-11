@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Patch, Put} from 'routing-controllers';
+import {Body, Get, JsonController, Param, Patch, Put} from 'routing-controllers';
 import {Service} from 'typedi';
 import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
@@ -9,11 +9,13 @@ import {TokenType} from '../model/TokenType';
 import {EnumQueryParam} from '../util/decorators/enum.query.param';
 import {ModuleId} from '../model/ModuleId';
 import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
+import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
+import {VersionNumber} from "../model/VersionNumber";
 
 const MOCK_TOKEN = generateMockOcpiResponse(TokenResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
 
-@Controller(`/${ModuleId.Tokens}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
 @Service()
 export class TokensController extends BaseController {
   @Get('/:countryCode/:partyId/:tokenId')
@@ -29,6 +31,7 @@ export class TokensController extends BaseController {
     },
   })
   async getTokens(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
@@ -51,6 +54,7 @@ export class TokensController extends BaseController {
     },
   })
   async putToken(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
@@ -74,6 +78,7 @@ export class TokensController extends BaseController {
     },
   })
   async patchToken(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,

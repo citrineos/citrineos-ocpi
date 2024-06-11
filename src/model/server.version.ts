@@ -19,7 +19,7 @@ export class ServerVersion extends Model implements IVersion {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   url!: string;
 
   @Exclude()

@@ -15,7 +15,7 @@
     "sync-db": "ts-node ./db.sync.ts",
     "init-db": "sequelize-cli db:migrate --debug && sequelize-cli db:migrate:schema:timestamps:add --debug",
     "seed-db": "sequelize-cli db:seed:all --debug",
-    "start-mock-emsp": "nodemon src/mock-client/index.ts",
+    "start-mock-emsp": "nodemon src/mock-client/index.ts --config src/mock-client/nodemon.json",
     "mock-emsp": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000"
   },
   "keywords": [

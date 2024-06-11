@@ -1,6 +1,6 @@
-import {BelongsTo, Column, DataType, ForeignKey, HasOne, Table} from "sequelize-typescript";
+import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
 import {Role} from "./Role";
-import {CredentialsRole} from "./CredentialsRole";
+import {ICredentialsRole} from "./CredentialsRole";
 import {IsNotEmpty, IsString, Length} from "class-validator";
 import {CpoTenant} from "./cpo.tenant";
 import {BusinessDetails} from "./BusinessDetails";
@@ -9,7 +9,7 @@ import {ON_DELETE_CASCADE} from "../util/sequelize";
 
 
 @Table
-export class ServerCredentialsRole extends CredentialsRole {
+export class ServerCredentialsRole extends Model implements ICredentialsRole {
   @Column(DataType.ENUM(Role.CPO))
   role = Role.CPO;
 

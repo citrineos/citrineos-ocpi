@@ -19,7 +19,7 @@ export class EndpointDTO {
   role!: InterfaceRole;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @IsNotEmpty()
   url!: string;
 
@@ -45,7 +45,7 @@ export class Endpoint extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @IsNotEmpty()
   url!: string;
 

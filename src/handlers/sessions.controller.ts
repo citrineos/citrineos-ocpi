@@ -1,19 +1,17 @@
-import { Body, Controller, Get, Param, Put } from 'routing-controllers';
-import {
-  BaseController,
-  generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
-} from './base.controller';
-import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../openapi-spec-helper';
-import { PaginatedSessionResponse } from '../model/Session';
-import { HttpStatus } from '@citrineos/base';
-import { ChargingPreferencesResponse } from '../model/ChargingPreferencesResponse';
-import { ChargingPreferences } from '../model/ChargingPreferences';
-import { Service } from 'typedi';
-import { PaginatedParams } from './param/paginated.params';
-import { Paginated } from '../util/decorators/paginated';
-import { ModuleId } from '../model/ModuleId';
+import {Body, Get, JsonController, Param, Put} from 'routing-controllers';
+import {BaseController, generateMockOcpiPaginatedResponse, generateMockOcpiResponse,} from './base.controller';
+import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
+import {ResponseSchema} from '../openapi-spec-helper';
+import {PaginatedSessionResponse} from '../model/Session';
+import {HttpStatus} from '@citrineos/base';
+import {ChargingPreferencesResponse} from '../model/ChargingPreferencesResponse';
+import {ChargingPreferences} from '../model/ChargingPreferences';
+import {Service} from 'typedi';
+import {PaginatedParams} from './param/paginated.params';
+import {Paginated} from '../util/decorators/paginated';
+import {ModuleId} from '../model/ModuleId';
+import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
+import {VersionNumber} from "../model/VersionNumber";
 
 const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
   PaginatedSessionResponse,
@@ -23,7 +21,7 @@ const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
   ChargingPreferencesResponse,
 );
 
-@Controller(`/${ModuleId.Sessions}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Sessions}`)
 @Service()
 export class SessionsController extends BaseController {
   @Get()
@@ -39,6 +37,7 @@ export class SessionsController extends BaseController {
     },
   })
   async getSessions(
+    @VersionNumberParam() _version: VersionNumber,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedSessionResponse> {
     console.log('getSessions', paginationParams);
@@ -58,6 +57,7 @@ export class SessionsController extends BaseController {
     },
   })
   async updateChargingPreferences(
+    @VersionNumberParam() _version: VersionNumber,
     @Param('sessionId') sessionId: string,
     @Body() body: ChargingPreferences,
   ): Promise<ChargingPreferencesResponse> {

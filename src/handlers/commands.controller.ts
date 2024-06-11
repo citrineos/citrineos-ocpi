@@ -1,4 +1,4 @@
-import {Body, Controller, Post} from 'routing-controllers';
+import {Body, JsonController, Post} from 'routing-controllers';
 import {HttpStatus} from '@citrineos/base';
 import {BaseController, generateMockOcpiResponse} from './base.controller';
 import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
@@ -14,10 +14,12 @@ import {MultipleTypes} from '../util/decorators/multiple.types';
 import {Service} from 'typedi';
 import {ModuleId} from '../model/ModuleId';
 import {EnumParam} from '../util/decorators/enum.param';
+import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
+import {VersionNumber} from "../model/VersionNumber";
 
 const MOCK = generateMockOcpiResponse(OcpiCommandResponse);
 
-@Controller(`/${ModuleId.Commands}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsController extends BaseController {
   @Post('/:commandType')
@@ -33,6 +35,7 @@ export class CommandsController extends BaseController {
     },
   })
   async postCommand(
+    @VersionNumberParam() _version: VersionNumber,
     @EnumParam('commandType', CommandType, 'CommandType')
       _commandType: CommandType,
     @Body()

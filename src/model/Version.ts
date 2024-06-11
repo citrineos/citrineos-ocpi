@@ -29,7 +29,7 @@ export class Version extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   url!: string;
 
   @HasMany(() => VersionEndpoint, {

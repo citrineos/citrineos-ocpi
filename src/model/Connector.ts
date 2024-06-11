@@ -9,13 +9,13 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { ConnectorType } from './ConnectorType';
-import { ConnectorFormat } from './ConnectorFormat';
-import { PowerType } from './PowerType';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
+import {ConnectorType} from './ConnectorType';
+import {ConnectorFormat} from './ConnectorFormat';
+import {PowerType} from './PowerType';
+import {Type} from 'class-transformer';
+import {Optional} from '../util/decorators/optional';
+import {Enum} from '../util/decorators/enum';
+import {OcpiResponse} from './ocpi.response';
 
 export class Connector {
   @MaxLength(36)
@@ -52,7 +52,7 @@ export class Connector {
   tariff_ids?: null;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({require_tld: false})
   @Optional()
   terms_and_conditions?: string | null;
 
@@ -73,7 +73,7 @@ export class ConnectorResponse extends OcpiResponse<Connector> {
 
 export class ConnectorListResponse extends OcpiResponse<Connector[]> {
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   @Type(() => Connector)
   data!: Connector[];
 }
