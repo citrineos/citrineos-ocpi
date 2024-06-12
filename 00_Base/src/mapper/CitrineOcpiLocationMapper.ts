@@ -166,7 +166,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
   // Helpers
 
-  getCoordinates(ocppCoordinates: [number, number]): GeoLocation {
+  private getCoordinates(ocppCoordinates: [number, number]): GeoLocation {
     const geoLocation = new GeoLocation();
     geoLocation.latitude = String(ocppCoordinates[0]);
     geoLocation.longitude = String(ocppCoordinates[1]);
@@ -174,11 +174,11 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   }
 
   // TODO add logic
-  getCapabilities(variableAttributes: VariableAttribute[]): Capability[] {
+  private getCapabilities(variableAttributes: VariableAttribute[]): Capability[] {
     return [];
   }
 
-  getComponent(
+  private getComponent(
     variableAttributes: VariableAttribute[],
     component: string,
     variable: string,
@@ -196,7 +196,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
       : undefined;
   }
 
-  getStatus(variableAttributes: VariableAttribute[]): EvseStatus {
+  private getStatus(variableAttributes: VariableAttribute[]): EvseStatus {
     const parkingBayOccupancy = this.getComponent(
       variableAttributes,
       'BayOccupancySensor',
@@ -232,7 +232,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  getConnectorStandard(connectorType: string | undefined): ConnectorType {
+  private getConnectorStandard(connectorType: string | undefined): ConnectorType {
     // TODO determine if mappings are possible for:
     // s309-1P-32A
     // sBS1361
@@ -271,7 +271,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  getConnectorPowerType(connectorType: string | undefined): PowerType {
+  private getConnectorPowerType(connectorType: string | undefined): PowerType {
     // TODO include more cases
     switch (connectorType) {
       case ConnectorEnumType.cType1:

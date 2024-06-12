@@ -11,9 +11,13 @@ import {
 import { Service } from 'typedi';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 import { LocationResponse } from '../model/Location';
+import { EvseResponse } from '../model/Evse';
+import { ConnectorResponse } from '../model/Connector';
 
 @Service()
 export class LocationsService {
+  // TODO if not found, set response to 404
+
   // TODO provide flexibility for ocpi location mapper interface
   constructor(
     private locationRepository: SequelizeLocationRepository,
@@ -21,16 +25,27 @@ export class LocationsService {
     private locationMapper: CitrineOcpiLocationMapper,
   ) {}
 
-  async getLocationById(id: string): Promise<LocationResponse> {
-    const evseVariableAtributesMap: Record<string, VariableAttribute[]> = {};
-    const ocppLocation = await this.locationRepository.readByKey(id);
-    const locationResponse = new LocationResponse();
+  // async getLocations(
+  //   paginatedParams: PaginatedParams,
+  // ): Promise<PaginatedLocationResponse> {
+  //   const locations = await this.locationsRepository.getLocations(
+  //     paginatedParams.limit, paginatedParams.offset,
+  //     paginatedParams.date_from, paginatedParams.date_to)
+  // }
 
-    if (!ocppLocation) {
+  async getLocationById(
+    locationId: string
+  ): Promise<LocationResponse> {
+    const locationResponse = new LocationResponse();
+    const evseVariableAtributesMap: Record<string, VariableAttribute[]> = {};
+
+    const citrineLocation = await this.locationRepository.readByKey(locationId);
+
+    if (!citrineLocation) {
       return locationResponse;
     }
 
-    ocppLocation.chargingPool.forEach(async (chargingStation) => {
+    citrineLocation.chargingPool.forEach(async (chargingStation) => {
       const variableAttributes =
         await this.deviceModelRepository.readAllByQuery({
           stationId: chargingStation.id,
@@ -40,20 +55,78 @@ export class LocationsService {
     });
 
     locationResponse.data = this.locationMapper.mapToOcpiLocation(
-      ocppLocation,
+      citrineLocation,
       evseVariableAtributesMap,
     );
 
     return locationResponse;
   }
 
-  async getLocationByEvseId(id: string, evseId: string) {}
+  async getEvseById(
+    locationId: string, 
+    evseId: string
+  ): Promise<EvseResponse> {
+    const evseResponse = new EvseResponse();
 
-  // async getLocations(
-  //   paginatedParams: PaginatedParams,
-  // ): Promise<PaginatedLocationResponse> {
-  //   const locations = await this.locationsRepository.getLocations(
-  //     paginatedParams.limit, paginatedParams.offset,
-  //     paginatedParams.date_from, paginatedParams.date_to)
-  // }
+    const citrineLocation = await this.locationRepository.readByKey(locationId);
+
+    if (!citrineLocation) {
+      return evseResponse;
+    }
+
+    const matchingChargingStations = citrineLocation.chargingPool.filter(chargingStation => chargingStation.id === evseId);
+
+    if (matchingChargingStations.length === 0) {
+      return evseResponse;
+    }
+
+    const chargingStation = matchingChargingStations[0];
+
+    const variableAttributes = await this.deviceModelRepository.readAllByQuery({
+      stationId: chargingStation.id,
+    });
+
+    evseResponse.data = this.locationMapper.mapToOcpiEvse(
+      citrineLocation,
+      chargingStation,
+      variableAttributes
+    );
+
+    return evseResponse;
+  }
+
+  async getConnectorById(
+    locationId: string,
+    evseId: string,
+    connectorId: string
+  ): Promise<ConnectorResponse> {
+    const connectorResponse = new ConnectorResponse();
+
+    const citrineLocation = await this.locationRepository.readByKey(locationId);
+
+    if (!citrineLocation) {
+      return connectorResponse;
+    }
+
+    const matchingChargingStations = citrineLocation.chargingPool.filter(chargingStation => chargingStation.id === evseId);
+
+    if (matchingChargingStations.length === 0) {
+      return connectorResponse;
+    }
+
+    const chargingStation = matchingChargingStations[0];
+
+    const variableAttributes = await this.deviceModelRepository.readAllByQuery({
+      stationId: chargingStation.id,
+      component_evse_connectorId: connectorId
+    });
+
+    connectorResponse.data = this.locationMapper.mapToOcpiConnector(
+      Number(connectorId),
+      variableAttributes
+    );
+
+    return connectorResponse;
+  }
+
 }

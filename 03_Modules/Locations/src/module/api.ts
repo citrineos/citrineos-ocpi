@@ -3,11 +3,13 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Body, Controller, Get } from 'routing-controllers';
+import { Body, Controller, Get, Param } from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
 import { AsOcpiFunctionalEndpoint, BaseController, LocationsService, ModuleId, PaginatedLocationResponse, ResponseSchema, generateMockOcpiResponse, Location, LocationResponse } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
+import { ConnectorResponse } from '@citrineos/ocpi-base/src/model/Connector';
+import { EvseResponse } from '@citrineos/ocpi-base/src/model/Evse';
 
 /**
  * Server API for the provisioning component.
@@ -18,10 +20,10 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
   /**
    * Constructs a new instance of the class.
    *
-   * @param {LocationsService} locatiosnService - The Locations service.
+   * @param {LocationsService} locationsService - The Locations service.
    */
   constructor(
-    locationsService: LocationsService
+    readonly locationsService: LocationsService
   ) {
       super();
     }
@@ -42,30 +44,52 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
   //   return 
   // }
 
-  // @Get('/:locationId')
-  // @AsOcpiFunctionalEndpoint()
-  // @ResponseSchema(LocationResponse, {
-  //   statusCode: HttpStatus.OK,
-  //   description: 'Successful response',
-  //   examples: {
-  //     success: generateMockOcpiResponse(LocationResponse)
-  //   }
-  // })
-  // async getLocationById() {
+  @Get('/:locationId')
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(LocationResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: generateMockOcpiResponse(LocationResponse)
+    }
+  })
+  async getLocationById(
+    @Param('locationId') locationId: string
+  ): Promise<LocationResponse> {
+    return this.locationsService.getLocationById(locationId);
+  }
 
-  // }
+  @Get('/:locationId/:evseId')
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(EvseResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: generateMockOcpiResponse(EvseResponse)
+    }
+  })
+  async getEvseById(
+    @Param('locationId') locationId: string,
+    @Param('evseId') evseId: string
+  ): Promise<EvseResponse> {
+    return this.locationsService.getEvseById(locationId, evseId);
+  }
 
-  // @Get('/:locationId/:evseId')
-  // @AsOcpiFunctionalEndpoint()
-  // @ResponseSchema(LocationResponse, {
-  //   statusCode: HttpStatus.OK,
-  //   description: 'Successful response',
-  //   examples: {
-  //     success: generateMockOcpiResponse(LocationResponse)
-  //   }
-  // })
-  // async getEvseById() {
-
-  // }
+  @Get('/:locationId/:evseId/:connectorId')
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(ConnectorResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: generateMockOcpiResponse(ConnectorResponse)
+    }
+  })
+  async getConnectorById(
+    @Param('locationId') locationId: string,
+    @Param('evseId') evseId: string,
+    @Param('connectorId') connectorId: string,
+  ): Promise<ConnectorResponse> {
+    return this.locationsService.getConnectorById(locationId, evseId, connectorId);
+  }
 
 }
