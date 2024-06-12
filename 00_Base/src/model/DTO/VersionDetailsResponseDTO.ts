@@ -1,4 +1,4 @@
-import {OcpiResponse, OcpiResponseStatusCode} from "./ocpi.response";
+import {OcpiResponse, OcpiResponseStatusCode} from "../ocpi.response";
 import {IsNotEmpty, IsObject, ValidateNested} from "class-validator";
 import {Type} from "class-transformer";
 import {VersionDetailsDTO} from "./VersionDetailsDTO";

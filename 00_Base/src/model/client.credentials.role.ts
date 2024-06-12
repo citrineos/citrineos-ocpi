@@ -1,12 +1,13 @@
 import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
 import {Role} from "./Role";
-import {ICredentialsRole} from "./CredentialsRole";
+import {ICredentialsRole} from "./BaseCredentialsRole";
 import {IsNotEmpty, IsString, Length} from "class-validator";
 import {ClientInformation} from "./client.information";
 import {CpoTenant} from "./cpo.tenant";
-import {BusinessDetails} from "./BusinessDetails";
+import {BusinessDetails, toBusinessDetailsDTO} from "./BusinessDetails";
 import {Exclude} from "class-transformer";
 import {ON_DELETE_CASCADE} from "../util/sequelize";
+import {CredentialsRoleDTO} from "./DTO/CredentialsRoleDTO";
 
 @Table
 export class ClientCredentialsRole extends Model implements ICredentialsRole { // todo seems like CredentialsRole base may be better fit as an interface
@@ -61,4 +62,15 @@ export class ClientCredentialsRole extends Model implements ICredentialsRole { /
     clientCredentialsRole.business_details = businessDetails;
     return clientCredentialsRole;
   }
+}
+
+export const toCredentialsRoleDTO = (
+  clientCredentialsRole: ClientCredentialsRole
+): CredentialsRoleDTO => {
+  const credentialsRoleDTO = new CredentialsRoleDTO();
+  credentialsRoleDTO.role = clientCredentialsRole.role;
+  credentialsRoleDTO.party_id = clientCredentialsRole.party_id;
+  credentialsRoleDTO.country_code = clientCredentialsRole.country_code;
+  credentialsRoleDTO.business_details = toBusinessDetailsDTO(clientCredentialsRole.business_details);
+  return credentialsRoleDTO;
 }

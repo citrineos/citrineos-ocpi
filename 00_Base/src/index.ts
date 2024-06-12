@@ -1,16 +1,19 @@
 export {CountryCode} from "./util/util";
-export {Imagecategory} from "./model/Imagecategory";
+export {ImageCategory} from "./model/ImageCategory";
 export {OcpiServerConfig} from "./config/ocpi.server.config";
 export {versionIdParam} from "./util/decorators/version.number.param";
 export {EndpointDTO} from "./model/Endpoint";
 export {VersionsClientApi} from "./trigger/VersionsClientApi";
 export {ClientCredentialsRole} from "./model/client.credentials.role";
-export {CredentialsDTO} from "./model/CredentialsDTO";
+export {CredentialsDTO} from "./model/DTO/CredentialsDTO";
 export {plainToClass} from "./util/util";
 export {invalidClientCredentialsRoles} from "./util/util";
 export {ClientVersion} from "./model/client.version";
 export {ClientInformationRepository} from "./repository/client.information.repository";
-export {ClientInformation} from "./model/client.information";
+export {
+  ClientInformation, toCredentialsDTO,
+  getClientVersionDetailsByModuleId
+} from "./model/client.information";
 export {OcpiRegistrationParams} from "./trigger/util/ocpi.registration.params";
 export {OcpiHttpHeader} from "./util/ocpi.http.header";
 export {generateMockOcpiResponse, BaseController} from './controllers/base.controller';
@@ -24,15 +27,15 @@ export {OcpiCommandResponse} from './model/CommandResponse';
 export {ModuleId} from './model/ModuleId';
 export {Version, IVersion} from './model/Version';
 export {Endpoint} from './model/Endpoint';
-export {CredentialsRole} from './model/CredentialsRole'
+export {BaseCredentialsRole} from './model/BaseCredentialsRole'
 export {CredentialsResponse} from './model/credentials.response'
 export {OcpiResponseStatusCode} from './model/ocpi.response'
 export {OcpiEmptyResponse} from './model/ocpi.empty.response'
 export {VersionNumber} from './model/VersionNumber'
-export {VersionDetailsResponseDTO} from './model/VersionDetailsResponseDTO'
-export {VersionListResponseDTO} from './model/VersionListResponseDTO'
-export {VersionDetailsDTO} from './model/VersionDetailsDTO'
-export {VersionDTO} from './model/VersionDTO'
+export {VersionDetailsResponseDTO} from './model/DTO/VersionDetailsResponseDTO'
+export {VersionListResponseDTO} from './model/DTO/VersionListResponseDTO'
+export {VersionDetailsDTO} from './model/DTO/VersionDetailsDTO'
+export {VersionDTO} from './model/DTO/VersionDTO'
 export {OcpiResponse} from './model/ocpi.response'
 export {IOcpiModule} from './model/IOcpiModule'
 export {VersionRepository} from './repository/version.repository'
@@ -52,7 +55,7 @@ export {CommandsService} from './services/commands.service'
 export {VersionService} from './services/version.service'
 export {UnsuccessfulRequestException} from './exception/unsuccessful.request.exception'
 export {OcpiParams} from "./trigger/util/ocpi.params";
-export {ImageType} from "./model/Image";
+export {ImageType} from "./model/ImageType";
 export {InterfaceRole} from "./model/InterfaceRole";
 export {Role} from "./model/Role";
 

@@ -1,8 +1,8 @@
 import {ArrayMinSize, IsArray, IsNotEmpty} from "class-validator";
-import {Enum} from "../util/decorators/enum";
-import {VersionNumber} from "./VersionNumber";
+import {Enum} from "../../util/decorators/enum";
+import {VersionNumber} from "../VersionNumber";
 import {Type} from "class-transformer";
-import {Endpoint, EndpointDTO} from "./Endpoint";
+import {Endpoint, EndpointDTO} from "../Endpoint";
 
 export class VersionDetailsDTO {
   @IsNotEmpty()

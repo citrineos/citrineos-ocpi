@@ -3,7 +3,7 @@
 import {QueryInterface, QueryOptions} from 'sequelize';
 import {
   CountryCode,
-  Imagecategory,
+  ImageCategory,
   ImageType,
   InterfaceRole,
   IVersion,
@@ -112,7 +112,7 @@ export = {
         businessDetailsId: businessDetails.id,
         url: 'http://example.com/logo.png',
         thumbnail: 'http://example.com/thumbnail.png',
-        category: Imagecategory.ENTRANCE,
+        category: ImageCategory.ENTRANCE,
         type: ImageType.png,
         width: 100,
         height: 100

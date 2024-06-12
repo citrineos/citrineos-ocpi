@@ -3,8 +3,8 @@ import {IHeaders} from 'typed-rest-client/Interfaces';
 import {Service} from "typedi";
 import {VersionNumber} from "../model/VersionNumber";
 import {OcpiResponse} from "../model/ocpi.response";
-import {VersionDetailsDTO} from "../model/VersionDetailsDTO";
-import {VersionDTO} from "../model/VersionDTO";
+import {VersionDetailsDTO} from "../model/DTO/VersionDetailsDTO";
+import {VersionDTO} from "../model/DTO/VersionDTO";
 
 export interface GetVersionRequest {
   authorization: string;

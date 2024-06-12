@@ -4,8 +4,8 @@ import {OcpiNamespace} from '../util/ocpi.namespace';
 import {VersionNumber} from '../model/VersionNumber';
 import {Service} from 'typedi';
 import {NotFoundError} from "routing-controllers";
-import {VersionDetailsResponseDTO} from "../model/VersionDetailsResponseDTO";
-import {VersionListResponseDTO} from "../model/VersionListResponseDTO";
+import {VersionDetailsResponseDTO} from "../model/DTO/VersionDetailsResponseDTO";
+import {VersionListResponseDTO} from "../model/DTO/VersionListResponseDTO";
 import {VersionEndpoint} from "../model/VersionEndpoint";
 
 @Service()

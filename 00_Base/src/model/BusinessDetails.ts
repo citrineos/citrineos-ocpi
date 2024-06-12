@@ -1,11 +1,12 @@
 import {IsNotEmpty, IsString, IsUrl, MaxLength} from 'class-validator';
-import {Image} from './Image';
+import {Image, toImageDTO} from './Image';
 import {Optional} from '../util/decorators/optional';
 import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
 import {ClientCredentialsRole} from "./client.credentials.role";
 import {ServerCredentialsRole} from "./server.credentials.role";
 import {Exclude} from "class-transformer";
 import {ON_DELETE_CASCADE} from "../util/sequelize";
+import {BusinessDetailsDTO} from "./DTO/BusinessDetailsDTO";
 
 @Table // todo note here need for both client and server credential roles models because using base wont work
 export class BusinessDetails extends Model {
@@ -47,14 +48,11 @@ export class BusinessDetails extends Model {
   serverCredentialsRole!: ServerCredentialsRole;
 }
 
-// export const buildBusinessDetails = (
-//   name: string,
-//   website: string | null,
-//   logo: Image | null
-// ) => {
-//   const businessDetails = new BusinessDetails();
-//   businessDetails.name = name;
-//   businessDetails.website = website;
-//   businessDetails.logo = logo;
-//   return businessDetails;
-// }
+export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {
+  const businessDetailsDTO = new BusinessDetailsDTO();
+  businessDetailsDTO.name = businessDetails.name;
+  businessDetailsDTO.website = businessDetails.website;
+  businessDetailsDTO.logo = toImageDTO(businessDetails.logo!);
+  return businessDetailsDTO;
+}
+

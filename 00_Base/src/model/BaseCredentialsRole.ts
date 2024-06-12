@@ -12,7 +12,7 @@ export interface ICredentialsRole {
   clientInformation?: ClientInformation;
 }
 
-export class CredentialsRole {
+export class BaseCredentialsRole implements ICredentialsRole {
   role!: Role;
   business_details!: BusinessDetails;
   cpoTenantId!: number;

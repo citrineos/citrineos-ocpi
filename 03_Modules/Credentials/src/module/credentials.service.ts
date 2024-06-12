@@ -10,12 +10,13 @@ import {
   invalidClientCredentialsRoles,
   OcpiLogger,
   OcpiNamespace,
-  plainToClass,
   VersionNumber,
   VersionsClientApi
 } from '@citrineos/ocpi-base';
 import {Service} from 'typedi';
 import {BadRequestError, InternalServerError, NotFoundError} from "routing-controllers";
+import {BusinessDetails} from "@citrineos/ocpi-base/dist/model/BusinessDetails";
+import {Image} from "@citrineos/ocpi-base/dist/model/Image";
 
 @Service()
 export class CredentialsService {
@@ -34,6 +35,17 @@ export class CredentialsService {
         },
         include: [
           {
+            model: ClientCredentialsRole,
+            include: [
+              {
+                model: BusinessDetails,
+                include: [
+                  Image
+                ]
+              }
+            ]
+          },
+          {
             model: ClientVersion,
             include: [
               Endpoint
@@ -44,16 +56,10 @@ export class CredentialsService {
       OcpiNamespace.Credentials,
     );
     if (!clientInformationResponse) {
+      this.logger.debug('Client information not found for token', token);
       throw new NotFoundError('Credentials not found');
     }
-    const clientInformationObj = clientInformationResponse.dataValues;
-    clientInformationObj.clientVersionDetails = clientInformationResponse.dataValues.clientVersionDetails.map((obj: any) => obj.dataValues);
-    const result = plainToClass(ClientInformation, clientInformationObj as ClientInformation);
-    return result;
-  }
-
-  async getCredentials(token: string): Promise<ClientInformation> {
-    return await this.getClientInformation(token);
+    return clientInformationResponse;
   }
 
   async postCredentials(

@@ -5,8 +5,8 @@ import {Enum} from "../util/decorators/enum";
 import {Exclude} from "class-transformer";
 import {Endpoint} from "./Endpoint";
 import {ClientInformation} from "./client.information";
-import {VersionDTO} from "./VersionDTO";
-import {VersionDetailsDTO} from "./VersionDetailsDTO";
+import {VersionDTO} from "./DTO/VersionDTO";
+import {VersionDetailsDTO} from "./DTO/VersionDetailsDTO";
 import {IVersion} from "./Version";
 import {ON_DELETE_CASCADE} from "../util/sequelize";
 

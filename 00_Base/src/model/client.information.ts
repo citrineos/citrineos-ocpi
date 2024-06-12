@@ -1,7 +1,7 @@
 import {BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table} from "sequelize-typescript";
 import {IsBoolean, IsNotEmpty, IsString} from "class-validator";
-import {ClientCredentialsRole} from "./client.credentials.role";
-import {CredentialsDTO} from "./CredentialsDTO";
+import {ClientCredentialsRole, toCredentialsRoleDTO} from "./client.credentials.role";
+import {CredentialsDTO} from "./DTO/CredentialsDTO";
 import {CpoTenant} from "./cpo.tenant";
 import {Exclude} from "class-transformer";
 import {ClientVersion} from "./client.version";
@@ -78,19 +78,23 @@ export class ClientInformation extends Model {
     clientInformation.serverVersionDetails = serverVersionDetails;
     return clientInformation;
   }
+}
 
-  public toCredentialsDTO(): CredentialsDTO {
-    const credentials = new CredentialsDTO();
-    credentials.token = this.clientToken;
-    const credentialsEndpoint = this.getClientVersionDetailsByModuleId(ModuleId.Credentials);
-    if (credentialsEndpoint && credentialsEndpoint.url) {
-      credentials.url = credentialsEndpoint.url;
-    }
-    credentials.roles = this.clientCredentialsRoles;
-    return credentials;
-  }
+export const getClientVersionDetailsByModuleId = (
+  clientInformation: ClientInformation,
+  moduleId: ModuleId
+): Endpoint | undefined => {
+  return clientInformation.clientVersionDetails[0].endpoints.find((endpoint) => endpoint.identifier === moduleId);
+}
 
-  public getClientVersionDetailsByModuleId(moduleId: ModuleId): Endpoint | undefined {
-    return this.clientVersionDetails[0].endpoints.find((endpoint) => endpoint.identifier === moduleId);
+export const toCredentialsDTO = (clientInformation: ClientInformation): CredentialsDTO => {
+  const credentials = new CredentialsDTO();
+  credentials.token = clientInformation.clientToken;
+  const credentialsEndpoint = getClientVersionDetailsByModuleId(clientInformation, ModuleId.Credentials);
+  if (credentialsEndpoint && credentialsEndpoint.url) {
+    credentials.url = credentialsEndpoint.url;
   }
+  credentials.roles = clientInformation.clientCredentialsRoles
+    .map((role: ClientCredentialsRole) => toCredentialsRoleDTO(role));
+  return credentials;
 }

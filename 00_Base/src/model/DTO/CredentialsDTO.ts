@@ -1,7 +1,7 @@
 import {ArrayMinSize, IsArray, IsNotEmpty, IsString, IsUrl, MaxLength, ValidateNested,} from 'class-validator';
 import {Index} from 'sequelize-typescript';
-import {CredentialsRole} from './CredentialsRole';
 import {Type} from 'class-transformer';
+import {CredentialsRoleDTO} from "./CredentialsRoleDTO";
 
 export class CredentialsDTO {
 
@@ -20,10 +20,10 @@ export class CredentialsDTO {
   @ArrayMinSize(1)
   @IsNotEmpty()
   @ValidateNested({each: true})
-  @Type(() => CredentialsRole)
-  roles!: CredentialsRole[];
+  @Type(() => CredentialsRoleDTO)
+  roles!: CredentialsRoleDTO[];
 
-  static build(token: string, url: string, roles: CredentialsRole[]): CredentialsDTO {
+  static build(token: string, url: string, roles: CredentialsRoleDTO[]): CredentialsDTO {
     const credentials = new CredentialsDTO();
     credentials.token = token;
     credentials.url = url;

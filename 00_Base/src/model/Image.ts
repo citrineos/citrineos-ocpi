@@ -3,14 +3,10 @@ import {Optional} from '../util/decorators/optional';
 import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
 import {Exclude} from "class-transformer";
 import {BusinessDetails} from "./BusinessDetails";
-import {Imagecategory} from "./Imagecategory";
+import {ImageCategory} from "./ImageCategory";
 import {Enum} from "../util/decorators/enum";
-
-export enum ImageType {
-  jpeg = 'jpeg',
-  jpg = 'jpg',
-  png = 'png'
-}
+import {ImageDTO} from "./DTO/ImageDTO";
+import {ImageType} from "./ImageType";
 
 @Table
 export class Image extends Model {
@@ -27,10 +23,10 @@ export class Image extends Model {
   @Optional()
   thumbnail?: string | null;
 
-  @Column(DataType.ENUM(...Object.keys(Imagecategory)))
-  @Enum(Imagecategory, 'Imagecategory')
+  @Column(DataType.ENUM(...Object.keys(ImageCategory)))
+  @Enum(ImageCategory, 'ImageCategory')
   @IsNotEmpty()
-  category!: Imagecategory;
+  category!: ImageCategory;
 
   @Column(DataType.ENUM(...Object.keys(ImageType)))
   @Enum(ImageType, 'ImageType')
@@ -57,22 +53,18 @@ export class Image extends Model {
   @Exclude()
   @BelongsTo(() => BusinessDetails)
   businessDetails!: BusinessDetails;
-
-  /* static buildImage(
-    url: string,
-    thumbnail: string | null,
-    category: Imagecategory,
-    type: ImageType,
-    width: number | null,
-    height: number | null
-  ) {
-    const image = new Image();
-    image.url = url;
-    image.thumbnail = thumbnail;
-    image.category = category;
-    image.type = type;
-    image.width = width;
-    image.height = height;
-    return image;
-  } */
 }
+
+export const toImageDTO = (image: Image) => {
+  const imageDTO = new ImageDTO();
+  imageDTO.url = image.url;
+  imageDTO.thumbnail = image.thumbnail;
+  imageDTO.category = image.category;
+  imageDTO.type = image.type;
+  imageDTO.width = image.width;
+  imageDTO.height = image.height;
+  return imageDTO;
+}
+
+
+

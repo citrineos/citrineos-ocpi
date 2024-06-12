@@ -10,6 +10,7 @@ import {
   OcpiLogger,
   OcpiResponseStatusCode,
   ResponseSchema,
+  toCredentialsDTO,
   versionIdParam,
   VersionNumber,
   VersionNumberParam
@@ -50,8 +51,9 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     @AuthToken() token: string,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
-    const credentials = await this.credentialsService?.getCredentials(token);
-    return CredentialsResponse.build(credentials.toCredentialsDTO());
+    const clientInformation = await this.credentialsService?.getClientInformation(token);
+    const credentialsDto = toCredentialsDTO(clientInformation.get({ plain: true }));
+    return CredentialsResponse.build(credentialsDto);
   }
 
   @Post()
@@ -73,7 +75,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
     const clientInformation = await this.credentialsService?.postCredentials(token, credentials, version);
-    return CredentialsResponse.build(clientInformation.toCredentialsDTO());
+    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 
   @Put()
@@ -95,7 +97,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
     const clientInformation = await this.credentialsService?.putCredentials(token, credentials, version);
-    return CredentialsResponse.build(clientInformation.toCredentialsDTO());
+    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 
   @Delete()

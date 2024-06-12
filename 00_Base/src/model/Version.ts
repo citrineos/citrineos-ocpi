@@ -1,8 +1,8 @@
 import {VersionNumber} from './VersionNumber';
 import {Endpoint} from './Endpoint';
 import {ClientInformation} from "./client.information";
-import {VersionDTO} from "./VersionDTO";
-import {VersionDetailsDTO} from "./VersionDetailsDTO";
+import {VersionDTO} from "./DTO/VersionDTO";
+import {VersionDetailsDTO} from "./DTO/VersionDetailsDTO";
 import {Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
 import {IsNotEmpty, IsString, IsUrl} from "class-validator";
 import {Enum} from "../util/decorators/enum";

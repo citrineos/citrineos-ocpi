@@ -1,6 +1,6 @@
 import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
 import {Role} from "./Role";
-import {ICredentialsRole} from "./CredentialsRole";
+import {ICredentialsRole} from "./BaseCredentialsRole";
 import {IsNotEmpty, IsString, Length} from "class-validator";
 import {CpoTenant} from "./cpo.tenant";
 import {BusinessDetails} from "./BusinessDetails";

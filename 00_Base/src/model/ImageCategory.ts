@@ -1,4 +1,4 @@
-export enum Imagecategory {
+export enum ImageCategory {
   CHARGER = 'CHARGER',
   ENTRANCE = 'ENTRANCE',
   LOCATION = 'LOCATION',
