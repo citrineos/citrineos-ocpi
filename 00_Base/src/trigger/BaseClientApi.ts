@@ -6,6 +6,7 @@ import {OcpiParams} from "./util/ocpi.params";
 import {UnsuccessfulRequestException} from "../exception/unsuccessful.request.exception";
 import {HttpHeader} from "../../../../citrineos-core/00_Base";
 import {OcpiHttpHeader} from "../util/ocpi.http.header";
+import {base64Encode} from "../util/util";
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -242,19 +243,14 @@ export class BaseClientApi {
 
   protected setAuthHeader = (headerParameters: IHeaders, token: string) => {
     if (token && headerParameters) {
-      headerParameters[HttpHeader.Authorization] = `Token ${token}`;
+      headerParameters[HttpHeader.Authorization] = `Token ${base64Encode(token)}`;
     }
   };
 
   protected getOcpiRegistrationHeaders = (params: OcpiRegistrationParams): IHeaders => {
     const headerParameters: IHeaders = {};
-    if (params.xRequestId != null) {
-      headerParameters[OcpiHttpHeader.XRequestId] = String(params.xRequestId);
-    }
-
-    if (params.xCorrelationId != null) {
-      headerParameters[OcpiHttpHeader.XCorrelationId] = String(params.xCorrelationId);
-    }
+    headerParameters[OcpiHttpHeader.XRequestId] = params.xRequestId != null ? String(params.xRequestId) : 'placeholder';
+    headerParameters[OcpiHttpHeader.XCorrelationId] = params.xCorrelationId != null ? String(params.xCorrelationId) : 'placeholder';
     this.setAuthHeader(headerParameters, params.authorization);
     return headerParameters;
   }

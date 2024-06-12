@@ -8,7 +8,7 @@ import 'reflect-metadata';
 export = {
   up: async (queryInterface: QueryInterface) => {
 
-    const baseClientUrl = 'https://localhost:8085';
+    const baseClientUrl = 'http://localhost:8085';
 
     const resetIndexes = async (tableName: string) => {
       // Reset the sequence

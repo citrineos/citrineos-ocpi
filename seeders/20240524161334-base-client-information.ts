@@ -22,8 +22,8 @@ export = {
 
   up: async (queryInterface: QueryInterface) => {
 
-    const baseServerUrl = 'https://localhost:8085';
-    const baseClientUrl = 'https://localhost:8086';
+    const baseServerUrl = 'http://localhost:8085';
+    const baseClientUrl = 'http://localhost:8086';
     const moduleList: ModuleId[] = [
       ModuleId.Credentials,
       ModuleId.Versions,

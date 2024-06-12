@@ -1,3 +1,4 @@
+export {KoaServer} from "./util/koa.server";
 export {CountryCode} from "./util/util";
 export {ImageCategory} from "./model/ImageCategory";
 export {OcpiServerConfig} from "./config/ocpi.server.config";

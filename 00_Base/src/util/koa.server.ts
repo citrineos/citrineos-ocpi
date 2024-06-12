@@ -64,4 +64,12 @@ export class KoaServer {
       }),
     );
   }
+
+  public run(host: string, port: number) {
+    this.app.on('error', (err, _ctx) => {
+      console.log('Error intercepted by Koa:', err.message);
+    });
+    this.app.listen(port, host);
+    console.log(`Server started on port ${port}`);
+  }
 }

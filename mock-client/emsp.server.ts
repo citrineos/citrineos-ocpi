@@ -1,13 +1,10 @@
 import {Service} from 'typedi';
-import {Server} from '../server';
-import {OcpiSequelizeInstance} from '../util/sequelize';
 import Koa from 'koa';
-import {GlobalExceptionHandler} from '../util/middleware/global.exception.handler';
-import {LoggingMiddleware} from '../util/middleware/logging.middleware';
 import {VersionsController} from './versions';
+import {GlobalExceptionHandler, KoaServer, LoggingMiddleware, OcpiSequelizeInstance} from "@citrineos/ocpi-base";
 
 @Service()
-export class EmspServer extends Server {
+export class EmspServer extends KoaServer {
   constructor(_sequelize: OcpiSequelizeInstance) {
     super();
     try {
@@ -15,7 +12,7 @@ export class EmspServer extends Server {
       this.initLogger();
       this.initApp({
         controllers: [VersionsController],
-        routePrefix: '/ocpi/:versionId',
+        routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
       });
@@ -25,7 +22,7 @@ export class EmspServer extends Server {
       }, [{
         url: '/ocpi',
       }]);
-      this.startApp(8086);
+      this.run('localhost', 8086);
     } catch (error) {
       console.error(error);
       process.exit(1);

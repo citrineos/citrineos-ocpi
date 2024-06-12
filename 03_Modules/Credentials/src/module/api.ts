@@ -52,7 +52,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
     const clientInformation = await this.credentialsService?.getClientInformation(token);
-    const credentialsDto = toCredentialsDTO(clientInformation.get({ plain: true }));
+    const credentialsDto = toCredentialsDTO(clientInformation.get({plain: true}));
     return CredentialsResponse.build(credentialsDto);
   }
 
@@ -75,7 +75,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
     const clientInformation = await this.credentialsService?.postCredentials(token, credentials, version);
-    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
+    return CredentialsResponse.build(toCredentialsDTO(clientInformation.get({plain: true})));
   }
 
   @Put()

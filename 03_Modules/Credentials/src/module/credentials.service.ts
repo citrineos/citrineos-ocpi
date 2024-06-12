@@ -18,6 +18,7 @@ import {BadRequestError, InternalServerError, NotFoundError} from "routing-contr
 import {BusinessDetails} from "@citrineos/ocpi-base/dist/model/BusinessDetails";
 import {Image} from "@citrineos/ocpi-base/dist/model/Image";
 
+
 @Service()
 export class CredentialsService {
   constructor(
@@ -68,10 +69,13 @@ export class CredentialsService {
     version: VersionNumber,
   ): Promise<ClientInformation> {
     let clientInformation = await this.getClientInformation(token);
+    if (clientInformation.registered) {
+      throw new BadRequestError('Client already registered');
+    }
     const freshVersionDetails = await this.getClientVersionDetails(clientInformation, version, credentials);
     const newToken = uuidv4();
     const clientInformationList = await this.clientInformationRepository.updateAllByQuery({
-      serverToken: newToken,
+      clientToken: newToken,
       registered: true,
       clientVersionDetails: [
         ...clientInformation.clientVersionDetails.filter(
@@ -82,15 +86,15 @@ export class CredentialsService {
     }, {
       where: {
         clientToken: token
-      }
+      },
     });
     if (clientInformationList) { // todo use update one by query which should return one item
       clientInformation = clientInformationList[0];
       if (clientInformation) {
-        return clientInformation;
+        // todo would be great if we can just return response from DB update, but it does not include reference fields and `include` is not possible like in the `read`
+        return this.getClientInformation(newToken);
       }
     }
-    // todo error handling
     throw new InternalServerError('Could not update client information');
   }
 
@@ -150,7 +154,8 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails.map((result: ClientVersion) => result.dataValues).find((v: ClientVersion) => v.version === versionNumber);
+    const existingVersionDetails = clientInformation.clientVersionDetails
+      .find((v: ClientVersion) => v.version === versionNumber);
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
     }
@@ -168,7 +173,8 @@ export class CredentialsService {
     if (!version) {
       throw new NotFoundError('Matching version not found');
     }
-    const versionDetails = await this.versionsClientApi.getVersion({
+    this.versionsClientApi.baseUrl = version.url;
+    const versionDetails = await this.versionsClientApi.getVersionDetails({
       authorization: credentials.token,
       version: versionNumber,
     });

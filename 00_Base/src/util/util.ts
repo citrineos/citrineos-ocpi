@@ -18,3 +18,11 @@ export const plainToClass = <T>(constructor: Constructor<T>, plain: T): T => {
     excludeExtraneousValues: true
   });
 }
+
+export const base64Encode = (input: string): string => {
+  return Buffer.from(input).toString('base64');
+}
+
+export const base64Decode = (input: string): string => {
+  return Buffer.from(input, 'base64').toString('utf-8');
+}
