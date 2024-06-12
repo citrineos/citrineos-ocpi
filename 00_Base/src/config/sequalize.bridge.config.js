@@ -1,9 +1,6 @@
 require('ts-node/register');
 require('tsconfig-paths/register');
 const { OcpiServerConfig } = require('./ocpi.server.config.ts');
-const { Version } = require('../model/Version');
-const { Endpoint } = require('../model/Endpoint');
-const { Credentials } = require('../model/Credentials');
 
 //TODO eliminate this file and use the typescript file directly
 
