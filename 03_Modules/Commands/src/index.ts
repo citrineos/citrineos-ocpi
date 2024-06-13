@@ -21,17 +21,11 @@ export { ICommandsModuleApi } from './module/interface';
 
 import {Container} from 'typedi';
 import {useContainer} from 'routing-controllers';
-import {MeterValue, sequelize, Transaction} from "@citrineos/data";
+import {MeterValue, sequelize, Transaction, SequelizeTransactionEventRepository} from "@citrineos/data";
 
 useContainer(Container);
 
 import { CommandsOcppHandlers } from './module/handlers';
-import {OcppClient} from "@citrineos/ocpi-base";
-import {
-    Evse,
-    SequelizeTransactionEventRepository,
-    TransactionEvent
-} from "../../../../citrineos-core/01_Data/src/layers/sequelize";
 
 export class CommandsModule implements IOcpiModule {
     constructor(
