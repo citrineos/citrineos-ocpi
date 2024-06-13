@@ -3,72 +3,107 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ICommandsModuleApi } from './interface';
 
-import { Body, Controller, Post } from 'routing-controllers';
-import { HttpStatus } from '@citrineos/base';
+import {ICommandsModuleApi} from './interface';
+
+import {BadRequestError, Body, Controller, Post} from 'routing-controllers';
+
+import {plainToInstance} from 'class-transformer';
+
+import {validate} from 'class-validator';
+
+import {HttpStatus} from '@citrineos/base';
 import {
-  AsOcpiFunctionalEndpoint,
-  BaseController,
-  CancelReservation,
-  CommandsService,
-  CommandType,
-  EnumParam,
-  generateMockOcpiResponse,
-  ModuleId,
-  MultipleTypes,
-  OcpiCommandResponse,
-  ReserveNow,
-  ResponseSchema,
-  StartSession,
-  StopSession,
-  UnlockConnector,
+    AsOcpiFunctionalEndpoint,
+    BaseController,
+    CancelReservation,
+    CommandsService,
+    CommandType,
+    EnumParam,
+    generateMockOcpiResponse,
+    ModuleId,
+    MultipleTypes,
+    NotFoundException,
+    ReserveNow,
+    ResponseSchema,
+    StartSession,
+    StopSession,
+    UnlockConnector,
+    OcpiResponse,
+    CommandResponse
 } from '@citrineos/ocpi-base';
 
-import { Service } from 'typedi';
+import {Service} from 'typedi';
 
 /**
  * Server API for the provisioning component.
  */
 @Controller(`/${ModuleId.Commands}`)
 @Service()
-export class CommandsModuleApi
-  extends BaseController
-  implements ICommandsModuleApi
-{
-  constructor(readonly commandsService: CommandsService) {
-    super();
-  }
+export class CommandsModuleApi extends BaseController implements ICommandsModuleApi {
+    constructor(readonly commandsService: CommandsService) {
+        super();
+    }
 
-  @Post('/:commandType')
-  @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiCommandResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(OcpiCommandResponse),
-    },
-  })
-  async postCommand(
-    @EnumParam('commandType', CommandType, 'CommandType')
-    _commandType: CommandType,
-    @Body()
-    @MultipleTypes(
-      CancelReservation,
-      ReserveNow,
-      StartSession,
-      StopSession,
-      UnlockConnector,
-    )
-    _payload:
-      | CancelReservation
-      | ReserveNow
-      | StartSession
-      | StopSession
-      | UnlockConnector,
-  ): Promise<OcpiCommandResponse> {
-    console.log('postCommand', _commandType, _payload);
-    // return this.commandsService.postCommand(_commandType, _payload);
-    return this.commandsService.postCommand(_commandType, _payload);
-  }
+    @Post('/:commandType')
+    @AsOcpiFunctionalEndpoint()
+    @ResponseSchema(OcpiResponse<CommandResponse>, {
+        statusCode: HttpStatus.OK,
+        description: 'Successful response',
+        examples: {
+            success: generateMockOcpiResponse(OcpiResponse<CommandResponse>),
+        },
+    })
+    async postCommand(
+        @EnumParam('commandType', CommandType, 'CommandType')
+            _commandType: CommandType,
+        @Body()
+        @MultipleTypes(
+            CancelReservation,
+            ReserveNow,
+            StartSession,
+            StopSession,
+            UnlockConnector,
+        )
+            _payload:
+            | CancelReservation
+            | ReserveNow
+            | StartSession
+            | StopSession
+            | UnlockConnector,
+    ): Promise<OcpiResponse<CommandResponse>> {
+        console.log('postCommand', _commandType, _payload);
+        switch (_commandType) {
+            case CommandType.CANCEL_RESERVATION: {
+                _payload = plainToInstance(CancelReservation, _payload);
+                break;
+            }
+            case CommandType.RESERVE_NOW: {
+                _payload = plainToInstance(ReserveNow, _payload);
+                break;
+            }
+            case CommandType.START_SESSION: {
+                _payload = plainToInstance(StartSession, _payload);
+                break;
+            }
+            case CommandType.STOP_SESSION: {
+                _payload = plainToInstance(StopSession, _payload);
+                break;
+            }
+            case CommandType.UNLOCK_CONNECTOR: {
+                _payload = plainToInstance(UnlockConnector, _payload);
+                break;
+            }
+            default: {
+                throw new BadRequestError("Unknown command type: " + _commandType);
+            }
+        }
+
+        await validate(_payload).then(errors => {
+            if (errors.length > 0) {
+                throw new BadRequestError("Validation failed: " + errors);
+            }
+        });
+        return this.commandsService.postCommand(_commandType, _payload);
+    }
 }

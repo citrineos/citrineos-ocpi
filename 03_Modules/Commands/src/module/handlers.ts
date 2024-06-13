@@ -5,17 +5,22 @@
 
 import {
   AbstractModule,
+  AsHandler,
   CallAction,
   EventGroup,
+  HandlerProperties,
+  ICache,
+  IMessage,
   IMessageHandler,
-  IMessageSender,
+  IMessageSender, RequestStartStopStatusEnumType, RequestStartTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import {RabbitMqReceiver, RabbitMqSender, Timer,} from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import { ILogObj, Logger } from 'tslog';
-import { CacheWrapper } from '@citrineos/ocpi-base';
-import { Service } from 'typedi';
+import {ILogObj, Logger} from 'tslog';
+import {CommandsClientApi, ResponseUrlRepository} from "@citrineos/ocpi-base";
+import {Service} from "typedi";
+import {CommandResultType} from "@citrineos/ocpi-base/dist/model/CommandResult";
 
 /**
  * Component that handles provisioning related messages.
@@ -25,22 +30,24 @@ export class CommandsOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [];
+  protected _requests: CallAction[] = [
+  ];
   protected _responses: CallAction[] = [
     CallAction.RequestStartTransaction,
-    CallAction.RequestStopTransaction,
   ];
 
   constructor(
     config: SystemConfig,
-    cache: CacheWrapper,
-    handler?: IMessageHandler,
+    cache: ICache,
+    readonly responseUrlRepo: ResponseUrlRepository,
+    readonly commandsClient: CommandsClientApi,
     sender?: IMessageSender,
+    handler?: IMessageHandler,
     logger?: Logger<ILogObj>,
   ) {
     super(
       config,
-      cache.cache,
+      cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
       EventGroup.Commands,
@@ -57,5 +64,41 @@ export class CommandsOcppHandlers extends AbstractModule {
     }
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
+  }
+
+  @AsHandler(CallAction.RequestStartTransaction)
+  protected _handleRequestStartTransactionResponse(
+      message: IMessage<RequestStartTransactionResponse>,
+      props?: HandlerProperties,
+  ): void {
+    this._logger.debug('Handling:', message, props);
+
+    const result = this.getResult(message.payload.status);
+
+    this.sendCommandResult(message.context.correlationId, result);
+  }
+
+  private getResult(requestStartStopStatus: RequestStartStopStatusEnumType): CommandResultType {
+    switch (requestStartStopStatus) {
+      case RequestStartStopStatusEnumType.Accepted:
+        return CommandResultType.ACCEPTED;
+      case RequestStartStopStatusEnumType.Rejected:
+        return CommandResultType.REJECTED;
+      default:
+        throw new Error(`Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`);
+    }
+  }
+
+  private async sendCommandResult(correlationId: string, result: CommandResultType) {
+    const responseUrlEntity = await this.responseUrlRepo.getResponseUrl(correlationId);
+    if (responseUrlEntity) {
+      try {
+        await this.commandsClient.postCommandResult(responseUrlEntity.responseUrl, {
+          result: result,
+        })
+      } catch (error) {
+        this._logger.error(error);
+      }
+    }
   }
 }
