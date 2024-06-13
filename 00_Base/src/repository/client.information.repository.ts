@@ -1,11 +1,11 @@
-import {Service} from "typedi";
-import {SequelizeRepository} from "@citrineos/data";
-import {OcpiServerConfig} from "../config/ocpi.server.config";
-import {OcpiLogger} from "../util/logger";
-import {OcpiSequelizeInstance} from "../util/sequelize";
-import {SystemConfig, UnauthorizedException} from "@citrineos/base";
-import {ClientInformation} from "../model/client.information";
-import {OcpiNamespace} from "../util/ocpi.namespace";
+import { Service } from 'typedi';
+import { SequelizeRepository } from '@citrineos/data';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
+import { OcpiLogger } from '../util/logger';
+import { OcpiSequelizeInstance } from '../util/sequelize';
+import { SystemConfig, UnauthorizedException } from '@citrineos/base';
+import { ClientInformation } from '../model/client.information';
+import { OcpiNamespace } from '../util/ocpi.namespace';
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
@@ -51,10 +51,14 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     };
     const clientInformationList = await this.readAllByQuery(query); // todo should be read one by query
     if (clientInformationList && countryCode && partyId) {
-      const matchingClientInformation = clientInformationList.find((clientInformation) => {
-        return clientInformation.clientCredentialsRoles
-          .some((clientCredentialsRole) => clientCredentialsRole.country_code === countryCode && clientCredentialsRole.party_id === partyId);
-      });
+      const matchingClientInformation = clientInformationList.find(
+        (clientInformation) =>
+          clientInformation.clientCredentialsRoles.some(
+            (clientCredentialsRole) =>
+              clientCredentialsRole.country_code === countryCode &&
+              clientCredentialsRole.party_id === partyId,
+          ),
+      );
       if (matchingClientInformation) {
         return matchingClientInformation;
       }

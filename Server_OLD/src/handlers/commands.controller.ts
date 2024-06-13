@@ -1,22 +1,25 @@
-import {Body, JsonController, Post} from '@citrineos/ocpi-base';
-import {HttpStatus} from '@citrineos/base';
-import {BaseController, generateMockOcpiResponse} from './base.controller';
-import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {CommandType} from '../model/CommandType';
-import {CancelReservation} from '../model/CancelReservation';
-import {ReserveNow} from '../model/ReserveNow';
-import {StartSession} from '../model/StartSession';
-import {StopSession} from '../model/StopSession';
-import {UnlockConnector} from '../model/UnlockConnector';
-import {OcpiCommandResponse} from '../model/CommandResponse';
-import {MultipleTypes} from '../util/decorators/multiple.types';
-import {Service} from 'typedi';
-import {ModuleId} from '../model/ModuleId';
-import {EnumParam} from '../util/decorators/enum.param';
-import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
-import {VersionNumber} from "../model/VersionNumber";
-import {ResponseSchema} from '../../../00_Base/src/openapi-spec-helper';
-import {CommandsService} from "../../../00_Base/src/services/commands.service";
+import { Body, JsonController, Post } from '@citrineos/ocpi-base';
+import { HttpStatus } from '@citrineos/base';
+import { BaseController, generateMockOcpiResponse } from './base.controller';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { CommandType } from '../model/CommandType';
+import { CancelReservation } from '../model/CancelReservation';
+import { ReserveNow } from '../model/ReserveNow';
+import { StartSession } from '../model/StartSession';
+import { StopSession } from '../model/StopSession';
+import { UnlockConnector } from '../model/UnlockConnector';
+import { OcpiCommandResponse } from '../model/CommandResponse';
+import { MultipleTypes } from '../util/decorators/multiple.types';
+import { Service } from 'typedi';
+import { ModuleId } from '../model/ModuleId';
+import { EnumParam } from '../util/decorators/enum.param';
+import {
+  versionIdParam,
+  VersionNumberParam,
+} from '../util/decorators/version.number.param';
+import { VersionNumber } from '../model/VersionNumber';
+import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import { CommandsService } from '../../../00_Base/src/services/commands.service';
 
 const MOCK = generateMockOcpiResponse(OcpiCommandResponse);
 
@@ -35,14 +38,14 @@ export class CommandsController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK
+        value: MOCK,
       },
     },
   })
   async postCommand(
     @VersionNumberParam() _version: VersionNumber,
     @EnumParam('commandType', CommandType, 'CommandType')
-      _commandType: CommandType,
+    _commandType: CommandType,
     @Body()
     @MultipleTypes(
       CancelReservation,
@@ -51,7 +54,7 @@ export class CommandsController extends BaseController {
       StopSession,
       UnlockConnector,
     )
-      _payload:
+    _payload:
       | CancelReservation
       | ReserveNow
       | StartSession

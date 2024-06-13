@@ -1,21 +1,31 @@
-import {BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table} from "sequelize-typescript";
-import {IsBoolean, IsNotEmpty, IsString} from "class-validator";
-import {ClientCredentialsRole, toCredentialsRoleDTO} from "./client.credentials.role";
-import {CredentialsDTO} from "./DTO/CredentialsDTO";
-import {CpoTenant} from "./cpo.tenant";
-import {Exclude} from "class-transformer";
-import {ClientVersion} from "./client.version";
-import {ServerVersion} from "./server.version";
-import {ON_DELETE_CASCADE} from "../util/sequelize";
-import {ModuleId} from "./ModuleId";
-import {Endpoint} from "./Endpoint";
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import {
+  ClientCredentialsRole,
+  toCredentialsRoleDTO,
+} from './client.credentials.role';
+import { CredentialsDTO } from './DTO/CredentialsDTO';
+import { CpoTenant } from './cpo.tenant';
+import { Exclude } from 'class-transformer';
+import { ClientVersion } from './client.version';
+import { ServerVersion } from './server.version';
+import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { ModuleId } from './ModuleId';
+import { Endpoint } from './Endpoint';
 
 @Table
 export class ClientInformation extends Model {
-
   @Column({
     type: DataType.STRING,
-    unique: true
+    unique: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -23,7 +33,7 @@ export class ClientInformation extends Model {
 
   @Column({
     type: DataType.STRING,
-    unique: true
+    unique: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -82,19 +92,26 @@ export class ClientInformation extends Model {
 
 export const getClientVersionDetailsByModuleId = (
   clientInformation: ClientInformation,
-  moduleId: ModuleId
-): Endpoint | undefined => {
-  return clientInformation.clientVersionDetails[0].endpoints.find((endpoint) => endpoint.identifier === moduleId);
-}
+  moduleId: ModuleId,
+): Endpoint | undefined =>
+  clientInformation.clientVersionDetails[0].endpoints.find(
+    (endpoint) => endpoint.identifier === moduleId,
+  );
 
-export const toCredentialsDTO = (clientInformation: ClientInformation): CredentialsDTO => {
+export const toCredentialsDTO = (
+  clientInformation: ClientInformation,
+): CredentialsDTO => {
   const credentials = new CredentialsDTO();
   credentials.token = clientInformation.clientToken;
-  const credentialsEndpoint = getClientVersionDetailsByModuleId(clientInformation, ModuleId.Credentials);
+  const credentialsEndpoint = getClientVersionDetailsByModuleId(
+    clientInformation,
+    ModuleId.Credentials,
+  );
   if (credentialsEndpoint && credentialsEndpoint.url) {
     credentials.url = credentialsEndpoint.url;
   }
-  credentials.roles = clientInformation.clientCredentialsRoles
-    .map((role: ClientCredentialsRole) => toCredentialsRoleDTO(role));
+  credentials.roles = clientInformation.clientCredentialsRoles.map(
+    (role: ClientCredentialsRole) => toCredentialsRoleDTO(role),
+  );
   return credentials;
-}
+};

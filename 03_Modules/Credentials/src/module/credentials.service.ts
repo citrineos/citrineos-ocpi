@@ -1,4 +1,4 @@
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import {
   ClientCredentialsRole,
   ClientInformation,
@@ -11,13 +11,16 @@ import {
   OcpiLogger,
   OcpiNamespace,
   VersionNumber,
-  VersionsClientApi
+  VersionsClientApi,
 } from '@citrineos/ocpi-base';
-import {Service} from 'typedi';
-import {BadRequestError, InternalServerError, NotFoundError} from "routing-controllers";
-import {BusinessDetails} from "@citrineos/ocpi-base/dist/model/BusinessDetails";
-import {Image} from "@citrineos/ocpi-base/dist/model/Image";
-
+import { Service } from 'typedi';
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+} from 'routing-controllers';
+import { BusinessDetails } from '@citrineos/ocpi-base/dist/model/BusinessDetails';
+import { Image } from '@citrineos/ocpi-base/dist/model/Image';
 
 @Service()
 export class CredentialsService {
@@ -25,37 +28,33 @@ export class CredentialsService {
     private logger: OcpiLogger,
     private clientInformationRepository: ClientInformationRepository,
     private versionsClientApi: VersionsClientApi,
-  ) {
-  }
+  ) {}
 
   async getClientInformation(token: string): Promise<ClientInformation> {
-    const clientInformationResponse = await this.clientInformationRepository.readOnlyOneByQuery(
-      {
-        where: {
-          clientToken: token,
-        },
-        include: [
-          {
-            model: ClientCredentialsRole,
-            include: [
-              {
-                model: BusinessDetails,
-                include: [
-                  Image
-                ]
-              }
-            ]
+    const clientInformationResponse =
+      await this.clientInformationRepository.readOnlyOneByQuery(
+        {
+          where: {
+            clientToken: token,
           },
-          {
-            model: ClientVersion,
-            include: [
-              Endpoint
-            ]
-          }
-        ]
-      },
-      OcpiNamespace.Credentials,
-    );
+          include: [
+            {
+              model: ClientCredentialsRole,
+              include: [
+                {
+                  model: BusinessDetails,
+                  include: [Image],
+                },
+              ],
+            },
+            {
+              model: ClientVersion,
+              include: [Endpoint],
+            },
+          ],
+        },
+        OcpiNamespace.Credentials,
+      );
     if (!clientInformationResponse) {
       this.logger.debug('Client information not found for token', token);
       throw new NotFoundError('Credentials not found');
@@ -72,15 +71,19 @@ export class CredentialsService {
     if (clientInformation.registered) {
       throw new BadRequestError('Client already registered');
     }
-    const freshVersionDetails = await this.getClientVersionDetails(clientInformation, version, credentials);
+    const freshVersionDetails = await this.getClientVersionDetails(
+      clientInformation,
+      version,
+      credentials,
+    );
     const newToken = uuidv4();
     clientInformation.clientToken = newToken;
     clientInformation.registered = true;
     clientInformation.clientVersionDetails = [
       ...clientInformation.clientVersionDetails.filter(
-        (versionDetails: ClientVersion) => versionDetails.version !== version
+        (versionDetails: ClientVersion) => versionDetails.version !== version,
       ),
-      freshVersionDetails
+      freshVersionDetails,
     ];
     clientInformation = await clientInformation.save();
     if (clientInformation) {
@@ -95,14 +98,24 @@ export class CredentialsService {
     version: VersionNumber,
   ): Promise<ClientInformation> {
     const clientInformation = await this.getClientInformation(token);
-    const versionDetails = await this.getClientVersionDetails(clientInformation, version, credentials);
-    return await this.updateCredentials(clientInformation, token, credentials, versionDetails);
+    const versionDetails = await this.getClientVersionDetails(
+      clientInformation,
+      version,
+      credentials,
+    );
+    return await this.updateCredentials(
+      clientInformation,
+      token,
+      credentials,
+      versionDetails,
+    );
   }
 
   async deleteCredentials(token: string): Promise<void> {
     try {
       // todo, is it okay to delete ClientInformation?
-      await this.clientInformationRepository.deleteAllByQuery({
+      await this.clientInformationRepository.deleteAllByQuery(
+        {
           where: {
             clientToken: token,
           },
@@ -111,7 +124,9 @@ export class CredentialsService {
       );
       return;
     } catch (e: any) {
-      throw new InternalServerError(`Could not delete credentials, ${e.message}`); // todo error handling
+      throw new InternalServerError(
+        `Could not delete credentials, ${e.message}`,
+      ); // todo error handling
     }
   }
 
@@ -122,14 +137,19 @@ export class CredentialsService {
     freshVersionDetails: ClientVersion,
   ) {
     if (invalidClientCredentialsRoles(credentials.roles)) {
-      throw new BadRequestError('Invalid client credentials roles, must be EMSP');
+      throw new BadRequestError(
+        'Invalid client credentials roles, must be EMSP',
+      );
     }
     if (!clientInformation.registered) {
       throw new BadRequestError('Client is not registered');
     }
     clientInformation.clientVersionDetails = [
-      ...clientInformation.clientVersionDetails.filter((versionDetails: ClientVersion) => versionDetails.version !== freshVersionDetails.version),
-      freshVersionDetails
+      ...clientInformation.clientVersionDetails.filter(
+        (versionDetails: ClientVersion) =>
+          versionDetails.version !== freshVersionDetails.version,
+      ),
+      freshVersionDetails,
     ];
     clientInformation = await clientInformation.save();
     if (clientInformation) {
@@ -143,8 +163,9 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails
-      .find((v: ClientVersion) => v.version === versionNumber);
+    const existingVersionDetails = clientInformation.clientVersionDetails.find(
+      (v: ClientVersion) => v.version === versionNumber,
+    );
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
     }
@@ -167,14 +188,22 @@ export class CredentialsService {
       authorization: credentials.token,
       version: versionNumber,
     });
-    if (!versionDetails) { // todo check for successful status globally
+    if (!versionDetails) {
+      // todo check for successful status globally
       throw new NotFoundError('Matching version details not found');
     }
-    const endpoints = versionDetails.data?.endpoints.map((endpoint: EndpointDTO) => Endpoint.buildEndpoint(
-      endpoint.identifier,
-      endpoint.role,
-      endpoint.url
-    ));
-    return ClientVersion.buildClientVersion(versionNumber, version.url, endpoints!);
+    const endpoints = versionDetails.data?.endpoints.map(
+      (endpoint: EndpointDTO) =>
+        Endpoint.buildEndpoint(
+          endpoint.identifier,
+          endpoint.role,
+          endpoint.url,
+        ),
+    );
+    return ClientVersion.buildClientVersion(
+      versionNumber,
+      version.url,
+      endpoints!,
+    );
   }
 }

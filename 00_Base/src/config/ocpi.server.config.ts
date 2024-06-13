@@ -1,7 +1,15 @@
-import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Min, ValidateNested,} from 'class-validator';
-import {Service} from 'typedi';
-import {Type} from 'class-transformer';
-import {Enum} from '../util/decorators/enum';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Service } from 'typedi';
+import { Type } from 'class-transformer';
+import { Enum } from '../util/decorators/enum';
 import 'reflect-metadata';
 
 @Service()

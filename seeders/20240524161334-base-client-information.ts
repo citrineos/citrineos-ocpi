@@ -1,6 +1,6 @@
 'use strict';
 
-import {QueryInterface, QueryOptions} from 'sequelize';
+import { QueryInterface, QueryOptions } from 'sequelize';
 import {
   CountryCode,
   ImageCategory,
@@ -9,7 +9,7 @@ import {
   IVersion,
   ModuleId,
   Role,
-  VersionNumber
+  VersionNumber,
 } from '@citrineos/ocpi-base';
 
 enum VersionsTableName {
@@ -19,9 +19,7 @@ enum VersionsTableName {
 
 /** @type {import('sequelize-cli').Migration} */
 export = {
-
   up: async (queryInterface: QueryInterface) => {
-
     const baseServerUrl = 'http://localhost:8085';
     const baseClientUrl = 'http://localhost:8086';
     const moduleList: ModuleId[] = [
@@ -33,7 +31,7 @@ export = {
       ModuleId.Locations,
       ModuleId.Sessions,
       ModuleId.Tariffs,
-      ModuleId.Tokens
+      ModuleId.Tokens,
     ];
 
     const resetIndexes = async (tableName: string) => {
@@ -47,23 +45,21 @@ export = {
       versionsTableName: VersionsTableName,
       clientInformation: any,
       versionNumber: VersionNumber,
-      baseUrl: string
+      baseUrl: string,
     ): Promise<any[]> => {
       const version = {
         createdAt: new Date(),
         updatedAt: new Date(),
         clientInformationId: clientInformation.id,
         version: versionNumber,
-        url: baseUrl
+        url: baseUrl,
       };
       console.log(`inserting ${versionsTableName}`, version);
       const result = await queryInterface.bulkInsert(
         versionsTableName,
-        [
-          version
-        ],
+        [version],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       await resetIndexes(versionsTableName);
@@ -76,14 +72,14 @@ export = {
       version: IVersion,
       moduleId: ModuleId,
       interfaceRole: InterfaceRole,
-      baseUrl: string
+      baseUrl: string,
     ): Promise<any[]> => {
       const endpoint: any = {
         createdAt: new Date(),
         updatedAt: new Date(),
         identifier: moduleId,
         role: interfaceRole,
-        url: `${baseUrl}/ocpi/${moduleId}/`
+        url: `${baseUrl}/ocpi/${moduleId}/`,
       };
       if (versionsTableName === VersionsTableName.ClientVersions) {
         endpoint.clientVersionId = version.id;
@@ -91,15 +87,9 @@ export = {
         endpoint.serverVersionId = version.id;
       }
       console.log('inserting Endpoint', endpoint);
-      const result = await queryInterface.bulkInsert(
-        'Endpoints',
-        [
-          endpoint
-        ],
-        {
-          returning: true
-        } as QueryOptions,
-      );
+      const result = await queryInterface.bulkInsert('Endpoints', [endpoint], {
+        returning: true,
+      } as QueryOptions);
       await resetIndexes('Endpoints');
       console.log('Endpoint result', result);
       return result as any[];
@@ -115,24 +105,20 @@ export = {
         category: ImageCategory.ENTRANCE,
         type: ImageType.png,
         width: 100,
-        height: 100
+        height: 100,
       };
       console.log('inserting Image', image);
-      const result = await queryInterface.bulkInsert(
-        'Images',
-        [
-          image
-        ],
-        {
-          returning: true
-        } as QueryOptions,
-      );
+      const result = await queryInterface.bulkInsert('Images', [image], {
+        returning: true,
+      } as QueryOptions);
       await resetIndexes('Images');
       console.log('Image result', result);
       return result as any[];
     };
 
-    const createServerBusinessDetails = async (serverCredentialsRole: any): Promise<any[]> => {
+    const createServerBusinessDetails = async (
+      serverCredentialsRole: any,
+    ): Promise<any[]> => {
       const serverBusinessDetails = {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -143,11 +129,9 @@ export = {
       console.log('inserting BusinessDetails', serverBusinessDetails);
       const result = await queryInterface.bulkInsert(
         'BusinessDetails',
-        [
-          serverBusinessDetails
-        ],
+        [serverBusinessDetails],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       await resetIndexes('BusinessDetails');
@@ -156,23 +140,23 @@ export = {
       return result as any[];
     };
 
-    const createServerCredentialsRoles = async (cpoTenant: any): Promise<any[]> => {
+    const createServerCredentialsRoles = async (
+      cpoTenant: any,
+    ): Promise<any[]> => {
       const serverCredentialsRole = {
         createdAt: new Date(),
         updatedAt: new Date(),
         cpoTenantId: cpoTenant.id,
         role: Role.CPO,
         country_code: CountryCode.US,
-        party_id: 'CPO'
+        party_id: 'CPO',
       };
       console.log('inserting ServerCredentialsRole', serverCredentialsRole);
       const result = await queryInterface.bulkInsert(
         'ServerCredentialsRoles',
-        [
-          serverCredentialsRole
-        ],
+        [serverCredentialsRole],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       await resetIndexes('ServerCredentialsRoles');
@@ -184,16 +168,14 @@ export = {
     const createCpoTenants = async (): Promise<any[]> => {
       const cpoTenant = {
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       console.log('inserting CpoTenant', cpoTenant);
       const result = await queryInterface.bulkInsert(
         'CpoTenants',
-        [
-          cpoTenant
-        ],
+        [cpoTenant],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       await resetIndexes('CpoTenants');
@@ -214,33 +196,57 @@ export = {
       console.log('inserting ClientInformation', clientInformation);
       const result = await queryInterface.bulkInsert(
         'ClientInformations',
-        [
-          clientInformation
-        ],
+        [clientInformation],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       console.log('ClientInformation result', result);
       return result as any[];
     };
 
-    const createAndServerClientVersionDetails = async (clientInformation: any): Promise<void> => {
-      const clientVersions = await createVersion(VersionsTableName.ClientVersions, clientInformation, VersionNumber.TWO_DOT_TWO_DOT_ONE, baseClientUrl);
+    const createAndServerClientVersionDetails = async (
+      clientInformation: any,
+    ): Promise<void> => {
+      const clientVersions = await createVersion(
+        VersionsTableName.ClientVersions,
+        clientInformation,
+        VersionNumber.TWO_DOT_TWO_DOT_ONE,
+        baseClientUrl,
+      );
       const clientVersion = clientVersions[0];
       for (let i = 0; i < moduleList.length; i++) {
         const moduleId = moduleList[i];
-        await createEndpoints(VersionsTableName.ClientVersions, clientVersion, moduleId, InterfaceRole.RECEIVER, baseClientUrl);
+        await createEndpoints(
+          VersionsTableName.ClientVersions,
+          clientVersion,
+          moduleId,
+          InterfaceRole.RECEIVER,
+          baseClientUrl,
+        );
       }
-      const serverVersions = await createVersion(VersionsTableName.ServerVersions, clientInformation, VersionNumber.TWO_DOT_TWO_DOT_ONE, baseServerUrl);
+      const serverVersions = await createVersion(
+        VersionsTableName.ServerVersions,
+        clientInformation,
+        VersionNumber.TWO_DOT_TWO_DOT_ONE,
+        baseServerUrl,
+      );
       const serverVersion = serverVersions[0];
       for (let i = 0; i < moduleList.length; i++) {
         const moduleId = moduleList[i];
-        await createEndpoints(VersionsTableName.ServerVersions, serverVersion, moduleId, InterfaceRole.SENDER, baseServerUrl);
+        await createEndpoints(
+          VersionsTableName.ServerVersions,
+          serverVersion,
+          moduleId,
+          InterfaceRole.SENDER,
+          baseServerUrl,
+        );
       }
     };
 
-    const createClientBusinessDetails = async (clientCredentialsRole: any): Promise<any[]> => {
+    const createClientBusinessDetails = async (
+      clientCredentialsRole: any,
+    ): Promise<any[]> => {
       const clientBusinessDetails = {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -251,11 +257,9 @@ export = {
       console.log('inserting BusinessDetails', clientBusinessDetails);
       const result = await queryInterface.bulkInsert(
         'BusinessDetails',
-        [
-          clientBusinessDetails
-        ],
+        [clientBusinessDetails],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       await resetIndexes('BusinessDetails');
@@ -264,7 +268,9 @@ export = {
       return result as any[];
     };
 
-    const createClientCredentialsRoles = async (clientInformation: any): Promise<any[]> => {
+    const createClientCredentialsRoles = async (
+      clientInformation: any,
+    ): Promise<any[]> => {
       const clientCredentialsRole = {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -272,16 +278,14 @@ export = {
         clientInformationId: clientInformation.id,
         cpoTenantId: clientInformation.cpoTenantId,
         country_code: CountryCode.US,
-        party_id: 'MSP'
+        party_id: 'MSP',
       };
       console.log('inserting ClientCredentialsRole', clientCredentialsRole);
       const result = await queryInterface.bulkInsert(
         'ClientCredentialsRoles',
-        [
-          clientCredentialsRole
-        ],
+        [clientCredentialsRole],
         {
-          returning: true
+          returning: true,
         } as QueryOptions,
       );
       await resetIndexes('ClientCredentialsRoles');
@@ -303,7 +307,7 @@ export = {
     }
   },
 
-  down: async (queryInterface: QueryInterface) => {
+  down: async (_queryInterface: QueryInterface) => {
     try {
       console.log('Credentials data reverted successfully');
     } catch (error) {

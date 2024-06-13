@@ -1,25 +1,31 @@
-import {IsInt, IsNotEmpty, IsString, IsUrl, Max,} from 'class-validator';
-import {Optional} from '../util/decorators/optional';
-import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
-import {Exclude} from "class-transformer";
-import {BusinessDetails} from "./BusinessDetails";
-import {ImageCategory} from "./ImageCategory";
-import {Enum} from "../util/decorators/enum";
-import {ImageDTO} from "./DTO/ImageDTO";
-import {ImageType} from "./ImageType";
+import { IsInt, IsNotEmpty, IsString, IsUrl, Max } from 'class-validator';
+import { Optional } from '../util/decorators/optional';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Exclude } from 'class-transformer';
+import { BusinessDetails } from './BusinessDetails';
+import { ImageCategory } from './ImageCategory';
+import { Enum } from '../util/decorators/enum';
+import { ImageDTO } from './DTO/ImageDTO';
+import { ImageType } from './ImageType';
 
 @Table
 export class Image extends Model {
-
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   url!: string;
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @Optional()
   thumbnail?: string | null;
 
@@ -64,7 +70,4 @@ export const toImageDTO = (image: Image) => {
   imageDTO.width = image.width;
   imageDTO.height = image.height;
   return imageDTO;
-}
-
-
-
+};

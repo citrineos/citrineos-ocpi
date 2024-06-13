@@ -35,7 +35,7 @@ export class SignedData {
   signed_values!: SignedValue[];
 
   @MaxLength(512)
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @IsString()
   @Optional()
   url?: string | null;

@@ -1,11 +1,18 @@
-import {IsNotEmpty, IsString, IsUrl} from "class-validator";
-import {Enum} from "../util/decorators/enum";
-import {ModuleId} from "./ModuleId";
-import {InterfaceRole} from "./InterfaceRole";
-import {Exclude} from "class-transformer";
-import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
-import {Endpoint, EndpointDTO} from "./Endpoint";
-import {Version} from "./Version";
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { Enum } from '../util/decorators/enum';
+import { ModuleId } from './ModuleId';
+import { InterfaceRole } from './InterfaceRole';
+import { Exclude } from 'class-transformer';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Endpoint, EndpointDTO } from './Endpoint';
+import { Version } from './Version';
 
 @Table
 export class VersionEndpoint extends Model {
@@ -22,7 +29,7 @@ export class VersionEndpoint extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   url!: string;
 

@@ -15,7 +15,7 @@ import { MULTIPLE_TYPES } from '../util/decorators/multiple.types';
 import { Constructor } from '../util/util';
 import { HttpHeader } from '@citrineos/base';
 import { ENUM_QUERY_PARAM } from '../util/decorators/enum.query.param';
-import {ParamMetadataArgs} from "routing-controllers/types/metadata/args/ParamMetadataArgs";
+import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {

@@ -51,7 +51,7 @@ export class Tariff {
   tariff_alt_text?: Displaytext[] | null;
 
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @Optional()
   tariff_alt_url?: string | null;
 

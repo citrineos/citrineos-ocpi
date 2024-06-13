@@ -1,14 +1,19 @@
-import {KoaMiddlewareInterface, Middleware, NotFoundError, UnauthorizedError,} from 'routing-controllers';
-import {Context} from 'vm';
-import {HttpStatus} from '@citrineos/base';
-import {buildOcpiErrorResponse} from '../../model/ocpi.error.response';
-import {Service} from 'typedi';
-import {OcpiResponseStatusCode} from '../../model/ocpi.response';
+import {
+  KoaMiddlewareInterface,
+  Middleware,
+  NotFoundError,
+  UnauthorizedError,
+} from 'routing-controllers';
+import { Context } from 'vm';
+import { HttpStatus } from '@citrineos/base';
+import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
+import { Service } from 'typedi';
+import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 
 /**
  * GlobalExceptionHandler handles all exceptions
  */
-@Middleware({type: 'before', priority: 10})
+@Middleware({ type: 'before', priority: 10 })
 @Service()
 export class GlobalExceptionHandler implements KoaMiddlewareInterface {
   public async use(

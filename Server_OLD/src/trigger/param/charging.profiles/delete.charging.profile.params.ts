@@ -9,6 +9,6 @@ export class DeleteChargingProfileParams extends OcpiParams {
 
   @IsString()
   @IsNotEmpty()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   responseUrl!: string;
 }

@@ -1,12 +1,19 @@
-import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
-import {Role} from "./Role";
-import {ICredentialsRole} from "./BaseCredentialsRole";
-import {IsNotEmpty, IsString, Length} from "class-validator";
-import {CpoTenant} from "./cpo.tenant";
-import {BusinessDetails} from "./BusinessDetails";
-import {Exclude} from "class-transformer";
-import {ON_DELETE_CASCADE} from "../util/sequelize";
-
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Role } from './Role';
+import { ICredentialsRole } from './BaseCredentialsRole';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { CpoTenant } from './cpo.tenant';
+import { BusinessDetails } from './BusinessDetails';
+import { Exclude } from 'class-transformer';
+import { ON_DELETE_CASCADE } from '../util/sequelize';
 
 @Table
 export class ServerCredentialsRole extends Model implements ICredentialsRole {
@@ -43,7 +50,7 @@ export class ServerCredentialsRole extends Model implements ICredentialsRole {
   static buildServerCredentialsRole(
     countryCode: string,
     partyId: string,
-    businessDetails: BusinessDetails
+    businessDetails: BusinessDetails,
   ) {
     const serverCredentialsRole = new ServerCredentialsRole();
     serverCredentialsRole.country_code = countryCode;

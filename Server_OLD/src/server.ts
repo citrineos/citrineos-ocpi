@@ -5,12 +5,12 @@ import {
   RoutingControllersOptions,
   useKoaServer,
 } from 'routing-controllers';
-import {InfoObject, OpenAPIObject} from 'openapi3-ts';
+import { InfoObject, OpenAPIObject } from 'openapi3-ts';
 import KoaLogger from 'koa-logger';
-import {koaSwagger} from 'koa2-swagger-ui';
-import {ServerObject} from "openapi3-ts/src/model/OpenApi";
-import {routingControllersToSpec} from '../../00_Base/src/openapi-spec-helper';
-import {getAllSchemas} from '../../00_Base/src/openapi-spec-helper/schemas';
+import { koaSwagger } from 'koa2-swagger-ui';
+import { ServerObject } from 'openapi3-ts/src/model/OpenApi';
+import { routingControllersToSpec } from '../../00_Base/src/openapi-spec-helper';
+import { getAllSchemas } from '../../00_Base/src/openapi-spec-helper/schemas';
 
 export class Server {
   koa!: Koa;
@@ -18,8 +18,7 @@ export class Server {
   storage!: MetadataArgsStorage;
   spec!: OpenAPIObject;
 
-  constructor() {
-  }
+  constructor() {}
 
   protected initLogger() {
     this.koa.use(KoaLogger());

@@ -1,13 +1,20 @@
-import {IsNotEmpty, IsString, IsUrl} from 'class-validator';
-import {ModuleId} from './ModuleId';
-import {InterfaceRole} from './InterfaceRole';
-import {Enum} from '../util/decorators/enum';
-import {BelongsTo, Column, DataType, ForeignKey, Model, Table,} from 'sequelize-typescript';
-import {OcpiNamespace} from '../util/ocpi.namespace';
-import {Exclude} from "class-transformer";
-import {ClientVersion} from "./client.version";
-import {ServerVersion} from "./server.version";
-import {VersionNumber} from "./VersionNumber";
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { ModuleId } from './ModuleId';
+import { InterfaceRole } from './InterfaceRole';
+import { Enum } from '../util/decorators/enum';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { OcpiNamespace } from '../util/ocpi.namespace';
+import { Exclude } from 'class-transformer';
+import { ClientVersion } from './client.version';
+import { ServerVersion } from './server.version';
+import { VersionNumber } from './VersionNumber';
 
 export class EndpointDTO {
   @IsString()
@@ -19,7 +26,7 @@ export class EndpointDTO {
   role!: InterfaceRole;
 
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   url!: string;
 
@@ -45,7 +52,7 @@ export class Endpoint extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   url!: string;
 

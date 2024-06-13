@@ -13,23 +13,33 @@ import {
   toCredentialsDTO,
   versionIdParam,
   VersionNumber,
-  VersionNumberParam
+  VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import {HttpStatus} from '@citrineos/base';
-import {Service} from 'typedi';
-import {ICredentialsModuleApi} from "./interface";
-import {CredentialsService} from "./credentials.service";
-import {Body, Delete, Get, JsonController, Post, Put,} from 'routing-controllers';
+import { HttpStatus } from '@citrineos/base';
+import { Service } from 'typedi';
+import { ICredentialsModuleApi } from './interface';
+import { CredentialsService } from './credentials.service';
+import {
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Post,
+  Put,
+} from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Credentials}`)
 @Service()
-export class CredentialsModuleApi extends BaseController implements ICredentialsModuleApi {
+export class CredentialsModuleApi
+  extends BaseController
+  implements ICredentialsModuleApi
+{
   constructor(
     readonly logger: OcpiLogger,
-    readonly credentialsService: CredentialsService
+    readonly credentialsService: CredentialsService,
   ) {
     super();
   }
@@ -42,7 +52,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_CREDENTIALS_RESPONSE
+        value: MOCK_CREDENTIALS_RESPONSE,
       },
     },
   })
@@ -51,8 +61,11 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     @AuthToken() token: string,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
-    const clientInformation = await this.credentialsService?.getClientInformation(token);
-    const credentialsDto = toCredentialsDTO(clientInformation.get({plain: true}));
+    const clientInformation =
+      await this.credentialsService?.getClientInformation(token);
+    const credentialsDto = toCredentialsDTO(
+      clientInformation.get({ plain: true }),
+    );
     return CredentialsResponse.build(credentialsDto);
   }
 
@@ -64,7 +77,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_CREDENTIALS_RESPONSE
+        value: MOCK_CREDENTIALS_RESPONSE,
       },
     },
   })
@@ -74,8 +87,14 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
-    const clientInformation = await this.credentialsService?.postCredentials(token, credentials, version);
-    return CredentialsResponse.build(toCredentialsDTO(clientInformation.get({plain: true})));
+    const clientInformation = await this.credentialsService?.postCredentials(
+      token,
+      credentials,
+      version,
+    );
+    return CredentialsResponse.build(
+      toCredentialsDTO(clientInformation.get({ plain: true })),
+    );
   }
 
   @Put()
@@ -86,7 +105,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_CREDENTIALS_RESPONSE
+        value: MOCK_CREDENTIALS_RESPONSE,
       },
     },
   })
@@ -96,7 +115,11 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
-    const clientInformation = await this.credentialsService?.putCredentials(token, credentials, version);
+    const clientInformation = await this.credentialsService?.putCredentials(
+      token,
+      credentials,
+      version,
+    );
     return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 
@@ -108,7 +131,7 @@ export class CredentialsModuleApi extends BaseController implements ICredentials
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_EMPTY
+        value: MOCK_EMPTY,
       },
     },
   })

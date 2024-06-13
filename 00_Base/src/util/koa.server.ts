@@ -1,15 +1,15 @@
-import Koa from "koa";
+import Koa from 'koa';
 import {
   getMetadataArgsStorage,
   MetadataArgsStorage,
   RoutingControllersOptions,
-  useKoaServer
-} from "routing-controllers";
-import {InfoObject, OpenAPIObject, ServerObject} from "openapi3-ts";
-import KoaLogger from "koa-logger";
-import {routingControllersToSpec} from "../openapi-spec-helper";
-import {getAllSchemas} from "../openapi-spec-helper/schemas";
-import {koaSwagger} from "koa2-swagger-ui";
+  useKoaServer,
+} from 'routing-controllers';
+import { InfoObject, OpenAPIObject, ServerObject } from 'openapi3-ts';
+import KoaLogger from 'koa-logger';
+import { routingControllersToSpec } from '../openapi-spec-helper';
+import { getAllSchemas } from '../openapi-spec-helper/schemas';
+import { koaSwagger } from 'koa2-swagger-ui';
 
 export class KoaServer {
   koa!: Koa;
@@ -17,7 +17,14 @@ export class KoaServer {
   storage!: MetadataArgsStorage;
   spec!: OpenAPIObject;
 
-  constructor() {
+  constructor() {}
+
+  public run(host: string, port: number) {
+    this.app.on('error', (err, _ctx) => {
+      console.log('Error intercepted by Koa:', err.message);
+    });
+    this.app.listen(port, host);
+    console.log(`Server started on port ${port}`);
   }
 
   protected initLogger() {
@@ -63,13 +70,5 @@ export class KoaServer {
         },
       }),
     );
-  }
-
-  public run(host: string, port: number) {
-    this.app.on('error', (err, _ctx) => {
-      console.log('Error intercepted by Koa:', err.message);
-    });
-    this.app.listen(port, host);
-    console.log(`Server started on port ${port}`);
   }
 }

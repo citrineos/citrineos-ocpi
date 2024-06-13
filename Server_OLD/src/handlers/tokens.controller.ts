@@ -1,16 +1,26 @@
-import {Body, Get, JsonController, Param, Patch, Put} from 'routing-controllers';
-import {Service} from 'typedi';
-import {BaseController, generateMockOcpiResponse} from './base.controller';
-import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {HttpStatus} from '@citrineos/base';
-import {Token, TokenResponse} from '../model/Token';
-import {TokenType} from '../model/TokenType';
-import {EnumQueryParam} from '../util/decorators/enum.query.param';
-import {ModuleId} from '../model/ModuleId';
-import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
-import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
-import {VersionNumber} from "../model/VersionNumber";
-import {ResponseSchema} from '../../../00_Base/src/openapi-spec-helper';
+import {
+  Body,
+  Get,
+  JsonController,
+  Param,
+  Patch,
+  Put,
+} from 'routing-controllers';
+import { Service } from 'typedi';
+import { BaseController, generateMockOcpiResponse } from './base.controller';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { HttpStatus } from '@citrineos/base';
+import { Token, TokenResponse } from '../model/Token';
+import { TokenType } from '../model/TokenType';
+import { EnumQueryParam } from '../util/decorators/enum.query.param';
+import { ModuleId } from '../model/ModuleId';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import {
+  versionIdParam,
+  VersionNumberParam,
+} from '../util/decorators/version.number.param';
+import { VersionNumber } from '../model/VersionNumber';
+import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 
 const MOCK_TOKEN = generateMockOcpiResponse(TokenResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
@@ -26,7 +36,7 @@ export class TokensController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_TOKEN
+        value: MOCK_TOKEN,
       },
     },
   })
@@ -49,7 +59,7 @@ export class TokensController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_EMPTY
+        value: MOCK_EMPTY,
       },
     },
   })
@@ -73,7 +83,7 @@ export class TokensController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_EMPTY
+        value: MOCK_EMPTY,
       },
     },
   })

@@ -1,14 +1,22 @@
-import {BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table} from "sequelize-typescript";
-import {VersionNumber} from "./VersionNumber";
-import {IsNotEmpty, IsString, IsUrl} from "class-validator";
-import {Enum} from "../util/decorators/enum";
-import {Exclude} from "class-transformer";
-import {Endpoint} from "./Endpoint";
-import {ClientInformation} from "./client.information";
-import {VersionDTO} from "./DTO/VersionDTO";
-import {VersionDetailsDTO} from "./DTO/VersionDetailsDTO";
-import {IVersion} from "./Version";
-import {ON_DELETE_CASCADE} from "../util/sequelize";
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { VersionNumber } from './VersionNumber';
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { Enum } from '../util/decorators/enum';
+import { Exclude } from 'class-transformer';
+import { Endpoint } from './Endpoint';
+import { ClientInformation } from './client.information';
+import { VersionDTO } from './DTO/VersionDTO';
+import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
+import { IVersion } from './Version';
+import { ON_DELETE_CASCADE } from '../util/sequelize';
 
 @Table
 export class ClientVersion extends Model implements IVersion {
@@ -19,7 +27,7 @@ export class ClientVersion extends Model implements IVersion {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   url!: string;
 
   @Exclude()

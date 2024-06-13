@@ -1,13 +1,12 @@
 'use strict';
-import {QueryInterface} from 'sequelize';
-import {ModuleId, VersionNumber} from '@citrineos/ocpi-base';
+import { QueryInterface } from 'sequelize';
+import { ModuleId, VersionNumber } from '@citrineos/ocpi-base';
 
 import 'reflect-metadata';
 
 /** @type {import('sequelize-cli').Migration} */
 export = {
   up: async (queryInterface: QueryInterface) => {
-
     const baseClientUrl = 'http://localhost:8085';
 
     const resetIndexes = async (tableName: string) => {
@@ -26,7 +25,7 @@ export = {
       ModuleId.Locations,
       ModuleId.Sessions,
       ModuleId.Tariffs,
-      ModuleId.Tokens
+      ModuleId.Tokens,
     ];
 
     try {
@@ -38,23 +37,23 @@ export = {
             createdAt: new Date(),
             updatedAt: new Date(),
             version: VersionNumber.TWO_DOT_TWO_DOT_ONE,
-            url: `${baseClientUrl}/ocpi/versions/2.2.1/`
+            url: `${baseClientUrl}/ocpi/versions/2.2.1/`,
           },
         ],
-        {returning: true} as any,
+        { returning: true } as any,
       );
       const version = versions[0];
       await resetIndexes('Versions');
       await queryInterface.bulkInsert(
         'VersionEndpoints',
-        moduleList.map(module => ({
+        moduleList.map((module) => ({
           createdAt: new Date(),
           updatedAt: new Date(),
           versionId: version.id,
           identifier: module,
           role: 'SENDER',
-          url: `${baseClientUrl}/ocpi/2.2.1/${module}/`
-        }))
+          url: `${baseClientUrl}/ocpi/2.2.1/${module}/`,
+        })),
       );
       await resetIndexes('VersionEndpoints');
       console.log('Data seeded successfully');
@@ -63,7 +62,7 @@ export = {
     }
   },
 
-  down: async (queryInterface: QueryInterface) => {
+  down: async (_queryInterface: QueryInterface) => {
     try {
       console.log('Data reverted successfully');
     } catch (error) {

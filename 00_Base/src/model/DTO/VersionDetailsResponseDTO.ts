@@ -1,7 +1,7 @@
-import {OcpiResponse, OcpiResponseStatusCode} from "../ocpi.response";
-import {IsNotEmpty, IsObject, ValidateNested} from "class-validator";
-import {Type} from "class-transformer";
-import {VersionDetailsDTO} from "./VersionDetailsDTO";
+import { OcpiResponse, OcpiResponseStatusCode } from '../ocpi.response';
+import { IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { VersionDetailsDTO } from './VersionDetailsDTO';
 
 export class VersionDetailsResponseDTO extends OcpiResponse<VersionDetailsDTO> {
   @IsObject()

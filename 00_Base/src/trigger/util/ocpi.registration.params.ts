@@ -1,5 +1,5 @@
-import {IsOptional, IsString} from 'class-validator';
-import {VersionNumber} from '../../model/VersionNumber';
+import { IsOptional, IsString } from 'class-validator';
+import { VersionNumber } from '../../model/VersionNumber';
 
 export class OcpiRegistrationParams {
   @IsString()
@@ -14,7 +14,6 @@ export class OcpiRegistrationParams {
   xCorrelationId?: string;
 
   version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
-
 }
 
 export const buildOcpiRegistrationParams = (
@@ -29,4 +28,4 @@ export const buildOcpiRegistrationParams = (
   params.xRequestId = xRequestId;
   params.xCorrelationId = xCorrelationId;
   return params;
-}
+};

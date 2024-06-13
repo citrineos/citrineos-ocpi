@@ -1,7 +1,7 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-import {QueryInterface} from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 /*
   NOTE: leaving as example, but the base Models / Tables should be created via `npm run sync-db`
@@ -10,7 +10,7 @@ import {QueryInterface} from 'sequelize';
   and only create custom migrations where one is needed
  */
 export = {
-  up: async (queryInterface: QueryInterface) => {
+  up: async (_queryInterface: QueryInterface) => {
     // await queryInterface.createTable('Versions', {
     //   version: {
     //     type: DataTypes.STRING,
@@ -70,7 +70,7 @@ export = {
     // });
   },
 
-  down: async (queryInterface: QueryInterface) => {
+  down: async (_queryInterface: QueryInterface) => {
     // await queryInterface.dropTable('Endpoints');
     // await queryInterface.dropTable('Versions');
   },

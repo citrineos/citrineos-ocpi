@@ -1,8 +1,11 @@
-import {IsNotEmpty, ValidateNested} from "class-validator";
-import {buildOcpiRegistrationParams, OcpiRegistrationParams} from "../../../../../00_Base/src/trigger/util/ocpi.registration.params";
-import {CredentialsDTO} from "../../../../../00_Base/src/model/DTO/CredentialsDTO";
-import {Type} from "class-transformer";
-import {VersionNumber} from "@citrineos/ocpi-base/dist/model/VersionNumber";
+import { IsNotEmpty, ValidateNested } from 'class-validator';
+import {
+  buildOcpiRegistrationParams,
+  OcpiRegistrationParams,
+} from '../../../../../00_Base/src/trigger/util/ocpi.registration.params';
+import { CredentialsDTO } from '../../../../../00_Base/src/model/DTO/CredentialsDTO';
+import { Type } from 'class-transformer';
+import { VersionNumber } from '@citrineos/ocpi-base/dist/model/VersionNumber';
 
 export class PostCredentialsParams extends OcpiRegistrationParams {
   @IsNotEmpty()
@@ -22,7 +25,7 @@ export const buildPostCredentialsParams = (
     version,
     authorization,
     xRequestId,
-    xCorrelationId
+    xCorrelationId,
   );
   (params as PostCredentialsParams).credentials = credentials;
   return params as PostCredentialsParams;

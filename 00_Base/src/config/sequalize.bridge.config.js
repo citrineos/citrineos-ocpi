@@ -1,11 +1,11 @@
 require('ts-node/register');
 require('tsconfig-paths/register');
-const {OcpiServerConfig} = require('./ocpi.server.config.ts');
+const { OcpiServerConfig } = require('./ocpi.server.config.ts');
 
 //TODO eliminate this file and use the typescript file directly
 
 const ocpiConfig = new OcpiServerConfig();
-const {host, port, database, dialect, username, password, storage} =
+const { host, port, database, dialect, username, password, storage } =
   ocpiConfig.data.sequelize;
 
 module.exports = {
@@ -16,5 +16,5 @@ module.exports = {
   port,
   dialect,
   storage,
-  logging: true
+  logging: true,
 };

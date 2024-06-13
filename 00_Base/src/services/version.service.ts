@@ -1,19 +1,16 @@
-import {VersionRepository} from '../repository/version.repository';
-import {Version,} from '../model/Version';
-import {OcpiNamespace} from '../util/ocpi.namespace';
-import {VersionNumber} from '../model/VersionNumber';
-import {Service} from 'typedi';
-import {NotFoundError} from "routing-controllers";
-import {VersionDetailsResponseDTO} from "../model/DTO/VersionDetailsResponseDTO";
-import {VersionListResponseDTO} from "../model/DTO/VersionListResponseDTO";
-import {VersionEndpoint} from "../model/VersionEndpoint";
+import { VersionRepository } from '../repository/version.repository';
+import { Version } from '../model/Version';
+import { OcpiNamespace } from '../util/ocpi.namespace';
+import { VersionNumber } from '../model/VersionNumber';
+import { Service } from 'typedi';
+import { NotFoundError } from 'routing-controllers';
+import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
+import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
+import { VersionEndpoint } from '../model/VersionEndpoint';
 
 @Service()
 export class VersionService {
-  constructor(
-    private versionRepository: VersionRepository,
-  ) {
-  }
+  constructor(private versionRepository: VersionRepository) {}
 
   async getVersions(): Promise<VersionListResponseDTO> {
     const versions: Version[] = await this.versionRepository.readAllByQuery({});
@@ -29,11 +26,9 @@ export class VersionService {
       await this.versionRepository.readOnlyOneByQuery(
         {
           where: {
-            version: version
+            version: version,
           },
-          include: [
-            VersionEndpoint
-          ],
+          include: [VersionEndpoint],
         },
         OcpiNamespace.Version,
       );

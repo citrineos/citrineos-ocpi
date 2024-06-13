@@ -1,6 +1,6 @@
-import {IsNotEmpty, IsString, IsUrl} from "class-validator";
-import {Enum} from "../../util/decorators/enum";
-import {VersionNumber} from "../VersionNumber";
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { Enum } from '../../util/decorators/enum';
+import { VersionNumber } from '../VersionNumber';
 
 export class VersionDTO {
   @IsNotEmpty()
@@ -8,6 +8,6 @@ export class VersionDTO {
   version!: VersionNumber;
 
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   url!: string;
 }

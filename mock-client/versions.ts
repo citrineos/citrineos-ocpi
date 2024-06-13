@@ -1,5 +1,5 @@
-import {Get, JsonController} from 'routing-controllers';
-import {Service} from 'typedi';
+import { Get, JsonController } from 'routing-controllers';
+import { Service } from 'typedi';
 import {
   AsOcpiRegistrationEndpoint,
   BaseController,
@@ -12,9 +12,9 @@ import {
   VersionDetailsResponseDTO,
   VersionListResponseDTO,
   VersionNumber,
-  VersionNumberParam
+  VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import {HttpStatus} from '@citrineos/base';
+import { HttpStatus } from '@citrineos/base';
 
 const VERSION_LIST_MOCK = generateMockOcpiResponse(VersionListResponseDTO); // todo create real mocks for tests
 const VERSION_DETAILS_MOCK = generateMockOcpiResponse(

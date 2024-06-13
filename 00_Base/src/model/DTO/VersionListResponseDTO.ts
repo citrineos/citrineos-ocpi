@@ -1,11 +1,11 @@
-import {OcpiResponse, OcpiResponseStatusCode} from "../ocpi.response";
-import {IsArray, ValidateNested} from "class-validator";
-import {Type} from "class-transformer";
-import {VersionDTO} from "./VersionDTO";
+import { OcpiResponse, OcpiResponseStatusCode } from '../ocpi.response';
+import { IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { VersionDTO } from './VersionDTO';
 
 export class VersionListResponseDTO extends OcpiResponse<VersionDTO[]> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @Type(() => VersionDTO)
   data!: VersionDTO[];
 

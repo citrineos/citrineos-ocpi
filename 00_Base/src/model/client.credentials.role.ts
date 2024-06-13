@@ -1,16 +1,25 @@
-import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table} from "sequelize-typescript";
-import {Role} from "./Role";
-import {ICredentialsRole} from "./BaseCredentialsRole";
-import {IsNotEmpty, IsString, Length} from "class-validator";
-import {ClientInformation} from "./client.information";
-import {CpoTenant} from "./cpo.tenant";
-import {BusinessDetails, toBusinessDetailsDTO} from "./BusinessDetails";
-import {Exclude, plainToInstance} from "class-transformer";
-import {ON_DELETE_CASCADE} from "../util/sequelize";
-import {CredentialsRoleDTO} from "./DTO/CredentialsRoleDTO";
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
+import { Role } from './Role';
+import { ICredentialsRole } from './BaseCredentialsRole';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { ClientInformation } from './client.information';
+import { CpoTenant } from './cpo.tenant';
+import { BusinessDetails, toBusinessDetailsDTO } from './BusinessDetails';
+import { Exclude, plainToInstance } from 'class-transformer';
+import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
 
 @Table
-export class ClientCredentialsRole extends Model implements ICredentialsRole { // todo seems like CredentialsRole base may be better fit as an interface
+export class ClientCredentialsRole extends Model implements ICredentialsRole {
+  // todo seems like CredentialsRole base may be better fit as an interface
   @Column(DataType.ENUM(Role.EMSP))
   role = Role.EMSP;
 
@@ -50,11 +59,10 @@ export class ClientCredentialsRole extends Model implements ICredentialsRole { /
   @BelongsTo(() => CpoTenant)
   cpoTenant!: CpoTenant;
 
-
   static buildClientCredentialsRole(
     countryCode: string,
     partyId: string,
-    businessDetails: BusinessDetails
+    businessDetails: BusinessDetails,
   ) {
     const clientCredentialsRole = new ClientCredentialsRole();
     clientCredentialsRole.country_code = countryCode;
@@ -65,16 +73,17 @@ export class ClientCredentialsRole extends Model implements ICredentialsRole { /
 }
 
 export const toCredentialsRoleDTO = (
-  clientCredentialsRole: ClientCredentialsRole
+  clientCredentialsRole: ClientCredentialsRole,
 ): CredentialsRoleDTO => {
   const credentialsRoleDTO = new CredentialsRoleDTO();
   credentialsRoleDTO.role = clientCredentialsRole.role;
   credentialsRoleDTO.party_id = clientCredentialsRole.party_id;
   credentialsRoleDTO.country_code = clientCredentialsRole.country_code;
-  credentialsRoleDTO.business_details = toBusinessDetailsDTO(clientCredentialsRole.business_details);
+  credentialsRoleDTO.business_details = toBusinessDetailsDTO(
+    clientCredentialsRole.business_details,
+  );
   return credentialsRoleDTO;
-}
+};
 
-export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any => {
-  return plainToInstance(ClientCredentialsRole, role);
-}
+export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any =>
+  plainToInstance(ClientCredentialsRole, role);

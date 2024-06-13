@@ -1,17 +1,24 @@
-import {Get, JsonController} from '@citrineos/ocpi-base';
-import {BaseController, generateMockOcpiPaginatedResponse, generateMockOcpiResponse,} from './base.controller';
-import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {HttpStatus} from '@citrineos/base';
-import {LocationResponse, PaginatedLocationResponse} from '../model/Location';
-import {EvseResponse} from '../model/Evse';
-import {ConnectorResponse} from '../model/Connector';
-import {Service} from 'typedi';
-import {PaginatedParams} from './param/paginated.params';
-import {Paginated} from '../util/decorators/paginated';
-import {ModuleId} from '../model/ModuleId';
-import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
-import {VersionNumber} from "../model/VersionNumber";
-import {ResponseSchema} from '../../../00_Base/src/openapi-spec-helper';
+import { Get, JsonController } from '@citrineos/ocpi-base';
+import {
+  BaseController,
+  generateMockOcpiPaginatedResponse,
+  generateMockOcpiResponse,
+} from './base.controller';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { HttpStatus } from '@citrineos/base';
+import { LocationResponse, PaginatedLocationResponse } from '../model/Location';
+import { EvseResponse } from '../model/Evse';
+import { ConnectorResponse } from '../model/Connector';
+import { Service } from 'typedi';
+import { PaginatedParams } from './param/paginated.params';
+import { Paginated } from '../util/decorators/paginated';
+import { ModuleId } from '../model/ModuleId';
+import {
+  versionIdParam,
+  VersionNumberParam,
+} from '../util/decorators/version.number.param';
+import { VersionNumber } from '../model/VersionNumber';
+import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -32,7 +39,7 @@ export class LocationsController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_PAGINATED_LOCATION
+        value: MOCK_PAGINATED_LOCATION,
       },
     },
   })
@@ -52,7 +59,7 @@ export class LocationsController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_LOCATION
+        value: MOCK_LOCATION,
       },
     },
   })
@@ -72,7 +79,7 @@ export class LocationsController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_EVSE
+        value: MOCK_EVSE,
       },
     },
   })
@@ -93,7 +100,7 @@ export class LocationsController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK_CONNECTOR
+        value: MOCK_CONNECTOR,
       },
     },
   })

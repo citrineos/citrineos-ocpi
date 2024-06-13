@@ -1,12 +1,11 @@
-import {HasMany, Model, Table} from "sequelize-typescript";
-import {ClientInformation} from "./client.information";
-import {ServerCredentialsRole} from "./server.credentials.role";
-import {Exclude} from "class-transformer";
-import {ON_DELETE_CASCADE} from "../util/sequelize";
+import { HasMany, Model, Table } from 'sequelize-typescript';
+import { ClientInformation } from './client.information';
+import { ServerCredentialsRole } from './server.credentials.role';
+import { Exclude } from 'class-transformer';
+import { ON_DELETE_CASCADE } from '../util/sequelize';
 
 @Table
 export class CpoTenant extends Model {
-
   @Exclude()
   @HasMany(() => ServerCredentialsRole, {
     onDelete: ON_DELETE_CASCADE,
@@ -21,7 +20,7 @@ export class CpoTenant extends Model {
 
   static buildCpoTenant(
     serverCredentialsRoles: ServerCredentialsRole[],
-    clientInformation: ClientInformation[]
+    clientInformation: ClientInformation[],
   ) {
     const cpoTenant = new CpoTenant();
     cpoTenant.serverCredentialsRoles = serverCredentialsRoles;

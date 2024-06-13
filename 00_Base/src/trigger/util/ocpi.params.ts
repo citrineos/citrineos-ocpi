@@ -1,5 +1,5 @@
-import {IsNotEmpty, IsString, Length} from 'class-validator';
-import {OcpiRegistrationParams} from "./ocpi.registration.params";
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { OcpiRegistrationParams } from './ocpi.registration.params';
 
 export class OcpiParams extends OcpiRegistrationParams {
   @IsString()

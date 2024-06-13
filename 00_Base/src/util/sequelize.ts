@@ -1,19 +1,19 @@
-import {Sequelize} from 'sequelize-typescript';
-import {ILogObj, Logger} from 'tslog';
-import {Dialect} from 'sequelize';
-import {OcpiServerConfig} from '../config/ocpi.server.config';
-import {Service} from 'typedi';
-import {Endpoint} from '../model/Endpoint';
-import {ClientInformation} from "../model/client.information";
-import {CpoTenant} from "../model/cpo.tenant";
-import {BusinessDetails} from "../model/BusinessDetails";
-import {ClientCredentialsRole} from "../model/client.credentials.role";
-import {ServerCredentialsRole} from "../model/server.credentials.role";
-import {Image} from "../model/Image";
-import {ClientVersion} from "../model/client.version";
-import {ServerVersion} from "../model/server.version";
-import {Version} from "../model/Version";
-import {VersionEndpoint} from "../model/VersionEndpoint";
+import { Sequelize } from 'sequelize-typescript';
+import { ILogObj, Logger } from 'tslog';
+import { Dialect } from 'sequelize';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
+import { Service } from 'typedi';
+import { Endpoint } from '../model/Endpoint';
+import { ClientInformation } from '../model/client.information';
+import { CpoTenant } from '../model/cpo.tenant';
+import { BusinessDetails } from '../model/BusinessDetails';
+import { ClientCredentialsRole } from '../model/client.credentials.role';
+import { ServerCredentialsRole } from '../model/server.credentials.role';
+import { Image } from '../model/Image';
+import { ClientVersion } from '../model/client.version';
+import { ServerVersion } from '../model/server.version';
+import { Version } from '../model/Version';
+import { VersionEndpoint } from '../model/VersionEndpoint';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -49,7 +49,7 @@ export class OcpiSequelizeInstance {
         ServerVersion,
         Endpoint,
         Version,
-        VersionEndpoint
+        VersionEndpoint,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
@@ -58,11 +58,11 @@ export class OcpiSequelizeInstance {
     });
 
     if (config.data.sequelize.alter) {
-      this.sequelize.sync({alter: true}).then(() => {
+      this.sequelize.sync({ alter: true }).then(() => {
         sequelizeLogger.info('Database altered');
       });
     } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({force: true}).then(() => {
+      this.sequelize.sync({ force: true }).then(() => {
         sequelizeLogger.info('Database synchronized');
       });
     }

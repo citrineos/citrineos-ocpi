@@ -1,12 +1,23 @@
 import 'reflect-metadata';
-import {CommandsModule} from "@citrineos/ocpi-commands";
-import {VersionsModule} from "@citrineos/ocpi-versions";
-import {OcpiModuleConfig, OcpiServer} from "@citrineos/ocpi-base";
-import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
-import {MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache} from "@citrineos/util";
-import {type ILogObj, Logger} from 'tslog';
-import {createLocalConfig} from "./config";
-import {CredentialsModule} from "@citrineos/ocpi-credentials";
+import { CommandsModule } from '@citrineos/ocpi-commands';
+import { VersionsModule } from '@citrineos/ocpi-versions';
+import { OcpiModuleConfig, OcpiServer } from '@citrineos/ocpi-base';
+import {
+  EventGroup,
+  ICache,
+  IMessageHandler,
+  IMessageSender,
+  SystemConfig,
+} from '@citrineos/base';
+import {
+  MemoryCache,
+  RabbitMqReceiver,
+  RabbitMqSender,
+  RedisCache,
+} from '@citrineos/util';
+import { type ILogObj, Logger } from 'tslog';
+import { createLocalConfig } from './config';
+import { CredentialsModule } from '@citrineos/ocpi-credentials';
 
 class CitrineOSServer {
   private readonly cache: ICache;
@@ -15,7 +26,7 @@ class CitrineOSServer {
 
   constructor() {
     this.config = createLocalConfig();
-    this.cache = this.initCache()
+    this.cache = this.initCache();
     this.logger = this.initLogger();
 
     const ocpiServer = new OcpiServer(this.getConfig());
@@ -51,9 +62,9 @@ class CitrineOSServer {
         EventGroup.Commands,
         this.logger,
       ),
-    ]
+    ];
 
-    return config
+    return config;
   }
 
   protected _createSender(): IMessageSender {
@@ -65,21 +76,20 @@ class CitrineOSServer {
   }
 
   private initCache(): ICache {
-    return (
-      this.config.util.cache.redis
-        ? new RedisCache({
+    return this.config.util.cache.redis
+      ? new RedisCache({
           socket: {
             host: this.config.util.cache.redis.host,
             port: this.config.util.cache.redis.port,
           },
         })
-        : new MemoryCache());
+      : new MemoryCache();
   }
 
   private initLogger() {
     return new Logger<ILogObj>({
       name: 'CitrineOS Logger',
-      minLevel: this.config.logLevel
+      minLevel: this.config.logLevel,
     });
   }
 }

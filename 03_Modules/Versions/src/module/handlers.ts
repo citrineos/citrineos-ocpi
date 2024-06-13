@@ -5,17 +5,14 @@
 
 import {
   AbstractModule,
-  CallAction, EventGroup,
+  CallAction,
+  EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
-import {
-  RabbitMqReceiver,
-  RabbitMqSender,
-  Timer,
-} from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 
@@ -26,10 +23,8 @@ export class VersionsOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [
-  ];
-  protected _responses: CallAction[] = [
-  ];
+  protected _requests: CallAction[] = [];
+  protected _responses: CallAction[] = [];
 
   /**
    * This is the constructor function that initializes the {@link VersionsOcppHandlers}.

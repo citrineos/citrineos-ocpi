@@ -1,7 +1,12 @@
-import {Service} from 'typedi';
+import { Service } from 'typedi';
 import Koa from 'koa';
-import {VersionsController} from './versions';
-import {GlobalExceptionHandler, KoaServer, LoggingMiddleware, OcpiSequelizeInstance} from "@citrineos/ocpi-base";
+import { VersionsController } from './versions';
+import {
+  GlobalExceptionHandler,
+  KoaServer,
+  LoggingMiddleware,
+  OcpiSequelizeInstance,
+} from '@citrineos/ocpi-base';
 
 @Service()
 export class EmspServer extends KoaServer {
@@ -16,12 +21,17 @@ export class EmspServer extends KoaServer {
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
       });
-      this.initKoaSwagger({
-        title: 'CitrineOS EMSP OCPI 2.2.1 MOCK',
-        version: '1.0.0',
-      }, [{
-        url: '/ocpi',
-      }]);
+      this.initKoaSwagger(
+        {
+          title: 'CitrineOS EMSP OCPI 2.2.1 MOCK',
+          version: '1.0.0',
+        },
+        [
+          {
+            url: '/ocpi',
+          },
+        ],
+      );
       this.run('localhost', 8086);
     } catch (error) {
       console.error(error);

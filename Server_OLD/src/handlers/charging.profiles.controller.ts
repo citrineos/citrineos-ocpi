@@ -1,17 +1,20 @@
-import {Body, JsonController, Param, Post, Put} from '@citrineos/ocpi-base';
-import {BaseController, generateMockOcpiResponse} from './base.controller';
-import {HttpStatus} from '@citrineos/base';
-import {ActiveChargingProfileResult} from '../model/ActiveChargingProfileResult';
-import {ActiveChargingProfile} from '../model/ActiveChargingProfile';
-import {OcpiEmptyResponse} from '../model/ocpi.empty.response';
-import {AsOcpiFunctionalEndpoint} from '../util/decorators/as.ocpi.functional.endpoint';
-import {ClearChargingProfileResult} from '../model/ChargingprofilesClearProfileResult';
-import {ChargingProfileResult} from '../model/ChargingProfileResult';
-import {Service} from 'typedi';
-import {ModuleId} from '../model/ModuleId';
-import {versionIdParam, VersionNumberParam} from "../util/decorators/version.number.param";
-import {VersionNumber} from "../model/VersionNumber";
-import {ResponseSchema} from '../../../00_Base/src/openapi-spec-helper';
+import { Body, JsonController, Param, Post, Put } from '@citrineos/ocpi-base';
+import { BaseController, generateMockOcpiResponse } from './base.controller';
+import { HttpStatus } from '@citrineos/base';
+import { ActiveChargingProfileResult } from '../model/ActiveChargingProfileResult';
+import { ActiveChargingProfile } from '../model/ActiveChargingProfile';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
+import { ChargingProfileResult } from '../model/ChargingProfileResult';
+import { Service } from 'typedi';
+import { ModuleId } from '../model/ModuleId';
+import {
+  versionIdParam,
+  VersionNumberParam,
+} from '../util/decorators/version.number.param';
+import { VersionNumber } from '../model/VersionNumber';
+import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 
 const MOCK = generateMockOcpiResponse(OcpiEmptyResponse);
 
@@ -26,7 +29,7 @@ export class ChargingProfilesController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK
+        value: MOCK,
       },
     },
   })
@@ -34,7 +37,7 @@ export class ChargingProfilesController extends BaseController {
     @VersionNumberParam() _version: VersionNumber,
     @Param('id') _id: string,
     @Body()
-      _activeChargingProfileResult:
+    _activeChargingProfileResult:
       | ActiveChargingProfileResult
       | ChargingProfileResult
       | ClearChargingProfileResult,
@@ -50,7 +53,7 @@ export class ChargingProfilesController extends BaseController {
     examples: {
       success: {
         summary: 'A successful response',
-        value: MOCK
+        value: MOCK,
       },
     },
   })
