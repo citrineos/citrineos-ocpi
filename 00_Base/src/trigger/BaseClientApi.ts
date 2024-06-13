@@ -18,7 +18,7 @@ export class MissingRequiredParamException extends Error {
 }
 
 export interface TriggerRequestOptions extends IRequestOptions {
-  version: VersionNumber;
+  version?: VersionNumber;
   path?: string;
 }
 

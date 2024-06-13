@@ -60,7 +60,7 @@ export class CredentialsModule extends AbstractModule {
       cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
-      EventGroup.Commands,
+      EventGroup.Credentials,
       logger,
     );
 

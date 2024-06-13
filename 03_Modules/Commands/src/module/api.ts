@@ -3,28 +3,37 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ICommandsModuleApi } from './interface';
 
-import {Body, Controller, Post, useKoaServer} from 'routing-controllers';
-import { HttpStatus } from '@citrineos/base';
-import {BaseController, CommandsService, generateMockOcpiResponse} from '@citrineos/ocpi-base';
-import { CommandType } from '@citrineos/ocpi-base';
-import { CancelReservation } from '@citrineos/ocpi-base';
-import { ReserveNow } from '@citrineos/ocpi-base';
-import { StartSession } from '@citrineos/ocpi-base';
-import { StopSession } from '@citrineos/ocpi-base';
-import { UnlockConnector } from '@citrineos/ocpi-base';
-import { OcpiCommandResponse } from '@citrineos/ocpi-base';
-import { ModuleId } from '@citrineos/ocpi-base';
+import {ICommandsModuleApi} from './interface';
 
-import { AsOcpiFunctionalEndpoint } from '@citrineos/ocpi-base';
-import { MultipleTypes } from '@citrineos/ocpi-base';
-import { EnumParam } from '@citrineos/ocpi-base';
-import { ResponseSchema } from '@citrineos/ocpi-base';
+import {BadRequestError, Body, Controller, Post} from 'routing-controllers';
 
-import { Service } from 'typedi';
+import {plainToInstance} from 'class-transformer';
 
-import Koa from 'koa';
+import {validate} from 'class-validator';
+
+import {HttpStatus} from '@citrineos/base';
+import {
+    AsOcpiFunctionalEndpoint,
+    BaseController,
+    CancelReservation,
+    CommandsService,
+    CommandType,
+    EnumParam,
+    generateMockOcpiResponse,
+    ModuleId,
+    MultipleTypes,
+    NotFoundException,
+    ReserveNow,
+    ResponseSchema,
+    StartSession,
+    StopSession,
+    UnlockConnector,
+    OcpiResponse,
+    CommandResponse
+} from '@citrineos/ocpi-base';
+
+import {Service} from 'typedi';
 
 /**
  * Server API for the provisioning component.
@@ -38,11 +47,11 @@ export class CommandsModuleApi extends BaseController implements ICommandsModule
 
     @Post('/:commandType')
     @AsOcpiFunctionalEndpoint()
-    @ResponseSchema(OcpiCommandResponse, {
+    @ResponseSchema(OcpiResponse<CommandResponse>, {
         statusCode: HttpStatus.OK,
         description: 'Successful response',
         examples: {
-            success: generateMockOcpiResponse(OcpiCommandResponse),
+            success: generateMockOcpiResponse(OcpiResponse<CommandResponse>),
         },
     })
     async postCommand(
@@ -62,9 +71,39 @@ export class CommandsModuleApi extends BaseController implements ICommandsModule
             | StartSession
             | StopSession
             | UnlockConnector,
-    ): Promise<OcpiCommandResponse> {
+    ): Promise<OcpiResponse<CommandResponse>> {
         console.log('postCommand', _commandType, _payload);
-        // return this.commandsService.postCommand(_commandType, _payload);
+        switch (_commandType) {
+            case CommandType.CANCEL_RESERVATION: {
+                _payload = plainToInstance(CancelReservation, _payload);
+                break;
+            }
+            case CommandType.RESERVE_NOW: {
+                _payload = plainToInstance(ReserveNow, _payload);
+                break;
+            }
+            case CommandType.START_SESSION: {
+                _payload = plainToInstance(StartSession, _payload);
+                break;
+            }
+            case CommandType.STOP_SESSION: {
+                _payload = plainToInstance(StopSession, _payload);
+                break;
+            }
+            case CommandType.UNLOCK_CONNECTOR: {
+                _payload = plainToInstance(UnlockConnector, _payload);
+                break;
+            }
+            default: {
+                throw new BadRequestError("Unknown command type: " + _commandType);
+            }
+        }
+
+        await validate(_payload).then(errors => {
+            if (errors.length > 0) {
+                throw new BadRequestError("Validation failed: " + errors);
+            }
+        });
         return this.commandsService.postCommand(_commandType, _payload);
     }
 }

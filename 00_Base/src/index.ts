@@ -23,6 +23,8 @@ export { VersionDTOListResponse } from './model/Version'
 export { VersionDetailsDTO, VersionDTO } from './model/Version'
 export { OcpiResponse } from './model/ocpi.response'
 export { IOcpiModule } from './model/IOcpiModule'
+export { CommandResponse } from './model/CommandResponse'
+
 export { VersionRepository } from './repository/version.repository'
 export { CredentialsRepository } from './repository/credentials.repository'
 
@@ -43,10 +45,13 @@ export { LoggingMiddleware } from './util/middleware/logging.middleware'
 export { ResponseSchema } from './openapi-spec-helper/decorators'
 
 export { BaseClientApi } from './trigger/BaseClientApi'
+export { CommandsClientApi } from './trigger/CommandsClientApi'
 
 export { CommandsService } from './services/commands.service'
 export { CredentialsService } from './services/credentials.service'
 export { VersionService } from './services/version.service'
+
+export { ResponseUrlRepository } from './repository/response-url.repository'
 
 import { Container } from 'typedi';
 import {useContainer, useKoaServer} from 'routing-controllers';

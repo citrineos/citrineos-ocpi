@@ -4,14 +4,14 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { CommandsModuleApi } from "./module/api";
-import {IOcpiModule} from '@citrineos/ocpi-base';
+import {CommandsClientApi, IOcpiModule, ResponseUrlRepository} from '@citrineos/ocpi-base';
 import {
     AbstractModule, CallAction, EventGroup,
     ICache,
     IMessageHandler,
     IMessageSender,
     SystemConfig
-} from "../../../../citrineos-core/00_Base";
+} from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
 import deasyncPromise from "deasync-promise";
 
@@ -21,14 +21,19 @@ export { ICommandsModuleApi } from './module/interface';
 
 import {Container} from 'typedi';
 import {useContainer} from 'routing-controllers';
-import {sequelize} from "@citrineos/data";
+import {MeterValue, sequelize, Transaction} from "@citrineos/data";
 
 useContainer(Container);
 
 import { CommandsOcppHandlers } from './module/handlers';
+import {OcppClient} from "@citrineos/ocpi-base";
+import {
+    Evse,
+    SequelizeTransactionEventRepository,
+    TransactionEvent
+} from "../../../../citrineos-core/01_Data/src/layers/sequelize";
 
 export class CommandsModule implements IOcpiModule {
-
     constructor(
         config: SystemConfig,
         cache: ICache,
@@ -37,12 +42,23 @@ export class CommandsModule implements IOcpiModule {
         eventGroup: EventGroup,
         logger?: Logger<ILogObj>,
     ) {
-        new CommandsOcppHandlers(
-            config,
-            cache,
-            sender,
-            handler,
-            logger
+
+        Container.set(
+            AbstractModule,
+            new CommandsOcppHandlers(
+                config,
+                cache,
+                Container.get(ResponseUrlRepository),
+                Container.get(CommandsClientApi),
+                sender,
+                handler,
+                logger
+            )
+        );
+
+        Container.set(
+            SequelizeTransactionEventRepository,
+            new SequelizeTransactionEventRepository(config, logger)
         );
     }
 
