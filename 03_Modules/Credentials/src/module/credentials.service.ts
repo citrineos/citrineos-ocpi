@@ -74,28 +74,43 @@ export class CredentialsService {
     }
     const freshVersionDetails = await this.getClientVersionDetails(clientInformation, version, credentials);
     const newToken = uuidv4();
-    const clientInformationList = await this.clientInformationRepository.updateAllByQuery({
-      clientToken: newToken,
-      registered: true,
-      clientVersionDetails: [
-        ...clientInformation.clientVersionDetails.filter(
-          (versionDetails: ClientVersion) => versionDetails.version !== version
-        ),
-        freshVersionDetails
-      ]
-    }, {
-      where: {
-        clientToken: token
-      },
-    });
-    if (clientInformationList) { // todo use update one by query which should return one item
-      clientInformation = clientInformationList[0];
-      if (clientInformation) {
-        // todo would be great if we can just return response from DB update, but it does not include reference fields and `include` is not possible like in the `read`
-        return this.getClientInformation(newToken);
-      }
+    clientInformation.clientToken = newToken;
+    clientInformation.registered = true;
+    clientInformation.clientVersionDetails = [
+      ...clientInformation.clientVersionDetails.filter(
+        (versionDetails: ClientVersion) => versionDetails.version !== version
+      ),
+      freshVersionDetails
+    ];
+    clientInformation = await clientInformation.save();
+    if (clientInformation) {
+      return clientInformation;
     }
     throw new InternalServerError('Could not update client information');
+
+    // const update = {
+    //   clientToken: newToken,
+    //   registered: true,
+    //   clientVersionDetails: [
+    //     ...clientInformation.clientVersionDetails.filter(
+    //       (versionDetails: ClientVersion) => versionDetails.version !== version
+    //     ),
+    //     freshVersionDetails
+    //   ]
+    // };
+    // const clientInformationList = await this.clientInformationRepository.updateAllByQuery(update, {
+    //   where: {
+    //     clientToken: token
+    //   },
+    // });
+    // if (clientInformationList) { // todo use update one by query which should return one item
+    //   clientInformation = clientInformationList[0];
+    //   if (clientInformation) {
+    //     // todo would be great if we can just return response from DB update, but it does not include reference fields and `include` is not possible like in the `read`
+    //     return this.getClientInformation(newToken);
+    //   }
+    // }
+    // throw new InternalServerError('Could not update client information');
   }
 
   async putCredentials(
@@ -119,8 +134,8 @@ export class CredentialsService {
         OcpiNamespace.Credentials,
       );
       return;
-    } catch (e) {
-      throw new Error('todo'); // todo error handling
+    } catch (e: any) {
+      throw new InternalServerError(`Could not delete credentials, ${e.message}`); // todo error handling
     }
   }
 
@@ -133,20 +148,40 @@ export class CredentialsService {
     if (invalidClientCredentialsRoles(credentials.roles)) {
       throw new BadRequestError('Invalid client credentials roles, must be EMSP');
     }
-    const clientInformationList = await this.clientInformationRepository.updateAllByQuery({ // todo need to use update one by query so that one item is returned
-        clientCredentialsRoles: credentials.roles as ClientCredentialsRole[],
-        clientVersionDetails: [
-          ...clientInformation.clientVersionDetails.filter((versionDetails: ClientVersion) => versionDetails.version !== freshVersionDetails.version),
-          freshVersionDetails
-        ]
-      }, {
-        where: {
-          clientToken: token,
-        },
-      },
-      OcpiNamespace.Credentials,
-    );
-    return clientInformationList[0];
+    if (!clientInformation.registered) {
+      throw new BadRequestError('Client is not registered');
+    }
+    clientInformation.clientVersionDetails = [
+      ...clientInformation.clientVersionDetails.filter((versionDetails: ClientVersion) => versionDetails.version !== freshVersionDetails.version),
+      freshVersionDetails
+    ];
+    clientInformation = await clientInformation.save();
+    if (clientInformation) {
+      return clientInformation;
+    }
+    throw new InternalServerError('Could not update credentials');
+    /* const update = { // todo need to use update one by query so that one item is returned
+       // clientCredentialsRoles: credentials.roles.map(role => fromCredentialsRoleDTO(role)),
+       clientVersionDetails: [
+         ...clientInformation.clientVersionDetails.filter((versionDetails: ClientVersion) => versionDetails.version !== freshVersionDetails.version),
+         freshVersionDetails
+       ]
+     };
+     const clientInformationList = await this.clientInformationRepository.updateAllByQuery(
+       update, {
+         where: {
+           clientToken: token,
+         },
+       }
+     );
+     if (clientInformationList) { // todo use update one by query which should return one item
+       clientInformation = clientInformationList[0];
+       if (clientInformation) {
+         // todo would be great if we can just return response from DB update, but it does not include reference fields and `include` is not possible like in the `read`
+         return this.getClientInformation(token);
+       }
+     }
+     throw new InternalServerError('Could not update credentials');*/
   }
 
   private async getClientVersionDetails(

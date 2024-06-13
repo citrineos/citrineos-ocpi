@@ -5,7 +5,7 @@ import {IsNotEmpty, IsString, Length} from "class-validator";
 import {ClientInformation} from "./client.information";
 import {CpoTenant} from "./cpo.tenant";
 import {BusinessDetails, toBusinessDetailsDTO} from "./BusinessDetails";
-import {Exclude} from "class-transformer";
+import {Exclude, plainToInstance} from "class-transformer";
 import {ON_DELETE_CASCADE} from "../util/sequelize";
 import {CredentialsRoleDTO} from "./DTO/CredentialsRoleDTO";
 
@@ -73,4 +73,8 @@ export const toCredentialsRoleDTO = (
   credentialsRoleDTO.country_code = clientCredentialsRole.country_code;
   credentialsRoleDTO.business_details = toBusinessDetailsDTO(clientCredentialsRole.business_details);
   return credentialsRoleDTO;
+}
+
+export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any => {
+  return plainToInstance(ClientCredentialsRole, role);
 }

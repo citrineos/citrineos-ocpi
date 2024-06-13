@@ -1,8 +1,9 @@
 import {Enum} from "../../util/decorators/enum";
 import {Role} from "../Role";
 import {IsNotEmpty, IsString, Length, ValidateNested} from "class-validator";
-import {Type} from "class-transformer";
+import {plainToInstance, Type} from "class-transformer";
 import {BusinessDetailsDTO} from "./BusinessDetailsDTO";
+import {ClientCredentialsRole} from "../client.credentials.role";
 
 export class CredentialsRoleDTO {
   @Enum(Role, 'Role')
