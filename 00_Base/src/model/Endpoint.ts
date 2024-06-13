@@ -79,11 +79,11 @@ export class Endpoint extends Model {
     role: InterfaceRole,
     url: string,
   ): Endpoint {
-    const endpoint = new Endpoint();
-    endpoint.identifier = identifier;
-    endpoint.role = role;
-    endpoint.url = url;
-    return endpoint;
+    return Endpoint.build({
+      identifier,
+      role,
+      url,
+    });
   }
 
   public toEndpointDTO(): EndpointDTO {

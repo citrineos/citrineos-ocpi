@@ -102,7 +102,7 @@ export const toCredentialsDTO = (
   clientInformation: ClientInformation,
 ): CredentialsDTO => {
   const credentials = new CredentialsDTO();
-  credentials.token = clientInformation.clientToken;
+  credentials.token = clientInformation.serverToken;
   const credentialsEndpoint = getClientVersionDetailsByModuleId(
     clientInformation,
     ModuleId.Credentials,

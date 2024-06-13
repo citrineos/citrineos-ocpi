@@ -71,3 +71,14 @@ export const toImageDTO = (image: Image) => {
   imageDTO.height = image.height;
   return imageDTO;
 };
+
+export const fromImageDTO = (imageDTO: ImageDTO) => {
+  return Image.build({
+    url: imageDTO.url,
+    thumbnail: imageDTO.thumbnail,
+    category: imageDTO.category,
+    type: imageDTO.type,
+    width: imageDTO.width,
+    height: imageDTO.height,
+  });
+};

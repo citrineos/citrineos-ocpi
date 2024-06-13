@@ -12,8 +12,12 @@ import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { ClientInformation } from './client.information';
 import { CpoTenant } from './cpo.tenant';
-import { BusinessDetails, toBusinessDetailsDTO } from './BusinessDetails';
-import { Exclude, plainToInstance } from 'class-transformer';
+import {
+  BusinessDetails,
+  fromBusinessDetailsDTO,
+  toBusinessDetailsDTO,
+} from './BusinessDetails';
+import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
 
@@ -79,11 +83,28 @@ export const toCredentialsRoleDTO = (
   credentialsRoleDTO.role = clientCredentialsRole.role;
   credentialsRoleDTO.party_id = clientCredentialsRole.party_id;
   credentialsRoleDTO.country_code = clientCredentialsRole.country_code;
-  credentialsRoleDTO.business_details = toBusinessDetailsDTO(
-    clientCredentialsRole.business_details,
-  );
+  if (clientCredentialsRole.business_details) {
+    credentialsRoleDTO.business_details = toBusinessDetailsDTO(
+      clientCredentialsRole.business_details,
+    );
+  }
   return credentialsRoleDTO;
 };
 
-export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any =>
-  plainToInstance(ClientCredentialsRole, role);
+export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any => {
+  const record: any = {
+    role: role.role,
+    party_id: role.party_id,
+    country_code: role.country_code,
+  };
+  const clientCredentialsRole = ClientCredentialsRole.build(record, {
+    include: [BusinessDetails],
+  });
+  if (role.business_details) {
+    clientCredentialsRole.setDataValue(
+      'business_details',
+      fromBusinessDetailsDTO(role.business_details),
+    );
+  }
+  return clientCredentialsRole;
+};

@@ -46,7 +46,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
   ): Promise<ClientInformation | null> => {
     const query: any = {
       where: {
-        clientToken: token,
+        serverToken: token,
       },
     };
     const clientInformationList = await this.readAllByQuery(query); // todo should be read one by query

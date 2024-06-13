@@ -30,21 +30,26 @@ export class VersionsController extends BaseController {
 
   constructor() {
     super();
-    this.version = ClientVersion.buildClientVersion(
-      VersionNumber.TWO_DOT_TWO_DOT_ONE,
-      `${EMSP_HOST}/ocpi/versions/2.2.1/`,
-      [
-        Endpoint.buildEndpoint(
-          ModuleId.Credentials,
-          InterfaceRole.SENDER,
-          `${EMSP_BASE_URL}/credentials/`,
-        ),
-        Endpoint.buildEndpoint(
-          ModuleId.Locations,
-          InterfaceRole.SENDER,
-          `${EMSP_BASE_URL}/locations/`,
-        ),
-      ],
+    this.version = ClientVersion.build(
+      {
+        version: VersionNumber.TWO_DOT_TWO_DOT_ONE,
+        url: `${EMSP_HOST}/ocpi/versions/2.2.1/`,
+        endpoints: [
+          {
+            identifier: ModuleId.Credentials,
+            role: InterfaceRole.SENDER,
+            url: `${EMSP_BASE_URL}/credentials/`,
+          },
+          {
+            identifier: ModuleId.Locations,
+            role: InterfaceRole.SENDER,
+            url: `${EMSP_BASE_URL}/locations/`,
+          },
+        ],
+      },
+      {
+        include: [Endpoint],
+      },
     );
   }
 

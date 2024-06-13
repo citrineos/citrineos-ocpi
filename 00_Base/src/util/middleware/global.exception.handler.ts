@@ -1,14 +1,11 @@
-import {
-  KoaMiddlewareInterface,
-  Middleware,
-  NotFoundError,
-  UnauthorizedError,
-} from 'routing-controllers';
-import { Context } from 'vm';
-import { HttpStatus } from '@citrineos/base';
-import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
-import { Service } from 'typedi';
-import { OcpiResponseStatusCode } from '../../model/ocpi.response';
+import {KoaMiddlewareInterface, Middleware, NotFoundError, UnauthorizedError,} from 'routing-controllers';
+import {Context} from 'vm';
+import {HttpStatus} from '@citrineos/base';
+import {buildOcpiErrorResponse} from '../../model/ocpi.error.response';
+import {Service} from 'typedi';
+import {OcpiResponseStatusCode} from '../../model/ocpi.response';
+import {AlreadyRegisteredException} from '../../exception/already.registered.exception';
+import {NotRegisteredException} from '../../exception/not.registered.exception';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -51,6 +48,24 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
                 (err as any).message,
+              ),
+            );
+            break;
+          case AlreadyRegisteredException.name:
+            context.status = HttpStatus.METHOD_NOT_ALLOWED;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientNotEnoughInformation,
+                'Client already registered',
+              ),
+            );
+            break;
+          case NotRegisteredException.name:
+            context.status = HttpStatus.METHOD_NOT_ALLOWED;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientNotEnoughInformation,
+                'Client not registered',
               ),
             );
             break;

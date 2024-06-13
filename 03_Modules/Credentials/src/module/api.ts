@@ -118,9 +118,10 @@ export class CredentialsModuleApi
     const clientInformation = await this.credentialsService?.putCredentials(
       token,
       credentials,
-      version,
     );
-    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
+    return CredentialsResponse.build(
+      toCredentialsDTO(clientInformation.get({ plain: true })),
+    );
   }
 
   @Delete()

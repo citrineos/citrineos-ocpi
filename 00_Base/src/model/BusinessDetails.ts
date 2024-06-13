@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
-import { Image, toImageDTO } from './Image';
+import { fromImageDTO, Image, toImageDTO } from './Image';
 import { Optional } from '../util/decorators/optional';
 import {
   BelongsTo,
@@ -59,6 +59,24 @@ export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {
   const businessDetailsDTO = new BusinessDetailsDTO();
   businessDetailsDTO.name = businessDetails.name;
   businessDetailsDTO.website = businessDetails.website;
-  businessDetailsDTO.logo = toImageDTO(businessDetails.logo!);
+  if (businessDetails.logo) {
+    businessDetailsDTO.logo = toImageDTO(businessDetails.logo);
+  }
   return businessDetailsDTO;
+};
+
+export const fromBusinessDetailsDTO = (
+  businessDetailsDTO: BusinessDetailsDTO,
+) => {
+  const record: any = {
+    name: businessDetailsDTO.name,
+    website: businessDetailsDTO.website,
+  };
+  const businessDetails = BusinessDetails.build(record, {
+    include: [Image],
+  });
+  if (businessDetailsDTO.logo) {
+    businessDetails.setDataValue('logo', fromImageDTO(businessDetailsDTO.logo));
+  }
+  return businessDetails;
 };

@@ -45,17 +45,6 @@ export class ClientVersion extends Model implements IVersion {
   @BelongsTo(() => ClientInformation)
   clientInformation!: ClientInformation;
 
-  static buildClientVersion(
-    version: VersionNumber,
-    url: string,
-    endpoints: Endpoint[],
-  ): ClientVersion {
-    const v = new ClientVersion();
-    v.version = version;
-    v.url = url;
-    v.endpoints = endpoints;
-    return v;
-  }
 
   public toVersionDTO(): VersionDTO {
     const dto = new VersionDTO();
