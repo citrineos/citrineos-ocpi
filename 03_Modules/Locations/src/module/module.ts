@@ -18,11 +18,13 @@ import {
 } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
+import { IOcpiModule } from "@citrineos/ocpi-base";
+import { LocationsModuleApi } from "./api";
 
 /**
  * Component that handles provisioning related messages.
  */
-export class LocationsModule extends AbstractModule {
+export class LocationsModule extends AbstractModule implements IOcpiModule {
   /**
    * Fields
    */
@@ -32,7 +34,7 @@ export class LocationsModule extends AbstractModule {
   ];
 
   /**
-   * This is the constructor function that initializes the {@link Credentials}.
+   * This is the constructor function that initializes the {@link LocationsModule}.
    *
    * @param {SystemConfig} config - The `config` contains configuration settings for the module.
    *
@@ -74,5 +76,9 @@ export class LocationsModule extends AbstractModule {
     }
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
+  }
+
+  getController(): any {
+    return LocationsModuleApi;
   }
 }

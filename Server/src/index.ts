@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {CommandsModule} from "@citrineos/ocpi-commands";
 import {VersionsModule} from "@citrineos/ocpi-versions";
+import { LocationsModule } from '@citrineos/ocpi-locations';
 import {OcpiServer, OcpiServerConfig} from "@citrineos/ocpi-base";
 import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
 import {MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache} from "@citrineos/util";
@@ -32,6 +33,13 @@ class CitrineOSServer {
                 this._createHandler(),
                 this._createSender(),
                 EventGroup.Commands,
+                this.logger,
+            ),
+            new LocationsModule(
+                this.config,
+                this.cache,
+                this._createHandler(),
+                this._createSender(),
                 this.logger,
             ),
             new VersionsModule(
