@@ -60,10 +60,16 @@ export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 
+export { BaseClientApi } from './trigger/BaseClientApi'
+export { CommandsClientApi } from './trigger/CommandsClientApi'
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
 export { BaseClientApi } from './trigger/BaseClientApi';
 
+export { ResponseUrlRepository } from './repository/response-url.repository'
+
+import { Container } from 'typedi';
+import {useContainer, useKoaServer} from 'routing-controllers';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { VersionService } from './services/version.service';
