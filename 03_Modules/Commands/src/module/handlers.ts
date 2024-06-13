@@ -12,7 +12,7 @@ import {
   ICache,
   IMessage,
   IMessageHandler,
-  IMessageSender, RequestStartStopStatusEnumType, RequestStartTransactionResponse,
+  IMessageSender, RequestStartStopStatusEnumType, RequestStartTransactionResponse, RequestStopTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
 import {RabbitMqReceiver, RabbitMqSender, Timer,} from '@citrineos/util';
@@ -34,6 +34,7 @@ export class CommandsOcppHandlers extends AbstractModule {
   ];
   protected _responses: CallAction[] = [
     CallAction.RequestStartTransaction,
+    CallAction.RequestStopTransaction,
   ];
 
   constructor(
@@ -69,6 +70,18 @@ export class CommandsOcppHandlers extends AbstractModule {
   @AsHandler(CallAction.RequestStartTransaction)
   protected _handleRequestStartTransactionResponse(
       message: IMessage<RequestStartTransactionResponse>,
+      props?: HandlerProperties,
+  ): void {
+    this._logger.debug('Handling:', message, props);
+
+    const result = this.getResult(message.payload.status);
+
+    this.sendCommandResult(message.context.correlationId, result);
+  }
+
+  @AsHandler(CallAction.RequestStopTransaction)
+  protected _handleRequestStopTransactionResponse(
+      message: IMessage<RequestStopTransactionResponse>,
       props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling:', message, props);
