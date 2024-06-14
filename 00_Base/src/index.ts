@@ -7,8 +7,6 @@ import { OcpiModuleConfig } from "./config/ocpi.module.config";
 import { Container, Service } from 'typedi';
 import { useContainer, useKoaServer } from 'routing-controllers';
 import { IOcpiModule } from './model/IOcpiModule';
-import { OcpiCacheConfig } from "./config/ocpi.cache.config";
-import { OcpiMessageReceiverConfig, OcpiMessageSenderConfig } from "./config/ocpi.message.config";
 import { OcpiLoggerConfig } from "./config/ocpi.logger.config";
 import { OcpiServerConfig } from "./config/ocpi.server.config";
 import {
@@ -77,10 +75,7 @@ export class OcpiServer {
     constructor(
       serverConfig: OcpiServerConfig,
       modulesConfig: OcpiModuleConfig,
-      cacheConfig: OcpiCacheConfig,
       loggerConfig: OcpiLoggerConfig,
-      senderConfig: OcpiMessageSenderConfig,
-      receiverConfig: OcpiMessageReceiverConfig,
       sequelizeInstance: OcpiSequelizeInstance
     ) {
         this.serverConfig = serverConfig;

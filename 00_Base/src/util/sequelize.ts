@@ -5,7 +5,7 @@ import { Credentials } from '../model/Credentials';
 import { Version } from '../model/Version';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { Service } from 'typedi';
-import { Endpoint } from '../model/Endpoint';
+import * as path from "path";
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -18,6 +18,8 @@ export class OcpiSequelizeInstance {
 
     sequelizeLogger.info('Creating default Sequelize instance');
 
+    //       models: [Credentials, Version, Endpoint],
+
     this.sequelize = new Sequelize({
       host: config.data.sequelize.host,
       port: config.data.sequelize.port,
@@ -26,7 +28,7 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [Credentials, Version, Endpoint],
+      models: [path.join(__dirname, '../model/*')],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);
