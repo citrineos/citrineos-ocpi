@@ -1,4 +1,4 @@
-import { VersionRepository } from '../repository/version.repository';
+import { VersionRepository } from '../repository/VersionRepository';
 import { Version } from '../model/Version';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { VersionNumber } from '../model/VersionNumber';

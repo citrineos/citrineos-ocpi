@@ -4,11 +4,11 @@ import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
-import { CpoTenant } from '../model/cpo.tenant';
+import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 
 @Service()
-export class CpoTenantRepository extends SequelizeRepository<CpoTenant> {
+export class ClientCredentialsRoleRepository extends SequelizeRepository<ClientCredentialsRole> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     logger: OcpiLogger,
@@ -16,7 +16,7 @@ export class CpoTenantRepository extends SequelizeRepository<CpoTenant> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.CpoTenant,
+      OcpiNamespace.ClientCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

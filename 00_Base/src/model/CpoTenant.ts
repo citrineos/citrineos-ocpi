@@ -1,6 +1,6 @@
 import { HasMany, Model, Table } from 'sequelize-typescript';
-import { ClientInformation } from './client.information';
-import { ServerCredentialsRole } from './server.credentials.role';
+import { ClientInformation } from './ClientInformation';
+import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 

@@ -3,33 +3,40 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { IOcpiModule } from '@citrineos/ocpi-base';
 import {
-  EventGroup,
-  ICache,
-  IMessageHandler,
-  IMessageSender,
-  SystemConfig,
-} from '../../../../citrineos-core/00_Base';
-import { ILogObj, Logger } from 'tslog';
+  IOcpiModule,
+  OcpiCacheConfig,
+  OcpiLogger,
+  OcpiMessageHandlerConfig,
+  OcpiMessageSenderConfig,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import { SystemConfig } from '../../../../citrineos-core/00_Base';
 import { CommandsOcppHandlers } from '@citrineos/ocpi-commands/dist/module/handlers';
 
 import { CredentialsModuleApi } from './module/api';
+import { Service } from 'typedi';
 
 export { CredentialsModuleApi } from './module/api';
 export { ICredentialsModuleApi } from './module/interface';
 export { CredentialsOcppHandlers } from './module/handlers';
 
+@Service()
 export class CredentialsModule implements IOcpiModule {
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    eventGroup: EventGroup,
-    logger?: Logger<ILogObj>,
+    serverConfig: OcpiServerConfig,
+    cacheConfig: OcpiCacheConfig,
+    senderConfig: OcpiMessageSenderConfig,
+    handlerConfig: OcpiMessageHandlerConfig,
+    logger: OcpiLogger,
   ) {
-    new CommandsOcppHandlers(config, cache, sender, handler, logger);
+    new CommandsOcppHandlers(
+      serverConfig as SystemConfig,
+      cacheConfig.cache,
+      senderConfig.sender,
+      handlerConfig.handler,
+      logger,
+    );
   }
 
   getController(): any {

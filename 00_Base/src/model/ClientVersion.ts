@@ -12,14 +12,14 @@ import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Enum } from '../util/decorators/enum';
 import { Exclude } from 'class-transformer';
 import { Endpoint } from './Endpoint';
-import { ClientInformation } from './client.information';
+import { ClientInformation } from './ClientInformation';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
 import { IVersion } from './Version';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 
 @Table
-export class ServerVersion extends Model implements IVersion {
+export class ClientVersion extends Model implements IVersion {
   @Column(DataType.ENUM(...Object.values(VersionNumber)))
   @IsNotEmpty()
   @Enum(VersionNumber, 'VersionNumber')
@@ -44,18 +44,6 @@ export class ServerVersion extends Model implements IVersion {
   @Exclude()
   @BelongsTo(() => ClientInformation)
   clientInformation!: ClientInformation;
-
-  static buildServerVersion(
-    version: VersionNumber,
-    url: string,
-    endpoints: Endpoint[],
-  ): ServerVersion {
-    const v = new ServerVersion();
-    v.version = version;
-    v.url = url;
-    v.endpoints = endpoints;
-    return v;
-  }
 
   public toVersionDTO(): VersionDTO {
     const dto = new VersionDTO();

@@ -12,8 +12,8 @@ import {
 } from 'sequelize-typescript';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { Exclude } from 'class-transformer';
-import { ClientVersion } from './client.version';
-import { ServerVersion } from './server.version';
+import { ClientVersion } from './ClientVersion';
+import { ServerVersion } from './ServerVersion';
 import { VersionNumber } from './VersionNumber';
 
 export class EndpointDTO {

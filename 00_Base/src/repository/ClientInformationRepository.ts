@@ -1,10 +1,10 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/ocpi.logger';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig, UnauthorizedException } from '@citrineos/base';
-import { ClientInformation } from '../model/client.information';
+import { ClientInformation } from '../model/ClientInformation';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 
 @Service()

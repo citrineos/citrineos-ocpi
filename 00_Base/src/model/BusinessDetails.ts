@@ -10,8 +10,8 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { ClientCredentialsRole } from './client.credentials.role';
-import { ServerCredentialsRole } from './server.credentials.role';
+import { ClientCredentialsRole } from './ClientCredentialsRole';
+import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';

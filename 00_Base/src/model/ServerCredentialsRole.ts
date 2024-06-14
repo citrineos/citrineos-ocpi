@@ -10,7 +10,7 @@ import {
 import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { CpoTenant } from './cpo.tenant';
+import { CpoTenant } from './CpoTenant';
 import { BusinessDetails } from './BusinessDetails';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';

@@ -3,7 +3,7 @@ import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { VersionNumber } from '../model/VersionNumber';
 import { OcpiRegistrationParams } from './util/ocpi.registration.params';
 import { OcpiParams } from './util/ocpi.params';
-import { UnsuccessfulRequestException } from '../exception/unsuccessful.request.exception';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { HttpHeader } from '../../../../citrineos-core/00_Base';
 import { OcpiHttpHeader } from '../util/ocpi.http.header';
 import { base64Encode } from '../util/util';

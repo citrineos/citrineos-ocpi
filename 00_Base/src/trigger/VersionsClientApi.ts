@@ -1,7 +1,7 @@
 import { BaseClientApi } from './BaseClientApi';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { Service } from 'typedi';
-import { UnsuccessfulRequestException } from '../exception/unsuccessful.request.exception';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { IRestResponse } from 'typed-rest-client';
 import { OcpiRegistrationParams } from './util/ocpi.registration.params';
 import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';

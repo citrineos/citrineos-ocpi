@@ -1,7 +1,7 @@
 import { BusinessDetails } from './BusinessDetails';
 import { Role } from './Role';
-import { ClientInformation } from './client.information';
-import { CpoTenant } from './cpo.tenant';
+import { ClientInformation } from './ClientInformation';
+import { CpoTenant } from './CpoTenant';
 
 export interface ICredentialsRole {
   role: Role;

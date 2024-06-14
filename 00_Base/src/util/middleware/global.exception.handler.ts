@@ -1,11 +1,16 @@
-import {KoaMiddlewareInterface, Middleware, NotFoundError, UnauthorizedError,} from 'routing-controllers';
-import {Context} from 'vm';
-import {HttpStatus} from '@citrineos/base';
-import {buildOcpiErrorResponse} from '../../model/ocpi.error.response';
-import {Service} from 'typedi';
-import {OcpiResponseStatusCode} from '../../model/ocpi.response';
-import {AlreadyRegisteredException} from '../../exception/already.registered.exception';
-import {NotRegisteredException} from '../../exception/not.registered.exception';
+import {
+  KoaMiddlewareInterface,
+  Middleware,
+  NotFoundError,
+  UnauthorizedError,
+} from 'routing-controllers';
+import { Context } from 'vm';
+import { HttpStatus } from '@citrineos/base';
+import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
+import { Service } from 'typedi';
+import { OcpiResponseStatusCode } from '../../model/ocpi.response';
+import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
+import { NotRegisteredException } from '../../exception/NotRegisteredException';
 
 /**
  * GlobalExceptionHandler handles all exceptions

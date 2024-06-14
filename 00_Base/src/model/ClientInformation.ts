@@ -11,12 +11,12 @@ import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import {
   ClientCredentialsRole,
   toCredentialsRoleDTO,
-} from './client.credentials.role';
+} from './ClientCredentialsRole';
 import { CredentialsDTO } from './DTO/CredentialsDTO';
-import { CpoTenant } from './cpo.tenant';
+import { CpoTenant } from './CpoTenant';
 import { Exclude } from 'class-transformer';
-import { ClientVersion } from './client.version';
-import { ServerVersion } from './server.version';
+import { ClientVersion } from './ClientVersion';
+import { ServerVersion } from './ServerVersion';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { ModuleId } from './ModuleId';
 import { Endpoint } from './Endpoint';

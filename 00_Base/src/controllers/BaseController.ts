@@ -3,7 +3,7 @@ import { classToJsonSchema } from '../openapi-spec-helper/class.validator';
 import { getAllSchemas } from '../openapi-spec-helper/schemas';
 import { SchemaObject } from 'openapi3-ts';
 import { PaginatedCdrResponse } from '../model/Cdr';
-import { PaginatedParams } from './param/paginated.params';
+import { PaginatedParams } from './param/PaginatedParams';
 
 export const generateMockOcpiResponse = (model: any): any => {
   (JSONSchemaFaker.format as any)('url', (url: any) => url);

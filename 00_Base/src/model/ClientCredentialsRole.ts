@@ -10,8 +10,8 @@ import {
 import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { ClientInformation } from './client.information';
-import { CpoTenant } from './cpo.tenant';
+import { ClientInformation } from './ClientInformation';
+import { CpoTenant } from './CpoTenant';
 import {
   BusinessDetails,
   fromBusinessDetailsDTO,
