@@ -1,78 +1,20 @@
 import 'reflect-metadata';
-import {CommandsModule} from "@citrineos/ocpi-commands";
-import {VersionsModule} from "@citrineos/ocpi-versions";
-import {OcpiServer, OcpiServerConfig} from "@citrineos/ocpi-base";
-import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
-import {MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache} from "@citrineos/util";
-import {type ILogObj, Logger} from 'tslog';
-import {createLocalConfig} from "./config";
+import {OcpiServer} from "@citrineos/ocpi-base";
+import { Container } from "typedi";
+import { OcpiModuleConfig } from "@citrineos/ocpi-base/dist/config/ocpi.module.config";
+import { CredentialsModule } from "../../dist/03_Modules/Credentials/src";
 
 class CitrineOSServer {
-    private readonly cache: ICache;
-    private readonly config: SystemConfig;
-    private readonly logger: Logger<ILogObj>;
 
     constructor() {
-        this.config = createLocalConfig();
-        this.cache = this.initCache()
-        this.logger = this.initLogger();
+        Container.set(OcpiModuleConfig, new OcpiModuleConfig([
+          CredentialsModule
+        ]));
 
-        const ocpiServer = new OcpiServer(this.getConfig());
-
-        ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);
+        const ocpiServer = Container.get(OcpiServer);
+        ocpiServer.run();
     }
 
-    protected getConfig() {
-        const config = new OcpiServerConfig();
-
-        config.modules = [
-            new CommandsModule(
-                this.config,
-                this.cache,
-                this._createHandler(),
-                this._createSender(),
-                EventGroup.Commands,
-                this.logger,
-            ),
-            new VersionsModule(
-                this.config,
-                this.cache,
-                this._createHandler(),
-                this._createSender(),
-                EventGroup.Versions,
-                this.logger,
-            )
-        ]
-
-        return config
-    }
-
-    protected _createSender(): IMessageSender {
-        return new RabbitMqSender(this.config, this.logger);
-    }
-
-    protected _createHandler(): IMessageHandler {
-        return new RabbitMqReceiver(this.config, this.logger);
-    }
-
-    private initCache(): ICache {
-        return (
-            this.config.util.cache.redis
-                ? new RedisCache({
-                    socket: {
-                        host: this.config.util.cache.redis.host,
-                        port: this.config.util.cache.redis.port,
-                    },
-                })
-                : new MemoryCache());
-    }
-
-    private initLogger() {
-        return new Logger<ILogObj>({
-            name: 'CitrineOS Logger',
-            minLevel: this.config.logLevel
-        });
-    }
 }
 
 new CitrineOSServer();

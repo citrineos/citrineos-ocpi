@@ -1,4 +1,22 @@
 import KoaLogger from "koa-logger";
+import Koa from 'koa';
+
+import { GlobalExceptionHandler } from "./util/middleware/global.exception.handler";
+import { LoggingMiddleware } from "./util/middleware/logging.middleware";
+import { OcpiModuleConfig } from "./config/ocpi.module.config";
+import { Container, Service } from 'typedi';
+import { useContainer, useKoaServer } from 'routing-controllers';
+import { IOcpiModule } from './model/IOcpiModule';
+import { OcpiCacheConfig } from "./config/ocpi.cache.config";
+import { OcpiMessageReceiverConfig, OcpiMessageSenderConfig } from "./config/ocpi.message.config";
+import { OcpiLoggerConfig } from "./config/ocpi.logger.config";
+import { OcpiServerConfig } from "./config/ocpi.server.config";
+import {
+    SequelizeDeviceModelRepository,
+    SequelizeLocationRepository
+} from "@citrineos/data/dist/layers/sequelize";
+import { SystemConfig } from "@citrineos/base";
+import { OcpiSequelizeInstance } from '@citrineos/ocpi-base';
 
 export { generateMockOcpiResponse, BaseController } from './controllers/base.controller';
 
@@ -48,38 +66,60 @@ export { CommandsService } from './services/commands.service'
 export { CredentialsService } from './services/credentials.service'
 export { VersionService } from './services/version.service'
 
-import { Container } from 'typedi';
-import {useContainer, useKoaServer} from 'routing-controllers';
-
 useContainer(Container);
 
-import { IOcpiModule } from "./model/IOcpiModule";
-import Koa from 'koa';
-
-export class OcpiServerConfig {
-    modules?: IOcpiModule[]
-}
-
-import { GlobalExceptionHandler } from "./util/middleware/global.exception.handler";
-import { LoggingMiddleware } from "./util/middleware/logging.middleware";
-
+@Service()
 export class OcpiServer {
     readonly koa: Koa
-    constructor(config?: OcpiServerConfig) {
+    modules: IOcpiModule[] = [];
+    serverConfig: OcpiServerConfig;
+
+    constructor(
+      serverConfig: OcpiServerConfig,
+      modulesConfig: OcpiModuleConfig,
+      cacheConfig: OcpiCacheConfig,
+      loggerConfig: OcpiLoggerConfig,
+      senderConfig: OcpiMessageSenderConfig,
+      receiverConfig: OcpiMessageReceiverConfig,
+      sequelizeInstance: OcpiSequelizeInstance
+    ) {
+        this.serverConfig = serverConfig;
+
+        const logger = loggerConfig.logger;
+        const sequelize = sequelizeInstance.sequelize;
+
+        // initialize sequelize repositories
+        Container.set('LocationRepository', new SequelizeLocationRepository(serverConfig as SystemConfig, logger, sequelize));
+        // Container.set('Authorization', new Authorization())
+        // Container.set('Boot', new Boot())
+        // Container.set('Certificate', new Certificate())
+        Container.set('DeviceModelRepository', new SequelizeDeviceModelRepository(serverConfig as SystemConfig, logger, sequelize));
+        // Container.set('MessageInfo', new MessageInfo())
+        // Container.set('SecurityEvent', new SecurityEvent())
+        // Container.set('Subscription', new Subscription())
+        // Container.set('Tariff', new Tariff())
+        // Container.set('TransactionEventRepository', new SequelizeTransactionEventRepository(serverConfig as SystemConfig, logger, sequelize));
+        // Container.set('VariableMonitoring', new VariableMonitoring())
+
+        // TODO initialize modules
+        for (let moduleType of modulesConfig.moduleTypes) {
+            Container.get(moduleType);
+        }
+
         this.koa = new Koa()
         this.koa.use(KoaLogger());
         useKoaServer(this.koa, {
-            controllers: config?.modules?.map(module => module.getController()) || [],
+            controllers: this.modules.map(module => module.getController()) || [],
             routePrefix: '/ocpi/:versionId',
             middlewares: [GlobalExceptionHandler, LoggingMiddleware],
             defaultErrorHandler: false
         })
     }
 
-    public run(host: string, port: number) {
+    public run() {
         this.koa.listen({
-            host: host,
-            port: port
+            host: this.serverConfig.ocpiServer.host,
+            port: this.serverConfig.ocpiServer.port
         })
     }
 }
