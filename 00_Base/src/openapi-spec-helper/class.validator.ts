@@ -4,25 +4,25 @@ import {
   IS_DATE_STRING,
   IS_ENUM,
   ValidationTypes,
-} from "class-validator";
-import { targetConstructorToSchema } from "class-validator-jsonschema";
-import { ISchemaConverters } from "class-validator-jsonschema/build/defaultConverters";
-import { IOptions } from "class-validator-jsonschema/build/options";
-import type { SchemaObject } from "openapi3-ts";
-import { ValidationMetadata } from "class-validator/types/metadata/ValidationMetadata";
+} from 'class-validator';
+import { targetConstructorToSchema } from 'class-validator-jsonschema';
+import { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters';
+import { IOptions } from 'class-validator-jsonschema/build/options';
+import type { SchemaObject } from 'openapi3-ts';
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 // @ts-expect-error importing js directly from class-transformer
-import { defaultMetadataStorage } from "class-transformer/cjs/storage.js";
-import { SchemaStore } from "./schema.store";
-import { OPTIONAL_PARAM } from "../util/decorators/optional";
-import { Constructable } from "typedi";
+import { defaultMetadataStorage } from 'class-transformer/cjs/storage.js';
+import { SchemaStore } from './schema.store';
+import { OPTIONAL_PARAM } from '../util/decorators/optional';
+import { Constructable } from 'typedi';
 
-export const refPointerPrefix = "#/components/schemas/";
+export const refPointerPrefix = '#/components/schemas/';
 
 function getPropType(target: object, property: string) {
-  return Reflect.getMetadata("design:type", target, property);
+  return Reflect.getMetadata('design:type', target, property);
 }
 
-export { JSONSchema } from "class-validator-jsonschema";
+export { JSONSchema } from 'class-validator-jsonschema';
 
 export const nestedClassToJsonSchema = (
   clz: Constructable<any>,
@@ -30,16 +30,16 @@ export const nestedClassToJsonSchema = (
 ): SchemaObject => targetConstructorToSchema(clz, options) as any;
 
 function targetToSchema(type: any, options: IOptions): any | void {
-  if (typeof type === "function") {
+  if (typeof type === 'function') {
     if (
       type.prototype === String.prototype ||
       type.prototype === Symbol.prototype
     ) {
-      return { type: "string" };
+      return { type: 'string' };
     } else if (type.prototype === Number.prototype) {
-      return { type: "number" };
+      return { type: 'number' };
     } else if (type.prototype === Boolean.prototype) {
-      return { type: "boolean" };
+      return { type: 'boolean' };
     }
 
     return { $ref: options.refPointerPrefix + type.name };
@@ -62,19 +62,19 @@ const getIsArray = (meta: ValidationMetadata): boolean => {
   );
 
   // Check if any of these validations are 'isArray'
-  return propertyValidations.some((v) => v.name === "isArray");
+  return propertyValidations.some((v) => v.name === 'isArray');
 };
 
 const additionalConverters: ISchemaConverters = {
   [IS_DATE_STRING]: (_meta: ValidationMetadata, _: IOptions) => ({
-    format: "date-time",
-    type: "string",
+    format: 'date-time',
+    type: 'string',
   }),
   [IS_ENUM]: (meta: ValidationMetadata, _: IOptions) => {
     const enumObject = meta.constraints[0]; // Assuming the first constraint is the enum object
 
     const enumName = Reflect.getMetadata(
-      "isEnum",
+      'isEnum',
       (meta.target as any).prototype,
       meta.propertyName,
     );
@@ -84,7 +84,7 @@ const additionalConverters: ISchemaConverters = {
       if (!SchemaStore.getSchema(enumName)) {
         const enumValues = Object.values(enumObject);
         SchemaStore.addSchema(enumName, {
-          type: "string",
+          type: 'string',
           enum: enumValues,
         });
       }
@@ -121,7 +121,7 @@ const additionalConverters: ISchemaConverters = {
           );
         }
         return {
-          type: "array",
+          type: 'array',
           nullable: true,
           items: {
             $ref: schema.$ref,
@@ -141,14 +141,14 @@ const additionalConverters: ISchemaConverters = {
           );
         }
         return {
-          type: "array",
+          type: 'array',
           items: {
             $ref: schema.$ref,
           },
         };
       } else {
         return {
-          type: "array",
+          type: 'array',
         };
       }
     }
@@ -163,7 +163,7 @@ const additionalConverters: ISchemaConverters = {
     meta: ValidationMetadata,
     options: IOptions,
   ) => {
-    if (typeof meta.target === "function") {
+    if (typeof meta.target === 'function') {
       const typeMeta = options.classTransformerMetadataStorage
         ? options.classTransformerMetadataStorage.findTypeMetadata(
             meta.target,
@@ -182,7 +182,7 @@ const additionalConverters: ISchemaConverters = {
       if (
         !!schema &&
         !!schema.$ref &&
-        schema.$ref === "#/components/schemas/Object"
+        schema.$ref === '#/components/schemas/Object'
       ) {
         schema.$ref = `${refPointerPrefix}${name}`;
       }

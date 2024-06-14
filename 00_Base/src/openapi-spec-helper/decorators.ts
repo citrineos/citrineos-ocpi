@@ -3,15 +3,15 @@ import {
   ReferenceObject,
   ResponsesObject,
   SchemaObject,
-} from "openapi3-ts";
-import "reflect-metadata";
-import { IRoute } from "./parse.metadata";
-import { getContentType, getStatusCode } from "./generate.spec.helpers";
-import { mergeDeep } from "./merge.deep";
-import { SchemaStore } from "./schema.store";
-import { Constructable } from "typedi";
+} from 'openapi3-ts';
+import 'reflect-metadata';
+import { IRoute } from './parse.metadata';
+import { getContentType, getStatusCode } from './generate.spec.helpers';
+import { mergeDeep } from './merge.deep';
+import { SchemaStore } from './schema.store';
+import { Constructable } from 'typedi';
 
-const OPEN_API_KEY = Symbol("routing-controllers-openapi:OpenAPI");
+const OPEN_API_KEY = Symbol('routing-controllers-openapi:OpenAPI');
 
 export type OpenAPIParam =
   | Partial<OperationObject>
@@ -82,7 +82,7 @@ export function applyOpenAPIDecorator(
 
   return openAPIParams.reduce(
     (acc: OperationObject, oaParam: OpenAPIParam) =>
-      typeof oaParam === "function"
+      typeof oaParam === 'function'
         ? oaParam(acc, route)
         : mergeDeep({}, acc, oaParam),
     originalOperation,
@@ -105,15 +105,15 @@ export function ResponseSchema(
 ) {
   const setResponseSchema = (source: OperationObject, route: IRoute) => {
     const contentType = options.contentType || getContentType(route);
-    const description = options.description || "";
+    const description = options.description || '';
     const isArray = options.isArray || false;
-    const statusCode = (options.statusCode || getStatusCode(route)) + "";
+    const statusCode = (options.statusCode || getStatusCode(route)) + '';
 
-    let responseSchemaName = "";
-    if (typeof responseClass === "function" && responseClass.name) {
+    let responseSchemaName = '';
+    if (typeof responseClass === 'function' && responseClass.name) {
       SchemaStore.addToSchemaStore(responseClass as Constructable<any>);
       responseSchemaName = responseClass.name;
-    } else if (typeof responseClass === "string") {
+    } else if (typeof responseClass === 'string') {
       responseSchemaName = responseClass;
     }
 
@@ -122,7 +122,7 @@ export function ResponseSchema(
         $ref: `#/components/schemas/${responseSchemaName}`,
       };
       const schema: SchemaObject | ReferenceObject = isArray
-        ? { items: reference, type: "array" }
+        ? { items: reference, type: 'array' }
         : reference;
 
       const content = {
