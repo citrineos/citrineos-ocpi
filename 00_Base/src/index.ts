@@ -11,7 +11,7 @@ import { OcpiServerConfig } from "./config/ocpi.server.config";
 import {
     SequelizeDeviceModelRepository,
     SequelizeLocationRepository
-} from "@citrineos/data/dist/layers/sequelize";
+} from "@citrineos/data";
 import { SystemConfig } from "@citrineos/base";
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { OcpiLogger } from './util/ocpi.logger';
@@ -97,7 +97,7 @@ export class OcpiServer {
 
         // TODO initialize modules
         for (let moduleType of modulesConfig.moduleTypes) {
-            Container.get(moduleType);
+            this.modules.push(Container.get(moduleType))
         }
 
         this.koa = new Koa()

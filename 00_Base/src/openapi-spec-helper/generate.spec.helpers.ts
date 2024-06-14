@@ -1,29 +1,29 @@
 // tslint:disable:no-submodule-imports
-import * as oa from 'openapi3-ts';
-import * as pathToRegexp from 'path-to-regexp';
-import 'reflect-metadata';
-import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
+import * as oa from "openapi3-ts";
+import * as pathToRegexp from "path-to-regexp";
+import "reflect-metadata";
+import {ParamMetadataArgs} from "routing-controllers/types/metadata/args/ParamMetadataArgs";
 
-import { applyOpenAPIDecorator } from './decorators';
-import { IRoute } from './index';
-import { mergeDeep } from './merge.deep';
-import { capitalize } from './capitalize';
-import { smartcase } from './smart.case';
-import { ENUM_PARAM } from '../util/decorators/enum.param';
-import { refPointerPrefix } from './class.validator';
-import { SchemaStore } from './schema.store';
-import { MULTIPLE_TYPES } from '../util/decorators/multiple.types';
-import { Constructor } from '../util/util';
-import { HttpHeader } from '@citrineos/base';
-import { ENUM_QUERY_PARAM } from '../util/decorators/enum.query.param';
+import {applyOpenAPIDecorator} from "./decorators";
+import {IRoute} from "./index";
+import {mergeDeep} from "./merge.deep";
+import {capitalize} from "./capitalize";
+import {smartcase} from "./smart.case";
+import {ENUM_PARAM} from "../util/decorators/enum.param";
+import {refPointerPrefix} from "./class.validator";
+import {SchemaStore} from "./schema.store";
+import {MULTIPLE_TYPES} from "../util/decorators/multiple.types";
+import {HttpHeader} from "@citrineos/base";
+import {ENUM_QUERY_PARAM} from "../util/decorators/enum.query.param";
+import {Constructable} from "typedi";
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
   const { action, controller, options } = route;
   return (
-    (options.routePrefix || '') +
-    (controller.route || '') +
-    (action.route || '')
+    (options.routePrefix || "") +
+    (controller.route || "") +
+    (action.route || "")
   );
 }
 
@@ -48,11 +48,11 @@ function isRequired(meta: { required?: boolean }, route: IRoute) {
  */
 export function getContentType(route: IRoute): string {
   const defaultContentType =
-    ['json', 'default'].indexOf(route.controller.type) > -1
-      ? 'application/json'
-      : 'text/html; charset=utf-8';
+    ["json", "default"].indexOf(route.controller.type) > -1
+      ? "application/json"
+      : "text/html; charset=utf-8";
   const contentMeta = route.responseHandlers.find(
-    (h) => h.type === 'content-type',
+    (h) => h.type === "content-type",
   );
   return contentMeta ? contentMeta.value : defaultContentType;
 }
@@ -62,9 +62,9 @@ export function getContentType(route: IRoute): string {
  */
 export function getStatusCode(route: IRoute): string {
   const successMeta = route.responseHandlers.find(
-    (h) => h.type === 'success-code',
+    (h) => h.type === "success-code",
   );
-  return successMeta ? successMeta.value + '' : '200';
+  return successMeta ? successMeta.value + "" : "200";
 }
 
 /**
@@ -77,7 +77,7 @@ export function getResponses(route: IRoute): oa.ResponsesObject {
   return {
     [successStatus]: {
       content: { [contentType]: {} },
-      description: 'Successful response',
+      description: "Successful response",
     },
   };
 }
@@ -93,7 +93,7 @@ export function getSummary(route: IRoute): string {
  * Return OpenAPI tags for given route.
  */
 export function getTags(route: IRoute): string[] {
-  return [smartcase(route.controller.target.name.replace(/Controller$/, ''))];
+  return [smartcase(route.controller.target.name.replace(/Controller$/, ""))];
 }
 
 /**
@@ -102,8 +102,8 @@ export function getTags(route: IRoute): string[] {
 export function expressToOpenAPIPath(expressPath: string) {
   const tokens = pathToRegexp.parse(expressPath);
   return tokens
-    .map((d) => (typeof d === 'string' ? d : `${d.prefix}{${d.name}}`))
-    .join('');
+    .map((d) => (typeof d === "string" ? d : `${d.prefix}{${d.name}}`))
+    .join("");
 }
 
 /**
@@ -123,32 +123,32 @@ function getParamSchema(
 ): oa.SchemaObject | oa.ReferenceObject {
   const { explicitType, index, object, method } = param;
 
-  const type: Constructor = Reflect.getMetadata(
-    'design:paramtypes',
+  const type: Constructable<any> = Reflect.getMetadata(
+    "design:paramtypes",
     object,
     method,
   )[index];
 
-  if (typeof type === 'function' && type.name === 'Array') {
+  if (typeof type === "function" && type.name === "Array") {
     const items = explicitType
-      ? { $ref: '#/components/schemas/' + explicitType.name }
-      : { type: 'object' as const };
-    return { items, type: 'array' };
+      ? { $ref: "#/components/schemas/" + explicitType.name }
+      : { type: "object" as const };
+    return { items, type: "array" };
   }
   if (explicitType) {
-    return { $ref: '#/components/schemas/' + explicitType.name };
+    return { $ref: "#/components/schemas/" + explicitType.name };
   }
-  if (typeof type === 'function') {
+  if (typeof type === "function") {
     if (
       type.prototype === String.prototype ||
       type.prototype === Symbol.prototype
     ) {
-      return { type: 'string' };
+      return { type: "string" };
     } else if (type.prototype === Number.prototype) {
-      return { type: 'number' };
+      return { type: "number" };
     } else if (type.prototype === Boolean.prototype) {
-      return { type: 'boolean' };
-    } else if (type.name === 'Object') {
+      return { type: "boolean" };
+    } else if (type.name === "Object") {
       // try and see if @MultipleTypes is used
       const types = Reflect.getMetadata(
         MULTIPLE_TYPES,
@@ -157,9 +157,9 @@ function getParamSchema(
       );
       if (types) {
         return {
-          oneOf: types.map((tipe: Constructor) => {
+          oneOf: types.map((tipe: Constructable<any>) => {
             SchemaStore.addToSchemaStore(tipe);
-            return { $ref: '#/components/schemas/' + tipe.name };
+            return { $ref: "#/components/schemas/" + tipe.name };
           }),
         };
       } else {
@@ -167,7 +167,7 @@ function getParamSchema(
       }
     } else {
       SchemaStore.addToSchemaStore(type);
-      return { $ref: '#/components/schemas/' + type.name };
+      return { $ref: "#/components/schemas/" + type.name };
     }
   }
 
@@ -179,23 +179,23 @@ function getParamSchema(
  */
 export function getHeaderParams(route: IRoute): oa.ParameterObject[] {
   const headers: oa.ParameterObject[] = route.params
-    .filter((p) => p.type === 'header')
+    .filter((p) => p.type === "header")
     .map((headerMeta) => {
       const schema = getParamSchema(headerMeta) as oa.SchemaObject;
       return {
-        in: 'header' as oa.ParameterLocation,
-        name: headerMeta.name || '',
+        in: "header" as oa.ParameterLocation,
+        name: headerMeta.name || "",
         required: isRequired(headerMeta, route),
         schema,
       };
     });
 
-  const headersMeta = route.params.find((p) => p.type === 'headers');
+  const headersMeta = route.params.find((p) => p.type === "headers");
   if (headersMeta) {
     const schema = getParamSchema(headersMeta) as oa.ReferenceObject;
     headers.push({
-      in: 'header',
-      name: schema.$ref.split('/').pop() || '',
+      in: "header",
+      name: schema.$ref.split("/").pop() || "",
       required: isRequired(headersMeta, route),
       schema,
     });
@@ -208,7 +208,7 @@ export function getHeaderParams(route: IRoute): oa.ParameterObject[] {
  * Return OpenAPI requestBody of given route, if it has one.
  */
 export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
-  const bodyParamMetas = route.params.filter((d) => d.type === 'body-param');
+  const bodyParamMetas = route.params.filter((d) => d.type === "body-param");
   const bodyParamsSchema: oa.SchemaObject | null =
     bodyParamMetas.length > 0
       ? bodyParamMetas.reduce(
@@ -222,11 +222,11 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
               ? [...(acc.required || []), d.name!]
               : acc.required,
           }),
-          { properties: {}, required: [], type: 'object' },
+          { properties: {}, required: [], type: "object" },
         )
       : null;
 
-  const bodyMeta = route.params.find((d) => d.type === 'body');
+  const bodyMeta = route.params.find((d) => d.type === "body");
 
   if (bodyMeta) {
     const bodySchema = getParamSchema(bodyMeta);
@@ -236,7 +236,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
 
     return {
       content: {
-        'application/json': {
+        "application/json": {
           schema: bodyParamsSchema
             ? { allOf: [bodySchema, bodyParamsSchema] }
             : bodySchema,
@@ -246,7 +246,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     };
   } else if (bodyParamsSchema) {
     return {
-      content: { 'application/json': { schema: bodyParamsSchema } },
+      content: { "application/json": { schema: bodyParamsSchema } },
     };
   }
 }
@@ -260,7 +260,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
 export function getPathParams(route: IRoute): oa.ParameterObject[] {
   const path = getFullExpressPath(route);
   const tokens = pathToRegexp.parse(path);
-  const params = route.params.filter((param) => param.type === 'param');
+  const params = route.params.filter((param) => param.type === "param");
 
   if (params.length > 0) {
     return params.map((param) => {
@@ -271,7 +271,7 @@ export function getPathParams(route: IRoute): oa.ParameterObject[] {
       );
       if (enumName) {
         return {
-          in: 'path',
+          in: "path",
           name: param.name,
           required: true,
           schema: {
@@ -280,39 +280,39 @@ export function getPathParams(route: IRoute): oa.ParameterObject[] {
         };
       } else {
         return {
-          in: 'path',
+          in: "path",
           name: param.name,
           required: true,
           allowEmptyValue: false,
-          schema: { type: 'string' },
+          schema: { type: "string" },
         };
       }
     }) as oa.ParameterObject[];
   }
 
   return tokens
-    .filter((token) => token && typeof token === 'object') // Omit non-parameter plain string tokens
+    .filter((token) => token && typeof token === "object") // Omit non-parameter plain string tokens
     .map((t: unknown) => {
       const token = t as pathToRegexp.Key;
-      const name = token.name + '';
+      const name = token.name + "";
       const param: oa.ParameterObject = {
-        in: 'path',
+        in: "path",
         name,
-        required: token.modifier !== '?',
-        schema: { type: 'string' },
+        required: token.modifier !== "?",
+        schema: { type: "string" },
       };
 
-      if (token.pattern && token.pattern !== '[^\\/]+?') {
-        param.schema = { pattern: token.pattern, type: 'string' };
+      if (token.pattern && token.pattern !== "[^\\/]+?") {
+        param.schema = { pattern: token.pattern, type: "string" };
       }
 
       const meta = route.params.find(
-        (p) => p.name === name && p.type === 'param',
+        (p) => p.name === name && p.type === "param",
       );
       if (meta) {
         const metaSchema = getParamSchema(meta);
         param.schema =
-          'type' in metaSchema
+          "type" in metaSchema
             ? { ...param.schema, ...metaSchema }
             : metaSchema;
       }
@@ -329,7 +329,7 @@ export function getQueryParams(
   _schemas: { [p: string]: oa.SchemaObject },
 ): oa.ParameterObject[] {
   const queries: oa.ParameterObject[] = route.params
-    .filter((p) => p.type === 'query')
+    .filter((p) => p.type === "query")
     .map((queryMeta) => {
       const schema = getParamSchema(queryMeta) as oa.SchemaObject;
       const enumName = Reflect.getMetadata(
@@ -339,8 +339,8 @@ export function getQueryParams(
       );
       if (enumName) {
         return {
-          in: 'query' as oa.ParameterLocation,
-          name: queryMeta.name || '',
+          in: "query" as oa.ParameterLocation,
+          name: queryMeta.name || "",
           required: isRequired(queryMeta, route),
           schema: {
             $ref: `${refPointerPrefix}${enumName}`,
@@ -348,21 +348,21 @@ export function getQueryParams(
         };
       } else {
         return {
-          in: 'query' as oa.ParameterLocation,
-          name: queryMeta.name || '',
+          in: "query" as oa.ParameterLocation,
+          name: queryMeta.name || "",
           required: isRequired(queryMeta, route),
           schema,
         };
       }
     });
 
-  const queriesMeta = route.params.find((p) => p.type === 'queries');
+  const queriesMeta = route.params.find((p) => p.type === "queries");
   if (queriesMeta) {
     const paramSchema = getParamSchema(queriesMeta) as oa.ReferenceObject;
     // the last segment after '/'
-    const paramSchemaName = paramSchema.$ref.split('/').pop() || '';
+    const paramSchemaName = paramSchema.$ref.split("/").pop() || "";
     queries.push({
-      in: 'query',
+      in: "query",
       name: paramSchemaName,
       // required: isRequired(queriesMeta, route), // todo
       schema: paramSchema,
@@ -457,8 +457,8 @@ export function getSpec(
 ): oa.OpenAPIObject {
   return {
     components: { schemas: {} },
-    info: { title: '', version: '1.0.0' },
-    openapi: '3.0.0',
+    info: { title: "", version: "1.0.0" },
+    openapi: "3.0.0",
     paths: getPaths(routes, schemas),
   };
 }
