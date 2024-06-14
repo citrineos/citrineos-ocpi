@@ -16,7 +16,7 @@ import {
     SequelizeLocationRepository
 } from "@citrineos/data/dist/layers/sequelize";
 import { SystemConfig } from "@citrineos/base";
-import { OcpiSequelizeInstance } from '@citrineos/ocpi-base';
+import { OcpiSequelizeInstance } from './util/sequelize';
 
 export { generateMockOcpiResponse, BaseController } from './controllers/base.controller';
 
