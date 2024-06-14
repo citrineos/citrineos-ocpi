@@ -47,6 +47,7 @@ export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.e
 export { MultipleTypes } from './util/decorators/multiple.types'
 export { OcpiNamespace } from './util/ocpi.namespace'
 export { OcpiLogger } from './util/ocpi.logger'
+export { OcpiServerConfig } from "./config/ocpi.server.config";
 export { OcpiModuleConfig } from "./config/ocpi.module.config";
 export { OcpiCacheConfig } from "./config/ocpi.cache.config";
 export { OcpiMessageSenderConfig, OcpiMessageHandlerConfig } from "./config/ocpi.message.config";
