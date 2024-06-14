@@ -1,11 +1,11 @@
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import {
   buildOcpiRegistrationParams,
+  CredentialsDTO,
   OcpiRegistrationParams,
-} from '../../../../../00_Base/src/trigger/util/ocpi.registration.params';
-import { CredentialsDTO } from '../../../../../00_Base/src/model/DTO/CredentialsDTO';
+  VersionNumber,
+} from '@citrineos/ocpi-base';
 import { Type } from 'class-transformer';
-import { VersionNumber } from '@citrineos/ocpi-base/dist/model/VersionNumber';
 
 export class PostCredentialsParams extends OcpiRegistrationParams {
   @IsNotEmpty()

@@ -14,11 +14,11 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
-import { BusinessDetails } from '@citrineos/ocpi-base/dist/model/BusinessDetails';
-import { Image } from '@citrineos/ocpi-base/dist/model/Image';
-import { AlreadyRegisteredException } from '00_Base/src/exception/AlreadyRegisteredException';
-import { NotRegisteredException } from '00_Base/src/exception/NotRegisteredException';
-import { fromCredentialsRoleDTO } from '00_Base/src/model/ClientCredentialsRole';
+import { BusinessDetails } from '@citrineos/ocpi-base';
+import { Image } from '@citrineos/ocpi-base';
+import { AlreadyRegisteredException } from '@citrineos/ocpi-base';
+import { NotRegisteredException } from '@citrineos/ocpi-base';
+import { fromCredentialsRoleDTO } from '@citrineos/ocpi-base';
 
 const clientInformationInclude = [
   {

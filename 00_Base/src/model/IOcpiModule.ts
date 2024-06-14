@@ -1,5 +1,5 @@
-import { Constructable } from "typedi";
+import { Constructable } from 'typedi';
 
-export interface IOcpiModule {
-  getController: () => any;
+export abstract class OcpiModule {
+  public abstract getController(): Constructable<any>;
 }

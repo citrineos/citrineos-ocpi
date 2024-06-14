@@ -5,17 +5,19 @@ import {
   generateMockOcpiPaginatedResponse,
 } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { PaginatedTariffResponse } from '../model/Tariff';
 import { Service } from 'typedi';
 import { PaginatedParams } from './param/paginated.params';
 import { Paginated } from '../util/decorators/paginated';
-import { ModuleId } from '../model/ModuleId';
 import {
   versionIdParam,
   VersionNumberParam,
 } from '../util/decorators/version.number.param';
-import { VersionNumber } from '../model/VersionNumber';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import {
+  ModuleId,
+  PaginatedTariffResponse,
+  ResponseSchema,
+  VersionNumber,
+} from '@citrineos/ocpi-base';
 
 const MOCK = generateMockOcpiPaginatedResponse(
   PaginatedTariffResponse,

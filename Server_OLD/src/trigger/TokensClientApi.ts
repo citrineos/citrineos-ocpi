@@ -1,5 +1,4 @@
-import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
-import { PaginatedTokenResponse } from '../model/Token';
+import { BaseClientApi, PaginatedTokenResponse } from '@citrineos/ocpi-base';
 import { PostTokenParams } from './param/tokens/postTokenParams';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { AuthorizationInfo } from '../model/AuthorizationInfo';

@@ -1,5 +1,5 @@
-import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
-import { CdrResponse } from '../model/Cdr';
+import { BaseClientApi } from '@citrineos/ocpi-base';
+import { CdrResponse } from '@citrineos/ocpi-base';
 import { GetCdrParams } from './param/cdrs/get.cdr.params';
 import { PostCdrParams } from './param/cdrs/post.cdr.params';
 import { IHeaders } from 'typed-rest-client/Interfaces';

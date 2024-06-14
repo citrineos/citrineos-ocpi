@@ -1,18 +1,5 @@
-import KoaLogger from 'koa-logger';
-import Koa from 'koa';
-
-import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
-import { LoggingMiddleware } from './util/middleware/logging.middleware';
-import { OcpiModuleConfig } from './config/ocpi.module.config';
-import { Container, Service } from 'typedi';
-import { useContainer, useKoaServer } from 'routing-controllers';
-import { IOcpiModule } from './model/IOcpiModule';
-import { OcpiServerConfig } from './config/ocpi.server.config';
-import { sequelize as sequelizeCore } from '@citrineos/data';
-import { SystemConfig } from '@citrineos/base';
-import { OcpiSequelizeInstance } from './util/sequelize';
-import { OcpiLogger } from './util/ocpi.logger';
-
+export { buildOcpiRegistrationParams } from './trigger/util/ocpi.registration.params';
+export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { KoaServer } from './util/koa.server';
 export { CountryCode } from './util/util';
 export { ImageCategory } from './model/ImageCategory';
@@ -36,7 +23,6 @@ export {
   generateMockOcpiResponse,
   BaseController,
 } from './controllers/BaseController';
-
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -45,7 +31,7 @@ export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
-export { Version } from './model/Version';
+export { Version, IVersion } from './model/Version';
 export { Endpoint } from './model/Endpoint';
 export { CredentialsRoleDTO } from './model/DTO/CredentialsRoleDTO';
 export { CredentialsResponse } from './model/CredentialsResponse';
@@ -57,12 +43,11 @@ export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { OcpiResponse } from './model/ocpi.response';
-export { IOcpiModule } from './model/IOcpiModule';
+export { ConnectorResponse } from './model/Connector';
+export { EvseResponse } from './model/Evse';
+export { LocationResponse } from './model/Location';
+export { CdrResponse, PaginatedCdrResponse } from './model/Cdr';
 export { VersionRepository } from './repository/VersionRepository';
-export { CredentialsRepository } from './repository/credentials.repository';
-
-export { NotFoundException } from './exception/not.found.exception';
-
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
@@ -81,21 +66,53 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
-
 export { ResponseSchema } from './openapi-spec-helper/decorators';
-
 export { BaseClientApi } from './trigger/BaseClientApi';
-
 export { CommandsService } from './services/commands.service';
-export { CredentialsService } from './services/credentials.service';
 export { VersionService } from './services/version.service';
+export { NotRegisteredException } from './exception/NotRegisteredException';
+export { AlreadyRegisteredException } from './exception/AlreadyRegisteredException';
+export { BusinessDetails } from './model/BusinessDetails';
+export { Image } from './model/Image';
+export {
+  Get,
+  JsonController,
+  Body,
+  Param,
+  Post,
+  Put,
+} from 'routing-controllers';
+export { PaginatedTokenResponse } from './model/Token';
+export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
+export { ActiveChargingProfile } from './model/ActiveChargingProfile';
+export { ClearChargingProfileResult } from './model/ClearChargingProfileResult';
+export { ChargingProfileResult } from './model/ChargingProfileResult';
+export { Session } from './model/Session';
+export { PaginatedTariffResponse } from './model/Tariff';
+export { InterfaceRole } from './model/InterfaceRole';
+export { ImageType } from './model/ImageType';
+export { Role } from './model/Role';
+
+import Koa from 'koa';
+import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+import { LoggingMiddleware } from './util/middleware/logging.middleware';
+import { OcpiModuleConfig } from './config/ocpi.module.config';
+import { Container, Service } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { OcpiModule } from './model/IOcpiModule';
+import { OcpiServerConfig } from './config/ocpi.server.config';
+import { sequelize as sequelizeCore } from '@citrineos/data';
+import { SystemConfig } from '@citrineos/base';
+import { OcpiSequelizeInstance } from './util/sequelize';
+import { OcpiLogger } from './util/ocpi.logger';
+import { KoaServer } from './util/koa.server';
 
 useContainer(Container);
 
 @Service()
-export class OcpiServer {
+export class OcpiServer extends KoaServer {
   readonly koa: Koa;
-  modules: IOcpiModule[] = [];
+  modules: OcpiModule[] = [];
   serverConfig: OcpiServerConfig;
 
   constructor(
@@ -104,45 +121,64 @@ export class OcpiServer {
     logger: OcpiLogger,
     _sequelizeInstance: OcpiSequelizeInstance,
   ) {
+    super();
+
     this.serverConfig = serverConfig;
+    try {
+      // initialize sequelize repositories
+      Container.set(
+        sequelizeCore.SequelizeLocationRepository,
+        new sequelizeCore.SequelizeLocationRepository(
+          serverConfig as SystemConfig,
+          logger,
+        ),
+      );
+      // Container.set('Authorization', new Authorization())
+      // Container.set('Boot', new Boot())
+      // Container.set('Certificate', new Certificate())
+      Container.set(
+        sequelizeCore.SequelizeDeviceModelRepository,
+        new sequelizeCore.SequelizeDeviceModelRepository(
+          serverConfig as SystemConfig,
+          logger,
+        ),
+      );
+      // Container.set('MessageInfo', new MessageInfo())
+      // Container.set('SecurityEvent', new SecurityEvent())
+      // Container.set('Subscription', new Subscription())
+      // Container.set('Tariff', new Tariff())
+      // Container.set('TransactionEventRepository', new SequelizeTransactionEventRepository(serverConfig as SystemConfig, logger, sequelize));
+      // Container.set('VariableMonitoring', new VariableMonitoring())
 
-    // initialize sequelize repositories
-    Container.set(
-      sequelizeCore.SequelizeLocationRepository,
-      new sequelizeCore.SequelizeLocationRepository(
-        serverConfig as SystemConfig,
-        logger,
-      ),
-    );
-    // Container.set('Authorization', new Authorization())
-    // Container.set('Boot', new Boot())
-    // Container.set('Certificate', new Certificate())
-    Container.set(
-      sequelizeCore.SequelizeDeviceModelRepository,
-      new sequelizeCore.SequelizeDeviceModelRepository(
-        serverConfig as SystemConfig,
-        logger,
-      ),
-    );
-    // Container.set('MessageInfo', new MessageInfo())
-    // Container.set('SecurityEvent', new SecurityEvent())
-    // Container.set('Subscription', new Subscription())
-    // Container.set('Tariff', new Tariff())
-    // Container.set('TransactionEventRepository', new SequelizeTransactionEventRepository(serverConfig as SystemConfig, logger, sequelize));
-    // Container.set('VariableMonitoring', new VariableMonitoring())
+      for (const moduleType of modulesConfig.moduleTypes) {
+        this.modules.push(Container.get(moduleType));
+      }
 
-    for (const moduleType of modulesConfig.moduleTypes) {
-      this.modules.push(Container.get(moduleType));
+      this.koa = new Koa();
+      this.initLogger();
+      const controllers =
+        this.modules.map((module) => module.getController()) || [];
+      this.initApp({
+        controllers,
+        routePrefix: '/ocpi',
+        middlewares: [GlobalExceptionHandler, LoggingMiddleware],
+        defaultErrorHandler: false,
+      });
+      this.initKoaSwagger(
+        {
+          title: 'CitrineOS OCPI 2.2.1',
+          version: '1.0.0',
+        },
+        [
+          {
+            url: '/ocpi',
+          },
+        ],
+      );
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
     }
-
-    this.koa = new Koa();
-    this.koa.use(KoaLogger());
-    useKoaServer(this.koa, {
-      controllers: this.modules.map((module) => module.getController()) || [],
-      routePrefix: '/ocpi/:versionId',
-      middlewares: [GlobalExceptionHandler, LoggingMiddleware],
-      defaultErrorHandler: false,
-    });
   }
 
   public run() {

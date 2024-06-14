@@ -4,7 +4,7 @@ import { VersionNumber } from '../model/VersionNumber';
 import { OcpiRegistrationParams } from './util/ocpi.registration.params';
 import { OcpiParams } from './util/ocpi.params';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { HttpHeader } from '../../../../citrineos-core/00_Base';
+import { HttpHeader } from '@citrineos/base';
 import { OcpiHttpHeader } from '../util/ocpi.http.header';
 import { base64Encode } from '../util/util';
 
@@ -163,7 +163,7 @@ export class BaseClientApi {
     }
   }
 
-  validateOcpiParams(params: OcpiParams) {
+  validateOcpiParams<T extends OcpiParams>(params: T) {
     this.validateOcpiRegistrationParams(params);
     if (
       !params.fromCountryCode ||

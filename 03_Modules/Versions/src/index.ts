@@ -2,27 +2,25 @@
 // Copyright Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache 2.0
-
-import { VersionsModuleApi } from './module/api';
+import { OcpiModule } from '@citrineos/ocpi-base/dist/model/IOcpiModule';
 import {
-  IOcpiModule,
   OcpiCacheConfig,
   OcpiLogger,
   OcpiMessageHandlerConfig,
   OcpiMessageSenderConfig,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import { SystemConfig } from '../../../../citrineos-core/00_Base';
 import { SystemConfig } from '@citrineos/base';
-import { VersionsOcppHandlers } from './module/handlers';
 import { Service } from 'typedi';
+import { VersionsModuleApi } from './module/api';
+import { VersionsOcppHandlers } from './module/handlers';
 
 export { VersionsModuleApi } from './module/api';
 export { VersionsOcppHandlers } from './module/handlers';
 export { IVersionsModuleApi } from './module/interface';
 
 @Service()
-export class VersionsModule implements IOcpiModule {
+export class VersionsModule implements OcpiModule {
   constructor(
     serverConfig: OcpiServerConfig,
     cacheConfig: OcpiCacheConfig,
@@ -39,7 +37,7 @@ export class VersionsModule implements IOcpiModule {
     );
   }
 
-  getController(): any {
+  public getController(): any {
     return VersionsModuleApi;
   }
 }

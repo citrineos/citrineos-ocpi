@@ -1,8 +1,10 @@
-import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
-import { ModuleId } from '@citrineos/ocpi-base/dist/model/ModuleId';
+import {
+  BaseClientApi,
+  CredentialsResponse,
+  ModuleId,
+  OcpiRegistrationParams,
+} from '@citrineos/ocpi-base';
 import { IHeaders } from 'typed-rest-client/Interfaces';
-import { OcpiRegistrationParams } from '../../../00_Base/src/trigger/util/ocpi.registration.params';
-import { CredentialsResponse } from '../../../00_Base/src/model/CredentialsResponse';
 import { PostCredentialsParams } from './param/credentials/post.credentials.params';
 import { PutCredentialsParams } from './param/credentials/put.credentials.params';
 

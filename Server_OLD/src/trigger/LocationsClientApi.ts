@@ -1,8 +1,10 @@
-import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
-import { ConnectorResponse } from '../model/Connector';
-import { EvseResponse } from '../model/Evse';
-import { LocationResponse } from '../model/Location';
-import { OcpiResponse } from '../model/ocpi.response';
+import {
+  BaseClientApi,
+  ConnectorResponse,
+  EvseResponse,
+  LocationResponse,
+  OcpiResponse,
+} from '@citrineos/ocpi-base';
 import { GetConnectorParams } from './param/locations/get.connector.params';
 import { GetEvseParams } from './param/locations/get.evse.params';
 import { GetLocationParams } from './param/locations/get.location.params';

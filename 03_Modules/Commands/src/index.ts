@@ -3,26 +3,28 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
+import { OcpiModule } from '@citrineos/ocpi-base/dist/model/IOcpiModule';
 import { CommandsModuleApi } from './module/api';
-import { IOcpiModule } from '@citrineos/ocpi-base';
 import {
   EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
-} from '../../../../citrineos-core/00_Base';
+} from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
-import { Container } from 'typedi';
+import { Container, Service } from 'typedi';
 import { CommandsOcppHandlers } from './module/handlers';
 import { useContainer } from 'routing-controllers';
 
 export { CommandsModuleApi } from './module/api';
 export { ICommandsModuleApi } from './module/interface';
+export { CommandsOcppHandlers } from './module/handlers';
 
 useContainer(Container);
 
-export class CommandsModule implements IOcpiModule {
+@Service()
+export class CommandsModule implements OcpiModule {
   constructor(
     config: SystemConfig,
     cache: ICache,
@@ -34,7 +36,7 @@ export class CommandsModule implements IOcpiModule {
     new CommandsOcppHandlers(config, cache, sender, handler, logger);
   }
 
-  getController(): any {
+  public getController(): any {
     return CommandsModuleApi;
   }
 }

@@ -4,25 +4,25 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {
-  IOcpiModule,
   OcpiCacheConfig,
   OcpiLogger,
   OcpiMessageHandlerConfig,
   OcpiMessageSenderConfig,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import { SystemConfig } from '../../../../citrineos-core/00_Base';
-import { CommandsOcppHandlers } from '@citrineos/ocpi-commands/dist/module/handlers';
+import { SystemConfig } from '@citrineos/base';
+import { CommandsOcppHandlers } from '@citrineos/ocpi-commands';
 
 import { CredentialsModuleApi } from './module/api';
 import { Service } from 'typedi';
+import { OcpiModule } from '@citrineos/ocpi-base/dist/model/IOcpiModule';
 
 export { CredentialsModuleApi } from './module/api';
 export { ICredentialsModuleApi } from './module/interface';
 export { CredentialsOcppHandlers } from './module/handlers';
 
 @Service()
-export class CredentialsModule implements IOcpiModule {
+export class CredentialsModule implements OcpiModule {
   constructor(
     serverConfig: OcpiServerConfig,
     cacheConfig: OcpiCacheConfig,

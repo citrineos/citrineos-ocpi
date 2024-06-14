@@ -1,6 +1,4 @@
-import { BaseClientApi } from '../../../00_Base/src/trigger/BaseClientApi';
-import { OcpiResponse } from '../model/ocpi.response';
-import { Session } from '../model/Session';
+import { BaseClientApi, OcpiResponse, Session } from '@citrineos/ocpi-base';
 import { GetSessionParams } from './param/sessions/get.session.params';
 import { PatchSessionParams } from './param/sessions/patch.session.params';
 import { PutSessionParams } from './param/sessions/put.session.params';

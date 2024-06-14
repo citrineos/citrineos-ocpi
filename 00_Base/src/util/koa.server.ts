@@ -17,8 +17,6 @@ export class KoaServer {
   storage!: MetadataArgsStorage;
   spec!: OpenAPIObject;
 
-  constructor() {}
-
   public run(host: string, port: number) {
     this.app.on('error', (err, _ctx) => {
       console.log('Error intercepted by Koa:', err.message);
