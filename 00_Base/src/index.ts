@@ -9,8 +9,7 @@ import { useContainer, useKoaServer } from 'routing-controllers';
 import { IOcpiModule } from './model/IOcpiModule';
 import { OcpiServerConfig } from "./config/ocpi.server.config";
 import {
-    SequelizeDeviceModelRepository,
-    SequelizeLocationRepository
+    sequelize as sequelizeCore
 } from "@citrineos/data";
 import { SystemConfig } from "@citrineos/base";
 import { OcpiSequelizeInstance } from './util/sequelize';
@@ -48,6 +47,9 @@ export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.e
 export { MultipleTypes } from './util/decorators/multiple.types'
 export { OcpiNamespace } from './util/ocpi.namespace'
 export { OcpiLogger } from './util/ocpi.logger'
+export { OcpiModuleConfig } from "./config/ocpi.module.config";
+export { OcpiCacheConfig } from "./config/ocpi.cache.config";
+export { OcpiMessageSenderConfig, OcpiMessageHandlerConfig } from "./config/ocpi.message.config";
 export { OcpiSequelizeInstance } from './util/sequelize'
 export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint'
 export { AuthToken } from './util/decorators//auth.token'
@@ -80,14 +82,12 @@ export class OcpiServer {
     ) {
         this.serverConfig = serverConfig;
 
-        const sequelize = sequelizeInstance.sequelize;
-
         // initialize sequelize repositories
-        Container.set('LocationRepository', new SequelizeLocationRepository(serverConfig as SystemConfig, logger, sequelize));
+        Container.set(sequelizeCore.SequelizeLocationRepository, new sequelizeCore.SequelizeLocationRepository(serverConfig as SystemConfig, logger));
         // Container.set('Authorization', new Authorization())
         // Container.set('Boot', new Boot())
         // Container.set('Certificate', new Certificate())
-        Container.set('DeviceModelRepository', new SequelizeDeviceModelRepository(serverConfig as SystemConfig, logger, sequelize));
+        Container.set(sequelizeCore.SequelizeDeviceModelRepository, new sequelizeCore.SequelizeDeviceModelRepository(serverConfig as SystemConfig, logger));
         // Container.set('MessageInfo', new MessageInfo())
         // Container.set('SecurityEvent', new SecurityEvent())
         // Container.set('Subscription', new Subscription())
@@ -95,7 +95,6 @@ export class OcpiServer {
         // Container.set('TransactionEventRepository', new SequelizeTransactionEventRepository(serverConfig as SystemConfig, logger, sequelize));
         // Container.set('VariableMonitoring', new VariableMonitoring())
 
-        // TODO initialize modules
         for (let moduleType of modulesConfig.moduleTypes) {
             this.modules.push(Container.get(moduleType))
         }
