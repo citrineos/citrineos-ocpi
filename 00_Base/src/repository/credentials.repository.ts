@@ -7,7 +7,7 @@ import { SequelizeRepository } from '@citrineos/data';
 import { SystemConfig, UnauthorizedException } from '@citrineos/base';
 import { Credentials } from '../model/Credentials';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/ocpi.logger';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { CredentialsRole } from '../model/CredentialsRole';
 import { OcpiNamespace } from '../util/ocpi.namespace';

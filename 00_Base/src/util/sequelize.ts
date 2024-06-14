@@ -3,9 +3,9 @@ import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
 import { Credentials } from '../model/Credentials';
 import { Version } from '../model/Version';
+import { Endpoint } from '../model/Endpoint';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { Service } from 'typedi';
-import * as path from "path";
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -18,8 +18,6 @@ export class OcpiSequelizeInstance {
 
     sequelizeLogger.info('Creating default Sequelize instance');
 
-    //       models: [Credentials, Version, Endpoint],
-
     this.sequelize = new Sequelize({
       host: config.data.sequelize.host,
       port: config.data.sequelize.port,
@@ -28,7 +26,7 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [path.join(__dirname, '../model/*')],
+      models: [Credentials, Endpoint, Version],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);

@@ -2,7 +2,7 @@ import { Service } from "typedi";
 import { RabbitMqReceiver, RabbitMqSender } from "@citrineos/util";
 import { IMessageHandler, IMessageSender, SystemConfig } from "@citrineos/base";
 import { OcpiServerConfig } from "./ocpi.server.config";
-import { OcpiLoggerConfig } from "./ocpi.logger.config";
+import { OcpiLogger } from "../util/ocpi.logger";
 
 @Service()
 export class OcpiMessageSenderConfig {
@@ -10,9 +10,9 @@ export class OcpiMessageSenderConfig {
 
   constructor(
     config: OcpiServerConfig,
-    loggerConfig: OcpiLoggerConfig
+    logger: OcpiLogger
   ) {
-    this.sender = new RabbitMqSender(config as SystemConfig, loggerConfig.logger);
+    this.sender = new RabbitMqSender(config as SystemConfig, logger);
   }
 }
 
@@ -22,8 +22,8 @@ export class OcpiMessageHandlerConfig {
 
   constructor(
     config: OcpiServerConfig,
-    loggerConfig: OcpiLoggerConfig
+    logger: OcpiLogger
   ) {
-    this.handler = new RabbitMqReceiver(config as SystemConfig, loggerConfig.logger);
+    this.handler = new RabbitMqReceiver(config as SystemConfig, logger);
   }
 }

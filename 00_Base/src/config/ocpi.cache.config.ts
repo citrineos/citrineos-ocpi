@@ -19,14 +19,4 @@ export class OcpiCacheConfig {
     //     }
     //   }) : new MemoryCache();
   }
-
-  // return (
-  //   this.config.util.cache.redis
-  //   ? new RedisCache({
-  //                      socket: {
-  //                        host: this.config.util.cache.redis.host,
-  //                        port: this.config.util.cache.redis.port,
-  //                      },
-  //                    })
-  //   : new MemoryCache());
 }

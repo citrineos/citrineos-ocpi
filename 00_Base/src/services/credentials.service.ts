@@ -9,7 +9,7 @@ import { Version } from '../model/Version';
 import { VersionNumber } from '../model/VersionNumber';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 import { Service } from 'typedi';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/ocpi.logger';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 
 @Service()

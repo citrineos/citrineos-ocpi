@@ -7,7 +7,6 @@ import { OcpiModuleConfig } from "./config/ocpi.module.config";
 import { Container, Service } from 'typedi';
 import { useContainer, useKoaServer } from 'routing-controllers';
 import { IOcpiModule } from './model/IOcpiModule';
-import { OcpiLoggerConfig } from "./config/ocpi.logger.config";
 import { OcpiServerConfig } from "./config/ocpi.server.config";
 import {
     SequelizeDeviceModelRepository,
@@ -15,6 +14,7 @@ import {
 } from "@citrineos/data/dist/layers/sequelize";
 import { SystemConfig } from "@citrineos/base";
 import { OcpiSequelizeInstance } from './util/sequelize';
+import { OcpiLogger } from './util/ocpi.logger';
 
 export { generateMockOcpiResponse, BaseController } from './controllers/base.controller';
 
@@ -47,7 +47,7 @@ export { NotFoundException } from './exception/not.found.exception'
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint'
 export { MultipleTypes } from './util/decorators/multiple.types'
 export { OcpiNamespace } from './util/ocpi.namespace'
-export { OcpiLogger } from './util/logger'
+export { OcpiLogger } from './util/ocpi.logger'
 export { OcpiSequelizeInstance } from './util/sequelize'
 export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint'
 export { AuthToken } from './util/decorators//auth.token'
@@ -75,12 +75,11 @@ export class OcpiServer {
     constructor(
       serverConfig: OcpiServerConfig,
       modulesConfig: OcpiModuleConfig,
-      loggerConfig: OcpiLoggerConfig,
+      logger: OcpiLogger,
       sequelizeInstance: OcpiSequelizeInstance
     ) {
         this.serverConfig = serverConfig;
 
-        const logger = loggerConfig.logger;
         const sequelize = sequelizeInstance.sequelize;
 
         // initialize sequelize repositories

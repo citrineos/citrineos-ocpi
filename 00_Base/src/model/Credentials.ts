@@ -15,7 +15,7 @@ import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
 import { Type } from 'class-transformer';
 
 @Table
-export class Credentials extends Model {
+export class Credentials extends Model<Credentials> {
   static readonly MODEL_NAME: string = OcpiNamespace.Credentials;
 
   @Index

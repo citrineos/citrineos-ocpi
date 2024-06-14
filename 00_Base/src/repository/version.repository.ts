@@ -7,7 +7,7 @@ import { SequelizeRepository } from '@citrineos/data';
 import { Version } from '../model/Version';
 import { Service } from 'typedi';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/ocpi.logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
