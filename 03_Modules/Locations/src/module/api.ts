@@ -5,11 +5,31 @@
 
 import { Body, Controller, Get, Param } from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
-import { AsOcpiFunctionalEndpoint, BaseController, LocationsService, ModuleId, PaginatedLocationResponse, ResponseSchema, generateMockOcpiResponse, Location, LocationResponse } from '@citrineos/ocpi-base';
+import {
+  AsOcpiFunctionalEndpoint,
+  BaseController,
+  LocationsService,
+  ModuleId,
+  PaginatedLocationResponse,
+  generateMockOcpiPaginatedResponse,
+  ResponseSchema,
+  generateMockOcpiResponse,
+  LocationResponse,
+  PaginatedParams,
+  Paginated,
+  ConnectorResponse,
+  EvseResponse
+} from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
-import { ConnectorResponse } from '@citrineos/ocpi-base/src/model/Connector';
-import { EvseResponse } from '@citrineos/ocpi-base/src/model/Evse';
+
+const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
+  PaginatedLocationResponse,
+  new PaginatedParams(),
+);
+const MOCK_LOCATION = generateMockOcpiResponse(LocationResponse);
+const MOCK_EVSE = generateMockOcpiResponse(EvseResponse);
+const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
 
 /**
  * Server API for the provisioning component.
@@ -28,21 +48,20 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
       super();
     }
 
-  // @Get()
-  // @AsOcpiFunctionalEndpoint()
-  // @ResponseSchema(PaginatedLocationResponse, {
-  //   statusCode: HttpStatus.OK,
-  //   description: 'Successful response',
-  //   examples: {
-  //     success: generateMockOcpiResponse(PaginatedLocationResponse)
-  //   }
-  // })
-  // // TODO add query params
-  // async getLocations(
-
-  // ): Promise<PaginatedLocationResponse> {
-  //   return 
-  // }
+  @Get()
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(PaginatedLocationResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: MOCK_PAGINATED_LOCATION
+    }
+  })
+  async getLocations(
+    @Paginated() paginatedParams?: PaginatedParams,
+  ): Promise<PaginatedLocationResponse> {
+    return this.locationsService.getLocations(paginatedParams);
+  }
 
   @Get('/:locationId')
   @AsOcpiFunctionalEndpoint()
@@ -50,7 +69,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(LocationResponse)
+      success: MOCK_LOCATION
     }
   })
   async getLocationById(
@@ -65,7 +84,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(EvseResponse)
+      success: MOCK_EVSE
     }
   })
   async getEvseById(
@@ -81,7 +100,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(ConnectorResponse)
+      success: MOCK_CONNECTOR
     }
   })
   async getConnectorById(

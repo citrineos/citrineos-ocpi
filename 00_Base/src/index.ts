@@ -13,9 +13,10 @@ export { CommandResponse } from './model/CommandResponse';
 
 export {
   generateMockOcpiResponse,
+  generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
-
+export { PaginatedParams } from './controllers/param/paginated.params';
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -38,6 +39,9 @@ export { VersionDetailsDTO, VersionDTO } from './model/Version';
 export { OcpiResponse } from './model/ocpi.response';
 export { IOcpiModule } from './model/IOcpiModule';
 export { VersionRepository } from './repository/version.repository';
+export { Location, LocationResponse, PaginatedLocationResponse } from './model/Location';
+export { Evse, EvseResponse } from './model/Evse';
+export { Connector, ConnectorResponse } from './model/Connector';
 
 export { NotFoundException } from './exception/not.found.exception';
 
@@ -52,6 +56,7 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
+export { Paginated } from './util/decorators/paginated';
 
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
@@ -59,6 +64,7 @@ export { BaseClientApi } from './trigger/BaseClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
+export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 
 useContainer(Container);

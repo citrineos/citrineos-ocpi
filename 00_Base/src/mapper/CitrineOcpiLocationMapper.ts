@@ -50,21 +50,13 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     const evses: Evse[] = [];
 
     for (let chargingStation of ocppLocation.chargingPool) {
-      const evseVariableAttributesMap = chargingStationVariableAttributesMap[chargingStation.id]
-        .filter(va => va.component.name === this.EVSE_COMPONENT || va.component.name === this.CONNECTOR_COMPONENT)
-        .reduce(
-          (acc: Record<string, VariableAttribute[]>, va) => {
-            acc[(va.evse?.id ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.id ?? this.UNKNOWN_ID)] ?? []), va];
-            return acc;
-          },
-          {},
-        );
+      const evseVariableAttributesMap = this.getEvseVariableAttributesMap(chargingStationVariableAttributesMap[chargingStation.id]);
 
       Object.values(evseVariableAttributesMap).forEach(evseVariableAttributes =>
         evses.push(this.mapToOcpiEvse(
           ocppLocation,
           evseVariableAttributes,
-          null // TODO add evse ocpi information, potentially from evse
+          null // TODO add evse ocpi information from new table
         ))
       )
     }
@@ -93,13 +85,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     evseVariableAttributes: VariableAttribute[],
     evseOcpiInformation: any // TODO make not any
   ): Evse {
-    const connectorVariableAttributesMap = evseVariableAttributes.reduce(
-      (acc: Record<string, VariableAttribute[]>, va) => {
-        acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] ?? []), va];
-        return acc;
-      },
-      {},
-    );
+    const connectorVariableAttributesMap = this.getConnectorVariableAttributesMap(evseVariableAttributes);
 
     const availabilityState = this.getComponent(
       evseVariableAttributes,
@@ -197,6 +183,28 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     // connector.terms_and_conditions
 
     return connector;
+  }
+
+  getEvseVariableAttributesMap(variableAttributes: VariableAttribute[]) {
+    return variableAttributes
+      .filter(va => va.component.name === this.EVSE_COMPONENT || va.component.name === this.CONNECTOR_COMPONENT)
+      .reduce(
+        (acc: Record<string, VariableAttribute[]>, va) => {
+          acc[(va.evse?.id ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.id ?? this.UNKNOWN_ID)] ?? []), va];
+          return acc;
+        },
+        {},
+      );
+  }
+
+  getConnectorVariableAttributesMap(evseVariableAttributes: VariableAttribute[]) {
+    return evseVariableAttributes.reduce(
+      (acc: Record<string, VariableAttribute[]>, va) => {
+        acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] ?? []), va];
+        return acc;
+      },
+      {},
+    );
   }
 
   // Helpers
