@@ -6,11 +6,7 @@ import { OcpiServerConfig } from './config/ocpi.server.config';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
 import Koa from 'koa';
-import {
-  ICache,
-  IMessageHandler,
-  IMessageSender,
-} from '../../../citrineos-core/00_Base';
+import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiModule } from './model/OcpiModule';
 import { MessageHandlerWrapper } from './util/MessageHandlerWrapper';

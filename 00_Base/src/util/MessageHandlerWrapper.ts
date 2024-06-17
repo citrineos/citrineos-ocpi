@@ -1,4 +1,4 @@
-import { IMessageHandler } from '../../../../citrineos-core/00_Base';
+import { IMessageHandler } from '@citrineos/base';
 
 export class MessageHandlerWrapper {
   handler: IMessageHandler;

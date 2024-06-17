@@ -1,4 +1,4 @@
-import { IMessageSender } from '../../../../citrineos-core/00_Base';
+import { IMessageSender } from '@citrineos/base';
 
 export class MessageSenderWrapper {
   sender: IMessageSender;
