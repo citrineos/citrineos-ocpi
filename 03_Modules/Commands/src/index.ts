@@ -3,40 +3,44 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { OcpiModule } from '@citrineos/ocpi-base/dist/model/IOcpiModule';
-import { CommandsModuleApi } from './module/api';
+import {CommandsModuleApi} from './module/api';
+import {SystemConfig,} from '@citrineos/base';
+import {ILogObj, Logger} from 'tslog';
+import {Service} from 'typedi';
+import {CommandsOcppHandlers} from './module/handlers';
 import {
-  EventGroup,
-  ICache,
-  IMessageHandler,
-  IMessageSender,
-  SystemConfig,
-} from '@citrineos/base';
-import { ILogObj, Logger } from 'tslog';
-import { Container, Service } from 'typedi';
-import { CommandsOcppHandlers } from './module/handlers';
-import { useContainer } from 'routing-controllers';
+  CacheWrapper,
+  MessageHandlerWrapper,
+  MessageSenderWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
 
-export { CommandsModuleApi } from './module/api';
-export { ICommandsModuleApi } from './module/interface';
-export { CommandsOcppHandlers } from './module/handlers';
+export {CommandsModuleApi} from './module/api';
+export {ICommandsModuleApi} from './module/interface';
+export {CommandsOcppHandlers} from './module/handlers';
 
-useContainer(Container);
 
 @Service()
-export class CommandsModule implements OcpiModule {
+export class CommandsModule extends OcpiModule {
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    eventGroup: EventGroup,
+    config: OcpiServerConfig,
+    cache: CacheWrapper,
+    senderWrapper: MessageSenderWrapper,
+    handlerWrapper: MessageHandlerWrapper,
     logger?: Logger<ILogObj>,
   ) {
-    new CommandsOcppHandlers(config, cache, sender, handler, logger);
+    super();
+    new CommandsOcppHandlers(
+      config as SystemConfig,
+      cache.cache,
+      senderWrapper.sender,
+      handlerWrapper.handler,
+      logger,
+    );
   }
 
-  public getController(): any {
+  getController(): any {
     return CommandsModuleApi;
   }
 }

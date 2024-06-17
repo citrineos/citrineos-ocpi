@@ -27,7 +27,7 @@ export class CredentialsOcppHandlers extends AbstractModule {
   protected _responses: CallAction[] = [];
 
   /**
-   * This is the constructor function that initializes the {@link Credentials}.
+   * This is the constructor function that initializes the Credentials.
    *
    * @param {SystemConfig} config - The `config` contains configuration settings for the module.
    *

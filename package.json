@@ -2,11 +2,17 @@
   "name": "@citrineos/ocpi-workspace",
   "version": "1.1.1",
   "description": "The monitoring module for OCPP v2.0.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
+  "keywords": [
+    "ocpp",
+    "ocpp_v201"
+  ],
+  "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "private": false,
   "scripts": {
     "test": "jest --config jest.config.js",
     "sync-db": "ts-node ./db.sync.ts",
@@ -27,11 +33,6 @@
     "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
     "prettier": "npx prettier --write ."
   },
-  "keywords": [
-    "ocpp",
-    "ocpp_v201"
-  ],
-  "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",

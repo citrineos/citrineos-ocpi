@@ -8,18 +8,18 @@ import {
   OcpiLogger,
   OcpiMessageHandlerConfig,
   OcpiMessageSenderConfig,
+  OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import { SystemConfig } from '@citrineos/base';
-import { CommandsOcppHandlers } from '@citrineos/ocpi-commands';
+import {SystemConfig} from '@citrineos/base';
+import {CommandsOcppHandlers} from '@citrineos/ocpi-commands';
 
-import { CredentialsModuleApi } from './module/api';
-import { Service } from 'typedi';
-import { OcpiModule } from '@citrineos/ocpi-base/dist/model/IOcpiModule';
+import {CredentialsModuleApi} from './module/api';
+import {Service} from 'typedi';
 
-export { CredentialsModuleApi } from './module/api';
-export { ICredentialsModuleApi } from './module/interface';
-export { CredentialsOcppHandlers } from './module/handlers';
+export {CredentialsOcppHandlers} from './module/handlers';
+export {CredentialsModuleApi} from './module/api';
+export {ICredentialsModuleApi} from './module/interface';
 
 @Service()
 export class CredentialsModule implements OcpiModule {

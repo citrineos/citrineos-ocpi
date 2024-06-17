@@ -2,42 +2,43 @@
 // Copyright Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache 2.0
-import { OcpiModule } from '@citrineos/ocpi-base/dist/model/IOcpiModule';
 import {
-  OcpiCacheConfig,
-  OcpiLogger,
-  OcpiMessageHandlerConfig,
-  OcpiMessageSenderConfig,
+  CacheWrapper,
+  MessageHandlerWrapper,
+  MessageSenderWrapper,
+  OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import { SystemConfig } from '@citrineos/base';
-import { Service } from 'typedi';
-import { VersionsModuleApi } from './module/api';
-import { VersionsOcppHandlers } from './module/handlers';
+import {SystemConfig} from '@citrineos/base';
+import {Service} from 'typedi';
+import {VersionsModuleApi} from './module/api';
+import {VersionsOcppHandlers} from './module/handlers';
+import {ILogObj, Logger} from 'tslog';
 
-export { VersionsModuleApi } from './module/api';
-export { VersionsOcppHandlers } from './module/handlers';
-export { IVersionsModuleApi } from './module/interface';
+export {VersionsModuleApi} from './module/api';
+export {VersionsOcppHandlers} from './module/handlers';
+export {IVersionsModuleApi} from './module/interface';
 
 @Service()
-export class VersionsModule implements OcpiModule {
+export class VersionsModule extends OcpiModule {
   constructor(
-    serverConfig: OcpiServerConfig,
-    cacheConfig: OcpiCacheConfig,
-    senderConfig: OcpiMessageSenderConfig,
-    handlerConfig: OcpiMessageHandlerConfig,
-    logger: OcpiLogger,
+    config: OcpiServerConfig,
+    cache: CacheWrapper,
+    senderWrapper: MessageSenderWrapper,
+    handlerWrapper: MessageHandlerWrapper,
+    logger?: Logger<ILogObj>,
   ) {
+    super();
     new VersionsOcppHandlers(
-      serverConfig as SystemConfig,
-      cacheConfig.cache,
-      senderConfig.sender,
-      handlerConfig.handler,
+      config as SystemConfig,
+      cache.cache,
+      senderWrapper.sender,
+      handlerWrapper.handler,
       logger,
     );
   }
 
-  public getController(): any {
+  getController(): any {
     return VersionsModuleApi;
   }
 }

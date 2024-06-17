@@ -10,17 +10,16 @@ import {
   VersionNumberParam,
   VersionService,
 } from '@citrineos/ocpi-base';
-import { HttpStatus } from '@citrineos/base';
-import { Service } from 'typedi';
-import { IVersionsModuleApi } from './interface';
-import { Get, JsonController } from 'routing-controllers';
+import {HttpStatus} from '@citrineos/base';
+import {Service} from 'typedi';
+import {IVersionsModuleApi} from './interface';
+import {Get, JsonController} from 'routing-controllers';
 
 @JsonController(`/${ModuleId.Versions}`)
 @Service()
 export class VersionsModuleApi
   extends BaseController
-  implements IVersionsModuleApi
-{
+  implements IVersionsModuleApi {
   constructor(readonly versionService: VersionService) {
     super();
   }

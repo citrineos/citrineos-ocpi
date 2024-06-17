@@ -1,4 +1,4 @@
-import { Body, JsonController, Post } from '@citrineos/ocpi-base';
+import { Body, Controller, Post } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import { BaseController, generateMockOcpiResponse } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
@@ -9,21 +9,16 @@ import { StartSession } from '../model/StartSession';
 import { StopSession } from '../model/StopSession';
 import { UnlockConnector } from '../model/UnlockConnector';
 import { OcpiCommandResponse } from '../model/CommandResponse';
+import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 import { MultipleTypes } from '../util/decorators/multiple.types';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
 import { EnumParam } from '../util/decorators/enum.param';
-import {
-  versionIdParam,
-  VersionNumberParam,
-} from '../util/decorators/version.number.param';
-import { VersionNumber } from '../model/VersionNumber';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 import { CommandsService } from '../../../00_Base/src/services/commands.service';
 
 const MOCK = generateMockOcpiResponse(OcpiCommandResponse);
 
-@JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
+@Controller(`/${ModuleId.Commands}`)
 @Service()
 export class CommandsController extends BaseController {
   constructor(readonly commandsService: CommandsService) {
@@ -36,14 +31,10 @@ export class CommandsController extends BaseController {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: {
-        summary: 'A successful response',
-        value: MOCK,
-      },
+      success: MOCK,
     },
   })
   async postCommand(
-    @VersionNumberParam() _version: VersionNumber,
     @EnumParam('commandType', CommandType, 'CommandType')
     _commandType: CommandType,
     @Body()

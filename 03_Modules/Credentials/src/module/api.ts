@@ -15,18 +15,11 @@ import {
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import { HttpStatus } from '@citrineos/base';
-import { Service } from 'typedi';
-import { ICredentialsModuleApi } from './interface';
-import { CredentialsService } from './credentials.service';
-import {
-  Body,
-  Delete,
-  Get,
-  JsonController,
-  Post,
-  Put,
-} from 'routing-controllers';
+import {HttpStatus} from '@citrineos/base';
+import {Service} from 'typedi';
+import {ICredentialsModuleApi} from './interface';
+import {CredentialsService} from './credentials.service';
+import {Body, Delete, Get, JsonController, Post, Put,} from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
@@ -35,8 +28,7 @@ const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
 @Service()
 export class CredentialsModuleApi
   extends BaseController
-  implements ICredentialsModuleApi
-{
+  implements ICredentialsModuleApi {
   constructor(
     readonly logger: OcpiLogger,
     readonly credentialsService: CredentialsService,
@@ -64,7 +56,7 @@ export class CredentialsModuleApi
     const clientInformation =
       await this.credentialsService?.getClientInformation(token);
     const credentialsDto = toCredentialsDTO(
-      clientInformation.get({ plain: true }),
+      clientInformation.get({plain: true}),
     );
     return CredentialsResponse.build(credentialsDto);
   }
@@ -93,7 +85,7 @@ export class CredentialsModuleApi
       version,
     );
     return CredentialsResponse.build(
-      toCredentialsDTO(clientInformation.get({ plain: true })),
+      toCredentialsDTO(clientInformation.get({plain: true})),
     );
   }
 
@@ -120,7 +112,7 @@ export class CredentialsModuleApi
       credentials,
     );
     return CredentialsResponse.build(
-      toCredentialsDTO(clientInformation.get({ plain: true })),
+      toCredentialsDTO(clientInformation.get({plain: true})),
     );
   }
 
