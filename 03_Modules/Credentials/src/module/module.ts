@@ -12,9 +12,9 @@ import {
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
-import {RabbitMqReceiver, RabbitMqSender, Timer,} from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import {ILogObj, Logger} from 'tslog';
+import { ILogObj, Logger } from 'tslog';
 
 /**
  * Component that handles provisioning related messages.

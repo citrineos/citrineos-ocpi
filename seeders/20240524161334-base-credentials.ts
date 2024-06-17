@@ -1,6 +1,6 @@
 'use strict';
 
-import {QueryInterface} from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 /** @type {import('sequelize-cli').Migration} */
 export = {
@@ -18,7 +18,7 @@ export = {
                 role: 'CPO',
                 party_id: 'EXA',
                 country_code: 'NL',
-                business_details: {name: 'Example Operator'},
+                business_details: { name: 'Example Operator' },
               },
             ]),
             createdAt: new Date(),
@@ -38,7 +38,7 @@ export = {
     try {
       await queryInterface.bulkDelete(
         'Credentials',
-        {token: 'example-token'},
+        { token: 'example-token' },
         {},
       );
       console.log('Credentials data reverted successfully');

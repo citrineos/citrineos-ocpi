@@ -1,15 +1,14 @@
-import {KoaMiddlewareInterface, Middleware} from 'routing-controllers';
-import {HttpHeader, HttpStatus} from '@citrineos/base';
-import {Context} from 'vm';
-import {buildOcpiErrorResponse} from '../../model/ocpi.error.response';
-import {Service} from 'typedi';
-import {extractToken} from '../decorators/auth.token';
-import {OcpiHttpHeader} from '../ocpi.http.header';
-import {BaseMiddleware} from './base.middleware';
-import {OcpiResponseStatusCode} from '../../model/ocpi.response';
+import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
+import { HttpHeader, HttpStatus } from '@citrineos/base';
+import { Context } from 'vm';
+import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
+import { Service } from 'typedi';
+import { extractToken } from '../decorators/auth.token';
+import { OcpiHttpHeader } from '../ocpi.http.header';
+import { BaseMiddleware } from './base.middleware';
+import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
-
 
 /**
  * AuthMiddleware is applied via the {@link AsOcpiEndpoint} and {@link AsOcpiOpenRoutingEndpoint} decorators. Endpoints
@@ -18,12 +17,12 @@ const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
  * If authentication fails, {@link OcpiErrorResponse} will be thrown with HttpStatus.UNAUTHORIZED which should be handled
  * by global exception handler.
  */
-@Middleware({type: 'before'})
+@Middleware({ type: 'before' })
 @Service()
 export class AuthMiddleware
   extends BaseMiddleware
-  implements KoaMiddlewareInterface {
-
+  implements KoaMiddlewareInterface
+{
   throwError(ctx: Context) {
     ctx.throw(
       HttpStatus.UNAUTHORIZED,
@@ -43,12 +42,12 @@ export class AuthMiddleware
         return this.throwError(context);
       }
       try {
-        const token = extractToken(authHeader);
-        const fromCountryCode = this.getHeader(
+        const _token = extractToken(authHeader);
+        const _fromCountryCode = this.getHeader(
           context,
           OcpiHttpHeader.OcpiFromCountryCode,
         );
-        const fromPartyId = this.getHeader(
+        const _fromPartyId = this.getHeader(
           context,
           OcpiHttpHeader.OcpiFromPartyId,
         );
