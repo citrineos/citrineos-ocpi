@@ -30,6 +30,21 @@ export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
+export { Credentials } from './model/Credentials'
+export { Version } from './model/Version'
+export { Endpoint } from './model/Endpoint'
+export { CredentialsRole } from './model/CredentialsRole'
+export { CredentialsResponse } from './model/Credentials'
+export { OcpiResponseStatusCode } from './model/ocpi.response'
+export { OcpiEmptyResponse } from './model/ocpi.empty.response'
+export { VersionNumber } from './model/VersionNumber'
+export { VersionDetailsDTOResponse } from './model/Version'
+export { VersionDTOListResponse } from './model/Version'
+export { VersionDetailsDTO, VersionDTO } from './model/Version'
+export { OcpiResponse } from './model/ocpi.response'
+export { IOcpiModule } from './model/IOcpiModule'
+export { CommandResponse } from './model/CommandResponse'
+export { ChargingProfileResponse } from './model/ChargingProfileResponse'
 export { Credentials } from './model/Credentials';
 export { Version } from './model/Version';
 export { Endpoint } from './model/Endpoint';
@@ -64,6 +79,10 @@ export { BaseClientApi } from './trigger/BaseClientApi'
 export { CommandsClientApi } from './trigger/CommandsClientApi'
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
+export { CommandsService } from './services/commands.service'
+export { CredentialsService } from './services/credentials.service'
+export { VersionService } from './services/version.service'
+export { ChargingProfilesService } from './services/charging-profiles.service'
 export { BaseClientApi } from './trigger/BaseClientApi';
 
 export { ResponseUrlRepository } from './repository/response-url.repository'

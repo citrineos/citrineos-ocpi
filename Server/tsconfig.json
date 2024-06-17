@@ -21,6 +21,9 @@
     },
     {
       "path": "../03_Modules/Versions"
+    },
+    {
+      "path": "../03_Modules/ChargingProfiles"
     }
   ]
 }

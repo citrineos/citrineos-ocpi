@@ -1,7 +1,7 @@
 import {StartSession} from "../model/StartSession";
 import {
     AbstractModule,
-    CallAction, CancelReservationRequest,
+    CallAction, CancelReservationRequest, GetCompositeScheduleRequest,
     IdTokenEnumType, MessageOrigin,
     RequestStartTransactionRequest,
     RequestStopTransactionRequest, ReserveNowRequest
@@ -14,7 +14,7 @@ import {NotFoundException} from "../exception/not.found.exception";
 import {ReserveNow} from "../model/ReserveNow";
 import {CancelReservation} from "../model/CancelReservation";
 import {OcpiEvseEntityRepository} from "../repository/ocpi-evse.repository";
-import {SequelizeTransactionEventRepository} from "../../../../citrineos-core/01_Data/src/layers/sequelize";
+import {SequelizeTransactionEventRepository} from "@citrineos/data";
 
 @Service()
 export class CommandExecutor {
@@ -115,5 +115,32 @@ export class CommandExecutor {
 
     public async executeCancelReservation(cancelReservation: CancelReservation) {
         // TODO: implement.
+    }
+
+    public async executeGetActiveChargingProfile(sessionId: string, duration: number, responseUrl: string) {
+        const transaction = await this.transactionRepo.findByTransactionId(sessionId);
+
+        if (!transaction) {
+            throw new NotFoundException("Session not found");
+        }
+
+        const correlationId = uuidv4();
+
+        await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+
+        const request = {
+            duration: duration,
+            evseId: transaction.evse?.id
+        } as GetCompositeScheduleRequest;
+
+        this.abstractModule.sendCall(
+            transaction.stationId,
+            "tenantId",
+            CallAction.GetCompositeSchedule,
+            request,
+            undefined,
+            correlationId,
+            MessageOrigin.CentralSystem
+        );
     }
 }
