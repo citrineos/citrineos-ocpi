@@ -3,17 +3,9 @@ import { Location as OcpiLocation } from '../model/Location';
 import { Evse } from '../model/Evse';
 import { Connector } from '../model/Connector';
 import { GeoLocation } from '../model/GeoLocation';
-import {
-  Location as OcppLocation,
-  ChargingStation,
-  VariableAttribute,
-} from '@citrineos/data/src/layers/sequelize';
+import { Location as OcppLocation, VariableAttribute, } from '@citrineos/data/src/layers/sequelize';
 import { EvseStatus } from '../model/EvseStatus';
-import {
-  AttributeEnumType,
-  ConnectorEnumType,
-  ConnectorStatusEnumType,
-} from '@citrineos/base';
+import { AttributeEnumType, ConnectorEnumType, ConnectorStatusEnumType, } from '@citrineos/base';
 import { Capability } from '../model/Capability';
 import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
@@ -22,10 +14,15 @@ import { PowerType } from '../model/PowerType';
 // we need some more locations...
 // as in charging stations at the same location
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
+  EVSE_COMPONENT = 'EVSE';
+  CONNECTOR_COMPONENT = 'Connector';
+  AUTH_CONTROLLER_COMPONENT = 'AuthCtrlr';
+  UNKNOWN_ID = 'UNKNOWN';
+
   // TODO figure out credentials
   mapToOcpiLocation(
     ocppLocation: OcppLocation,
-    evseVariableAttributesMap: Record<string, VariableAttribute[]>,
+    chargingStationVariableAttributesMap: Record<string, VariableAttribute[]>,
   ): OcpiLocation {
     const ocpiLocation = new OcpiLocation();
 
@@ -50,13 +47,30 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiLocation.country = 'USA';
 
     ocpiLocation.coordinates = this.getCoordinates(ocppLocation.coordinates);
-    ocpiLocation.evses = ocppLocation.chargingPool.map((chargingStation) =>
-      this.mapToOcpiEvse(
-        ocppLocation,
-        chargingStation,
-        evseVariableAttributesMap[chargingStation.id],
-      ),
-    ); // TODO confirm that charging station would be related to evse id
+
+    const evses: Evse[] = [];
+
+    for (let chargingStation of ocppLocation.chargingPool) {
+      const evseVariableAttributesMap = chargingStationVariableAttributesMap[chargingStation.id]
+        .filter(va => va.component.name === this.EVSE_COMPONENT || va.component.name === this.CONNECTOR_COMPONENT)
+        .reduce(
+          (acc: Record<string, VariableAttribute[]>, va) => {
+            acc[(va.evse?.id ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.id ?? this.UNKNOWN_ID)] ?? []), va];
+            return acc;
+          },
+          {},
+        );
+
+      Object.values(evseVariableAttributesMap).forEach(evseVariableAttributes =>
+        evses.push(this.mapToOcpiEvse(
+          ocppLocation,
+          evseVariableAttributes,
+          null // TODO add evse ocpi information, potentially from evse
+        ))
+      )
+    }
+
+    ocpiLocation.evses = [...evses];
 
     // TODO make dynamic mappings for the remaining optional fields
     // ocpiLocation.related_locations
@@ -73,38 +87,51 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return ocpiLocation;
   }
 
+  // TODO needs the charging station MAP
+  // TODO needs the EVSE attributes map
   mapToOcpiEvse(
     location: OcppLocation,
-    chargingStation: ChargingStation,
-    variableAttributes: VariableAttribute[],
+    evseVariableAttributes: VariableAttribute[],
+    evseOcpiInformation: any // TODO make not any
   ): Evse {
-    const connectorVariableAttributesMap = variableAttributes.reduce(
+    const connectorVariableAttributesMap = evseVariableAttributes.reduce(
       (acc: Record<string, VariableAttribute[]>, va) => {
-        if (va.evse?.connectorId) {
-          acc[va.evse.connectorId] = [...(acc[va.evse.connectorId] ?? []), va];
-        }
-
+        acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] ?? []), va];
         return acc;
       },
       {},
     );
 
-    const evse = new Evse();
-    evse.uid = chargingStation.id;
-    evse.status = this.getStatus(variableAttributes);
-    evse.connectors = Object.keys(connectorVariableAttributesMap).map((id) =>
-      this.mapToOcpiConnector(Number(id), connectorVariableAttributesMap[id]),
-    );
-    evse.last_updated = new Date(); // make dynamic, must not be empty
-    evse.evse_id = this.getComponent(
-      variableAttributes,
-      'EVSE',
-      'EvseId',
+    const availabilityState = this.getComponent(
+      evseVariableAttributes,
+      this.EVSE_COMPONENT,
+      'AvailabilityState',
       AttributeEnumType.Actual,
     );
-    evse.capabilities = this.getCapabilities(variableAttributes);
+
+    const parkingBayOccupancy = this.getComponent(
+      evseVariableAttributes,
+      'BayOccupancySensor',
+      'Active',
+      AttributeEnumType.Actual,
+    );
+
+    const evse = new Evse();
+    evse.uid = evseOcpiInformation['uid'];
+    evse.status = this.getStatus(availabilityState, parkingBayOccupancy);
+    evse.connectors = Object.keys(connectorVariableAttributesMap).map((id) =>
+      this.mapToOcpiConnector(Number(id), evseVariableAttributes, connectorVariableAttributesMap[id]),
+    );
+    evse.evse_id = this.getComponent(
+      evseVariableAttributes,
+      this.EVSE_COMPONENT,
+      'EvseId',
+      AttributeEnumType.Actual,
+    )?.value;
+    evse.capabilities = this.getCapabilities(evseVariableAttributes);
     evse.coordinates = this.getCoordinates(location.coordinates);
-    evse.physical_reference = chargingStation.id; // TODO confirm this is the value
+    evse.physical_reference = evseOcpiInformation['physical_reference'];
+    evse.last_updated = new Date(Math.max(availabilityState?.updatedAt ?? 0, parkingBayOccupancy?.updatedAt ?? 0));
 
     // TODO make dynamic mappings for the remaining optional fields
     // evse.status_schedule
@@ -118,40 +145,49 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
   mapToOcpiConnector(
     id: number,
-    variableAttributes: VariableAttribute[],
+    evseVariableAttributes: VariableAttribute[],
+    connectorVariableAttributes: VariableAttribute[]
   ): Connector {
     const ocppConnectorType = this.getComponent(
-      variableAttributes,
-      'Connector',
+      connectorVariableAttributes,
+      this.CONNECTOR_COMPONENT,
       'ConnectorType',
       AttributeEnumType.Actual,
     );
 
+    const availabilityState = this.getComponent(
+      connectorVariableAttributes,
+      this.CONNECTOR_COMPONENT,
+      'AvailabilityState',
+      AttributeEnumType.Actual
+    );
+
     const connector = new Connector();
     connector.id = String(id);
-    connector.standard = this.getConnectorStandard(ocppConnectorType);
+    connector.last_updated = availabilityState?.updatedAt ?? availabilityState?.createdAt;
+    connector.standard = this.getConnectorStandard(ocppConnectorType?.value);
     connector.format = ConnectorFormat.CABLE; // TODO dynamically determine if CABLE Or SOCKET
-    connector.power_type = this.getConnectorPowerType(ocppConnectorType);
+    connector.power_type = this.getConnectorPowerType(ocppConnectorType?.value);
     connector.max_voltage = Number(
       this.getComponent(
-        variableAttributes,
-        'EVSE',
+        evseVariableAttributes,
+        this.EVSE_COMPONENT,
         'DCVoltage',
         AttributeEnumType.MaxSet,
       ) ?? '0',
     );
     connector.max_amperage = Number(
       this.getComponent(
-        variableAttributes,
-        'EVSE',
+        evseVariableAttributes,
+        this.EVSE_COMPONENT,
         'DCCurrent',
         AttributeEnumType.MaxSet,
       ) ?? '0',
     );
     connector.max_electric_power = Number(
       this.getComponent(
-        variableAttributes,
-        'EVSE',
+        evseVariableAttributes,
+        this.EVSE_COMPONENT,
         'Power',
         AttributeEnumType.MaxSet,
       ) ?? '0',
@@ -183,7 +219,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     component: string,
     variable: string,
     attribute: AttributeEnumType,
-  ): string | undefined {
+  ): VariableAttribute | undefined {
     const matchingVariableAttribute = variableAttributes.filter(
       (va) =>
         va.component.name === component &&
@@ -192,31 +228,17 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     );
 
     return matchingVariableAttribute.length > 0
-      ? matchingVariableAttribute[0].value
+      ? matchingVariableAttribute[0]
       : undefined;
   }
 
-  private getStatus(variableAttributes: VariableAttribute[]): EvseStatus {
-    const parkingBayOccupancy = this.getComponent(
-      variableAttributes,
-      'BayOccupancySensor',
-      'Active',
-      AttributeEnumType.Actual,
-    );
-
-    if (parkingBayOccupancy === 'true') {
+  private getStatus(availabilityState?: VariableAttribute, parkingBayOccupancy?: VariableAttribute): EvseStatus {
+    if (parkingBayOccupancy?.value === 'true') {
       return EvseStatus.BLOCKED;
     }
 
-    const availabilityState = this.getComponent(
-      variableAttributes,
-      'EVSE',
-      'AvailabilityState',
-      AttributeEnumType.Actual,
-    );
-
     // TODO add case for REMOVED
-    switch (availabilityState) {
+    switch (availabilityState?.value) {
       case ConnectorStatusEnumType.Occupied:
         return EvseStatus.CHARGING;
       case ConnectorStatusEnumType.Available:
