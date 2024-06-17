@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {CommandsModuleApi} from "./module/api";
-import {IOcpiModule} from '@citrineos/ocpi-base';
+import {OcpiModule} from '@citrineos/ocpi-base';
 import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
 import {Container} from 'typedi';
@@ -17,7 +17,7 @@ export {ICommandsModuleApi} from './module/interface';
 
 useContainer(Container);
 
-export class CommandsModule implements IOcpiModule {
+export class CommandsModule implements OcpiModule {
 
   constructor(
     config: SystemConfig,

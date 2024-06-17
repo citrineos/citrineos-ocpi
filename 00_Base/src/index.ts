@@ -1,12 +1,30 @@
 import {useContainer} from "routing-controllers";
 import {Container} from "typedi";
-import {IOcpiModule} from "./model/IOcpiModule";
+import {OcpiModule} from "./model/OcpiModule";
 import {GlobalExceptionHandler} from "./util/middleware/global.exception.handler";
 import {LoggingMiddleware} from "./util/middleware/logging.middleware";
 import {OcpiServerConfig} from "./config/ocpi.server.config";
 import {OcpiSequelizeInstance} from "./util/sequelize";
 import {KoaServer} from "./util/koa.server";
 import Koa from "koa";
+export {ImageCategory} from "./model/ImageCategory";
+export {ImageType} from "./model/ImageType";
+export {CountryCode} from "./util/util";
+
+export {KoaServer} from "./util/koa.server";
+export {InterfaceRole} from "./model/InterfaceRole";
+export {toCredentialsDTO} from "./model/ClientInformation";
+export {AlreadyRegisteredException} from "./exception/AlreadyRegisteredException";
+export {NotRegisteredException} from "./exception/NotRegisteredException";
+export {Image} from "./model/Image";
+export {BusinessDetails} from "./model/BusinessDetails";
+export {VersionsClientApi} from "./trigger/VersionsClientApi";
+export {CredentialsDTO} from "./model/DTO/CredentialsDTO";
+export {ClientVersion} from "./model/ClientVersion";
+export {ClientInformationRepository} from "./repository/ClientInformationRepository";
+export {ClientInformation} from "./model/ClientInformation";
+export {ClientCredentialsRole} from "./model/ClientCredentialsRole";
+export {fromCredentialsRoleDTO} from "./model/ClientCredentialsRole";
 
 export {OcpiServerConfig} from "./config/ocpi.server.config";
 export {CommandResponse} from "./model/CommandResponse";
@@ -24,11 +42,10 @@ export {StopSession} from "./model/StopSession";
 export {UnlockConnector} from "./model/UnlockConnector";
 export {OcpiCommandResponse} from "./model/CommandResponse";
 export {ModuleId} from "./model/ModuleId";
-export {Credentials} from "./model/Credentials";
 export {Version} from "./model/Version";
 export {Endpoint} from "./model/Endpoint";
 export {CredentialsRole} from "./model/CredentialsRole";
-export {CredentialsResponse} from "./model/Credentials";
+export {CredentialsResponse} from "./model/CredentialsResponse";
 export {OcpiResponseStatusCode} from "./model/ocpi.response";
 export {OcpiEmptyResponse} from "./model/ocpi.empty.response";
 export {VersionNumber} from "./model/VersionNumber";
@@ -37,7 +54,7 @@ export {VersionListResponseDTO} from "./model/DTO/VersionListResponseDTO";
 export {VersionDetailsDTO} from "./model/DTO/VersionDetailsDTO";
 export {VersionDTO} from "./model/DTO/VersionDTO";
 export {OcpiResponse} from "./model/ocpi.response";
-export {IOcpiModule} from "./model/IOcpiModule";
+export {OcpiModule} from "./model/OcpiModule";
 export {VersionRepository} from "./repository/VersionRepository";
 
 export {AsOcpiFunctionalEndpoint} from "./util/decorators/as.ocpi.functional.endpoint";
@@ -59,13 +76,14 @@ export {BaseClientApi} from "./trigger/BaseClientApi";
 export {CommandsService} from "./services/commands.service";
 export {CredentialsService} from "./services/credentials.service";
 export {VersionService} from "./services/version.service";
+export {versionIdParam} from "./util/decorators/version.number.param";
 
 useContainer(Container);
 
 export {Container} from "typedi";
 
 export class OcpiModuleConfig {
-  modules?: IOcpiModule[];
+  modules?: OcpiModule[];
 }
 
 export class OcpiServer extends KoaServer {
