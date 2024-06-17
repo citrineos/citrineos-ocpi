@@ -35,6 +35,10 @@ class CitrineOSServer {
     const ocpiServer = new OcpiServer(
       this.getModuleConfig(),
       this.config as OcpiServerConfig,
+      this.cache,
+      this._createHandler(),
+      this._createSender(),
+      this.logger,
     );
 
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);

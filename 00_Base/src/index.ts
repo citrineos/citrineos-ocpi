@@ -7,6 +7,18 @@ import { OcpiServerConfig } from './config/ocpi.server.config';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
 import Koa from 'koa';
+import {
+  ICache,
+  IMessage,
+  IMessageConfirmation,
+  IMessageHandler,
+  IMessageSender,
+  MessageState,
+  OcppError,
+} from '../../../citrineos-core/00_Base';
+import { ILogObj, Logger } from 'tslog';
+import { undefined } from 'zod';
+import { OcppRequest, OcppResponse } from '@citrineos/base';
 
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
@@ -69,21 +81,67 @@ export class OcpiModuleConfig {
   modules?: IOcpiModule[];
 }
 
+export class MessageSenderHandler {
+  handler: IMessageHandler;
+  sender: IMessageSender;
+  constructor(handler: IMessageHandler, sender: IMessageSender) {
+    this.handler = handler;
+    this.sender = sender;
+  }
+}
+
+export class Cache {
+  cache: ICache;
+  constructor(cache: ICache) {
+    this.cache = cache;
+  }
+}
+
 export class OcpiServer extends KoaServer {
   readonly koa: Koa;
+  readonly moduleConfig: OcpiModuleConfig;
   readonly serverConfig: OcpiServerConfig;
+  readonly cache: ICache;
+  readonly handler: IMessageHandler;
+  readonly sender: IMessageSender;
+  readonly logger: Logger<ILogObj>;
   readonly sequelizeInstance: OcpiSequelizeInstance;
+  readonly modules: OcpiModule[] = [];
 
-  constructor(moduleConfig: OcpiModuleConfig, serverConfig: OcpiServerConfig) {
+  constructor(
+    moduleConfig: OcpiModuleConfig,
+    serverConfig: OcpiServerConfig,
+    cache: ICache,
+    handler: IMessageHandler,
+    sender: IMessageSender,
+    logger: Logger<ILogObj>,
+  ) {
     super();
 
+    this.moduleConfig = moduleConfig;
     this.serverConfig = serverConfig;
+    this.cache = cache;
+    this.handler = handler;
+    this.sender = sender;
+    this.logger = logger;
+
+    Container.set(
+      MessageSenderHandler,
+      new MessageSenderHandler(this.handler, this.sender),
+    );
+    Container.set(Cache, this.cache);
+    Container.set(Logger, this.logger);
+
     this.sequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
+
+    this.moduleConfig.modules?.forEach((module) => {
+      this.modules.push(Container.get(module as any));
+    });
 
     try {
       this.koa = new Koa();
       const controllers =
-        moduleConfig.modules?.map((module) => module.getController()) || [];
+        this.modules?.map((module) => module.getController()) || [];
       this.initApp({
         controllers,
         routePrefix: '/ocpi',
