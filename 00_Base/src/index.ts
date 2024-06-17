@@ -8,10 +8,10 @@ import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
 import Koa from 'koa';
 
+export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
 export { CountryCode } from './util/util';
-
 export { KoaServer } from './util/koa.server';
 export { InterfaceRole } from './model/InterfaceRole';
 export { toCredentialsDTO } from './model/ClientInformation';
@@ -26,15 +26,12 @@ export { ClientInformationRepository } from './repository/ClientInformationRepos
 export { ClientInformation } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
-
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
-
 export {
   generateMockOcpiResponse,
   BaseController,
 } from './controllers/base.controller';
-
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -43,7 +40,7 @@ export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
-export { Version } from './model/Version';
+export { Version, IVersion } from './model/Version';
 export { Endpoint } from './model/Endpoint';
 export { CredentialsRole } from './model/CredentialsRole';
 export { CredentialsResponse } from './model/CredentialsResponse';
@@ -68,11 +65,8 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
-
 export { ResponseSchema } from './openapi-spec-helper/decorators';
-
 export { BaseClientApi } from './trigger/BaseClientApi';
-
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { VersionService } from './services/version.service';
