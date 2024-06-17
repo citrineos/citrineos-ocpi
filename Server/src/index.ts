@@ -22,6 +22,7 @@ import {
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
+import { Container } from 'typedi';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -32,6 +33,8 @@ class CitrineOSServer {
     this.config = createLocalConfig();
     this.cache = this.initCache();
     this.logger = this.initLogger();
+
+    Container.set(Logger, this.logger);
 
     const ocpiServer = new OcpiServer(
       this.getModuleConfig(),
