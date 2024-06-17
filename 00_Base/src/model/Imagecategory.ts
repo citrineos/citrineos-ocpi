@@ -1,9 +1,9 @@
-export enum Imagecategory {
-  CHARGER,
-  ENTRANCE,
-  LOCATION,
-  NETWORK,
-  OPERATOR,
-  OTHER,
-  OWNER,
+export enum ImageCategory {
+  CHARGER = 'CHARGER',
+  ENTRANCE = 'ENTRANCE',
+  LOCATION = 'LOCATION',
+  NETWORK = 'NETWORK',
+  OPERATOR = 'OPERATOR',
+  OTHER = 'OTHER',
+  OWNER = 'OWNER',
 }

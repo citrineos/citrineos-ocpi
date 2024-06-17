@@ -1,19 +1,14 @@
-// Copyright (c) 2023 S44, LLC
-// Copyright Contributors to the CitrineOS Project
-//
-// SPDX-License-Identifier: Apache 2.0
-
-import { SequelizeRepository } from '@citrineos/data';
-import { Version } from '../model/Version';
 import { Service } from 'typedi';
+import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiLogger } from '../util/logger';
-import { SystemConfig } from '@citrineos/base';
 import { OcpiSequelizeInstance } from '../util/sequelize';
+import { SystemConfig } from '@citrineos/base';
+import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
 import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiLogger } from '../util/ocpi.logger';
 
 @Service()
-export class VersionRepository extends SequelizeRepository<Version> {
+export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerCredentialsRole> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     logger: OcpiLogger,
@@ -21,7 +16,7 @@ export class VersionRepository extends SequelizeRepository<Version> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Version,
+      OcpiNamespace.ServerCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

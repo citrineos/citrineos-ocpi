@@ -52,7 +52,7 @@ export class Connector {
   tariff_ids?: null;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @Optional()
   terms_and_conditions?: string | null;
 

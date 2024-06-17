@@ -9,7 +9,7 @@ import { IRoute } from './parse.metadata';
 import { getContentType, getStatusCode } from './generate.spec.helpers';
 import { mergeDeep } from './merge.deep';
 import { SchemaStore } from './schema.store';
-import { Constructor } from '../util/util';
+import { Constructable } from 'typedi';
 
 const OPEN_API_KEY = Symbol('routing-controllers-openapi:OpenAPI');
 
@@ -111,7 +111,7 @@ export function ResponseSchema(
 
     let responseSchemaName = '';
     if (typeof responseClass === 'function' && responseClass.name) {
-      SchemaStore.addToSchemaStore(responseClass as Constructor);
+      SchemaStore.addToSchemaStore(responseClass as Constructable<any>);
       responseSchemaName = responseClass.name;
     } else if (typeof responseClass === 'string') {
       responseSchemaName = responseClass;

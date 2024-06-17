@@ -1,5 +1,6 @@
 import { BadRequestError, createParamDecorator } from 'routing-controllers';
 import { HttpHeader } from '@citrineos/base';
+import { base64Decode } from '../util';
 
 const tokenPrefix = 'Token ';
 
@@ -10,7 +11,7 @@ export function extractToken(authorization: string): string {
 
     try {
       // Decode the base64 token
-      return Buffer.from(token, 'base64').toString('utf-8');
+      return base64Decode(token);
     } catch (error) {
       throw new BadRequestError('Invalid base64 token');
     }
