@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { Constructable } from 'typedi/types/types/constructable.type';
-import { OcpiModule } from '../model/IOcpiModule';
+import { OcpiModule } from '../model/OcpiModule';
 
 @Service()
 export class OcpiModuleConfig {

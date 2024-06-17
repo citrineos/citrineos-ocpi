@@ -11,15 +11,15 @@ import {
   OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import {SystemConfig} from '@citrineos/base';
-import {CommandsOcppHandlers} from '@citrineos/ocpi-commands';
+import { SystemConfig } from '@citrineos/base';
 
-import {CredentialsModuleApi} from './module/api';
-import {Service} from 'typedi';
+import { CredentialsModuleApi } from './module/api';
+import { Service } from 'typedi';
+import { CredentialsOcppHandlers } from './module/handlers';
 
-export {CredentialsOcppHandlers} from './module/handlers';
-export {CredentialsModuleApi} from './module/api';
-export {ICredentialsModuleApi} from './module/interface';
+export { CredentialsOcppHandlers } from './module/handlers';
+export { CredentialsModuleApi } from './module/api';
+export { ICredentialsModuleApi } from './module/interface';
 
 @Service()
 export class CredentialsModule implements OcpiModule {
@@ -30,7 +30,7 @@ export class CredentialsModule implements OcpiModule {
     handlerConfig: OcpiMessageHandlerConfig,
     logger: OcpiLogger,
   ) {
-    new CommandsOcppHandlers(
+    new CredentialsOcppHandlers(
       serverConfig as SystemConfig,
       cacheConfig.cache,
       senderConfig.sender,

@@ -1,12 +1,26 @@
 import 'reflect-metadata';
-import {ICache, IMessageHandler, IMessageSender, SystemConfig,} from '@citrineos/base';
-import {type ILogObj, Logger} from 'tslog';
-import {createLocalConfig} from './config';
-import {MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache,} from '@citrineos/util';
-import {OcpiModuleConfig, OcpiServer, OcpiServerConfig,} from '@citrineos/ocpi-base';
-import {CommandsModule} from '@citrineos/ocpi-commands';
-import {VersionsModule} from '@citrineos/ocpi-versions';
-import {CredentialsModule} from '@citrineos/ocpi-credentials';
+import {
+  ICache,
+  IMessageHandler,
+  IMessageSender,
+  SystemConfig,
+} from '@citrineos/base';
+import { type ILogObj, Logger } from 'tslog';
+import { createLocalConfig } from './config';
+import {
+  MemoryCache,
+  RabbitMqReceiver,
+  RabbitMqSender,
+  RedisCache,
+} from '@citrineos/util';
+import {
+  OcpiModuleConfig,
+  OcpiServer,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import { CommandsModule } from '@citrineos/ocpi-commands';
+import { VersionsModule } from '@citrineos/ocpi-versions';
+import { CredentialsModule } from '@citrineos/ocpi-credentials';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -33,7 +47,7 @@ class CitrineOSServer {
   protected getModuleConfig() {
     const config = new OcpiModuleConfig();
 
-    config.modules = [VersionsModule, CredentialsModule, CommandsModule];
+    config.moduleTypes = [VersionsModule, CredentialsModule, CommandsModule];
 
     return config;
   }
@@ -49,11 +63,11 @@ class CitrineOSServer {
   private initCache(): ICache {
     return this.config.util.cache.redis
       ? new RedisCache({
-        socket: {
-          host: this.config.util.cache.redis.host,
-          port: this.config.util.cache.redis.port,
-        },
-      })
+          socket: {
+            host: this.config.util.cache.redis.host,
+            port: this.config.util.cache.redis.port,
+          },
+        })
       : new MemoryCache();
   }
 
