@@ -1,4 +1,10 @@
 import KoaLogger from "koa-logger";
+import { Container } from 'typedi';
+import { useContainer, useKoaServer } from 'routing-controllers';
+import { IOcpiModule } from "./model/IOcpiModule";
+import Koa from 'koa';
+import { GlobalExceptionHandler } from "./util/middleware/global.exception.handler";
+import { LoggingMiddleware } from "./util/middleware/logging.middleware";
 
 export { generateMockOcpiResponse, BaseController } from './controllers/base.controller';
 
@@ -25,6 +31,7 @@ export { OcpiResponse } from './model/ocpi.response'
 export { IOcpiModule } from './model/IOcpiModule'
 export { VersionRepository } from './repository/version.repository'
 export { CredentialsRepository } from './repository/credentials.repository'
+export { PaginatedSessionResponse } from './model/Session'
 
 export { NotFoundException } from './exception/not.found.exception'
 
@@ -45,26 +52,19 @@ export { ResponseSchema } from './openapi-spec-helper/decorators'
 export { BaseClientApi } from './trigger/BaseClientApi'
 
 export { CommandsService } from './services/commands.service'
+export { SessionsService } from './services/sessions.service'
 export { CredentialsService } from './services/credentials.service'
 export { VersionService } from './services/version.service'
 
-import { Container } from 'typedi';
-import {useContainer, useKoaServer} from 'routing-controllers';
-
 useContainer(Container);
-
-import { IOcpiModule } from "./model/IOcpiModule";
-import Koa from 'koa';
 
 export class OcpiServerConfig {
     modules?: IOcpiModule[]
 }
 
-import { GlobalExceptionHandler } from "./util/middleware/global.exception.handler";
-import { LoggingMiddleware } from "./util/middleware/logging.middleware";
-
 export class OcpiServer {
     readonly koa: Koa
+
     constructor(config?: OcpiServerConfig) {
         this.koa = new Koa()
         this.koa.use(KoaLogger());

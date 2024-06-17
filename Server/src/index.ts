@@ -41,6 +41,14 @@ class CitrineOSServer {
                 this._createSender(),
                 EventGroup.Versions,
                 this.logger,
+            ),
+            new SessionsModule(
+                this.config,
+                this.cache,
+                this._createHandler(),
+                this._createSender(),
+                EventGroup.Sessions,
+                this.logger
             )
         ]
 
