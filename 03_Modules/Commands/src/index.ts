@@ -4,16 +4,16 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { CommandsModuleApi } from './module/api';
-import { IOcpiModule } from '@citrineos/ocpi-base';
 import {
-  EventGroup,
-  ICache,
-  IMessageHandler,
-  IMessageSender,
-  SystemConfig,
-} from '@citrineos/base';
+  CacheWrapper,
+  MessageHandlerWrapper,
+  MessageSenderWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
-import { Container } from 'typedi';
+import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
 import { CommandsOcppHandlers } from './module/handlers';
 
@@ -22,16 +22,23 @@ export { ICommandsModuleApi } from './module/interface';
 
 useContainer(Container);
 
-export class CommandsModule implements IOcpiModule {
+@Service()
+export class CommandsModule extends OcpiModule {
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    eventGroup: EventGroup,
+    config: OcpiServerConfig,
+    cache: CacheWrapper,
+    senderWrapper: MessageSenderWrapper,
+    handlerWrapper: MessageHandlerWrapper,
     logger?: Logger<ILogObj>,
   ) {
-    new CommandsOcppHandlers(config, cache, sender, handler, logger);
+    super();
+    new CommandsOcppHandlers(
+      config as SystemConfig,
+      cache.cache,
+      senderWrapper.sender,
+      handlerWrapper.handler,
+      logger,
+    );
   }
 
   getController(): any {

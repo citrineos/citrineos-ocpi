@@ -1,6 +1,5 @@
 import { useContainer } from 'routing-controllers';
-import { Container } from 'typedi';
-import { IOcpiModule } from './model/IOcpiModule';
+import { Constructable, Container } from 'typedi';
 import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 import { LoggingMiddleware } from './util/middleware/logging.middleware';
 import { OcpiServerConfig } from './config/ocpi.server.config';
@@ -9,17 +8,16 @@ import { KoaServer } from './util/koa.server';
 import Koa from 'koa';
 import {
   ICache,
-  IMessage,
-  IMessageConfirmation,
   IMessageHandler,
   IMessageSender,
-  MessageState,
-  OcppError,
 } from '../../../citrineos-core/00_Base';
 import { ILogObj, Logger } from 'tslog';
-import { undefined } from 'zod';
-import { OcppRequest, OcppResponse } from '@citrineos/base';
+import { OcpiModule } from './model/OcpiModule';
+import { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
+import { MessageSenderWrapper } from './util/MessageSenderWrapper';
+import { CacheWrapper } from './util/CacheWrapper';
 
+export { OcpiModule } from './model/OcpiModule';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
 
@@ -48,7 +46,6 @@ export { VersionDetailsDTOResponse } from './model/Version';
 export { VersionDTOListResponse } from './model/Version';
 export { VersionDetailsDTO, VersionDTO } from './model/Version';
 export { OcpiResponse } from './model/ocpi.response';
-export { IOcpiModule } from './model/IOcpiModule';
 export { VersionRepository } from './repository/version.repository';
 
 export { NotFoundException } from './exception/not.found.exception';
@@ -72,29 +69,16 @@ export { BaseClientApi } from './trigger/BaseClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { VersionService } from './services/version.service';
+export { MessageSenderWrapper } from './util/MessageSenderWrapper';
+export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
+export { CacheWrapper } from './util/CacheWrapper';
 
 useContainer(Container);
 
 export { Container } from 'typedi';
 
 export class OcpiModuleConfig {
-  modules?: IOcpiModule[];
-}
-
-export class MessageSenderHandler {
-  handler: IMessageHandler;
-  sender: IMessageSender;
-  constructor(handler: IMessageHandler, sender: IMessageSender) {
-    this.handler = handler;
-    this.sender = sender;
-  }
-}
-
-export class Cache {
-  cache: ICache;
-  constructor(cache: ICache) {
-    this.cache = cache;
-  }
+  modules?: Constructable<OcpiModule>[];
 }
 
 export class OcpiServer extends KoaServer {
@@ -125,11 +109,13 @@ export class OcpiServer extends KoaServer {
     this.sender = sender;
     this.logger = logger;
 
+    Container.set(OcpiServerConfig, serverConfig);
     Container.set(
-      MessageSenderHandler,
-      new MessageSenderHandler(this.handler, this.sender),
+      MessageHandlerWrapper,
+      new MessageHandlerWrapper(this.handler),
     );
-    Container.set(Cache, this.cache);
+    Container.set(MessageSenderWrapper, new MessageSenderWrapper(this.sender));
+    Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
 
     this.sequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);

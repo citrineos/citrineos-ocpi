@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import {
-  EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
@@ -47,24 +46,7 @@ class CitrineOSServer {
   protected getModuleConfig() {
     const config = new OcpiModuleConfig();
 
-    config.modules = [
-      new CommandsModule(
-        this.config,
-        this.cache,
-        this._createHandler(),
-        this._createSender(),
-        EventGroup.Commands,
-        this.logger,
-      ),
-      new VersionsModule(
-        this.config,
-        this.cache,
-        this._createHandler(),
-        this._createSender(),
-        EventGroup.Versions,
-        this.logger,
-      ),
-    ];
+    config.modules = [CommandsModule, VersionsModule];
 
     return config;
   }
