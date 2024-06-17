@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "./dist"
+  },
+  "exclude": [
+    "./dist/**/*",
+    "**/node_modules/**",
+    "DirectusExtensions",
+    // todo for now
+    "Swarm",
+    // todo for now,
+    "Server_OLD"
+  ],
+  "references": [
+    {
+      "path": "Server"
+    },
+    {
+      "path": "../citrineos-core/00_Base"
+    }
+  ]
+}

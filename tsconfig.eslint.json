@@ -1,0 +1,45 @@
+{
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.stub.ts",
+    "./node_modules",
+    "**/__tests__/*",
+    "./dist",
+    "./**/dist",
+    "./**/**/dist"
+  ],
+  "include": [
+    "00_Base/**/*.ts",
+    "00_Base/**/*.json",
+    "03_Modules/Commands/**/*.ts",
+    "03_Modules/Commands/**/*.json",
+    "03_Modules/Credentials/**/*.ts",
+    "03_Modules/Credentials/**/*.json",
+    "03_Modules/Versions/**/*.ts",
+    "03_Modules/Versions/**/*.json",
+    "Server/**/*.ts",
+    "Server/**/*.json",
+    "mock-client/**/*.ts",
+    "mock-client/**/*.json",
+    "seeders/**/*.ts",
+    "seeders/**/*.json",
+    "migrations/**/*.ts",
+    "migrations/**/*.json",
+    "Server_OLD/**/**/*.ts",
+    "Server_OLD/**/**/*.json",
+    "./db.sync.ts"
+  ],
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "sourceMap": true
+  }
+}
