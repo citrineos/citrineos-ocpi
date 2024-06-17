@@ -1,27 +1,26 @@
 import { Service } from 'typedi';
-import {CancelReservation} from "../model/CancelReservation";
-import {ReserveNow} from "../model/ReserveNow";
-import {StartSession} from "../model/StartSession";
-import {StopSession} from "../model/StopSession";
-import {UnlockConnector} from "../model/UnlockConnector";
-import {CommandType} from "../model/CommandType";
-import {OcpiCommandResponse} from "../model/CommandResponse";
-
-import {IMessageSender} from "@citrineos/base";
-import {CommandExecutor} from "../model/CommandExecutor";
+import { CancelReservation } from '../model/CancelReservation';
+import { ReserveNow } from '../model/ReserveNow';
+import { StartSession } from '../model/StartSession';
+import { StopSession } from '../model/StopSession';
+import { UnlockConnector } from '../model/UnlockConnector';
+import { CommandType } from '../model/CommandType';
+import { OcpiCommandResponse } from '../model/CommandResponse';
+import { CommandExecutor } from '../model/CommandExecutor';
 
 @Service()
 export class CommandsService {
-  constructor(
-      private commandExecutor: CommandExecutor,
-  ) {}
+  constructor(private commandExecutor: CommandExecutor) {}
 
-  async postCommand(commandType: CommandType, payload:
+  async postCommand(
+    commandType: CommandType,
+    payload:
       | CancelReservation
       | ReserveNow
       | StartSession
       | StopSession
-      | UnlockConnector): Promise<OcpiCommandResponse> {
+      | UnlockConnector,
+  ): Promise<OcpiCommandResponse> {
     // this.ocppClient.sendRequest();
     // this.responseUrlRepository.createResponseUrl("url");
     this.commandExecutor.execute(payload);

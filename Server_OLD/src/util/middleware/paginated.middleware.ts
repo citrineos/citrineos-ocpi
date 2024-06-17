@@ -18,7 +18,8 @@ import { OcpiHttpHeader } from '../ocpi.http.header';
 @Service()
 export class PaginatedMiddleware
   extends BaseMiddleware
-  implements KoaMiddlewareInterface {
+  implements KoaMiddlewareInterface
+{
   async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
     await next();
     const paginatedResponse = context.response.body as PaginatedResponse<any>;

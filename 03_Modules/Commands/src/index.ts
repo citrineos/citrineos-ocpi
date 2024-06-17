@@ -2,23 +2,26 @@
 // Copyright Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache 2.0
+import { CommandsModuleApi } from './module/api';
+import { OcpiModule } from '@citrineos/ocpi-base';
+import {
+  EventGroup,
+  ICache,
+  IMessageHandler,
+  IMessageSender,
+  SystemConfig,
+} from '@citrineos/base';
+import { ILogObj, Logger } from 'tslog';
+import { Container } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { CommandsOcppHandlers } from './module/handlers';
 
-import {CommandsModuleApi} from "./module/api";
-import {OcpiModule} from '@citrineos/ocpi-base';
-import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
-import {ILogObj, Logger} from "tslog";
-import {Container} from 'typedi';
-import {useContainer} from 'routing-controllers';
-import {CommandsOcppHandlers} from './module/handlers';
-
-export {CommandsModuleApi} from './module/api';
-export {ICommandsModuleApi} from './module/interface';
-
+export { CommandsModuleApi } from './module/api';
+export { ICommandsModuleApi } from './module/interface';
 
 useContainer(Container);
 
 export class CommandsModule implements OcpiModule {
-
   constructor(
     config: SystemConfig,
     cache: ICache,
@@ -27,16 +30,10 @@ export class CommandsModule implements OcpiModule {
     eventGroup: EventGroup,
     logger?: Logger<ILogObj>,
   ) {
-    new CommandsOcppHandlers(
-      config,
-      cache,
-      sender,
-      handler,
-      logger
-    );
+    new CommandsOcppHandlers(config, cache, sender, handler, logger);
   }
 
   getController(): any {
-    return CommandsModuleApi
+    return CommandsModuleApi;
   }
 }
