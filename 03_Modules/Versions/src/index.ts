@@ -5,7 +5,7 @@
 
 import { VersionsModuleApi } from './module/api'
 import {IOcpiModule} from "@citrineos/ocpi-base";
-import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "../../../../citrineos-core/00_Base";
+import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
 
 export { VersionsModuleApi } from './module/api'

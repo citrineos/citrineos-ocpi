@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-export { CredentialsModuleApi } from './module/api';
-export { ICredentialsModuleApi } from './module/interface';
-export { CredentialsModule } from './module/module';
-
-export { CredentialsRepository } from '@citrineos/ocpi-base'
+export {CredentialsModuleApi} from './module/api';
+export {ICredentialsModuleApi} from './module/interface';
+export {CredentialsModule} from './module/module';
 
