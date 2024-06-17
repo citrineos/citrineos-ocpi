@@ -21,6 +21,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
+import { CredentialsModule } from '@citrineos/ocpi-credentials';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -44,20 +45,26 @@ class CitrineOSServer {
     const config = new OcpiModuleConfig();
 
     config.modules = [
+      new VersionsModule(
+        this.config,
+        this.cache,
+        this._createHandler(),
+        this._createSender(),
+        this.logger,
+      ),
+      new CredentialsModule(
+        this.config,
+        this.cache,
+        this._createHandler(),
+        this._createSender(),
+        this.logger,
+      ),
       new CommandsModule(
         this.config,
         this.cache,
         this._createHandler(),
         this._createSender(),
         EventGroup.Commands,
-        this.logger,
-      ),
-      new VersionsModule(
-        this.config,
-        this.cache,
-        this._createHandler(),
-        this._createSender(),
-        EventGroup.Versions,
         this.logger,
       ),
     ];

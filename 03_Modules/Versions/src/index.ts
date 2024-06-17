@@ -27,16 +27,9 @@ export class VersionsModule implements OcpiModule {
     cache: ICache,
     handler: IMessageHandler,
     sender: IMessageSender,
-    eventGroup: EventGroup,
     logger?: Logger<ILogObj>,
   ) {
-    new VersionsOcppHandlers(
-      config,
-      cache,
-      sender,
-      handler,
-      logger,
-    );
+    new VersionsOcppHandlers(config, cache, sender, handler, logger);
   }
 
   public getController(): any {
