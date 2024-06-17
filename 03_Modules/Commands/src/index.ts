@@ -3,50 +3,38 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { CommandsModuleApi } from "./module/api";
-import {IOcpiModule} from '@citrineos/ocpi-base';
+import { CommandsModuleApi } from './module/api';
+import { IOcpiModule } from '@citrineos/ocpi-base';
 import {
-    AbstractModule, CallAction, EventGroup,
-    ICache,
-    IMessageHandler,
-    IMessageSender,
-    SystemConfig
-} from "../../../../citrineos-core/00_Base";
-import {ILogObj, Logger} from "tslog";
-import deasyncPromise from "deasync-promise";
+  EventGroup,
+  ICache,
+  IMessageHandler,
+  IMessageSender,
+  SystemConfig,
+} from '@citrineos/base';
+import { ILogObj, Logger } from 'tslog';
+import { Container } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { CommandsOcppHandlers } from './module/handlers';
 
 export { CommandsModuleApi } from './module/api';
 export { ICommandsModuleApi } from './module/interface';
 
-
-import {Container} from 'typedi';
-import {useContainer} from 'routing-controllers';
-import {sequelize} from "@citrineos/data";
-
 useContainer(Container);
 
-import { CommandsOcppHandlers } from './module/handlers';
-
 export class CommandsModule implements IOcpiModule {
+  constructor(
+    config: SystemConfig,
+    cache: ICache,
+    handler: IMessageHandler,
+    sender: IMessageSender,
+    eventGroup: EventGroup,
+    logger?: Logger<ILogObj>,
+  ) {
+    new CommandsOcppHandlers(config, cache, sender, handler, logger);
+  }
 
-    constructor(
-        config: SystemConfig,
-        cache: ICache,
-        handler: IMessageHandler,
-        sender: IMessageSender,
-        eventGroup: EventGroup,
-        logger?: Logger<ILogObj>,
-    ) {
-        new CommandsOcppHandlers(
-            config,
-            cache,
-            sender,
-            handler,
-            logger
-        );
-    }
-
-    getController(): any {
-        return CommandsModuleApi
-    }
+  getController(): any {
+    return CommandsModuleApi;
+  }
 }

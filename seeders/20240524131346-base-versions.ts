@@ -1,6 +1,6 @@
 'use strict';
-import {QueryInterface} from 'sequelize';
-import {VersionNumber} from '@citrineos/ocpi-base';
+import { QueryInterface } from 'sequelize';
+import { VersionNumber } from '@citrineos/ocpi-base';
 
 import 'reflect-metadata';
 
@@ -56,12 +56,12 @@ export = {
     try {
       await queryInterface.bulkDelete(
         'Endpoints',
-        {version: VersionNumber.TWO_DOT_TWO_DOT_ONE},
+        { version: VersionNumber.TWO_DOT_TWO_DOT_ONE },
         {},
       );
       await queryInterface.bulkDelete(
         'Versions',
-        {version: VersionNumber.TWO_DOT_TWO_DOT_ONE},
+        { version: VersionNumber.TWO_DOT_TWO_DOT_ONE },
         {},
       );
       console.log('Data reverted successfully');

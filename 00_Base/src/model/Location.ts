@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { PublishTokenType } from './PublishTokenType';
 import { AdditionalGeoLocation } from './AdditionalGeoLocation';
-import { Businessdetails } from './Businessdetails';
+import { BusinessDetails } from './BusinessDetails';
 import { Facilities } from './Facilities';
 import { Hours } from './Hours';
 import { GeoLocation } from './GeoLocation';
@@ -107,17 +107,17 @@ export class Location {
   directions?: null;
 
   @Optional()
-  @Type(() => Businessdetails)
+  @Type(() => BusinessDetails)
   @ValidateNested()
-  operator?: Businessdetails | null;
+  operator?: BusinessDetails | null;
 
   @Optional()
-  @Type(() => Businessdetails)
+  @Type(() => BusinessDetails)
   @ValidateNested()
-  suboperator?: Businessdetails | null;
+  suboperator?: BusinessDetails | null;
 
   @Optional()
-  owner?: Businessdetails | null;
+  owner?: BusinessDetails | null;
 
   @IsArray()
   @Optional()

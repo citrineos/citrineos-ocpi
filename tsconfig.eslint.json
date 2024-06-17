@@ -6,8 +6,7 @@
     "**/__tests__/*",
     "./dist",
     "./**/dist",
-    "./**/**/dist",
-    "Server_OLD"
+    "./**/**/dist"
   ],
   "include": [
     "00_Base/**/*.ts",
@@ -19,7 +18,16 @@
     "03_Modules/Versions/**/*.ts",
     "03_Modules/Versions/**/*.json",
     "Server/**/*.ts",
-    "Server/**/*.json"
+    "Server/**/*.json",
+    "mock-client/**/*.ts",
+    "mock-client/**/*.json",
+    "seeders/**/*.ts",
+    "seeders/**/*.json",
+    "migrations/**/*.ts",
+    "migrations/**/*.json",
+    "Server_OLD/**/**/*.ts",
+    "Server_OLD/**/**/*.json",
+    "./db.sync.ts"
   ],
   "compilerOptions": {
     "target": "es6",

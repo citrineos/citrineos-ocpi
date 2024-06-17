@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
 import { Image } from './Image';
 import { Optional } from '../util/decorators/optional';
 
-export class Businessdetails {
+export class BusinessDetails {
   @MaxLength(100)
   @IsString()
   @IsNotEmpty()
