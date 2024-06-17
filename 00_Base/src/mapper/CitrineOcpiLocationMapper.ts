@@ -11,12 +11,11 @@ import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
 
-// we need some more locations...
-// as in charging stations at the same location
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   EVSE_COMPONENT = 'EVSE';
   CONNECTOR_COMPONENT = 'Connector';
   AUTH_CONTROLLER_COMPONENT = 'AuthCtrlr';
+  TOKEN_READER_COMPONENT = 'TokenReader';
   UNKNOWN_ID = 'UNKNOWN';
 
   // TODO figure out credentials
@@ -174,7 +173,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
         this.EVSE_COMPONENT,
         'DCVoltage',
         AttributeEnumType.MaxSet,
-      ) ?? '0',
+      )?.value ?? '0',
     );
     connector.max_amperage = Number(
       this.getComponent(
@@ -182,7 +181,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
         this.EVSE_COMPONENT,
         'DCCurrent',
         AttributeEnumType.MaxSet,
-      ) ?? '0',
+      )?.value ?? '0',
     );
     connector.max_electric_power = Number(
       this.getComponent(
@@ -190,7 +189,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
         this.EVSE_COMPONENT,
         'Power',
         AttributeEnumType.MaxSet,
-      ) ?? '0',
+      )?.value ?? '0',
     );
 
     // TODO make dynamic mappings for the remaining optional fields
@@ -209,9 +208,32 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return geoLocation;
   }
 
-  // TODO add logic
   private getCapabilities(variableAttributes: VariableAttribute[]): Capability[] {
-    return [];
+    // TODO add remaining capabilities
+    const capabilities: Capability[] = [];
+
+    const authorizeRemoteStart = this.getComponent(
+      variableAttributes,
+      this.AUTH_CONTROLLER_COMPONENT,
+      'AuthorizeRemoteStart',
+      AttributeEnumType.Actual
+    )?.value;
+
+    const tokenReaderEnabled = this.getComponent(
+      variableAttributes,
+      this.TOKEN_READER_COMPONENT,
+      'Enabled',
+      AttributeEnumType.Actual
+    )?.value;
+
+    if (authorizeRemoteStart === 'true') {
+      capabilities.push(Capability.REMOTE_START_STOP_CAPABLE);
+    }
+    if (tokenReaderEnabled === 'true') {
+      capabilities.push(Capability.RFID_READER);
+    }
+
+    return capabilities;
   }
 
   private getComponent(
