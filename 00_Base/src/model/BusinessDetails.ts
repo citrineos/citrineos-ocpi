@@ -1,20 +1,12 @@
-import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
-import { fromImageDTO, Image, toImageDTO } from './Image';
-import { Optional } from '../util/decorators/optional';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasOne,
-  Model,
-  Table,
-} from 'sequelize-typescript';
-import { ClientCredentialsRole } from './ClientCredentialsRole';
-import { ServerCredentialsRole } from './ServerCredentialsRole';
-import { Exclude } from 'class-transformer';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
-import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';
+import {IsNotEmpty, IsString, IsUrl, MaxLength} from 'class-validator';
+import {fromImageDTO, Image, toImageDTO} from './Image';
+import {Optional} from '../util/decorators/optional';
+import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table,} from 'sequelize-typescript';
+import {ClientCredentialsRole} from './ClientCredentialsRole';
+import {ServerCredentialsRole} from './ServerCredentialsRole';
+import {Exclude} from 'class-transformer';
+import {ON_DELETE_CASCADE} from '../util/sequelize';
+import {BusinessDetailsDTO} from './DTO/BusinessDetailsDTO';
 
 @Table // todo note here need for both client and server credential roles models because using base wont work
 export class BusinessDetails extends Model {
@@ -26,7 +18,7 @@ export class BusinessDetails extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl({ require_tld: false })
+  @IsUrl({require_tld: false})
   @Optional()
   website?: string | null;
 

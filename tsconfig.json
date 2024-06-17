@@ -7,8 +7,10 @@
   "exclude": [
     "./dist/**/*",
     "**/node_modules/**",
-    "DirectusExtensions", // todo for now
-    "Swarm", // todo for now,
+    "DirectusExtensions",
+    // todo for now
+    "Swarm",
+    // todo for now,
     "Server_OLD"
   ],
   "references": [
@@ -17,6 +19,6 @@
     },
     {
       "path": "../citrineos-core/00_Base"
-    },
+    }
   ]
 }
