@@ -72,8 +72,8 @@ export const toImageDTO = (image: Image) => {
   return imageDTO;
 };
 
-export const fromImageDTO = (imageDTO: ImageDTO) => {
-  return Image.build({
+export const fromImageDTO = (imageDTO: ImageDTO) =>
+  Image.build({
     url: imageDTO.url,
     thumbnail: imageDTO.thumbnail,
     category: imageDTO.category,
@@ -81,4 +81,3 @@ export const fromImageDTO = (imageDTO: ImageDTO) => {
     width: imageDTO.width,
     height: imageDTO.height,
   });
-};

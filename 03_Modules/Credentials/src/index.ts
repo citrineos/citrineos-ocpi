@@ -4,35 +4,35 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {
-  OcpiCacheConfig,
+  CacheWrapper,
+  MessageHandlerWrapper,
+  MessageSenderWrapper,
   OcpiLogger,
-  OcpiMessageHandlerConfig,
-  OcpiMessageSenderConfig,
   OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import { SystemConfig } from '@citrineos/base';
+import {SystemConfig} from '@citrineos/base';
 
-import { CredentialsModuleApi } from './module/api';
-import { Service } from 'typedi';
-import { CredentialsOcppHandlers } from './module/handlers';
+import {CredentialsModuleApi} from './module/api';
+import {Service} from 'typedi';
+import {CredentialsOcppHandlers} from './module/handlers';
 
-export { CredentialsOcppHandlers } from './module/handlers';
-export { CredentialsModuleApi } from './module/api';
-export { ICredentialsModuleApi } from './module/interface';
+export {CredentialsOcppHandlers} from './module/handlers';
+export {CredentialsModuleApi} from './module/api';
+export {ICredentialsModuleApi} from './module/interface';
 
 @Service()
 export class CredentialsModule implements OcpiModule {
   constructor(
     serverConfig: OcpiServerConfig,
-    cacheConfig: OcpiCacheConfig,
-    senderConfig: OcpiMessageSenderConfig,
-    handlerConfig: OcpiMessageHandlerConfig,
+    cacheWrapper: CacheWrapper,
+    senderConfig: MessageSenderWrapper,
+    handlerConfig: MessageHandlerWrapper,
     logger: OcpiLogger,
   ) {
     new CredentialsOcppHandlers(
       serverConfig as SystemConfig,
-      cacheConfig.cache,
+      cacheWrapper.cache,
       senderConfig.sender,
       handlerConfig.handler,
       logger,

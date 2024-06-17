@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {CommandsModuleApi} from './module/api';
-import {SystemConfig,} from '@citrineos/base';
-import {ILogObj, Logger} from 'tslog';
-import {Service} from 'typedi';
-import {CommandsOcppHandlers} from './module/handlers';
+import { CommandsModuleApi } from './module/api';
+import { SystemConfig } from '@citrineos/base';
+import { ILogObj, Logger } from 'tslog';
+import { Service } from 'typedi';
+import { CommandsOcppHandlers } from './module/handlers';
 import {
   CacheWrapper,
   MessageHandlerWrapper,
@@ -16,10 +16,9 @@ import {
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
 
-export {CommandsModuleApi} from './module/api';
-export {ICommandsModuleApi} from './module/interface';
-export {CommandsOcppHandlers} from './module/handlers';
-
+export { CommandsModuleApi } from './module/api';
+export { ICommandsModuleApi } from './module/interface';
+export { CommandsOcppHandlers } from './module/handlers';
 
 @Service()
 export class CommandsModule extends OcpiModule {

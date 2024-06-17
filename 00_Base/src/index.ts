@@ -7,7 +7,6 @@ import { OcpiServerConfig } from './config/ocpi.server.config';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { useContainer } from 'routing-controllers';
-import { OcpiLogger } from './util/ocpi.logger';
 import { KoaServer } from './util/koa.server';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiModule } from './model/OcpiModule';
@@ -52,11 +51,6 @@ export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.e
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
 export { OcpiLogger } from './util/ocpi.logger';
-export { OcpiCacheConfig } from './config/ocpi.cache.config';
-export {
-  OcpiMessageSenderConfig,
-  OcpiMessageHandlerConfig,
-} from './config/ocpi.message.config';
 export { CredentialsRole } from './model/CredentialsRole';
 export { OcpiSequelizeInstance } from './util/sequelize';
 export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint';

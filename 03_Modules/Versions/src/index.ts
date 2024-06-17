@@ -9,15 +9,15 @@ import {
   OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
-import {SystemConfig} from '@citrineos/base';
-import {Service} from 'typedi';
-import {VersionsModuleApi} from './module/api';
-import {VersionsOcppHandlers} from './module/handlers';
-import {ILogObj, Logger} from 'tslog';
+import { SystemConfig } from '@citrineos/base';
+import { Service } from 'typedi';
+import { VersionsModuleApi } from './module/api';
+import { VersionsOcppHandlers } from './module/handlers';
+import { ILogObj, Logger } from 'tslog';
 
-export {VersionsModuleApi} from './module/api';
-export {VersionsOcppHandlers} from './module/handlers';
-export {IVersionsModuleApi} from './module/interface';
+export { VersionsModuleApi } from './module/api';
+export { VersionsOcppHandlers } from './module/handlers';
+export { IVersionsModuleApi } from './module/interface';
 
 @Service()
 export class VersionsModule extends OcpiModule {

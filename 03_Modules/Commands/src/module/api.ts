@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {ICommandsModuleApi} from './interface';
+import { ICommandsModuleApi } from './interface';
 
 import {
   AsOcpiFunctionalEndpoint,
@@ -22,10 +22,10 @@ import {
   StopSession,
   UnlockConnector,
 } from '@citrineos/ocpi-base';
-import {Body, Controller, Post} from 'routing-controllers';
-import {HttpStatus} from '@citrineos/base';
+import { Body, Controller, Post } from 'routing-controllers';
+import { HttpStatus } from '@citrineos/base';
 
-import {Service} from 'typedi';
+import { Service } from 'typedi';
 
 /**
  * Server API for the provisioning component.
@@ -34,7 +34,8 @@ import {Service} from 'typedi';
 @Service()
 export class CommandsModuleApi
   extends BaseController
-  implements ICommandsModuleApi {
+  implements ICommandsModuleApi
+{
   constructor(readonly commandsService: CommandsService) {
     super();
   }
@@ -50,7 +51,7 @@ export class CommandsModuleApi
   })
   async postCommand(
     @EnumParam('commandType', CommandType, 'CommandType')
-      _commandType: CommandType,
+    _commandType: CommandType,
     @Body()
     @MultipleTypes(
       CancelReservation,
@@ -59,7 +60,7 @@ export class CommandsModuleApi
       StopSession,
       UnlockConnector,
     )
-      _payload:
+    _payload:
       | CancelReservation
       | ReserveNow
       | StartSession
