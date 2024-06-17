@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import { Businessdetails } from './Businessdetails';
-import { Role } from './Role';
-import { Enum } from '../util/decorators/enum';
+import {IsNotEmpty, IsString, MaxLength, MinLength} from 'class-validator';
+import {BusinessDetails} from './BusinessDetails';
+import {Role} from './Role';
+import {Enum} from '../util/decorators/enum';
 
 export class CredentialsRole {
   @Enum(Role, 'Role')
@@ -9,7 +9,7 @@ export class CredentialsRole {
   role!: Role;
 
   @IsNotEmpty()
-  business_details!: Businessdetails;
+  business_details!: BusinessDetails;
 
   @MaxLength(3)
   @MinLength(3)

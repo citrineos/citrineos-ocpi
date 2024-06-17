@@ -1,17 +1,17 @@
-import { Service } from 'typedi';
-import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiLogger } from '../util/ocpi.logger';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { SystemConfig, UnauthorizedException } from '@citrineos/base';
-import { ClientInformation } from '../model/ClientInformation';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import {Service} from 'typedi';
+import {SequelizeRepository} from '@citrineos/data';
+import {OcpiServerConfig} from '../config/ocpi.server.config';
+import {OcpiSequelizeInstance} from '../util/sequelize';
+import {SystemConfig, UnauthorizedException} from '@citrineos/base';
+import {ClientInformation} from '../model/ClientInformation';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {ILogObj, Logger} from "tslog";
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
-    logger: OcpiLogger,
+    logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(

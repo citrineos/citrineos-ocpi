@@ -32,14 +32,13 @@ export {CredentialsResponse} from "./model/Credentials";
 export {OcpiResponseStatusCode} from "./model/ocpi.response";
 export {OcpiEmptyResponse} from "./model/ocpi.empty.response";
 export {VersionNumber} from "./model/VersionNumber";
-export {VersionDetailsDTOResponse} from "./model/Version";
-export {VersionDTOListResponse} from "./model/Version";
-export {VersionDetailsDTO, VersionDTO} from "./model/Version";
+export {VersionDetailsResponseDTO} from "./model/DTO/VersionDetailsResponseDTO";
+export {VersionListResponseDTO} from "./model/DTO/VersionListResponseDTO";
+export {VersionDetailsDTO} from "./model/DTO/VersionDetailsDTO";
+export {VersionDTO} from "./model/DTO/VersionDTO";
 export {OcpiResponse} from "./model/ocpi.response";
 export {IOcpiModule} from "./model/IOcpiModule";
-export {VersionRepository} from "./repository/version.repository";
-
-export {NotFoundException} from "./exception/not.found.exception";
+export {VersionRepository} from "./repository/VersionRepository";
 
 export {AsOcpiFunctionalEndpoint} from "./util/decorators/as.ocpi.functional.endpoint";
 export {MultipleTypes} from "./util/decorators/multiple.types";
