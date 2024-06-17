@@ -22,7 +22,8 @@ const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 @Service()
 export class AuthMiddleware
   extends BaseMiddleware
-  implements KoaMiddlewareInterface {
+  implements KoaMiddlewareInterface
+{
   constructor(readonly credentialsRepository: CredentialsRepository) {
     super();
   }

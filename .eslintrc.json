@@ -9,6 +9,12 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
+  "ignorePatterns": [
+    "**/DirectusExtensions/**/*.ts",
+    "**/Swarm/**/*.ts",
+    "**/dist/**",
+    "**/lib/**"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "tsconfig.eslint.json",
@@ -61,7 +67,7 @@
       }
     ],
     "@typescript-eslint/no-misused-new": "error",
-    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-shadow": [
       "error",
       {

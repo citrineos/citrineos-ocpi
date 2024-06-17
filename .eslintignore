@@ -1,12 +1,5 @@
-**/*.test.ts
-**/*.stub.ts
-./node_modules
-**/__tests__/*
-./dist
-./**/dist
-./**/**/dist
+./DirectusExtensions/
+./Swarm/
 **/dist/**
 **/lib/**
-Server/src/config/sequalize.bridge.config.js
-jest.config.js
-json-schema-processor.js
+**/*.test.ts

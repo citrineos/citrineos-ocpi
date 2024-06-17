@@ -1,3 +1,3 @@
 export interface IOcpiModule {
-    getController: () => any;
+  getController: () => any;
 }
