@@ -12,16 +12,19 @@ import {
   ICache,
   IMessage,
   IMessageHandler,
-  IMessageSender, RequestStartStopStatusEnumType, RequestStartTransactionResponse, RequestStopTransactionResponse,
+  IMessageSender,
+  RequestStartStopStatusEnumType,
+  RequestStartTransactionResponse,
+  RequestStopTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
-import {RabbitMqReceiver, RabbitMqSender, Timer,} from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import {ILogObj, Logger} from 'tslog';
-import {CommandsClientApi, ResponseUrlRepository} from "@citrineos/ocpi-base";
-import {Service} from "typedi";
-import {CommandResultType} from "@citrineos/ocpi-base/dist/model/CommandResult";
-import {ChargingProfilesModule} from "../index";
+import { ILogObj, Logger } from 'tslog';
+import { CommandsClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
+import { Service } from 'typedi';
+import { CommandResultType } from '@citrineos/ocpi-base/dist/model/CommandResult';
+import { ChargingProfilesModule } from '../index';
 
 /**
  * Component that handles ChargingProfiles related messages.
@@ -31,10 +34,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [
-  ];
-  protected _responses: CallAction[] = [
-  ];
+  protected _requests: CallAction[] = [];
+  protected _responses: CallAction[] = [];
 
   constructor(
     config: SystemConfig,
@@ -68,8 +69,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.RequestStartTransaction)
   protected _handleRequestStartTransactionResponse(
-      message: IMessage<RequestStartTransactionResponse>,
-      props?: HandlerProperties,
+    message: IMessage<RequestStartTransactionResponse>,
+    props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling:', message, props);
 
@@ -80,8 +81,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.RequestStopTransaction)
   protected _handleRequestStopTransactionResponse(
-      message: IMessage<RequestStopTransactionResponse>,
-      props?: HandlerProperties,
+    message: IMessage<RequestStopTransactionResponse>,
+    props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling:', message, props);
 
@@ -90,24 +91,35 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     this.sendCommandResult(message.context.correlationId, result);
   }
 
-  private getResult(requestStartStopStatus: RequestStartStopStatusEnumType): CommandResultType {
+  private getResult(
+    requestStartStopStatus: RequestStartStopStatusEnumType,
+  ): CommandResultType {
     switch (requestStartStopStatus) {
       case RequestStartStopStatusEnumType.Accepted:
         return CommandResultType.ACCEPTED;
       case RequestStartStopStatusEnumType.Rejected:
         return CommandResultType.REJECTED;
       default:
-        throw new Error(`Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`);
+        throw new Error(
+          `Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`,
+        );
     }
   }
 
-  private async sendCommandResult(correlationId: string, result: CommandResultType) {
-    const responseUrlEntity = await this.responseUrlRepo.getResponseUrl(correlationId);
+  private async sendCommandResult(
+    correlationId: string,
+    result: CommandResultType,
+  ) {
+    const responseUrlEntity =
+      await this.responseUrlRepo.getResponseUrl(correlationId);
     if (responseUrlEntity) {
       try {
-        await this.commandsClient.postCommandResult(responseUrlEntity.responseUrl, {
-          result: result,
-        })
+        await this.commandsClient.postCommandResult(
+          responseUrlEntity.responseUrl,
+          {
+            result: result,
+          },
+        );
       } catch (error) {
         this._logger.error(error);
       }
