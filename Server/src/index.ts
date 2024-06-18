@@ -52,8 +52,8 @@ class CitrineOSServer {
         module: VersionsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
-      }
-    ]
+      },
+    ];
   }
 
   protected _createSender(): IMessageSender {

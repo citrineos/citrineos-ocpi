@@ -21,13 +21,12 @@ import { ILogObj, Logger } from 'tslog';
 import {
   CacheWrapper,
   CommandsClientApi,
-  MessageHandlerWrapper,
-  MessageSenderWrapper,
-  OcpiServerConfig,
   ResponseUrlRepository,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { CommandResultType } from '@citrineos/ocpi-base';
+import { IMessageHandler, IMessageSender } from '@citrineos/base';
+import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
 
 /**
  * Component that handles provisioning related messages.
@@ -44,19 +43,19 @@ export class CommandsOcppHandlers extends AbstractModule {
   ];
 
   constructor(
-    config: OcpiServerConfig,
+    config: SystemConfig,
     cache: CacheWrapper,
     readonly responseUrlRepo: ResponseUrlRepository,
     readonly commandsClient: CommandsClientApi,
-    senderWrapper: MessageSenderWrapper,
-    handlerWrapper: MessageHandlerWrapper,
+    handler?: IMessageHandler,
+    sender?: IMessageSender,
     logger?: Logger<ILogObj>,
   ) {
     super(
-      config as SystemConfig,
+      config,
       cache.cache,
-      handlerWrapper.handler,
-      senderWrapper.sender,
+      handler || new RabbitMqReceiver(config, logger),
+      sender || new RabbitMqSender(config, logger),
       EventGroup.Commands,
       logger,
     );

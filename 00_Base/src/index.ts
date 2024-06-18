@@ -80,58 +80,49 @@ useContainer(Container);
 export { Container } from 'typedi';
 
 export class OcpiModuleConfig {
-  modules?: Constructable<OcpiModule>[];
+  module!: Constructable<OcpiModule>;
+  handler?: IMessageHandler;
+  sender?: IMessageSender;
 }
 
 export class OcpiServer extends KoaServer {
-  readonly koa: Koa;
-  readonly moduleConfig: OcpiModuleConfig;
+  koa!: Koa;
   readonly serverConfig: OcpiServerConfig;
   readonly cache: ICache;
-  readonly handler: IMessageHandler;
-  readonly sender: IMessageSender;
   readonly logger: Logger<ILogObj>;
   readonly sequelizeInstance: OcpiSequelizeInstance;
   readonly modules: OcpiModule[] = [];
 
   constructor(
-    moduleConfig: OcpiModuleConfig,
     serverConfig: OcpiServerConfig,
     cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
     logger: Logger<ILogObj>,
+    modulesConfig: OcpiModuleConfig[],
   ) {
     super();
 
-    this.moduleConfig = moduleConfig;
     this.serverConfig = serverConfig;
     this.cache = cache;
-    this.handler = handler;
-    this.sender = sender;
     this.logger = logger;
-
-    Container.set(OcpiServerConfig, serverConfig);
-    Container.set(
-      MessageHandlerWrapper,
-      new MessageHandlerWrapper(this.handler),
-    );
-    Container.set(MessageSenderWrapper, new MessageSenderWrapper(this.sender));
-    Container.set(CacheWrapper, new CacheWrapper(this.cache));
-    Container.set(Logger, this.logger);
-
     this.sequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
 
-    Container.set(OcpiSequelizeInstance, this.sequelizeInstance);
+    this.initContainer();
 
-    this.moduleConfig.modules?.forEach((module) => {
-      this.modules.push(Container.get(module as any));
+    this.modules = modulesConfig.map((moduleConfig) => {
+      const module = Container.get(moduleConfig.module);
+      module.init(moduleConfig.handler, moduleConfig.sender);
+      return module;
     });
 
+    this.initServer();
+  }
+
+  private initServer() {
     try {
       this.koa = new Koa();
-      const controllers =
-        this.modules?.map((module) => module.getController()) || [];
+      const controllers = this.modules.map((module) => {
+        return module.getController();
+      });
       this.initApp({
         controllers,
         routePrefix: '/ocpi',
@@ -153,5 +144,12 @@ export class OcpiServer extends KoaServer {
       console.error(error);
       process.exit(1);
     }
+  }
+
+  private initContainer() {
+    Container.set(OcpiServerConfig, this.serverConfig);
+    Container.set(CacheWrapper, new CacheWrapper(this.cache));
+    Container.set(Logger, this.logger);
+    Container.set(OcpiSequelizeInstance, this.sequelizeInstance);
   }
 }

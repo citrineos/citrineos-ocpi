@@ -5,15 +5,17 @@
 
 import { VersionsModuleApi } from './module/api';
 import {
-  CacheWrapper, CommandsClientApi,
+  CacheWrapper,
+  CommandsClientApi,
   OcpiModule,
-  OcpiServerConfig, ResponseUrlRepository,
+  OcpiServerConfig,
+  ResponseUrlRepository,
 } from '@citrineos/ocpi-base';
 import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { VersionsOcppHandlers } from './module/handlers';
-import {Service} from 'typedi';
-import {IMessageHandler, IMessageSender} from "@citrineos/base";
+import { Service } from 'typedi';
+import { IMessageHandler, IMessageSender } from '@citrineos/base';
 
 export { VersionsModuleApi } from './module/api';
 export { VersionsOcppHandlers } from './module/handlers';
@@ -22,23 +24,20 @@ export { IVersionsModuleApi } from './module/interface';
 @Service()
 export class VersionsModule implements OcpiModule {
   constructor(
-      readonly config: OcpiServerConfig,
-      readonly cache: CacheWrapper,
-      readonly responseUrlRepo: ResponseUrlRepository,
-      readonly commandsClient: CommandsClientApi,
-      readonly logger?: Logger<ILogObj>,
+    readonly config: OcpiServerConfig,
+    readonly cache: CacheWrapper,
+    readonly responseUrlRepo: ResponseUrlRepository,
+    readonly commandsClient: CommandsClientApi,
+    readonly logger?: Logger<ILogObj>,
   ) {}
 
-  init(
-      handler?: IMessageHandler,
-      sender?: IMessageSender
-  ): void {
+  init(handler?: IMessageHandler, sender?: IMessageSender): void {
     new VersionsOcppHandlers(
-        this.config as SystemConfig,
-        this.cache.cache,
-        handler,
-        sender,
-        this.logger,
+      this.config as SystemConfig,
+      this.cache.cache,
+      handler,
+      sender,
+      this.logger,
     );
   }
 

@@ -47,28 +47,33 @@ import { Service } from 'typedi';
 @Service()
 export class CommandsModule implements OcpiModule {
   constructor(
-    config: OcpiServerConfig,
-    cache: CacheWrapper,
-    senderWrapper: MessageSenderWrapper,
-    handlerWrapper: MessageHandlerWrapper,
-    logger?: Logger<ILogObj>,
-  ) {
+    readonly config: OcpiServerConfig,
+    readonly cache: CacheWrapper,
+    readonly responseUrlRepo: ResponseUrlRepository,
+    readonly commandsClient: CommandsClientApi,
+    readonly logger?: Logger<ILogObj>,
+  ) {}
+
+  init(handler?: IMessageHandler, sender?: IMessageSender): void {
     Container.set(
       AbstractModule,
       new CommandsOcppHandlers(
-        config,
-        cache,
-        Container.get(ResponseUrlRepository),
-        Container.get(CommandsClientApi),
-        senderWrapper,
-        handlerWrapper,
-        logger,
+        this.config as SystemConfig,
+        this.cache,
+        this.responseUrlRepo,
+        this.commandsClient,
+        handler,
+        sender,
+        Container.get(Logger),
       ),
     );
 
     Container.set(
       SequelizeTransactionEventRepository,
-      new SequelizeTransactionEventRepository(config as SystemConfig, logger),
+      new SequelizeTransactionEventRepository(
+        Container.get(OcpiServerConfig) as SystemConfig,
+        Container.get(Logger),
+      ),
     );
   }
 
