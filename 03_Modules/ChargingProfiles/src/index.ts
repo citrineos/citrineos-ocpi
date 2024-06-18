@@ -4,17 +4,23 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {ChargingProfilesModuleApi} from "./module/api";
-import {CommandsClientApi, OcpiModule, ResponseUrlRepository} from '@citrineos/ocpi-base';
+import {
+    CacheWrapper,
+    CommandsClientApi,
+    OcpiModule,
+    OcpiServerConfig,
+    ResponseUrlRepository
+} from '@citrineos/ocpi-base';
 import {
     AbstractModule, EventGroup,
     ICache,
     IMessageHandler,
     IMessageSender,
-    SystemConfig
+    SystemConfig,
 } from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
 
-import {Container} from 'typedi';
+import {Container, Service} from 'typedi';
 import {useContainer} from 'routing-controllers';
 import {SequelizeTransactionEventRepository} from "@citrineos/data";
 
@@ -22,36 +28,33 @@ useContainer(Container);
 
 import {ChargingProfilesOcppHandlers} from './module/handlers';
 
+@Service()
 export class ChargingProfilesModule implements OcpiModule {
     constructor(
-        config: SystemConfig,
-        cache: ICache,
-        handler: IMessageHandler,
-        sender: IMessageSender,
-        eventGroup: EventGroup,
-        logger?: Logger<ILogObj>,
+        readonly config: OcpiServerConfig,
+        readonly cache: CacheWrapper,
+        readonly logger?: Logger<ILogObj>,
     ) {
-
-        Container.set(
-            AbstractModule,
-            new ChargingProfilesOcppHandlers(
-                config,
-                cache,
-                Container.get(ResponseUrlRepository),
-                Container.get(CommandsClientApi),
-                sender,
-                handler,
-                logger
-            )
-        );
-
         Container.set(
             SequelizeTransactionEventRepository,
-            new SequelizeTransactionEventRepository(config, logger)
+            new SequelizeTransactionEventRepository(config as SystemConfig, logger)
         );
     }
 
     init(handler?: IMessageHandler, sender?: IMessageSender): void {
+        Container.set(
+            AbstractModule,
+            new ChargingProfilesOcppHandlers(
+                this.config as SystemConfig,
+                this.cache.cache,
+                Container.get(ResponseUrlRepository),
+                Container.get(CommandsClientApi),
+                handler,
+                sender,
+                this.logger
+            )
+        );
+
     }
 
     getController(): any {
