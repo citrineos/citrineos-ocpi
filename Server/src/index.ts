@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import {
-  EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
@@ -14,11 +13,7 @@ import {
   RabbitMqSender,
   RedisCache,
 } from '@citrineos/util';
-import {
-  OcpiModuleConfig,
-  OcpiServer,
-  OcpiServerConfig,
-} from '@citrineos/ocpi-base';
+import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
@@ -37,42 +32,33 @@ class CitrineOSServer {
     Container.set(Logger, this.logger);
 
     const ocpiServer = new OcpiServer(
-      this.getModuleConfig(),
       this.config as OcpiServerConfig,
+      this.cache,
+      this.logger,
+      this.getModuleConfig(),
     );
 
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);
   }
 
   protected getModuleConfig() {
-    const config = new OcpiModuleConfig();
-
-    config.modules = [
-      new VersionsModule(
-        this.config,
-        this.cache,
-        this._createHandler(),
-        this._createSender(),
-        this.logger,
-      ),
-      new CredentialsModule(
-        this.config,
-        this.cache,
-        this._createHandler(),
-        this._createSender(),
-        this.logger,
-      ),
-      new CommandsModule(
-        this.config,
-        this.cache,
-        this._createHandler(),
-        this._createSender(),
-        EventGroup.Commands,
-        this.logger,
-      ),
+    return [
+      {
+        module: VersionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CredentialsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CommandsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
     ];
-
-    return config;
   }
 
   protected _createSender(): IMessageSender {

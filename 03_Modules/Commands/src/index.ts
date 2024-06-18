@@ -3,17 +3,21 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 import { CommandsModuleApi } from './module/api';
-import { OcpiModule } from '@citrineos/ocpi-base';
 import {
-  EventGroup,
-  ICache,
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import {
+  AbstractModule,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
-import { Container } from 'typedi';
+import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
+import { SequelizeTransactionEventRepository } from '@citrineos/data';
 import { CommandsOcppHandlers } from './module/handlers';
 
 export { CommandsModuleApi } from './module/api';
@@ -21,16 +25,33 @@ export { ICommandsModuleApi } from './module/interface';
 
 useContainer(Container);
 
+@Service()
 export class CommandsModule implements OcpiModule {
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    eventGroup: EventGroup,
-    logger?: Logger<ILogObj>,
-  ) {
-    new CommandsOcppHandlers(config, cache, sender, handler, logger);
+    readonly config: OcpiServerConfig,
+    readonly cache: CacheWrapper,
+    readonly logger?: Logger<ILogObj>,
+  ) {}
+
+  init(handler?: IMessageHandler, sender?: IMessageSender): void {
+    Container.set(
+      AbstractModule,
+      new CommandsOcppHandlers(
+        this.config as SystemConfig,
+        this.cache,
+        handler,
+        sender,
+        Container.get(Logger),
+      ),
+    );
+
+    Container.set(
+      SequelizeTransactionEventRepository,
+      new SequelizeTransactionEventRepository(
+        Container.get(OcpiServerConfig) as SystemConfig,
+        Container.get(Logger),
+      ),
+    );
   }
 
   getController(): any {
