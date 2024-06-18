@@ -52,8 +52,8 @@ export class VersionsOcppHandlers extends AbstractModule {
   constructor(
     config: SystemConfig,
     cache: ICache,
-    sender?: IMessageSender,
     handler?: IMessageHandler,
+    sender?: IMessageSender,
     logger?: Logger<ILogObj>,
   ) {
     super(
