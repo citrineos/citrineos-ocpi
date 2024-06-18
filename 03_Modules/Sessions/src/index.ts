@@ -3,48 +3,58 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { SessionsModuleApi } from "./module/api";
-import { IOcpiModule } from "@citrineos/ocpi-base";
+import { SessionsModuleApi } from './module/api';
 import {
-  EventGroup,
-  ICache,
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import {
   IMessageHandler,
   IMessageSender,
   SystemConfig,
-} from "../../../../citrineos-core/00_Base";
-import { ILogObj, Logger } from "tslog";
-import { Container } from "typedi";
-import { useContainer } from "routing-controllers";
-import { SessionsOcppHandlers } from "./module/handlers";
+} from '../../../../citrineos-core/00_Base';
+import { ILogObj, Logger } from 'tslog';
+import { Container, Service } from 'typedi';
+import { SessionsOcppHandlers } from './module/handlers';
 import {
   SequelizeLocationRepository,
   SequelizeTransactionEventRepository,
-} from "../../../../citrineos-core/01_Data/src/layers/sequelize";
+} from '../../../../citrineos-core/01_Data/src/layers/sequelize';
 
-export { SessionsModuleApi } from "./module/api";
-export { ISessionsModuleApi } from "./module/interface";
+export { SessionsModuleApi } from './module/api';
+export { ISessionsModuleApi } from './module/interface';
 
-useContainer(Container);
+@Service()
+export class SessionsModule implements OcpiModule {
+  handler!: IMessageHandler;
+  sender!: IMessageSender;
 
-export class SessionsModule implements IOcpiModule {
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    eventGroup: EventGroup,
-    logger?: Logger<ILogObj>,
+    readonly config: OcpiServerConfig,
+    readonly cache: CacheWrapper,
+    readonly logger?: Logger<ILogObj>,
   ) {
-    new SessionsOcppHandlers(config, cache, sender, handler, logger);
-
     Container.set(
       SequelizeTransactionEventRepository,
-      new SequelizeTransactionEventRepository(config, logger),
+      new SequelizeTransactionEventRepository(config as SystemConfig, logger),
     );
 
     Container.set(
       SequelizeLocationRepository,
-      new SequelizeLocationRepository(config, logger),
+      new SequelizeLocationRepository(config as SystemConfig, logger),
+    );
+  }
+
+  init(handler: IMessageHandler, sender: IMessageSender): void {
+    this.handler = handler;
+    this.sender = sender;
+    new SessionsOcppHandlers(
+      this.config as SystemConfig,
+      this.cache.cache,
+      this.sender,
+      this.handler,
+      this.logger,
     );
   }
 

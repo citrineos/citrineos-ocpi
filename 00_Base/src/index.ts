@@ -11,6 +11,7 @@ import { ILogObj, Logger } from 'tslog';
 import { OcpiModule } from './model/OcpiModule';
 import { CacheWrapper } from './util/CacheWrapper';
 
+export { PaginatedSessionResponse } from './model/Session';
 export { OcpiModule } from './model/OcpiModule';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
@@ -68,6 +69,7 @@ export { VersionService } from './services/version.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
+export { SessionsService } from './services/sessions.service';
 
 export { versionIdParam } from './util/decorators/version.number.param';
 

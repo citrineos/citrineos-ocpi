@@ -49,7 +49,7 @@ class CitrineOSServer {
         module: SessionsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
-      }
+      },
     ];
   }
 
