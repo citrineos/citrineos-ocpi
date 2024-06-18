@@ -43,6 +43,11 @@ export { VersionDTOListResponse } from './model/Version';
 export { VersionDetailsDTO, VersionDTO } from './model/Version';
 export { OcpiResponse } from './model/ocpi.response';
 export { CommandResultType } from './model/CommandResult';
+export { Token } from './model/Token';
+export { TokenResponse } from './model/Token';
+export { TokenType } from './model/TokenType';
+
+export { EnumQueryParam } from './util/decorators/enum.query.param';
 
 export { ResponseUrlRepository } from './repository/response-url.repository';
 export { VersionRepository } from './repository/version.repository';
@@ -68,7 +73,9 @@ export { CommandsClientApi } from './trigger/CommandsClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
+export { ModelmockService } from './services/modelmock.service';
 export { VersionService } from './services/version.service';
+
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
