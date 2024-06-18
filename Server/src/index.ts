@@ -32,23 +32,28 @@ class CitrineOSServer {
     this.logger = this.initLogger();
 
     const ocpiServer = new OcpiServer(
-      this.getModuleConfig(),
       this.config as OcpiServerConfig,
       this.cache,
-      this._createHandler(),
-      this._createSender(),
       this.logger,
+      this.getModuleConfig(),
     );
 
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);
   }
 
   protected getModuleConfig() {
-    const config = new OcpiModuleConfig();
-
-    config.modules = [CommandsModule, VersionsModule];
-
-    return config;
+    return [
+      {
+        module: CommandsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: VersionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+    ];
   }
 
   protected _createSender(): IMessageSender {

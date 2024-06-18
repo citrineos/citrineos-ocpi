@@ -5,54 +5,55 @@
 
 import {
   AbstractModule,
+  AsHandler,
   CallAction,
   EventGroup,
-  ICache,
-  IMessageHandler,
-  IMessageSender,
+  HandlerProperties,
+  IMessage,
+  RequestStartStopStatusEnumType,
+  RequestStartTransactionResponse,
+  RequestStopTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import { Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
+import {
+  CacheWrapper,
+  CommandsClientApi,
+  ResponseUrlRepository,
+} from '@citrineos/ocpi-base';
+import { Service } from 'typedi';
+import { CommandResultType } from '@citrineos/ocpi-base';
+import { IMessageHandler, IMessageSender } from '@citrineos/base';
+import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
 
 /**
  * Component that handles provisioning related messages.
  */
+@Service()
 export class CommandsOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
   protected _requests: CallAction[] = [];
-  protected _responses: CallAction[] = [];
+  protected _responses: CallAction[] = [
+    CallAction.RequestStartTransaction,
+    CallAction.RequestStopTransaction,
+  ];
 
-  /**
-   * This is the constructor function that initializes the {@link CommandsOcppHandlers}.
-   *
-   * @param {SystemConfig} config - The `config` contains configuration settings for the module.
-   *
-   * @param {ICache} [cache] - The cache instance which is shared among the modules & Central System to pass information such as blacklisted actions or boot status.
-   *
-   * @param {IMessageSender} [sender] - The `sender` parameter is an optional parameter that represents an instance of the {@link IMessageSender} interface.
-   * It is used to send messages from the central system to external systems or devices. If no `sender` is provided, a default {@link RabbitMqSender} instance is created and used.
-   *
-   * @param {IMessageHandler} [handler] - The `handler` parameter is an optional parameter that represents an instance of the {@link IMessageHandler} interface.
-   * It is used to handle incoming messages and dispatch them to the appropriate methods or functions. If no `handler` is provided, a default {@link RabbitMqReceiver} instance is created and used.
-   *
-   * @param {Logger<ILogObj>} [logger] - The `logger` parameter is an optional parameter that represents an instance of {@link Logger<ILogObj>}.
-   * It is used to propagate system-wide logger settings and will serve as the parent logger for any sub-component logging. If no `logger` is provided, a default {@link Logger<ILogObj>} instance is created and used.
-   *
-   */
   constructor(
     config: SystemConfig,
-    cache: ICache,
-    sender?: IMessageSender,
+    cache: CacheWrapper,
+    readonly responseUrlRepo: ResponseUrlRepository,
+    readonly commandsClient: CommandsClientApi,
     handler?: IMessageHandler,
+    sender?: IMessageSender,
     logger?: Logger<ILogObj>,
   ) {
     super(
       config,
-      cache,
+      cache.cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
       EventGroup.Commands,
@@ -69,5 +70,64 @@ export class CommandsOcppHandlers extends AbstractModule {
     }
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
+  }
+
+  @AsHandler(CallAction.RequestStartTransaction)
+  protected _handleRequestStartTransactionResponse(
+    message: IMessage<RequestStartTransactionResponse>,
+    props?: HandlerProperties,
+  ): void {
+    this._logger.debug('Handling:', message, props);
+
+    const result = this.getResult(message.payload.status);
+
+    this.sendCommandResult(message.context.correlationId, result);
+  }
+
+  @AsHandler(CallAction.RequestStopTransaction)
+  protected _handleRequestStopTransactionResponse(
+    message: IMessage<RequestStopTransactionResponse>,
+    props?: HandlerProperties,
+  ): void {
+    this._logger.debug('Handling:', message, props);
+
+    const result = this.getResult(message.payload.status);
+
+    this.sendCommandResult(message.context.correlationId, result);
+  }
+
+  private getResult(
+    requestStartStopStatus: RequestStartStopStatusEnumType,
+  ): CommandResultType {
+    switch (requestStartStopStatus) {
+      case RequestStartStopStatusEnumType.Accepted:
+        return CommandResultType.ACCEPTED;
+      case RequestStartStopStatusEnumType.Rejected:
+        return CommandResultType.REJECTED;
+      default:
+        throw new Error(
+          `Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`,
+        );
+    }
+  }
+
+  private async sendCommandResult(
+    correlationId: string,
+    result: CommandResultType,
+  ) {
+    const responseUrlEntity =
+      await this.responseUrlRepo.getResponseUrl(correlationId);
+    if (responseUrlEntity) {
+      try {
+        await this.commandsClient.postCommandResult(
+          responseUrlEntity.responseUrl,
+          {
+            result: result,
+          },
+        );
+      } catch (error) {
+        this._logger.error(error);
+      }
+    }
   }
 }
