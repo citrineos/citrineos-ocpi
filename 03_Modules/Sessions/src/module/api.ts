@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ISessionsModuleApi } from "./interface";
+import { ISessionsModuleApi } from './interface';
 
-import { Controller, Get, HeaderParam, QueryParam } from "routing-controllers";
-import { HttpStatus } from "@citrineos/base";
+import { Controller, Get, HeaderParam, QueryParam } from 'routing-controllers';
+import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
@@ -15,10 +15,10 @@ import {
   PaginatedSessionResponse,
   ResponseSchema,
   SessionsService,
-} from "@citrineos/ocpi-base";
+} from '@citrineos/ocpi-base';
 
-import { Service } from "typedi";
-import { OcpiHttpHeader } from "@citrineos/ocpi-base/dist/util/ocpi.http.header";
+import { Service } from 'typedi';
+import { OcpiHttpHeader } from '@citrineos/ocpi-base/dist/util/ocpi.http.header';
 
 @Controller(`/${ModuleId.Sessions}`)
 @Service()
@@ -34,7 +34,7 @@ export class SessionsModuleApi
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedSessionResponse, {
     statusCode: HttpStatus.OK,
-    description: "Successful response",
+    description: 'Successful response',
     examples: {
       success: generateMockOcpiResponse(PaginatedSessionResponse),
     },
@@ -44,7 +44,7 @@ export class SessionsModuleApi
     @HeaderParam(OcpiHttpHeader.OcpiFromPartyId) fromPartyId: string,
     @HeaderParam(OcpiHttpHeader.OcpiToCountryCode) toCountryCode: string,
     @HeaderParam(OcpiHttpHeader.OcpiToPartyId) toPartyId: string,
-    @QueryParam("date_from") dateFrom: Date,
+    @QueryParam('date_from') dateFrom: Date,
   ): Promise<PaginatedSessionResponse> {
     console.info({
       dateFrom,

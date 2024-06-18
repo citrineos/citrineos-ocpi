@@ -6,7 +6,7 @@ import { BaseClientApi } from './BaseClientApi';
 import { OcpiResponse } from '../model/ocpi.response';
 import { Session } from '../model/Session';
 
-export class SessionsControllerApi extends BaseClientApi {
+export class SessionsClientApi extends BaseClientApi {
   async getSession(params: GetSessionParams): Promise<OcpiResponse<Session>> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'sessionId');

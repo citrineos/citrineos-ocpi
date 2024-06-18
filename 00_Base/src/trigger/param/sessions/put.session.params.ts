@@ -13,4 +13,22 @@ export class PutSessionParams extends OcpiParams {
   @Type(() => Session)
   @ValidateNested()
   session!: Session;
+
+  static build(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    sessionId: string,
+    session: Session,
+  ) {
+    const params = new PutSessionParams();
+    params.fromCountryCode = fromCountryCode;
+    params.fromPartyId = fromPartyId;
+    params.toCountryCode = toCountryCode;
+    params.toPartyId = toPartyId;
+    params.sessionId = sessionId;
+    params.session = session;
+    return params;
+  }
 }
