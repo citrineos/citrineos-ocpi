@@ -9,8 +9,6 @@ import Koa from 'koa';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiModule } from './model/OcpiModule';
-import { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
-import { MessageSenderWrapper } from './util/MessageSenderWrapper';
 import { CacheWrapper } from './util/CacheWrapper';
 
 export { OcpiModule } from './model/OcpiModule';
@@ -118,9 +116,7 @@ export class OcpiServer extends KoaServer {
   private initServer() {
     try {
       this.koa = new Koa();
-      const controllers = this.modules.map((module) => {
-        return module.getController();
-      });
+      const controllers = this.modules.map((module) => module.getController());
       this.initApp({
         controllers,
         routePrefix: '/ocpi',

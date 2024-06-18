@@ -13,11 +13,7 @@ import {
   RabbitMqSender,
   RedisCache,
 } from '@citrineos/util';
-import {
-  OcpiModuleConfig,
-  OcpiServer,
-  OcpiServerConfig,
-} from '@citrineos/ocpi-base';
+import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 

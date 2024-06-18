@@ -6,41 +6,26 @@
 import { CommandsModuleApi } from './module/api';
 import {
   AbstractModule,
-  CallAction,
-  EventGroup,
-  ICache,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
-import deasyncPromise from 'deasync-promise';
+import { Container, Service } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { SequelizeTransactionEventRepository } from '@citrineos/data';
+
+import {
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import { CommandsOcppHandlers } from './module/handlers';
 
 export { CommandsModuleApi } from './module/api';
 export { ICommandsModuleApi } from './module/interface';
 
-import { Container } from 'typedi';
-import { useContainer } from 'routing-controllers';
-import {
-  MeterValue,
-  sequelize,
-  Transaction,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
-
-import {
-  OcpiModule,
-  OcpiServerConfig,
-  CacheWrapper,
-  MessageSenderWrapper,
-  MessageHandlerWrapper,
-} from '@citrineos/ocpi-base';
-
 useContainer(Container);
-
-import { CommandsOcppHandlers } from './module/handlers';
-
-import { Service } from 'typedi';
 
 @Service()
 export class CommandsModule implements OcpiModule {

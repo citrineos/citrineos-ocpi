@@ -5,24 +5,17 @@
 
 import {
   AbstractModule,
-  AsHandler,
   CallAction,
   EventGroup,
-  HandlerProperties,
-  IMessage,
-  RequestStartStopStatusEnumType,
-  RequestStartTransactionResponse,
-  RequestStopTransactionResponse,
+  IMessageHandler,
+  IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
-import { Timer } from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
-import { CommandResultType } from '@citrineos/ocpi-base';
-import { IMessageHandler, IMessageSender } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
 
 /**
  * Component that handles provisioning related messages.
