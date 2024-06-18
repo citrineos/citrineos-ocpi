@@ -3,19 +3,15 @@ import {
   ICache,
   IMessageHandler,
   IMessageSender,
-  SystemConfig,
-} from '@citrineos/base';
+  SystemConfig, } from '@citrineos/base';
 import { type ILogObj, Logger } from 'tslog';
 import { createLocalConfig } from './config';
-import {
-  MemoryCache,
-  RabbitMqReceiver,
-  RabbitMqSender,
-  RedisCache,
+import { MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache ,
 } from '@citrineos/util';
 import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
+import { SessionsModule } from '@citrineos/ocpi-sessions';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -49,6 +45,11 @@ class CitrineOSServer {
         handler: this._createHandler(),
         sender: this._createSender(),
       },
+      {
+        module: SessionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      }
     ];
   }
 
