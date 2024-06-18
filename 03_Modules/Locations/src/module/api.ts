@@ -63,7 +63,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     return this.locationsService.getLocations(paginatedParams);
   }
 
-  @Get('/:locationId')
+  @Get('/:location_id')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(LocationResponse, {
     statusCode: HttpStatus.OK,
@@ -73,12 +73,12 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     }
   })
   async getLocationById(
-    @Param('locationId') locationId: string
+    @Param('location_id') locationId: string
   ): Promise<LocationResponse> {
     return this.locationsService.getLocationById(locationId);
   }
 
-  @Get('/:locationId/:evseId')
+  @Get('/:location_id/:evse_uid')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(EvseResponse, {
     statusCode: HttpStatus.OK,
@@ -88,13 +88,13 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     }
   })
   async getEvseById(
-    @Param('locationId') locationId: string,
-    @Param('evseId') evseId: string
+    @Param('location_id') locationId: string,
+    @Param('evse_uid') evseUid: string
   ): Promise<EvseResponse> {
-    return this.locationsService.getEvseById(locationId, evseId);
+    return this.locationsService.getEvseById(locationId, evseUid);
   }
 
-  @Get('/:locationId/:evseId/:connectorId')
+  @Get('/:location_id/:evse_uid/:connector_id')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(ConnectorResponse, {
     statusCode: HttpStatus.OK,
@@ -104,11 +104,11 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     }
   })
   async getConnectorById(
-    @Param('locationId') locationId: string,
-    @Param('evseId') evseId: string,
-    @Param('connectorId') connectorId: string,
+    @Param('location_id') locationId: string,
+    @Param('evse_uid') evseUid: string,
+    @Param('connector_id') connectorId: string,
   ): Promise<ConnectorResponse> {
-    return this.locationsService.getConnectorById(locationId, evseId, connectorId);
+    return this.locationsService.getConnectorById(locationId, evseUid, connectorId);
   }
 
 }

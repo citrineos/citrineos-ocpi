@@ -20,6 +20,7 @@ import {
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
+import { LocationsModule } from "@citrineos/ocpi-locations";
 import { VersionsModule } from '@citrineos/ocpi-versions';
 
 class CitrineOSServer {
