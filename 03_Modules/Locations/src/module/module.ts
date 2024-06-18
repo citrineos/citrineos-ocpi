@@ -12,7 +12,7 @@ import {
 import { ILogObj, Logger } from 'tslog';
 import { useContainer } from 'routing-controllers';
 import { Container } from 'typedi';
-import { IOcpiModule } from '@citrineos/ocpi-base';
+import { IOcpiModule, LocationsClientApi, LocationsService } from '@citrineos/ocpi-base';
 import { LocationsOcppHandlers } from './handlers';
 import { sequelize as sequelizeCore } from '@citrineos/data';
 import { LocationsModuleApi } from './api';
@@ -34,6 +34,8 @@ export class LocationsModule implements IOcpiModule {
       new LocationsOcppHandlers(
         config,
         cache,
+        Container.get(LocationsService),
+        Container.get(LocationsClientApi),
         handler,
         sender,
         logger

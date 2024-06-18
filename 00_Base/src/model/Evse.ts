@@ -19,8 +19,11 @@ import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
 import { OcpiResponse } from './ocpi.response';
+import { Table, Model, DataType, Column } from "sequelize-typescript";
 
-export class Evse {
+export class EvseDTO {
+  UID_FORMAT = (stationId: string, id: string): string => `${stationId}::${id}`
+
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()
@@ -92,17 +95,42 @@ export class Evse {
   last_updated!: Date;
 }
 
-export class EvseResponse extends OcpiResponse<Evse> {
+export class EvseResponse extends OcpiResponse<EvseDTO> {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => Evse)
+  @Type(() => EvseDTO)
   @ValidateNested()
-  data!: Evse;
+  data!: EvseDTO;
 }
 
-export class EvseListResponse extends OcpiResponse<Evse[]> {
+export class EvseListResponse extends OcpiResponse<EvseDTO[]> {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => Evse)
-  data!: Evse[];
+  @Type(() => EvseDTO)
+  data!: EvseDTO[];
+}
+
+@Table
+export class OcpiEvse extends Model<OcpiEvse> {
+  // this is a GENERAL id, i.e. 1 or 2
+  @Column({
+    type: DataType.STRING,
+    unique: 'id_stationId'
+  })
+  @IsString()
+  @IsNotEmpty()
+  id!: string;
+
+  @Column({
+    type: DataType.STRING,
+    unique: 'id_stationId'
+  })
+  @IsString()
+  @IsNotEmpty()
+  stationId!: string;
+
+  @Column(DataType.STRING)
+  @IsString()
+  @IsNotEmpty()
+  physicalReference?: string;
 }

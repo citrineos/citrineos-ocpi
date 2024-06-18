@@ -1,6 +1,6 @@
 import { IOcpiLocationMapper } from './IOcpiLocationMapper';
 import { Location as OcpiLocation } from '../model/Location';
-import { Evse } from '../model/Evse';
+import { EvseDTO } from '../model/Evse';
 import { Connector } from '../model/Connector';
 import { GeoLocation } from '../model/GeoLocation';
 import { sequelize as sequelizeCore } from '@citrineos/data';
@@ -10,15 +10,17 @@ import { Capability } from '../model/Capability';
 import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
+import {
+  AUTH_CONTROLLER_COMPONENT,
+  CONNECTOR_COMPONENT,
+  EVSE_COMPONENT,
+  TOKEN_READER_COMPONENT,
+  UNKNOWN_ID
+} from "../util/consts";
 
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
-  EVSE_COMPONENT = 'EVSE';
-  CONNECTOR_COMPONENT = 'Connector';
-  AUTH_CONTROLLER_COMPONENT = 'AuthCtrlr';
-  TOKEN_READER_COMPONENT = 'TokenReader';
-  UNKNOWN_ID = 'UNKNOWN';
-
-  // TODO figure out credentials
+  // TODO pass credentials
+  // TODO pass in evse charging attributes map??
   mapToOcpiLocation(
     citrineLocation: sequelizeCore.Location,
     chargingStationVariableAttributesMap: Record<string, sequelizeCore.VariableAttribute[]>,
@@ -47,7 +49,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     ocpiLocation.coordinates = this.getCoordinates(citrineLocation.coordinates);
 
-    const evses: Evse[] = [];
+    const evses: EvseDTO[] = [];
 
     for (let chargingStation of citrineLocation.chargingPool) {
       const evseVariableAttributesMap = this.getEvseVariableAttributesMap(chargingStationVariableAttributesMap[chargingStation.id]);
@@ -84,12 +86,12 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     citrineLocation: sequelizeCore.Location,
     evseVariableAttributes: sequelizeCore.VariableAttribute[],
     evseOcpiInformation: any // TODO make not any
-  ): Evse {
+  ): EvseDTO {
     const connectorVariableAttributesMap = this.getConnectorVariableAttributesMap(evseVariableAttributes);
 
     const availabilityState = this.getComponent(
       evseVariableAttributes,
-      this.EVSE_COMPONENT,
+      EVSE_COMPONENT,
       'AvailabilityState',
       AttributeEnumType.Actual,
     );
@@ -101,7 +103,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
       AttributeEnumType.Actual,
     );
 
-    const evse = new Evse();
+    const evse = new EvseDTO();
     evse.uid = evseOcpiInformation['uid'];
     evse.status = this.getStatus(availabilityState, parkingBayOccupancy);
     evse.connectors = Object.keys(connectorVariableAttributesMap).map((id) =>
@@ -109,7 +111,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     );
     evse.evse_id = this.getComponent(
       evseVariableAttributes,
-      this.EVSE_COMPONENT,
+      EVSE_COMPONENT,
       'EvseId',
       AttributeEnumType.Actual,
     )?.value;
@@ -135,14 +137,14 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   ): Connector {
     const ocppConnectorType = this.getComponent(
       connectorVariableAttributes,
-      this.CONNECTOR_COMPONENT,
+      CONNECTOR_COMPONENT,
       'ConnectorType',
       AttributeEnumType.Actual,
     );
 
     const availabilityState = this.getComponent(
       connectorVariableAttributes,
-      this.CONNECTOR_COMPONENT,
+      CONNECTOR_COMPONENT,
       'AvailabilityState',
       AttributeEnumType.Actual
     );
@@ -156,7 +158,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     connector.max_voltage = Number(
       this.getComponent(
         evseVariableAttributes,
-        this.EVSE_COMPONENT,
+        EVSE_COMPONENT,
         'DCVoltage',
         AttributeEnumType.MaxSet,
       )?.value ?? '0',
@@ -164,7 +166,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     connector.max_amperage = Number(
       this.getComponent(
         evseVariableAttributes,
-        this.EVSE_COMPONENT,
+        EVSE_COMPONENT,
         'DCCurrent',
         AttributeEnumType.MaxSet,
       )?.value ?? '0',
@@ -172,7 +174,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     connector.max_electric_power = Number(
       this.getComponent(
         evseVariableAttributes,
-        this.EVSE_COMPONENT,
+        EVSE_COMPONENT,
         'Power',
         AttributeEnumType.MaxSet,
       )?.value ?? '0',
@@ -185,12 +187,12 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return connector;
   }
 
-  getEvseVariableAttributesMap(variableAttributes: sequelizeCore.VariableAttribute[]) {
-    return variableAttributes
-      .filter(va => va.component.name === this.EVSE_COMPONENT || va.component.name === this.CONNECTOR_COMPONENT)
+  getEvseVariableAttributesMap(chargingStationVariableAttributes: sequelizeCore.VariableAttribute[]) {
+    return chargingStationVariableAttributes
+      .filter(va => va.component.name === EVSE_COMPONENT || va.component.name === CONNECTOR_COMPONENT)
       .reduce(
         (acc: Record<string, sequelizeCore.VariableAttribute[]>, va) => {
-          acc[(va.evse?.id ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.id ?? this.UNKNOWN_ID)] ?? []), va];
+          acc[(va.evse?.id ?? UNKNOWN_ID)] = [...(acc[(va.evse?.id ?? UNKNOWN_ID)] ?? []), va];
           return acc;
         },
         {},
@@ -200,7 +202,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   getConnectorVariableAttributesMap(evseVariableAttributes: sequelizeCore.VariableAttribute[]) {
     return evseVariableAttributes.reduce(
       (acc: Record<string, sequelizeCore.VariableAttribute[]>, va) => {
-        acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] = [...(acc[(va.evse?.connectorId ?? this.UNKNOWN_ID)] ?? []), va];
+        acc[(va.evse?.connectorId ?? UNKNOWN_ID)] = [...(acc[(va.evse?.connectorId ?? UNKNOWN_ID)] ?? []), va];
         return acc;
       },
       {},
@@ -222,14 +224,14 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     const authorizeRemoteStart = this.getComponent(
       variableAttributes,
-      this.AUTH_CONTROLLER_COMPONENT,
+      AUTH_CONTROLLER_COMPONENT,
       'AuthorizeRemoteStart',
       AttributeEnumType.Actual
     )?.value;
 
     const tokenReaderEnabled = this.getComponent(
       variableAttributes,
-      this.TOKEN_READER_COMPONENT,
+      TOKEN_READER_COMPONENT,
       'Enabled',
       AttributeEnumType.Actual
     )?.value;

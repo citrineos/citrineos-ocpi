@@ -40,7 +40,7 @@ export { OcpiResponse } from './model/ocpi.response';
 export { IOcpiModule } from './model/IOcpiModule';
 export { VersionRepository } from './repository/version.repository';
 export { Location, LocationResponse, PaginatedLocationResponse } from './model/Location';
-export { Evse, EvseResponse } from './model/Evse';
+export { EvseDTO, EvseResponse } from './model/Evse';
 export { Connector, ConnectorResponse } from './model/Connector';
 
 export { NotFoundException } from './exception/not.found.exception';
@@ -58,9 +58,18 @@ export { GlobalExceptionHandler } from './util/middleware/global.exception.handl
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { Paginated } from './util/decorators/paginated';
 
+export {
+  AUTH_CONTROLLER_COMPONENT,
+  EVSE_COMPONENT,
+  CONNECTOR_COMPONENT,
+  TOKEN_READER_COMPONENT,
+  UNKNOWN_ID
+} from './util/consts';
+
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
 export { BaseClientApi } from './trigger/BaseClientApi';
+export { LocationsClientApi } from './trigger/LocationsClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';

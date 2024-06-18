@@ -15,7 +15,7 @@ import { BusinessDetails } from './BusinessDetails';
 import { Facilities } from './Facilities';
 import { Hours } from './Hours';
 import { GeoLocation } from './GeoLocation';
-import { Evse } from './Evse';
+import { EvseDTO } from './Evse';
 import { EnergyMix } from './EnergyMix';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
@@ -98,9 +98,9 @@ export class Location {
 
   @IsArray()
   @Optional()
-  @Type(() => Evse)
+  @Type(() => EvseDTO)
   @ValidateNested({ each: true })
-  evses?: Evse[] | null;
+  evses?: EvseDTO[] | null;
 
   @IsArray()
   @Optional()
