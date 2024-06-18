@@ -6,10 +6,8 @@
 import { VersionsModuleApi } from './module/api';
 import {
   CacheWrapper,
-  CommandsClientApi,
   OcpiModule,
   OcpiServerConfig,
-  ResponseUrlRepository,
 } from '@citrineos/ocpi-base';
 import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
@@ -26,8 +24,6 @@ export class VersionsModule implements OcpiModule {
   constructor(
     readonly config: OcpiServerConfig,
     readonly cache: CacheWrapper,
-    readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
     readonly logger?: Logger<ILogObj>,
   ) {}
 

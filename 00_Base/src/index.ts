@@ -44,7 +44,6 @@ export { VersionDetailsDTO, VersionDTO } from './model/Version';
 export { OcpiResponse } from './model/ocpi.response';
 export { CommandResultType } from './model/CommandResult';
 
-export { ResponseUrlRepository } from './repository/response-url.repository';
 export { VersionRepository } from './repository/version.repository';
 
 export { NotFoundException } from './exception/not.found.exception';
@@ -64,7 +63,6 @@ export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
 export { BaseClientApi } from './trigger/BaseClientApi';
-export { CommandsClientApi } from './trigger/CommandsClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';

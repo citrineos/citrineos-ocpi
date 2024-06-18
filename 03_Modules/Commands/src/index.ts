@@ -29,8 +29,6 @@ import {
 } from '@citrineos/data';
 
 import {
-  CommandsClientApi,
-  ResponseUrlRepository,
   OcpiModule,
   OcpiServerConfig,
   CacheWrapper,
@@ -49,8 +47,6 @@ export class CommandsModule implements OcpiModule {
   constructor(
     readonly config: OcpiServerConfig,
     readonly cache: CacheWrapper,
-    readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
     readonly logger?: Logger<ILogObj>,
   ) {}
 
@@ -60,8 +56,6 @@ export class CommandsModule implements OcpiModule {
       new CommandsOcppHandlers(
         this.config as SystemConfig,
         this.cache,
-        this.responseUrlRepo,
-        this.commandsClient,
         handler,
         sender,
         Container.get(Logger),
