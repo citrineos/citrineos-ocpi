@@ -5,17 +5,14 @@
 
 import {
   AbstractModule,
-  CallAction, EventGroup,
+  CallAction,
+  EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
-import {
-  RabbitMqReceiver,
-  RabbitMqSender,
-  Timer,
-} from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 
@@ -26,13 +23,11 @@ export class CredentialsModule extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [
-  ];
-  protected _responses: CallAction[] = [
-  ];
+  protected _requests: CallAction[] = [];
+  protected _responses: CallAction[] = [];
 
   /**
-   * This is the constructor function that initializes the {@link Credentials}.
+   * This is the constructor function that initializes the Credentials.
    *
    * @param {SystemConfig} config - The `config` contains configuration settings for the module.
    *

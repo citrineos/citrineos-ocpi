@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-
 /**
  * Interface for the Versions module.
  */
-export interface IVersionsModuleApi {
-}
+export interface IVersionsModuleApi {}

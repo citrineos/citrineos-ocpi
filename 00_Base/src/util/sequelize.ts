@@ -1,13 +1,10 @@
 import { Sequelize } from 'sequelize-typescript';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
-import { Credentials } from '../model/Credentials';
 import { Version } from '../model/Version';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { Service } from 'typedi';
 import { Endpoint } from '../model/Endpoint';
 
-@Service()
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
 
@@ -26,7 +23,7 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [Credentials, Version, Endpoint],
+      models: [Version, Endpoint],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);

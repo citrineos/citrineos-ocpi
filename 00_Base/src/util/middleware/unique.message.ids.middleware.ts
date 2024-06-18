@@ -12,7 +12,8 @@ import { BaseMiddleware } from './base.middleware';
 @Service()
 export class UniqueMessageIdsMiddleware
   extends BaseMiddleware
-  implements KoaMiddlewareInterface {
+  implements KoaMiddlewareInterface
+{
   public async use(
     context: Context,
     next: (err?: any) => Promise<any>,
