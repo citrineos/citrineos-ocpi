@@ -25,7 +25,7 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [Credentials, Version, Endpoint, ResponseUrlCorrelationId],
+      models: [Version, Endpoint, ResponseUrlCorrelationId],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);
