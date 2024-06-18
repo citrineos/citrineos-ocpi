@@ -9,18 +9,22 @@ import {
   CallAction,
   EventGroup,
   HandlerProperties,
-  ICache,
   IMessage,
-  IMessageHandler,
-  IMessageSender, RequestStartStopStatusEnumType, RequestStartTransactionResponse, RequestStopTransactionResponse,
+  RequestStartStopStatusEnumType, RequestStartTransactionResponse, RequestStopTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
-import {RabbitMqReceiver, RabbitMqSender, Timer,} from '@citrineos/util';
+import {Timer} from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import {ILogObj, Logger} from 'tslog';
-import {CommandsClientApi, ResponseUrlRepository} from "@citrineos/ocpi-base";
+import {
+  CacheWrapper,
+  CommandsClientApi, MessageHandlerWrapper,
+  MessageSenderWrapper,
+  OcpiServerConfig,
+  ResponseUrlRepository
+} from "@citrineos/ocpi-base";
 import {Service} from "typedi";
-import {CommandResultType} from "@citrineos/ocpi-base/dist/model/CommandResult";
+import {CommandResultType} from "@citrineos/ocpi-base";
 
 /**
  * Component that handles provisioning related messages.
@@ -38,19 +42,19 @@ export class CommandsOcppHandlers extends AbstractModule {
   ];
 
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
-    sender?: IMessageSender,
-    handler?: IMessageHandler,
-    logger?: Logger<ILogObj>,
+      config: OcpiServerConfig,
+      cache: CacheWrapper,
+      readonly responseUrlRepo: ResponseUrlRepository,
+      readonly commandsClient: CommandsClientApi,
+      senderWrapper: MessageSenderWrapper,
+      handlerWrapper: MessageHandlerWrapper,
+      logger?: Logger<ILogObj>,
   ) {
     super(
-      config,
-      cache,
-      handler || new RabbitMqReceiver(config, logger),
-      sender || new RabbitMqSender(config, logger),
+      config as SystemConfig,
+      cache.cache,
+      handlerWrapper.handler,
+      senderWrapper.sender,
       EventGroup.Commands,
       logger,
     );

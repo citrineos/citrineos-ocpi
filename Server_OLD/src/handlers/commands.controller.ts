@@ -14,9 +14,7 @@ import { MultipleTypes } from '../util/decorators/multiple.types';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
 import { EnumParam } from '../util/decorators/enum.param';
-import {IOcppClient} from "../IOcppClient";
-import {CommandsService} from "../../../00_Base/src/services/commands.service";
-import {CredentialsService} from "../../../00_Base/src/services/credentials.service";
+import { CommandsService } from '../../../00_Base/src/services/commands.service';
 
 const MOCK = generateMockOcpiResponse(OcpiCommandResponse);
 

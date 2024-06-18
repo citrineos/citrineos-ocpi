@@ -3,42 +3,41 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-
-import {ICommandsModuleApi} from './interface';
-
-import {BadRequestError, Body, Controller, Post} from 'routing-controllers';
+import { ICommandsModuleApi } from './interface';
 
 import {plainToInstance} from 'class-transformer';
 
 import {validate} from 'class-validator';
 
-import {HttpStatus} from '@citrineos/base';
+import { Body, Controller, Post, BadRequestError } from 'routing-controllers';
+import { HttpStatus } from '@citrineos/base';
 import {
-    AsOcpiFunctionalEndpoint,
-    BaseController,
-    CancelReservation,
-    CommandsService,
-    CommandType,
-    EnumParam,
-    generateMockOcpiResponse,
-    ModuleId,
-    MultipleTypes,
-    NotFoundException,
-    ReserveNow,
-    ResponseSchema,
-    StartSession,
-    StopSession,
-    UnlockConnector,
+  AsOcpiFunctionalEndpoint,
+  BaseController,
+  CancelReservation,
+  CommandsService,
+  CommandType,
+  EnumParam,
+  generateMockOcpiResponse,
+  ModuleId,
+  MultipleTypes,
+  ReserveNow,
+  ResponseSchema,
+  StartSession,
+  StopSession,
+  UnlockConnector,
     OcpiResponse,
     CommandResponse
 } from '@citrineos/ocpi-base';
 
-import {Service} from 'typedi';
+import { Service } from 'typedi';
+import {versionIdParam} from "@citrineos/ocpi-base";
+import { JsonController } from 'routing-controllers';
 
 /**
  * Server API for the provisioning component.
  */
-@Controller(`/${ModuleId.Commands}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsModuleApi extends BaseController implements ICommandsModuleApi {
     constructor(readonly commandsService: CommandsService) {
