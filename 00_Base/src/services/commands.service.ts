@@ -1,34 +1,36 @@
-import {Service} from 'typedi';
-import {CancelReservation} from "../model/CancelReservation";
-import {ReserveNow} from "../model/ReserveNow";
-import {StartSession} from "../model/StartSession";
-import {StopSession} from "../model/StopSession";
-import {UnlockConnector} from "../model/UnlockConnector";
-import {CommandType} from "../model/CommandType";
-import {CommandResponse, CommandResponseType} from "../model/CommandResponse";
-import {CommandExecutor} from "../util/CommandExecutor";
-import {OcpiResponse} from "../model/ocpi.response";
-import {NotFoundException} from "../exception/not.found.exception";
+import { Service } from 'typedi';
+import { CancelReservation } from '../model/CancelReservation';
+import { ReserveNow } from '../model/ReserveNow';
+import { StartSession } from '../model/StartSession';
+import { StopSession } from '../model/StopSession';
+import { UnlockConnector } from '../model/UnlockConnector';
+import { CommandType } from '../model/CommandType';
+import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
+import { CommandExecutor } from '../util/CommandExecutor';
+import { OcpiResponse } from '../model/ocpi.response';
+import { NotFoundException } from '../exception/not.found.exception';
 import {
   buildGenericClientErrorResponse,
-  buildGenericServerErrorResponse, buildGenericSuccessResponse,
+  buildGenericServerErrorResponse,
+  buildGenericSuccessResponse,
   buildUnknownLocationResponse,
   buildUnknownSessionResponse,
-} from "../util/ResponseGenerator";
+} from '../util/ResponseGenerator';
 
 @Service()
 export class CommandsService {
   readonly TIMEOUT = 30;
-  constructor(
-      private commandExecutor: CommandExecutor,
-  ) {}
+  constructor(private commandExecutor: CommandExecutor) {}
 
-  async postCommand(commandType: CommandType, payload:
+  async postCommand(
+    commandType: CommandType,
+    payload:
       | CancelReservation
       | ReserveNow
       | StartSession
       | StopSession
-      | UnlockConnector): Promise<OcpiResponse<CommandResponse>> {
+      | UnlockConnector,
+  ): Promise<OcpiResponse<CommandResponse>> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
         return this.handleCancelReservation(payload as CancelReservation);
@@ -43,71 +45,93 @@ export class CommandsService {
     }
   }
 
-  private handleCancelReservation(cancelReservation: CancelReservation): OcpiResponse<CommandResponse> {
+  private handleCancelReservation(
+    cancelReservation: CancelReservation,
+  ): OcpiResponse<CommandResponse> {
     return buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
-      timeout: this.TIMEOUT
+      timeout: this.TIMEOUT,
     });
   }
 
-  private handleReserveNow(reserveNow: ReserveNow): OcpiResponse<CommandResponse> {
+  private handleReserveNow(
+    reserveNow: ReserveNow,
+  ): OcpiResponse<CommandResponse> {
     return buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
-      timeout: this.TIMEOUT
+      timeout: this.TIMEOUT,
     });
   }
 
-  private async handleStartSession(startSession: StartSession): Promise<OcpiResponse<CommandResponse>> {
+  private async handleStartSession(
+    startSession: StartSession,
+  ): Promise<OcpiResponse<CommandResponse>> {
     const commandResponse = new OcpiResponse<CommandResponse>();
 
     try {
       await this.commandExecutor.executeStartSession(startSession);
       return buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
-        timeout: this.TIMEOUT
-      })
+        timeout: this.TIMEOUT,
+      });
     } catch (e) {
       if (e instanceof NotFoundException) {
-        return buildUnknownLocationResponse({
-          result: CommandResponseType.REJECTED,
-          timeout: this.TIMEOUT
-        }, e as NotFoundException);
+        return buildUnknownLocationResponse(
+          {
+            result: CommandResponseType.REJECTED,
+            timeout: this.TIMEOUT,
+          },
+          e as NotFoundException,
+        );
       } else {
-        console.error(e)
-        return buildGenericServerErrorResponse({
-          result: CommandResponseType.REJECTED,
-          timeout: this.TIMEOUT
-        }, e as Error);
+        console.error(e);
+        return buildGenericServerErrorResponse(
+          {
+            result: CommandResponseType.REJECTED,
+            timeout: this.TIMEOUT,
+          },
+          e as Error,
+        );
       }
     }
   }
 
-  private async handleStopSession(stopSession: StopSession): Promise<OcpiResponse<CommandResponse>> {
+  private async handleStopSession(
+    stopSession: StopSession,
+  ): Promise<OcpiResponse<CommandResponse>> {
     const commandResponse = new OcpiResponse<CommandResponse>();
 
     try {
       await this.commandExecutor.executeStopSession(stopSession);
       return buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
-        timeout: this.TIMEOUT
+        timeout: this.TIMEOUT,
       });
     } catch (e) {
       if (e instanceof NotFoundException) {
-        return buildUnknownSessionResponse({
-          result: CommandResponseType.UNKNOWN_SESSION,
-          timeout: this.TIMEOUT
-        }, e as NotFoundException);
+        return buildUnknownSessionResponse(
+          {
+            result: CommandResponseType.UNKNOWN_SESSION,
+            timeout: this.TIMEOUT,
+          },
+          e as NotFoundException,
+        );
       } else {
-        console.error(e)
-        return buildGenericServerErrorResponse({} as CommandResponse, e as Error);
+        console.error(e);
+        return buildGenericServerErrorResponse(
+          {} as CommandResponse,
+          e as Error,
+        );
       }
     }
   }
 
-  private handleUnlockConnector(unlockConnector: UnlockConnector): OcpiResponse<CommandResponse> {
+  private handleUnlockConnector(
+    unlockConnector: UnlockConnector,
+  ): OcpiResponse<CommandResponse> {
     return buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
-      timeout: this.TIMEOUT
+      timeout: this.TIMEOUT,
     });
   }
 }

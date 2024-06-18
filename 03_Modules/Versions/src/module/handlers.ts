@@ -15,7 +15,12 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
-import {AsHandler, HandlerProperties, HeartbeatRequest, IMessage} from "@citrineos/base";
+import {
+  AsHandler,
+  HandlerProperties,
+  HeartbeatRequest,
+  IMessage,
+} from '@citrineos/base';
 
 /**
  * Component that handles provisioning related messages.

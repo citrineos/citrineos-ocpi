@@ -122,7 +122,7 @@ export class OcpiServer extends KoaServer {
 
     this.sequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
 
-    Container.set(OcpiSequelizeInstance, this.sequelizeInstance)
+    Container.set(OcpiSequelizeInstance, this.sequelizeInstance);
 
     this.moduleConfig.modules?.forEach((module) => {
       this.modules.push(Container.get(module as any));
