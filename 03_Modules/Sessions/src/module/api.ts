@@ -5,20 +5,33 @@
 
 import { ISessionsModuleApi } from './interface';
 
-import { Controller, Get, HeaderParam, QueryParam } from 'routing-controllers';
+import { Body, Controller, Get, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  ChargingPreferences,
+  ChargingPreferencesResponse,
+  generateMockOcpiPaginatedResponse,
   generateMockOcpiResponse,
   ModuleId,
+  Paginated,
+  PaginatedOcpiParams,
+  PaginatedParams,
   PaginatedSessionResponse,
   ResponseSchema,
   SessionsService,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import { OcpiHttpHeader } from '@citrineos/ocpi-base/dist/util/ocpi.http.header';
+
+const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
+  PaginatedSessionResponse,
+  new PaginatedParams(),
+);
+const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
+  ChargingPreferencesResponse,
+);
 
 @Controller(`/${ModuleId.Sessions}`)
 @Service()
@@ -36,29 +49,42 @@ export class SessionsModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(PaginatedSessionResponse),
+      success: MOCK_PAGINATED_SESSIONS,
     },
   })
   async getSessions(
-    @HeaderParam(OcpiHttpHeader.OcpiFromCountryCode) fromCountryCode: string,
-    @HeaderParam(OcpiHttpHeader.OcpiFromPartyId) fromPartyId: string,
-    @HeaderParam(OcpiHttpHeader.OcpiToCountryCode) toCountryCode: string,
-    @HeaderParam(OcpiHttpHeader.OcpiToPartyId) toPartyId: string,
-    @QueryParam('date_from') dateFrom: Date,
+    @Paginated() paginationParams?: PaginatedOcpiParams,
   ): Promise<PaginatedSessionResponse> {
-    console.info({
-      dateFrom,
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-    });
-    return this.sessionsService.getSessions(
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-      dateFrom,
+    console.info(
+      paginationParams?.date_from,
+      paginationParams?.fromCountryCode,
+      paginationParams?.fromPartyId,
+      paginationParams?.toCountryCode,
+      paginationParams?.toPartyId,
     );
+    return this.sessionsService.getSessions(
+      paginationParams!.fromCountryCode,
+      paginationParams!.fromPartyId,
+      paginationParams!.toCountryCode,
+      paginationParams!.toPartyId,
+      paginationParams!.date_from,
+    );
+  }
+
+  @Put('/{sessionId}/charging_preferences')
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(ChargingPreferencesResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: MOCK_CHARGING_PREFERENCES,
+    },
+  })
+  async updateChargingPreferences(
+    @Param('sessionId') sessionId: string,
+    @Body() body: ChargingPreferences,
+  ): Promise<ChargingPreferencesResponse> {
+    console.log('updateChargingPreferences', sessionId, body);
+    return MOCK_CHARGING_PREFERENCES;
   }
 }

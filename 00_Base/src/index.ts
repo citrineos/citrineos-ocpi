@@ -11,6 +11,12 @@ import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 
+export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
+export { ChargingPreferences } from './model/ChargingPreferences';
+export { PaginatedParams } from './controllers/param/paginated.params';
+export { Paginated } from './util/decorators/paginated';
+export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
+export { generateMockOcpiPaginatedResponse } from './controllers/base.controller';
 export { PaginatedSessionResponse } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
@@ -79,7 +85,6 @@ export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 export { SessionsService } from './services/sessions.service';
-
 export { versionIdParam } from './util/decorators/version.number.param';
 
 useContainer(Container);
