@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
 export class ResponseUrl {
   @IsString()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   response_url!: string;
 }

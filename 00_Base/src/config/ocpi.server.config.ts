@@ -109,6 +109,74 @@ export class OcpiServerConfigData {
 }
 
 @Service()
+export class OcpiServerConfigHostPort {
+  @IsNotEmpty()
+  host: string;
+
+  @IsNotEmpty()
+  port: number;
+
+  constructor(host: string, port: number) {
+    this.host = host;
+    this.port = port;
+  }
+}
+
+@Service()
+export class OcpiServerConfigUtilCache {
+  // TODO add other caches
+
+  memory?: boolean;
+
+  redis?: OcpiServerConfigHostPort;
+
+  constructor() {
+    this.memory = true;
+  }
+}
+
+@Service()
+export class OcpiServerConfigAMQPConfig {
+  @IsNotEmpty()
+  url: string;
+
+  @IsNotEmpty()
+  exchange: string;
+
+  constructor() {
+    this.url = 'amqp://guest:guest@localhost:5672';
+    this.exchange = 'citrineos';
+  }
+}
+
+@Service()
+export class OcpiServerConfigUtilMessageBroker {
+  // TODO add different brokers
+
+  amqp: OcpiServerConfigAMQPConfig;
+
+  constructor() {
+    this.amqp = new OcpiServerConfigAMQPConfig();
+  }
+}
+
+@Service()
+export class OcpiServerConfigUtil {
+  @IsNotEmpty()
+  @Type(() => OcpiServerConfigUtilCache)
+  cache: OcpiServerConfigUtilCache;
+
+  @IsNotEmpty()
+  @Type(() => OcpiServerConfigUtilMessageBroker)
+  messageBroker: OcpiServerConfigUtilMessageBroker;
+
+  constructor() {
+    this.cache = new OcpiServerConfigUtilCache();
+    this.messageBroker = new OcpiServerConfigUtilMessageBroker();
+  }
+}
+
+@Service()
 export class OcpiServerConfig {
   @Enum(OcpiEnv, 'OcpiEnv')
   @IsNotEmpty()
@@ -119,13 +187,23 @@ export class OcpiServerConfig {
   @ValidateNested()
   data!: OcpiServerConfigData;
 
+  @IsNotEmpty()
+  @Type(() => OcpiServerConfigUtil)
+  @ValidateNested()
+  util!: OcpiServerConfigUtil;
+
   @Enum(LogLevel, 'LogLevel')
   @IsNotEmpty()
   logLevel: LogLevel;
 
+  @Type(() => OcpiServerConfigHostPort)
+  ocpiServer: OcpiServerConfigHostPort;
+
   constructor() {
     this.data = new OcpiServerConfigData();
     this.data.sequelize = defaultSequelizeConfig; // todo envs
+    this.util = new OcpiServerConfigUtil();
     this.logLevel = LogLevel.DEBUG;
+    this.ocpiServer = new OcpiServerConfigHostPort('0.0.0.0', 8085);
   }
 }

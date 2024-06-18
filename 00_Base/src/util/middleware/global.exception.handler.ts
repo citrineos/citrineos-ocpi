@@ -1,14 +1,16 @@
 import {
   KoaMiddlewareInterface,
   Middleware,
+  NotFoundError,
   UnauthorizedError,
 } from 'routing-controllers';
 import { Context } from 'vm';
 import { HttpStatus } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
 import { Service } from 'typedi';
-import { NotFoundException } from '../../exception/not.found.exception';
 import { OcpiResponseStatusCode } from '../../model/ocpi.response';
+import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
+import { NotRegisteredException } from '../../exception/NotRegisteredException';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -36,7 +38,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
               ),
             );
             break;
-          case NotFoundException.name:
+          case NotFoundError.name:
             context.status = HttpStatus.NOT_FOUND;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
@@ -51,6 +53,24 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
                 (err as any).message,
+              ),
+            );
+            break;
+          case AlreadyRegisteredException.name:
+            context.status = HttpStatus.METHOD_NOT_ALLOWED;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientNotEnoughInformation,
+                'Client already registered',
+              ),
+            );
+            break;
+          case NotRegisteredException.name:
+            context.status = HttpStatus.METHOD_NOT_ALLOWED;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientNotEnoughInformation,
+                'Client not registered',
               ),
             );
             break;

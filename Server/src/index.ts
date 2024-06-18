@@ -16,6 +16,8 @@ import {
 import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
+import { CredentialsModule } from '@citrineos/ocpi-credentials';
+import { Container } from 'typedi';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -26,6 +28,8 @@ class CitrineOSServer {
     this.config = createLocalConfig();
     this.cache = this.initCache();
     this.logger = this.initLogger();
+
+    Container.set(Logger, this.logger);
 
     const ocpiServer = new OcpiServer(
       this.config as OcpiServerConfig,
@@ -40,12 +44,17 @@ class CitrineOSServer {
   protected getModuleConfig() {
     return [
       {
-        module: CommandsModule,
+        module: VersionsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },
       {
-        module: VersionsModule,
+        module: CredentialsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CommandsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

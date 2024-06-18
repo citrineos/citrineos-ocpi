@@ -2,8 +2,6 @@
 import * as oa from 'openapi3-ts';
 import * as pathToRegexp from 'path-to-regexp';
 import 'reflect-metadata';
-import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
-
 import { applyOpenAPIDecorator } from './decorators';
 import { IRoute } from './index';
 import { mergeDeep } from './merge.deep';
@@ -13,9 +11,10 @@ import { ENUM_PARAM } from '../util/decorators/enum.param';
 import { refPointerPrefix } from './class.validator';
 import { SchemaStore } from './schema.store';
 import { MULTIPLE_TYPES } from '../util/decorators/multiple.types';
-import { Constructor } from '../util/util';
 import { HttpHeader } from '@citrineos/base';
 import { ENUM_QUERY_PARAM } from '../util/decorators/enum.query.param';
+import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
+import { Constructable } from 'typedi';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -123,7 +122,7 @@ function getParamSchema(
 ): oa.SchemaObject | oa.ReferenceObject {
   const { explicitType, index, object, method } = param;
 
-  const type: Constructor = Reflect.getMetadata(
+  const type: Constructable<any> = Reflect.getMetadata(
     'design:paramtypes',
     object,
     method,
@@ -157,7 +156,7 @@ function getParamSchema(
       );
       if (types) {
         return {
-          oneOf: types.map((tipe: Constructor) => {
+          oneOf: types.map((tipe: Constructable<any>) => {
             SchemaStore.addToSchemaStore(tipe);
             return { $ref: '#/components/schemas/' + tipe.name };
           }),

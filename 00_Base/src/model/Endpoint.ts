@@ -3,6 +3,7 @@ import { ModuleId } from './ModuleId';
 import { InterfaceRole } from './InterfaceRole';
 import { Enum } from '../util/decorators/enum';
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -10,7 +11,9 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { OcpiNamespace } from '../util/ocpi.namespace';
-import { Version } from './Version';
+import { Exclude } from 'class-transformer';
+import { ClientVersion } from './ClientVersion';
+import { ServerVersion } from './ServerVersion';
 import { VersionNumber } from './VersionNumber';
 
 export class EndpointDTO {
@@ -23,20 +26,18 @@ export class EndpointDTO {
   role!: InterfaceRole;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   url!: string;
 
+  @Enum(VersionNumber, 'VersionNumber')
+  @IsNotEmpty()
   version!: string;
 }
 
 @Table
 export class Endpoint extends Model {
   static readonly MODEL_NAME: string = OcpiNamespace.Endpoint;
-
-  @Column(DataType.STRING)
-  @ForeignKey(() => Version)
-  version!: string;
 
   @Column(DataType.STRING)
   @IsString()
@@ -51,27 +52,42 @@ export class Endpoint extends Model {
 
   @Column(DataType.STRING)
   @IsString()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   url!: string;
 
+  @Exclude()
+  @ForeignKey(() => ClientVersion)
+  @Column(DataType.INTEGER)
+  clientVersionId!: number;
+
+  @Exclude()
+  @BelongsTo(() => ClientVersion)
+  clientVersion!: ClientVersion;
+
+  @Exclude()
+  @ForeignKey(() => ServerVersion)
+  @Column(DataType.INTEGER)
+  serverVersionId!: number;
+
+  @Exclude()
+  @BelongsTo(() => ServerVersion)
+  serverVersion!: ServerVersion;
+
   static buildEndpoint(
-    version: VersionNumber,
     identifier: ModuleId,
     role: InterfaceRole,
     url: string,
   ): Endpoint {
-    const endpoint = new Endpoint();
-    endpoint.version = String(version);
-    endpoint.identifier = identifier;
-    endpoint.role = role;
-    endpoint.url = url;
-    return endpoint;
+    return Endpoint.build({
+      identifier,
+      role,
+      url,
+    });
   }
 
   public toEndpointDTO(): EndpointDTO {
     const dto = new EndpointDTO();
-    dto.version = this.version;
     dto.identifier = this.identifier;
     dto.role = this.role;
     dto.url = this.url;

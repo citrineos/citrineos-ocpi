@@ -1,42 +1,55 @@
 import { BaseClientApi } from './BaseClientApi';
-import { OcpiResponse } from '../model/ocpi.response';
-import { VersionDetailsDTO, VersionDTO } from '../model/Version';
 import { IHeaders } from 'typed-rest-client/Interfaces';
-import { VersionNumber } from '../model/VersionNumber';
+import { Service } from 'typedi';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
+import { IRestResponse } from 'typed-rest-client';
+import { OcpiRegistrationParams } from './util/ocpi.registration.params';
+import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
+import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 
-export interface GetVersionRequest {
-  authorization: string;
-  version: VersionNumber;
-}
-
-export interface GetVersionsRequest {
-  authorization: string;
-}
-
+@Service()
 export class VersionsClientApi extends BaseClientApi {
-  async getVersion(
-    requestParameters: GetVersionRequest,
-  ): Promise<OcpiResponse<VersionDetailsDTO>> {
-    this.validateRequiredParam(requestParameters, 'authorization');
-    const additionalHeaders: IHeaders = {};
-    this.setAuthHeader(additionalHeaders, requestParameters.authorization);
-    return await this.get<OcpiResponse<VersionDetailsDTO>>({
-      version: requestParameters.version,
-      additionalHeaders,
-    });
-  }
-
   /**
    * This endpoint lists all the available OCPI versions and the corresponding URLs to where version specific details such as the supported endpoints can be found.
    */
   async getVersions(
-    requestParameters: GetVersionsRequest,
-  ): Promise<OcpiResponse<VersionDTO[]>> {
-    this.validateRequiredParam(requestParameters, 'authorization');
-    const additionalHeaders: IHeaders = {};
-    this.setAuthHeader(additionalHeaders, requestParameters.authorization);
-    return await this.getRaw<OcpiResponse<VersionDTO[]>>('/ocpi/versions', {
-      additionalHeaders,
-    }).then((response) => this.handleResponse(response));
+    params: OcpiRegistrationParams,
+  ): Promise<VersionListResponseDTO> {
+    let response: IRestResponse<VersionListResponseDTO>;
+    try {
+      this.validateRequiredParam(params, 'authorization');
+      const additionalHeaders: IHeaders =
+        this.getOcpiRegistrationHeaders(params);
+      response = await this.getRaw<VersionListResponseDTO>('/ocpi/versions', {
+        additionalHeaders,
+      });
+      return this.handleResponse(response);
+    } catch (e) {
+      throw new UnsuccessfulRequestException(
+        'Could not get version list',
+        response!,
+      );
+    }
+  }
+
+  async getVersionDetails(
+    params: OcpiRegistrationParams,
+  ): Promise<VersionDetailsResponseDTO> {
+    let response: IRestResponse<VersionDetailsResponseDTO>;
+    try {
+      this.validateRequiredParam(params, 'authorization');
+      const additionalHeaders: IHeaders =
+        this.getOcpiRegistrationHeaders(params);
+      response = await this.getRaw<VersionDetailsResponseDTO>('', {
+        // note URL set elsewhere
+        additionalHeaders,
+      });
+      return this.handleResponse(response);
+    } catch (e) {
+      throw new UnsuccessfulRequestException(
+        'Could not get version details',
+        response!,
+      );
+    }
   }
 }
