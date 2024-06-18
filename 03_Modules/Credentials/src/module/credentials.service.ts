@@ -235,7 +235,7 @@ export class CredentialsService {
     }
     const clientVersion = ClientVersion.build(
       {
-        identifier: versionNumber,
+        version: versionNumber,
         url: version.url,
         endpoints: versionDetails.data?.endpoints,
       },
