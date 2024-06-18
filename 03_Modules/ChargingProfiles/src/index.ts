@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {ChargingProfilesModuleApi} from "./module/api";
-import {CommandsClientApi, IOcpiModule, ResponseUrlRepository} from '@citrineos/ocpi-base';
+import {CommandsClientApi, OcpiModule, ResponseUrlRepository} from '@citrineos/ocpi-base';
 import {
     AbstractModule, EventGroup,
     ICache,
@@ -22,7 +22,7 @@ useContainer(Container);
 
 import {ChargingProfilesOcppHandlers} from './module/handlers';
 
-export class ChargingProfilesModule implements IOcpiModule {
+export class ChargingProfilesModule implements OcpiModule {
     constructor(
         config: SystemConfig,
         cache: ICache,
@@ -49,6 +49,9 @@ export class ChargingProfilesModule implements IOcpiModule {
             SequelizeTransactionEventRepository,
             new SequelizeTransactionEventRepository(config, logger)
         );
+    }
+
+    init(handler?: IMessageHandler, sender?: IMessageSender): void {
     }
 
     getController(): any {

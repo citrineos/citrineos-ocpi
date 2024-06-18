@@ -1,5 +1,4 @@
-import { useContainer } from 'routing-controllers';
-import { Constructable, Container } from 'typedi';
+import { Constructable } from 'typedi';
 import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 import { LoggingMiddleware } from './util/middleware/logging.middleware';
 import { OcpiServerConfig } from './config/ocpi.server.config';
@@ -15,7 +14,6 @@ import { CacheWrapper } from './util/CacheWrapper';
 
 export { OcpiModule } from './model/OcpiModule';
 export { OcpiServerConfig } from './config/ocpi.server.config';
-export { CommandResponse } from './model/CommandResponse';
 
 export {
   generateMockOcpiResponse,
@@ -42,21 +40,8 @@ export { VersionDetailsDTOResponse } from './model/Version'
 export { VersionDTOListResponse } from './model/Version'
 export { VersionDetailsDTO, VersionDTO } from './model/Version'
 export { OcpiResponse } from './model/ocpi.response'
-export { IOcpiModule } from './model/IOcpiModule'
 export { CommandResponse } from './model/CommandResponse'
 export { ChargingProfileResponse } from './model/ChargingProfileResponse'
-export { Credentials } from './model/Credentials';
-export { Version } from './model/Version';
-export { Endpoint } from './model/Endpoint';
-export { CredentialsRole } from './model/CredentialsRole';
-export { CredentialsResponse } from './model/Credentials';
-export { OcpiResponseStatusCode } from './model/ocpi.response';
-export { OcpiEmptyResponse } from './model/ocpi.empty.response';
-export { VersionNumber } from './model/VersionNumber';
-export { VersionDetailsDTOResponse } from './model/Version';
-export { VersionDTOListResponse } from './model/Version';
-export { VersionDetailsDTO, VersionDTO } from './model/Version';
-export { OcpiResponse } from './model/ocpi.response';
 export { CommandResultType } from './model/CommandResult';
 
 export { VersionRepository } from './repository/version.repository';
@@ -83,15 +68,11 @@ export { CommandsService } from './services/commands.service'
 export { CredentialsService } from './services/credentials.service'
 export { VersionService } from './services/version.service'
 export { ChargingProfilesService } from './services/charging-profiles.service'
-export { BaseClientApi } from './trigger/BaseClientApi';
 
 export { ResponseUrlRepository } from './repository/response-url.repository'
 
 import { Container } from 'typedi';
-import {useContainer, useKoaServer} from 'routing-controllers';
-export { CommandsService } from './services/commands.service';
-export { CredentialsService } from './services/credentials.service';
-export { VersionService } from './services/version.service';
+import { useContainer } from 'routing-controllers';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
