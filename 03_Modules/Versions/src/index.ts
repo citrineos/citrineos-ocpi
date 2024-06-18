@@ -20,18 +20,23 @@ export { IVersionsModuleApi } from './module/interface';
 
 @Service()
 export class VersionsModule implements OcpiModule {
+  handler!: IMessageHandler;
+  sender!: IMessageSender;
+
   constructor(
     readonly config: OcpiServerConfig,
-    readonly cache: CacheWrapper,
+    readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  init(handler?: IMessageHandler, sender?: IMessageSender): void {
+  init(handler: IMessageHandler, sender: IMessageSender): void {
+    this.handler = handler;
+    this.sender = sender;
     new VersionsOcppHandlers(
       this.config as SystemConfig,
-      this.cache.cache,
-      handler,
-      sender,
+      this.cacheWrapper.cache,
+      this.handler,
+      this.sender,
       this.logger,
     );
   }
