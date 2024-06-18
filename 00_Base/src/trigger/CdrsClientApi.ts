@@ -1,10 +1,10 @@
-import {GetCdrParams} from './param/cdrs/get.cdr.params';
-import {PostCdrParams} from './param/cdrs/post.cdr.params';
-import {IHeaders} from 'typed-rest-client/Interfaces';
-import {ModuleId} from '../model/ModuleId';
-import {NotFoundError} from 'routing-controllers';
-import {BaseClientApi} from "./BaseClientApi";
-import {CdrResponse} from "../model/Cdr";
+import { GetCdrParams } from './param/cdrs/get.cdr.params';
+import { PostCdrParams } from './param/cdrs/post.cdr.params';
+import { IHeaders } from 'typed-rest-client/Interfaces';
+import { ModuleId } from '../model/ModuleId';
+import { NotFoundError } from 'routing-controllers';
+import { BaseClientApi } from './BaseClientApi';
+import { CdrResponse } from '../model/Cdr';
 
 interface PostCdrResponseHeaders {
   Location: string;

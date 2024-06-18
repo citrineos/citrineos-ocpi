@@ -1,9 +1,9 @@
-import {PostTokenParams} from './param/tokens/postTokenParams';
-import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
-import {AuthorizationInfo} from '../model/AuthorizationInfo';
-import {PaginatedOcpiParams} from './param/paginated.ocpi.params';
-import {BaseClientApi} from "./BaseClientApi";
-import {PaginatedTokenResponse} from "../model/Token";
+import { PostTokenParams } from './param/tokens/postTokenParams';
+import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
+import { AuthorizationInfo } from '../model/AuthorizationInfo';
+import { PaginatedOcpiParams } from './param/paginated.ocpi.params';
+import { BaseClientApi } from './BaseClientApi';
+import { PaginatedTokenResponse } from '../model/Token';
 
 export class TokensClientApi extends BaseClientApi {
   async getTokens(

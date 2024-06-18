@@ -1,6 +1,3 @@
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import {VersionNumber} from "../../../model/VersionNumber";
 /*
 
 export class PostCredentialsParams extends OcpiRegistrationParams {

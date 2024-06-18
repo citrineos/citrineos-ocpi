@@ -1,10 +1,10 @@
-import {BaseClientApi} from "./BaseClientApi";
-import {ModuleId} from "../model/ModuleId";
+import { BaseClientApi } from './BaseClientApi';
+import { ModuleId } from '../model/ModuleId';
 
 export class CredentialsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Credentials;
 
-  /*async getCredentials(
+  /* async getCredentials(
     params: OcpiRegistrationParams,
   ): Promise<CredentialsResponse> {
     this.validateOcpiRegistrationParams(params);
