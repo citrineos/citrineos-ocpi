@@ -6,7 +6,7 @@
 
 import {IChargingProfilesModuleApi} from './interface';
 
-import {Controller, Get, Param, QueryParam} from 'routing-controllers';
+import {Body, Controller, Get, Param, Put, QueryParam} from 'routing-controllers';
 
 import {HttpStatus} from '@citrineos/base';
 import {
@@ -16,6 +16,7 @@ import {
     ModuleId,
     ResponseSchema,
     OcpiResponse, ChargingProfilesService,
+    SetChargingProfile
 } from '@citrineos/ocpi-base';
 
 import {Service} from 'typedi';
@@ -43,5 +44,21 @@ export class ChargingProfilesModuleApi extends BaseController implements IChargi
         @QueryParam("response_url") responseUrl: string,
     ): Promise<OcpiResponse<ChargingProfileResponse>> {
         return this.service.getActiveChargingProfile(sessionId, duration, responseUrl);
+    }
+
+    @Put('/:sessionId')
+    @AsOcpiFunctionalEndpoint()
+    @ResponseSchema(OcpiResponse<ChargingProfileResponse>, {
+        statusCode: HttpStatus.OK,
+        description: 'Successful response',
+        examples: {
+            success: generateMockOcpiResponse(OcpiResponse<ChargingProfileResponse>),
+        },
+    })
+    async updateChargingProfile(
+        @Param('sessionId') sessionId: string,
+        @Body() payload: SetChargingProfile,
+    ): Promise<OcpiResponse<ChargingProfileResponse>> {
+        return this.service.putChargingProfile(sessionId, payload);
     }
 }
