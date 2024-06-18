@@ -5,17 +5,17 @@
 
 import { IChargingProfilesModuleApi } from './interface';
 
-import { Get, Param, QueryParam } from 'routing-controllers';
+import {Body, Get, Param, Put, QueryParam} from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
-  AsOcpiFunctionalEndpoint,
-  BaseController,
-  generateMockOcpiResponse,
-  ModuleId,
-  ResponseSchema,
-  OcpiResponse,
-  ChargingProfilesService,
+    AsOcpiFunctionalEndpoint,
+    BaseController,
+    generateMockOcpiResponse,
+    ModuleId,
+    ResponseSchema,
+    OcpiResponse, ChargingProfilesService,
+    SetChargingProfile
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
@@ -34,24 +34,36 @@ export class ChargingProfilesModuleApi
     super();
   }
 
-  @Get('/:sessionId')
-  @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiResponse<ChargingProfileResponse>, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(OcpiResponse<ChargingProfileResponse>),
-    },
-  })
-  async getActiveChargingProfile(
-    @Param('sessionId') sessionId: string,
-    @QueryParam('duration') duration: number,
-    @QueryParam('response_url') responseUrl: string,
-  ): Promise<OcpiResponse<ChargingProfileResponse>> {
-    return this.service.getActiveChargingProfile(
-      sessionId,
-      duration,
-      responseUrl,
-    );
-  }
+    @Get('/:sessionId')
+    @AsOcpiFunctionalEndpoint()
+    @ResponseSchema(OcpiResponse<ChargingProfileResponse>, {
+        statusCode: HttpStatus.OK,
+        description: 'Successful response',
+        examples: {
+            success: generateMockOcpiResponse(OcpiResponse<ChargingProfileResponse>),
+        },
+    })
+    async getActiveChargingProfile(
+        @Param('sessionId') sessionId: string,
+        @QueryParam("duration") duration: number,
+        @QueryParam("response_url") responseUrl: string,
+    ): Promise<OcpiResponse<ChargingProfileResponse>> {
+        return this.service.getActiveChargingProfile(sessionId, duration, responseUrl);
+    }
+
+    @Put('/:sessionId')
+    @AsOcpiFunctionalEndpoint()
+    @ResponseSchema(OcpiResponse<ChargingProfileResponse>, {
+        statusCode: HttpStatus.OK,
+        description: 'Successful response',
+        examples: {
+            success: generateMockOcpiResponse(OcpiResponse<ChargingProfileResponse>),
+        },
+    })
+    async updateChargingProfile(
+        @Param('sessionId') sessionId: string,
+        @Body() payload: SetChargingProfile,
+    ): Promise<OcpiResponse<ChargingProfileResponse>> {
+        return this.service.putChargingProfile(sessionId, payload);
+    }
 }

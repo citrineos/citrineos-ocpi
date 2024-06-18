@@ -43,6 +43,7 @@ export { OcpiResponse } from './model/ocpi.response';
 export { CommandResponse } from './model/CommandResponse';
 export { ChargingProfileResponse } from './model/ChargingProfileResponse';
 export { CommandResultType } from './model/CommandResult';
+export { SetChargingProfile } from './model/SetChargingProfile'
 
 export { VersionRepository } from './repository/version.repository';
 
