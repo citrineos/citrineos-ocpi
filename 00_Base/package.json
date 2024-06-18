@@ -41,11 +41,15 @@
     "tslog": "^4.9.2",
     "uuid": "^9.0.0",
     "zod": "^3.22.2",
-    "lodash.capitalize": "^4.2.1",
     "class-validator": "^0.14.1",
     "class-validator-jsonschema": "^5.0.0",
-    "lodash.startcase": "^4.4.0",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-logger": "^3.2.1",
+    "koa2-swagger-ui": "^5.10.0",
+    "lodash.capitalize": "^4.2.1",
     "lodash.merge": "^4.6.2",
+    "lodash.startcase": "^4.4.0",
     "routing-controllers": "^0.10.4",
     "typedi": "^0.10.0"
   }

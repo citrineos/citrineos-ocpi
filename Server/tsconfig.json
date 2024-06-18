@@ -1,6 +1,9 @@
 {
   "extends": "../tsconfig.build.json",
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
   "exclude": [
     "**/dist/**",
     "**/node_modules/**",
@@ -17,10 +20,13 @@
       "path": "../00_Base"
     },
     {
-      "path": "../03_Modules/Commands"
+      "path": "../03_Modules/Versions"
     },
     {
-      "path": "../03_Modules/Versions"
+      "path": "../03_Modules/Credentials"
+    },
+    {
+      "path": "../03_Modules/Commands"
     },
     {
       "path": "../03_Modules/Sessions"

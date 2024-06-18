@@ -6,5 +6,6 @@ export abstract class OcpiModule {
     handler?: IMessageHandler,
     sender?: IMessageSender,
   ): void;
+
   public abstract getController(): Constructable<any>;
 }

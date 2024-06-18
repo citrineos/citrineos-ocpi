@@ -2,8 +2,12 @@
 // Copyright Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache 2.0
-
 import { CommandsModuleApi } from './module/api';
+import {
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
 import {
   AbstractModule,
   IMessageHandler,
@@ -14,12 +18,6 @@ import { ILogObj, Logger } from 'tslog';
 import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
-
-import {
-  CacheWrapper,
-  OcpiModule,
-  OcpiServerConfig,
-} from '@citrineos/ocpi-base';
 import { CommandsOcppHandlers } from './module/handlers';
 
 export { CommandsModuleApi } from './module/api';

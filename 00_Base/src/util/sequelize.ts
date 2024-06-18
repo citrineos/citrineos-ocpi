@@ -1,10 +1,27 @@
 import { Sequelize } from 'sequelize-typescript';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
-import { Version } from '../model/Version';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
+import { Service } from 'typedi';
 import { Endpoint } from '../model/Endpoint';
+import { ClientInformation } from '../model/ClientInformation';
+import { CpoTenant } from '../model/CpoTenant';
+import { BusinessDetails } from '../model/BusinessDetails';
+import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
+import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
+import { Image } from '../model/Image';
+import { ClientVersion } from '../model/ClientVersion';
+import { ServerVersion } from '../model/ServerVersion';
+import { Version } from '../model/Version';
+import { VersionEndpoint } from '../model/VersionEndpoint';
 
+export const ON_DELETE_RESTRICT = 'RESTRICT';
+export const ON_DELETE_CASCADE = 'CASCADE';
+export const ON_DELETE_NO_ACTION = 'NO_ACTION';
+export const ON_DELETE_SET_DEFAULT = 'SET_DEFAULT';
+export const ON_DELETE_SET_NULL = 'SET NULL';
+
+@Service()
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
 
@@ -12,9 +29,7 @@ export class OcpiSequelizeInstance {
     const sequelizeLogger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
-
     sequelizeLogger.info('Creating default Sequelize instance');
-
     this.sequelize = new Sequelize({
       host: config.data.sequelize.host,
       port: config.data.sequelize.port,
@@ -23,7 +38,19 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [Version, Endpoint],
+      models: [
+        ClientInformation,
+        CpoTenant,
+        ClientCredentialsRole,
+        ServerCredentialsRole,
+        BusinessDetails,
+        Image,
+        ClientVersion,
+        ServerVersion,
+        Endpoint,
+        Version,
+        VersionEndpoint,
+      ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);

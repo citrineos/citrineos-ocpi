@@ -1,0 +1,9 @@
+export enum ImageCategory {
+  CHARGER = 'CHARGER',
+  ENTRANCE = 'ENTRANCE',
+  LOCATION = 'LOCATION',
+  NETWORK = 'NETWORK',
+  OPERATOR = 'OPERATOR',
+  OTHER = 'OTHER',
+  OWNER = 'OWNER',
+}

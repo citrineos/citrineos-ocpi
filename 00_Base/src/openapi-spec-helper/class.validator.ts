@@ -8,13 +8,13 @@ import {
 import { targetConstructorToSchema } from 'class-validator-jsonschema';
 import { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters';
 import { IOptions } from 'class-validator-jsonschema/build/options';
-import { Constructor } from '../util/util';
 import type { SchemaObject } from 'openapi3-ts';
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
 // @ts-expect-error importing js directly from class-transformer
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage.js';
 import { SchemaStore } from './schema.store';
 import { OPTIONAL_PARAM } from '../util/decorators/optional';
+import { Constructable } from 'typedi';
 
 export const refPointerPrefix = '#/components/schemas/';
 
@@ -25,7 +25,7 @@ function getPropType(target: object, property: string) {
 export { JSONSchema } from 'class-validator-jsonschema';
 
 export const nestedClassToJsonSchema = (
-  clz: Constructor<any>,
+  clz: Constructable<any>,
   options: Partial<IOptions>,
 ): SchemaObject => targetConstructorToSchema(clz, options) as any;
 
@@ -235,7 +235,7 @@ export const defaultClassValidatorJsonSchemaOptions: Partial<IOptions> = {
   classTransformerMetadataStorage: defaultMetadataStorage,
 };
 
-export function classToJsonSchema(clz: Constructor<any>): SchemaObject {
+export function classToJsonSchema(clz: Constructable<any>): SchemaObject {
   const options = { ...defaultClassValidatorJsonSchemaOptions };
   const schema = targetConstructorToSchema(clz, options) as any;
   return schema;

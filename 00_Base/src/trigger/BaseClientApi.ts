@@ -1,10 +1,12 @@
-import { OcpiParams } from './util/ocpi.params';
 import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
-import { UnsuccessfulRequestException } from '../exception/unsuccessful.request.exception';
-import { VersionNumber } from '../model/VersionNumber';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
-import { OcpiHttpHeader } from '../util/ocpi.http.header';
+import { VersionNumber } from '../model/VersionNumber';
+import { OcpiRegistrationParams } from './util/ocpi.registration.params';
+import { OcpiParams } from './util/ocpi.params';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { HttpHeader } from '@citrineos/base';
+import { OcpiHttpHeader } from '../util/ocpi.http.header';
+import { base64Encode } from '../util/util';
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -142,7 +144,27 @@ export class BaseClientApi {
     }
   }
 
-  validateOcpiParams(params: OcpiParams) {
+  validateOcpiRegistrationParams(params: OcpiRegistrationParams) {
+    if (
+      !params.authorization ||
+      !params.authorization.length ||
+      params.authorization.length > 0
+    ) {
+      throw new MissingRequiredParamException(
+        params.authorization,
+        'Required parameter authorization must be present',
+      );
+    }
+    if (!params.version) {
+      throw new MissingRequiredParamException(
+        params.version,
+        'Required parameter version must be present',
+      );
+    }
+  }
+
+  validateOcpiParams<T extends OcpiParams>(params: T) {
+    this.validateOcpiRegistrationParams(params);
     if (
       !params.fromCountryCode ||
       !params.fromCountryCode.length ||
@@ -221,22 +243,27 @@ export class BaseClientApi {
 
   protected setAuthHeader = (headerParameters: IHeaders, token: string) => {
     if (token && headerParameters) {
-      headerParameters[HttpHeader.Authorization] = `Token ${token}`;
+      headerParameters[HttpHeader.Authorization] =
+        `Token ${base64Encode(token)}`;
     }
   };
 
-  protected getOcpiHeaders = (params: OcpiParams): IHeaders => {
+  protected getOcpiRegistrationHeaders = (
+    params: OcpiRegistrationParams,
+  ): IHeaders => {
     const headerParameters: IHeaders = {};
+    headerParameters[OcpiHttpHeader.XRequestId] =
+      params.xRequestId != null ? String(params.xRequestId) : 'placeholder';
+    headerParameters[OcpiHttpHeader.XCorrelationId] =
+      params.xCorrelationId != null
+        ? String(params.xCorrelationId)
+        : 'placeholder';
+    this.setAuthHeader(headerParameters, params.authorization);
+    return headerParameters;
+  };
 
-    if (params.xRequestId != null) {
-      headerParameters[OcpiHttpHeader.XRequestId] = String(params.xRequestId);
-    }
-
-    if (params.xCorrelationId != null) {
-      headerParameters[OcpiHttpHeader.XCorrelationId] = String(
-        params.xCorrelationId,
-      );
-    }
+  protected getOcpiHeaders = (params: OcpiParams): IHeaders => {
+    const headerParameters: IHeaders = this.getOcpiRegistrationHeaders(params);
 
     if (params.fromCountryCode != null) {
       headerParameters[OcpiHttpHeader.OcpiFromCountryCode] = String(
@@ -259,8 +286,6 @@ export class BaseClientApi {
     if (params.toPartyId != null) {
       headerParameters[OcpiHttpHeader.OcpiToPartyId] = String(params.toPartyId);
     }
-
-    this.setAuthHeader(headerParameters, params.authorization);
 
     return headerParameters;
   };
