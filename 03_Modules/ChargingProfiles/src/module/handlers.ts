@@ -41,8 +41,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     cache: ICache,
     readonly responseUrlRepo: ResponseUrlRepository,
     readonly commandsClient: CommandsClientApi,
-    sender?: IMessageSender,
     handler?: IMessageHandler,
+    sender?: IMessageSender,
     logger?: Logger<ILogObj>,
   ) {
     super(

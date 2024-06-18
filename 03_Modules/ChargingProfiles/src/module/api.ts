@@ -6,7 +6,7 @@
 
 import {IChargingProfilesModuleApi} from './interface';
 
-import {Controller, Get, Param, QueryParam} from 'routing-controllers';
+import {Get, Param, QueryParam} from 'routing-controllers';
 
 import {HttpStatus} from '@citrineos/base';
 import {
@@ -21,7 +21,10 @@ import {
 import {Service} from 'typedi';
 import {ChargingProfileResponse} from "@citrineos/ocpi-base";
 
-@Controller(`/${ModuleId.ChargingProfiles}`)
+import { versionIdParam } from '@citrineos/ocpi-base';
+import { JsonController } from 'routing-controllers';
+
+@JsonController(`/:${versionIdParam}/${ModuleId.ChargingProfiles}`)
 @Service()
 export class ChargingProfilesModuleApi extends BaseController implements IChargingProfilesModuleApi {
     constructor(readonly service: ChargingProfilesService) {
