@@ -6,8 +6,6 @@
 import { VersionsModuleApi } from './module/api';
 import {
   CacheWrapper,
-  MessageHandlerWrapper,
-  MessageSenderWrapper,
   OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
@@ -15,27 +13,27 @@ import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { VersionsOcppHandlers } from './module/handlers';
 import { Service } from 'typedi';
+import { IMessageHandler, IMessageSender } from '@citrineos/base';
 
 export { VersionsModuleApi } from './module/api';
 export { VersionsOcppHandlers } from './module/handlers';
 export { IVersionsModuleApi } from './module/interface';
 
 @Service()
-export class VersionsModule extends OcpiModule {
+export class VersionsModule implements OcpiModule {
   constructor(
-    config: OcpiServerConfig,
-    cache: CacheWrapper,
-    senderWrapper: MessageSenderWrapper,
-    handlerWrapper: MessageHandlerWrapper,
-    logger?: Logger<ILogObj>,
-  ) {
-    super();
+    readonly config: OcpiServerConfig,
+    readonly cache: CacheWrapper,
+    readonly logger?: Logger<ILogObj>,
+  ) {}
+
+  init(handler?: IMessageHandler, sender?: IMessageSender): void {
     new VersionsOcppHandlers(
-      config as SystemConfig,
-      cache.cache,
-      senderWrapper.sender,
-      handlerWrapper.handler,
-      logger,
+      this.config as SystemConfig,
+      this.cache.cache,
+      handler,
+      sender,
+      this.logger,
     );
   }
 
