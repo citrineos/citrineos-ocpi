@@ -28,20 +28,20 @@ export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
-export { Credentials } from './model/Credentials'
-export { Version } from './model/Version'
-export { Endpoint } from './model/Endpoint'
-export { CredentialsRole } from './model/CredentialsRole'
-export { CredentialsResponse } from './model/Credentials'
-export { OcpiResponseStatusCode } from './model/ocpi.response'
-export { OcpiEmptyResponse } from './model/ocpi.empty.response'
-export { VersionNumber } from './model/VersionNumber'
-export { VersionDetailsDTOResponse } from './model/Version'
-export { VersionDTOListResponse } from './model/Version'
-export { VersionDetailsDTO, VersionDTO } from './model/Version'
-export { OcpiResponse } from './model/ocpi.response'
-export { CommandResponse } from './model/CommandResponse'
-export { ChargingProfileResponse } from './model/ChargingProfileResponse'
+export { Credentials } from './model/Credentials';
+export { Version } from './model/Version';
+export { Endpoint } from './model/Endpoint';
+export { CredentialsRole } from './model/CredentialsRole';
+export { CredentialsResponse } from './model/Credentials';
+export { OcpiResponseStatusCode } from './model/ocpi.response';
+export { OcpiEmptyResponse } from './model/ocpi.empty.response';
+export { VersionNumber } from './model/VersionNumber';
+export { VersionDetailsDTOResponse } from './model/Version';
+export { VersionDTOListResponse } from './model/Version';
+export { VersionDetailsDTO, VersionDTO } from './model/Version';
+export { OcpiResponse } from './model/ocpi.response';
+export { CommandResponse } from './model/CommandResponse';
+export { ChargingProfileResponse } from './model/ChargingProfileResponse';
 export { CommandResultType } from './model/CommandResult';
 
 export { VersionRepository } from './repository/version.repository';
@@ -60,16 +60,16 @@ export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 
-export { BaseClientApi } from './trigger/BaseClientApi'
-export { CommandsClientApi } from './trigger/CommandsClientApi'
+export { BaseClientApi } from './trigger/BaseClientApi';
+export { CommandsClientApi } from './trigger/CommandsClientApi';
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
-export { CommandsService } from './services/commands.service'
-export { CredentialsService } from './services/credentials.service'
-export { VersionService } from './services/version.service'
-export { ChargingProfilesService } from './services/charging-profiles.service'
+export { CommandsService } from './services/commands.service';
+export { CredentialsService } from './services/credentials.service';
+export { VersionService } from './services/version.service';
+export { ChargingProfilesService } from './services/charging-profiles.service';
 
-export { ResponseUrlRepository } from './repository/response-url.repository'
+export { ResponseUrlRepository } from './repository/response-url.repository';
 
 import { Container } from 'typedi';
 import { useContainer } from 'routing-controllers';

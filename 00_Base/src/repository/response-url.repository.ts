@@ -10,7 +10,7 @@ import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
-import {ResponseUrlCorrelationId} from "../model/ResponseUrlCorrelationId";
+import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 
 @Service()
 export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrelationId> {
@@ -27,18 +27,23 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
     );
   }
 
-  public getResponseUrl = async (correlationId: string): Promise<ResponseUrlCorrelationId | null> => {
+  public getResponseUrl = async (
+    correlationId: string,
+  ): Promise<ResponseUrlCorrelationId | null> => {
     return await ResponseUrlCorrelationId.findOne({
       where: {
-        correlationId: correlationId
-      }
+        correlationId: correlationId,
+      },
     });
-  }
+  };
 
-  public saveResponseUrl = async (correlationId: string, responseUrl: string): Promise<ResponseUrlCorrelationId> => {
+  public saveResponseUrl = async (
+    correlationId: string,
+    responseUrl: string,
+  ): Promise<ResponseUrlCorrelationId> => {
     return await ResponseUrlCorrelationId.create({
       correlationId: correlationId,
       responseUrl: responseUrl,
     });
-  }
+  };
 }

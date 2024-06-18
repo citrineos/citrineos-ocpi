@@ -5,7 +5,7 @@ import { Credentials } from '../model/Credentials';
 import { Version } from '../model/Version';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { Endpoint } from '../model/Endpoint';
-import {ResponseUrlCorrelationId} from "../model/ResponseUrlCorrelationId";
+import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
