@@ -44,6 +44,7 @@
     "03_Modules/Sessions",
     "03_Modules/Tariffs",
     "03_Modules/Cdrs",
+    "03_Modules/Tokens",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"
