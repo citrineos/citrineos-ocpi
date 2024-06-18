@@ -52,8 +52,8 @@ export class TokensModuleApi extends BaseController implements ITokensModuleApi 
     ): Promise<TokenResponse> {
         console.log('getTokens', countryCode, partyId, tokenId, type);
         //TODO validate caller owns token
-
-        return this.generateMockOcpiResponse(TokenResponse);
+        return new TokenResponse();
+        // return this.generateMockOcpiResponse(TokenResponse);
     }
 
     @Put('/:countryCode/:partyId/:tokenId')
@@ -62,7 +62,7 @@ export class TokensModuleApi extends BaseController implements ITokensModuleApi 
         statusCode: HttpStatus.OK,
         description: 'Successful response',
         examples: {
-            success: generateMockOcpiResponse(OcpiEmptyResponse),
+            // success: generateMockOcpiResponse(OcpiEmptyResponse),
         },
     })
     async putToken(
@@ -73,7 +73,8 @@ export class TokensModuleApi extends BaseController implements ITokensModuleApi 
         @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
     ): Promise<OcpiEmptyResponse> {
         console.log('putToken', countryCode, partyId, tokenId, token, type);
-        return generateMockOcpiResponse(OcpiEmptyResponse);
+        return new OcpiEmptyResponse();
+        // return generateMockOcpiResponse(OcpiEmptyResponse);
     }
 
     @Patch('/:countryCode/:partyId/:tokenId')
@@ -82,7 +83,7 @@ export class TokensModuleApi extends BaseController implements ITokensModuleApi 
         statusCode: HttpStatus.OK,
         description: 'Successful response',
         examples: {
-            success: generateMockOcpiResponse(OcpiEmptyResponse),
+            // success: generateMockOcpiResponse(OcpiEmptyResponse),
         },
     })
     async patchToken(
@@ -93,6 +94,7 @@ export class TokensModuleApi extends BaseController implements ITokensModuleApi 
         @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
     ): Promise<OcpiEmptyResponse> {
         console.log('patchToken', countryCode, partyId, tokenId, token, type);
-        return generateMockOcpiResponse(OcpiEmptyResponse);
+        return new OcpiEmptyResponse();
+        // return generateMockOcpiResponse(OcpiEmptyResponse);
     }
 }
