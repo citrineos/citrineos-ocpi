@@ -1,5 +1,8 @@
-import {defaultClassValidatorJsonSchemaOptions, nestedClassToJsonSchema,} from "./class.validator";
-import {Constructable} from "typedi";
+import {
+  defaultClassValidatorJsonSchemaOptions,
+  nestedClassToJsonSchema,
+} from './class.validator';
+import { Constructable } from 'typedi';
 
 export const SchemaStore = {
   components: {

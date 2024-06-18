@@ -5,7 +5,6 @@
 
 import { OcpiModule } from '@citrineos/ocpi-base';
 import {
-  EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,

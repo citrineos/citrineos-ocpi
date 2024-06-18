@@ -1,7 +1,7 @@
-import {Role} from '../model/Role';
-import {plainToInstance} from 'class-transformer';
-import {CredentialsRoleDTO} from '../model/DTO/CredentialsRoleDTO';
-import {Constructable} from "typedi";
+import { Role } from '../model/Role';
+import { plainToInstance } from 'class-transformer';
+import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
+import { Constructable } from 'typedi';
 
 export const invalidClientCredentialsRoles = (roles: CredentialsRoleDTO[]) =>
   roles.some((role) => role.role !== Role.EMSP);
