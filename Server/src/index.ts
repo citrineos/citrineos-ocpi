@@ -13,11 +13,7 @@ import {
   RabbitMqSender,
   RedisCache,
 } from '@citrineos/util';
-import {
-  OcpiModuleConfig,
-  OcpiServer,
-  OcpiServerConfig,
-} from '@citrineos/ocpi-base';
+import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
@@ -33,23 +29,33 @@ class CitrineOSServer {
     this.logger = this.initLogger();
 
     const ocpiServer = new OcpiServer(
-      this.getModuleConfig(),
       this.config as OcpiServerConfig,
       this.cache,
-      this._createHandler(),
-      this._createSender(),
       this.logger,
+      this.getModuleConfig(),
     );
 
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);
   }
 
   protected getModuleConfig() {
-    const config = new OcpiModuleConfig();
-
-    config.moduleTypes = [VersionsModule, CredentialsModule, CommandsModule];
-
-    return config;
+    return [
+      {
+        module: VersionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CredentialsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CommandsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+    ];
   }
 
   protected _createSender(): IMessageSender {

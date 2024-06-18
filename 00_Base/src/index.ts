@@ -1,8 +1,7 @@
 import Koa from 'koa';
 import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 import { LoggingMiddleware } from './util/middleware/logging.middleware';
-import { OcpiModuleConfig } from './config/ocpi.module.config';
-import { Container } from 'typedi';
+import { Constructable, Container } from 'typedi';
 import { OcpiServerConfig } from './config/ocpi.server.config';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { OcpiSequelizeInstance } from './util/sequelize';
@@ -10,11 +9,8 @@ import { useContainer } from 'routing-controllers';
 import { KoaServer } from './util/koa.server';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiModule } from './model/OcpiModule';
-import { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
-import { MessageSenderWrapper } from './util/MessageSenderWrapper';
 import { CacheWrapper } from './util/CacheWrapper';
 
-export { OcpiModuleConfig } from './config/ocpi.module.config';
 export { OcpiModule } from './model/OcpiModule';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
@@ -47,6 +43,7 @@ export { EvseResponse } from './model/Evse';
 export { LocationResponse } from './model/Location';
 export { CdrResponse, PaginatedCdrResponse } from './model/Cdr';
 export { VersionRepository } from './repository/VersionRepository';
+export { CommandResultType } from './model/CommandResult';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
@@ -93,7 +90,6 @@ export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { KoaServer } from './util/koa.server';
 export { CountryCode } from './util/util';
 export { ImageCategory } from './model/ImageCategory';
-export { versionIdParam } from './util/decorators/version.number.param';
 export { EndpointDTO } from './model/Endpoint';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
@@ -110,57 +106,54 @@ export {
 export { OcpiRegistrationParams } from './trigger/util/ocpi.registration.params';
 export { OcpiHttpHeader } from './util/ocpi.http.header';
 
+export { versionIdParam } from './util/decorators/version.number.param';
+
 useContainer(Container);
 
 export { Container } from 'typedi';
 
+export class OcpiModuleConfig {
+  module!: Constructable<OcpiModule>;
+  handler?: IMessageHandler;
+  sender?: IMessageSender;
+}
+
 export class OcpiServer extends KoaServer {
-  readonly koa: Koa;
-  readonly moduleConfig: OcpiModuleConfig;
+  koa!: Koa;
   readonly serverConfig: OcpiServerConfig;
   readonly cache: ICache;
-  readonly handler: IMessageHandler;
-  readonly sender: IMessageSender;
   readonly logger: Logger<ILogObj>;
   readonly sequelizeInstance: OcpiSequelizeInstance;
   readonly modules: OcpiModule[] = [];
 
   constructor(
-    moduleConfig: OcpiModuleConfig,
     serverConfig: OcpiServerConfig,
     cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
     logger: Logger<ILogObj>,
+    modulesConfig: OcpiModuleConfig[],
   ) {
     super();
 
-    this.moduleConfig = moduleConfig;
     this.serverConfig = serverConfig;
     this.cache = cache;
-    this.handler = handler;
-    this.sender = sender;
     this.logger = logger;
+    this.sequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
 
-    Container.set(OcpiServerConfig, serverConfig);
-    Container.set(
-      MessageHandlerWrapper,
-      new MessageHandlerWrapper(this.handler),
-    );
-    Container.set(MessageSenderWrapper, new MessageSenderWrapper(this.sender));
-    Container.set(CacheWrapper, new CacheWrapper(this.cache));
-    Container.set(Logger, this.logger);
+    this.initContainer();
 
-    this.sequelizeInstance = Container.get(OcpiSequelizeInstance);
-
-    this.moduleConfig.moduleTypes?.forEach((module) => {
-      this.modules.push(Container.get(module as any));
+    this.modules = modulesConfig.map((moduleConfig) => {
+      const module = Container.get(moduleConfig.module);
+      module.init(moduleConfig.handler, moduleConfig.sender);
+      return module;
     });
 
+    this.initServer();
+  }
+
+  private initServer() {
     try {
       this.koa = new Koa();
-      const controllers =
-        this.modules?.map((module) => module.getController()) || [];
+      const controllers = this.modules.map((module) => module.getController());
       this.initApp({
         controllers,
         routePrefix: '/ocpi',
@@ -182,5 +175,12 @@ export class OcpiServer extends KoaServer {
       console.error(error);
       process.exit(1);
     }
+  }
+
+  private initContainer() {
+    Container.set(OcpiServerConfig, this.serverConfig);
+    Container.set(CacheWrapper, new CacheWrapper(this.cache));
+    Container.set(Logger, this.logger);
+    Container.set(OcpiSequelizeInstance, this.sequelizeInstance);
   }
 }
