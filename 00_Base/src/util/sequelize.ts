@@ -14,6 +14,7 @@ import { ClientVersion } from '../model/ClientVersion';
 import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
+import { Token } from '../model/Token';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -50,6 +51,7 @@ export class OcpiSequelizeInstance {
         Endpoint,
         Version,
         VersionEndpoint,
+        Token
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
@@ -57,14 +59,14 @@ export class OcpiSequelizeInstance {
       },
     });
 
-    if (config.data.sequelize.alter) {
+    // if (config.data.sequelize.alter) {
       this.sequelize.sync({ alter: true }).then(() => {
         sequelizeLogger.info('Database altered');
       });
-    } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({ force: true }).then(() => {
-        sequelizeLogger.info('Database synchronized');
-      });
-    }
+    // } else if (config.data.sequelize.sync) {
+    //   this.sequelize.sync({ force: true }).then(() => {
+    //     sequelizeLogger.info('Database synchronized');
+    //   });
+    // }
   }
 }

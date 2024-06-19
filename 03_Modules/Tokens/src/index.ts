@@ -8,7 +8,7 @@ import {IOcpiModule} from "@citrineos/ocpi-base";
 import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
 
-export { TokensModuleApi } from './module/api'
+export { TokensModuleApi } from './module/api';
 export { ITokensModuleApi } from './module/interface';
 
 export class TokensModule implements IOcpiModule {

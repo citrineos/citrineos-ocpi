@@ -33,6 +33,7 @@ import {
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 
+
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
@@ -81,6 +82,7 @@ export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { CommandResultType } from './model/CommandResult';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
+
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
 export { OcpiLogger } from './util/logger';
@@ -101,6 +103,8 @@ export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 
 export { versionIdParam } from './util/decorators/version.number.param';
+export { OcpiHttpHeader } from './util/ocpi.http.header';
+
 
 useContainer(Container);
 
@@ -158,8 +162,7 @@ export class OcpiServer extends KoaServer {
           ChargingProfilesController,
           LocationsController,
           SessionsController,
-          TariffsController,
-          TokensController,
+          TariffsController
         ],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
