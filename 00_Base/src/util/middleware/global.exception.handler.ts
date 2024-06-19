@@ -1,14 +1,12 @@
-import {
-  KoaMiddlewareInterface,
-  Middleware,
-  UnauthorizedError,
-} from 'routing-controllers';
+import { KoaMiddlewareInterface, Middleware, UnauthorizedError } from 'routing-controllers';
 import { Context } from 'vm';
 import { HttpStatus } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
 import { Service } from 'typedi';
 import { NotFoundException } from '../../exception/not.found.exception';
+import { UnknownTokenException } from '../../exception/unknown.token.exception';
 import { OcpiResponseStatusCode } from '../../model/ocpi.response';
+import { WrongClientAccessException } from '../../exception/wrong.client.access.exception';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -53,6 +51,18 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
                 (err as any).message,
               ),
             );
+            break;
+          case UnknownTokenException.name:
+            context.status = HttpStatus.OK;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientUnknownToken,
+                (err as any).message,
+              ),
+            );
+            break;
+          case WrongClientAccessException.name:
+            context.status = HttpStatus.NOT_FOUND;
             break;
           default:
             context.status = HttpStatus.INTERNAL_SERVER_ERROR;

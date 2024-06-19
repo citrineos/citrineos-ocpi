@@ -6,6 +6,7 @@ import { Version } from '../model/Version';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { Endpoint } from '../model/Endpoint';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
+import { Token } from '../model/Token';
 
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
@@ -25,7 +26,7 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [ResponseUrlCorrelationId],
+      models: [ResponseUrlCorrelationId, Token],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);

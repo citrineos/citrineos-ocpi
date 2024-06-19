@@ -8,5 +8,5 @@ export enum OcpiNamespace {
   Commands = 'Commands',
   Locations = 'Locations',
   Sessions = 'Sessions',
-  Tokens = 'Tokens',
+  Tokens = 'Token',
 }

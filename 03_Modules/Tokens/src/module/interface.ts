@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-
 /**
  * Interface for the Commands module.
  */
-export interface ITokensModuleApi {
-}
+export interface ITokensModuleApi {}

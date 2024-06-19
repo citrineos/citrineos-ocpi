@@ -13,6 +13,7 @@ import { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 import { MessageSenderWrapper } from './util/MessageSenderWrapper';
 import { CacheWrapper } from './util/CacheWrapper';
 
+
 export { OcpiModule } from './model/OcpiModule';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
@@ -43,7 +44,7 @@ export { VersionDTOListResponse } from './model/Version';
 export { VersionDetailsDTO, VersionDTO } from './model/Version';
 export { OcpiResponse } from './model/ocpi.response';
 export { CommandResultType } from './model/CommandResult';
-export { Token } from './model/Token';
+export { Token, SingleTokenRequest } from './model/Token';
 export { TokenResponse } from './model/Token';
 export { TokenType } from './model/TokenType';
 
@@ -51,10 +52,15 @@ export { EnumQueryParam } from './util/decorators/enum.query.param';
 
 export { ResponseUrlRepository } from './repository/response-url.repository';
 export { VersionRepository } from './repository/version.repository';
+export { TokensRepository } from './repository/tokens.repository';
 
 export { NotFoundException } from './exception/not.found.exception';
+export { UnknownTokenException } from './exception/unknown.token.exception';
+export { WrongClientAccessException } from './exception/wrong.client.access.exception';
+
 
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
+
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
 export { OcpiLogger } from './util/logger';
@@ -81,6 +87,8 @@ export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 
 export { versionIdParam } from './util/decorators/version.number.param';
+export { OcpiHttpHeader } from './util/ocpi.http.header';
+
 
 useContainer(Container);
 
@@ -127,9 +135,7 @@ export class OcpiServer extends KoaServer {
   private initServer() {
     try {
       this.koa = new Koa();
-      const controllers = this.modules.map((module) => {
-        return module.getController();
-      });
+      const controllers = this.modules.map((module) => module.getController());
       this.initApp({
         controllers,
         routePrefix: '/ocpi',

@@ -3,23 +3,26 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-
-import {Service} from "typedi";
-import {ModelmockService, Token} from "@citrineos/ocpi-base";
+import { Service } from 'typedi';
+import { ModelmockService, OcpiLogger, Token, TokensRepository } from '@citrineos/ocpi-base';
+import { SingleTokenRequest } from '@citrineos/ocpi-base/dist/model/Token';
 
 @Service()
 export class TokensService {
+  constructor(
+    private readonly modelMockService: ModelmockService,
+              private readonly logger: OcpiLogger,
+    private readonly tokenRepository: TokensRepository
+  ) {
+  }
 
-    constructor(private readonly  modelMockService: ModelmockService) {}
+  // TODO get existing token
+  async getSingleToken(tokenRequest: SingleTokenRequest): Promise<Token | undefined> {
 
-    //TODO get existing token
-    async getSingleToken(): Promise<Token>{
+    return await this.tokenRepository.getSingleToken(tokenRequest)
 
-        //TODO make repo call
+  }
 
-        return this.modelMockService.generateMockModel(Token);
-    }
-
-    //TODO add new or update token
-    //TOOD partial update of token
+  // TODO add new or update token
+  // TOOD partial update of token
 }

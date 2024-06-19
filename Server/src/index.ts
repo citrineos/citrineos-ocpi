@@ -20,6 +20,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
+import { TokensModule } from '@citrineos/ocpi-tokens';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -50,6 +51,11 @@ class CitrineOSServer {
       },
       {
         module: VersionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: TokensModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

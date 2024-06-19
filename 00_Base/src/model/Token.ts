@@ -1,149 +1,265 @@
 import {
-    IsArray,
-    IsBoolean,
-    IsDate,
-    IsNotEmpty,
-    IsObject,
-    IsOptional,
-    IsString,
-    MaxLength,
-    MinLength,
-    ValidateNested,
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateNested,
 } from 'class-validator';
-import {TokenEnergyContract} from './TokenEnergyContract';
-import {WhitelistType} from './WhitelistType';
-import {Type} from 'class-transformer';
-import {Optional} from '../util/decorators/optional';
-import {Enum} from '../util/decorators/enum';
-import {OcpiResponse} from './ocpi.response';
-import {PaginatedResponse} from './PaginatedResponse';
-import {Column, DataType, Model, Table} from "sequelize-typescript";
-import {OcpiNamespace} from "../util/ocpi.namespace";
+import { TokenEnergyContract } from './TokenEnergyContract';
+import { WhitelistType } from './WhitelistType';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
+import { Enum } from '../util/decorators/enum';
+import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
+import { PaginatedResponse } from './PaginatedResponse';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { OcpiNamespace } from '../util/ocpi.namespace';
+import { TokenType } from './TokenType';
 
 @Table
 export class Token extends Model {
+  static readonly MODEL_NAME: string = OcpiNamespace.Tokens;
 
-    static readonly MODEL_NAME: string = OcpiNamespace.Tokens;
+  @Column(DataType.STRING)
+  @MaxLength(2)
+  @MinLength(2)
+  @IsString()
+  @IsNotEmpty()
+  country_code!: string;
 
-    @Column(DataType.STRING)
-    @MaxLength(2)
-    @MinLength(2)
-    @IsString()
-    @IsNotEmpty()
-    country_code!: string;
+  @Column(DataType.STRING)
+  @MaxLength(3)
+  @IsString()
+  @IsNotEmpty()
+  party_id!: string;
 
-    @Column(DataType.STRING)
-    @MaxLength(3)
-    @IsString()
-    @IsNotEmpty()
-    party_id!: string;
+  @Column(DataType.STRING)
+  @MaxLength(36)
+  @IsString()
+  @IsNotEmpty()
+  uid!: string;
 
-    @Column(DataType.STRING)
-    @MaxLength(36)
-    @IsString()
-    @IsNotEmpty()
-    uid!: string;
+  @Column(DataType.STRING)
+  @IsString()
+  @IsNotEmpty()
+  type!: string;
 
-    @Column(DataType.STRING)
-    @IsString()
-    @IsNotEmpty()
-    type!: string;
+  @Column(DataType.STRING)
+  @MaxLength(36)
+  @IsString()
+  @IsNotEmpty()
+  contract_id!: string;
 
-    @Column(DataType.STRING)
-    @MaxLength(36)
-    @IsString()
-    @IsNotEmpty()
-    contract_id!: string;
+  @Column(DataType.STRING)
+  @MaxLength(64)
+  @IsString()
+  @Optional()
+  visual_number?: string | null;
 
-    @Column(DataType.STRING)
-    @MaxLength(64)
-    @IsString()
-    @Optional()
-    visual_number?: string | null;
+  @Column(DataType.STRING)
+  @MaxLength(64)
+  @IsString()
+  @IsNotEmpty()
+  issuer!: string;
 
-    @Column(DataType.STRING)
-    @MaxLength(64)
-    @IsString()
-    @IsNotEmpty()
-    issuer!: string;
+  @Column(DataType.STRING)
+  @MaxLength(36)
+  @IsString()
+  @Optional()
+  group_id?: string | null;
 
-    @Column(DataType.STRING)
-    @MaxLength(36)
-    @IsString()
-    @Optional()
-    group_id?: string | null;
+  @Column(DataType.BOOLEAN)
+  @IsBoolean()
+  @IsNotEmpty()
+  valid!: boolean;
 
-    @Column(DataType.BOOLEAN)
-    @IsBoolean()
-    @IsNotEmpty()
-    valid!: boolean;
+  @Column(DataType.STRING)
+  @Enum(WhitelistType, 'WhitelistType')
+  @IsNotEmpty()
+  whitelist!: WhitelistType;
 
-    @Column(DataType.STRING)
-    @Enum(WhitelistType, 'WhitelistType')
-    @IsNotEmpty()
-    whitelist!: WhitelistType;
+  @Column(DataType.STRING)
+  @MaxLength(2)
+  @MinLength(2)
+  @IsString()
+  @Optional()
+  language?: string | null;
 
-    @Column(DataType.STRING)
-    @MaxLength(2)
-    @MinLength(2)
-    @IsString()
-    @Optional()
-    language?: string | null;
+  @Column(DataType.STRING)
+  @IsString()
+  @Optional()
+  default_profile_type?: string | null;
 
-    @Column(DataType.STRING)
-    @IsString()
-    @Optional()
-    default_profile_type?: string | null;
+  @Column(DataType.STRING)
+  @Optional()
+  @Type(() => TokenEnergyContract)
+  @ValidateNested()
+  energy_contract?: TokenEnergyContract | null;
 
-    @Column(DataType.STRING)
-    @Optional()
-    @Type(() => TokenEnergyContract)
-    @ValidateNested()
-    energy_contract?: TokenEnergyContract | null;
+  @Column(DataType.STRING)
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  last_updated!: Date;
 
-    @Column(DataType.STRING)
-    @IsDate()
-    @IsNotEmpty()
-    @Type(() => Date)
-    last_updated!: Date;
+  public toTokenDTO(): TokenDTO {
+    const dto = new TokenDTO();
+
+    dto.country_code = this.country_code;
+    dto.party_id = this.party_id;
+    dto.uid = this.uid;
+    dto.type = this.type;
+    dto.contract_id = this.contract_id;
+    dto.visual_number = this.visual_number;
+    dto.issuer = this.issuer;
+    dto.group_id = this.group_id;
+    dto.valid = this.valid;
+    dto.whitelist = this.whitelist;
+    dto.language = this.language;
+    dto.default_profile_type = this.default_profile_type;
+    dto.energy_contract = this.energy_contract;
+    dto.last_updated = this.last_updated;
+
+    return dto;
+  }
+
 }
 
-export class TokenResponse extends OcpiResponse<Token> {
-    @IsObject()
-    @IsNotEmpty()
-    @Type(() => Token)
-    @ValidateNested()
-    data!: Token;
+export class TokenDTO {
+  @MaxLength(2)
+  @MinLength(2)
+  @IsString()
+  @IsNotEmpty()
+  country_code!: string;
+
+  @MaxLength(3)
+  @IsString()
+  @IsNotEmpty()
+  party_id!: string;
+
+  @MaxLength(36)
+  @IsString()
+  @IsNotEmpty()
+  uid!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  type!: string;
+
+  @MaxLength(36)
+  @IsString()
+  @IsNotEmpty()
+  contract_id!: string;
+
+  @MaxLength(64)
+  @IsString()
+  @Optional()
+  visual_number?: string | null;
+
+  @MaxLength(64)
+  @IsString()
+  @IsNotEmpty()
+  issuer!: string;
+
+  @MaxLength(36)
+  @IsString()
+  @Optional()
+  group_id?: string | null;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  valid!: boolean;
+
+  @Enum(WhitelistType, 'WhitelistType')
+  @IsNotEmpty()
+  whitelist!: WhitelistType;
+
+  @Column(DataType.STRING)
+  @MaxLength(2)
+  @MinLength(2)
+  @IsString()
+  @Optional()
+  language?: string | null;
+
+  @IsString()
+  @Optional()
+  default_profile_type?: string | null;
+
+  @Optional()
+  @Type(() => TokenEnergyContract)
+  @ValidateNested()
+  energy_contract?: TokenEnergyContract | null;
+
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  last_updated!: Date;
 }
 
-export class PaginatedTokenResponse extends PaginatedResponse<Token> {
-    @IsArray()
-    @ValidateNested({each: true})
-    @IsNotEmpty()
-    @Optional(false)
-    @Type(() => Token)
-    data!: Token[];
+export class TokenResponse extends OcpiResponse<TokenDTO> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => TokenDTO)
+  @ValidateNested()
+  data!: TokenDTO;
+
+  static build(statusCode: OcpiResponseStatusCode, data?: TokenDTO, message?: string): TokenResponse {
+    const response = new TokenResponse();
+    response.status_code = statusCode;
+    response.data = data!;
+    response.status_message = message;
+    return response;
+  }
+}
+
+export class PaginatedTokenResponse extends PaginatedResponse<TokenDTO> {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @IsNotEmpty()
+  @Optional(false)
+  @Type(() => TokenDTO)
+  data!: TokenDTO[];
 }
 
 export class SingleTokenRequest {
-    @MaxLength(2)
-    @MinLength(2)
-    @IsString()
-    @IsNotEmpty()
-    country_code!: string;
+  @MaxLength(2)
+  @MinLength(2)
+  @IsString()
+  @IsNotEmpty()
+  country_code!: string;
 
-    @MaxLength(3)
-    @IsString()
-    @IsNotEmpty()
-    party_id!: string;
+  @MaxLength(3)
+  @IsString()
+  @IsNotEmpty()
+  party_id!: string;
 
-    @MaxLength(36)
-    @IsString()
-    @IsNotEmpty()
-    uid!: string;
+  @MaxLength(36)
+  @IsString()
+  @IsNotEmpty()
+  uid!: string;
 
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    type!: string;
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  type?: string;
+
+  static build(
+    country_code: string,
+    party_id: string,
+    uid: string,
+    type?: string): SingleTokenRequest {
+    const request = new SingleTokenRequest();
+    request.country_code = country_code;
+    request.party_id = party_id;
+    request.uid = uid;
+    //OCPI specifies: Token.type of the Token to retrieve. Default if omitted: RFID
+    request.type = type ? type : TokenType.RFID;
+    return request;
+  }
+
 }
