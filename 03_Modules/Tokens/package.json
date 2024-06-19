@@ -26,10 +26,10 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@citrineos/ocpi-base" : "1.1.1",
-    "@citrineos/base" : "1.2.3",
-    "@citrineos/data" : "1.2.3",
-    "@citrineos/util" : "1.2.3",
+    "@citrineos/ocpi-base": "1.1.1",
+    "@citrineos/base": "1.2.3",
+    "@citrineos/data": "1.2.3",
+    "@citrineos/util": "1.2.3",
     "deasync-promise": "^1.0.1",
     "tslog": "^4.9.2"
   }

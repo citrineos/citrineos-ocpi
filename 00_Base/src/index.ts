@@ -163,6 +163,8 @@ export { TariffsBroadcaster } from './services/tariffs.broadcaster';
 export { TariffMapper } from './services/tariff.mapper';
 export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
 
+export { OcpiHttpHeader } from './util/ocpi.http.header';
+
 export { CdrsService } from './services/cdrs.service';
 
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
@@ -224,7 +226,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          TokensController,
         ],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
