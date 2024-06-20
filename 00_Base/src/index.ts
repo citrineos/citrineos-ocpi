@@ -44,7 +44,7 @@ export { VersionDTOListResponse } from './model/Version';
 export { VersionDetailsDTO, VersionDTO } from './model/Version';
 export { OcpiResponse } from './model/ocpi.response';
 export { CommandResultType } from './model/CommandResult';
-export { Token, SingleTokenRequest } from './model/Token';
+export { Token, SingleTokenRequest, TokenDTO } from './model/Token';
 export { TokenResponse } from './model/Token';
 export { TokenType } from './model/TokenType';
 

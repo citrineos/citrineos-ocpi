@@ -23,10 +23,12 @@ import {
   TokenType,
   UnknownTokenException,
   versionIdParam, WrongClientAccessException,
+  TokenDTO, CancelReservation,
 } from '@citrineos/ocpi-base';
 import { TokensService } from './service';
 import { ITokensModuleApi } from './interface';
-import { TokenDTO } from '@citrineos/ocpi-base/dist/model/Token';
+import { plainToInstance } from 'class-transformer';
+
 
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
@@ -83,19 +85,22 @@ export class TokensModuleApi
     @Param('tokenId') tokenId: string,
     @HeaderParam(OcpiHttpHeader.OcpiFromPartyId) fromPartyId: string,
     @HeaderParam(OcpiHttpHeader.OcpiFromCountryCode) fromCountryCode: string,
-    @Body() token: TokenDTO,
+    @Body() tokenDTO: TokenDTO,
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
-    console.log('putToken', countryCode, partyId, tokenId, token, type);
+    console.log('putToken', countryCode, partyId, tokenId, tokenDTO, type);
     //TODO When a client pushes a Client Owned Object, but the {object-id} in the URL is different from the id in the object being pushed, server implementations are advised to return an OCPI status code: 2001.
     if(fromCountryCode !== countryCode || fromPartyId !== partyId) {
       throw new WrongClientAccessException('Client is trying to access wrong resource');
     }
-    if(tokenId !== token.uid) {
+    if(tokenId !== tokenDTO.uid) {
       throw new InvalidParamException('Path token_uid and body token_uid must match');
     }
-    return new OcpiEmptyResponse();
-    // return generateMockOcpiResponse(OcpiEmptyResponse);
+    const _token = plainToInstance(Token, tokenDTO);
+    _token.type = type ? type : TokenType.RFID;
+    //TODO save Token
+    await this.tokensService.saveToken(_token);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   @Patch('/:countryCode/:partyId/:tokenId')
@@ -118,8 +123,15 @@ export class TokensModuleApi
   ): Promise<OcpiEmptyResponse> {
     console.log('patchToken', countryCode, partyId, tokenId, token, type);
     //TODO When a client pushes a Client Owned Object, but the {object-id} in the URL is different from the id in the object being pushed, server implementations are advised to return an OCPI status code: 2001.
-    // return new OcpiEmptyResponse();
-    return generateMockOcpiResponse(OcpiEmptyResponse);
+    if(fromCountryCode !== countryCode || fromPartyId !== partyId) {
+      throw new WrongClientAccessException('Client is trying to access wrong resource');
+    }
+    if(tokenId !== token.uid) {
+      throw new InvalidParamException('Path token_uid and body token_uid must match');
+    }
+
+    await this.tokensService.updateToken(token);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
 }

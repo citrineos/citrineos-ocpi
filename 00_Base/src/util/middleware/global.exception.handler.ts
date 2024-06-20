@@ -8,6 +8,7 @@ import { UnknownTokenException } from '../../exception/unknown.token.exception';
 import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 import { WrongClientAccessException } from '../../exception/wrong.client.access.exception';
 import { InvalidParamException } from '../../exception/invalid.param.exception';
+import { MissingParamException } from '../../exception/missing.param.exception';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -44,7 +45,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
               ),
             );
             break;
-          case 'ParamRequiredError':
+          case MissingParamException.name:
             context.status = HttpStatus.BAD_REQUEST;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(

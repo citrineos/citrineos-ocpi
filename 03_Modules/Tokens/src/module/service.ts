@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { ModelmockService, OcpiLogger, Token, TokensRepository } from '@citrineos/ocpi-base';
+import { ModelmockService, OcpiLogger, Token, TokensRepository, TokenType } from '@citrineos/ocpi-base';
 import { SingleTokenRequest } from '@citrineos/ocpi-base/dist/model/Token';
 
 @Service()
@@ -24,5 +24,14 @@ export class TokensService {
   }
 
   // TODO add new or update token
-  // TOOD partial update of token
+
+  async saveToken(token: Token): Promise<Token> {
+    console.log("Yay!");
+    return this.tokenRepository.saveToken(token);
+  }
+
+  async updateToken(token: Partial<Token>): Promise<Token> {
+    this.logger.info(await this.tokenRepository.updateToken(token));
+    return new Token();
+  }
 }

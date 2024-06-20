@@ -33,14 +33,14 @@ export class OcpiSequelizeInstance {
       },
     });
 
-    if (config.data.sequelize.alter) {
+    // if (config.data.sequelize.alter) {
       this.sequelize.sync({ alter: true }).then(() => {
         sequelizeLogger.info('Database altered');
       });
-    } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({ force: true }).then(() => {
-        sequelizeLogger.info('Database synchronized');
-      });
-    }
+    // } else if (config.data.sequelize.sync) {
+    //   this.sequelize.sync({ force: true }).then(() => {
+    //     sequelizeLogger.info('Database synchronized');
+    //   });
+    // }
   }
 }

@@ -31,18 +31,41 @@ export class TokensRepository extends SequelizeRepository<Token> {
 
   async getSingleToken(tokenRequest: SingleTokenRequest): Promise<Token | undefined> {
 
-    this.logger.info('yay!', tokenRequest);
     const query: any = {
       where: {
         country_code: tokenRequest.country_code,
         party_id: tokenRequest.party_id,
         uid: tokenRequest.uid,
-        type: tokenRequest.type
+        type: tokenRequest.type,
       },
     };
 
     return this.readOnlyOneByQuery(query);
   }
 
+  async saveToken(token: Token) {
+    return this.create(token);
+  }
+
+  async updateToken(token: Partial<Token>) {
+    if (token.uid === undefined) {
+      throw new Error('uid is required');
+    }
+    if (token.party_id === undefined) {
+      throw new Error('party_id is required');
+    }
+    if (token.country_code === undefined) {
+      throw new Error('country_code is required');
+    }
+    if (token.type === undefined) {
+      throw new Error('type is required');
+    }
+    const newToken = Token.build({country_code: token.country_code, party_id: token.party_id, uid: token.uid, type: token.type});
+    return this.updateAllByQuery(newToken, {
+      where: {
+        country_code: "US",
+      },
+    });
+  }
 }
 

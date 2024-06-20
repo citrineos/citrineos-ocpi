@@ -24,27 +24,27 @@ import { TokenType } from './TokenType';
 @Table
 export class Token extends Model {
   static readonly MODEL_NAME: string = OcpiNamespace.Tokens;
-
-  @Column(DataType.STRING)
+//OCPI 12.3.2 The combination of uid and type should be unique for every token within the eMSP’s system.
+  @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @MaxLength(2)
   @MinLength(2)
   @IsString()
   @IsNotEmpty()
   country_code!: string;
 
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @MaxLength(3)
   @IsString()
   @IsNotEmpty()
   party_id!: string;
 
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()
   uid!: string;
 
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @IsString()
   @IsNotEmpty()
   type!: string;
@@ -101,7 +101,7 @@ export class Token extends Model {
   @ValidateNested()
   energy_contract?: TokenEnergyContract | null;
 
-  @Column(DataType.STRING)
+  @Column(DataType.DATE)
   @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
