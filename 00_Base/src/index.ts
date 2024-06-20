@@ -64,8 +64,6 @@ export { Location, LocationResponse, PaginatedLocationResponse } from './model/L
 export { EvseDTO, EvseResponse } from './model/Evse';
 export { Connector, ConnectorResponse } from './model/Connector';
 
-export { NotFoundException } from './exception/not.found.exception';
-
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
