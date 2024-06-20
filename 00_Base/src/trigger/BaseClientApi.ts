@@ -49,7 +49,7 @@ export class BaseClientApi {
 
   async options<T>(options: TriggerRequestOptions): Promise<T> {
     return this.optionsRaw<T>(
-        //if options fields are both otpional, is this a risk?
+      // if options fields are both otpional, is this a risk?
       this.getPath(options!.version!, options!.path!),
       options,
     ).then((response) => this.handleResponse<T>(response));

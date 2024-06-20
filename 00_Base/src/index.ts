@@ -57,6 +57,7 @@ export { TokensRepository } from './repository/tokens.repository';
 export { NotFoundException } from './exception/not.found.exception';
 export { UnknownTokenException } from './exception/unknown.token.exception';
 export { WrongClientAccessException } from './exception/wrong.client.access.exception';
+export { InvalidParamException } from './exception/invalid.param.exception';
 
 
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';

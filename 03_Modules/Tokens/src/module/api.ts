@@ -11,7 +11,7 @@ import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   EnumQueryParam,
-  generateMockOcpiResponse,
+  generateMockOcpiResponse, InvalidParamException,
   ModuleId,
   OcpiEmptyResponse,
   OcpiHttpHeader,
@@ -26,6 +26,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { TokensService } from './service';
 import { ITokensModuleApi } from './interface';
+import { TokenDTO } from '@citrineos/ocpi-base/dist/model/Token';
 
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
@@ -82,13 +83,16 @@ export class TokensModuleApi
     @Param('tokenId') tokenId: string,
     @HeaderParam(OcpiHttpHeader.OcpiFromPartyId) fromPartyId: string,
     @HeaderParam(OcpiHttpHeader.OcpiFromCountryCode) fromCountryCode: string,
-    @Body() token: Token,
+    @Body() token: TokenDTO,
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('putToken', countryCode, partyId, tokenId, token, type);
     //TODO When a client pushes a Client Owned Object, but the {object-id} in the URL is different from the id in the object being pushed, server implementations are advised to return an OCPI status code: 2001.
     if(fromCountryCode !== countryCode || fromPartyId !== partyId) {
       throw new WrongClientAccessException('Client is trying to access wrong resource');
+    }
+    if(tokenId !== token.uid) {
+      throw new InvalidParamException('Path token_uid and body token_uid must match');
     }
     return new OcpiEmptyResponse();
     // return generateMockOcpiResponse(OcpiEmptyResponse);

@@ -7,6 +7,7 @@ import { NotFoundException } from '../../exception/not.found.exception';
 import { UnknownTokenException } from '../../exception/unknown.token.exception';
 import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 import { WrongClientAccessException } from '../../exception/wrong.client.access.exception';
+import { InvalidParamException } from '../../exception/invalid.param.exception';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -63,6 +64,15 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             break;
           case WrongClientAccessException.name:
             context.status = HttpStatus.NOT_FOUND;
+            break;
+          case InvalidParamException.name:
+            context.status = HttpStatus.OK;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+                (err as any).message,
+              ),
+            )
             break;
           default:
             context.status = HttpStatus.INTERNAL_SERVER_ERROR;
