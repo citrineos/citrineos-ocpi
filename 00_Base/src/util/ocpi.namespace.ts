@@ -9,4 +9,8 @@ export enum OcpiNamespace {
   Locations = 'Locations',
   Sessions = 'Sessions',
   Tokens = 'Tokens',
+  ClientInformation = 'ClientInformation',
+  ClientCredentialsRole = 'ClientCredentialsRole',
+  ServerCredentialsRole = 'ServerCredentialsRole',
+  CpoTenant = 'CpoTenant',
 }

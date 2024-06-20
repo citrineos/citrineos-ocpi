@@ -3,36 +3,45 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { VersionsModuleApi } from './module/api';
-import { IOcpiModule } from '@citrineos/ocpi-base';
 import {
-  EventGroup,
-  ICache,
-  IMessageHandler,
-  IMessageSender,
-  SystemConfig,
-} from '@citrineos/base';
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
+import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
+import { Service } from 'typedi';
+import { VersionsModuleApi } from './module/api';
+import { VersionsOcppHandlers } from './module/handlers';
 import { ILogObj, Logger } from 'tslog';
 
 export { VersionsModuleApi } from './module/api';
 export { VersionsOcppHandlers } from './module/handlers';
 export { IVersionsModuleApi } from './module/interface';
 
-import { VersionsOcppHandlers } from './module/handlers';
+@Service()
+export class VersionsModule implements OcpiModule {
+  handler!: IMessageHandler;
+  sender!: IMessageSender;
 
-export class VersionsModule implements IOcpiModule {
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    eventGroup: EventGroup,
-    logger?: Logger<ILogObj>,
-  ) {
-    new VersionsOcppHandlers(config, cache, sender, handler, logger);
+    readonly config: OcpiServerConfig,
+    readonly cacheWrapper: CacheWrapper,
+    readonly logger?: Logger<ILogObj>,
+  ) {}
+
+  init(handler: IMessageHandler, sender: IMessageSender): void {
+    this.handler = handler;
+    this.sender = sender;
+    new VersionsOcppHandlers(
+      this.config as SystemConfig,
+      this.cacheWrapper.cache,
+      this.handler,
+      this.sender,
+      this.logger,
+    );
   }
 
-  getController(): any {
+  public getController(): any {
     return VersionsModuleApi;
   }
 }

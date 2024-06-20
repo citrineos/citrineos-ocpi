@@ -17,13 +17,16 @@
       "path": "../00_Base"
     },
     {
+      "path": "../03_Modules/Versions"
+    },
+    {
+      "path": "../03_Modules/Credentials"
+    },
+    {
       "path": "../03_Modules/Commands"
     },
     {
       "path": "../03_Modules/Locations"
-    },
-    {
-      "path": "../03_Modules/Versions"
     }
   ]
 }

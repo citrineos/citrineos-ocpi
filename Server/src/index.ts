@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import {
-  EventGroup,
   ICache,
   IMessageHandler,
   IMessageSender,
@@ -14,14 +13,12 @@ import {
   RabbitMqSender,
   RedisCache,
 } from '@citrineos/util';
-import {
-  OcpiModuleConfig,
-  OcpiServer,
-  OcpiServerConfig,
-} from '@citrineos/ocpi-base';
+import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { LocationsModule } from "@citrineos/ocpi-locations";
 import { VersionsModule } from '@citrineos/ocpi-versions';
+import { CredentialsModule } from '@citrineos/ocpi-credentials';
+import { Container } from 'typedi';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -33,44 +30,36 @@ class CitrineOSServer {
     this.cache = this.initCache();
     this.logger = this.initLogger();
 
+    Container.set(Logger, this.logger);
+
     const ocpiServer = new OcpiServer(
-      this.getModuleConfig(),
       this.config as OcpiServerConfig,
+      this.cache,
+      this.logger,
+      this.getModuleConfig(),
     );
 
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);
   }
 
   protected getModuleConfig() {
-    const config = new OcpiModuleConfig();
-
-        config.modules = [
-            new CommandsModule(
-                this.config,
-                this.cache,
-                this._createHandler(),
-                this._createSender(),
-                EventGroup.Commands,
-                this.logger,
-            ),
-            new LocationsModule(
-                this.config,
-                this.cache,
-                this._createHandler(),
-                this._createSender(),
-                this.logger,
-            ),
-            new VersionsModule(
-                this.config,
-                this.cache,
-                this._createHandler(),
-                this._createSender(),
-                EventGroup.Versions,
-                this.logger,
-            )
-        ]
-
-    return config;
+    return [
+      {
+        module: VersionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CredentialsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CommandsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+    ];
   }
 
   protected _createSender(): IMessageSender {

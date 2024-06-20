@@ -16,7 +16,7 @@ export class SetChargingProfile {
   charging_profile!: ChargingProfile;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsNotEmpty()
   response_url!: string;
 }

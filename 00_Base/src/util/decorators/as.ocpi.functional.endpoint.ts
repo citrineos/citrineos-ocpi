@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { HeaderParam, UseBefore } from 'routing-controllers';
-import { ParamOptions } from 'routing-controllers/types/decorator-options/ParamOptions';
+import { ParamOptions } from 'routing-controllers';
 import { AuthMiddleware } from '../middleware/auth.middleware';
 import { OcpiHttpHeader } from '../ocpi.http.header';
 import { OcpiHeaderMiddleware } from '../middleware/ocpi.header.middleware';

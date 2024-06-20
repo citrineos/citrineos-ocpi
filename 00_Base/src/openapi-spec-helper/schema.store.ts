@@ -1,8 +1,8 @@
-import { Constructor } from '../util/util';
 import {
   defaultClassValidatorJsonSchemaOptions,
   nestedClassToJsonSchema,
 } from './class.validator';
+import { Constructable } from 'typedi';
 
 export const SchemaStore = {
   components: {
@@ -21,7 +21,7 @@ export const SchemaStore = {
     return this.components.schemas;
   },
 
-  addToSchemaStore(type: Constructor) {
+  addToSchemaStore(type: Constructable<any>) {
     if (!this.getSchema(type.name)) {
       this.addSchema(
         type.name,
