@@ -1,7 +1,7 @@
-import { IsDateString, IsInt, Min } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../../model/PaginatedResponse';
-import { OcpiParams } from '../util/ocpi.params';
+import { IsDateString, IsInt, Min } from "class-validator";
+import { Optional } from "../../util/decorators/optional";
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from "../../model/PaginatedResponse";
+import { OcpiParams } from "../util/ocpi.params";
 
 export class PaginatedOcpiParams extends OcpiParams {
   @IsInt()

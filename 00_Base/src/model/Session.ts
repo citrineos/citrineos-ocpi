@@ -8,16 +8,16 @@ import {
   MaxLength,
   MinLength,
   ValidateNested,
-} from 'class-validator';
-import { Price } from './Price';
-import { ChargingPeriod } from './ChargingPeriod';
-import { AuthMethod } from './AuthMethod';
-import { SessionStatus } from './SessionStatus';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { CdrToken } from './CdrToken';
-import { PaginatedResponse } from './PaginatedResponse';
+} from "class-validator";
+import { Price } from "./Price";
+import { ChargingPeriod } from "./ChargingPeriod";
+import { AuthMethod } from "./AuthMethod";
+import { SessionStatus } from "./SessionStatus";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
+import { Enum } from "../util/decorators/enum";
+import { CdrToken } from "./CdrToken";
+import { PaginatedResponse } from "./PaginatedResponse";
 
 export class Session {
   @MaxLength(2)
@@ -58,7 +58,7 @@ export class Session {
   @ValidateNested()
   cdr_token!: CdrToken;
 
-  @Enum(AuthMethod, 'AuthMethod')
+  @Enum(AuthMethod, "AuthMethod")
   @IsNotEmpty()
   auth_method!: AuthMethod;
 
@@ -104,7 +104,7 @@ export class Session {
   @ValidateNested()
   total_cost?: Price | null;
 
-  @Enum(SessionStatus, 'SessionStatus')
+  @Enum(SessionStatus, "SessionStatus")
   @IsNotEmpty()
   status!: SessionStatus;
 

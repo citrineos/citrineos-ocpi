@@ -3,11 +3,11 @@ import {
   IsBoolean,
   IsNotEmpty,
   ValidateNested,
-} from 'class-validator';
-import { RegularHours } from './RegularHours';
-import { ExceptionalPeriod } from './ExceptionalPeriod';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+} from "class-validator";
+import { RegularHours } from "./RegularHours";
+import { ExceptionalPeriod } from "./ExceptionalPeriod";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
 
 export class Hours {
   @IsArray()

@@ -10,19 +10,19 @@ import {
   MaxLength,
   MinLength,
   ValidateNested,
-} from 'class-validator';
-import { CdrToken } from './CdrToken';
-import { CdrLocation } from './CdrLocation';
-import { ChargingPeriod } from './ChargingPeriod';
-import { SignedData } from './SignedData';
-import { Price } from './Price';
-import { AuthMethod } from './AuthMethod';
-import { Tariff } from './Tariff';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './ocpi.response';
+} from "class-validator";
+import { CdrToken } from "./CdrToken";
+import { CdrLocation } from "./CdrLocation";
+import { ChargingPeriod } from "./ChargingPeriod";
+import { SignedData } from "./SignedData";
+import { Price } from "./Price";
+import { AuthMethod } from "./AuthMethod";
+import { Tariff } from "./Tariff";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
+import { Enum } from "../util/decorators/enum";
+import { PaginatedResponse } from "./PaginatedResponse";
+import { OcpiResponse } from "./ocpi.response";
 
 export class Cdr {
   @MaxLength(2)
@@ -64,7 +64,7 @@ export class Cdr {
   @ValidateNested()
   cdr_token!: CdrToken;
 
-  @Enum(AuthMethod, 'AuthMethod')
+  @Enum(AuthMethod, "AuthMethod")
   @IsNotEmpty()
   auth_method!: AuthMethod;
 

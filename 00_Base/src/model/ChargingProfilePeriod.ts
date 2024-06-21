@@ -1,4 +1,4 @@
-import { IsDivisibleBy, IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsDivisibleBy, IsInt, IsNotEmpty, IsNumber } from "class-validator";
 
 export class ChargingProfilePeriod {
   @IsInt()

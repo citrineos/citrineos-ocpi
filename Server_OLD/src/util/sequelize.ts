@@ -1,11 +1,11 @@
-import { Sequelize } from 'sequelize-typescript';
-import { ILogObj, Logger } from 'tslog';
-import { Dialect } from 'sequelize';
-import { Credentials } from '../model/Credentials';
-import { Version } from '../model/Version';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { Service } from 'typedi';
-import { Endpoint } from '../model/Endpoint';
+import { Sequelize } from "sequelize-typescript";
+import { ILogObj, Logger } from "tslog";
+import { Dialect } from "sequelize";
+import { Credentials } from "../model/Credentials";
+import { Version } from "../model/Version";
+import { OcpiServerConfig } from "../config/ocpi.server.config";
+import { Service } from "typedi";
+import { Endpoint } from "../model/Endpoint";
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -16,7 +16,7 @@ export class OcpiSequelizeInstance {
       name: OcpiSequelizeInstance.name,
     });
 
-    sequelizeLogger.info('Creating default Sequelize instance');
+    sequelizeLogger.info("Creating default Sequelize instance");
 
     this.sequelize = new Sequelize({
       host: config.data.sequelize.host,
@@ -35,11 +35,11 @@ export class OcpiSequelizeInstance {
 
     if (config.data.sequelize.alter) {
       this.sequelize.sync({ alter: true }).then(() => {
-        sequelizeLogger.info('Database altered');
+        sequelizeLogger.info("Database altered");
       });
     } else if (config.data.sequelize.sync) {
       this.sequelize.sync({ force: true }).then(() => {
-        sequelizeLogger.info('Database synchronized');
+        sequelizeLogger.info("Database synchronized");
       });
     }
   }

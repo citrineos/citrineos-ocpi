@@ -1,15 +1,15 @@
-import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
-import { Context } from 'vm';
-import { Service } from 'typedi';
-import { OcpiHttpHeader } from '../ocpi.http.header';
-import { BaseMiddleware } from './base.middleware';
+import { KoaMiddlewareInterface, Middleware } from "routing-controllers";
+import { Context } from "vm";
+import { Service } from "typedi";
+import { OcpiHttpHeader } from "../ocpi.http.header";
+import { BaseMiddleware } from "./base.middleware";
 
 /**
  * OcpiHeaderMiddleware will apply the {@link OcpiHttpHeader.OcpiFromCountryCode}, {@link OcpiHttpHeader.OcpiFromPartyId},
  * {@link OcpiHttpHeader.OcpiToCountryCode} and {@link OcpiHttpHeader.OcpiToPartyId} to the request response headers switching
  * the from/to country codes and party ids.
  */
-@Middleware({ type: 'before' })
+@Middleware({ type: "before" })
 @Service()
 export class OcpiHeaderMiddleware
   extends BaseMiddleware

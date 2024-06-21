@@ -7,7 +7,7 @@ import {
   MinLength,
   Matches,
   IsString,
-} from 'class-validator';
+} from "class-validator";
 
 export class RegularHours {
   @Max(7)

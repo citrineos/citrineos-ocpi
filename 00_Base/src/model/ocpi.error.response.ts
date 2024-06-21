@@ -6,9 +6,9 @@ import {
   Max,
   Min,
   ValidateNested,
-} from 'class-validator';
-import { Optional } from '../util/decorators/optional';
-import { OcpiResponseStatusCode } from './ocpi.response';
+} from "class-validator";
+import { Optional } from "../util/decorators/optional";
+import { OcpiResponseStatusCode } from "./ocpi.response";
 
 export class OcpiErrorResponse {
   @Optional()

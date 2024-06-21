@@ -3,9 +3,9 @@ import {
   IsNotEmpty,
   IsString,
   ValidateNested,
-} from 'class-validator';
-import { Optional } from '../util/decorators/optional';
-import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
+} from "class-validator";
+import { Optional } from "../util/decorators/optional";
+import { OcpiResponse, OcpiResponseStatusCode } from "./ocpi.response";
 
 export class OcpiEmptyResponse extends OcpiResponse<void> {
   @Optional()

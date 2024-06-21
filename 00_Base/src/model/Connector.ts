@@ -8,14 +8,14 @@ import {
   IsUrl,
   MaxLength,
   ValidateNested,
-} from 'class-validator';
-import { ConnectorType } from './ConnectorType';
-import { ConnectorFormat } from './ConnectorFormat';
-import { PowerType } from './PowerType';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
+} from "class-validator";
+import { ConnectorType } from "./ConnectorType";
+import { ConnectorFormat } from "./ConnectorFormat";
+import { PowerType } from "./PowerType";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
+import { Enum } from "../util/decorators/enum";
+import { OcpiResponse } from "./ocpi.response";
 
 export class Connector {
   @MaxLength(36)
@@ -23,15 +23,15 @@ export class Connector {
   @IsNotEmpty()
   id!: string;
 
-  @Enum(ConnectorType, 'ConnectorType')
+  @Enum(ConnectorType, "ConnectorType")
   @IsNotEmpty()
   standard!: ConnectorType;
 
-  @Enum(ConnectorFormat, 'ConnectorFormat')
+  @Enum(ConnectorFormat, "ConnectorFormat")
   @IsNotEmpty()
   format!: ConnectorFormat;
 
-  @Enum(PowerType, 'PowerType')
+  @Enum(PowerType, "PowerType")
   @IsNotEmpty()
   power_type!: PowerType;
 

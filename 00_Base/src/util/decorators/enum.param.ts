@@ -1,6 +1,6 @@
-import { Param } from 'routing-controllers';
+import { Param } from "routing-controllers";
 
-export const ENUM_PARAM = 'EnumParam';
+export const ENUM_PARAM = "EnumParam";
 
 /**
  * Extends @Params decorator to add custom metadata so that it is easily available to convert Swagger UI schema route

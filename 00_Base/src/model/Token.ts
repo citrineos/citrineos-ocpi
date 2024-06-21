@@ -1,20 +1,21 @@
 import {
   IsArray,
-  IsBoolean, IsDate,
+  IsBoolean,
+  IsDate,
   IsNotEmpty,
   IsObject,
   IsString,
   MaxLength,
   MinLength,
   ValidateNested,
-} from 'class-validator';
-import { TokenEnergyContract } from './TokenEnergyContract';
-import { WhitelistType } from './WhitelistType';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
-import { PaginatedResponse } from './PaginatedResponse';
+} from "class-validator";
+import { TokenEnergyContract } from "./TokenEnergyContract";
+import { WhitelistType } from "./WhitelistType";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
+import { Enum } from "../util/decorators/enum";
+import { OcpiResponse } from "./ocpi.response";
+import { PaginatedResponse } from "./PaginatedResponse";
 
 export class Token {
   @MaxLength(2)
@@ -61,7 +62,7 @@ export class Token {
   @IsNotEmpty()
   valid!: boolean;
 
-  @Enum(WhitelistType, 'WhitelistType')
+  @Enum(WhitelistType, "WhitelistType")
   @IsNotEmpty()
   whitelist!: WhitelistType;
 

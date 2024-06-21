@@ -1,19 +1,19 @@
-import { Body, Controller, Get, Param, Put } from 'routing-controllers';
+import { Body, Controller, Get, Param, Put } from "routing-controllers";
 import {
   BaseController,
   generateMockOcpiPaginatedResponse,
   generateMockOcpiResponse,
-} from './base.controller';
-import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
-import { PaginatedSessionResponse } from '../model/Session';
-import { HttpStatus } from '@citrineos/base';
-import { ChargingPreferencesResponse } from '../model/ChargingPreferencesResponse';
-import { ChargingPreferences } from '../model/ChargingPreferences';
-import { Service } from 'typedi';
-import { PaginatedParams } from './param/paginated.params';
-import { Paginated } from '../util/decorators/paginated';
-import { ModuleId } from '../model/ModuleId';
+} from "./base.controller";
+import { AsOcpiFunctionalEndpoint } from "../util/decorators/as.ocpi.functional.endpoint";
+import { ResponseSchema } from "../../../00_Base/src/openapi-spec-helper";
+import { PaginatedSessionResponse } from "../model/Session";
+import { HttpStatus } from "@citrineos/base";
+import { ChargingPreferencesResponse } from "../model/ChargingPreferencesResponse";
+import { ChargingPreferences } from "../model/ChargingPreferences";
+import { Service } from "typedi";
+import { PaginatedParams } from "./param/paginated.params";
+import { Paginated } from "../util/decorators/paginated";
+import { ModuleId } from "../model/ModuleId";
 
 const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
   PaginatedSessionResponse,
@@ -30,7 +30,7 @@ export class SessionsController extends BaseController {
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(PaginatedSessionResponse, {
     statusCode: HttpStatus.OK,
-    description: 'Successful response',
+    description: "Successful response",
     examples: {
       success: MOCK_PAGINATED_SESSIONS,
     },
@@ -38,24 +38,24 @@ export class SessionsController extends BaseController {
   async getSessions(
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedSessionResponse> {
-    console.log('getSessions', paginationParams);
+    console.log("getSessions", paginationParams);
     return MOCK_PAGINATED_SESSIONS;
   }
 
-  @Put('/{sessionId}/charging_preferences')
+  @Put("/{sessionId}/charging_preferences")
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(ChargingPreferencesResponse, {
     statusCode: HttpStatus.OK,
-    description: 'Successful response',
+    description: "Successful response",
     examples: {
       success: MOCK_CHARGING_PREFERENCES,
     },
   })
   async updateChargingPreferences(
-    @Param('sessionId') sessionId: string,
+    @Param("sessionId") sessionId: string,
     @Body() body: ChargingPreferences,
   ): Promise<ChargingPreferencesResponse> {
-    console.log('updateChargingPreferences', sessionId, body);
+    console.log("updateChargingPreferences", sessionId, body);
     return MOCK_CHARGING_PREFERENCES;
   }
 }

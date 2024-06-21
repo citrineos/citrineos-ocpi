@@ -7,10 +7,10 @@ import {
   IsNumber,
   IsString,
   ValidateNested,
-} from 'class-validator';
-import { ChargingProfilePeriod } from './ChargingProfilePeriod';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+} from "class-validator";
+import { ChargingProfilePeriod } from "./ChargingProfilePeriod";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
 
 export class ChargingProfile {
   @IsString()

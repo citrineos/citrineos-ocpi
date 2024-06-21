@@ -1,4 +1,4 @@
-export const MULTIPLE_TYPES = 'MultipleTypes';
+export const MULTIPLE_TYPES = "MultipleTypes";
 
 /**
  * Allows us to pass in a list of types for objects that have multiple types. This will set the

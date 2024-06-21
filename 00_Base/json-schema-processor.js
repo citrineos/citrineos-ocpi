@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache 2.0
 /* eslint-disable */
 
-const fs = require('fs');
-const jsts = require('json-schema-to-typescript');
-const prettier = require('prettier');
-const { exec } = require('child_process');
+const fs = require("fs");
+const jsts = require("json-schema-to-typescript");
+const prettier = require("prettier");
+const { exec } = require("child_process");
 
 if (process.argv.length === 2) {
-  console.error('Expected input path argument!');
+  console.error("Expected input path argument!");
   process.exit(1);
 }
 
@@ -47,7 +47,7 @@ fs.readdir(path, (error, files) => {
         enums.forEach((entry) => {
           let { enumName, enumDocumentation, enumDefinition } =
             splitEnum(entry);
-          if (enumName == 'DataEnumType') {
+          if (enumName == "DataEnumType") {
             // Adding missing type for DataEnumType... type in OCPP 2.0.1 appendix but not in part 3 JSON schemas
             let lastLineIndex = enumDefinition.lastIndexOf(`'`);
             enumDefinition =
@@ -79,7 +79,7 @@ fs.readdir(path, (error, files) => {
     // Export all definitions and schemas
     for (let key in exportMap) {
       exportStatements.push(
-        `export { ${exportMap[key].join(', ')} } from './types/${key}';`,
+        `export { ${exportMap[key].join(", ")} } from './types/${key}';`,
       );
       exportStatements.push(
         `export { default as ${key}Schema } from './schemas/${key}.json';`,
@@ -90,12 +90,12 @@ fs.readdir(path, (error, files) => {
       fs.writeFileSync(
         `./src/ocpp/model/enums/index.ts`,
         licenseComment +
-          Object.values(globalEnumDefinitions).sort().join('\n\n') +
-          '\n',
+          Object.values(globalEnumDefinitions).sort().join("\n\n") +
+          "\n",
       );
       fs.writeFileSync(
         `./src/ocpp/model/index.ts`,
-        licenseComment + exportStatements.join('\n') + '\n',
+        licenseComment + exportStatements.join("\n") + "\n",
       );
       exec(`cd .. && npm run lint-fix`, (error, stdout, stderr) => {
         if (error) {
@@ -114,25 +114,25 @@ fs.readdir(path, (error, files) => {
 
 async function processJsonSchema(data, writeToFile = true) {
   let jsonSchema = JSON.parse(data);
-  let id = jsonSchema['$id'].split(':').pop();
-  jsonSchema['$id'] = id;
-  delete jsonSchema['$schema'];
+  let id = jsonSchema["$id"].split(":").pop();
+  jsonSchema["$id"] = id;
+  delete jsonSchema["$schema"];
 
   // Preprocess nodes to enable enum extraction
   processNode(jsonSchema);
 
   // Determine if the schema is a request or response
-  let schemaType = '';
-  if (id.toLowerCase().includes('request')) {
-    schemaType = 'OcppRequest';
-  } else if (id.toLowerCase().includes('response')) {
-    schemaType = 'OcppResponse';
+  let schemaType = "";
+  if (id.toLowerCase().includes("request")) {
+    schemaType = "OcppRequest";
+  } else if (id.toLowerCase().includes("response")) {
+    schemaType = "OcppResponse";
   }
 
   return new Promise((resolve, reject) => {
     jsts
       .compile(jsonSchema, id, {
-        style: { singleQuote: true, trailingComma: 'all' },
+        style: { singleQuote: true, trailingComma: "all" },
         format: true,
       })
       .then((ts) => {
@@ -143,7 +143,7 @@ async function processJsonSchema(data, writeToFile = true) {
         if (schemaType) {
           const interfaceNamePattern = new RegExp(
             `export interface ${id}`,
-            'g',
+            "g",
           );
           ts = ts.replace(
             interfaceNamePattern,
@@ -156,7 +156,7 @@ async function processJsonSchema(data, writeToFile = true) {
         if (enums) {
           for (let i = 0; i < enums.length; i++) {
             const entry = enums[i];
-            ts = ts.replace(entry, '');
+            ts = ts.replace(entry, "");
             enums[i] = entry.trimEnd();
           }
         }
@@ -168,25 +168,25 @@ async function processJsonSchema(data, writeToFile = true) {
         );
 
         // Add import statement for enums & schemaType
-        const searchString = '\nexport';
+        const searchString = "\nexport";
         const index = ts.indexOf(searchString);
         ts =
           ts.substring(0, index) +
           (enumDefinitions.length > 0
-            ? `\nimport { ${enumDefinitions.join(', ')} } from '../enums';\n`
-            : '\n') +
+            ? `\nimport { ${enumDefinitions.join(", ")} } from '../enums';\n`
+            : "\n") +
           `import { ${schemaType} } from '../../..';\n` +
           ts.substring(index);
 
         if (writeToFile) {
           fs.writeFileSync(
             `./src/ocpp/model/types/${id}.ts`,
-            ts.replace(/\n+$/, '\n'),
+            ts.replace(/\n+$/, "\n"),
           );
 
           // Format JSON with Prettier
           prettier
-            .format(JSON.stringify(jsonSchema, null, 2), { parser: 'json' })
+            .format(JSON.stringify(jsonSchema, null, 2), { parser: "json" })
             .then((formattedJson) => {
               fs.writeFileSync(
                 `./src/ocpp/model/schemas/${id}.json`,
@@ -214,8 +214,8 @@ function mapFromId(id) {
 function collectDefinitions(jsonSchema, id) {
   const definitions = mapFromId(id);
   const enumDefinitions = [];
-  for (const key in jsonSchema['definitions']) {
-    if (!key.includes('EnumType')) {
+  for (const key in jsonSchema["definitions"]) {
+    if (!key.includes("EnumType")) {
       definitions[key] = id;
     } else {
       enumDefinitions.push(key);
@@ -225,14 +225,14 @@ function collectDefinitions(jsonSchema, id) {
 }
 
 function processNode(node) {
-  if (node['enum']) {
-    node['tsEnumNames'] = [...node['enum']];
-    node['tsEnumNames'] = node['tsEnumNames'].map((name) => {
-      return name.replaceAll('.', '_').replaceAll('-', '_');
+  if (node["enum"]) {
+    node["tsEnumNames"] = [...node["enum"]];
+    node["tsEnumNames"] = node["tsEnumNames"].map((name) => {
+      return name.replaceAll(".", "_").replaceAll("-", "_");
     });
   } else {
     for (let key in node) {
-      if (typeof node[key] === 'object') {
+      if (typeof node[key] === "object") {
         processNode(node[key]);
       }
     }
@@ -252,7 +252,7 @@ function extractEnums(ts) {
     matches.forEach((match) => {
       const enumName = match
         .match(namePattern)[0]
-        .replace('export const enum ', '');
+        .replace("export const enum ", "");
       undocumentedMatches = undocumentedMatches.filter(
         (undocumentedMatch) => !undocumentedMatch.includes(enumName),
       );
@@ -270,8 +270,8 @@ function splitEnum(enumDefinition) {
   const namePattern = /export const enum (\w)*/g;
   const enumName = enumDefinition
     .match(namePattern)[0]
-    .replace('export const enum ', '');
+    .replace("export const enum ", "");
   let enumDocumentation = enumDefinition.match(commentPattern);
-  enumDocumentation = enumDocumentation ? enumDocumentation[0] : '';
+  enumDocumentation = enumDocumentation ? enumDocumentation[0] : "";
   return { enumName, enumDocumentation, enumDefinition };
 }

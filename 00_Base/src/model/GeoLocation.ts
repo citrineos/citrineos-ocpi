@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Matches, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, Matches, MaxLength } from "class-validator";
 
 export class GeoLocation {
   @MaxLength(10)

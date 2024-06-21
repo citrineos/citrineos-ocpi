@@ -1,16 +1,16 @@
-import * as oa from 'openapi3-ts';
+import * as oa from "openapi3-ts";
 import {
   MetadataArgsStorage,
   RoutingControllersOptions,
-} from 'routing-controllers';
+} from "routing-controllers";
 
-import { getSpec } from './generate.spec.helpers';
-import { parseRoutes } from './parse.metadata';
-import { mergeDeep } from './merge.deep';
+import { getSpec } from "./generate.spec.helpers";
+import { parseRoutes } from "./parse.metadata";
+import { mergeDeep } from "./merge.deep";
 
-export * from './decorators';
-export * from './generate.spec.helpers';
-export * from './parse.metadata';
+export * from "./decorators";
+export * from "./generate.spec.helpers";
+export * from "./parse.metadata";
 
 /**
  * Convert routing-controllers metadata into an OpenAPI specification. Similar to {@link defaultClassValidatorJsonSchemaOptions}
@@ -41,7 +41,7 @@ export function routingControllersToSpec(
     );
     return mergeDeep(spec, additionalProperties);
   } catch (error) {
-    console.error('routingControllersToSpec', error);
+    console.error("routingControllersToSpec", error);
     throw error;
   }
 }

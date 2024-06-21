@@ -1,6 +1,6 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional } from "class-validator";
 
-export const OPTIONAL_PARAM = 'isOptional';
+export const OPTIONAL_PARAM = "isOptional";
 
 /**
  * Optional - mimics @IsOptional decorator but adds custom metadata so that it is easily available in

@@ -1,7 +1,7 @@
-import { BadRequestError, createParamDecorator } from 'routing-controllers';
-import { HttpHeader } from '@citrineos/base';
+import { BadRequestError, createParamDecorator } from "routing-controllers";
+import { HttpHeader } from "@citrineos/base";
 
-const tokenPrefix = 'Token ';
+const tokenPrefix = "Token ";
 
 export function extractToken(authorization: string): string {
   let token = authorization;
@@ -10,12 +10,12 @@ export function extractToken(authorization: string): string {
 
     try {
       // Decode the base64 token
-      return Buffer.from(token, 'base64').toString('utf-8');
+      return Buffer.from(token, "base64").toString("utf-8");
     } catch (error) {
-      throw new BadRequestError('Invalid base64 token');
+      throw new BadRequestError("Invalid base64 token");
     }
   } else {
-    throw new BadRequestError('Invalid Authorization header format');
+    throw new BadRequestError("Invalid Authorization header format");
   }
 }
 

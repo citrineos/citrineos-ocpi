@@ -6,11 +6,11 @@ import {
   IsString,
   Min,
   ValidateNested,
-} from 'class-validator';
-import { Service } from 'typedi';
-import { Type } from 'class-transformer';
-import { Enum } from '../util/decorators/enum';
-import 'reflect-metadata';
+} from "class-validator";
+import { Service } from "typedi";
+import { Type } from "class-transformer";
+import { Enum } from "../util/decorators/enum";
+import "reflect-metadata";
 
 @Service()
 class SequelizeConfig {
@@ -74,13 +74,13 @@ class SequelizeConfig {
 }
 
 const defaultSequelizeConfig: SequelizeConfig = new SequelizeConfig(
-  'localhost',
+  "localhost",
   5432,
-  'citrine',
-  'postgres',
-  'citrine',
-  'citrine',
-  'squelize',
+  "citrine",
+  "postgres",
+  "citrine",
+  "citrine",
+  "squelize",
   false,
   true,
 );
@@ -96,8 +96,8 @@ export enum LogLevel {
 }
 
 export enum OcpiEnv {
-  DEVELOPMENT = 'development',
-  PRODUCTION = 'production',
+  DEVELOPMENT = "development",
+  PRODUCTION = "production",
 }
 
 @Service()
@@ -110,7 +110,7 @@ export class OcpiServerConfigData {
 
 @Service()
 export class OcpiServerConfig {
-  @Enum(OcpiEnv, 'OcpiEnv')
+  @Enum(OcpiEnv, "OcpiEnv")
   @IsNotEmpty()
   env = OcpiEnv.DEVELOPMENT;
 
@@ -119,7 +119,7 @@ export class OcpiServerConfig {
   @ValidateNested()
   data!: OcpiServerConfigData;
 
-  @Enum(LogLevel, 'LogLevel')
+  @Enum(LogLevel, "LogLevel")
   @IsNotEmpty()
   logLevel: LogLevel;
 

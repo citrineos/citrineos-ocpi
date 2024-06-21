@@ -8,14 +8,14 @@ import {
   MaxLength,
   MinLength,
   ValidateNested,
-} from 'class-validator';
-import { Price } from './Price';
-import { TariffElement } from './TariffElement';
-import { EnergyMix } from './EnergyMix';
-import { Displaytext } from './Displaytext';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { PaginatedResponse } from './PaginatedResponse';
+} from "class-validator";
+import { Price } from "./Price";
+import { TariffElement } from "./TariffElement";
+import { EnergyMix } from "./EnergyMix";
+import { Displaytext } from "./Displaytext";
+import { Type } from "class-transformer";
+import { Optional } from "../util/decorators/optional";
+import { PaginatedResponse } from "./PaginatedResponse";
 
 export class Tariff {
   @MaxLength(36)

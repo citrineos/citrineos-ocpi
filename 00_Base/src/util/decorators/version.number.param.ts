@@ -1,10 +1,10 @@
-import { EnumParam } from './enum.param';
+import { EnumParam } from "./enum.param";
 import {
   VersionNumber,
   VersionNumberEnumName,
-} from '../../model/VersionNumber';
+} from "../../model/VersionNumber";
 
-export const versionIdParam = 'versionId';
+export const versionIdParam = "versionId";
 
 /**
  * VersionNumberParam convenience decorator will extract the version number from the request params. Allows to easily
