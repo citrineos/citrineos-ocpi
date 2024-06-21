@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiResponse } from '../model/ocpi.response';
-import {ChargingProfileResponse, ChargingProfileResponseType} from '../model/ChargingProfileResponse';
+import {ChargingProfileResponse, ChargingProfileResultType} from '../model/ChargingProfileResponse';
 import {
     buildGenericServerErrorResponse,
     buildGenericSuccessResponse,
@@ -27,19 +27,19 @@ export class ChargingProfilesService {
           responseUrl,
       );
       return buildGenericSuccessResponse({
-              result: ChargingProfileResponseType.ACCEPTED,
+              result: ChargingProfileResultType.ACCEPTED,
               timeout: this.TIMEOUT
           }
       );
     } catch (e) {
         if (e instanceof NotFoundException) {
             return buildUnknownSessionResponse({
-                result: ChargingProfileResponseType.UNKNOWN_SESSION,
+                result: ChargingProfileResultType.UNKNOWN_SESSION,
                 timeout: this.TIMEOUT
             }, e as NotFoundException);
         }
         return buildGenericServerErrorResponse({
-            result: ChargingProfileResponseType.REJECTED,
+            result: ChargingProfileResultType.REJECTED,
             timeout: this.TIMEOUT
         }, e as Error);
     }
@@ -52,18 +52,18 @@ export class ChargingProfilesService {
       try {
           await this.commandExecutor.executeClearChargingProfile(sessionId, responseUrl);
           return buildGenericSuccessResponse({
-              result: ChargingProfileResponseType.ACCEPTED,
+              result: ChargingProfileResultType.ACCEPTED,
               timeout: this.TIMEOUT
           });
       } catch (e) {
           if (e instanceof NotFoundException) {
               return buildUnknownSessionResponse({
-                  result: ChargingProfileResponseType.UNKNOWN_SESSION,
+                  result: ChargingProfileResultType.UNKNOWN_SESSION,
                   timeout: this.TIMEOUT
               }, e as NotFoundException);
           }
           return buildGenericServerErrorResponse({
-              result: ChargingProfileResponseType.REJECTED,
+              result: ChargingProfileResultType.REJECTED,
               timeout: this.TIMEOUT
           }, e as Error);
       }

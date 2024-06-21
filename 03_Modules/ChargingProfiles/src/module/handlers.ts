@@ -7,7 +7,12 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
-  EventGroup, GenericStatusEnumType, GetCompositeScheduleResponse,
+  ClearChargingProfileResponse,
+  ClearChargingProfileStatusEnumType,
+  CompositeScheduleType,
+  EventGroup,
+  GenericStatusEnumType,
+  GetCompositeScheduleResponse,
   HandlerProperties,
   ICache,
   IMessage,
@@ -18,13 +23,10 @@ import {
 import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import {ILogObj, Logger} from 'tslog';
-import {AsyncResponder} from '@citrineos/ocpi-base';
+import {ActiveChargingProfileResult, AsyncResponder, ChargingProfileResultType} from '@citrineos/ocpi-base';
 import {Service} from 'typedi';
-import {ChargingProfileResponseType} from "@citrineos/ocpi-base";
+import {ClearChargingProfileResult} from "@citrineos/ocpi-base";
 
-/**
- * Component that handles ChargingProfiles related messages.
- */
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
   /**
@@ -32,7 +34,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
    */
   protected _requests: CallAction[] = [];
   protected _responses: CallAction[] = [
-      CallAction.GetCompositeSchedule
+      CallAction.GetCompositeSchedule,
+      CallAction.ClearChargingProfile
   ];
 
   constructor(
@@ -71,24 +74,67 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
-    await this.asyncResponder.sendAsyncResponse(message.context.correlationId, {
-      result: this.getResult(message.payload.status),
-      profile: ChargingProfileResponseType.ACCEPTED ? this.map(message.payload.schedule) : null
-    });
+    try {
+      await this.asyncResponder.send(message.context.correlationId, {
+        result: this.getResult(message.payload.status),
+        profile: message.payload.schedule ? this.mapOcppScheduleToOcpi(message.payload.schedule) : undefined
+      } as ActiveChargingProfileResult);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  @AsHandler(CallAction.ClearChargingProfile)
+  protected async _handleClearChargingProfileResponse(
+      message: IMessage<ClearChargingProfileResponse>,
+      props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling:', message, props);
+
+    try {
+      await this.asyncResponder.send(message.context.correlationId, {
+        result: this.getResult(message.payload.status)
+      } as ClearChargingProfileResult);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private getResult(
-    status: GenericStatusEnumType,
-  ): ChargingProfileResponseType {
+    status: GenericStatusEnumType | ClearChargingProfileStatusEnumType,
+  ): ChargingProfileResultType {
     switch (status) {
       case GenericStatusEnumType.Accepted:
-        return ChargingProfileResponseType.ACCEPTED;
+      case ClearChargingProfileStatusEnumType.Accepted:
+        return ChargingProfileResultType.ACCEPTED;
       case GenericStatusEnumType.Rejected:
-        return ChargingProfileResponseType.REJECTED;
+        return ChargingProfileResultType.REJECTED;
+      case ClearChargingProfileStatusEnumType.Unknown:
+        return ChargingProfileResultType.UNKNOWN;
       default:
         throw new Error(
-          `Unknown ChargingProfileResponseType: ${status}`,
+          `Unknown status: ${status}`,
         );
     }
+  }
+
+  private mapOcppScheduleToOcpi(schedule: CompositeScheduleType): ActiveChargingProfileResult {
+    return {
+      result: ChargingProfileResultType.ACCEPTED,
+      profile: {
+        start_date_time: new Date(schedule.scheduleStart),
+        charging_profile: {
+          start_date_time: new Date(schedule.scheduleStart),
+          duration: schedule.duration,
+          charging_rate_unit: schedule.chargingRateUnit,
+          charging_profile_period: schedule.chargingSchedulePeriod.map(period => {
+            return {
+              start_period: period.startPeriod,
+              limit: period.limit
+            }
+          })
+        }
+      }
+    };
   }
 }

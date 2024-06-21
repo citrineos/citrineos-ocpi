@@ -6,7 +6,6 @@
 import { ChargingProfilesModuleApi } from './module/api';
 import {
   CacheWrapper,
-  CommandsClientApi,
   OcpiModule,
   OcpiServerConfig,
   ResponseUrlRepository,
@@ -28,6 +27,7 @@ import { SequelizeTransactionEventRepository } from '@citrineos/data';
 useContainer(Container);
 
 import { ChargingProfilesOcppHandlers } from './module/handlers';
+import {AsyncResponder} from "@citrineos/ocpi-base";
 
 @Service()
 export class ChargingProfilesModule implements OcpiModule {
@@ -48,8 +48,7 @@ export class ChargingProfilesModule implements OcpiModule {
       new ChargingProfilesOcppHandlers(
         this.config as SystemConfig,
         this.cache.cache,
-        Container.get(ResponseUrlRepository),
-        Container.get(CommandsClientApi),
+        Container.get(AsyncResponder),
         handler,
         sender,
         this.logger,

@@ -45,8 +45,8 @@ export class ChargingProfilesModuleApi
   })
   async getActiveChargingProfile(
     @Param('sessionId') sessionId: string,
-    @QueryParam('duration') duration: number,
-    @QueryParam('response_url') responseUrl: string,
+    @QueryParam('duration', { required: true }) duration: number,
+    @QueryParam('response_url', { required: true }) responseUrl: string,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
     return this.service.getActiveChargingProfile(
       sessionId,
