@@ -12,10 +12,42 @@ import { SessionStatus } from '../model/SessionStatus';
 import { Transaction } from '../../../../citrineos-core/01_Data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
+import { SequelizeLocationRepository } from '../../../../citrineos-core/01_Data/src/layers/sequelize';
 
 @Service()
 export class SessionMapper {
-  constructor() {}
+  constructor(
+    private readonly locationRepository: SequelizeLocationRepository,
+  ) {}
+
+  public async mapTransactionsToSessions(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    transactions: Transaction[],
+  ): Promise<Session[]> {
+    const stationIds = transactions.map((transaction) => transaction.stationId);
+    const chargingStations =
+      await this.locationRepository.getChargingStationsByIds(stationIds);
+    const stationIdToLocationIdMap = new Map(
+      chargingStations.map((station) => [
+        station.id,
+        String(station.locationId),
+      ]),
+    );
+
+    return transactions.map((transaction) =>
+      this.mapTransactionToSession(
+        fromCountryCode,
+        fromPartyId,
+        toCountryCode,
+        toPartyId,
+        transaction,
+        stationIdToLocationIdMap.get(transaction.stationId) || '',
+      ),
+    );
+  }
 
   public mapTransactionToSession(
     fromCountryCode: string,
