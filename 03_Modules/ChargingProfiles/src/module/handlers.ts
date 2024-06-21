@@ -7,24 +7,20 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
-  EventGroup,
+  EventGroup, GenericStatusEnumType, GetCompositeScheduleResponse,
   HandlerProperties,
   ICache,
   IMessage,
   IMessageHandler,
   IMessageSender,
-  RequestStartStopStatusEnumType,
-  RequestStartTransactionResponse,
-  RequestStopTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import { ILogObj, Logger } from 'tslog';
-import { CommandsClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
-import { Service } from 'typedi';
-import { CommandResultType } from '@citrineos/ocpi-base/dist/model/CommandResult';
-import { ChargingProfilesModule } from '../index';
+import {ILogObj, Logger} from 'tslog';
+import {AsyncResponder} from '@citrineos/ocpi-base';
+import {Service} from 'typedi';
+import {ChargingProfileResponseType} from "@citrineos/ocpi-base";
 
 /**
  * Component that handles ChargingProfiles related messages.
@@ -35,13 +31,14 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
    * Fields
    */
   protected _requests: CallAction[] = [];
-  protected _responses: CallAction[] = [];
+  protected _responses: CallAction[] = [
+      CallAction.GetCompositeSchedule
+  ];
 
   constructor(
     config: SystemConfig,
     cache: ICache,
-    readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
+    readonly asyncResponder: AsyncResponder,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -51,7 +48,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
-      EventGroup.Commands,
+      EventGroup.ChargingProfiles,
       logger,
     );
 
@@ -67,62 +64,31 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     this._logger.info(`Initialized in ${timer.end()}ms...`);
   }
 
-  @AsHandler(CallAction.RequestStartTransaction)
-  protected _handleRequestStartTransactionResponse(
-    message: IMessage<RequestStartTransactionResponse>,
-    props?: HandlerProperties,
-  ): void {
+  @AsHandler(CallAction.GetCompositeSchedule)
+  protected async _handleGetCompositeScheduleResponse(
+      message: IMessage<GetCompositeScheduleResponse>,
+      props?: HandlerProperties,
+  ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
-    const result = this.getResult(message.payload.status);
-
-    this.sendCommandResult(message.context.correlationId, result);
-  }
-
-  @AsHandler(CallAction.RequestStopTransaction)
-  protected _handleRequestStopTransactionResponse(
-    message: IMessage<RequestStopTransactionResponse>,
-    props?: HandlerProperties,
-  ): void {
-    this._logger.debug('Handling:', message, props);
-
-    const result = this.getResult(message.payload.status);
-
-    this.sendCommandResult(message.context.correlationId, result);
+    await this.asyncResponder.sendAsyncResponse(message.context.correlationId, {
+      result: this.getResult(message.payload.status),
+      profile: ChargingProfileResponseType.ACCEPTED ? this.map(message.payload.schedule) : null
+    });
   }
 
   private getResult(
-    requestStartStopStatus: RequestStartStopStatusEnumType,
-  ): CommandResultType {
-    switch (requestStartStopStatus) {
-      case RequestStartStopStatusEnumType.Accepted:
-        return CommandResultType.ACCEPTED;
-      case RequestStartStopStatusEnumType.Rejected:
-        return CommandResultType.REJECTED;
+    status: GenericStatusEnumType,
+  ): ChargingProfileResponseType {
+    switch (status) {
+      case GenericStatusEnumType.Accepted:
+        return ChargingProfileResponseType.ACCEPTED;
+      case GenericStatusEnumType.Rejected:
+        return ChargingProfileResponseType.REJECTED;
       default:
         throw new Error(
-          `Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`,
+          `Unknown ChargingProfileResponseType: ${status}`,
         );
-    }
-  }
-
-  private async sendCommandResult(
-    correlationId: string,
-    result: CommandResultType,
-  ) {
-    const responseUrlEntity =
-      await this.responseUrlRepo.getResponseUrl(correlationId);
-    if (responseUrlEntity) {
-      try {
-        await this.commandsClient.postCommandResult(
-          responseUrlEntity.responseUrl,
-          {
-            result: result,
-          },
-        );
-      } catch (error) {
-        this._logger.error(error);
-      }
     }
   }
 }

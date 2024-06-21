@@ -1,7 +1,13 @@
 import { Service } from 'typedi';
 import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiResponse } from '../model/ocpi.response';
-import { ChargingProfileResponse } from '../model/ChargingProfileResponse';
+import {ChargingProfileResponse, ChargingProfileResponseType} from '../model/ChargingProfileResponse';
+import {
+    buildGenericServerErrorResponse,
+    buildGenericSuccessResponse,
+    buildUnknownSessionResponse
+} from "../util/ResponseGenerator";
+import {NotFoundException} from "../exception/not.found.exception";
 
 @Service()
 export class ChargingProfilesService {
@@ -14,11 +20,52 @@ export class ChargingProfilesService {
     duration: number,
     responseUrl: string,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
-    this.commandExecutor.executeGetActiveChargingProfile(
-      sessionId,
-      duration,
-      responseUrl,
-    );
-    return new OcpiResponse<ChargingProfileResponse>();
+    try {
+      await this.commandExecutor.executeGetActiveChargingProfile(
+          sessionId,
+          duration,
+          responseUrl,
+      );
+      return buildGenericSuccessResponse({
+              result: ChargingProfileResponseType.ACCEPTED,
+              timeout: this.TIMEOUT
+          }
+      );
+    } catch (e) {
+        if (e instanceof NotFoundException) {
+            return buildUnknownSessionResponse({
+                result: ChargingProfileResponseType.UNKNOWN_SESSION,
+                timeout: this.TIMEOUT
+            }, e as NotFoundException);
+        }
+        return buildGenericServerErrorResponse({
+            result: ChargingProfileResponseType.REJECTED,
+            timeout: this.TIMEOUT
+        }, e as Error);
+    }
+  }
+
+  async deleteChargingProfile(
+      sessionId: string,
+      responseUrl: string,
+  ): Promise<OcpiResponse<ChargingProfileResponse>> {
+      try {
+          await this.commandExecutor.executeClearChargingProfile(sessionId, responseUrl);
+          return buildGenericSuccessResponse({
+              result: ChargingProfileResponseType.ACCEPTED,
+              timeout: this.TIMEOUT
+          });
+      } catch (e) {
+          if (e instanceof NotFoundException) {
+              return buildUnknownSessionResponse({
+                  result: ChargingProfileResponseType.UNKNOWN_SESSION,
+                  timeout: this.TIMEOUT
+              }, e as NotFoundException);
+          }
+          return buildGenericServerErrorResponse({
+              result: ChargingProfileResponseType.REJECTED,
+              timeout: this.TIMEOUT
+          }, e as Error);
+      }
   }
 }
