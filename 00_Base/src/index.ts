@@ -63,6 +63,7 @@ export { LoggingMiddleware } from './util/middleware/logging.middleware';
 
 export { BaseClientApi } from './trigger/BaseClientApi';
 export { CommandsClientApi } from './trigger/CommandsClientApi';
+export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 
 export { CommandsService } from './services/commands.service';

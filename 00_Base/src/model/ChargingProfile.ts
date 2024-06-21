@@ -1,7 +1,6 @@
 import {
   IsArray,
   IsDateString,
-  IsDivisibleBy,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -26,8 +25,7 @@ export class ChargingProfile {
   @IsNotEmpty()
   charging_rate_unit!: string;
 
-  @IsDivisibleBy(0.1)
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 1 })
   @Optional()
   min_charging_rate?: number | null;
 

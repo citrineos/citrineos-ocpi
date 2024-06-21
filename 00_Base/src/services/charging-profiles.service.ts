@@ -1,8 +1,14 @@
 import {SetChargingProfile} from "../model/SetChargingProfile";
-import { Service } from 'typedi';
-import { CommandExecutor } from '../util/CommandExecutor';
-import { OcpiResponse } from '../model/ocpi.response';
-import { ChargingProfileResponse } from '../model/ChargingProfileResponse';
+import {Service} from 'typedi';
+import {CommandExecutor} from '../util/CommandExecutor';
+import {OcpiResponse} from '../model/ocpi.response';
+import {ChargingProfileResponse, ChargingProfileResponseType} from '../model/ChargingProfileResponse';
+import {NotFoundException} from "../exception/not.found.exception";
+import {
+    buildGenericServerErrorResponse,
+    buildGenericSuccessResponse,
+    buildUnknownSessionResponse
+} from "../util/ResponseGenerator";
 
 @Service()
 export class ChargingProfilesService {
@@ -24,8 +30,21 @@ export class ChargingProfilesService {
     }
 
     async putChargingProfile(sessionId: string, setChargingProfile: SetChargingProfile): Promise<OcpiResponse<ChargingProfileResponse>> {
-        this.commandExecutor.executePutChargingProfile(sessionId, setChargingProfile);
-        return new OcpiResponse<ChargingProfileResponse>();
+      try {
+          await this.commandExecutor.executePutChargingProfile(sessionId, setChargingProfile);
+          return buildGenericSuccessResponse({
+              result: ChargingProfileResponseType.ACCEPTED,
+              timeout: this.TIMEOUT
+          });
+      } catch (e) {
+          if (e instanceof NotFoundException) {
+              return buildUnknownSessionResponse({
+                  result: ChargingProfileResponseType.UNKNOWN_SESSION,
+                  timeout: this.TIMEOUT
+              }, e as NotFoundException);
+          } else {
+              return buildGenericServerErrorResponse({} as ChargingProfileResponse, e as Error);
+          }
+      }
     }
-
 }

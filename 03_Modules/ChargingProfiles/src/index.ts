@@ -6,7 +6,7 @@
 import { ChargingProfilesModuleApi } from './module/api';
 import {
   CacheWrapper,
-  CommandsClientApi,
+  ChargingProfilesClientApi,
   OcpiModule,
   OcpiServerConfig,
   ResponseUrlRepository,
@@ -23,7 +23,7 @@ import { ILogObj, Logger } from 'tslog';
 
 import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
-import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import { SequelizeChargingProfileRepository, SequelizeTransactionEventRepository } from '@citrineos/data';
 
 useContainer(Container);
 
@@ -40,6 +40,11 @@ export class ChargingProfilesModule implements OcpiModule {
       SequelizeTransactionEventRepository,
       new SequelizeTransactionEventRepository(config as SystemConfig, logger),
     );
+
+    Container.set(
+        SequelizeChargingProfileRepository,
+        new SequelizeChargingProfileRepository(config as SystemConfig, logger),
+    );
   }
 
   init(handler?: IMessageHandler, sender?: IMessageSender): void {
@@ -49,7 +54,7 @@ export class ChargingProfilesModule implements OcpiModule {
         this.config as SystemConfig,
         this.cache.cache,
         Container.get(ResponseUrlRepository),
-        Container.get(CommandsClientApi),
+        Container.get(ChargingProfilesClientApi),
         handler,
         sender,
         this.logger,

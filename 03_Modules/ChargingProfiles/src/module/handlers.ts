@@ -7,24 +7,22 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
+  ChargingProfileStatusEnumType,
   EventGroup,
   HandlerProperties,
   ICache,
   IMessage,
   IMessageHandler,
   IMessageSender,
-  RequestStartStopStatusEnumType,
-  RequestStartTransactionResponse,
-  RequestStopTransactionResponse,
+  SetChargingProfileResponse,
   SystemConfig,
 } from '@citrineos/base';
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
-import { CommandsClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
+import { ChargingProfilesClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
-import { CommandResultType } from '@citrineos/ocpi-base/dist/model/CommandResult';
-import { ChargingProfilesModule } from '../index';
+import { ChargingProfileResultType } from "@citrineos/ocpi-base/dist/model/ChargingProfileResult";
 
 /**
  * Component that handles ChargingProfiles related messages.
@@ -35,13 +33,15 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
    * Fields
    */
   protected _requests: CallAction[] = [];
-  protected _responses: CallAction[] = [];
+  protected _responses: CallAction[] = [
+      CallAction.SetChargingProfile
+  ];
 
   constructor(
     config: SystemConfig,
     cache: ICache,
     readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
+    readonly chargingProfilesClientApi: ChargingProfilesClientApi,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -51,7 +51,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       cache,
       handler || new RabbitMqReceiver(config, logger),
       sender || new RabbitMqSender(config, logger),
-      EventGroup.Commands,
+      EventGroup.ChargingProfiles,
       logger,
     );
 
@@ -67,54 +67,42 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     this._logger.info(`Initialized in ${timer.end()}ms...`);
   }
 
-  @AsHandler(CallAction.RequestStartTransaction)
-  protected _handleRequestStartTransactionResponse(
-    message: IMessage<RequestStartTransactionResponse>,
-    props?: HandlerProperties,
+  @AsHandler(CallAction.SetChargingProfile)
+  protected _handleSetChargingProfileResponse(
+      message: IMessage<SetChargingProfileResponse>,
+      props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling:', message, props);
 
-    const result = this.getResult(message.payload.status);
+    const result = this.getSetChargingProfileResult(message.payload.status);
 
-    this.sendCommandResult(message.context.correlationId, result);
+    this.sendSetChargingProfileResult(message.context.correlationId, result);
   }
 
-  @AsHandler(CallAction.RequestStopTransaction)
-  protected _handleRequestStopTransactionResponse(
-    message: IMessage<RequestStopTransactionResponse>,
-    props?: HandlerProperties,
-  ): void {
-    this._logger.debug('Handling:', message, props);
-
-    const result = this.getResult(message.payload.status);
-
-    this.sendCommandResult(message.context.correlationId, result);
-  }
-
-  private getResult(
-    requestStartStopStatus: RequestStartStopStatusEnumType,
-  ): CommandResultType {
-    switch (requestStartStopStatus) {
-      case RequestStartStopStatusEnumType.Accepted:
-        return CommandResultType.ACCEPTED;
-      case RequestStartStopStatusEnumType.Rejected:
-        return CommandResultType.REJECTED;
+  private getSetChargingProfileResult(
+      chargingProfileStatus: ChargingProfileStatusEnumType,
+  ): ChargingProfileResultType {
+    switch (chargingProfileStatus) {
+      case ChargingProfileStatusEnumType.Accepted:
+        return ChargingProfileResultType.ACCEPTED;
+      case ChargingProfileStatusEnumType.Rejected:
+        return ChargingProfileResultType.REJECTED;
       default:
         throw new Error(
-          `Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`,
+          `Unknown ChargingProfileStatusEnumType: ${chargingProfileStatus}`,
         );
     }
   }
 
-  private async sendCommandResult(
+  private async sendSetChargingProfileResult(
     correlationId: string,
-    result: CommandResultType,
+    result: ChargingProfileResultType,
   ) {
     const responseUrlEntity =
       await this.responseUrlRepo.getResponseUrl(correlationId);
     if (responseUrlEntity) {
       try {
-        await this.commandsClient.postCommandResult(
+        await this.chargingProfilesClientApi.postSetChargingProfileResult(
           responseUrlEntity.responseUrl,
           {
             result: result,

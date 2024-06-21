@@ -17,7 +17,7 @@ import {NotFoundException} from "../exception/not.found.exception";
 import {ReserveNow} from "../model/ReserveNow";
 import {CancelReservation} from "../model/CancelReservation";
 import {OcpiEvseEntityRepository} from "../repository/ocpi-evse.repository";
-import {SequelizeTransactionEventRepository} from "@citrineos/data";
+import {SequelizeTransactionEventRepository, SequelizeChargingProfileRepository} from "@citrineos/data";
 import {SetChargingProfile} from "../model/SetChargingProfile";
 import {BadRequestError} from "routing-controllers";
 import {
@@ -33,6 +33,7 @@ export class CommandExecutor {
     readonly responseUrlRepo: ResponseUrlRepository,
     readonly ocpiEvseEntityRepo: OcpiEvseEntityRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
+    readonly chargingProfileRepo: SequelizeChargingProfileRepository,
   ) {}
 
   public async executeStartSession(startSession: StartSession): Promise<void> {
@@ -173,38 +174,43 @@ export class CommandExecutor {
     }
 
     public async executePutChargingProfile(sessionId: string, setChargingProfile: SetChargingProfile) {
-        // TODO: find station id by session id when session and location module is implemented
+        // TODO: Remove the mock data below and find a way to get station id
         const stationId = "cp001";
         const transaction = await this.transactionRepo.readTransactionByStationIdAndTransactionId(stationId,sessionId);
 
         if (!transaction) {
             throw new NotFoundException("Session not found");
         }
-
         console.log(`Found transaction: ${JSON.stringify(transaction)}`);
 
-        const evseId = transaction.evse?.id;
+        if (!transaction.evse)  {
+            throw new NotFoundException("Evse not found");
+        }
+        const evseId = transaction.evse.id;
 
         const correlationId = uuidv4();
         await this.responseUrlRepo.saveResponseUrl(correlationId, setChargingProfile.response_url);
+
+        const setChargingProfileRequest = await this.mapSetChargingProfileRequest(setChargingProfile, evseId, sessionId, stationId);
+        await this.chargingProfileRepo.createOrUpdateChargingProfile(setChargingProfileRequest.chargingProfile, stationId, evseId);
 
         this.abstractModule.sendCall(
             stationId,
             "tenantId",
             CallAction.SetChargingProfile,
-            this.mapSetChargingProfileRequest(setChargingProfile, evseId!, sessionId),
+            setChargingProfileRequest,
             undefined,
             correlationId,
             MessageOrigin.CentralSystem
         );
     }
 
-    private mapSetChargingProfileRequest(setChargingProfile: SetChargingProfile, evseId: number, sessionId: string): SetChargingProfileRequest {
-        const startDateTime = setChargingProfile.charging_profile.start_date_time;
+    private async mapSetChargingProfileRequest(setChargingProfile: SetChargingProfile, evseId: number, sessionId: string, stationId: string): Promise<SetChargingProfileRequest> {
+        const startDateTime = setChargingProfile.charging_profile.start_date_time ? new Date(setChargingProfile.charging_profile.start_date_time) : undefined;
         const duration = setChargingProfile.charging_profile.duration;
         let endDateTime;
         if (startDateTime && duration) {
-            endDateTime = startDateTime;
+            endDateTime = new Date(startDateTime);
             endDateTime.setSeconds(endDateTime.getSeconds() + duration);
         }
 
@@ -217,11 +223,12 @@ export class CommandExecutor {
             chargingProfilePeriods.push({
                 startPeriod: chargingProfilePeriod.start_period,
                 limit: chargingProfilePeriod.limit
-            });
+            } as ChargingSchedulePeriodType);
         }
 
+        const scheduleId = await this.chargingProfileRepo.getNextChargingScheduleId(stationId);
         const chargingSchedule = {
-            id: 1, // TODO: tbd
+            id: scheduleId,
             startSchedule: startDateTime?.toISOString(),
             duration: duration,
             chargingRateUnit: setChargingProfile.charging_profile.charging_rate_unit.toUpperCase(),
@@ -229,10 +236,11 @@ export class CommandExecutor {
             chargingSchedulePeriod: chargingProfilePeriods
         } as ChargingScheduleType;
 
-        return {
+        const profileId = await this.chargingProfileRepo.readNextId('id', {where: {stationId: stationId}});
+        const setChargingProfileRequest = {
             evseId,
             chargingProfile: {
-                id: 1, // TODO: tbd
+                id: profileId,
                 stackLevel: 0,
                 chargingProfilePurpose: ChargingProfilePurposeEnumType.TxProfile,
                 chargingProfileKind: startDateTime ? ChargingProfileKindEnumType.Absolute : ChargingProfileKindEnumType.Relative,
@@ -242,5 +250,8 @@ export class CommandExecutor {
                 transactionId: sessionId
             } as ChargingProfileType,
         } as SetChargingProfileRequest;
+
+        console.log(`Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`);
+        return setChargingProfileRequest;
     }
 }
