@@ -5,17 +5,18 @@
 
 import { IChargingProfilesModuleApi } from './interface';
 
-import {Body, Get, Param, Put, QueryParam} from 'routing-controllers';
+import { Body, Get, Param, Put, QueryParam } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
-    AsOcpiFunctionalEndpoint,
-    BaseController,
-    generateMockOcpiResponse,
-    ModuleId,
-    ResponseSchema,
-    OcpiResponse, ChargingProfilesService,
-    SetChargingProfile
+  AsOcpiFunctionalEndpoint,
+  BaseController,
+  generateMockOcpiResponse,
+  ModuleId,
+  ResponseSchema,
+  OcpiResponse,
+  ChargingProfilesService,
+  SetChargingProfile
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
