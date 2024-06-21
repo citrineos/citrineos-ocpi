@@ -13,6 +13,8 @@ import {
   Image,
   ImageCategory,
   ImageType,
+  InterfaceRole,
+  ModuleId,
   NotRegisteredException,
   OcpiLogger,
   OcpiNamespace,
@@ -32,6 +34,8 @@ import { BusinessDetailsDTO } from '@citrineos/ocpi-base/dist/model/DTO/Business
 import { ImageDTO } from '@citrineos/ocpi-base/dist/model/DTO/ImageDTO';
 import { CpoTenant } from '@citrineos/ocpi-base/dist/model/CpoTenant';
 import { ServerVersion } from '@citrineos/ocpi-base/dist/model/ServerVersion';
+import { VersionEndpoint } from '@citrineos/ocpi-base/dist/model/VersionEndpoint';
+import { ServerCredentialsRole } from '@citrineos/ocpi-base/dist/model/ServerCredentialsRole';
 
 const clientInformationInclude = [
   {
@@ -48,6 +52,24 @@ const clientInformationInclude = [
     include: [Endpoint],
   },
 ];
+
+const CpoCredentialsRole = CredentialsRoleDTO.build(
+  Role.CPO,
+  'COS', // todo is this okay?
+  'US',
+  BusinessDetailsDTO.build(
+    'CitrineOS',
+    'https://citrineos.github.io/',
+    ImageDTO.build(
+      'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
+      'CitrineOS Logo',
+      ImageCategory.OTHER,
+      ImageType.png,
+      100,
+      100,
+    ),
+  ),
+);
 
 @Service()
 export class CredentialsService {
@@ -195,6 +217,7 @@ export class CredentialsService {
       where: {
         version: versionNumber,
       },
+      include: [VersionEndpoint],
     });
     if (!serverVersionResponse || !serverVersionResponse[0]) {
       throw new NotFoundError('Version not found');
@@ -216,24 +239,90 @@ export class CredentialsService {
 
     const credentialsTokenB = uuidv4();
 
-    const clientInformation = ClientInformation.build({
-      clientToken: credentialsTokenA,
-      serverToken: credentialsTokenB,
-      clientCredentialsRoles: credentials.roles.map((role) =>
-        fromCredentialsRoleDTO(role),
-      ),
-      clientVersionDetails: [clientVersion],
-      serverVersionDetails: [ServerVersion.fromVersion(serverVersion)],
-    });
+    const clientCpoTenant = CpoTenant.build(
+      {
+        serverCredentialsRoles: [CpoCredentialsRole],
+        clientInformation: [
+          {
+            registered: true,
+            clientToken: credentialsTokenA,
+            serverToken: credentialsTokenB,
+            clientCredentialsRoles: credentials.roles,
+            clientVersionDetails: [
+              {
+                version: clientVersion.version,
+                url: clientVersion.url,
+                endpoints: clientVersion.endpoints.map((endpoint) => ({
+                  identifier: endpoint.identifier,
+                  role: endpoint.role,
+                  url: endpoint.url,
+                })),
+              },
+            ],
+            serverVersionDetails: [
+              {
+                version: serverVersion.version,
+                url: serverVersion.url,
+                endpoints: serverVersion.endpoints.map((endpoint) => ({
+                  identifier: endpoint.identifier,
+                  role: endpoint.role,
+                  url: endpoint.url,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        include: [
+          {
+            model: ServerCredentialsRole,
+            include: [
+              {
+                model: BusinessDetails,
+                include: [Image],
+              },
+            ],
+          },
+          {
+            model: ClientInformation,
+            include: [
+              {
+                model: ClientVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ServerVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ClientCredentialsRole,
+                include: [
+                  {
+                    model: BusinessDetails,
+                    include: [Image],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    );
 
-    const clientCpoTenant = CpoTenant.build({
-      clientInformation: clientInformation,
-    });
+    const clientInformation = clientCpoTenant.clientInformation[0];
 
-    await clientInformation.save(); // todo
+    // await clientInformation.save(); // todo
+    await clientCpoTenant.save();
 
-    this.credentialsClientApi.baseUrl = credentials.url;
+    const clientCredentialsUrl = clientVersion.endpoints.find(
+      (endpoint) =>
+        endpoint.identifier === ModuleId.Credentials &&
+        endpoint.role === InterfaceRole.RECEIVER,
+    );
+
     const postCredentialsResponse = await this.getPostCredentialsResponse(
+      clientCredentialsUrl,
       versionNumber,
       credentialsTokenA,
       credentialsTokenB,
@@ -243,16 +332,17 @@ export class CredentialsService {
     const credentialsTokenC = postCredentials.token;
     clientInformation.clientToken = credentialsTokenC;
     await clientCpoTenant.save();
-    await clientInformation.save();
     return clientInformation;
   }
 
   private async getPostCredentialsResponse(
+    clientCredentialsUrl: string,
     versionNumber: VersionNumber,
     credentialsTokenA: string,
     credentialsTokenB: string,
     serverVersionUrl: string,
   ): Promise<CredentialsResponse> {
+    this.credentialsClientApi.baseUrl = clientCredentialsUrl;
     const postCredentialsResponse =
       await this.credentialsClientApi.postCredentials(
         buildPostCredentialsParams(
@@ -279,23 +369,7 @@ export class CredentialsService {
     serverVersionUrl: string,
   ): CredentialsDTO {
     return CredentialsDTO.build(credentialsTokenB, serverVersionUrl, [
-      CredentialsRoleDTO.build(
-        Role.CPO,
-        'COS', // todo is this okay?
-        'US',
-        BusinessDetailsDTO.build(
-          'CitrineOS',
-          'https://citrineos.github.io/',
-          ImageDTO.build(
-            'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
-            'CitrineOS Logo',
-            ImageCategory.OTHER,
-            ImageType.png,
-            100,
-            100,
-          ),
-        ),
-      ),
+      CpoCredentialsRole,
     ]);
   }
 
@@ -376,9 +450,9 @@ export class CredentialsService {
     if (!versionDetails) {
       throw new NotFoundError('Matching version details not found');
     }
-    const clientVersion = ClientVersion.build(
+    return ClientVersion.build(
       {
-        identifier: versionNumber,
+        version: versionNumber,
         url: version.url,
         endpoints: versionDetails.data?.endpoints,
       },
@@ -386,6 +460,5 @@ export class CredentialsService {
         include: [Endpoint],
       },
     );
-    return clientVersion;
   }
 }

@@ -17,7 +17,6 @@ export class CredentialsClientApi extends BaseClientApi {
     this.validateOcpiRegistrationParams(params);
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
     return await this.get<CredentialsResponse>({
-      version: params.version,
       additionalHeaders,
     });
   }
@@ -30,7 +29,6 @@ export class CredentialsClientApi extends BaseClientApi {
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
     return await this.create<CredentialsResponse>(
       {
-        version: params.version,
         additionalHeaders,
       },
       params.credentials,
@@ -45,7 +43,6 @@ export class CredentialsClientApi extends BaseClientApi {
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
     return await this.update<CredentialsResponse>(
       {
-        version: params.version,
         additionalHeaders,
       },
       params.credentials,
@@ -58,7 +55,6 @@ export class CredentialsClientApi extends BaseClientApi {
     this.validateOcpiRegistrationParams(params);
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
     return await this.del<CredentialsResponse>({
-      version: params.version,
       additionalHeaders,
     });
   }

@@ -19,11 +19,6 @@ export class MissingRequiredParamException extends Error {
   }
 }
 
-export interface TriggerRequestOptions extends IRequestOptions {
-  version: VersionNumber;
-  path?: string;
-}
-
 export class BaseClientApi {
   CONTROLLER_PATH = 'null';
   private _baseUrl = 'http://localhost:3000';
@@ -49,11 +44,10 @@ export class BaseClientApi {
     return this.restClient.options<T>(url, options);
   }
 
-  async options<T>(options: TriggerRequestOptions): Promise<T> {
-    return this.optionsRaw<T>(
-      this.getPath(options!.version!, options!.path!),
-      options,
-    ).then((response) => this.handleResponse<T>(response));
+  async options<T>(url: string, options: IRequestOptions): Promise<T> {
+    return this.optionsRaw<T>(url, options).then((response) =>
+      this.handleResponse<T>(response),
+    );
   }
 
   async getRaw<T>(
@@ -63,11 +57,10 @@ export class BaseClientApi {
     return this.restClient.get<T>(url, options);
   }
 
-  async get<T>(options: TriggerRequestOptions): Promise<T> {
-    return this.getRaw<T>(
-      this.getPath(options!.version!, options!.path!),
-      options,
-    ).then((response) => this.handleResponse<T>(response));
+  async get<T>(options: IRequestOptions, url = ''): Promise<T> {
+    return this.getRaw<T>(url, options).then((response) =>
+      this.handleResponse<T>(response),
+    );
   }
 
   async delRaw<T>(
@@ -77,11 +70,10 @@ export class BaseClientApi {
     return this.restClient.del<T>(url, options);
   }
 
-  async del<T>(options: TriggerRequestOptions): Promise<T> {
-    return this.delRaw<T>(
-      this.getPath(options!.version!, options!.path!),
-      options,
-    ).then((response) => this.handleResponse<T>(response));
+  async del<T>(options: IRequestOptions, url = ''): Promise<T> {
+    return this.delRaw<T>(url, options).then((response) =>
+      this.handleResponse<T>(response),
+    );
   }
 
   async createRaw<T>(
@@ -92,12 +84,10 @@ export class BaseClientApi {
     return this.restClient.create<T>(url, body, options);
   }
 
-  async create<T>(options: TriggerRequestOptions, body: any): Promise<T> {
-    return this.createRaw<T>(
-      this.getPath(options!.version!, options!.path!),
-      body,
-      options,
-    ).then((response) => this.handleResponse<T>(response));
+  async create<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
+    return this.createRaw<T>(url, body, options).then((response) =>
+      this.handleResponse<T>(response),
+    );
   }
 
   async updateRaw<T>(
@@ -108,12 +98,10 @@ export class BaseClientApi {
     return this.restClient.update<T>(url, body, options);
   }
 
-  async update<T>(options: TriggerRequestOptions, body: any): Promise<T> {
-    return this.updateRaw<T>(
-      this.getPath(options!.version!, options!.path!),
-      body,
-      options,
-    ).then((response) => this.handleResponse<T>(response));
+  async update<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
+    return this.updateRaw<T>(url, body, options).then((response) =>
+      this.handleResponse<T>(response),
+    );
   }
 
   async replaceRaw<T>(
@@ -124,12 +112,10 @@ export class BaseClientApi {
     return this.restClient.replace<T>(url, body, options);
   }
 
-  async replace<T>(options: TriggerRequestOptions, body: any): Promise<T> {
-    return this.replaceRaw<T>(
-      this.getPath(options!.version!, options!.path!),
-      body,
-      options,
-    ).then((response) => this.handleResponse<T>(response));
+  async replace<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
+    return this.replaceRaw<T>(url, body, options).then((response) =>
+      this.handleResponse<T>(response),
+    );
   }
 
   validateRequiredParam(params: any, ...paramNameList: string[]) {
@@ -148,7 +134,7 @@ export class BaseClientApi {
     if (
       !params.authorization ||
       !params.authorization.length ||
-      params.authorization.length > 0
+      params.authorization.length === 0
     ) {
       throw new MissingRequiredParamException(
         params.authorization,
@@ -209,18 +195,6 @@ export class BaseClientApi {
 
   getRequiredParametersErrorMsgString(...params: string[]): string {
     return `Required parameters [${params.join(',')}] are null or undefined`;
-  }
-
-  protected getPathForVersion(version: VersionNumber) {
-    return `/ocpi/${version}/${this.CONTROLLER_PATH}`;
-  }
-
-  protected getBasePath(params: OcpiParams) {
-    return this.getPathForVersion(params.version);
-  }
-
-  protected getPath(version: VersionNumber, path: string = '') {
-    return `${this.getPathForVersion(version)}/${path}`;
   }
 
   protected newQueryParams(): IRequestQueryParams {

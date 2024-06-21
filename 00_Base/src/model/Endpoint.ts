@@ -95,6 +95,10 @@ export class Endpoint extends Model {
     );
   }
 
+  static fromEndpointDTO(dto: EndpointDTO): Endpoint {
+    return Endpoint.buildEndpoint(dto.identifier, dto.role, dto.url);
+  }
+
   public toEndpointDTO(): EndpointDTO {
     const dto = new EndpointDTO();
     dto.identifier = this.identifier;
