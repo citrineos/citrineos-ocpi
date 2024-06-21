@@ -50,10 +50,8 @@ export function buildUnknownSessionResponse<T>(
   data: T,
   error: NotFoundException,
 ): OcpiResponse<T> {
-  const response: OcpiResponse<T> = buildGenericServerErrorResponse(
+  return buildGenericClientErrorResponse(
     data,
     error,
   );
-  response.status_code = OcpiResponseStatusCode.ClientGenericError;
-  return response;
 }
