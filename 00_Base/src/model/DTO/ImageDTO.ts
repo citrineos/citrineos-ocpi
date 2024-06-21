@@ -32,4 +32,22 @@ export class ImageDTO {
   @IsInt()
   @Optional()
   height?: number | null;
+
+  static build(
+    url: string,
+    thumbnail: string | null,
+    category: ImageCategory,
+    type: ImageType,
+    width: number | null,
+    height: number | null,
+  ): ImageDTO {
+    const image = new ImageDTO();
+    image.url = url;
+    image.thumbnail = thumbnail;
+    image.category = category;
+    image.type = type;
+    image.width = width;
+    image.height = height;
+    return image;
+  }
 }

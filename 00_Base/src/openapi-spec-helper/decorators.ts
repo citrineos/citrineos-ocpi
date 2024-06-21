@@ -93,8 +93,7 @@ export function applyOpenAPIDecorator(
  * Supplement action with response body type annotation.
  */
 export function ResponseSchema(
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  responseClass: Function | string, // tslint:disable-line
+  responseClass: Constructable<any>,
   options: {
     contentType?: string;
     description?: string;

@@ -1,10 +1,15 @@
 import { BaseClientApi } from './BaseClientApi';
 import { ModuleId } from '../model/ModuleId';
+import { OcpiRegistrationParams } from './util/ocpi.registration.params';
+import { CredentialsResponse } from '../model/CredentialsResponse';
+import { IHeaders } from 'typed-rest-client/Interfaces';
+import { PostCredentialsParams } from './param/credentials/post.credentials.params';
+import { PutCredentialsParams } from './param/credentials/put.credentials.params';
 
 export class CredentialsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Credentials;
 
-  /* async getCredentials(
+  async getCredentials(
     params: OcpiRegistrationParams,
   ): Promise<CredentialsResponse> {
     this.validateOcpiRegistrationParams(params);
@@ -54,5 +59,5 @@ export class CredentialsClientApi extends BaseClientApi {
       version: params.version,
       additionalHeaders,
     });
-  }*/
+  }
 }

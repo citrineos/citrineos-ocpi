@@ -1,24 +1,35 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
+  AlreadyRegisteredException,
+  BusinessDetails,
   ClientCredentialsRole,
   ClientInformation,
   ClientInformationRepository,
   ClientVersion,
   CredentialsDTO,
   Endpoint,
+  fromCredentialsRoleDTO,
+  Image,
+  ImageCategory,
+  ImageType,
+  NotRegisteredException,
   OcpiLogger,
   OcpiNamespace,
+  OcpiResponseStatusCode,
   OcpiSequelizeInstance,
+  Role,
   VersionNumber,
+  VersionRepository,
   VersionsClientApi,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
-import { BusinessDetails } from '@citrineos/ocpi-base';
-import { Image } from '@citrineos/ocpi-base';
-import { AlreadyRegisteredException } from '@citrineos/ocpi-base';
-import { NotRegisteredException } from '@citrineos/ocpi-base';
-import { fromCredentialsRoleDTO } from '@citrineos/ocpi-base';
+import { CredentialsClientApi } from '@citrineos/ocpi-base/dist/trigger/CredentialsClientApi';
+import { buildPostCredentialsParams } from '@citrineos/ocpi-base/dist/trigger/param/credentials/post.credentials.params';
+import { CredentialsRoleDTO } from '@citrineos/ocpi-base/dist/model/DTO/CredentialsRoleDTO';
+import { BusinessDetailsDTO } from '@citrineos/ocpi-base/dist/model/DTO/BusinessDetailsDTO';
+import { ImageDTO } from '@citrineos/ocpi-base/dist/model/DTO/ImageDTO';
+import { CpoTenant } from '@citrineos/ocpi-base/dist/model/CpoTenant';
 
 const clientInformationInclude = [
   {
@@ -43,6 +54,8 @@ export class CredentialsService {
     readonly logger: OcpiLogger,
     readonly clientInformationRepository: ClientInformationRepository,
     readonly versionsClientApi: VersionsClientApi,
+    readonly credentialsClientApi: CredentialsClientApi,
+    readonly versionRepository: VersionRepository,
   ) {}
 
   async getClientInformation(token: string): Promise<ClientInformation> {
@@ -170,6 +183,95 @@ export class CredentialsService {
     }
   }
 
+  async registerCredentialsTokenA(
+    versionNumber: VersionNumber,
+    credentials: CredentialsDTO,
+    credentialsTokenA: string,
+  ): Promise<ClientInformation> {
+    const serverVersionResposne = this.versionRepository.readAllByQuery({
+      where: {
+        version: versionNumber,
+      },
+    });
+    if (!serverVersionResposne || !serverVersionResposne[0]) {
+      throw new NotFoundError('Version not found');
+    }
+    const serverVersion = serverVersionResposne[0];
+    const serverVersionUrl = serverVersion.url;
+
+    const clientVersion = await this.getVersionDetails(
+      versionNumber,
+      credentials.url,
+      credentialsTokenA,
+    );
+
+    if (!clientVersion) {
+      throw new NotFoundError(
+        'Did not successfully retrieve client version details',
+      );
+    }
+
+    const clientInformation = ClientInformation.build({
+      clientToken: credentialsTokenA,
+      serverToken: uuidv4(),
+      clientCredentialsRoles: credentials.roles.map((role) =>
+        fromCredentialsRoleDTO(role),
+      ),
+      clientVersionDetails: [clientVersion],
+      serverVersionDetails: [serverVersion],
+    });
+
+    const clientCpoTenant = CpoTenant.build({
+      clientInformation: clientInformation,
+    });
+
+    await clientInformation.save(); // todo
+
+    this.credentialsClientApi.baseUrl = credentials.url;
+    const postCredentialsResponse =
+      await this.credentialsClientApi.postCredentials(
+        buildPostCredentialsParams(
+          versionNumber,
+          credentialsTokenA,
+          CredentialsDTO.build(credentialsTokenB, serverVersionUrl, [
+            CredentialsRoleDTO.build(
+              Role.CPO,
+              'COS', // todo is this okay?
+              'US',
+              BusinessDetailsDTO.build(
+                'CitrineOS',
+                'https://citrineos.github.io/',
+                ImageDTO.build(
+                  'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
+                  'CitrineOS Logo',
+                  ImageCategory.OTHER,
+                  ImageType.png,
+                  100,
+                  100,
+                ),
+              ),
+            ),
+          ]),
+        ),
+      );
+    if (
+      !postCredentialsResponse ||
+      postCredentialsResponse.status_code !==
+        OcpiResponseStatusCode.GenericSuccessCode ||
+      !!postCredentialsResponse.data
+    ) {
+      throw new InternalServerError(
+        'Could not successfully post credentials to client',
+      );
+    }
+    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
+    const credentialsTokenC = postCredentials.token;
+    clientInformation.clientToken = credentialsTokenC;
+    await clientCpoTenant.save();
+    await clientInformation.save();
+    return clientInformation;
+  }
+
   private async updateClientCredentialRoles(
     clientInformation: ClientInformation,
     newClientCredentialsRoles: ClientCredentialsRole[],
@@ -210,10 +312,24 @@ export class CredentialsService {
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
     }
-    this.versionsClientApi.baseUrl = existingVersionDetails.url;
+    const clientVersion = await this.getVersionDetails(
+      versionNumber,
+      existingVersionDetails.url,
+      credentials.token,
+    );
+    clientVersion.setDataValue('clientInformationId', clientInformation.id);
+    return clientVersion;
+  }
+
+  private async getVersionDetails(
+    versionNumber: VersionNumber,
+    url: string,
+    token: string,
+  ): Promise<ClientVersion> {
+    this.versionsClientApi.baseUrl = url;
     const versions = await this.versionsClientApi.getVersions({
       version: versionNumber,
-      authorization: credentials.token,
+      authorization: token,
     });
     if (!versions || !versions.data) {
       throw new NotFoundError('Versions not found');
@@ -227,7 +343,7 @@ export class CredentialsService {
     }
     this.versionsClientApi.baseUrl = version.url;
     const versionDetails = await this.versionsClientApi.getVersionDetails({
-      authorization: credentials.token,
+      authorization: token,
       version: versionNumber,
     });
     if (!versionDetails) {
@@ -243,7 +359,5 @@ export class CredentialsService {
         include: [Endpoint],
       },
     );
-    clientVersion.setDataValue('clientInformationId', clientInformation.id);
-    return clientVersion;
   }
 }

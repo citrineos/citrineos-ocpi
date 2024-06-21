@@ -26,6 +26,7 @@ import {
   JsonController,
   Post,
   Put,
+  QueryParam,
 } from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
@@ -143,5 +144,37 @@ export class CredentialsModuleApi
     this.logger.info('deleteCredentials', _version);
     await this.credentialsService?.deleteCredentials(token);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Post()
+  @ResponseSchema(CredentialsResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async registerCredentialsTokenA(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() credentials: CredentialsDTO,
+    @QueryParam('token') credentialsTokenA: string,
+  ): Promise<CredentialsResponse> {
+    this.logger.info(
+      'registerCredentialsTokenA',
+      credentials,
+      credentialsTokenA,
+    );
+    const clientInformation =
+      await this.credentialsService?.registerCredentialsTokenA(
+        versionNumber,
+        credentials,
+        credentialsTokenA,
+      );
+    return CredentialsResponse.build(
+      toCredentialsDTO(clientInformation.get({ plain: true })),
+    );
   }
 }
