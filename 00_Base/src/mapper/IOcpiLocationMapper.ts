@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Connector } from '../model/Connector';
-import { EvseDTO } from '../model/Evse';
-import { Location } from '../model/Location';
+import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
+import { EvseDTO } from '../model/DTO/EvseDTO';
+import { LocationDTO } from '../model/DTO/LocationDTO';
 
 export interface IOcpiLocationMapper {
-  mapToOcpiLocation(...sources: any[]): Location;
+  mapToOcpiLocation(...sources: any[]): LocationDTO;
 
   mapToOcpiEvse(...sources: any[]): EvseDTO;
 
-  mapToOcpiConnector(...sources: any[]): Connector;
+  mapToOcpiConnector(...sources: any[]): ConnectorDTO;
 }

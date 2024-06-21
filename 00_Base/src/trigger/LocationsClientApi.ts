@@ -9,9 +9,9 @@ import { PutEvseParams } from './param/locations/put.evse.params';
 import { PutLocationParams } from './param/locations/put.location.params';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { BaseClientApi } from './BaseClientApi';
-import { ConnectorResponse } from '../model/Connector';
-import { EvseResponse } from '../model/Evse';
-import { LocationResponse } from '../model/Location';
+import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import { EvseResponse } from '../model/DTO/EvseDTO';
+import { LocationResponse } from '../model/DTO/LocationDTO';
 import { OcpiResponse } from '../model/ocpi.response';
 
 export class LocationsClientApi extends BaseClientApi {

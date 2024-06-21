@@ -1,7 +1,7 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Connector } from '../../../model/Connector';
+import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
 
 export class PutConnectorParams extends OcpiParams {
   @IsString()
@@ -20,7 +20,7 @@ export class PutConnectorParams extends OcpiParams {
   connectorId!: string;
 
   @IsNotEmpty()
-  @Type(() => Connector)
+  @Type(() => ConnectorDTO)
   @ValidateNested()
-  connector!: Connector;
+  connector!: ConnectorDTO;
 }

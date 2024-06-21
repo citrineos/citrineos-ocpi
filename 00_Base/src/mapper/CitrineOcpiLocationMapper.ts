@@ -1,31 +1,31 @@
 import { IOcpiLocationMapper } from './IOcpiLocationMapper';
-import { Location as OcpiLocation } from '../model/Location';
-import { EvseDTO } from '../model/Evse';
-import { Connector } from '../model/Connector';
+import { OcpiLocation } from '../model/Location';
+import { LocationDTO } from '../model/DTO/LocationDTO';
+import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
 import { GeoLocation } from '../model/GeoLocation';
 import { sequelize as sequelizeCore } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
-import { AttributeEnumType, ConnectorEnumType, ConnectorStatusEnumType, } from '@citrineos/base';
+import { ConnectorEnumType, ConnectorStatusEnumType, } from '@citrineos/base';
 import { Capability } from '../model/Capability';
 import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
-import {
-  AUTH_CONTROLLER_COMPONENT,
-  CONNECTOR_COMPONENT,
-  EVSE_COMPONENT,
-  TOKEN_READER_COMPONENT,
-  UNKNOWN_ID
-} from "../util/consts";
+import { ChargingStationVariableAttributes } from "../model/variable-attributes/ChargingStationVariableAttributes";
+import { EvseVariableAttributes } from "../model/variable-attributes/EvseVariableAttributes";
+import { OcpiEvse } from "../model/Evse";
+import { ConnectorVariableAttributes } from "../model/variable-attributes/ConnectorVariableAttributes";
+import { OcpiConnector } from "../model/Connector";
 
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   // TODO pass credentials
   // TODO pass in evse charging attributes map??
   mapToOcpiLocation(
     citrineLocation: sequelizeCore.Location,
-    chargingStationVariableAttributesMap: Record<string, sequelizeCore.VariableAttribute[]>,
-  ): OcpiLocation {
-    const ocpiLocation = new OcpiLocation();
+    chargingStationVariableAttributesMap: Record<string, ChargingStationVariableAttributes>,
+    ocpiLocationInfo?: OcpiLocation
+  ): LocationDTO {
+    const ocpiLocation = new LocationDTO();
 
     ocpiLocation.id = citrineLocation.id;
 
@@ -34,33 +34,30 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiLocation.party_id = 'COS'; // TODO update with credentials
 
     // TODO update with dynamic data
-    ocpiLocation.publish = true;
+    ocpiLocation.last_updated = ocpiLocationInfo?.lastUpdated ?? new Date(); // TODO better fallback
+    ocpiLocation.publish = ocpiLocationInfo?.publish ?? true;
     // ocpiLocation.publish_allowed_to
-    ocpiLocation.last_updated = new Date();
 
-    // ADDRESS FIELDS
-    // TODO update all address fields below with dynamic data from ocpp location
-    ocpiLocation.name = 'Test Location';
-    ocpiLocation.address = 'address';
-    ocpiLocation.city = 'city';
-    ocpiLocation.postal_code = '12345';
-    ocpiLocation.state = 'New York';
-    ocpiLocation.country = 'USA';
-
+    ocpiLocation.name = citrineLocation.name;
+    ocpiLocation.address = citrineLocation.address;
+    ocpiLocation.city = citrineLocation.city;
+    ocpiLocation.postal_code = citrineLocation.postalCode;
+    ocpiLocation.state = citrineLocation.state;
+    ocpiLocation.country = citrineLocation.country;
     ocpiLocation.coordinates = this.getCoordinates(citrineLocation.coordinates);
 
     const evses: EvseDTO[] = [];
 
-    for (let chargingStation of citrineLocation.chargingPool) {
-      const evseVariableAttributesMap = this.getEvseVariableAttributesMap(chargingStationVariableAttributesMap[chargingStation.id]);
-
-      Object.values(evseVariableAttributesMap).forEach(evseVariableAttributes =>
-        evses.push(this.mapToOcpiEvse(
-          citrineLocation,
-          evseVariableAttributes,
-          null // TODO add evse ocpi information from new table
-        ))
-      )
+    for (let chargingStationAttributes of Object.values(chargingStationVariableAttributesMap)) {
+      for (let evseAttributes of Object.values(chargingStationAttributes.evses)) {
+        evses.push(
+          this.mapToOcpiEvse(
+            citrineLocation,
+            chargingStationAttributes,
+            evseAttributes
+          )
+        );
+      }
     }
 
     ocpiLocation.evses = [...evses];
@@ -80,45 +77,28 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return ocpiLocation;
   }
 
-  // TODO needs the charging station MAP
-  // TODO needs the EVSE attributes map
   mapToOcpiEvse(
     citrineLocation: sequelizeCore.Location,
-    evseVariableAttributes: sequelizeCore.VariableAttribute[],
-    evseOcpiInformation: any // TODO make not any
+    chargingStationAttributes: ChargingStationVariableAttributes,
+    evseAttributes: EvseVariableAttributes,
+    ocpiEvseInformation?: OcpiEvse
   ): EvseDTO {
-    const connectorVariableAttributesMap = this.getConnectorVariableAttributesMap(evseVariableAttributes);
-
-    const availabilityState = this.getComponent(
-      evseVariableAttributes,
-      EVSE_COMPONENT,
-      'AvailabilityState',
-      AttributeEnumType.Actual,
-    );
-
-    const parkingBayOccupancy = this.getComponent(
-      evseVariableAttributes,
-      'BayOccupancySensor',
-      'Active',
-      AttributeEnumType.Actual,
-    );
-
     const evse = new EvseDTO();
-    evse.uid = evseOcpiInformation['uid'];
-    evse.status = this.getStatus(availabilityState, parkingBayOccupancy);
-    evse.connectors = Object.keys(connectorVariableAttributesMap).map((id) =>
-      this.mapToOcpiConnector(Number(id), evseVariableAttributes, connectorVariableAttributesMap[id]),
-    );
-    evse.evse_id = this.getComponent(
-      evseVariableAttributes,
-      EVSE_COMPONENT,
-      'EvseId',
-      AttributeEnumType.Actual,
-    )?.value;
-    evse.capabilities = this.getCapabilities(evseVariableAttributes);
+    evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id); // format evse uid
+    evse.status = this.getStatus(evseAttributes.evseAvailabilityState, chargingStationAttributes.bayOccupancySensorActive);
+    evse.evse_id = evseAttributes.evseId;
+    evse.capabilities = this.getCapabilities(chargingStationAttributes.authorizeRemoteStart, chargingStationAttributes.tokenReaderEnabled);
     evse.coordinates = this.getCoordinates(citrineLocation.coordinates);
-    evse.physical_reference = evseOcpiInformation['physical_reference'];
-    evse.last_updated = new Date(Math.max(availabilityState?.updatedAt ?? 0, parkingBayOccupancy?.updatedAt ?? 0));
+    evse.physical_reference = ocpiEvseInformation?.physicalReference;
+    evse.last_updated = ocpiEvseInformation?.lastUpdated ?? new Date() // TODO better fallback
+
+    const connectors = [];
+
+    for (let [connectorId, connectorAttributes] of Object.entries(evseAttributes.connectors)) {
+      connectors.push(this.mapToOcpiConnector(Number(connectorId), evseAttributes, connectorAttributes));
+    }
+
+    evse.connectors = [...connectors];
 
     // TODO make dynamic mappings for the remaining optional fields
     // evse.status_schedule
@@ -132,81 +112,27 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
   mapToOcpiConnector(
     id: number,
-    evseVariableAttributes: sequelizeCore.VariableAttribute[],
-    connectorVariableAttributes: sequelizeCore.VariableAttribute[]
-  ): Connector {
-    const ocppConnectorType = this.getComponent(
-      connectorVariableAttributes,
-      CONNECTOR_COMPONENT,
-      'ConnectorType',
-      AttributeEnumType.Actual,
-    );
+    evseAttributes: EvseVariableAttributes,
+    connectorAttributes: ConnectorVariableAttributes,
+    ocpiConnectorInfo?: OcpiConnector
+  ): ConnectorDTO {
+    const ocppConnectorType = connectorAttributes.connectorType;
 
-    const availabilityState = this.getComponent(
-      connectorVariableAttributes,
-      CONNECTOR_COMPONENT,
-      'AvailabilityState',
-      AttributeEnumType.Actual
-    );
-
-    const connector = new Connector();
+    const connector = new ConnectorDTO();
     connector.id = String(id);
-    connector.last_updated = availabilityState?.updatedAt ?? availabilityState?.createdAt;
-    connector.standard = this.getConnectorStandard(ocppConnectorType?.value);
+    connector.last_updated = ocpiConnectorInfo?.lastUpdated ?? new Date(); // TODO better fallback
+    connector.standard = this.getConnectorStandard(ocppConnectorType);
     connector.format = ConnectorFormat.CABLE; // TODO dynamically determine if CABLE Or SOCKET
-    connector.power_type = this.getConnectorPowerType(ocppConnectorType?.value);
-    connector.max_voltage = Number(
-      this.getComponent(
-        evseVariableAttributes,
-        EVSE_COMPONENT,
-        'DCVoltage',
-        AttributeEnumType.MaxSet,
-      )?.value ?? '0',
-    );
-    connector.max_amperage = Number(
-      this.getComponent(
-        evseVariableAttributes,
-        EVSE_COMPONENT,
-        'DCCurrent',
-        AttributeEnumType.MaxSet,
-      )?.value ?? '0',
-    );
-    connector.max_electric_power = Number(
-      this.getComponent(
-        evseVariableAttributes,
-        EVSE_COMPONENT,
-        'Power',
-        AttributeEnumType.MaxSet,
-      )?.value ?? '0',
-    );
+    connector.power_type = this.getConnectorPowerType(ocppConnectorType);
+    connector.max_voltage = Number(evseAttributes.evseDcVoltage);
+    connector.max_amperage = Number(evseAttributes.evseDcCurrent);
+    connector.max_electric_power = Number(evseAttributes.evsePower);
 
     // TODO make dynamic mappings for the remaining optional fields
     // connector.tariff_ids
     // connector.terms_and_conditions
 
     return connector;
-  }
-
-  getEvseVariableAttributesMap(chargingStationVariableAttributes: sequelizeCore.VariableAttribute[]) {
-    return chargingStationVariableAttributes
-      .filter(va => va.component.name === EVSE_COMPONENT || va.component.name === CONNECTOR_COMPONENT)
-      .reduce(
-        (acc: Record<string, sequelizeCore.VariableAttribute[]>, va) => {
-          acc[(va.evse?.id ?? UNKNOWN_ID)] = [...(acc[(va.evse?.id ?? UNKNOWN_ID)] ?? []), va];
-          return acc;
-        },
-        {},
-      );
-  }
-
-  getConnectorVariableAttributesMap(evseVariableAttributes: sequelizeCore.VariableAttribute[]) {
-    return evseVariableAttributes.reduce(
-      (acc: Record<string, sequelizeCore.VariableAttribute[]>, va) => {
-        acc[(va.evse?.connectorId ?? UNKNOWN_ID)] = [...(acc[(va.evse?.connectorId ?? UNKNOWN_ID)] ?? []), va];
-        return acc;
-      },
-      {},
-    );
   }
 
   // Helpers
@@ -218,23 +144,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return geoLocation;
   }
 
-  private getCapabilities(variableAttributes: sequelizeCore.VariableAttribute[]): Capability[] {
+  private getCapabilities(authorizeRemoteStart: string, tokenReaderEnabled: string): Capability[] {
     // TODO add remaining capabilities
     const capabilities: Capability[] = [];
-
-    const authorizeRemoteStart = this.getComponent(
-      variableAttributes,
-      AUTH_CONTROLLER_COMPONENT,
-      'AuthorizeRemoteStart',
-      AttributeEnumType.Actual
-    )?.value;
-
-    const tokenReaderEnabled = this.getComponent(
-      variableAttributes,
-      TOKEN_READER_COMPONENT,
-      'Enabled',
-      AttributeEnumType.Actual
-    )?.value;
 
     if (authorizeRemoteStart === 'true') {
       capabilities.push(Capability.REMOTE_START_STOP_CAPABLE);
@@ -246,31 +158,16 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return capabilities;
   }
 
-  private getComponent(
-    variableAttributes: sequelizeCore.VariableAttribute[],
-    component: string,
-    variable: string,
-    attribute: AttributeEnumType,
-  ): sequelizeCore.VariableAttribute | undefined {
-    const matchingVariableAttribute = variableAttributes.filter(
-      (va) =>
-        va.component.name === component &&
-        va.variable.name === variable &&
-        va.type === attribute,
-    );
-
-    return matchingVariableAttribute.length > 0
-      ? matchingVariableAttribute[0]
-      : undefined;
-  }
-
-  private getStatus(availabilityState?: sequelizeCore.VariableAttribute, parkingBayOccupancy?: sequelizeCore.VariableAttribute): EvseStatus {
-    if (parkingBayOccupancy?.value === 'true') {
+  private getStatus(
+    availabilityState: string,
+    parkingBayOccupancy: string
+  ): EvseStatus {
+    if (parkingBayOccupancy === 'true') {
       return EvseStatus.BLOCKED;
     }
 
     // TODO add case for REMOVED
-    switch (availabilityState?.value) {
+    switch (availabilityState) {
       case ConnectorStatusEnumType.Occupied:
         return EvseStatus.CHARGING;
       case ConnectorStatusEnumType.Available:

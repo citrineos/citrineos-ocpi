@@ -60,9 +60,9 @@ export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { CommandResultType } from './model/CommandResult';
-export { Location, LocationResponse, PaginatedLocationResponse } from './model/Location';
-export { EvseDTO, EvseResponse } from './model/Evse';
-export { Connector, ConnectorResponse } from './model/Connector';
+export { LocationDTO, LocationResponse, PaginatedLocationResponse } from './model/DTO/LocationDTO';
+export { EvseDTO, EvseResponse } from './model/DTO/EvseDTO';
+export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
