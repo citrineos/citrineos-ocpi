@@ -1,6 +1,8 @@
 import {Service} from "typedi";
 import {ResponseUrlRepository} from "../repository/response-url.repository";
 import {AsyncReceiverApi} from "../trigger/AsyncReceiverApi";
+import {ActiveChargingProfileResult} from "../model/ActiveChargingProfileResult";
+import {ClearChargingProfileResult} from "../model/ChargingprofilesClearProfileResult";
 
 @Service()
 export class AsyncResponder {
@@ -9,9 +11,9 @@ export class AsyncResponder {
         readonly asyncResponseApi: AsyncReceiverApi,
     ) {}
 
-    async sendAsyncResponse(
+    async send(
         correlationId: string,
-        data: any,
+        data: ActiveChargingProfileResult | ClearChargingProfileResult,
     ) {
         const responseUrlEntity =
             await this.responseUrlRepo.getResponseUrl(correlationId);
