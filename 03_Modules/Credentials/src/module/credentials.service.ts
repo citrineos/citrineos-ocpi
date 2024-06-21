@@ -7,6 +7,7 @@ import {
   ClientInformationRepository,
   ClientVersion,
   CredentialsDTO,
+  CredentialsResponse,
   Endpoint,
   fromCredentialsRoleDTO,
   Image,
@@ -30,6 +31,7 @@ import { CredentialsRoleDTO } from '@citrineos/ocpi-base/dist/model/DTO/Credenti
 import { BusinessDetailsDTO } from '@citrineos/ocpi-base/dist/model/DTO/BusinessDetailsDTO';
 import { ImageDTO } from '@citrineos/ocpi-base/dist/model/DTO/ImageDTO';
 import { CpoTenant } from '@citrineos/ocpi-base/dist/model/CpoTenant';
+import { ServerVersion } from '@citrineos/ocpi-base/dist/model/ServerVersion';
 
 const clientInformationInclude = [
   {
@@ -186,17 +188,18 @@ export class CredentialsService {
   async registerCredentialsTokenA(
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
-    credentialsTokenA: string,
   ): Promise<ClientInformation> {
-    const serverVersionResposne = this.versionRepository.readAllByQuery({
+    const credentialsTokenA = credentials.token;
+
+    const serverVersionResponse = await this.versionRepository.readAllByQuery({
       where: {
         version: versionNumber,
       },
     });
-    if (!serverVersionResposne || !serverVersionResposne[0]) {
+    if (!serverVersionResponse || !serverVersionResponse[0]) {
       throw new NotFoundError('Version not found');
     }
-    const serverVersion = serverVersionResposne[0];
+    const serverVersion = serverVersionResponse[0];
     const serverVersionUrl = serverVersion.url;
 
     const clientVersion = await this.getVersionDetails(
@@ -211,14 +214,16 @@ export class CredentialsService {
       );
     }
 
+    const credentialsTokenB = uuidv4();
+
     const clientInformation = ClientInformation.build({
       clientToken: credentialsTokenA,
-      serverToken: uuidv4(),
+      serverToken: credentialsTokenB,
       clientCredentialsRoles: credentials.roles.map((role) =>
         fromCredentialsRoleDTO(role),
       ),
       clientVersionDetails: [clientVersion],
-      serverVersionDetails: [serverVersion],
+      serverVersionDetails: [ServerVersion.fromVersion(serverVersion)],
     });
 
     const clientCpoTenant = CpoTenant.build({
@@ -228,30 +233,32 @@ export class CredentialsService {
     await clientInformation.save(); // todo
 
     this.credentialsClientApi.baseUrl = credentials.url;
+    const postCredentialsResponse = await this.getPostCredentialsResponse(
+      versionNumber,
+      credentialsTokenA,
+      credentialsTokenB,
+      serverVersionUrl,
+    );
+    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
+    const credentialsTokenC = postCredentials.token;
+    clientInformation.clientToken = credentialsTokenC;
+    await clientCpoTenant.save();
+    await clientInformation.save();
+    return clientInformation;
+  }
+
+  private async getPostCredentialsResponse(
+    versionNumber: VersionNumber,
+    credentialsTokenA: string,
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): Promise<CredentialsResponse> {
     const postCredentialsResponse =
       await this.credentialsClientApi.postCredentials(
         buildPostCredentialsParams(
           versionNumber,
           credentialsTokenA,
-          CredentialsDTO.build(credentialsTokenB, serverVersionUrl, [
-            CredentialsRoleDTO.build(
-              Role.CPO,
-              'COS', // todo is this okay?
-              'US',
-              BusinessDetailsDTO.build(
-                'CitrineOS',
-                'https://citrineos.github.io/',
-                ImageDTO.build(
-                  'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
-                  'CitrineOS Logo',
-                  ImageCategory.OTHER,
-                  ImageType.png,
-                  100,
-                  100,
-                ),
-              ),
-            ),
-          ]),
+          this.buildCredentialsDTO(credentialsTokenB, serverVersionUrl),
         ),
       );
     if (
@@ -264,12 +271,32 @@ export class CredentialsService {
         'Could not successfully post credentials to client',
       );
     }
-    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
-    const credentialsTokenC = postCredentials.token;
-    clientInformation.clientToken = credentialsTokenC;
-    await clientCpoTenant.save();
-    await clientInformation.save();
-    return clientInformation;
+    return postCredentialsResponse;
+  }
+
+  private buildCredentialsDTO(
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): CredentialsDTO {
+    return CredentialsDTO.build(credentialsTokenB, serverVersionUrl, [
+      CredentialsRoleDTO.build(
+        Role.CPO,
+        'COS', // todo is this okay?
+        'US',
+        BusinessDetailsDTO.build(
+          'CitrineOS',
+          'https://citrineos.github.io/',
+          ImageDTO.build(
+            'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
+            'CitrineOS Logo',
+            ImageCategory.OTHER,
+            ImageType.png,
+            100,
+            100,
+          ),
+        ),
+      ),
+    ]);
   }
 
   private async updateClientCredentialRoles(
@@ -359,5 +386,6 @@ export class CredentialsService {
         include: [Endpoint],
       },
     );
+    return clientVersion;
   }
 }

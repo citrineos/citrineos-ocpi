@@ -5,7 +5,9 @@ import { CredentialsResponse } from '../model/CredentialsResponse';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { PostCredentialsParams } from './param/credentials/post.credentials.params';
 import { PutCredentialsParams } from './param/credentials/put.credentials.params';
+import { Service } from 'typedi';
 
+@Service()
 export class CredentialsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Credentials;
 

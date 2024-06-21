@@ -146,7 +146,7 @@ export class CredentialsModuleApi
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
-  @Post()
+  @Post('/admin')
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -160,18 +160,12 @@ export class CredentialsModuleApi
   async registerCredentialsTokenA(
     @VersionNumberParam() versionNumber: VersionNumber,
     @Body() credentials: CredentialsDTO,
-    @QueryParam('token') credentialsTokenA: string,
   ): Promise<CredentialsResponse> {
-    this.logger.info(
-      'registerCredentialsTokenA',
-      credentials,
-      credentialsTokenA,
-    );
+    this.logger.info('registerCredentialsTokenA', credentials);
     const clientInformation =
       await this.credentialsService?.registerCredentialsTokenA(
         versionNumber,
         credentials,
-        credentialsTokenA,
       );
     return CredentialsResponse.build(
       toCredentialsDTO(clientInformation.get({ plain: true })),
