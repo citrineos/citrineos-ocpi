@@ -3,11 +3,12 @@ import { CdrDimensionType } from './CdrDimensionType';
 import { Enum } from '../util/decorators/enum';
 
 export class CdrDimension {
-    @Enum(CdrDimensionType, 'CdrDimensionType')
-    @IsNotEmpty()
-    type!: CdrDimensionType;
+  @Enum(CdrDimensionType, 'CdrDimensionType')
+  @IsNotEmpty()
+  type!: CdrDimensionType;
 
-    @IsNumber()
-    @IsNotEmpty()
-    volume!: number;
+  @IsNumber()
+  @IsNotEmpty()
+  volume!: number;
 }
+ 
