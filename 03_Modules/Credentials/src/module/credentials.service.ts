@@ -11,8 +11,6 @@ import {
   Endpoint,
   fromCredentialsRoleDTO,
   Image,
-  ImageCategory,
-  ImageType,
   InterfaceRole,
   ModuleId,
   NotRegisteredException,
@@ -30,8 +28,6 @@ import { InternalServerError, NotFoundError } from 'routing-controllers';
 import { CredentialsClientApi } from '@citrineos/ocpi-base/dist/trigger/CredentialsClientApi';
 import { buildPostCredentialsParams } from '@citrineos/ocpi-base/dist/trigger/param/credentials/post.credentials.params';
 import { CredentialsRoleDTO } from '@citrineos/ocpi-base/dist/model/DTO/CredentialsRoleDTO';
-import { BusinessDetailsDTO } from '@citrineos/ocpi-base/dist/model/DTO/BusinessDetailsDTO';
-import { ImageDTO } from '@citrineos/ocpi-base/dist/model/DTO/ImageDTO';
 import { CpoTenant } from '@citrineos/ocpi-base/dist/model/CpoTenant';
 import { ServerVersion } from '@citrineos/ocpi-base/dist/model/ServerVersion';
 import { VersionEndpoint } from '@citrineos/ocpi-base/dist/model/VersionEndpoint';
@@ -315,12 +311,19 @@ export class CredentialsService {
     // await clientInformation.save(); // todo
     await clientCpoTenant.save();
 
-    const clientCredentialsUrl = clientVersion.endpoints.find(
+    const clientCredentialsEndpoint = clientVersion.endpoints.find(
       (endpoint) =>
         endpoint.identifier === ModuleId.Credentials &&
         endpoint.role === InterfaceRole.RECEIVER,
     );
 
+    if (!clientCredentialsEndpoint || !clientCredentialsEndpoint.url) {
+      throw new NotFoundError(
+        'Did not successfully retrieve client credentials from version details',
+      );
+    }
+
+    const clientCredentialsUrl = clientCredentialsEndpoint.url;
     const postCredentialsResponse = await this.getPostCredentialsResponse(
       clientCredentialsUrl,
       versionNumber,

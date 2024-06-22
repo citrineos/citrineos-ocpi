@@ -14,14 +14,16 @@ export class TariffsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'tariffId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<OcpiResponse<Tariff>>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{tariffId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('tariffId', encodeURIComponent(params.tariffId)),
-      additionalHeaders,
-    });
+    const url = '{countryCode}/{partyId}/{tariffId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('tariffId', encodeURIComponent(params.tariffId));
+    return await this.get<OcpiResponse<Tariff>>(
+      {
+        additionalHeaders,
+      },
+      url,
+    );
   }
 
   async putTariff(params: PutTariffParams): Promise<OcpiResponse<Tariff>> {
@@ -34,16 +36,16 @@ export class TariffsClientApi extends BaseClientApi {
       'tariff',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{tariffId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('tariffId', encodeURIComponent(params.tariffId));
     return await this.replace<OcpiResponse<Tariff>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{tariffId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('tariffId', encodeURIComponent(params.tariffId)),
         additionalHeaders,
       },
       params.tariff,
+      url,
     );
   }
 
@@ -51,13 +53,15 @@ export class TariffsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'tariffId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.del<OcpiResponse<void>>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{tariffId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('tariffId', encodeURIComponent(params.tariffId)),
-      additionalHeaders,
-    });
+    const url = '{countryCode}/{partyId}/{tariffId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('tariffId', encodeURIComponent(params.tariffId));
+    return await this.del<OcpiResponse<void>>(
+      {
+        additionalHeaders,
+      },
+      url,
+    );
   }
 }

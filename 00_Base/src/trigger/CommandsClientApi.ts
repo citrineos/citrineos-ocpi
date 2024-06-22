@@ -16,7 +16,6 @@ export class CommandsClientApi extends BaseClientApi {
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.create<OcpiResponse<CommandResponse>>(
       {
-        version: params.version,
         additionalHeaders,
       },
       params.commandResult,

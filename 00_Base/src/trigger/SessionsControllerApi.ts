@@ -11,14 +11,16 @@ export class SessionsControllerApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'sessionId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<OcpiResponse<Session>>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{sessionId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('sessionId', encodeURIComponent(params.sessionId)),
-      additionalHeaders,
-    });
+    const url = '{countryCode}/{partyId}/{sessionId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('sessionId', encodeURIComponent(params.sessionId));
+    return await this.get<OcpiResponse<Session>>(
+      {
+        additionalHeaders,
+      },
+      url,
+    );
   }
 
   async patchSession(params: PatchSessionParams): Promise<OcpiResponse<void>> {
@@ -31,16 +33,16 @@ export class SessionsControllerApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{sessionId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('sessionId', encodeURIComponent(params.sessionId));
     return await this.update<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{sessionId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('sessionId', encodeURIComponent(params.sessionId)),
         additionalHeaders,
       },
       params.requestBody,
+      url,
     );
   }
 
@@ -54,16 +56,16 @@ export class SessionsControllerApi extends BaseClientApi {
       'session',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{sessionId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('sessionId', encodeURIComponent(params.sessionId));
     return await this.replace<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{sessionId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('sessionId', encodeURIComponent(params.sessionId)),
         additionalHeaders,
       },
       params.session,
+      url,
     );
   }
 }

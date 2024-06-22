@@ -19,12 +19,13 @@ export class ChargingProfilesClientApi extends BaseClientApi {
     const queryParameters: IRequestQueryParams = this.newQueryParams();
     queryParameters.params['response_url'] = params.responseUrl;
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.del<OcpiResponse<ChargingProfileResult>>({
-      version: params.version,
-      path: `${encodeURIComponent(params.sessionId)}`,
-      additionalHeaders,
-      queryParameters,
-    });
+    return await this.del<OcpiResponse<ChargingProfileResult>>(
+      {
+        additionalHeaders,
+        queryParameters,
+      },
+      `${encodeURIComponent(params.sessionId)}`,
+    );
   }
 
   async getChargingProfile(
@@ -36,12 +37,13 @@ export class ChargingProfilesClientApi extends BaseClientApi {
     queryParameters.params['duration'] = params.duration;
     queryParameters.params['response_url'] = params.responseUrl;
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<OcpiResponse<ChargingProfileResponse>>({
-      version: params.version,
-      path: `${encodeURIComponent(params.sessionId)}`,
-      additionalHeaders,
-      queryParameters,
-    });
+    return await this.get<OcpiResponse<ChargingProfileResponse>>(
+      {
+        additionalHeaders,
+        queryParameters,
+      },
+      `${encodeURIComponent(params.sessionId)}`,
+    );
   }
 
   async putChargingProfile(
@@ -52,11 +54,10 @@ export class ChargingProfilesClientApi extends BaseClientApi {
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.replace<OcpiResponse<ChargingProfileResponse>>(
       {
-        version: params.version,
-        path: `${encodeURIComponent(params.sessionId)}`,
         additionalHeaders,
       },
       params.setChargingProfile,
+      `${encodeURIComponent(params.sessionId)}`,
     );
   }
 }

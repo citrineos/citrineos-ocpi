@@ -26,16 +26,18 @@ export class LocationsClientApi extends BaseClientApi {
       'connectorId',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<ConnectorResponse>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('locationId', encodeURIComponent(params.locationId))
-        .replace('evseUId', encodeURIComponent(params.evseUId))
-        .replace('connectorId', encodeURIComponent(params.connectorId)),
-      additionalHeaders,
-    });
+    const url = '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId))
+      .replace('evseUId', encodeURIComponent(params.evseUId))
+      .replace('connectorId', encodeURIComponent(params.connectorId));
+    return await this.get<ConnectorResponse>(
+      {
+        additionalHeaders,
+      },
+      url,
+    );
   }
 
   async getEvse(params: GetEvseParams): Promise<EvseResponse> {
@@ -48,29 +50,33 @@ export class LocationsClientApi extends BaseClientApi {
       'evseUId',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<EvseResponse>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{locationId}/{evseUId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('locationId', encodeURIComponent(params.locationId))
-        .replace('evseUId', encodeURIComponent(params.evseUId)),
-      additionalHeaders,
-    });
+    const url = '{countryCode}/{partyId}/{locationId}/{evseUId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId))
+      .replace('evseUId', encodeURIComponent(params.evseUId));
+    return await this.get<EvseResponse>(
+      {
+        additionalHeaders,
+      },
+      url,
+    );
   }
 
   async getLocation(params: GetLocationParams): Promise<LocationResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'locationId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<LocationResponse>({
-      version: params.version,
-      path: '{countryCode}/{partyId}/{locationId}'
-        .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-        .replace('partyId', encodeURIComponent(params.fromPartyId))
-        .replace('locationId', encodeURIComponent(params.locationId)),
-      additionalHeaders,
-    });
+    const url = '{countryCode}/{partyId}/{locationId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId));
+    return await this.get<LocationResponse>(
+      {
+        additionalHeaders,
+      },
+      url,
+    );
   }
 
   async patchConnector(
@@ -87,18 +93,18 @@ export class LocationsClientApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId))
+      .replace('evseUId', encodeURIComponent(params.evseUId))
+      .replace('connectorId', encodeURIComponent(params.connectorId));
     return await this.update<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('locationId', encodeURIComponent(params.locationId))
-          .replace('evseUId', encodeURIComponent(params.evseUId))
-          .replace('connectorId', encodeURIComponent(params.connectorId)),
         additionalHeaders,
       },
       params.requestBody,
+      url,
     );
   }
 
@@ -113,17 +119,17 @@ export class LocationsClientApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{locationId}/{evseUId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId))
+      .replace('evseUId', encodeURIComponent(params.evseUId));
     return await this.update<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('locationId', encodeURIComponent(params.locationId))
-          .replace('evseUId', encodeURIComponent(params.evseUId)),
         additionalHeaders,
       },
       params.requestBody,
+      url,
     );
   }
 
@@ -139,16 +145,16 @@ export class LocationsClientApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{locationId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId));
     return this.update<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('locationId', encodeURIComponent(params.locationId)),
         additionalHeaders,
       },
       params.requestBody,
+      url,
     );
   }
 
@@ -164,18 +170,18 @@ export class LocationsClientApi extends BaseClientApi {
       'connector',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId))
+      .replace('evseUId', encodeURIComponent(params.evseUId))
+      .replace('connectorId', encodeURIComponent(params.connectorId));
     return await this.replace<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUId}/{connectorId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('locationId', encodeURIComponent(params.locationId))
-          .replace('evseUId', encodeURIComponent(params.evseUId))
-          .replace('connectorId', encodeURIComponent(params.connectorId)),
         additionalHeaders,
       },
       params.connector,
+      url,
     );
   }
 
@@ -190,17 +196,17 @@ export class LocationsClientApi extends BaseClientApi {
       'evse',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{locationId}/{evseUId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId))
+      .replace('evseUId', encodeURIComponent(params.evseUId));
     return await this.replace<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('locationId', encodeURIComponent(params.locationId))
-          .replace('evseUId', encodeURIComponent(params.evseUId)),
         additionalHeaders,
       },
       params.evse,
+      url,
     );
   }
 
@@ -214,16 +220,16 @@ export class LocationsClientApi extends BaseClientApi {
       'location',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+    const url = '{countryCode}/{partyId}/{locationId}'
+      .replace('countryCode', encodeURIComponent(params.fromCountryCode))
+      .replace('partyId', encodeURIComponent(params.fromPartyId))
+      .replace('locationId', encodeURIComponent(params.locationId));
     return await this.replace<OcpiResponse<void>>(
       {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}'
-          .replace('countryCode', encodeURIComponent(params.fromCountryCode))
-          .replace('partyId', encodeURIComponent(params.fromPartyId))
-          .replace('locationId', encodeURIComponent(params.locationId)),
         additionalHeaders,
       },
       params.location,
+      url,
     );
   }
 }
