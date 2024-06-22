@@ -6,7 +6,7 @@
 
 import {ICommandsModuleApi} from './interface';
 
-import {BadRequestError, Body, Controller, Post} from 'routing-controllers';
+import {BadRequestError, Body, JsonController, Post} from 'routing-controllers';
 
 import {plainToInstance} from 'class-transformer';
 
@@ -23,14 +23,13 @@ import {
     generateMockOcpiResponse,
     ModuleId,
     MultipleTypes,
-    NotFoundException,
     ReserveNow,
     ResponseSchema,
     StartSession,
     StopSession,
     UnlockConnector,
     OcpiResponse,
-    CommandResponse
+    CommandResponse, versionIdParam
 } from '@citrineos/ocpi-base';
 
 import {Service} from 'typedi';
@@ -38,7 +37,7 @@ import {Service} from 'typedi';
 /**
  * Server API for the provisioning component.
  */
-@Controller(`/${ModuleId.Commands}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsModuleApi extends BaseController implements ICommandsModuleApi {
     constructor(readonly commandsService: CommandsService) {

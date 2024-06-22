@@ -11,6 +11,8 @@ import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 
+export { NotFoundException } from './exception/NotFoundException';
+
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
@@ -23,6 +25,7 @@ export { NotRegisteredException } from './exception/NotRegisteredException';
 export { Image } from './model/Image';
 export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
+export { CommandsClientApi } from './trigger/CommandsClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
@@ -57,6 +60,7 @@ export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
+export { ResponseUrlRepository } from './repository/response-url.repository';
 export { CommandResultType } from './model/CommandResult';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';

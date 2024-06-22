@@ -52,8 +52,8 @@ export class OcpiSequelizeInstance {
         Endpoint,
         Version,
         VersionEndpoint,
+        ResponseUrlCorrelationId
       ],
-      models: [Credentials, Version, Endpoint, ResponseUrlCorrelationId],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);
