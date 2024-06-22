@@ -17,13 +17,13 @@ import {
   RequestStartTransactionResponse,
   RequestStopTransactionResponse,
   SystemConfig,
-} from "@citrineos/base";
-import { RabbitMqReceiver, RabbitMqSender, Timer } from "@citrineos/util";
-import deasyncPromise from "deasync-promise";
-import { ILogObj, Logger } from "tslog";
-import { CommandsClientApi, ResponseUrlRepository } from "@citrineos/ocpi-base";
-import { Service } from "typedi";
-import { CommandResultType } from "@citrineos/ocpi-base/dist/model/CommandResult";
+} from '@citrineos/base';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import deasyncPromise from 'deasync-promise';
+import { ILogObj, Logger } from 'tslog';
+import { CommandsClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
+import { Service } from 'typedi';
+import { CommandResultType } from '@citrineos/ocpi-base/dist/model/CommandResult';
 
 /**
  * Component that handles provisioning related messages.
@@ -58,11 +58,11 @@ export class CommandsOcppHandlers extends AbstractModule {
     );
 
     const timer = new Timer();
-    this._logger.info("Initializing...");
+    this._logger.info('Initializing...');
 
     if (!deasyncPromise(this._initHandler(this._requests, this._responses))) {
       throw new Error(
-        "Could not initialize module due to failure in handler initialization.",
+        'Could not initialize module due to failure in handler initialization.',
       );
     }
 
@@ -74,7 +74,7 @@ export class CommandsOcppHandlers extends AbstractModule {
     message: IMessage<RequestStartTransactionResponse>,
     props?: HandlerProperties,
   ): void {
-    this._logger.debug("Handling RequestStartTransaction:", message, props);
+    this._logger.debug('Handling RequestStartTransaction:', message, props);
 
     const result = this.getResult(message.payload.status);
 
@@ -86,7 +86,7 @@ export class CommandsOcppHandlers extends AbstractModule {
     message: IMessage<RequestStopTransactionResponse>,
     props?: HandlerProperties,
   ): void {
-    this._logger.debug("Handling RequestStopTransaction:", message, props);
+    this._logger.debug('Handling RequestStopTransaction:', message, props);
 
     const result = this.getResult(message.payload.status);
 

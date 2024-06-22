@@ -1,10 +1,10 @@
-import { Enum } from "../util/decorators/enum";
-import { IsBoolean, IsDateString, IsNumber } from "class-validator";
-import { ProfileType } from "./ProfileType";
-import { Optional } from "../util/decorators/optional";
+import { Enum } from '../util/decorators/enum';
+import { IsBoolean, IsDateString, IsNumber } from 'class-validator';
+import { ProfileType } from './ProfileType';
+import { Optional } from '../util/decorators/optional';
 
 export class ChargingPreferences {
-  @Enum(ProfileType, "ProfileType")
+  @Enum(ProfileType, 'ProfileType')
   profile_type!: ProfileType;
 
   @IsDateString()

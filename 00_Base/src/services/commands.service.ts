@@ -1,21 +1,21 @@
-import { Service } from "typedi";
-import { CancelReservation } from "../model/CancelReservation";
-import { ReserveNow } from "../model/ReserveNow";
-import { StartSession } from "../model/StartSession";
-import { StopSession } from "../model/StopSession";
-import { UnlockConnector } from "../model/UnlockConnector";
-import { CommandType } from "../model/CommandType";
-import { CommandResponse, CommandResponseType } from "../model/CommandResponse";
-import { CommandExecutor } from "../util/command.executor";
-import { OcpiResponse } from "../model/ocpi.response";
-import { NotFoundException } from "../exception/NotFoundException";
+import { Service } from 'typedi';
+import { CancelReservation } from '../model/CancelReservation';
+import { ReserveNow } from '../model/ReserveNow';
+import { StartSession } from '../model/StartSession';
+import { StopSession } from '../model/StopSession';
+import { UnlockConnector } from '../model/UnlockConnector';
+import { CommandType } from '../model/CommandType';
+import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
+import { CommandExecutor } from '../util/command.executor';
+import { OcpiResponse } from '../model/ocpi.response';
+import { NotFoundException } from '../exception/NotFoundException';
 import {
   buildGenericClientErrorResponse,
   buildGenericServerErrorResponse,
   buildGenericSuccessResponse,
   buildUnknownLocationResponse,
   buildUnknownSessionResponse,
-} from "../util/response.generator";
+} from '../util/response.generator';
 
 @Service()
 export class CommandsService {
@@ -48,7 +48,7 @@ export class CommandsService {
             result: CommandResponseType.NOT_SUPPORTED,
             timeout: this.TIMEOUT,
           },
-          "Unknown command type: " + commandType,
+          'Unknown command type: ' + commandType,
           undefined,
         );
     }

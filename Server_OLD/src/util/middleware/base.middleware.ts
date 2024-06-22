@@ -1,4 +1,4 @@
-import { Context } from "vm";
+import { Context } from 'vm';
 
 /**
  * Helper Base class for middlewares

@@ -3,15 +3,20 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ICommandsModuleApi } from "./interface";
+import { ICommandsModuleApi } from './interface';
 
-import {BadRequestError, Body, JsonController, Post} from "routing-controllers";
+import {
+  BadRequestError,
+  Body,
+  JsonController,
+  Post,
+} from 'routing-controllers';
 
-import { plainToInstance } from "class-transformer";
+import { plainToInstance } from 'class-transformer';
 
-import { validate } from "class-validator";
+import { validate } from 'class-validator';
 
-import { HttpStatus } from "@citrineos/base";
+import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
@@ -28,10 +33,11 @@ import {
   StopSession,
   UnlockConnector,
   OcpiResponse,
-  CommandResponse, versionIdParam,
-} from "@citrineos/ocpi-base";
+  CommandResponse,
+  versionIdParam,
+} from '@citrineos/ocpi-base';
 
-import { Service } from "typedi";
+import { Service } from 'typedi';
 
 /**
  * Server API for the provisioning component.
@@ -46,17 +52,17 @@ export class CommandsModuleApi
     super();
   }
 
-  @Post("/:commandType")
+  @Post('/:commandType')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiResponse<CommandResponse>, {
     statusCode: HttpStatus.OK,
-    description: "Successful response",
+    description: 'Successful response',
     examples: {
       success: generateMockOcpiResponse(OcpiResponse<CommandResponse>),
     },
   })
   async postCommand(
-    @EnumParam("commandType", CommandType, "CommandType")
+    @EnumParam('commandType', CommandType, 'CommandType')
     _commandType: CommandType,
     @Body()
     @MultipleTypes(
@@ -73,7 +79,7 @@ export class CommandsModuleApi
       | StopSession
       | UnlockConnector,
   ): Promise<OcpiResponse<CommandResponse>> {
-    console.log("postCommand", _commandType, _payload);
+    console.log('postCommand', _commandType, _payload);
     switch (_commandType) {
       case CommandType.CANCEL_RESERVATION:
         _payload = plainToInstance(CancelReservation, _payload);
@@ -91,12 +97,12 @@ export class CommandsModuleApi
         _payload = plainToInstance(UnlockConnector, _payload);
         break;
       default:
-        throw new BadRequestError("Unknown command type: " + _commandType);
+        throw new BadRequestError('Unknown command type: ' + _commandType);
     }
 
     await validate(_payload).then((errors) => {
       if (errors.length > 0) {
-        throw new BadRequestError("Validation failed: " + errors);
+        throw new BadRequestError('Validation failed: ' + errors);
       }
     });
     return this.commandsService.postCommand(_commandType, _payload);

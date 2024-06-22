@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { HeaderParam, UseBefore } from "routing-controllers";
-import { ParamOptions } from "routing-controllers/types/decorator-options/ParamOptions";
-import { AuthMiddleware } from "../middleware/auth.middleware";
-import { UniqueMessageIdsMiddleware } from "../middleware/unique.message.ids.middleware";
-import { HttpHeader } from "@citrineos/base";
-import { uniqueMessageIdHeaders } from "./as.ocpi.functional.endpoint";
+import { HeaderParam, UseBefore } from 'routing-controllers';
+import { ParamOptions } from 'routing-controllers/types/decorator-options/ParamOptions';
+import { AuthMiddleware } from '../middleware/auth.middleware';
+import { UniqueMessageIdsMiddleware } from '../middleware/unique.message.ids.middleware';
+import { HttpHeader } from '@citrineos/base';
+import { uniqueMessageIdHeaders } from './as.ocpi.functional.endpoint';
 
 function applyHeaders(headers: { [key: string]: ParamOptions }) {
   return function (object: any, methodName: string) {

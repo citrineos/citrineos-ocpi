@@ -5,11 +5,11 @@ import {
   IsString,
   MaxLength,
   ValidateNested,
-} from "class-validator";
-import { EnergySources } from "./EnergySources";
-import { EnvironmentalImpact } from "./EnvironmentalImpact";
-import { Type } from "class-transformer";
-import { Optional } from "../util/decorators/optional";
+} from 'class-validator';
+import { EnergySources } from './EnergySources';
+import { EnvironmentalImpact } from './EnvironmentalImpact';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
 
 export class EnergyMix {
   @IsBoolean()

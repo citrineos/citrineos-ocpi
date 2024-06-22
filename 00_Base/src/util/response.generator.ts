@@ -1,5 +1,5 @@
-import { OcpiResponse, OcpiResponseStatusCode } from "../model/ocpi.response";
-import { NotFoundException } from "../exception/NotFoundException";
+import { OcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
+import { NotFoundException } from '../exception/NotFoundException';
 
 export function buildGenericSuccessResponse<T>(
   data?: T,
@@ -7,7 +7,7 @@ export function buildGenericSuccessResponse<T>(
 ): OcpiResponse<T> {
   const response: OcpiResponse<T> = new OcpiResponse<T>();
   response.status_code = OcpiResponseStatusCode.GenericSuccessCode;
-  response.status_message = message || "Success";
+  response.status_message = message || 'Success';
   response.data = data;
   return response;
 }

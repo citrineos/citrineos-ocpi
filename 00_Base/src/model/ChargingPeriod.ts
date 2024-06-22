@@ -6,10 +6,10 @@ import {
   IsString,
   MaxLength,
   ValidateNested,
-} from "class-validator";
-import { CdrDimention } from "./CdrDimention";
-import { Type } from "class-transformer";
-import { Optional } from "../util/decorators/optional";
+} from 'class-validator';
+import { CdrDimention } from './CdrDimention';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
 
 export class ChargingPeriod {
   @IsString()

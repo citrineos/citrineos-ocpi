@@ -1,32 +1,32 @@
-import { Body, Controller, Param, Post, Put } from "routing-controllers";
-import { BaseController, generateMockOcpiResponse } from "./base.controller";
-import { HttpStatus } from "@citrineos/base";
-import { ActiveChargingProfileResult } from "../model/ActiveChargingProfileResult";
-import { ActiveChargingProfile } from "../model/ActiveChargingProfile";
-import { OcpiEmptyResponse } from "../model/ocpi.empty.response";
-import { AsOcpiFunctionalEndpoint } from "../util/decorators/as.ocpi.functional.endpoint";
-import { ClearChargingProfileResult } from "../model/ChargingprofilesClearProfileResult";
-import { ChargingProfileResult } from "../model/ChargingProfileResult";
-import { ResponseSchema } from "../../../00_Base/src/openapi-spec-helper";
-import { Service } from "typedi";
-import { ModuleId } from "../model/ModuleId";
+import { Body, Controller, Param, Post, Put } from 'routing-controllers';
+import { BaseController, generateMockOcpiResponse } from './base.controller';
+import { HttpStatus } from '@citrineos/base';
+import { ActiveChargingProfileResult } from '../model/ActiveChargingProfileResult';
+import { ActiveChargingProfile } from '../model/ActiveChargingProfile';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
+import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
+import { ChargingProfileResult } from '../model/ChargingProfileResult';
+import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import { Service } from 'typedi';
+import { ModuleId } from '../model/ModuleId';
 
 const MOCK = generateMockOcpiResponse(OcpiEmptyResponse);
 
 @Controller(`/${ModuleId.Chargingprofiles}`)
 @Service()
 export class ChargingProfilesController extends BaseController {
-  @Post("/:id")
+  @Post('/:id')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
-    description: "Successful response",
+    description: 'Successful response',
     examples: {
       success: MOCK,
     },
   })
   async postGenericChargingProfileResult(
-    @Param("id") _id: string,
+    @Param('id') _id: string,
     @Body()
     _activeChargingProfileResult:
       | ActiveChargingProfileResult
@@ -36,17 +36,17 @@ export class ChargingProfilesController extends BaseController {
     return MOCK;
   }
 
-  @Put("/:sessionId")
+  @Put('/:sessionId')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
-    description: "Successful response",
+    description: 'Successful response',
     examples: {
       success: MOCK,
     },
   })
   async putSenderChargingProfile(
-    @Param("sessionId") _sessionId: string,
+    @Param('sessionId') _sessionId: string,
     @Body() _activeChargingProfile: ActiveChargingProfile,
   ): Promise<OcpiEmptyResponse> {
     return MOCK;

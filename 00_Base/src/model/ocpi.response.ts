@@ -1,6 +1,6 @@
-import { IsDate, IsNotEmpty, IsString } from "class-validator";
-import { Optional } from "../util/decorators/optional";
-import { Enum } from "../util/decorators/enum";
+import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { Optional } from '../util/decorators/optional';
+import { Enum } from '../util/decorators/enum';
 
 export enum OcpiResponseStatusCode {
   GenericSuccessCode = 1000,
@@ -20,7 +20,7 @@ export enum OcpiResponseStatusCode {
 }
 
 export class OcpiResponse<T> {
-  @Enum(OcpiResponseStatusCode, "OcpiResponseStatusCode")
+  @Enum(OcpiResponseStatusCode, 'OcpiResponseStatusCode')
   @IsNotEmpty()
   status_code!: OcpiResponseStatusCode;
   /**

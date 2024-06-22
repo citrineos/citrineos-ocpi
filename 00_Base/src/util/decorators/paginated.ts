@@ -1,5 +1,5 @@
-import { QueryParams, UseBefore } from "routing-controllers";
-import { PaginatedMiddleware } from "../middleware/paginated.middleware";
+import { QueryParams, UseBefore } from 'routing-controllers';
+import { PaginatedMiddleware } from '../middleware/paginated.middleware';
 
 /**
  * Paginated decorator applies {@link PaginatedMiddleware} on the endpoint

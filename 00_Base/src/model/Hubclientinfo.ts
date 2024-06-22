@@ -4,8 +4,8 @@ import {
   IsString,
   MaxLength,
   MinLength,
-} from "class-validator";
-import { Type } from "class-transformer";
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class Hubclientinfo {
   @MaxLength(3)

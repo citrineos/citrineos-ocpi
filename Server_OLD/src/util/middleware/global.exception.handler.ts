@@ -2,18 +2,18 @@ import {
   KoaMiddlewareInterface,
   Middleware,
   UnauthorizedError,
-} from "routing-controllers";
-import { Context } from "vm";
-import { HttpStatus } from "@citrineos/base";
-import { buildOcpiErrorResponse } from "../../model/ocpi.error.response";
-import { Service } from "typedi";
-import { NotFoundException } from "../../exception/not.found.exception";
-import { OcpiResponseStatusCode } from "../../model/ocpi.response";
+} from 'routing-controllers';
+import { Context } from 'vm';
+import { HttpStatus } from '@citrineos/base';
+import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
+import { Service } from 'typedi';
+import { NotFoundException } from '../../exception/not.found.exception';
+import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 
 /**
  * GlobalExceptionHandler handles all exceptions
  */
-@Middleware({ type: "before", priority: 10 })
+@Middleware({ type: 'before', priority: 10 })
 @Service()
 export class GlobalExceptionHandler implements KoaMiddlewareInterface {
   public async use(
@@ -24,7 +24,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
       await next();
     } catch (err) {
       // todo implement other errors
-      console.error("GlobalExceptionHandler error", err);
+      console.error('GlobalExceptionHandler error', err);
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:
@@ -32,7 +32,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientNotEnoughInformation,
-                "Not Authorized",
+                'Not Authorized',
               ),
             );
             break;
@@ -41,11 +41,11 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
-                "Credentials not found",
+                'Credentials not found',
               ),
             );
             break;
-          case "ParamRequiredError":
+          case 'ParamRequiredError':
             context.status = HttpStatus.BAD_REQUEST;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(

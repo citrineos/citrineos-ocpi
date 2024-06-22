@@ -1,15 +1,15 @@
-import { KoaMiddlewareInterface, Middleware } from "routing-controllers";
-import { HttpHeader, HttpStatus } from "@citrineos/base";
-import { Context } from "vm";
-import { buildOcpiErrorResponse } from "../../model/ocpi.error.response";
-import { Service } from "typedi";
-import { CredentialsRepository } from "../../../../00_Base/src/repository/credentials.repository";
-import { extractToken } from "../decorators/auth.token";
-import { OcpiHttpHeader } from "../ocpi.http.header";
-import { BaseMiddleware } from "./base.middleware";
-import { OcpiResponseStatusCode } from "../../model/ocpi.response";
+import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
+import { HttpHeader, HttpStatus } from '@citrineos/base';
+import { Context } from 'vm';
+import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
+import { Service } from 'typedi';
+import { CredentialsRepository } from '../../../../00_Base/src/repository/credentials.repository';
+import { extractToken } from '../decorators/auth.token';
+import { OcpiHttpHeader } from '../ocpi.http.header';
+import { BaseMiddleware } from './base.middleware';
+import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 
-const permittedRoutes: string[] = ["/docs", "/docs/spec", "/favicon.png"];
+const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
 /**
  * AuthMiddleware is applied via the {@link AsOcpiEndpoint} and {@link AsOcpiOpenRoutingEndpoint} decorators. Endpoints
@@ -18,7 +18,7 @@ const permittedRoutes: string[] = ["/docs", "/docs/spec", "/favicon.png"];
  * If authentication fails, {@link OcpiErrorResponse} will be thrown with HttpStatus.UNAUTHORIZED which should be handled
  * by global exception handler.
  */
-@Middleware({ type: "before" })
+@Middleware({ type: 'before' })
 @Service()
 export class AuthMiddleware
   extends BaseMiddleware

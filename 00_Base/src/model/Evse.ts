@@ -7,18 +7,18 @@ import {
   IsString,
   MaxLength,
   ValidateNested,
-} from "class-validator";
-import { EvseStatusSchedule } from "./EvseStatusSchedule";
-import { Capability } from "./Capability";
-import { ParkingRestriction } from "./ParkingRestriction";
-import { EvseStatus } from "./EvseStatus";
-import { Connector } from "./Connector";
-import { GeoLocation } from "./GeoLocation";
-import { Displaytext } from "./Displaytext";
-import { Type } from "class-transformer";
-import { Optional } from "../util/decorators/optional";
-import { Enum } from "../util/decorators/enum";
-import { OcpiResponse } from "./ocpi.response";
+} from 'class-validator';
+import { EvseStatusSchedule } from './EvseStatusSchedule';
+import { Capability } from './Capability';
+import { ParkingRestriction } from './ParkingRestriction';
+import { EvseStatus } from './EvseStatus';
+import { Connector } from './Connector';
+import { GeoLocation } from './GeoLocation';
+import { Displaytext } from './Displaytext';
+import { Type } from 'class-transformer';
+import { Optional } from '../util/decorators/optional';
+import { Enum } from '../util/decorators/enum';
+import { OcpiResponse } from './ocpi.response';
 
 export class Evse {
   @MaxLength(36)
@@ -31,7 +31,7 @@ export class Evse {
   @Optional()
   evse_id?: string | null;
 
-  @Enum(EvseStatus, "EvseStatus")
+  @Enum(EvseStatus, 'EvseStatus')
   @IsNotEmpty()
   status!: EvseStatus;
 

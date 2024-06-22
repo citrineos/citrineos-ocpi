@@ -1,57 +1,60 @@
-import {Container} from 'typedi';
-import {useContainer} from 'routing-controllers';
-import {SequelizeTransactionEventRepository} from "@citrineos/data";
+import { Container } from 'typedi';
+import { useContainer } from 'routing-controllers';
+import { SequelizeTransactionEventRepository } from '@citrineos/data';
 
 useContainer(Container);
 
 import { CommandsOcppHandlers } from './handlers';
-import { Service } from "typedi";
+import { Service } from 'typedi';
 
-import { CommandsModuleApi } from "./api";
+import { CommandsModuleApi } from './api';
 import {
-    CacheWrapper,
-    CommandsClientApi,
-    OcpiModule,
-    OcpiServerConfig,
-    ResponseUrlRepository
+  CacheWrapper,
+  CommandsClientApi,
+  OcpiModule,
+  OcpiServerConfig,
+  ResponseUrlRepository,
 } from '@citrineos/ocpi-base';
 import {
-    AbstractModule,
-    IMessageHandler,
-    IMessageSender,
-    SystemConfig
-} from "@citrineos/base";
-import {ILogObj, Logger} from "tslog";
+  AbstractModule,
+  IMessageHandler,
+  IMessageSender,
+  SystemConfig,
+} from '@citrineos/base';
+import { ILogObj, Logger } from 'tslog';
 
 @Service()
 export class CommandsModule implements OcpiModule {
-    constructor(
-        readonly config: OcpiServerConfig,
-        readonly cacheWrapper: CacheWrapper,
-        readonly logger?: Logger<ILogObj>,
-    ) {}
+  constructor(
+    readonly config: OcpiServerConfig,
+    readonly cacheWrapper: CacheWrapper,
+    readonly logger?: Logger<ILogObj>,
+  ) {}
 
-    init(handler?: IMessageHandler, sender?: IMessageSender): void {
-        Container.set(
-            AbstractModule,
-            new CommandsOcppHandlers(
-                this.config as SystemConfig,
-                this.cacheWrapper.cache,
-                Container.get(ResponseUrlRepository),
-                Container.get(CommandsClientApi),
-                sender,
-                handler,
-                this.logger
-            )
-        );
+  init(handler?: IMessageHandler, sender?: IMessageSender): void {
+    Container.set(
+      AbstractModule,
+      new CommandsOcppHandlers(
+        this.config as SystemConfig,
+        this.cacheWrapper.cache,
+        Container.get(ResponseUrlRepository),
+        Container.get(CommandsClientApi),
+        sender,
+        handler,
+        this.logger,
+      ),
+    );
 
-        Container.set(
-            SequelizeTransactionEventRepository,
-            new SequelizeTransactionEventRepository(this.config as SystemConfig, this.logger)
-        );
-    }
+    Container.set(
+      SequelizeTransactionEventRepository,
+      new SequelizeTransactionEventRepository(
+        this.config as SystemConfig,
+        this.logger,
+      ),
+    );
+  }
 
-    getController(): any {
-        return CommandsModuleApi
-    }
+  getController(): any {
+    return CommandsModuleApi;
+  }
 }

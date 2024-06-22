@@ -4,9 +4,9 @@ import {
   IsObject,
   IsString,
   ValidateNested,
-} from "class-validator";
-import { ActiveChargingProfile } from "./ActiveChargingProfile";
-import { Type } from "class-transformer";
+} from 'class-validator';
+import { ActiveChargingProfile } from './ActiveChargingProfile';
+import { Type } from 'class-transformer';
 
 export class ChargingprofilesActive {
   @IsString()

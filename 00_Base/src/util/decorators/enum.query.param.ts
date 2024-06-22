@@ -1,6 +1,6 @@
-import { QueryParam } from "routing-controllers";
+import { QueryParam } from 'routing-controllers';
 
-export const ENUM_QUERY_PARAM = "EnumQueryParam";
+export const ENUM_QUERY_PARAM = 'EnumQueryParam';
 
 /**
  * Extends @QueryParam decorator to add custom metadata so that it is easily available to convert Swagger UI schema route
