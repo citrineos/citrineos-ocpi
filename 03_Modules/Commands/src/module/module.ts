@@ -1,46 +1,57 @@
-import {CommandsClientApi, IOcpiModule, ResponseUrlRepository} from "@citrineos/ocpi-base";
+import {Container} from 'typedi';
+import {useContainer} from 'routing-controllers';
+import {SequelizeTransactionEventRepository} from "@citrineos/data";
+
+useContainer(Container);
+
+import { CommandsOcppHandlers } from './handlers';
+import { Service } from "typedi";
+
+import { CommandsModuleApi } from "./api";
+import {
+    CacheWrapper,
+    CommandsClientApi,
+    OcpiModule,
+    OcpiServerConfig,
+    ResponseUrlRepository
+} from '@citrineos/ocpi-base';
 import {
     AbstractModule,
-    EventGroup,
-    ICache,
     IMessageHandler,
     IMessageSender,
     SystemConfig
 } from "@citrineos/base";
 import {ILogObj, Logger} from "tslog";
-import {Container} from "typedi";
-import {CommandsOcppHandlers} from "./handlers";
-import {SequelizeTransactionEventRepository} from "@citrineos/data";
 
-export class CommandsModule implements IOcpiModule {
+@Service()
+export class CommandsModule implements OcpiModule {
     constructor(
-        config: SystemConfig,
-        cache: ICache,
-        handler: IMessageHandler,
-        sender: IMessageSender,
-        eventGroup: EventGroup,
-        logger?: Logger<ILogObj>,
-    ) {
+        readonly config: OcpiServerConfig,
+        readonly cacheWrapper: CacheWrapper,
+        readonly logger?: Logger<ILogObj>,
+    ) {}
+
+    init(handler?: IMessageHandler, sender?: IMessageSender): void {
         Container.set(
             AbstractModule,
             new CommandsOcppHandlers(
-                config,
-                cache,
+                this.config as SystemConfig,
+                this.cacheWrapper.cache,
                 Container.get(ResponseUrlRepository),
                 Container.get(CommandsClientApi),
                 sender,
                 handler,
-                logger,
-            ),
+                this.logger
+            )
         );
 
         Container.set(
             SequelizeTransactionEventRepository,
-            new SequelizeTransactionEventRepository(config, logger),
+            new SequelizeTransactionEventRepository(this.config as SystemConfig, this.logger)
         );
     }
 
     getController(): any {
-        return CommandsModuleApi;
+        return CommandsModuleApi
     }
 }

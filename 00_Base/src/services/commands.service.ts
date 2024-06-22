@@ -8,7 +8,7 @@ import { CommandType } from "../model/CommandType";
 import { CommandResponse, CommandResponseType } from "../model/CommandResponse";
 import { CommandExecutor } from "../util/command.executor";
 import { OcpiResponse } from "../model/ocpi.response";
-import { NotFoundException } from "../exception/not.found.exception";
+import { NotFoundException } from "../exception/NotFoundException";
 import {
   buildGenericClientErrorResponse,
   buildGenericServerErrorResponse,

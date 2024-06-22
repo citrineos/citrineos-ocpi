@@ -7,13 +7,13 @@ import {
     RequestStopTransactionRequest, ReserveNowRequest
 } from "@citrineos/base";
 import {Service} from "typedi";
-import {ResponseUrlRepository} from "../repository/response-url.repository";
+import {ResponseUrlRepository} from "../repository/response.url.repository";
 import {v4 as uuidv4} from 'uuid';
 import {StopSession} from "../model/StopSession";
 import {NotFoundException} from "../exception/NotFoundException";
 import {ReserveNow} from "../model/ReserveNow";
 import {CancelReservation} from "../model/CancelReservation";
-import {OcpiEvseEntityRepository} from "../repository/ocpi-evse.repository";
+import {OcpiEvseEntityRepository} from "../repository/ocpi.evse.repository";
 import {SequelizeTransactionEventRepository} from "@citrineos/data";
 
 @Service()
