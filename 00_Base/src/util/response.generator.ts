@@ -1,5 +1,4 @@
 import { OcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
-import { NotFoundException } from '../exception/NotFoundException';
 
 export function buildGenericSuccessResponse<T>(
   data?: T,

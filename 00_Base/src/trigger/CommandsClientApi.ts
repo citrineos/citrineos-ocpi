@@ -1,6 +1,5 @@
 import { BaseClientApi } from './BaseClientApi';
 import { OcpiResponse } from '../model/ocpi.response';
-import { IHeaders } from 'typed-rest-client/Interfaces';
 import { CommandResult } from '../model/CommandResult';
 import { Service } from 'typedi';
 

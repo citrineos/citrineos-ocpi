@@ -29,21 +29,19 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
 
   public getResponseUrl = async (
     correlationId: string,
-  ): Promise<ResponseUrlCorrelationId | null> => {
-    return await ResponseUrlCorrelationId.findOne({
+  ): Promise<ResponseUrlCorrelationId | null> =>
+    await ResponseUrlCorrelationId.findOne({
       where: {
         correlationId: correlationId,
       },
     });
-  };
 
   public saveResponseUrl = async (
     correlationId: string,
     responseUrl: string,
-  ): Promise<ResponseUrlCorrelationId> => {
-    return await ResponseUrlCorrelationId.create({
+  ): Promise<ResponseUrlCorrelationId> =>
+    await ResponseUrlCorrelationId.create({
       correlationId: correlationId,
       responseUrl: responseUrl,
     });
-  };
 }
