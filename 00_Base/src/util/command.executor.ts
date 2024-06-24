@@ -92,41 +92,6 @@ export class CommandExecutor {
     );
   }
 
-  public async executeReserveNow(reserveNow: ReserveNow) {
-    // TODO: update to handle optional evse uid.
-    const evse = await this.ocpiEvseEntityRepo.findByUid(reserveNow.evse_uid!);
-
-    if (!evse) {
-      throw new NotFoundException('EVSE not found');
-    }
-
-    const correlationId = uuidv4();
-    await this.responseUrlRepo.saveResponseUrl(
-      correlationId,
-      reserveNow.response_url,
-    );
-
-    const request = {
-      id: Number(reserveNow.reservation_id),
-      expiryDateTime: reserveNow.expiry_date.toDateString(),
-      idToken: {
-        idToken: reserveNow.token.contract_id,
-        type: IdTokenEnumType.eMAID,
-      },
-      evseId: reserveNow.evse_uid,
-    } as ReserveNowRequest;
-
-    this.abstractModule.sendCall(
-      evse.chargingStationId,
-      'tenantId',
-      CallAction.ReserveNow,
-      request,
-      undefined,
-      correlationId,
-      MessageOrigin.CentralSystem,
-    );
-  }
-
   public async executeGetActiveChargingProfile(
       sessionId: string,
       duration: number,
