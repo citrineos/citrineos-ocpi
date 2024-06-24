@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { CommandExecutor } from '../util/CommandExecutor';
+import { CommandExecutor } from '../util/command.executor';
 import { OcpiResponse } from '../model/ocpi.response';
 import {
   ChargingProfileResponse,
