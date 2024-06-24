@@ -1,6 +1,6 @@
 import { BaseClientApi } from './BaseClientApi';
 import { OcpiResponse } from '../model/ocpi.response';
-import {Service} from "typedi";
+import { Service } from 'typedi';
 
 @Service()
 export class AsyncReceiverApi extends BaseClientApi {
