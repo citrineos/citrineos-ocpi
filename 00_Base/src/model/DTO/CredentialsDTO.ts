@@ -7,7 +7,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { Index } from 'sequelize-typescript';
+import { Index } from '@citrineos/data';
 import { Type } from 'class-transformer';
 import { CredentialsRoleDTO } from './CredentialsRoleDTO';
 
