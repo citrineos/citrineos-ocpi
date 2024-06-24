@@ -3,7 +3,7 @@ import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { AsyncReceiverApi } from '../trigger/AsyncReceiverApi';
 import { ActiveChargingProfileResult } from '../model/ActiveChargingProfileResult';
 import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
-import { ChargingProfileResult } from "../model/ChargingProfileResult";
+import { ChargingProfileResult } from '../model/ChargingProfileResult';
 
 @Service()
 export class AsyncResponder {
@@ -14,7 +14,10 @@ export class AsyncResponder {
 
   async send(
     correlationId: string,
-    data: ActiveChargingProfileResult | ClearChargingProfileResult | ChargingProfileResult ,
+    data:
+      | ActiveChargingProfileResult
+      | ClearChargingProfileResult
+      | ChargingProfileResult,
   ) {
     const responseUrlEntity =
       await this.responseUrlRepo.getResponseUrl(correlationId);

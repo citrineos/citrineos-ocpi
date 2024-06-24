@@ -73,7 +73,6 @@ export class ChargingProfilesModuleApi
     return this.service.deleteChargingProfile(sessionId, responseUrl);
   }
 
-
   @Put('/:sessionId')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(OcpiResponse<ChargingProfileResponse>, {
@@ -84,8 +83,8 @@ export class ChargingProfilesModuleApi
     },
   })
   async updateChargingProfile(
-      @Param('sessionId') sessionId: string,
-      @Body() payload: SetChargingProfile,
+    @Param('sessionId') sessionId: string,
+    @Body() payload: SetChargingProfile,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
     return this.service.putChargingProfile(sessionId, payload);
   }

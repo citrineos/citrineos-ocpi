@@ -24,11 +24,11 @@ import { ReserveNow } from '../model/ReserveNow';
 import { OcpiEvseEntityRepository } from '../repository/ocpi.evse.repository';
 import {
   SequelizeChargingProfileRepository,
-  SequelizeTransactionEventRepository
+  SequelizeTransactionEventRepository,
 } from '@citrineos/data';
-import { SetChargingProfile } from "../model/SetChargingProfile";
-import { BadRequestError } from "routing-controllers";
-import { ChargingProfile } from "../model/ChargingProfile";
+import { SetChargingProfile } from '../model/SetChargingProfile';
+import { BadRequestError } from 'routing-controllers';
+import { ChargingProfile } from '../model/ChargingProfile';
 
 @Service()
 export class CommandExecutor {
@@ -184,40 +184,66 @@ export class CommandExecutor {
     );
   }
 
-  public async executePutChargingProfile(sessionId: string, setChargingProfile: SetChargingProfile) {
+  public async executePutChargingProfile(
+    sessionId: string,
+    setChargingProfile: SetChargingProfile,
+  ) {
     // TODO: find a way to get station id and remove the mock data below
-    const stationId = "cp001";
-    const transaction = await this.transactionRepo.readTransactionByStationIdAndTransactionId(stationId, sessionId);
+    const stationId = 'cp001';
+    const transaction =
+      await this.transactionRepo.readTransactionByStationIdAndTransactionId(
+        stationId,
+        sessionId,
+      );
 
     if (!transaction) {
-      throw new NotFoundException("Session not found");
+      throw new NotFoundException('Session not found');
     }
     console.log(`Found transaction: ${JSON.stringify(transaction)}`);
 
-    if (!transaction.evse)  {
-      throw new NotFoundException("Evse not found");
+    if (!transaction.evse) {
+      throw new NotFoundException('Evse not found');
     }
     const evseId = transaction.evse.id;
 
     const correlationId = uuidv4();
-    await this.responseUrlRepo.saveResponseUrl(correlationId, setChargingProfile.response_url);
+    await this.responseUrlRepo.saveResponseUrl(
+      correlationId,
+      setChargingProfile.response_url,
+    );
 
-    const setChargingProfileRequest = await this.mapSetChargingProfileRequest(setChargingProfile.charging_profile, evseId, sessionId, stationId);
-    await this.chargingProfileRepo.createOrUpdateChargingProfile(setChargingProfileRequest.chargingProfile, stationId, evseId);
+    const setChargingProfileRequest = await this.mapSetChargingProfileRequest(
+      setChargingProfile.charging_profile,
+      evseId,
+      sessionId,
+      stationId,
+    );
+    await this.chargingProfileRepo.createOrUpdateChargingProfile(
+      setChargingProfileRequest.chargingProfile,
+      stationId,
+      evseId,
+    );
 
     this.abstractModule.sendCall(
-        stationId,
-        "tenantId",
-        CallAction.SetChargingProfile,
-        setChargingProfileRequest,
-        undefined,
-        correlationId,
-        MessageOrigin.CentralSystem
+      stationId,
+      'tenantId',
+      CallAction.SetChargingProfile,
+      setChargingProfileRequest,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
     );
   }
 
-  private async mapSetChargingProfileRequest(chargingProfile: ChargingProfile, evseId: number, sessionId: string, stationId: string): Promise<SetChargingProfileRequest> {
-    const startDateTime = chargingProfile.start_date_time ? new Date(chargingProfile.start_date_time) : undefined;
+  private async mapSetChargingProfileRequest(
+    chargingProfile: ChargingProfile,
+    evseId: number,
+    sessionId: string,
+    stationId: string,
+  ): Promise<SetChargingProfileRequest> {
+    const startDateTime = chargingProfile.start_date_time
+      ? new Date(chargingProfile.start_date_time)
+      : undefined;
     const duration = chargingProfile.duration;
     let endDateTime;
     if (startDateTime && duration) {
@@ -227,38 +253,49 @@ export class CommandExecutor {
 
     // Charging profile periods are required in OCPP SetChargingProfileRequest
     if (!chargingProfile.charging_profile_period) {
-      throw new BadRequestError("Validation failed: Missing charging_profile_period");
+      throw new BadRequestError(
+        'Validation failed: Missing charging_profile_period',
+      );
     }
 
-    const scheduleId = await this.chargingProfileRepo.getNextChargingScheduleId(stationId);
+    const scheduleId =
+      await this.chargingProfileRepo.getNextChargingScheduleId(stationId);
     const chargingSchedule = {
       id: scheduleId,
       startSchedule: startDateTime?.toISOString(),
       duration: duration,
       chargingRateUnit: chargingProfile.charging_rate_unit.toUpperCase(),
       minChargingRate: chargingProfile.min_charging_rate,
-      chargingSchedulePeriod: chargingProfile.charging_profile_period.map((period) => ({
-        startPeriod: period.start_period,
-        limit: period.limit
-      }))
+      chargingSchedulePeriod: chargingProfile.charging_profile_period.map(
+        (period) => ({
+          startPeriod: period.start_period,
+          limit: period.limit,
+        }),
+      ),
     } as ChargingScheduleType;
 
-    const profileId = await this.chargingProfileRepo.readNextId('id', {where: {stationId: stationId}});
+    const profileId = await this.chargingProfileRepo.readNextId('id', {
+      where: { stationId: stationId },
+    });
     const setChargingProfileRequest = {
       evseId,
       chargingProfile: {
         id: profileId,
         stackLevel: 0,
         chargingProfilePurpose: ChargingProfilePurposeEnumType.TxProfile,
-        chargingProfileKind: startDateTime ? ChargingProfileKindEnumType.Absolute : ChargingProfileKindEnumType.Relative,
+        chargingProfileKind: startDateTime
+          ? ChargingProfileKindEnumType.Absolute
+          : ChargingProfileKindEnumType.Relative,
         validFrom: startDateTime?.toISOString(),
-        validTo:endDateTime?.toISOString(),
+        validTo: endDateTime?.toISOString(),
         chargingSchedule: [chargingSchedule],
-        transactionId: sessionId
+        transactionId: sessionId,
       } as ChargingProfileType,
     } as SetChargingProfileRequest;
 
-    console.log(`Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`);
+    console.log(
+      `Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`,
+    );
     return setChargingProfileRequest;
   }
 }

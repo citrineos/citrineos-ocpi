@@ -33,7 +33,7 @@ import {
 import { Service } from 'typedi';
 import { ClearChargingProfileResult } from '@citrineos/ocpi-base';
 import { ActiveChargingProfile } from '../../../../00_Base/src/model/ActiveChargingProfile';
-import { ChargingProfileResult } from "../../../../00_Base/src";
+import { ChargingProfileResult } from '../../../../00_Base/src';
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
@@ -44,7 +44,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   protected _responses: CallAction[] = [
     CallAction.GetCompositeSchedule,
     CallAction.ClearChargingProfile,
-    CallAction.SetChargingProfile
+    CallAction.SetChargingProfile,
   ];
 
   constructor(
@@ -113,8 +113,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.SetChargingProfile)
   protected async _handleSetChargingProfileResponse(
-      message: IMessage<SetChargingProfileResponse>,
-      props?: HandlerProperties,
+    message: IMessage<SetChargingProfileResponse>,
+    props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
@@ -128,7 +128,10 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   }
 
   private getResult(
-    status: GenericStatusEnumType | ClearChargingProfileStatusEnumType | ChargingProfileStatusEnumType,
+    status:
+      | GenericStatusEnumType
+      | ClearChargingProfileStatusEnumType
+      | ChargingProfileStatusEnumType,
   ): ChargingProfileResultType {
     switch (status) {
       case GenericStatusEnumType.Accepted:

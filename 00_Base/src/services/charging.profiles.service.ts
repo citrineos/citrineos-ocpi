@@ -11,7 +11,7 @@ import {
   buildUnknownSessionResponse,
 } from '../util/ResponseGenerator';
 import { NotFoundException } from '../exception/NotFoundException';
-import { SetChargingProfile } from "../model/SetChargingProfile";
+import { SetChargingProfile } from '../model/SetChargingProfile';
 
 @Service()
 export class ChargingProfilesService {
@@ -87,21 +87,33 @@ export class ChargingProfilesService {
     }
   }
 
-  async putChargingProfile(sessionId: string, setChargingProfile: SetChargingProfile): Promise<OcpiResponse<ChargingProfileResponse>> {
+  async putChargingProfile(
+    sessionId: string,
+    setChargingProfile: SetChargingProfile,
+  ): Promise<OcpiResponse<ChargingProfileResponse>> {
     try {
-      await this.commandExecutor.executePutChargingProfile(sessionId, setChargingProfile);
+      await this.commandExecutor.executePutChargingProfile(
+        sessionId,
+        setChargingProfile,
+      );
       return buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
-        timeout: this.TIMEOUT
+        timeout: this.TIMEOUT,
       });
     } catch (e) {
       if (e instanceof NotFoundException) {
-        return buildUnknownSessionResponse({
-          result: ChargingProfileResultType.UNKNOWN_SESSION,
-          timeout: this.TIMEOUT
-        }, e as NotFoundException);
+        return buildUnknownSessionResponse(
+          {
+            result: ChargingProfileResultType.UNKNOWN_SESSION,
+            timeout: this.TIMEOUT,
+          },
+          e as NotFoundException,
+        );
       } else {
-        return buildGenericServerErrorResponse({} as ChargingProfileResponse, e as Error);
+        return buildGenericServerErrorResponse(
+          {} as ChargingProfileResponse,
+          e as Error,
+        );
       }
     }
   }
