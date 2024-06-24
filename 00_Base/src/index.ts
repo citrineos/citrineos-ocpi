@@ -28,7 +28,6 @@ export { VersionsClientApi } from './trigger/VersionsClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
-export { ResponseUrlRepository } from './repository/response-url.repository';
 
 export { ClientInformation } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
