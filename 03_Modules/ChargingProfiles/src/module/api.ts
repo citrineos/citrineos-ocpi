@@ -65,13 +65,10 @@ export class ChargingProfilesModuleApi
     },
   })
   async deleteChargingProfile(
-      @Param('sessionId') sessionId: string,
-      @QueryParam('duration', { required: true }) duration: number,
-      @QueryParam('response_url', { required: true }) responseUrl: string,
+    @Param('sessionId') sessionId: string,
+    @QueryParam('duration', { required: true }) duration: number,
+    @QueryParam('response_url', { required: true }) responseUrl: string,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
-    return this.service.deleteChargingProfile(
-        sessionId,
-        responseUrl,
-    );
+    return this.service.deleteChargingProfile(sessionId, responseUrl);
   }
 }
