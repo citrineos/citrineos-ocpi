@@ -7,6 +7,7 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
+  ChargingProfileStatusEnumType,
   ClearChargingProfileResponse,
   ClearChargingProfileStatusEnumType,
   CompositeScheduleType,
@@ -19,6 +20,7 @@ import {
   IMessageHandler,
   IMessageSender,
   SystemConfig,
+  SetChargingProfileResponse,
 } from '@citrineos/base';
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
@@ -31,6 +33,7 @@ import {
 import { Service } from 'typedi';
 import { ClearChargingProfileResult } from '@citrineos/ocpi-base';
 import { ActiveChargingProfile } from '../../../../00_Base/src/model/ActiveChargingProfile';
+import { ChargingProfileResult } from "../../../../00_Base/src";
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
@@ -41,6 +44,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   protected _responses: CallAction[] = [
     CallAction.GetCompositeSchedule,
     CallAction.ClearChargingProfile,
+    CallAction.SetChargingProfile
   ];
 
   constructor(
@@ -107,14 +111,32 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
   }
 
+  @AsHandler(CallAction.SetChargingProfile)
+  protected async _handleSetChargingProfileResponse(
+      message: IMessage<SetChargingProfileResponse>,
+      props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling:', message, props);
+
+    try {
+      await this.asyncResponder.send(message.context.correlationId, {
+        result: this.getResult(message.payload.status),
+      } as ChargingProfileResult);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   private getResult(
-    status: GenericStatusEnumType | ClearChargingProfileStatusEnumType,
+    status: GenericStatusEnumType | ClearChargingProfileStatusEnumType | ChargingProfileStatusEnumType,
   ): ChargingProfileResultType {
     switch (status) {
       case GenericStatusEnumType.Accepted:
       case ClearChargingProfileStatusEnumType.Accepted:
+      case ChargingProfileStatusEnumType.Accepted:
         return ChargingProfileResultType.ACCEPTED;
       case GenericStatusEnumType.Rejected:
+      case ChargingProfileStatusEnumType.Rejected:
         return ChargingProfileResultType.REJECTED;
       case ClearChargingProfileStatusEnumType.Unknown:
         return ChargingProfileResultType.UNKNOWN;

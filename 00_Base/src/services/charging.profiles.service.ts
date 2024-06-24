@@ -11,6 +11,7 @@ import {
   buildUnknownSessionResponse,
 } from '../util/ResponseGenerator';
 import { NotFoundException } from '../exception/NotFoundException';
+import { SetChargingProfile } from "../model/SetChargingProfile";
 
 @Service()
 export class ChargingProfilesService {
@@ -83,6 +84,25 @@ export class ChargingProfilesService {
         },
         e as Error,
       );
+    }
+  }
+
+  async putChargingProfile(sessionId: string, setChargingProfile: SetChargingProfile): Promise<OcpiResponse<ChargingProfileResponse>> {
+    try {
+      await this.commandExecutor.executePutChargingProfile(sessionId, setChargingProfile);
+      return buildGenericSuccessResponse({
+        result: ChargingProfileResultType.ACCEPTED,
+        timeout: this.TIMEOUT
+      });
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        return buildUnknownSessionResponse({
+          result: ChargingProfileResultType.UNKNOWN_SESSION,
+          timeout: this.TIMEOUT
+        }, e as NotFoundException);
+      } else {
+        return buildGenericServerErrorResponse({} as ChargingProfileResponse, e as Error);
+      }
     }
   }
 }
