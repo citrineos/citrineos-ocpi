@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { ResponseUrlRepository } from '../repository/response-url.repository';
+import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { AsyncReceiverApi } from '../trigger/AsyncReceiverApi';
 import { ActiveChargingProfileResult } from '../model/ActiveChargingProfileResult';
 import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
