@@ -20,12 +20,16 @@ import {
   IMessageSender,
   SystemConfig,
 } from '@citrineos/base';
-import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import {ILogObj, Logger} from 'tslog';
-import {ActiveChargingProfileResult, AsyncResponder, ChargingProfileResultType} from '@citrineos/ocpi-base';
-import {Service} from 'typedi';
-import {ClearChargingProfileResult} from "@citrineos/ocpi-base";
+import { ILogObj, Logger } from 'tslog';
+import {
+  ActiveChargingProfileResult,
+  AsyncResponder,
+  ChargingProfileResultType,
+} from '@citrineos/ocpi-base';
+import { Service } from 'typedi';
+import { ClearChargingProfileResult } from '@citrineos/ocpi-base';
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
@@ -34,8 +38,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
    */
   protected _requests: CallAction[] = [];
   protected _responses: CallAction[] = [
-      CallAction.GetCompositeSchedule,
-      CallAction.ClearChargingProfile
+    CallAction.GetCompositeSchedule,
+    CallAction.ClearChargingProfile,
   ];
 
   constructor(
@@ -69,15 +73,17 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.GetCompositeSchedule)
   protected async _handleGetCompositeScheduleResponse(
-      message: IMessage<GetCompositeScheduleResponse>,
-      props?: HandlerProperties,
+    message: IMessage<GetCompositeScheduleResponse>,
+    props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
     try {
       await this.asyncResponder.send(message.context.correlationId, {
         result: this.getResult(message.payload.status),
-        profile: message.payload.schedule ? this.mapOcppScheduleToOcpi(message.payload.schedule) : undefined
+        profile: message.payload.schedule
+          ? this.mapOcppScheduleToOcpi(message.payload.schedule)
+          : undefined,
       } as ActiveChargingProfileResult);
     } catch (e) {
       console.error(e);
@@ -86,14 +92,14 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.ClearChargingProfile)
   protected async _handleClearChargingProfileResponse(
-      message: IMessage<ClearChargingProfileResponse>,
-      props?: HandlerProperties,
+    message: IMessage<ClearChargingProfileResponse>,
+    props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
     try {
       await this.asyncResponder.send(message.context.correlationId, {
-        result: this.getResult(message.payload.status)
+        result: this.getResult(message.payload.status),
       } as ClearChargingProfileResult);
     } catch (e) {
       console.error(e);
@@ -112,13 +118,13 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       case ClearChargingProfileStatusEnumType.Unknown:
         return ChargingProfileResultType.UNKNOWN;
       default:
-        throw new Error(
-          `Unknown status: ${status}`,
-        );
+        throw new Error(`Unknown status: ${status}`);
     }
   }
 
-  private mapOcppScheduleToOcpi(schedule: CompositeScheduleType): ActiveChargingProfileResult {
+  private mapOcppScheduleToOcpi(
+    schedule: CompositeScheduleType,
+  ): ActiveChargingProfileResult {
     return {
       result: ChargingProfileResultType.ACCEPTED,
       profile: {
@@ -127,14 +133,16 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
           start_date_time: new Date(schedule.scheduleStart),
           duration: schedule.duration,
           charging_rate_unit: schedule.chargingRateUnit,
-          charging_profile_period: schedule.chargingSchedulePeriod.map(period => {
-            return {
-              start_period: period.startPeriod,
-              limit: period.limit
-            }
-          })
-        }
-      }
+          charging_profile_period: schedule.chargingSchedulePeriod.map(
+            (period) => {
+              return {
+                start_period: period.startPeriod,
+                limit: period.limit,
+              };
+            },
+          ),
+        },
+      },
     };
   }
 }
