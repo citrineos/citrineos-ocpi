@@ -14,7 +14,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { StopSession } from '../model/StopSession';
 import { NotFoundException } from '../exception/NotFoundException';
 import { ReserveNow } from '../model/ReserveNow';
-import { CancelReservation } from '../model/CancelReservation';
 import { OcpiEvseEntityRepository } from '../repository/ocpi.evse.repository';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
 
@@ -86,6 +85,41 @@ export class CommandExecutor {
       transaction.stationId,
       'tenantId',
       CallAction.RequestStopTransaction,
+      request,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
+    );
+  }
+
+  public async executeReserveNow(reserveNow: ReserveNow) {
+    // TODO: update to handle optional evse uid.
+    const evse = await this.ocpiEvseEntityRepo.findByUid(reserveNow.evse_uid!);
+
+    if (!evse) {
+      throw new NotFoundException('EVSE not found');
+    }
+
+    const correlationId = uuidv4();
+    await this.responseUrlRepo.saveResponseUrl(
+      correlationId,
+      reserveNow.response_url,
+    );
+
+    const request = {
+      id: Number(reserveNow.reservation_id),
+      expiryDateTime: reserveNow.expiry_date.toDateString(),
+      idToken: {
+        idToken: reserveNow.token.contract_id,
+        type: IdTokenEnumType.eMAID,
+      },
+      evseId: reserveNow.evse_uid,
+    } as ReserveNowRequest;
+
+    this.abstractModule.sendCall(
+      evse.chargingStationId,
+      'tenantId',
+      CallAction.ReserveNow,
       request,
       undefined,
       correlationId,
