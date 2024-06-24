@@ -50,8 +50,5 @@ export function buildUnknownSessionResponse<T>(
   data: T,
   error: NotFoundException,
 ): OcpiResponse<T> {
-  return buildGenericClientErrorResponse(
-    data,
-    error,
-  );
+  return buildGenericClientErrorResponse(data, error);
 }
