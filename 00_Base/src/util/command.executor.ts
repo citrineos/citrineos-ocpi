@@ -190,6 +190,7 @@ export class CommandExecutor {
   ) {
     // TODO: find a way to get station id and remove the mock data below
     const stationId = 'cp001';
+    // TODO: find a way to map sessionId to transactionId and use transactionId in the db query
     const transaction =
       await this.transactionRepo.readTransactionByStationIdAndTransactionId(
         stationId,
