@@ -1,7 +1,7 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Evse } from '../../../model/Evse';
+import { EvseDTO } from '../../../model/DTO/EvseDTO';
 
 export class PutEvseParams extends OcpiParams {
   @IsString()
@@ -15,7 +15,7 @@ export class PutEvseParams extends OcpiParams {
   evseUId!: string;
 
   @IsNotEmpty()
-  @Type(() => Evse)
+  @Type(() => EvseDTO)
   @ValidateNested()
-  evse!: Evse;
+  evse!: EvseDTO;
 }

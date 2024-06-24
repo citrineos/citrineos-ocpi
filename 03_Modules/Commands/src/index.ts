@@ -17,7 +17,7 @@ import {
 import { ILogObj, Logger } from 'tslog';
 import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
-import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import { sequelize as sequelizeCore } from '@citrineos/data';
 import { CommandsOcppHandlers } from './module/handlers';
 
 export { CommandsModuleApi } from './module/api';
@@ -46,8 +46,8 @@ export class CommandsModule implements OcpiModule {
     );
 
     Container.set(
-      SequelizeTransactionEventRepository,
-      new SequelizeTransactionEventRepository(
+      sequelizeCore.SequelizeTransactionEventRepository,
+      new sequelizeCore.SequelizeTransactionEventRepository(
         Container.get(OcpiServerConfig) as SystemConfig,
         Container.get(Logger),
       ),

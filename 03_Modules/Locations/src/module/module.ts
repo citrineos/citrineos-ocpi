@@ -11,45 +11,47 @@ import {
 } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { useContainer } from 'routing-controllers';
-import { Container } from 'typedi';
-import { IOcpiModule, LocationsClientApi, LocationsService } from '@citrineos/ocpi-base';
-import { LocationsOcppHandlers } from './handlers';
+import { Container, Service } from 'typedi';
+import { OcpiModule, LocationsClientApi, LocationsService } from '@citrineos/ocpi-base';
+import { LocationsHandlers } from './handlers';
 import { sequelize as sequelizeCore } from '@citrineos/data';
 import { LocationsModuleApi } from './api';
 
 useContainer(Container);
 
-export class LocationsModule implements IOcpiModule {
+@Service()
+export class LocationsModule implements OcpiModule {
+  handler!: IMessageHandler;
+  sender!: IMessageSender;
 
   constructor(
-    config: SystemConfig,
-    cache: ICache,
-    handler: IMessageHandler,
-    sender: IMessageSender,
-    logger?: Logger<ILogObj>,
-  ) {
+    readonly config: SystemConfig,
+    readonly cache: ICache,
+    readonly logger?: Logger<ILogObj>,
+  ) { }
 
-    Container.set(
-      LocationsOcppHandlers,
-      new LocationsOcppHandlers(
-        config,
-        cache,
-        Container.get(LocationsService),
-        Container.get(LocationsClientApi),
-        handler,
-        sender,
-        logger
-      )
-    );
+  init(handler: IMessageHandler, sender: IMessageSender): void {
+    this.handler = handler;
+    this.sender = sender;
 
     Container.set(
       sequelizeCore.SequelizeDeviceModelRepository,
-      new sequelizeCore.SequelizeDeviceModelRepository(config, logger)
+      new sequelizeCore.SequelizeDeviceModelRepository(this.config, this.logger)
     );
 
     Container.set(
       sequelizeCore.SequelizeLocationRepository,
-      new sequelizeCore.SequelizeLocationRepository(config, logger)
+      new sequelizeCore.SequelizeLocationRepository(this.config, this.logger)
+    );
+
+    new LocationsHandlers(
+      this.config as SystemConfig,
+      this.cache,
+      Container.get(LocationsService),
+      Container.get(LocationsClientApi),
+      this.handler,
+      this.sender,
+      this.logger,
     );
   }
 

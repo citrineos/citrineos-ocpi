@@ -22,7 +22,7 @@ import { CONNECTOR_COMPONENT, EVSE_COMPONENT, LocationsClientApi, LocationsServi
 /**
  * Component that handles provisioning related messages.
  */
-export class LocationsOcppHandlers extends AbstractModule {
+export class LocationsHandlers extends AbstractModule {
   // TODO read database events for LOCATION updates
   // not necessarily in this file, just as a general reminder
 
@@ -40,7 +40,7 @@ export class LocationsOcppHandlers extends AbstractModule {
   ];
 
   /**
-   * This is the constructor function that initializes the {@link LocationsOcppHandlers}.
+   * This is the constructor function that initializes the {@link LocationsHandlers}.
    *
    * @param {SystemConfig} config - The `config` contains configuration settings for the module.
    *

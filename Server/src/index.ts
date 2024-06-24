@@ -59,6 +59,11 @@ class CitrineOSServer {
         handler: this._createHandler(),
         sender: this._createSender(),
       },
+      {
+        module: LocationsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
     ];
   }
 
