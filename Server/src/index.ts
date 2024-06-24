@@ -18,6 +18,7 @@ import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
 import { Container } from 'typedi';
+import {ChargingProfilesModule} from "@citrineos/ocpi-charging-profiles/dist";
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -55,6 +56,11 @@ class CitrineOSServer {
       },
       {
         module: CommandsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: ChargingProfilesModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

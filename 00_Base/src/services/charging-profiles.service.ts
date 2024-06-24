@@ -7,7 +7,7 @@ import {
     buildGenericSuccessResponse,
     buildUnknownSessionResponse
 } from "../util/ResponseGenerator";
-import {NotFoundException} from "../exception/not.found.exception";
+import {NotFoundException} from "../exception/NotFoundException";
 
 @Service()
 export class ChargingProfilesService {
