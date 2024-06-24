@@ -29,11 +29,17 @@ export { CommandsClientApi } from './trigger/CommandsClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
+export { ResponseUrlRepository } from './repository/response-url.repository';
+
 export { ClientInformation } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
+export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
+export { ClearChargingProfileResult } from './model/ChargingprofilesClearProfileResult';
+export { ChargingProfileResponse } from './model/ChargingProfileResponse';
+export { ChargingProfileResultType } from './model/ChargingProfileResult';
 export {
   generateMockOcpiResponse,
   BaseController,
@@ -78,9 +84,11 @@ export { BaseClientApi } from './trigger/BaseClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { VersionService } from './services/version.service';
+export { ChargingProfilesService } from './services/charging-profiles.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
+export { AsyncResponder } from './util/AsyncResponder';
 
 export { versionIdParam } from './util/decorators/version.number.param';
 

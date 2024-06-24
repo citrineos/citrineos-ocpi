@@ -6,11 +6,8 @@ import { GetChargingProfileParams } from './param/charging.profiles/get.charging
 import { PutChargingProfileParams } from './param/charging.profiles/put.charging.profile.params';
 import { ChargingProfileResponse } from '../model/ChargingProfileResponse';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
-import { ModuleId } from '../model/ModuleId';
 
 export class ChargingProfilesClientApi extends BaseClientApi {
-  CONTROLLER_PATH = ModuleId.Chargingprofiles;
-
   async deleteChargingProfile(
     params: DeleteChargingProfileParams,
   ): Promise<OcpiResponse<ChargingProfileResult>> {
