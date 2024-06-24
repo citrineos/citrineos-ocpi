@@ -21,9 +21,9 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
-import { CommandsClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
+import {AsyncResponder} from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
-import { CommandResultType } from '@citrineos/ocpi-base/dist/model/CommandResult';
+import {CommandResult, CommandResultType} from '@citrineos/ocpi-base/dist/model/CommandResult';
 
 /**
  * Component that handles provisioning related messages.
@@ -42,8 +42,7 @@ export class CommandsOcppHandlers extends AbstractModule {
   constructor(
     config: SystemConfig,
     cache: ICache,
-    readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
+    readonly asyncResponder: AsyncResponder,
     sender?: IMessageSender,
     handler?: IMessageHandler,
     logger?: Logger<ILogObj>,
@@ -51,8 +50,8 @@ export class CommandsOcppHandlers extends AbstractModule {
     super(
       config,
       cache,
-      handler || new RabbitMqReceiver(config, logger),
-      sender || new RabbitMqSender(config, logger),
+      handler ?? new RabbitMqReceiver(config, logger),
+      sender ?? new RabbitMqSender(config, logger),
       EventGroup.Commands,
       logger,
     );
@@ -71,8 +70,8 @@ export class CommandsOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.RequestStartTransaction)
   protected _handleRequestStartTransactionResponse(
-    message: IMessage<RequestStartTransactionResponse>,
-    props?: HandlerProperties,
+      message: IMessage<RequestStartTransactionResponse>,
+      props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling RequestStartTransaction:', message, props);
 
@@ -112,19 +111,12 @@ export class CommandsOcppHandlers extends AbstractModule {
     correlationId: string,
     result: CommandResultType,
   ) {
-    const responseUrlEntity =
-      await this.responseUrlRepo.getResponseUrl(correlationId);
-    if (responseUrlEntity) {
-      try {
-        await this.commandsClient.postCommandResult(
-          responseUrlEntity.responseUrl,
-          {
-            result: result,
-          },
-        );
-      } catch (error) {
-        this._logger.error(error);
-      }
+    try {
+      await this.asyncResponder.send(correlationId, {
+        result: result,
+      } as CommandResult);
+    } catch (e) {
+      console.error(e);
     }
   }
 }

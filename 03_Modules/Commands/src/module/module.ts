@@ -6,11 +6,10 @@ import { Service } from 'typedi';
 
 import { CommandsModuleApi } from './api';
 import {
+  AsyncResponder,
   CacheWrapper,
-  CommandsClientApi,
   OcpiModule,
   OcpiServerConfig,
-  ResponseUrlRepository,
 } from '@citrineos/ocpi-base';
 import {
   AbstractModule,
@@ -34,8 +33,7 @@ export class CommandsModule implements OcpiModule {
       new CommandsOcppHandlers(
         this.config as SystemConfig,
         this.cacheWrapper.cache,
-        Container.get(ResponseUrlRepository),
-        Container.get(CommandsClientApi),
+        Container.get(AsyncResponder),
         sender,
         handler,
         this.logger,
