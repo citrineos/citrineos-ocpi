@@ -1,4 +1,4 @@
-import { HasMany, Model, Table } from 'sequelize-typescript';
+import { HasMany, Model, Table } from '@citrineos/data';
 import { ClientInformation } from './ClientInformation';
 import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';
