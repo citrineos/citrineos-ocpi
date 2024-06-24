@@ -32,11 +32,11 @@ export class SessionsService {
     ]);
 
     const sessions = await this.sessionMapper.mapTransactionsToSessions(
+      transactions,
       fromCountryCode,
       fromPartyId,
       toCountryCode,
       toPartyId,
-      transactions,
     );
 
     const response = new PaginatedSessionResponse();

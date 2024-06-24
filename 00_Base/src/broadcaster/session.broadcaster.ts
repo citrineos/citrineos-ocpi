@@ -24,20 +24,9 @@ export class SessionBroadcaster {
   }
 
   private async broadcast(transactions: Transaction[]) {
-    const fromCountryCode = 'fromCountryCode';
-    const fromPartyId = 'fromPartyId';
-    const toCountryCode = 'toCountryCode';
-    const toPartyId = 'toPartyId';
-
     // todo do we know if we can do put vs patch here, is there a way to have a delta?
     const sessions: Session[] =
-      await this.sessionMapper.mapTransactionsToSessions(
-        fromCountryCode,
-        fromPartyId,
-        toCountryCode,
-        toPartyId,
-        transactions,
-      );
+      await this.sessionMapper.mapTransactionsToSessions(transactions);
 
     for (const session of sessions) {
       await this.sendSessionToClient(session);

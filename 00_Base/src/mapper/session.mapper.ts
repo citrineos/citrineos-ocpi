@@ -6,13 +6,16 @@ import {
   TransactionEventEnumType,
   TransactionEventRequest,
 } from '../../../../citrineos-core/00_Base';
-import { TokenType } from '../model/TokenType';
 import { AuthMethod } from '../model/AuthMethod';
 import { SessionStatus } from '../model/SessionStatus';
 import { Transaction } from '../../../../citrineos-core/01_Data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
 import { SequelizeLocationRepository } from '../../../../citrineos-core/01_Data/src/layers/sequelize';
+import { Token } from '../model/Token';
+import { Location } from '../model/Location';
+import { CdrToken } from '../model/CdrToken';
+import { TokenType } from '../model/TokenType';
 
 @Service()
 export class SessionMapper {
@@ -20,64 +23,85 @@ export class SessionMapper {
     private readonly locationRepository: SequelizeLocationRepository,
   ) {}
 
-  public async mapTransactionsToSessions(
-    fromCountryCode: string,
-    fromPartyId: string,
-    toCountryCode: string,
-    toPartyId: string,
+  private getTokensForTransactions(
     transactions: Transaction[],
-  ): Promise<Session[]> {
-    const stationIds = transactions.map((transaction) => transaction.stationId);
-    const chargingStations =
-      await this.locationRepository.getChargingStationsByIds(stationIds);
-    const stationIdToLocationIdMap = new Map(
-      chargingStations.map((station) => [
-        station.id,
-        String(station.locationId),
-      ]),
-    );
-
-    return transactions.map((transaction) =>
-      this.mapTransactionToSession(
-        fromCountryCode,
-        fromPartyId,
-        toCountryCode,
-        toPartyId,
-        transaction,
-        stationIdToLocationIdMap.get(transaction.stationId) || '',
-      ),
-    );
+    mspCountryCode?: string,
+    mspPartyId?: string,
+  ): Map<string, Token> {
+    // TODO: Create mapping between Transaction.idToken and OCPI Token
+    // Only get Tokens that belong to the MSP if provided
+    return new Map();
   }
 
-  public mapTransactionToSession(
-    fromCountryCode: string,
-    fromPartyId: string,
-    toCountryCode: string,
-    toPartyId: string,
+  private getLocationsForTransactions(
+    transactions: Transaction[],
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
+  ): Map<string, Location> {
+    // TODO: Create mapping between transactions and locations
+    // Only get Locations that belong to the CPO if provided
+    return new Map();
+  }
+
+  public async mapTransactionsToSessions(
+    transactions: Transaction[],
+    fromCountryCode?: string,
+    fromPartyId?: string,
+    toCountryCode?: string,
+    toPartyId?: string,
+  ): Promise<Session[]> {
+    const [transactionIdToLocationMap, transactionIdToTokenMap] =
+      await Promise.all([
+        this.getLocationsForTransactions(
+          transactions,
+          toCountryCode,
+          toPartyId,
+        ),
+        this.getTokensForTransactions(
+          transactions,
+          fromCountryCode,
+          fromPartyId,
+        ),
+      ]);
+
+    return transactions
+      .filter(
+        (transaction) =>
+          transactionIdToLocationMap.has(transaction.id) &&
+          transactionIdToTokenMap.has(transaction.id),
+      )
+      .map((transaction) => {
+        const location = transactionIdToLocationMap.get(transaction.id)!;
+        const token = transactionIdToTokenMap.get(transaction.id)!;
+        return this.mapTransactionToSession(transaction, location, token);
+      });
+  }
+
+  private mapTransactionToSession(
     transaction: Transaction,
-    locationId: string,
+    location: Location,
+    token: Token,
   ): Session {
     const [startEvent, endEvent] = this.getStartAndEndEvents(
       transaction.transactionEvents,
     );
+
     return {
-      country_code: toCountryCode,
-      party_id: toPartyId,
+      country_code: location.country_code,
+      party_id: location.party_id,
       id: transaction.id,
       start_date_time: startEvent ? new Date(startEvent.timestamp) : null,
       end_date_time: endEvent ? new Date(endEvent.timestamp) : null,
       kwh: transaction.totalKwh || 0,
-      cdr_token: this.createCdrToken(fromCountryCode, fromPartyId),
-      // Defaulting to WHITELIST, otherwise Auth support / reservation support needs to be added with MSP
+      cdr_token: this.createCdrToken(token),
       auth_method: AuthMethod.WHITELIST,
-      location_id: locationId,
+      location_id: String(location.id),
       evse_uid: this.getEvseUid(transaction),
       connector_id: String(transaction.evse?.connectorId),
-      currency: 'USD', // TODO: Determine currency from configuration
+      currency: this.getCurrency(location),
       charging_periods: this.getChargingPeriods(transaction.meterValues),
       status: endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE,
       last_updated: new Date(),
-      // TODO: Optional Fields
       authorization_reference: null,
       total_cost: null,
       meter_id: null,
@@ -100,22 +124,30 @@ export class SessionMapper {
     ];
   }
 
-  private createCdrToken(mspCountryCode: string, mspPartyId: string) {
+  private createCdrToken(token: Token): CdrToken {
     return {
-      // TODO: Token Type needs to be derived from somewhere and based on this, uid value would be chosen
-      // APP_USER UID is provided by MSP. If during RFID, CPO would use this value to identify the token on their scanner
-      uid: 'MSP_TOKEN_UID',
-      type: TokenType.OTHER,
-      // TODO: Contract ID needs to be provided from MSP
-      contract_id: 'MSP_CONTRACT_ID',
-      country_code: mspCountryCode,
-      party_id: mspPartyId,
+      uid: token.uid,
+      type: this.mapTokenType(token.type),
+      contract_id: token.contract_id,
+      country_code: token.country_code,
+      party_id: token.party_id,
     };
+  }
+
+  private mapTokenType(ocpiTokenType: string): TokenType {
+    // TODO: Implement mapping from OCPI Token type to CDR Token type
+    return TokenType.OTHER;
   }
 
   private getEvseUid(transaction: Transaction): string {
     // TODO: Figure out EVSE UID Mapping
-    return 'evse-uid';
+    // Leaving it as a concat of stationId and evseID for now
+    return `${transaction.stationId}-${transaction.evse?.id}`;
+  }
+
+  private getCurrency(location: Location): string {
+    // TODO: Implement currency determination logic based on location or configuration
+    return 'USD';
   }
 
   private getChargingPeriods(
