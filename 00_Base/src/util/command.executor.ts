@@ -1,7 +1,7 @@
 import { StartSession } from '../model/StartSession';
 import {
   AbstractModule,
-  CallAction,
+  CallAction, ClearChargingProfileRequest, GetCompositeScheduleRequest,
   IdTokenEnumType,
   MessageOrigin,
   RequestStartTransactionRequest,
@@ -124,6 +124,84 @@ export class CommandExecutor {
       undefined,
       correlationId,
       MessageOrigin.CentralSystem,
+    );
+  }
+
+  public async executeGetActiveChargingProfile(
+      sessionId: string,
+      duration: number,
+      responseUrl: string,
+  ) {
+    // const transaction =
+    //   await this.transactionRepo.findByTransactionId(sessionId);
+
+    const transaction = {
+      stationId: 'CS01',
+      evse: {
+        id: 1,
+      },
+    };
+
+    if (!transaction) {
+      throw new NotFoundException('Session not found');
+    }
+
+    const correlationId = uuidv4();
+
+    await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+
+    const request = {
+      duration: duration,
+      evseId: transaction.evse?.id,
+    } as GetCompositeScheduleRequest;
+
+    this.abstractModule.sendCall(
+        transaction.stationId,
+        'tenantId',
+        CallAction.GetCompositeSchedule,
+        request,
+        undefined,
+        correlationId,
+        MessageOrigin.CentralSystem,
+    );
+  }
+
+  public async executeClearChargingProfile(
+      sessionId: string,
+      responseUrl: string,
+  ) {
+    // const transaction =
+    //   await this.transactionRepo.findByTransactionId(sessionId);
+
+    const transaction = {
+      stationId: 'CS01',
+      evse: {
+        id: 1,
+      },
+    };
+
+    if (!transaction) {
+      throw new NotFoundException('Session not found');
+    }
+
+    // TODO: fetch chargingProfileId
+
+    const correlationId = uuidv4();
+
+    await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+
+    const request = {
+      chargingProfileId: 1,
+    } as ClearChargingProfileRequest;
+
+    this.abstractModule.sendCall(
+        transaction.stationId,
+        'tenantId',
+        CallAction.ClearChargingProfile,
+        request,
+        undefined,
+        correlationId,
+        MessageOrigin.CentralSystem,
     );
   }
 }
