@@ -81,7 +81,7 @@ export { BaseClientApi } from './trigger/BaseClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { VersionService } from './services/version.service';
-export { ChargingProfilesService } from './services/charging-profiles.service';
+export { ChargingProfilesService } from './services/charging.profiles.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';

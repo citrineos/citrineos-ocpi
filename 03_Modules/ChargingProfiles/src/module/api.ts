@@ -5,7 +5,7 @@
 
 import { IChargingProfilesModuleApi } from './interface';
 
-import { Get, Param, QueryParam } from 'routing-controllers';
+import { Get, Delete, Param, QueryParam } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
@@ -52,6 +52,26 @@ export class ChargingProfilesModuleApi
       sessionId,
       duration,
       responseUrl,
+    );
+  }
+
+  @Delete('/:sessionId')
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(OcpiResponse<ChargingProfileResponse>, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: generateMockOcpiResponse(OcpiResponse<ChargingProfileResponse>),
+    },
+  })
+  async deleteChargingProfile(
+      @Param('sessionId') sessionId: string,
+      @QueryParam('duration', { required: true }) duration: number,
+      @QueryParam('response_url', { required: true }) responseUrl: string,
+  ): Promise<OcpiResponse<ChargingProfileResponse>> {
+    return this.service.deleteChargingProfile(
+        sessionId,
+        responseUrl,
     );
   }
 }
