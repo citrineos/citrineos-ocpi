@@ -6,7 +6,7 @@ export function buildGenericSuccessResponse<T>(
 ): OcpiResponse<T> {
   const response: OcpiResponse<T> = new OcpiResponse<T>();
   response.status_code = OcpiResponseStatusCode.GenericSuccessCode;
-  response.status_message = message || 'Success';
+  response.status_message = message ?? 'Success';
   response.data = data;
   return response;
 }
@@ -18,7 +18,7 @@ export function buildGenericServerErrorResponse<T>(
 ): OcpiResponse<T> {
   const response: OcpiResponse<T> = new OcpiResponse<T>();
   response.status_code = OcpiResponseStatusCode.ServerGenericError;
-  response.status_message = message ? message : error?.message;
+  response.status_message = message ?? error?.message;
   response.data = data;
   return response;
 }
@@ -30,7 +30,7 @@ export function buildGenericClientErrorResponse<T>(
 ): OcpiResponse<T> {
   const response: OcpiResponse<T> = new OcpiResponse<T>();
   response.status_code = OcpiResponseStatusCode.ClientGenericError;
-  response.status_message = message ? message : error?.message;
+  response.status_message = message ?? error?.message;
   response.data = data;
   return response;
 }
@@ -43,6 +43,7 @@ export function buildUnknownLocationResponse<T>(
   const response: OcpiResponse<T> = buildGenericServerErrorResponse(
     data,
     message,
+    error,
   );
   response.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
   return response;
@@ -56,6 +57,7 @@ export function buildUnknownSessionResponse<T>(
   const response: OcpiResponse<T> = buildGenericServerErrorResponse(
     data,
     message,
+    error,
   );
   response.status_code = OcpiResponseStatusCode.ClientGenericError;
   return response;

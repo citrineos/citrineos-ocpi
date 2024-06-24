@@ -75,8 +75,6 @@ export class CommandsService {
   private async handleStartSession(
     startSession: StartSession,
   ): Promise<OcpiResponse<CommandResponse>> {
-    const commandResponse = new OcpiResponse<CommandResponse>();
-
     try {
       await this.commandExecutor.executeStartSession(startSession);
       return buildGenericSuccessResponse({
@@ -110,8 +108,6 @@ export class CommandsService {
   private async handleStopSession(
     stopSession: StopSession,
   ): Promise<OcpiResponse<CommandResponse>> {
-    const commandResponse = new OcpiResponse<CommandResponse>();
-
     try {
       await this.commandExecutor.executeStopSession(stopSession);
       return buildGenericSuccessResponse({
