@@ -152,6 +152,7 @@ export class OcpiServer extends KoaServer {
           },
         ],
       );
+      this.initLogger();
     } catch (error) {
       console.error(error);
       process.exit(1);
