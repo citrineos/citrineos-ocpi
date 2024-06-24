@@ -7,12 +7,14 @@ import { sequelize as sequelizeCore } from '@citrineos/data';
 import { Service } from 'typedi';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 import { LocationDTO, LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
-import { EvseResponse, EXTRACT_EVSE_ID, EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
+import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { OcpiLocationRepository } from '../repository/ocpi.location.repository';
 import { OcpiEvseRepository } from '../repository/ocpi.evse.repository';
+import { OcpiConnectorRepository } from '../repository/ocpi.connector.repository';
 import {
   ChargingStationVariableAttributes,
   chargingStationVariableAttributesQuery
@@ -25,20 +27,30 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery
 } from "../model/variable-attributes/ConnectorVariableAttributes";
+import { PutEvseParams } from "../trigger/param/locations/put.evse.params";
+import { PutConnectorParams } from "../trigger/param/locations/put.connector.params";
+import { OcpiLocation } from "../model/Location";
+import { OcpiEvse } from "../model/Evse";
+import { PutLocationParams } from "../trigger/param/locations/put.location.params";
+import { PatchLocationParams } from "../trigger/param/locations/patch.location.params";
+import { PatchEvseParams } from "../trigger/param/locations/patch.evse.params";
+import { PatchConnectorParams } from "../trigger/param/locations/patch.connector.params";
 
 @Service()
 export class LocationsService {
   // TODO set timeout on refreshing internal cache
 
-  LOCATION_NOT_FOUND_MESSAGE = (locationId: string): string => `Location ${locationId} does not exist.`;
+  LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string => `Location ${locationId} does not exist.`;
   EVSE_NOT_FOUND_MESSAGE = (evseUid: string): string => `EVSE ${evseUid} does not exist.`;
-  CONNECTOR_NOT_FOUND_MESSAGE = (connectorId: string): string => `Connector ${connectorId} does not exist.`;
+  CONNECTOR_NOT_FOUND_MESSAGE = (connectorId: number): string => `Connector ${connectorId} does not exist.`;
 
   // TODO dynamically choose the appropriate location mapper, not just the Citrine one
   constructor(
     private locationRepository: sequelizeCore.SequelizeLocationRepository,
     private deviceModelRepository: sequelizeCore.SequelizeDeviceModelRepository,
+    private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,
+    private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
   ) {}
   /**
@@ -76,7 +88,7 @@ export class LocationsService {
   }
 
   async getLocationById(
-    locationId: string
+    locationId: number
   ): Promise<LocationResponse> {
     const locationResponse = new LocationResponse();
     locationResponse.timestamp = new Date();
@@ -102,12 +114,10 @@ export class LocationsService {
   }
 
   async getEvseById(
-    locationId: string, 
-    evseUid: string
+    locationId: number,
+    stationId: string,
+    evseId: number
   ): Promise<EvseResponse> {
-    const stationId = EXTRACT_STATION_ID(evseUid);
-    const evseId = EXTRACT_EVSE_ID(evseUid);
-
     const evseResponse = new EvseResponse();
     evseResponse.timestamp = new Date();
 
@@ -123,7 +133,7 @@ export class LocationsService {
 
     if (matchingChargingStation.length === 0) {
       evseResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
-      evseResponse.status_message = this.EVSE_NOT_FOUND_MESSAGE(evseUid);
+      evseResponse.status_message = this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId));
       return evseResponse;
     }
 
@@ -140,16 +150,14 @@ export class LocationsService {
   }
 
   async getConnectorById(
-    locationId: string,
-    evseUid: string,
-    connectorId: string
+    locationId: number,
+    stationId: string,
+    evseId: number,
+    connectorId: number
   ): Promise<ConnectorResponse> {
-    const stationId = EXTRACT_STATION_ID(evseUid);
-    const evseId = EXTRACT_EVSE_ID(evseUid);
-
     const connectorResponse = new ConnectorResponse();
 
-    const citrineLocation = await this.locationRepository.readByKey(locationId);
+    const citrineLocation = await this.locationRepository.readByKey(String(locationId));
 
     if (!citrineLocation) {
       connectorResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
@@ -161,13 +169,13 @@ export class LocationsService {
 
     if (matchingChargingStation.length === 0) {
       connectorResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
-      connectorResponse.status_message = this.EVSE_NOT_FOUND_MESSAGE(evseUid);
+      connectorResponse.status_message = this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId));
       return connectorResponse;
     }
 
     const evseVariableAttributesMap = await this.createEvsesVariableAttributesMap(matchingChargingStation[0].id, [Number(evseId)], Number(connectorId));
 
-    if (!evseVariableAttributesMap[Number(evseId)].connectors) {
+    if (!evseVariableAttributesMap[evseId].connectors) {
       connectorResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
       connectorResponse.status_message = this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId);
       return connectorResponse;
@@ -176,8 +184,8 @@ export class LocationsService {
     connectorResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
     connectorResponse.data = this.locationMapper.mapToOcpiConnector(
       Number(connectorId),
-      evseVariableAttributesMap[Number(evseId)],
-      evseVariableAttributesMap[Number(evseId)]?.connectors[Number(connectorId)],
+      evseVariableAttributesMap[evseId],
+      evseVariableAttributesMap[evseId].connectors[connectorId],
     );
 
     return connectorResponse;
@@ -186,23 +194,56 @@ export class LocationsService {
   /**
    * Receiver Methods
    */
-  async sendLocationUpdate() {
-
+  async processLocationUpdate(
+    locationId: number,
+    lastUpdated: Date
+  ): Promise<PatchLocationParams> {
+    await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
+    return new PatchLocationParams();
   }
 
-  async sendEvseUpdate(){
+  async processEvseUpdate(
+    stationId: string,
+    evseId: number,
+    lastUpdated: Date
+  ): Promise<PatchEvseParams> {
+    const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
+    if (!chargingStation || !chargingStation.locationId) {
+      throw new Error('Charging Station does not exist!'); // TODO more descriptive error
+    }
+
+    // TODO call evse update for last updated
+
+    const locationId = chargingStation.locationId;
+    const evseResponse = await this.getEvseById(locationId, stationId, evseId);
+    return PatchEvseParams.build(locationId, UID_FORMAT(stationId, evseId), evseResponse.data);
   }
 
-  async sendConnectorUpdate() {
+  async processConnectorUpdate(
+    stationId: string,
+    evseId: number,
+    connectorId: number,
+    lastUpdated: Date
+  ): Promise<PatchConnectorParams> {
+    const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
+    if (!chargingStation || !chargingStation.locationId) {
+      throw new Error('Charging Station does not exist!'); // TODO more descriptive error
+    }
+
+    // TODO call connector update for last updated
+
+    const locationId = chargingStation.locationId;
+    const connectorResponse = await this.getConnectorById(locationId, stationId, evseId, connectorId);
+    return PatchConnectorParams.build(locationId, UID_FORMAT(stationId, evseId), connectorId, connectorResponse.data);
   }
 
   /**
    * Helper Methods
    */
 
-  private async getLocationFromDatabase(locationId: string): Promise<sequelizeCore.Location | undefined> {
+  private async getLocationFromDatabase(locationId: number): Promise<sequelizeCore.Location | undefined> {
     const matchingCitrineLocations = await this.locationRepository.readAllByQuery({
       where: {
         id: locationId
@@ -286,10 +327,34 @@ export class LocationsService {
       const matchingAttributes = await this.deviceModelRepository
         .readBySqlString(connectorVariableAttributesQuery(stationId, evseId, connectorId)) as ConnectorVariableAttributes[];
 
-      connectorAttributesMap[connectorId] = matchingAttributes?.[0];
+      if (matchingAttributes.length === 0) {
+        continue;
+      }
+
+      connectorAttributesMap[connectorId] = matchingAttributes[0];
     }
 
     return connectorAttributesMap
+  }
+
+  private async setOcpiLocationLastUpdated(
+    locationId: number,
+    lastUpdated: Date
+  ) {
+    const ocpiLocation = new OcpiLocation();
+    ocpiLocation.id = locationId;
+    ocpiLocation.lastUpdated = lastUpdated;
+    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(ocpiLocation);
+  }
+
+  private async setOcpiEvseLastUpdated(
+    stationId: string,
+    evseId: number,
+    lastUpdated: Date
+  ) {
+    const ocpiEvse = new OcpiEvse();
+    ocpiEvse.lastUpdated = lastUpdated;
+    await this.ocpiEvseRepository.createOrUpdateOcpiEvse(ocpiEvse);
   }
 
 }

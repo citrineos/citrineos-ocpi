@@ -16,9 +16,6 @@
   "references": [
     {
       "path": "Server"
-    },
-    {
-      "path": "../citrineos-core/00_Base"
     }
   ]
 }

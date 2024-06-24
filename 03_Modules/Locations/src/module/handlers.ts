@@ -97,10 +97,10 @@ export class LocationsHandlers extends AbstractModule {
    * Handle requests
    */
   @AsHandler(CallAction.NotifyEvent)
-  protected _handleNotifyEvent(
+  protected async _handleNotifyEvent(
     message: IMessage<NotifyEventRequest>,
     props?: HandlerProperties,
-  ): void {
+  ): Promise<void> {
     this._logger.debug('NotifyEvent received:', message, props);
 
     const stationId = message.context.stationId;
@@ -112,29 +112,33 @@ export class LocationsHandlers extends AbstractModule {
 
       if (component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT) {
         this._logger.debug('Ignoring NotifyEvent since it is not a processed OCPI event.');
-        continue;
       } else if (component.name === EVSE_COMPONENT) {
-        // this.locationsService.getEvseById()
-        // TODO call EVSE update
-
+        const evseId = component.evse?.id ?? 1; // TODO better fallback
+        const params = await this.locationsService.processEvseUpdate(
+          stationId, evseId, new Date());
+        await this.locationsClientApi.patchEvse(params);
       } else if (component.name === CONNECTOR_COMPONENT) {
-        // TODO call connector update
-      }
+        const connectorId = component.evse?.connectorId ?? 1; // TODO better fallback
+        const evseId = component.evse?.id ?? 1; // TODO better fallback
+        const params = await this.locationsService.processConnectorUpdate(
+          stationId, evseId, connectorId, new Date());
+        await this.locationsClientApi.patchConnector(params);      }
     }
   }
 
   @AsHandler(CallAction.StatusNotification)
-  protected _handleStatusNotification(
+  protected async _handleStatusNotification(
     message: IMessage<StatusNotificationRequest>,
     props?: HandlerProperties,
-  ): void {
+  ): Promise<void> {
     this._logger.debug('StatusNotification received:', message, props);
 
     const stationId = message.context.stationId;
-
-    // find charging station based on evse id, then find location from that
-
-    // TODO push CONNECTOR update to MSP, without needing to send a response
+    const evseId = message.payload.evseId;
+    const connectorId = message.payload.connectorId;
+    const params = await this.locationsService.processConnectorUpdate(
+      stationId, evseId, connectorId, new Date(message.payload.timestamp));
+    await this.locationsClientApi.patchConnector(params);
   }
 
 }

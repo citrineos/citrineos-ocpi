@@ -1,17 +1,17 @@
 import { Service } from 'typedi';
-import { OcpiEvse } from '../model/Evse';
+import { OcpiConnector } from '../model/Connector';
 import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
-import { SystemConfig } from '@citrineos/base'
+import { SystemConfig } from '@citrineos/base';
 
 /**
- * Repository for OCPIEvse
+ * Repository for OCPI Connector
  */
 @Service()
-export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
+export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
@@ -19,15 +19,9 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Evses,
+      OcpiNamespace.Connectors,
       logger,
       ocpiSequelizeInstance.sequelize,
     );
-  }
-
-  async createOrUpdateOcpiEvse(
-    evse: OcpiEvse
-  ) {
-    // TODO find evse by stationId/evseId
   }
 }

@@ -2,6 +2,7 @@ import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
+import { EvseDTO } from "../../../model/DTO/EvseDTO";
 
 export class PutConnectorParams extends OcpiParams {
   @IsString()
@@ -12,7 +13,7 @@ export class PutConnectorParams extends OcpiParams {
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
-  evseUId!: string;
+  evseUid!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -23,4 +24,18 @@ export class PutConnectorParams extends OcpiParams {
   @Type(() => ConnectorDTO)
   @ValidateNested()
   connector!: ConnectorDTO;
+
+  static build(
+    locationId: number,
+    evseUid: string,
+    connectorId: number,
+    connector: ConnectorDTO
+  ): PutConnectorParams {
+    const params = new PutConnectorParams();
+    params.locationId = String(locationId);
+    params.evseUid = evseUid;
+    params.connectorId = String(connectorId);
+    params.connector = connector;
+    return params;
+  }
 }

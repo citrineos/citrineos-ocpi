@@ -12,10 +12,22 @@ export class PutEvseParams extends OcpiParams {
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
-  evseUId!: string;
+  evseUid!: string;
 
   @IsNotEmpty()
   @Type(() => EvseDTO)
   @ValidateNested()
   evse!: EvseDTO;
+
+  static build(
+    locationId: number,
+    evseUid: string,
+    evse: EvseDTO
+  ): PutEvseParams {
+    const params = new PutEvseParams();
+    params.locationId = String(locationId);
+    params.evseUid = evseUid;
+    params.evse = evse;
+    return params;
+  }
 }

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Body, Controller, Get, Param } from 'routing-controllers';
+import { Controller, Get, Param } from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
 import {
   AsOcpiFunctionalEndpoint,
@@ -22,6 +22,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
+import { EXTRACT_STATION_ID } from "@citrineos/ocpi-base/dist/model/DTO/EvseDTO";
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -50,7 +51,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedLocationResponse, {
+  @ResponseSchema(() => PaginatedLocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -65,7 +66,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
 
   @Get('/:location_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(LocationResponse, {
+  @ResponseSchema(() => LocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -73,14 +74,14 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     }
   })
   async getLocationById(
-    @Param('location_id') locationId: string
+    @Param('location_id') locationId: number
   ): Promise<LocationResponse> {
     return this.locationsService.getLocationById(locationId);
   }
 
   @Get('/:location_id/:evse_uid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(EvseResponse, {
+  @ResponseSchema(() => EvseResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -88,15 +89,18 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     }
   })
   async getEvseById(
-    @Param('location_id') locationId: string,
+    @Param('location_id') locationId: number,
     @Param('evse_uid') evseUid: string
   ): Promise<EvseResponse> {
-    return this.locationsService.getEvseById(locationId, evseUid);
+    const stationId = EXTRACT_STATION_ID(evseUid);
+    const evseId = EXTRACT_STATION_ID(evseUid);
+
+    return this.locationsService.getEvseById(locationId, stationId, Number(evseId));
   }
 
   @Get('/:location_id/:evse_uid/:connector_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(ConnectorResponse, {
+  @ResponseSchema(() => ConnectorResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -104,11 +108,14 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     }
   })
   async getConnectorById(
-    @Param('location_id') locationId: string,
+    @Param('location_id') locationId: number,
     @Param('evse_uid') evseUid: string,
     @Param('connector_id') connectorId: string,
   ): Promise<ConnectorResponse> {
-    return this.locationsService.getConnectorById(locationId, evseUid, connectorId);
+    const stationId = EXTRACT_STATION_ID(evseUid);
+    const evseId = EXTRACT_STATION_ID(evseUid);
+
+    return this.locationsService.getConnectorById(locationId, stationId, Number(evseId), Number(connectorId));
   }
 
 }

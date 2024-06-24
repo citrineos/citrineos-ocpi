@@ -5,7 +5,7 @@ import { Table, Model, DataType, Column } from "sequelize-typescript";
  * with Citrine's version of an EVSE.
  */
 @Table
-export class OcpiEvse extends Model<OcpiEvse> {
+export class OcpiEvse extends Model {
   // this is a GENERAL id, i.e. 1 or 2
   @Column({
     type: DataType.STRING,
