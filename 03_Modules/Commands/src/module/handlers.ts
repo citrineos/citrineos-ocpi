@@ -21,9 +21,12 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
-import {AsyncResponder} from '@citrineos/ocpi-base';
+import { AsyncResponder } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
-import {CommandResult, CommandResultType} from '@citrineos/ocpi-base/dist/model/CommandResult';
+import {
+  CommandResult,
+  CommandResultType,
+} from '@citrineos/ocpi-base/dist/model/CommandResult';
 
 /**
  * Component that handles provisioning related messages.
@@ -70,8 +73,8 @@ export class CommandsOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.RequestStartTransaction)
   protected _handleRequestStartTransactionResponse(
-      message: IMessage<RequestStartTransactionResponse>,
-      props?: HandlerProperties,
+    message: IMessage<RequestStartTransactionResponse>,
+    props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling RequestStartTransaction:', message, props);
 
