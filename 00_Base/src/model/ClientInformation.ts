@@ -6,7 +6,7 @@ import {
   HasMany,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import {
   ClientCredentialsRole,
