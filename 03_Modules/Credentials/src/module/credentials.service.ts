@@ -1,16 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
   AlreadyRegisteredException,
+  buildPostCredentialsParams,
   BusinessDetails,
+  BusinessDetailsDTO,
   ClientCredentialsRole,
   ClientInformation,
   ClientInformationRepository,
   ClientVersion,
+  CpoTenant,
+  CredentialsClientApi,
   CredentialsDTO,
   CredentialsResponse,
+  CredentialsRoleDTO,
   Endpoint,
   fromCredentialsRoleDTO,
   Image,
+  ImageCategory,
+  ImageDTO,
+  ImageType,
   InterfaceRole,
   ModuleId,
   NotRegisteredException,
@@ -19,19 +27,15 @@ import {
   OcpiResponseStatusCode,
   OcpiSequelizeInstance,
   Role,
+  ServerCredentialsRole,
+  ServerVersion,
+  VersionEndpoint,
   VersionNumber,
   VersionRepository,
   VersionsClientApi,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
-import { CredentialsClientApi } from '@citrineos/ocpi-base/dist/trigger/CredentialsClientApi';
-import { buildPostCredentialsParams } from '@citrineos/ocpi-base/dist/trigger/param/credentials/post.credentials.params';
-import { CredentialsRoleDTO } from '@citrineos/ocpi-base/dist/model/DTO/CredentialsRoleDTO';
-import { CpoTenant } from '@citrineos/ocpi-base/dist/model/CpoTenant';
-import { ServerVersion } from '@citrineos/ocpi-base/dist/model/ServerVersion';
-import { VersionEndpoint } from '@citrineos/ocpi-base/dist/model/VersionEndpoint';
-import { ServerCredentialsRole } from '@citrineos/ocpi-base/dist/model/ServerCredentialsRole';
 
 const clientInformationInclude = [
   {
@@ -226,7 +230,6 @@ export class CredentialsService {
       credentials.url,
       credentialsTokenA,
     );
-
     if (!clientVersion) {
       throw new NotFoundError(
         'Did not successfully retrieve client version details',

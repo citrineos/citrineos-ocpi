@@ -11,6 +11,15 @@ import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 
+export { ImageDTO } from './model/DTO/ImageDTO';
+export { CredentialsClientApi } from './trigger/CredentialsClientApi';
+export { BusinessDetailsDTO } from './model/DTO/BusinessDetailsDTO';
+export { ServerCredentialsRole } from './model/ServerCredentialsRole';
+export { VersionEndpoint } from './model/VersionEndpoint';
+export { ServerVersion } from './model/ServerVersion';
+export { CpoTenant } from './model/CpoTenant';
+export { CredentialsRoleDTO } from './model/DTO/CredentialsRoleDTO';
+export { buildPostCredentialsParams } from './trigger/param/credentials/post.credentials.params';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
