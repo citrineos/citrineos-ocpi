@@ -30,6 +30,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { ClearChargingProfileResult } from '@citrineos/ocpi-base';
+import {ActiveChargingProfile} from "../../../../00_Base/src/model/ActiveChargingProfile";
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
@@ -124,22 +125,19 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   private mapOcppScheduleToOcpi(
     schedule: CompositeScheduleType,
-  ): ActiveChargingProfileResult {
+  ): ActiveChargingProfile {
     return {
-      result: ChargingProfileResultType.ACCEPTED,
-      profile: {
+      start_date_time: new Date(schedule.scheduleStart),
+      charging_profile: {
         start_date_time: new Date(schedule.scheduleStart),
-        charging_profile: {
-          start_date_time: new Date(schedule.scheduleStart),
-          duration: schedule.duration,
-          charging_rate_unit: schedule.chargingRateUnit,
-          charging_profile_period: schedule.chargingSchedulePeriod.map(
-            (period) => ({
-              start_period: period.startPeriod,
-              limit: period.limit,
-            }),
-          ),
-        },
+        duration: schedule.duration,
+        charging_rate_unit: schedule.chargingRateUnit,
+        charging_profile_period: schedule.chargingSchedulePeriod.map(
+          (period) => ({
+            start_period: period.startPeriod,
+            limit: period.limit,
+          }),
+        ),
       },
     };
   }

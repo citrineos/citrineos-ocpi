@@ -6,6 +6,7 @@ import { SystemConfig, UnauthorizedException } from '@citrineos/base';
 import { ClientInformation } from '../model/ClientInformation';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { ILogObj, Logger } from 'tslog';
+import {ClientCredentialsRole} from "../model/ClientCredentialsRole";
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
@@ -48,6 +49,9 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
       where: {
         serverToken: token,
       },
+      include: [
+          ClientCredentialsRole
+      ]
     };
     const clientInformationList = await this.readAllByQuery(query); // todo should be read one by query
     if (clientInformationList && countryCode && partyId) {
