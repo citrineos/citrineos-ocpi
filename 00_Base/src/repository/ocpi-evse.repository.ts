@@ -1,5 +1,11 @@
 import { Service } from 'typedi';
 
+export class OcpiEvseEntity {
+  id!: string;
+  uid!: string;
+  chargingStationId!: string;
+}
+
 // TODO: remove in favor of more concrete solution provided by effort for locations module
 @Service()
 export class OcpiEvseEntityRepository {
@@ -10,10 +16,4 @@ export class OcpiEvseEntityRepository {
     ocpiEvseEntity.chargingStationId = 'CS01';
     return ocpiEvseEntity;
   }
-}
-
-export class OcpiEvseEntity {
-  id!: string;
-  uid!: string;
-  chargingStationId!: string;
 }

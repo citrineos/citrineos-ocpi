@@ -17,6 +17,8 @@
     "03_Modules/Credentials/**/*.json",
     "03_Modules/Versions/**/*.ts",
     "03_Modules/Versions/**/*.json",
+    "03_Modules/ChargingProfiles/**/*.ts",
+    "03_Modules/ChargingProfiles/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.json",
     "mock-client/**/*.ts",

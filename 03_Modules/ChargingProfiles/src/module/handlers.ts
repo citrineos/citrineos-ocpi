@@ -134,12 +134,10 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
           duration: schedule.duration,
           charging_rate_unit: schedule.chargingRateUnit,
           charging_profile_period: schedule.chargingSchedulePeriod.map(
-            (period) => {
-              return {
-                start_period: period.startPeriod,
-                limit: period.limit,
-              };
-            },
+            (period) => ({
+              start_period: period.startPeriod,
+              limit: period.limit,
+            }),
           ),
         },
       },
