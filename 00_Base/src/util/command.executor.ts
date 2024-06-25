@@ -154,6 +154,7 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
 
     const request = {
+      // TODO: use chargingProfileId from transaction
       chargingProfileId: 1,
     } as ClearChargingProfileRequest;
 
