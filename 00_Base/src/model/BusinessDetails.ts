@@ -9,7 +9,7 @@ import {
   HasOne,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { ClientCredentialsRole } from './ClientCredentialsRole';
 import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';

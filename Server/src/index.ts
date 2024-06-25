@@ -19,6 +19,7 @@ import { LocationsModule } from "@citrineos/ocpi-locations";
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
 import { Container } from 'typedi';
+import { RepositoryStore } from '../../../citrineos-core/01_Data';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -37,6 +38,11 @@ class CitrineOSServer {
       this.cache,
       this.logger,
       this.getModuleConfig(),
+      new RepositoryStore(
+        this.config,
+        this.logger,
+        null as any, // todo
+      ),
     );
 
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);

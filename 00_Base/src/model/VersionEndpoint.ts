@@ -10,7 +10,7 @@ import {
   ForeignKey,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { Endpoint, EndpointDTO } from './Endpoint';
 import { Version } from './Version';
 
