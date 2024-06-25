@@ -31,7 +31,8 @@ import {
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
   SequelizeVariableMonitoringRepository,
-} from '../../../citrineos-core/01_Data/src/layers/sequelize';
+} from '@citrineos/data';
+import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
@@ -108,6 +109,7 @@ export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 export { SessionsService } from './services/sessions.service';
 export { versionIdParam } from './util/decorators/version.number.param';
+export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
 useContainer(Container);
 
@@ -150,6 +152,9 @@ export class OcpiServer extends KoaServer {
       module.init(moduleConfig.handler, moduleConfig.sender);
       return module;
     });
+
+    const broadcaster = Container.get(SessionBroadcaster);
+    broadcaster.init();
 
     this.initServer();
   }

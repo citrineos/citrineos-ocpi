@@ -5,7 +5,9 @@ import { IHeaders } from 'typed-rest-client/Interfaces';
 import { BaseClientApi } from './BaseClientApi';
 import { OcpiResponse } from '../model/ocpi.response';
 import { Session } from '../model/Session';
+import { Service } from 'typedi';
 
+@Service()
 export class SessionsClientApi extends BaseClientApi {
   async getSession(params: GetSessionParams): Promise<OcpiResponse<Session>> {
     this.validateOcpiParams(params);

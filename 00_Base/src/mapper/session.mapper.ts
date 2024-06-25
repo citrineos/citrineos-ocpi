@@ -8,10 +8,10 @@ import {
 } from '../../../../citrineos-core/00_Base';
 import { AuthMethod } from '../model/AuthMethod';
 import { SessionStatus } from '../model/SessionStatus';
-import { Transaction } from '../../../../citrineos-core/01_Data';
+import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { SequelizeLocationRepository } from '../../../../citrineos-core/01_Data/src/layers/sequelize';
+import { SequelizeLocationRepository } from '@citrineos/data';
 import { Token } from '../model/Token';
 import { Location } from '../model/Location';
 import { CdrToken } from '../model/CdrToken';

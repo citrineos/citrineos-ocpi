@@ -20,7 +20,7 @@ import { SessionsOcppHandlers } from './module/handlers';
 import {
   SequelizeLocationRepository,
   SequelizeTransactionEventRepository,
-} from '../../../../citrineos-core/01_Data/src/layers/sequelize';
+} from '@citrineos/data';
 
 export { SessionsModuleApi } from './module/api';
 export { ISessionsModuleApi } from './module/interface';

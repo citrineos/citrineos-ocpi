@@ -5,7 +5,7 @@ import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
 import {
   SequelizeTransactionEventRepository,
   Transaction,
-} from '../../../../citrineos-core/01_Data';
+} from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 
 @Service()
@@ -14,7 +14,9 @@ export class SessionBroadcaster {
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly sessionMapper: SessionMapper,
     private readonly sessionsClientApi: SessionsClientApi,
-  ) {
+  ) {}
+
+  init() {
     this.transactionRepository.transaction.on('created', (transactions) =>
       this.broadcast(transactions),
     );
