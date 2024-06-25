@@ -7,15 +7,16 @@ import { Table, Model, DataType, Column } from "sequelize-typescript";
 @Table
 export class OcpiEvse extends Model {
   // this is a GENERAL id, i.e. 1 or 2
+  // not the eMI3 id
   @Column({
     type: DataType.STRING,
-    unique: 'id_stationId'
+    unique: 'evseId_stationId'
   })
-  declare id: string;
+  declare evseId: string;
 
   @Column({
     type: DataType.STRING,
-    unique: 'id_stationId'
+    unique: 'evseId_stationId'
   })
   declare stationId: string;
 

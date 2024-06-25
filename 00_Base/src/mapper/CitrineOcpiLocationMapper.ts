@@ -16,10 +16,12 @@ import { EvseVariableAttributes } from "../model/variable-attributes/EvseVariabl
 import { OcpiEvse } from "../model/Evse";
 import { ConnectorVariableAttributes } from "../model/variable-attributes/ConnectorVariableAttributes";
 import { OcpiConnector } from "../model/Connector";
+import { Service } from "typedi";
+import { NOT_APPLICABLE } from "../util/consts";
 
+@Service()
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   // TODO pass credentials
-  // TODO pass in evse charging attributes map??
   mapToOcpiLocation(
     citrineLocation: sequelizeCore.Location,
     chargingStationVariableAttributesMap: Record<string, ChargingStationVariableAttributes>,
@@ -38,12 +40,12 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiLocation.publish = ocpiLocationInfo?.publish ?? true;
     // ocpiLocation.publish_allowed_to
 
-    ocpiLocation.name = citrineLocation.name;
-    ocpiLocation.address = citrineLocation.address;
-    ocpiLocation.city = citrineLocation.city;
-    ocpiLocation.postal_code = citrineLocation.postalCode;
-    ocpiLocation.state = citrineLocation.state;
-    ocpiLocation.country = citrineLocation.country;
+    ocpiLocation.name = citrineLocation.name ?? NOT_APPLICABLE;
+    ocpiLocation.address = citrineLocation.address ?? NOT_APPLICABLE;
+    ocpiLocation.city = citrineLocation.city ?? NOT_APPLICABLE;
+    ocpiLocation.postal_code = citrineLocation.postalCode ?? NOT_APPLICABLE;
+    ocpiLocation.state = citrineLocation.state ?? NOT_APPLICABLE;
+    ocpiLocation.country = citrineLocation.country ?? NOT_APPLICABLE;
     ocpiLocation.coordinates = this.getCoordinates(citrineLocation.coordinates);
 
     const evses: EvseDTO[] = [];
@@ -135,7 +137,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return connector;
   }
 
-  // Helpers
+  /*
+    Helpers
+  */
 
   private getCoordinates(ocppCoordinates: [number, number]): GeoLocation {
     const geoLocation = new GeoLocation();

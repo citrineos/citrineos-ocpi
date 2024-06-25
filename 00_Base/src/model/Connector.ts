@@ -9,19 +9,19 @@ export class OcpiConnector extends Model {
   // this is a GENERAL id, i.e. 1 or 2
   @Column({
     type: DataType.STRING,
-    unique: 'id_evseId_stationId'
+    unique: 'connectorId_evseId_stationId'
   })
-  declare id: string;
+  declare connectorId: string;
 
   @Column({
     type: DataType.STRING,
-    unique: 'id_evseId_stationId'
+    unique: 'connectorId_evseId_stationId'
   })
   declare evseId: string;
 
   @Column({
     type: DataType.STRING,
-    unique: 'id_evseId_stationId'
+    unique: 'connectorId_evseId_stationId'
   })
   declare stationId: string;
 
