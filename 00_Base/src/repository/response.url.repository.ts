@@ -21,7 +21,7 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Commands,
+      OcpiNamespace.ResponseUrlCorrelationId,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

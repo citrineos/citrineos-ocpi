@@ -1,3 +1,5 @@
+import {ResponseUrlCorrelationId} from "../model/ResponseUrlCorrelationId";
+
 export enum OcpiNamespace {
   Credentials = 'Credentials',
   Version = 'Version',
@@ -13,4 +15,5 @@ export enum OcpiNamespace {
   ClientCredentialsRole = 'ClientCredentialsRole',
   ServerCredentialsRole = 'ServerCredentialsRole',
   CpoTenant = 'CpoTenant',
+  ResponseUrlCorrelationId = 'ResponseUrlCorrelationId',
 }
