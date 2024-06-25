@@ -17,8 +17,6 @@ import {
 import { ILogObj, Logger } from 'tslog';
 import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
-import { sequelize as sequelizeCore } from '@citrineos/data';
-import { CommandsOcppHandlers } from './module/handlers';
 
 export { CommandsModuleApi } from './module/api';
 export { ICommandsModuleApi } from './module/interface';
@@ -34,24 +32,7 @@ export class CommandsModule implements OcpiModule {
   ) {}
 
   init(handler?: IMessageHandler, sender?: IMessageSender): void {
-    Container.set(
-      AbstractModule,
-      new CommandsOcppHandlers(
-        this.config as SystemConfig,
-        this.cache,
-        handler,
-        sender,
-        Container.get(Logger),
-      ),
-    );
 
-    Container.set(
-      sequelizeCore.SequelizeTransactionEventRepository,
-      new sequelizeCore.SequelizeTransactionEventRepository(
-        Container.get(OcpiServerConfig) as SystemConfig,
-        Container.get(Logger),
-      ),
-    );
   }
 
   getController(): any {

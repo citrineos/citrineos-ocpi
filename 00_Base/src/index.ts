@@ -12,7 +12,6 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { LocationsController } from './controllers/locations.controller';
 import { SessionsController } from './controllers/sessions.controller';
 import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
@@ -175,7 +174,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          LocationsController,
           SessionsController,
           TariffsController,
           TokensController,

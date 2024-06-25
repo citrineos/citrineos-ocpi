@@ -7,7 +7,7 @@ import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
 import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
 import { ChargingProfileResult } from '../model/ChargingProfileResult';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import { ResponseSchema } from '../openapi-spec-helper';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
 

@@ -14,7 +14,6 @@ import { useContainer } from 'routing-controllers';
 import { Container, Service } from 'typedi';
 import { OcpiModule, LocationsClientApi, LocationsService } from '@citrineos/ocpi-base';
 import { LocationsHandlers } from './handlers';
-import { sequelize as sequelizeCore } from '@citrineos/data';
 import { LocationsModuleApi } from './api';
 
 useContainer(Container);
@@ -33,16 +32,6 @@ export class LocationsModule implements OcpiModule {
   init(handler: IMessageHandler, sender: IMessageSender): void {
     this.handler = handler;
     this.sender = sender;
-
-    Container.set(
-      sequelizeCore.SequelizeDeviceModelRepository,
-      new sequelizeCore.SequelizeDeviceModelRepository(this.config, this.logger)
-    );
-
-    Container.set(
-      sequelizeCore.SequelizeLocationRepository,
-      new sequelizeCore.SequelizeLocationRepository(this.config, this.logger)
-    );
 
     new LocationsHandlers(
       this.config as SystemConfig,

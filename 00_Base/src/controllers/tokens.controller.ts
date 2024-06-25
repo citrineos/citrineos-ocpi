@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Put } from 'routing-controllers';
 import { Service } from 'typedi';
 import { BaseController, generateMockOcpiResponse } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import { ResponseSchema } from '../openapi-spec-helper';
 import { HttpStatus } from '@citrineos/base';
 import { Token, TokenResponse } from '../model/Token';
 import { TokenType } from '../model/TokenType';

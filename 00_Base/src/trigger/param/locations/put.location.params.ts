@@ -13,4 +13,14 @@ export class PutLocationParams extends OcpiParams {
   @Type(() => LocationDTO)
   @ValidateNested()
   location!: LocationDTO;
+
+  static build(
+    locationId: number,
+    location: LocationDTO
+  ): PutLocationParams {
+    const params = new PutLocationParams();
+    params.locationId = String(locationId);
+    params.location = location;
+    return params;
+  }
 }

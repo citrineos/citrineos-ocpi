@@ -4,7 +4,7 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
 import { GeoLocation } from '../model/GeoLocation';
-import { sequelize as sequelizeCore } from '@citrineos/data';
+import { Location } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
 import { ConnectorEnumType, ConnectorStatusEnumType, } from '@citrineos/base';
 import { Capability } from '../model/Capability';
@@ -23,7 +23,7 @@ import { NOT_APPLICABLE } from "../util/consts";
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   // TODO pass credentials
   mapToOcpiLocation(
-    citrineLocation: sequelizeCore.Location,
+    citrineLocation: Location,
     chargingStationVariableAttributesMap: Record<string, ChargingStationVariableAttributes>,
     ocpiLocationInfo?: OcpiLocation
   ): LocationDTO {
@@ -80,7 +80,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   }
 
   mapToOcpiEvse(
-    citrineLocation: sequelizeCore.Location,
+    citrineLocation: Location,
     chargingStationAttributes: ChargingStationVariableAttributes,
     evseAttributes: EvseVariableAttributes,
     ocpiEvseInformation?: OcpiEvse

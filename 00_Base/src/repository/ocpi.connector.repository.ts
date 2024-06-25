@@ -24,4 +24,10 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
       ocpiSequelizeInstance.sequelize,
     );
   }
+
+  async createOrUpdateOcpiConnector(
+    connector: OcpiConnector
+  ) {
+    // TODO find evse by stationId/evseId
+  }
 }

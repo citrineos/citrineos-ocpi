@@ -8,16 +8,16 @@ import { Table, Model, Column, DataType } from "sequelize-typescript";
 export class OcpiConnector extends Model {
   // this is a GENERAL id, i.e. 1 or 2
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     unique: 'connectorId_evseId_stationId'
   })
-  declare connectorId: string;
+  declare connectorId: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     unique: 'connectorId_evseId_stationId'
   })
-  declare evseId: string;
+  declare evseId: number;
 
   @Column({
     type: DataType.STRING,

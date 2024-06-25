@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { sequelize as sequelizeCore } from '@citrineos/data';
 import { Service } from 'typedi';
+import { ChargingStation, SequelizeDeviceModelRepository, SequelizeLocationRepository } from '@citrineos/data';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 import { LocationDTO, LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
 import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
@@ -27,14 +27,13 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery
 } from "../model/variable-attributes/ConnectorVariableAttributes";
-import { PutEvseParams } from "../trigger/param/locations/put.evse.params";
-import { PutConnectorParams } from "../trigger/param/locations/put.connector.params";
 import { OcpiLocation } from "../model/Location";
 import { OcpiEvse } from "../model/Evse";
-import { PutLocationParams } from "../trigger/param/locations/put.location.params";
 import { PatchLocationParams } from "../trigger/param/locations/patch.location.params";
 import { PatchEvseParams } from "../trigger/param/locations/patch.evse.params";
 import { PatchConnectorParams } from "../trigger/param/locations/patch.connector.params";
+import { OcpiConnector } from "../model/Connector";
+import { PutLocationParams } from "../trigger/param/locations/put.location.params";
 
 @Service()
 export class LocationsService {
@@ -46,13 +45,17 @@ export class LocationsService {
 
   // TODO dynamically choose the appropriate location mapper, not just the Citrine one
   constructor(
-    private locationRepository: sequelizeCore.SequelizeLocationRepository,
-    private deviceModelRepository: sequelizeCore.SequelizeDeviceModelRepository,
+    private locationRepository: SequelizeLocationRepository,
+    private deviceModelRepository: SequelizeDeviceModelRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
-  ) {}
+  ) {
+    // this.locationRepository.on('created', async (location) => {
+    //   await this.processLocationCreate(location);
+    // })
+  }
   /**
    * Sender Methods
    */
@@ -68,7 +71,7 @@ export class LocationsService {
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
     const citrineLocations = await this.locationRepository.readAllByQuery({
-      include: [sequelizeCore.ChargingStation]
+      include: [ChargingStation]
     });
 
     const ocpiLocations: LocationDTO[] = [];
@@ -93,7 +96,7 @@ export class LocationsService {
     const locationResponse = new LocationResponse();
     locationResponse.timestamp = new Date();
 
-    const citrineLocation = await this.getLocationFromDatabase(locationId);
+    const citrineLocation = await this.locationRepository.readLocationById(locationId);
 
     if (!citrineLocation) {
       locationResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
@@ -121,7 +124,7 @@ export class LocationsService {
     const evseResponse = new EvseResponse();
     evseResponse.timestamp = new Date();
 
-    const citrineLocation = await this.getLocationFromDatabase(locationId);
+    const citrineLocation = await this.locationRepository.readLocationById(locationId);
 
     if (!citrineLocation) {
       evseResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
@@ -194,10 +197,19 @@ export class LocationsService {
   /**
    * Receiver Methods
    */
+  async processLocationCreate(
+    locationId: number
+  ): Promise<PutLocationParams> {
+    const location = await this.getLocationById(locationId);
+    await this.setOcpiLocationLastUpdated(locationId, new Date());
+    return PutLocationParams.build(locationId, location.data);
+  }
+
   async processLocationUpdate(
     locationId: number,
     lastUpdated: Date
   ): Promise<PatchLocationParams> {
+    // TODO fill in with more updates
     await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
     return new PatchLocationParams();
   }
@@ -210,10 +222,10 @@ export class LocationsService {
     const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
     if (!chargingStation || !chargingStation.locationId) {
-      throw new Error('Charging Station does not exist!'); // TODO more descriptive error
+      throw new Error(`Charging Station ${stationId} does not exist!`);
     }
 
-    // TODO call evse update for last updated
+    await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
 
     const locationId = chargingStation.locationId;
     const evseResponse = await this.getEvseById(locationId, stationId, evseId);
@@ -232,7 +244,7 @@ export class LocationsService {
       throw new Error('Charging Station does not exist!'); // TODO more descriptive error
     }
 
-    // TODO call connector update for last updated
+    await this.setOcpiConnectorLastUpdated(stationId, evseId, connectorId, lastUpdated);
 
     const locationId = chargingStation.locationId;
     const connectorResponse = await this.getConnectorById(locationId, stationId, evseId, connectorId);
@@ -243,17 +255,6 @@ export class LocationsService {
    * Helper Methods
    */
 
-  private async getLocationFromDatabase(locationId: number): Promise<sequelizeCore.Location | undefined> {
-    const matchingCitrineLocations = await this.locationRepository.readAllByQuery({
-      where: {
-        id: locationId
-      },
-      include: [sequelizeCore.ChargingStation]
-    });
-
-    return matchingCitrineLocations.length > 0 ? matchingCitrineLocations[0] : undefined;
-  }
-
   private async createChargingStationVariableAttributesMap(
     stationIds: string[],
     evseId?: number,
@@ -263,7 +264,7 @@ export class LocationsService {
 
     for (let stationId of stationIds) {
       const matchingAttributes =  await this.deviceModelRepository
-        .readBySqlString(
+        .readAllBySqlString(
           chargingStationVariableAttributesQuery(stationId)
         ) as ChargingStationVariableAttributes[];
 
@@ -295,7 +296,7 @@ export class LocationsService {
 
     for (let evseId of evseIds) {
       const matchingAttributes =  await this.deviceModelRepository
-        .readBySqlString(evseVariableAttributesQuery(stationId, evseId)) as EvseVariableAttributes[];
+        .readAllBySqlString(evseVariableAttributesQuery(stationId, evseId)) as EvseVariableAttributes[];
 
       if (matchingAttributes.length === 0) {
         continue;
@@ -325,7 +326,7 @@ export class LocationsService {
 
     for (let connectorId of connectorIds) {
       const matchingAttributes = await this.deviceModelRepository
-        .readBySqlString(connectorVariableAttributesQuery(stationId, evseId, connectorId)) as ConnectorVariableAttributes[];
+        .readAllBySqlString(connectorVariableAttributesQuery(stationId, evseId, connectorId)) as ConnectorVariableAttributes[];
 
       if (matchingAttributes.length === 0) {
         continue;
@@ -340,7 +341,7 @@ export class LocationsService {
   private async setOcpiLocationLastUpdated(
     locationId: number,
     lastUpdated: Date
-  ) {
+  ): Promise<void> {
     const ocpiLocation = new OcpiLocation();
     ocpiLocation.id = locationId;
     ocpiLocation.lastUpdated = lastUpdated;
@@ -351,10 +352,25 @@ export class LocationsService {
     stationId: string,
     evseId: number,
     lastUpdated: Date
-  ) {
+  ): Promise<void> {
     const ocpiEvse = new OcpiEvse();
+    ocpiEvse.stationId = stationId;
+    ocpiEvse.evseId = evseId;
     ocpiEvse.lastUpdated = lastUpdated;
     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(ocpiEvse);
   }
 
+  private async setOcpiConnectorLastUpdated(
+    stationId: string,
+    evseId: number,
+    connectorId: number,
+    lastUpdated: Date
+  ): Promise<void> {
+    const ocpiConnector = new OcpiConnector();
+    ocpiConnector.stationId = stationId;
+    ocpiConnector.evseId = evseId;
+    ocpiConnector.connectorId = connectorId;
+    ocpiConnector.lastUpdated = lastUpdated;
+    await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(ocpiConnector);
+  }
 }

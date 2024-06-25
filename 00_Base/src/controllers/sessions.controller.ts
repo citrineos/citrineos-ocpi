@@ -5,7 +5,7 @@ import {
   generateMockOcpiResponse,
 } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import { ResponseSchema } from '../openapi-spec-helper';
 import { PaginatedSessionResponse } from '../model/Session';
 import { HttpStatus } from '@citrineos/base';
 import { ChargingPreferencesResponse } from '../model/ChargingPreferencesResponse';

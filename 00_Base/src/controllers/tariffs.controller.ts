@@ -6,7 +6,7 @@ import {
 } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
 import { PaginatedTariffResponse } from '../model/Tariff';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
+import { ResponseSchema } from '../openapi-spec-helper';
 import { Service } from 'typedi';
 import { PaginatedParams } from './param/paginated.params';
 import { Paginated } from '../util/decorators/paginated';
