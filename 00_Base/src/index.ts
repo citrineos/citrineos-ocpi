@@ -31,7 +31,7 @@ import {
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
   SequelizeVariableMonitoringRepository,
-} from '../../../citrineos-core/01_Data/src/layers/sequelize';
+} from '@citrineos/data';
 
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
