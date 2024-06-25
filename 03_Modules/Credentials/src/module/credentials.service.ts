@@ -223,7 +223,9 @@ export class CredentialsService {
       throw new NotFoundError('Version not found');
     }
     const serverVersion = serverVersionResponse[0];
-    const serverVersionUrl = serverVersion.url;
+    // TODO, should version url should be in DB?
+    const serverVersionUrl =
+      'https://plugfest-dallas.demo.citrineos.app:445/ocpi/versions';
 
     const clientVersion = await this.getVersionDetails(
       versionNumber,
