@@ -82,7 +82,13 @@ export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { CommandResultType } from './model/CommandResult';
 export { LocationDTO, LocationResponse, PaginatedLocationResponse } from './model/DTO/LocationDTO';
-export { EvseDTO, EvseResponse } from './model/DTO/EvseDTO';
+export {
+  EvseDTO,
+  EvseResponse,
+  UID_FORMAT,
+  EXTRACT_EVSE_ID,
+  EXTRACT_STATION_ID
+} from './model/DTO/EvseDTO';
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';

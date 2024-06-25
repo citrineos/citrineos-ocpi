@@ -18,11 +18,12 @@ import {
   PaginatedParams,
   Paginated,
   ConnectorResponse,
-  EvseResponse
+  EvseResponse,
+  EXTRACT_STATION_ID,
+  EXTRACT_EVSE_ID
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
-import { EXTRACT_STATION_ID } from "@citrineos/ocpi-base/dist/model/DTO/EvseDTO";
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -93,7 +94,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     @Param('evse_uid') evseUid: string
   ): Promise<EvseResponse> {
     const stationId = EXTRACT_STATION_ID(evseUid);
-    const evseId = EXTRACT_STATION_ID(evseUid);
+    const evseId = EXTRACT_EVSE_ID(evseUid);
 
     return this.locationsService.getEvseById(locationId, stationId, Number(evseId));
   }
@@ -113,7 +114,7 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     @Param('connector_id') connectorId: string,
   ): Promise<ConnectorResponse> {
     const stationId = EXTRACT_STATION_ID(evseUid);
-    const evseId = EXTRACT_STATION_ID(evseUid);
+    const evseId = EXTRACT_EVSE_ID(evseUid);
 
     return this.locationsService.getConnectorById(locationId, stationId, Number(evseId), Number(connectorId));
   }
