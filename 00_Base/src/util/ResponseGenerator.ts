@@ -6,7 +6,7 @@ export function buildGenericSuccessResponse<T>(
   message?: string,
 ): OcpiResponse<T> {
   const response: OcpiResponse<T> = new OcpiResponse<T>();
-  response.status_code = OcpiResponseStatusCode.ServerGenericError;
+  response.status_code = OcpiResponseStatusCode.GenericSuccessCode;
   response.status_message = message || 'Success';
   response.data = data;
   return response;
