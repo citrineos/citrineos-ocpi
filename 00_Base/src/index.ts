@@ -1,4 +1,4 @@
-import { useContainer } from 'routing-controllers';
+import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
 import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
@@ -10,6 +10,12 @@ import Koa from 'koa';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
+import { CdrsController } from './controllers/cdrs.controller';
+import { ChargingProfilesController } from './controllers/charging.profiles.controller';
+import { LocationsController } from './controllers/locations.controller';
+import { SessionsController } from './controllers/sessions.controller';
+import { TariffsController } from './controllers/tariffs.controller';
+import { TokensController } from './controllers/tokens.controller';
 
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
@@ -126,12 +132,21 @@ export class OcpiServer extends KoaServer {
     try {
       this.koa = new Koa();
       const controllers = this.modules.map((module) => module.getController());
-      this.initApp({
-        controllers,
+      const options: RoutingControllersOptions = {
+        controllers: [
+          ...controllers,
+          CdrsController,
+          ChargingProfilesController,
+          LocationsController,
+          SessionsController,
+          TariffsController,
+          TokensController,
+        ],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
-      });
+      } as RoutingControllersOptions;
+      this.initApp(options);
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
