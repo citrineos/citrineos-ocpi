@@ -2,13 +2,13 @@ import { Body, Controller, Get, Param, Patch, Put } from 'routing-controllers';
 import { Service } from 'typedi';
 import { BaseController, generateMockOcpiResponse } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 import { HttpStatus } from '@citrineos/base';
 import { Token, TokenResponse } from '../model/Token';
 import { TokenType } from '../model/TokenType';
 import { EnumQueryParam } from '../util/decorators/enum.query.param';
 import { ModuleId } from '../model/ModuleId';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { ResponseSchema } from '../openapi-spec-helper';
 
 const MOCK_TOKEN = generateMockOcpiResponse(TokenResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
