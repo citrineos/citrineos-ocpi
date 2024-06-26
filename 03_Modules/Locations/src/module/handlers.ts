@@ -17,7 +17,13 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from "@citrineos/util";
 import { ILogObj, Logger } from "tslog";
 import deasyncPromise from "deasync-promise";
-import { CONNECTOR_COMPONENT, EVSE_COMPONENT, LocationsClientApi, LocationsService } from "@citrineos/ocpi-base";
+import {
+  CONNECTOR_COMPONENT,
+  EVSE_COMPONENT,
+  AVAILABILITY_STATE_VARIABLE,
+  LocationsClientApi,
+  LocationsService
+} from "@citrineos/ocpi-base";
 
 
 /**
@@ -102,10 +108,10 @@ export class LocationsHandlers extends AbstractModule {
     const events = message.payload.eventData as EventDataType[];
     for (const event of events) {
       const component = event.component;
-      // const status = event.actualValue;
-      const status = ConnectorStatusEnumType.Available; // DON'T KEEP THIS
+      const variable = event.variable
+      const status = event.actualValue;
 
-      if (component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT) {
+      if ((component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT) || variable.name !== AVAILABILITY_STATE_VARIABLE) {
         this._logger.debug('Ignoring NotifyEvent since it is not a processed OCPI event.');
       } else if (component.name === EVSE_COMPONENT) {
         const evseId = component.evse?.id ?? 1; // TODO better fallback

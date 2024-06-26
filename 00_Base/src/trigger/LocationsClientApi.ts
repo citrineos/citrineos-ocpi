@@ -154,6 +154,7 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
+  // TODO invoke when new connector is added
   async putConnector(params: PutConnectorParams): Promise<OcpiResponse<void>> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
@@ -181,6 +182,7 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
+  // TODO invoke when new evse is added
   async putEvse(params: PutEvseParams): Promise<OcpiResponse<void>> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(

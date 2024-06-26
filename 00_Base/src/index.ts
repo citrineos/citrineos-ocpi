@@ -109,7 +109,9 @@ export {
   EVSE_COMPONENT,
   CONNECTOR_COMPONENT,
   TOKEN_READER_COMPONENT,
-  UNKNOWN_ID
+  AVAILABILITY_STATE_VARIABLE,
+  UNKNOWN_ID,
+  NOT_APPLICABLE
 } from './util/consts';
 
 export { ResponseSchema } from './openapi-spec-helper/decorators';
