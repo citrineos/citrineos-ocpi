@@ -21,7 +21,7 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Commands,
+      OcpiNamespace.ResponseUrlCorrelationId,
       logger,
       ocpiSequelizeInstance.sequelize,
     );
@@ -29,8 +29,8 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
 
   public getResponseUrl = async (
     correlationId: string,
-  ): Promise<ResponseUrlCorrelationId | null> =>
-    await ResponseUrlCorrelationId.findOne({
+  ): Promise<ResponseUrlCorrelationId | undefined> =>
+    await this.readOnlyOneByQuery({
       where: {
         correlationId: correlationId,
       },
@@ -40,8 +40,10 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
     correlationId: string,
     responseUrl: string,
   ): Promise<ResponseUrlCorrelationId> =>
-    await ResponseUrlCorrelationId.create({
-      correlationId: correlationId,
-      responseUrl: responseUrl,
-    });
+    await this.create(
+      ResponseUrlCorrelationId.build({
+        correlationId: correlationId,
+        responseUrl: responseUrl,
+      }),
+    );
 }

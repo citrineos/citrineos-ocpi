@@ -29,11 +29,11 @@ import {
   ActiveChargingProfileResult,
   AsyncResponder,
   ChargingProfileResultType,
+  ChargingProfileResult
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { ClearChargingProfileResult } from '@citrineos/ocpi-base';
 import { ActiveChargingProfile } from '../../../../00_Base/src/model/ActiveChargingProfile';
-import { ChargingProfileResult } from '../../../../00_Base/src';
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {

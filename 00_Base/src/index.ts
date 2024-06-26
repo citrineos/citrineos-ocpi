@@ -66,7 +66,6 @@ export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
-export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
@@ -89,6 +88,7 @@ export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 export { AsyncResponder } from './util/AsyncResponder';
+export { ResponseGenerator } from './util/response.generator';
 
 export { versionIdParam } from './util/decorators/version.number.param';
 

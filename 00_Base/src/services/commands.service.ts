@@ -9,17 +9,12 @@ import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
 import { CommandExecutor } from '../util/command.executor';
 import { OcpiResponse } from '../model/ocpi.response';
 import { NotFoundException } from '../exception/NotFoundException';
-import {
-  buildGenericClientErrorResponse,
-  buildGenericServerErrorResponse,
-  buildGenericSuccessResponse,
-  buildUnknownLocationResponse,
-  buildUnknownSessionResponse,
-} from '../util/response.generator';
+import { ResponseGenerator } from '../util/response.generator';
 
 @Service()
 export class CommandsService {
   readonly TIMEOUT = 30;
+
   constructor(private commandExecutor: CommandExecutor) {}
 
   async postCommand(
@@ -43,7 +38,7 @@ export class CommandsService {
       case CommandType.UNLOCK_CONNECTOR:
         return this.handleUnlockConnector(payload as UnlockConnector);
       default:
-        return buildGenericClientErrorResponse(
+        return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.NOT_SUPPORTED,
             timeout: this.TIMEOUT,
@@ -57,7 +52,7 @@ export class CommandsService {
   private handleCancelReservation(
     cancelReservation: CancelReservation,
   ): OcpiResponse<CommandResponse> {
-    return buildGenericClientErrorResponse({
+    return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
       timeout: this.TIMEOUT,
     });
@@ -66,7 +61,7 @@ export class CommandsService {
   private handleReserveNow(
     reserveNow: ReserveNow,
   ): OcpiResponse<CommandResponse> {
-    return buildGenericClientErrorResponse({
+    return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
       timeout: this.TIMEOUT,
     });
@@ -77,13 +72,13 @@ export class CommandsService {
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
       await this.commandExecutor.executeStartSession(startSession);
-      return buildGenericSuccessResponse({
+      return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,
       });
     } catch (e) {
       if (e instanceof NotFoundException) {
-        return buildUnknownLocationResponse(
+        return ResponseGenerator.buildUnknownLocationResponse(
           {
             result: CommandResponseType.REJECTED,
             timeout: this.TIMEOUT,
@@ -93,7 +88,7 @@ export class CommandsService {
         );
       } else {
         console.error(e);
-        return buildGenericServerErrorResponse(
+        return ResponseGenerator.buildGenericServerErrorResponse(
           {
             result: CommandResponseType.REJECTED,
             timeout: this.TIMEOUT,
@@ -110,13 +105,13 @@ export class CommandsService {
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
       await this.commandExecutor.executeStopSession(stopSession);
-      return buildGenericSuccessResponse({
+      return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,
       });
     } catch (e) {
       if (e instanceof NotFoundException) {
-        return buildUnknownSessionResponse(
+        return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.UNKNOWN_SESSION,
             timeout: this.TIMEOUT,
@@ -126,7 +121,7 @@ export class CommandsService {
         );
       } else {
         console.error(e);
-        return buildGenericServerErrorResponse(
+        return ResponseGenerator.buildGenericServerErrorResponse(
           {} as CommandResponse,
           undefined,
           e as Error,
@@ -138,7 +133,7 @@ export class CommandsService {
   private handleUnlockConnector(
     unlockConnector: UnlockConnector,
   ): OcpiResponse<CommandResponse> {
-    return buildGenericClientErrorResponse({
+    return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
       timeout: this.TIMEOUT,
     });

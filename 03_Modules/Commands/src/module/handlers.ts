@@ -115,9 +115,10 @@ export class CommandsOcppHandlers extends AbstractModule {
     result: CommandResultType,
   ) {
     try {
-      await this.asyncResponder.send(correlationId, {
+      const response = await this.asyncResponder.send(correlationId, {
         result: result,
       } as CommandResult);
+      console.log('Async response: ', response);
     } catch (e) {
       console.error(e);
     }

@@ -49,7 +49,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
       where: {
         serverToken: token,
       },
-      include: [ClientCredentialsRole],
+      include: ClientCredentialsRole,
     };
     const clientInformationList = await this.readAllByQuery(query); // todo should be read one by query
     if (clientInformationList && countryCode && partyId) {
