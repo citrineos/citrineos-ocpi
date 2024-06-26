@@ -7,9 +7,9 @@ import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
 import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
 import { ChargingProfileResult } from '../model/ChargingProfileResult';
-import { ResponseSchema } from '../openapi-spec-helper';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
+import { ResponseSchema } from '../openapi-spec-helper';
 
 const MOCK = generateMockOcpiResponse(OcpiEmptyResponse);
 

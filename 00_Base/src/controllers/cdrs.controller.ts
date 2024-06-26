@@ -6,11 +6,11 @@ import {
   generateMockOcpiPaginatedResponse,
 } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { ResponseSchema } from '../openapi-spec-helper';
 import { Service } from 'typedi';
 import { PaginatedParams } from './param/paginated.params';
 import { Paginated } from '../util/decorators/paginated';
 import { ModuleId } from '../model/ModuleId';
+import { ResponseSchema } from '../openapi-spec-helper';
 
 const MOCK = generateMockOcpiPaginatedResponse(
   PaginatedCdrResponse,
