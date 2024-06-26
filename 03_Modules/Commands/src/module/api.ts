@@ -6,7 +6,6 @@
 import { ICommandsModuleApi } from './interface';
 
 import {
-  BadRequestError,
   Body,
   JsonController,
   Post,
@@ -38,7 +37,7 @@ import {
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import {ResponseGenerator} from "@citrineos/ocpi-base";
+import { ResponseGenerator } from '@citrineos/ocpi-base';
 
 /**
  * Server API for the provisioning component.
@@ -98,13 +97,21 @@ export class CommandsModuleApi
         _payload = plainToInstance(UnlockConnector, _payload);
         break;
       default:
-        return ResponseGenerator.buildGenericClientErrorResponse(undefined, 'Unknown command type: ' + _commandType, undefined);
+        return ResponseGenerator.buildGenericClientErrorResponse(
+          undefined,
+          'Unknown command type: ' + _commandType,
+          undefined,
+        );
     }
 
     return await validate(_payload).then(async (errors) => {
       if (errors.length > 0) {
         const errorString = errors.map((error) => error.toString()).join(', ');
-        return ResponseGenerator.buildGenericClientErrorResponse(undefined, errorString, undefined);
+        return ResponseGenerator.buildGenericClientErrorResponse(
+          undefined,
+          errorString,
+          undefined,
+        );
       } else {
         return await this.commandsService.postCommand(_commandType, _payload);
       }

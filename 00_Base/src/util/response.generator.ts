@@ -2,8 +2,8 @@ import { OcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
 
 export class ResponseGenerator {
   static buildGenericSuccessResponse<T>(
-      data?: T,
-      message?: string,
+    data?: T,
+    message?: string,
   ): OcpiResponse<T> {
     const response: OcpiResponse<T> = new OcpiResponse<T>();
     response.status_code = OcpiResponseStatusCode.GenericSuccessCode;
@@ -13,9 +13,9 @@ export class ResponseGenerator {
   }
 
   static buildGenericServerErrorResponse<T>(
-      data?: T,
-      message?: string,
-      error?: Error,
+    data?: T,
+    message?: string,
+    error?: Error,
   ): OcpiResponse<T> {
     const response: OcpiResponse<T> = new OcpiResponse<T>();
     response.status_code = OcpiResponseStatusCode.ServerGenericError;
@@ -25,9 +25,9 @@ export class ResponseGenerator {
   }
 
   static buildGenericClientErrorResponse<T>(
-      data?: T,
-      message?: string,
-      error?: Error,
+    data?: T,
+    message?: string,
+    error?: Error,
   ): OcpiResponse<T> {
     const response: OcpiResponse<T> = new OcpiResponse<T>();
     response.status_code = OcpiResponseStatusCode.ClientGenericError;
@@ -37,14 +37,14 @@ export class ResponseGenerator {
   }
 
   static buildUnknownLocationResponse<T>(
-      data?: T,
-      message?: string,
-      error?: Error,
+    data?: T,
+    message?: string,
+    error?: Error,
   ): OcpiResponse<T> {
     const response: OcpiResponse<T> = this.buildGenericServerErrorResponse(
-        data,
-        message,
-        error,
+      data,
+      message,
+      error,
     );
     response.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
     return response;

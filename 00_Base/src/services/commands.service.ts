@@ -9,9 +9,7 @@ import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
 import { CommandExecutor } from '../util/command.executor';
 import { OcpiResponse } from '../model/ocpi.response';
 import { NotFoundException } from '../exception/NotFoundException';
-import {
-  ResponseGenerator,
-} from '../util/response.generator';
+import { ResponseGenerator } from '../util/response.generator';
 
 @Service()
 export class CommandsService {

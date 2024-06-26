@@ -6,7 +6,7 @@ import { SystemConfig, UnauthorizedException } from '@citrineos/base';
 import { ClientInformation } from '../model/ClientInformation';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { ILogObj, Logger } from 'tslog';
-import {ClientCredentialsRole} from "../model/ClientCredentialsRole";
+import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
