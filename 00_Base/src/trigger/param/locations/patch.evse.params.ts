@@ -13,17 +13,17 @@ export class PatchEvseParams extends OcpiParams {
   @Length(36, 36)
   evseUid!: string;
 
-  requestBody!: { [key: string]: object };
+  requestBody!: Partial<EvseDTO>;
 
   static build(
     locationId: number,
     evseUid: string,
-    evse: object
+    evse: Partial<EvseDTO>
   ): PatchEvseParams {
     const params = new PatchEvseParams();
     params.locationId = String(locationId);
     params.evseUid = evseUid;
-    params.requestBody = {...evse};
+    params.requestBody = evse;
     return params;
   }
 }

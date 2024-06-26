@@ -19,7 +19,7 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Connectors,
+      OcpiNamespace.OcpiConnector,
       logger,
       ocpiSequelizeInstance.sequelize,
     );
@@ -34,10 +34,17 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
         evseId: connector.evseId,
         stationId: connector.stationId,
       },
-      defaults: { ...connector }
+      defaults: {
+        connectorId: connector.connectorId,
+        evseId: connector.evseId,
+        stationId: connector.stationId,
+        lastUpdated: connector.lastUpdated
+      }
     });
     if (!ocpiConnectorCreated) {
-      await this._updateByKey({ ...connector }, savedOcpiConnector.id);
+      await this._updateByKey({
+        lastUpdated: connector.lastUpdated
+      }, savedOcpiConnector.id);
     }
   }
 }

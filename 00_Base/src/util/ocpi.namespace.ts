@@ -12,7 +12,7 @@ export enum OcpiNamespace {
   ClientCredentialsRole = 'ClientCredentialsRole',
   ServerCredentialsRole = 'ServerCredentialsRole',
   CpoTenant = 'CpoTenant',
-  Locations = 'OcpiLocations',
-  Evses = 'OcpiEvses',
-  Connectors = 'OcpiConnectors'
+  OcpiLocation = 'OcpiLocation',
+  OcpiEvse = 'OcpiEvse',
+  OcpiConnector = 'OcpiConnector'
 }

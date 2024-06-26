@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString } from "class-validator";
  * Represents the Connector variable attributes
  * necessary to map to an OCPI Location/EVSE/Connector.
  *
- * Properties are in snake_case to make SQL properties are properly mapped,
+ * Properties are in snake_case to ensure SQL properties are properly mapped,
  * as CamelCase does register.
  */
 export class ConnectorVariableAttributes {

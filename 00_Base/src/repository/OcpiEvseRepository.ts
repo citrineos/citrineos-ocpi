@@ -19,7 +19,7 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Evses,
+      OcpiNamespace.OcpiEvse,
       logger,
       ocpiSequelizeInstance.sequelize,
     );
@@ -33,10 +33,17 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
         evseId: evse.evseId,
         stationId: evse.stationId,
       },
-      defaults: { ...evse }
+      defaults: {
+        evseId: evse.evseId,
+        stationId: evse.stationId,
+        lastUpdated: evse.lastUpdated
+      }
     });
     if (!ocpiEvseCreated) {
-      await this._updateByKey({ ...evse }, savedOcpiEvse.id);
+      await this._updateByKey({
+        physicalReference: evse.physicalReference,
+        lastUpdated: evse.lastUpdated
+      }, savedOcpiEvse.id);
     }
   }
 }

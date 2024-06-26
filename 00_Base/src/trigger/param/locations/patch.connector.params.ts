@@ -18,19 +18,19 @@ export class PatchConnectorParams extends OcpiParams {
   @Length(36, 36)
   connectorId!: string;
 
-  requestBody!: { [key: string]: object };
+  requestBody!: Partial<ConnectorDTO>;
 
   static build(
     locationId: number,
     evseUid: string,
     connectorId: number,
-    connector: object
+    connector: Partial<ConnectorDTO>
   ): PatchConnectorParams {
     const params = new PatchConnectorParams();
     params.locationId = String(locationId);
     params.evseUid = evseUid;
     params.connectorId = String(connectorId);
-    params.requestBody = {...connector};
+    params.requestBody = connector;
     return params;
   }
 }

@@ -19,7 +19,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Locations,
+      OcpiNamespace.OcpiLocation,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

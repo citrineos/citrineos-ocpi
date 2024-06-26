@@ -12,9 +12,9 @@ import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
-import { OcpiLocationRepository } from '../repository/ocpi.location.repository';
-import { OcpiEvseRepository } from '../repository/ocpi.evse.repository';
-import { OcpiConnectorRepository } from '../repository/ocpi.connector.repository';
+import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
+import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import {
   ChargingStationVariableAttributes,
   chargingStationVariableAttributesQuery
@@ -36,6 +36,7 @@ import { OcpiConnector } from "../model/Connector";
 import { PutLocationParams } from "../trigger/param/locations/put.location.params";
 import { ConnectorStatusEnumType } from "../../../../citrineos-core/00_Base";
 import { LocationsClientApi } from "../trigger/LocationsClientApi";
+import { EvseStatus } from "../model/EvseStatus";
 
 @Service()
 export class LocationsService {
@@ -229,9 +230,11 @@ export class LocationsService {
     await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
 
     // TODO more robust location update
-    const params = PatchLocationParams.build(locationId, {
-      last_updated: lastUpdated.toISOString()
-    });
+    const params = PatchLocationParams.build(
+      locationId,
+      {
+        last_updated: lastUpdated
+      });
 
     await this.locationsClientApi.patchLocation(params);
   }
@@ -253,10 +256,13 @@ export class LocationsService {
     await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
     await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
 
-    const params = PatchEvseParams.build(locationId, UID_FORMAT(stationId, evseId), {
-      status,
-      last_updated: lastUpdated.toISOString()
-    });
+    const params = PatchEvseParams.build(
+      locationId,
+      UID_FORMAT(stationId, evseId),
+      {
+        status: EvseStatus.AVAILABLE, // TODO must figure out based on the status of the connectors!
+        last_updated: lastUpdated
+      });
 
     await this.locationsClientApi.patchEvse(params);
   }
@@ -285,8 +291,7 @@ export class LocationsService {
       UID_FORMAT(stationId, evseId),
       connectorId,
       {
-        status,
-        last_updated: lastUpdated.toISOString()
+        last_updated: lastUpdated
       });
 
     await this.locationsClientApi.patchConnector(params);
