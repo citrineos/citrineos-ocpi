@@ -9,11 +9,11 @@ import { HttpStatus } from '@citrineos/base';
 import { LocationResponse, PaginatedLocationResponse } from '../model/Location';
 import { EvseResponse } from '../model/Evse';
 import { ConnectorResponse } from '../model/Connector';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 import { Service } from 'typedi';
 import { PaginatedParams } from './param/paginated.params';
 import { Paginated } from '../util/decorators/paginated';
 import { ModuleId } from '../model/ModuleId';
+import { ResponseSchema } from '../openapi-spec-helper';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
