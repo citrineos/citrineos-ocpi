@@ -24,7 +24,6 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/uuid": "^9.0.1",
     "@types/jest": "^29.5.12",
     "@types/koa": "^2.15.0",
     "@types/koa-bodyparser": "^4.3.12",
@@ -32,6 +31,8 @@
     "@types/lodash.capitalize": "^4.2.9",
     "@types/lodash.merge": "^4.6.9",
     "@types/lodash.startcase": "^4.4.9",
+    "@types/uuid": "^9.0.1",
+    "nodemon": "^3.1.4",
     "sequelize-cli": "^6.6.2",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
@@ -57,12 +58,12 @@
     "lodash.capitalize": "^4.2.1",
     "lodash.merge": "^4.6.2",
     "lodash.startcase": "^4.4.0",
+    "pg": "^8.11.3",
     "reflect-metadata": "^0.2.2",
     "routing-controllers": "^0.10.4",
+    "sequelize-typescript": "^2.1.5",
     "typed-rest-client": "^1.8.11",
     "typedi": "^0.10.0",
-    "sequelize-typescript": "^2.1.5",
-    "uuid": "^9.0.0",
-    "pg": "^8.11.3"
+    "uuid": "^9.0.0"
   }
 }
