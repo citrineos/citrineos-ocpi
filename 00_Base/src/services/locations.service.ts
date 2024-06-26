@@ -260,7 +260,7 @@ export class LocationsService {
       locationId,
       UID_FORMAT(stationId, evseId),
       {
-        status: EvseStatus.AVAILABLE, // TODO must figure out based on the status of the connectors!
+        status: this.locationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(status),
         last_updated: lastUpdated
       });
 

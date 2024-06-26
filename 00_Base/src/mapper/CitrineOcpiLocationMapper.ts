@@ -87,7 +87,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   ): EvseDTO {
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id); // format evse uid
-    evse.status = this.getStatus(evseAttributes.evse_availability_state, chargingStationAttributes.bay_occupancy_sensor_active);
+    evse.status = this.mapOCPPAvailabilityStateToOCPIEvseStatus(evseAttributes.evse_availability_state, chargingStationAttributes.bay_occupancy_sensor_active);
     evse.evse_id = evseAttributes.evse_id;
     evse.capabilities = this.getCapabilities(chargingStationAttributes.authorize_remote_start, chargingStationAttributes.token_reader_enabled);
     evse.coordinates = this.getCoordinates(citrineLocation.coordinates);
@@ -162,9 +162,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return capabilities;
   }
 
-  private getStatus(
+  mapOCPPAvailabilityStateToOCPIEvseStatus(
     availabilityState: string,
-    parkingBayOccupancy: string
+    parkingBayOccupancy?: string // TODO should this be optional?
   ): EvseStatus {
     if (parkingBayOccupancy === 'true') {
       return EvseStatus.BLOCKED;
