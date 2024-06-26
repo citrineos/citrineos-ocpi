@@ -1,38 +1,38 @@
 import { Controller, Get } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
+import { PaginatedCdrResponse } from '../model/Cdr';
 import {
   BaseController,
   generateMockOcpiPaginatedResponse,
 } from './base.controller';
 import { AsOcpiFunctionalEndpoint } from '../util/decorators/as.ocpi.functional.endpoint';
-import { PaginatedTariffResponse } from '../model/Tariff';
-import { ResponseSchema } from '../../../00_Base/src/openapi-spec-helper';
 import { Service } from 'typedi';
 import { PaginatedParams } from './param/paginated.params';
 import { Paginated } from '../util/decorators/paginated';
 import { ModuleId } from '../model/ModuleId';
+import { ResponseSchema } from '../openapi-spec-helper';
 
 const MOCK = generateMockOcpiPaginatedResponse(
-  PaginatedTariffResponse,
+  PaginatedCdrResponse,
   new PaginatedParams(),
 );
 
-@Controller(`/${ModuleId.Tariffs}`)
+@Controller(`/${ModuleId.Cdrs}`)
 @Service()
-export class TariffsController extends BaseController {
+export class CdrsController extends BaseController {
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedTariffResponse, {
+  @ResponseSchema(PaginatedCdrResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
       success: MOCK,
     },
   })
-  async getTariffs(
+  async getCdrs(
     @Paginated() paginationParams?: PaginatedParams,
-  ): Promise<PaginatedTariffResponse> {
-    console.log('getTariffs', paginationParams);
+  ): Promise<PaginatedCdrResponse> {
+    console.log('getCdrs', paginationParams);
     return MOCK;
   }
 }

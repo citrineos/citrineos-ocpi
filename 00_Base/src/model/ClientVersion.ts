@@ -6,7 +6,7 @@ import {
   HasMany,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { VersionNumber } from './VersionNumber';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Enum } from '../util/decorators/enum';

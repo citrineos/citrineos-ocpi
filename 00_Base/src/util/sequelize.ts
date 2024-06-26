@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
