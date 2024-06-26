@@ -2,6 +2,7 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
+  ConnectorStatusEnumType,
   EventDataType,
   EventGroup,
   HandlerProperties,
@@ -23,11 +24,7 @@ import { CONNECTOR_COMPONENT, EVSE_COMPONENT, LocationsClientApi, LocationsServi
  * Component that handles provisioning related messages.
  */
 export class LocationsHandlers extends AbstractModule {
-  // TODO read database events for LOCATION updates
-  // not necessarily in this file, just as a general reminder
-
   locationsService: LocationsService;
-  locationsClientApi: LocationsClientApi;
 
   /**
    * Fields
@@ -46,8 +43,7 @@ export class LocationsHandlers extends AbstractModule {
    *
    * @param {ICache} [cache] - The cache instance which is shared among the modules & Central System to pass information such as blacklisted actions or boot status.
    *
-   * @param locationsService
-   * @param locationsClientApi
+   * @param {LocationsService} [locationsService] - The LocationsService holds the business logic necessary to process incoming handled requests.
    *
    * @param {IMessageSender} [sender] - The `sender` parameter is an optional parameter that represents an instance of the {@link IMessageSender} interface.
    * It is used to send messages from the central system to external systems or devices. If no `sender` is provided, a default {@link RabbitMqSender} instance is created and used.
@@ -63,7 +59,6 @@ export class LocationsHandlers extends AbstractModule {
     config: SystemConfig,
     cache: ICache,
     locationsService: LocationsService,
-    locationsClientApi: LocationsClientApi,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -78,7 +73,6 @@ export class LocationsHandlers extends AbstractModule {
     );
 
     this.locationsService = locationsService;
-    this.locationsClientApi = locationsClientApi;
 
     const timer = new Timer();
     this._logger.info('Initializing...');
@@ -108,21 +102,23 @@ export class LocationsHandlers extends AbstractModule {
     const events = message.payload.eventData as EventDataType[];
     for (const event of events) {
       const component = event.component;
-      const variable = event.variable;
+      // const status = event.actualValue;
+      const status = ConnectorStatusEnumType.Available; // DON'T KEEP THIS
 
       if (component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT) {
         this._logger.debug('Ignoring NotifyEvent since it is not a processed OCPI event.');
       } else if (component.name === EVSE_COMPONENT) {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
-        const params = await this.locationsService.processEvseUpdate(
-          stationId, evseId, new Date());
-        await this.locationsClientApi.patchEvse(params);
+        // TODO use the message context timestamp when it's merged into 1.3.0
+        // await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date(message.context.timestamp));
+        await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date());
       } else if (component.name === CONNECTOR_COMPONENT) {
         const connectorId = component.evse?.connectorId ?? 1; // TODO better fallback
         const evseId = component.evse?.id ?? 1; // TODO better fallback
-        const params = await this.locationsService.processConnectorUpdate(
-          stationId, evseId, connectorId, new Date());
-        await this.locationsClientApi.patchConnector(params);      }
+        // TODO use the message context timestamp when it's merged into 1.3.0
+        // await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date(message.context.timestamp));
+        await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date());
+      }
     }
   }
 
@@ -136,9 +132,8 @@ export class LocationsHandlers extends AbstractModule {
     const stationId = message.context.stationId;
     const evseId = message.payload.evseId;
     const connectorId = message.payload.connectorId;
-    const params = await this.locationsService.processConnectorUpdate(
-      stationId, evseId, connectorId, new Date(message.payload.timestamp));
-    await this.locationsClientApi.patchConnector(params);
+    const status = message.payload.connectorStatus;
+    await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date(message.payload.timestamp));
   }
 
 }

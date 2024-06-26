@@ -37,7 +37,6 @@ export class LocationsModule implements OcpiModule {
       this.config as SystemConfig,
       this.cache,
       Container.get(LocationsService),
-      Container.get(LocationsClientApi),
       this.handler,
       this.sender,
       this.logger,

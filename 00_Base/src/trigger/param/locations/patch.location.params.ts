@@ -8,4 +8,14 @@ export class PatchLocationParams extends OcpiParams {
   locationId!: string;
 
   requestBody!: { [key: string]: object };
+
+  static build(
+    locationId: number,
+    location: object
+  ): PatchLocationParams {
+    const params = new PatchLocationParams();
+    params.locationId = String(locationId);
+    params.requestBody = {...location};
+    return params;
+  }
 }

@@ -34,6 +34,8 @@ import { PatchEvseParams } from "../trigger/param/locations/patch.evse.params";
 import { PatchConnectorParams } from "../trigger/param/locations/patch.connector.params";
 import { OcpiConnector } from "../model/Connector";
 import { PutLocationParams } from "../trigger/param/locations/put.location.params";
+import { ConnectorStatusEnumType } from "../../../../citrineos-core/00_Base";
+import { LocationsClientApi } from "../trigger/LocationsClientApi";
 
 @Service()
 export class LocationsService {
@@ -51,10 +53,19 @@ export class LocationsService {
     private ocpiEvseRepository: OcpiEvseRepository,
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
-  ) {
-    // this.locationRepository.on('created', async (location) => {
-    //   await this.processLocationCreate(location);
-    // })
+    private locationsClientApi: LocationsClientApi,
+) {
+    // TODO add database triggers for EVSEs and Connectors if possible
+
+    this.locationRepository.on('created', async (locations) =>
+      locations.forEach(async (location) => 
+        await this.processLocationCreate(location.id))
+    );
+
+    this.locationRepository.on('updated', async (locations) =>
+      locations.forEach(async (location) =>
+        await this.processLocationUpdate(location.id, new Date(location.updatedAt)))
+    );
   }
   /**
    * Sender Methods
@@ -64,7 +75,6 @@ export class LocationsService {
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     // TODO make in-memory pagination
-    // TODO use sql literal to pull data from all different tables
 
     const paginatedLocationResponse = new PaginatedLocationResponse();
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
@@ -199,26 +209,39 @@ export class LocationsService {
    */
   async processLocationCreate(
     locationId: number
-  ): Promise<PutLocationParams> {
-    const location = await this.getLocationById(locationId);
+  ): Promise<void> {
+    const locationResponse = await this.getLocationById(locationId);
     await this.setOcpiLocationLastUpdated(locationId, new Date());
-    return PutLocationParams.build(locationId, location.data);
+    const params = PutLocationParams.build(locationId, locationResponse.data);
+    await this.locationsClientApi.putLocation(params);
   }
 
   async processLocationUpdate(
     locationId: number,
     lastUpdated: Date
-  ): Promise<PatchLocationParams> {
-    // TODO fill in with more updates
+  ): Promise<void> {
+    const location = await this.getLocationById(locationId);
+
+    if (!location) {
+      throw new Error(`Location ${locationId} does not exist!`);
+    }
+
     await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
-    return new PatchLocationParams();
+
+    // TODO more robust location update
+    const params = PatchLocationParams.build(locationId, {
+      last_updated: lastUpdated.toISOString()
+    });
+
+    await this.locationsClientApi.patchLocation(params);
   }
 
   async processEvseUpdate(
     stationId: string,
     evseId: number,
+    status: ConnectorStatusEnumType,
     lastUpdated: Date
-  ): Promise<PatchEvseParams> {
+  ): Promise<void> {
     const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
     if (!chargingStation || !chargingStation.locationId) {
@@ -228,27 +251,40 @@ export class LocationsService {
     await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
 
     const locationId = chargingStation.locationId;
-    const evseResponse = await this.getEvseById(locationId, stationId, evseId);
-    return PatchEvseParams.build(locationId, UID_FORMAT(stationId, evseId), evseResponse.data);
+    const params = PatchEvseParams.build(locationId, UID_FORMAT(stationId, evseId), {
+      status,
+      last_updated: lastUpdated.toISOString()
+    });
+
+    await this.locationsClientApi.patchEvse(params);
   }
 
   async processConnectorUpdate(
     stationId: string,
     evseId: number,
     connectorId: number,
+    status: ConnectorStatusEnumType,
     lastUpdated: Date
-  ): Promise<PatchConnectorParams> {
+  ): Promise<void> {
     const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
     if (!chargingStation || !chargingStation.locationId) {
-      throw new Error('Charging Station does not exist!'); // TODO more descriptive error
+      throw new Error(`Charging Station ${stationId} does not exist!`);
     }
 
     await this.setOcpiConnectorLastUpdated(stationId, evseId, connectorId, lastUpdated);
 
     const locationId = chargingStation.locationId;
-    const connectorResponse = await this.getConnectorById(locationId, stationId, evseId, connectorId);
-    return PatchConnectorParams.build(locationId, UID_FORMAT(stationId, evseId), connectorId, connectorResponse.data);
+    const params = PatchConnectorParams.build(
+      locationId,
+      UID_FORMAT(stationId, evseId),
+      connectorId,
+      {
+        status,
+        last_updated: lastUpdated.toISOString()
+      });
+
+    await this.locationsClientApi.patchConnector(params);
   }
 
   /**
