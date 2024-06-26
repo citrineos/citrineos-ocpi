@@ -87,9 +87,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   ): EvseDTO {
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id); // format evse uid
-    evse.status = this.getStatus(evseAttributes.evseAvailabilityState, chargingStationAttributes.bayOccupancySensorActive);
-    evse.evse_id = evseAttributes.evseId;
-    evse.capabilities = this.getCapabilities(chargingStationAttributes.authorizeRemoteStart, chargingStationAttributes.tokenReaderEnabled);
+    evse.status = this.getStatus(evseAttributes.evse_availability_state, chargingStationAttributes.bay_occupancy_sensor_active);
+    evse.evse_id = evseAttributes.evse_id;
+    evse.capabilities = this.getCapabilities(chargingStationAttributes.authorize_remote_start, chargingStationAttributes.token_reader_enabled);
     evse.coordinates = this.getCoordinates(citrineLocation.coordinates);
     evse.physical_reference = ocpiEvseInformation?.physicalReference;
     evse.last_updated = ocpiEvseInformation?.lastUpdated ?? new Date() // TODO better fallback
@@ -118,7 +118,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     connectorAttributes: ConnectorVariableAttributes,
     ocpiConnectorInfo?: OcpiConnector
   ): ConnectorDTO {
-    const ocppConnectorType = connectorAttributes.connectorType;
+    const ocppConnectorType = connectorAttributes.connector_type;
 
     const connector = new ConnectorDTO();
     connector.id = String(id);
@@ -126,9 +126,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     connector.standard = this.getConnectorStandard(ocppConnectorType);
     connector.format = ConnectorFormat.CABLE; // TODO dynamically determine if CABLE Or SOCKET
     connector.power_type = this.getConnectorPowerType(ocppConnectorType);
-    connector.max_voltage = Number(evseAttributes.evseDcVoltage);
-    connector.max_amperage = Number(evseAttributes.evseDcCurrent);
-    connector.max_electric_power = Number(evseAttributes.evsePower);
+    connector.max_voltage = Number(evseAttributes.evse_dc_voltage);
+    connector.max_amperage = Number(evseAttributes.evse_dc_current);
+    connector.max_electric_power = Number(evseAttributes.evse_power);
 
     // TODO make dynamic mappings for the remaining optional fields
     // connector.tariff_ids
@@ -152,10 +152,10 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     // TODO add remaining capabilities
     const capabilities: Capability[] = [];
 
-    if (authorizeRemoteStart === 'true') {
+    if (authorizeRemoteStart === 'TRUE') {
       capabilities.push(Capability.REMOTE_START_STOP_CAPABLE);
     }
-    if (tokenReaderEnabled === 'true') {
+    if (tokenReaderEnabled === 'TRUE') {
       capabilities.push(Capability.RFID_READER);
     }
 

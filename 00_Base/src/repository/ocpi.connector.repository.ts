@@ -28,6 +28,16 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
   async createOrUpdateOcpiConnector(
     connector: OcpiConnector
   ) {
-    // TODO find evse by stationId/evseId
+    const [savedOcpiConnector, ocpiConnectorCreated] = await this._readOrCreateByQuery({
+      where: {
+        connectorId: connector.connectorId,
+        evseId: connector.evseId,
+        stationId: connector.stationId,
+      },
+      defaults: { ...connector }
+    });
+    if (!ocpiConnectorCreated) {
+      await this._updateByKey({ ...connector }, savedOcpiConnector.id);
+    }
   }
 }

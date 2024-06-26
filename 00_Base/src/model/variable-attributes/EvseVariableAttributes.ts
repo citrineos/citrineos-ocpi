@@ -3,42 +3,37 @@ import { ConnectorVariableAttributes } from "./ConnectorVariableAttributes";
 
 /**
  * Represents the EVSE variable attributes
- * necessary to map to an OCPI Location/EVSE/Connector
+ * necessary to map to an OCPI Location/EVSE/Connector.
+ *
+ * Properties are in snake_case to make SQL properties are properly mapped,
+ * as CamelCase does register.
  */
 export class EvseVariableAttributes {
   id!: number
 
   @IsString()
   @IsNotEmpty()
-  evseAvailabilityState!: string;
+  evse_availability_state!: string;
 
   @IsString()
   @IsNotEmpty()
-  evseId!: string;
+  evse_id!: string;
 
   @IsString()
   @IsNotEmpty()
-  evseDcVoltage!: string;
+  evse_dc_voltage!: string;
 
   @IsString()
   @IsNotEmpty()
-  evseDcCurrent!: string;
+  evse_dc_current!: string;
 
   @IsString()
   @IsNotEmpty()
-  evsePower!: string;
+  evse_power!: string;
 
   @IsString()
   @IsNotEmpty()
-  private _connectorIds!: string
-
-  get connectorIds(): number[] {
-    return this._connectorIds ? this._connectorIds.split(',').map(id => Number(id)) : [];
-  }
-
-  set connectorIds(value: string) {
-    this._connectorIds = value;
-  }
+  connector_ids_string!: string
 
   // not a database-derived field
   connectors: Record<number, ConnectorVariableAttributes> = {};
@@ -55,7 +50,7 @@ export const evseVariableAttributesQuery = (stationId: string, evseComponentId: 
         left join "Evses" e on c."evseDatabaseId" = e."databaseId"
         where va."stationId" = '${stationId}' and e."connectorId" is not null
       ), ''
-    ) as connectorIds,
+    ) as connector_ids_string,
     coalesce(
       (
         select va."value" 
@@ -65,7 +60,7 @@ export const evseVariableAttributesQuery = (stationId: string, evseComponentId: 
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'AvailabilityState'
       ), 'Unavailable'
-    ) as evseAvailabilityState,
+    ) as evse_availability_state,
     coalesce(
       (
         select va."value" 
@@ -75,7 +70,7 @@ export const evseVariableAttributesQuery = (stationId: string, evseComponentId: 
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'EvseId'
       ), 'Unknown'
-    ) as evseId,
+    ) as evse_id,
     coalesce(
       (
         select va."value" 
@@ -85,7 +80,7 @@ export const evseVariableAttributesQuery = (stationId: string, evseComponentId: 
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'DCVoltage'
       ), '0'
-    ) as evseDcVoltage,
+    ) as evse_dc_voltage,
     coalesce(
       (
         select va."value" 
@@ -95,7 +90,7 @@ export const evseVariableAttributesQuery = (stationId: string, evseComponentId: 
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'DCCurrent'
       ), '0'
-    ) as evseDcCurrent,
+    ) as evse_dc_current,
     coalesce(
       (
         select va."value" 
@@ -105,5 +100,5 @@ export const evseVariableAttributesQuery = (stationId: string, evseComponentId: 
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = '${stationId}' and e."id" = 1 and c."name" = 'EVSE' and v."name" = 'Power'
       ), '0'
-    ) as evsePower;
+    ) as evse_power;
 `;

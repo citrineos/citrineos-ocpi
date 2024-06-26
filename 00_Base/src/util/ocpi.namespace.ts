@@ -6,13 +6,13 @@ export enum OcpiNamespace {
   Tariffs = 'Tariffs',
   ChargingProfiles = 'ChargingProfiles',
   Commands = 'Commands',
-  Locations = 'Locations',
   Sessions = 'Sessions',
   Tokens = 'Tokens',
   ClientInformation = 'ClientInformation',
   ClientCredentialsRole = 'ClientCredentialsRole',
   ServerCredentialsRole = 'ServerCredentialsRole',
   CpoTenant = 'CpoTenant',
-  Evses = 'Evses',
-  Connectors = 'Connectors'
+  Locations = 'OcpiLocations',
+  Evses = 'OcpiEvses',
+  Connectors = 'OcpiConnectors'
 }

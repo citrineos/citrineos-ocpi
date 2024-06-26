@@ -12,7 +12,7 @@ import {
 import { ILogObj, Logger } from 'tslog';
 import { useContainer } from 'routing-controllers';
 import { Container, Service } from 'typedi';
-import { OcpiModule, LocationsClientApi, LocationsService } from '@citrineos/ocpi-base';
+import { OcpiModule, LocationsService } from '@citrineos/ocpi-base';
 import { LocationsHandlers } from './handlers';
 import { LocationsModuleApi } from './api';
 

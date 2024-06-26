@@ -2,18 +2,21 @@ import { IsNotEmpty, IsString } from "class-validator";
 
 /**
  * Represents the Connector variable attributes
- * necessary to map to an OCPI Location/EVSE/Connector
+ * necessary to map to an OCPI Location/EVSE/Connector.
+ *
+ * Properties are in snake_case to make SQL properties are properly mapped,
+ * as CamelCase does register.
  */
 export class ConnectorVariableAttributes {
   id!: number;
 
   @IsString()
   @IsNotEmpty()
-  connectorType!: string;
+  connector_type!: string;
 
   @IsString()
   @IsNotEmpty()
-  connectorAvailabilityState!: string;
+  connector_availability_state!: string;
 }
 
 export const connectorVariableAttributesQuery = (stationId: string, evseComponentId: number, connectorId: number) => `
@@ -28,7 +31,7 @@ export const connectorVariableAttributesQuery = (stationId: string, evseComponen
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and e."connectorId" = ${connectorId} and c."name" = 'Connector' and v."name" = 'ConnectorType'
       ), 'Unknown'
-    ) as connectorType,
+    ) as connector_type,
     coalesce(
       (
         select va."value" 
@@ -38,5 +41,5 @@ export const connectorVariableAttributesQuery = (stationId: string, evseComponen
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
         where va."stationId" = 'CHARGER02' and e."id" = ${evseComponentId} and e."connectorId" = ${connectorId} and c."name" = 'Connector' and v."name" = 'AvailabilityState'
       ), 'Unavailable'
-    ) as connectorAvailabilityState;
+    ) as connector_availability_state;
 `;

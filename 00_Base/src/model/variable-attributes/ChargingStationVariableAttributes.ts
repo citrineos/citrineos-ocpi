@@ -3,7 +3,10 @@ import { EvseVariableAttributes } from "./EvseVariableAttributes";
 
 /**
  * Represents the Charging Station variable attributes
- * necessary to map to an OCPI Location/EVSE/Connector
+ * necessary to map to an OCPI Location/EVSE/Connector.
+ *
+ * Properties are in snake_case to make SQL properties are properly mapped,
+ * as CamelCase does register.
  */
 export class ChargingStationVariableAttributes {
   @IsString()
@@ -12,27 +15,19 @@ export class ChargingStationVariableAttributes {
 
   @IsString()
   @IsNotEmpty()
-  authorizeRemoteStart!: string;
+  authorize_remote_start!: string;
 
   @IsString()
   @IsNotEmpty()
-  bayOccupancySensorActive!: string;
+  bay_occupancy_sensor_active!: string;
 
   @IsString()
   @IsNotEmpty()
-  tokenReaderEnabled!: string;
+  token_reader_enabled!: string;
 
   @IsString()
   @IsNotEmpty()
-  private _evseIds!: string
-
-  get evseIds(): number[] {
-    return this._evseIds ? this._evseIds.split(',').map(id => Number(id)) : [];
-  }
-
-  set evseIds(value: string) {
-    this._evseIds = value;
-  }
+  evse_ids_string!: string
 
   // not a database-derived field
   evses: Record<number, EvseVariableAttributes> = {};
@@ -50,7 +45,7 @@ export const chargingStationVariableAttributesQuery = (stationId: string) => `
           left join "Evses" e on c."evseDatabaseId" = e."databaseId"
         where va."stationId" = '${stationId}' and e."id" is not null
       ), ''
-    ) as evseIds,
+    ) as evse_ids_string,
     coalesce(
       (
         select va."value" 
@@ -59,7 +54,7 @@ export const chargingStationVariableAttributesQuery = (stationId: string) => `
           left join "Components" c on va."componentId" = c."id"
         where va."stationId" = '${stationId}' and c."name" = 'AuthCtrlr' and v."name" = 'AuthorizeRemoteStart'
       ), 'FALSE'
-    ) as authorizeRemoteStart,
+    ) as authorize_remote_start,
     coalesce(
     (
         select va."value" 
@@ -68,7 +63,7 @@ export const chargingStationVariableAttributesQuery = (stationId: string) => `
           left join "Components" c on va."componentId" = c."id"
         where va."stationId" = '${stationId}' and c."name" = 'BayOccupancySensor' and v."name" = 'Active'
       ), 'FALSE'
-    ) as bayOccupancySensorActive,
+    ) as bay_occupancy_sensor_active,
     coalesce(
       (
         select va."value" 
@@ -77,5 +72,5 @@ export const chargingStationVariableAttributesQuery = (stationId: string) => `
           left join "Components" c on va."componentId" = c."id"
         where va."stationId" = '${stationId}' and c."name" = 'TokenReader' and v."name" = 'Enabled'
       ), 'FALSE'
-    ) as tokenReader;
+    ) as token_reader_enabled;
 `;

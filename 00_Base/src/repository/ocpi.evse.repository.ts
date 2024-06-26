@@ -27,7 +27,16 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
 
   async createOrUpdateOcpiEvse(
     evse: OcpiEvse
-  ) {
-    // TODO find evse by stationId/evseId
+  ): Promise<void> {
+    const [savedOcpiEvse, ocpiEvseCreated] = await this._readOrCreateByQuery({
+      where: {
+        evseId: evse.evseId,
+        stationId: evse.stationId,
+      },
+      defaults: { ...evse }
+    });
+    if (!ocpiEvseCreated) {
+      await this._updateByKey({ ...evse }, savedOcpiEvse.id);
+    }
   }
 }

@@ -248,9 +248,11 @@ export class LocationsService {
       throw new Error(`Charging Station ${stationId} does not exist!`);
     }
 
-    await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
-
     const locationId = chargingStation.locationId;
+
+    await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
+    await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
+
     const params = PatchEvseParams.build(locationId, UID_FORMAT(stationId, evseId), {
       status,
       last_updated: lastUpdated.toISOString()
@@ -272,9 +274,12 @@ export class LocationsService {
       throw new Error(`Charging Station ${stationId} does not exist!`);
     }
 
-    await this.setOcpiConnectorLastUpdated(stationId, evseId, connectorId, lastUpdated);
-
     const locationId = chargingStation.locationId;
+
+    await this.setOcpiConnectorLastUpdated(stationId, evseId, connectorId, lastUpdated);
+    await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
+    await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
+
     const params = PatchConnectorParams.build(
       locationId,
       UID_FORMAT(stationId, evseId),
@@ -313,7 +318,7 @@ export class LocationsService {
 
       chargingStationAttributes.evses = await this.createEvsesVariableAttributesMap(
         stationId,
-        chargingStationAttributes.evseIds.filter(id => !evseId || id === evseId),
+        this.getRelevantIdsList(chargingStationAttributes.evse_ids_string, evseId),
         connectorId
       );
 
@@ -344,7 +349,7 @@ export class LocationsService {
       evseAttributes.connectors = await this.createConnectorVariableAttributesMap(
         stationId,
         evseId,
-        evseAttributes.connectorIds.filter(id => !connectorId || id === connectorId)
+        this.getRelevantIdsList(evseAttributes.connector_ids_string, connectorId)
       );
 
       evseAttributesMap[evseId] = evseAttributes;
@@ -408,5 +413,15 @@ export class LocationsService {
     ocpiConnector.connectorId = connectorId;
     ocpiConnector.lastUpdated = lastUpdated;
     await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(ocpiConnector);
+  }
+
+  private getRelevantIdsList(
+    idString: string,
+    idToCompare?: number
+  ): number[] {
+    return idString ? idString.split(',')
+      .map(id => Number(id))
+      .filter(id => !idToCompare || id === idToCompare)
+      : [];
   }
 }
