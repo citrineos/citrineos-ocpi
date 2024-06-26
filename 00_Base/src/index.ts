@@ -1,4 +1,4 @@
-import { useContainer } from 'routing-controllers';
+import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
 import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
@@ -10,6 +10,28 @@ import Koa from 'koa';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
+import { CdrsController } from './controllers/cdrs.controller';
+import { ChargingProfilesController } from './controllers/charging.profiles.controller';
+import { LocationsController } from './controllers/locations.controller';
+import { SessionsController } from './controllers/sessions.controller';
+import { TariffsController } from './controllers/tariffs.controller';
+import { TokensController } from './controllers/tokens.controller';
+import {
+  RepositoryStore,
+  SequelizeDeviceModelRepository,
+  SequelizeTransactionEventRepository,
+} from '@citrineos/data';
+import {
+  SequelizeAuthorizationRepository,
+  SequelizeBootRepository,
+  SequelizeCertificateRepository,
+  SequelizeLocationRepository,
+  SequelizeMessageInfoRepository,
+  SequelizeSecurityEventRepository,
+  SequelizeSubscriptionRepository,
+  SequelizeTariffRepository,
+  SequelizeVariableMonitoringRepository,
+} from '@citrineos/data';
 
 export { ImageDTO } from './model/DTO/ImageDTO';
 export { CredentialsClientApi } from './trigger/CredentialsClientApi';
@@ -104,21 +126,24 @@ export class OcpiServer extends KoaServer {
   readonly serverConfig: OcpiServerConfig;
   readonly cache: ICache;
   readonly logger: Logger<ILogObj>;
-  readonly sequelizeInstance: OcpiSequelizeInstance;
+  readonly ocpiSequelizeInstance: OcpiSequelizeInstance;
   readonly modules: OcpiModule[] = [];
+  readonly repositoryStore: RepositoryStore;
 
   constructor(
     serverConfig: OcpiServerConfig,
     cache: ICache,
     logger: Logger<ILogObj>,
     modulesConfig: OcpiModuleConfig[],
+    repositoryStore: RepositoryStore,
   ) {
     super();
 
     this.serverConfig = serverConfig;
     this.cache = cache;
     this.logger = logger;
-    this.sequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
+    this.ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
+    this.repositoryStore = repositoryStore;
 
     this.initContainer();
 
@@ -135,12 +160,21 @@ export class OcpiServer extends KoaServer {
     try {
       this.koa = new Koa();
       const controllers = this.modules.map((module) => module.getController());
-      this.initApp({
-        controllers,
+      const options: RoutingControllersOptions = {
+        controllers: [
+          ...controllers,
+          CdrsController,
+          ChargingProfilesController,
+          LocationsController,
+          SessionsController,
+          TariffsController,
+          TokensController,
+        ],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
-      });
+      } as RoutingControllersOptions;
+      this.initApp(options);
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
@@ -163,6 +197,48 @@ export class OcpiServer extends KoaServer {
     Container.set(OcpiServerConfig, this.serverConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
-    Container.set(OcpiSequelizeInstance, this.sequelizeInstance);
+    Container.set(OcpiSequelizeInstance, this.ocpiSequelizeInstance);
+    Container.set(RepositoryStore, this.repositoryStore);
+    Container.set(
+      SequelizeAuthorizationRepository,
+      this.repositoryStore.authorizationRepository,
+    );
+    Container.set(SequelizeBootRepository, this.repositoryStore.bootRepository);
+    Container.set(
+      SequelizeCertificateRepository,
+      this.repositoryStore.certificateRepository,
+    );
+    Container.set(
+      SequelizeDeviceModelRepository,
+      this.repositoryStore.deviceModelRepository,
+    );
+    Container.set(
+      SequelizeLocationRepository,
+      this.repositoryStore.locationRepository,
+    );
+    Container.set(
+      SequelizeMessageInfoRepository,
+      this.repositoryStore.messageInfoRepository,
+    );
+    Container.set(
+      SequelizeSecurityEventRepository,
+      this.repositoryStore.securityEventRepository,
+    );
+    Container.set(
+      SequelizeSubscriptionRepository,
+      this.repositoryStore.subscriptionRepository,
+    );
+    Container.set(
+      SequelizeTariffRepository,
+      this.repositoryStore.tariffRepository,
+    );
+    Container.set(
+      SequelizeTransactionEventRepository,
+      this.repositoryStore.transactionEventRepository,
+    );
+    Container.set(
+      SequelizeVariableMonitoringRepository,
+      this.repositoryStore.variableMonitoringRepository,
+    );
   }
 }

@@ -14,11 +14,11 @@ import {
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
+  CredentialsService,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
 import { ICredentialsModuleApi } from './interface';
-import { CredentialsService } from './credentials.service';
 import {
   Body,
   Delete,

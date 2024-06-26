@@ -7,7 +7,7 @@ import {
   ForeignKey,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { Exclude } from 'class-transformer';
 import { BusinessDetails } from './BusinessDetails';
 import { ImageCategory } from './ImageCategory';

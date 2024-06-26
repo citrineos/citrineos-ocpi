@@ -6,7 +6,7 @@ import {
   HasOne,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';

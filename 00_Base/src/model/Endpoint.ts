@@ -9,7 +9,7 @@ import {
   ForeignKey,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { Exclude } from 'class-transformer';
 import { ClientVersion } from './ClientVersion';
