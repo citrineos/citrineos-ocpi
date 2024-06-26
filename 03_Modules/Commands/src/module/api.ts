@@ -38,6 +38,7 @@ import {
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
+import {ResponseGenerator} from "@citrineos/ocpi-base";
 
 /**
  * Server API for the provisioning component.
@@ -78,7 +79,7 @@ export class CommandsModuleApi
       | StartSession
       | StopSession
       | UnlockConnector,
-  ): Promise<OcpiResponse<CommandResponse>> {
+  ): Promise<OcpiResponse<CommandResponse | undefined>> {
     console.log('postCommand', _commandType, _payload);
     switch (_commandType) {
       case CommandType.CANCEL_RESERVATION:
@@ -97,14 +98,16 @@ export class CommandsModuleApi
         _payload = plainToInstance(UnlockConnector, _payload);
         break;
       default:
-        throw new BadRequestError('Unknown command type: ' + _commandType);
+        return ResponseGenerator.buildGenericClientErrorResponse(undefined, 'Unknown command type: ' + _commandType, undefined);
     }
 
-    await validate(_payload).then((errors) => {
+    return await validate(_payload).then(async (errors) => {
       if (errors.length > 0) {
-        throw new BadRequestError('Validation failed: ' + errors);
+        const errorString = errors.map((error) => error.toString()).join(', ');
+        return ResponseGenerator.buildGenericClientErrorResponse(undefined, errorString, undefined);
+      } else {
+        return await this.commandsService.postCommand(_commandType, _payload);
       }
     });
-    return this.commandsService.postCommand(_commandType, _payload);
   }
 }

@@ -81,6 +81,7 @@ export { VersionService } from './services/version.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
+export { ResponseGenerator } from './util/response.generator';
 
 export { versionIdParam } from './util/decorators/version.number.param';
 
