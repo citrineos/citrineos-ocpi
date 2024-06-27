@@ -8,6 +8,8 @@ import { SingleTokenRequest, Token, TokenDTO } from '../model/Token';
 import { ModelmockService } from './ModelmockService';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
+import { PaginatedParams } from '../controllers/param/paginated.params';
+import { AsyncJobStatus, AsyncJobStatusDTO } from '../model/AsyncJobStatus';
 
 @Service()
 export class TokensService {
@@ -33,8 +35,18 @@ export class TokensService {
   }
 
   async updateToken(token: Partial<Token>): Promise<Token> {
-    this.logger.info(await this.tokenRepository.updateToken(token));
-    // this.tokenRepository.updateToken(token)
-    return new Token();
+    return this.tokenRepository.updateToken(token);
+  }
+  async startFetchTokensByParty(countryCode: string, partyId: string, paginationParams?: PaginatedParams): Promise<AsyncJobStatus> {
+    //TODO spin off fetching tokens without waiting here
+    //TODO create jobId and save to DB together with countrycode and partyId and start date and pagination params and potentially progress
+
+    //TODO return running Job Object with jobId
+    return new AsyncJobStatus()
+  }
+
+  async getFetchTokensJob(countryCode: string, partyId: string, jobId: string): Promise<AsyncJobStatus> {
+    //TODO return running Job Object with jobId
+    return new AsyncJobStatus()
   }
 }

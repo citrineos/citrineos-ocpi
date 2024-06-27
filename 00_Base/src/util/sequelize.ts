@@ -15,6 +15,7 @@ import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
 import { Token } from '../model/Token';
+import { AsyncJobStatus } from '../model/AsyncJobStatus';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -51,7 +52,8 @@ export class OcpiSequelizeInstance {
         Endpoint,
         Version,
         VersionEndpoint,
-        Token
+        Token,
+        AsyncJobStatus
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

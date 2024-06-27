@@ -3,19 +3,19 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Body, Get, JsonController, Param, Patch, Put } from 'routing-controllers';
+import { Body, Get, JsonController, Param, Patch, Put, Post, QueryParam } from 'routing-controllers';
 import { Service } from 'typedi';
 
 import { HttpStatus } from '@citrineos/base';
 import {
-  AsOcpiFunctionalEndpoint,
+  AsOcpiFunctionalEndpoint, AsyncJobStatusDTO,
   BaseController,
   EnumQueryParam,
   generateMockOcpiResponse,
   InvalidParamException,
   ModuleId,
   OcpiEmptyResponse,
-  OcpiHeaders,
+  OcpiHeaders, OcpiResponse,
   OcpiResponseStatusCode,
   ResponseSchema,
   SingleTokenRequest,
@@ -31,6 +31,8 @@ import {
 import { ITokensModuleApi } from './interface';
 import { plainToInstance } from 'class-transformer';
 import { FunctionalEndpointParams } from '@citrineos/ocpi-base/dist/util/decorators/FunctionEndpointParams';
+import { Paginated } from '@citrineos/ocpi-base/dist/util/decorators/paginated';
+import { PaginatedParams } from '@citrineos/ocpi-base/dist/controllers/param/paginated.params';
 
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
@@ -150,4 +152,43 @@ export class TokensModuleApi
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
+  @Post('/:countryCode/:partyId/fetch')
+  @ResponseSchema(OcpiEmptyResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      //TODO change return format to json with Jobid and status
+      success: generateMockOcpiResponse(OcpiEmptyResponse),
+    },
+  })
+  async fetchTokens(
+    @Param('countryCode') countryCode: string,
+    @Param('partyId') partyId: string,
+    @Paginated() paginationParams?: PaginatedParams,
+  ): Promise<AsyncJobStatusDTO> {
+    console.log('fetchTokens', countryCode, partyId, paginationParams );
+    await this.tokensService.startFetchTokensByParty(countryCode, partyId, paginationParams);
+    //TODO  return json with Jobid and status
+    return new AsyncJobStatusDTO();
+  }
+
+  @Post('/:countryCode/:partyId/fetch/:jobId')
+  @ResponseSchema(OcpiEmptyResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      //TODO change return format to json with Jobid and status
+      success: generateMockOcpiResponse(OcpiEmptyResponse),
+    },
+  })
+  async getFetchTokensJobStatus(
+    @Param('countryCode') countryCode: string,
+    @Param('partyId') partyId: string,
+    @Param('jobId') jobId: string,
+  ): Promise<AsyncJobStatusDTO> {
+    console.log('fetchTokens', countryCode, partyId, jobId );
+    await this.tokensService.getFetchTokensJob(countryCode, partyId, jobId );
+    //TODO  return json with Jobid and status
+    return new AsyncJobStatusDTO();
+  }
 }

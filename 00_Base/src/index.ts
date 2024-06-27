@@ -110,6 +110,7 @@ export { VersionService } from './services/version.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
+export {AsyncJobStatusDTO} from './model/AsyncJobStatus';
 
 export { versionIdParam } from './util/decorators/version.number.param';
 export { OcpiHttpHeader } from './util/ocpi.http.header';
