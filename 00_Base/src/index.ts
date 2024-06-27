@@ -15,21 +15,19 @@ import { ChargingProfilesController } from './controllers/charging.profiles.cont
 import { LocationsController } from './controllers/locations.controller';
 import { SessionsController } from './controllers/sessions.controller';
 import { TariffsController } from './controllers/tariffs.controller';
-import { TokensController } from './controllers/tokens.controller';
+
 import {
   RepositoryStore,
-  SequelizeDeviceModelRepository,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
-import {
   SequelizeAuthorizationRepository,
   SequelizeBootRepository,
   SequelizeCertificateRepository,
+  SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   SequelizeMessageInfoRepository,
   SequelizeSecurityEventRepository,
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
+  SequelizeTransactionEventRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 
@@ -75,12 +73,16 @@ export { OcpiEmptyResponse } from './model/ocpi.empty.response';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
+export { Token, SingleTokenRequest, TokenDTO, TokenResponse } from './model/Token';
+export { TokenType } from './model/TokenType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
+export { TokensRepository } from './repository/TokensRepository';
 export { CommandResultType } from './model/CommandResult';
+export {EnumQueryParam} from './util/decorators/enum.query.param';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 
 export { MultipleTypes } from './util/decorators/multiple.types';
@@ -93,11 +95,17 @@ export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+export {InvalidParamException} from './exception/invalid.param.exception';
+export {MissingParamException} from './exception/missing.param.exception';
+export {UnknownTokenException} from './exception/unknown.token.exception';
+export {WrongClientAccessException} from './exception/wrong.client.access.exception';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 export { BaseClientApi } from './trigger/BaseClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
+export { ModelmockService } from './services/ModelmockService';
+export { TokensService } from './services/TokensService';
 export { VersionService } from './services/version.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
@@ -163,7 +171,7 @@ export class OcpiServer extends KoaServer {
           ChargingProfilesController,
           LocationsController,
           SessionsController,
-          TariffsController
+          TariffsController,
         ],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],

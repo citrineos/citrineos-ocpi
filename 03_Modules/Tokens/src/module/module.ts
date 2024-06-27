@@ -19,7 +19,7 @@ import { ILogObj, Logger } from 'tslog';
 /**
  * Component that handles provisioning related messages.
  */
-export class TokensModule extends AbstractModule {
+export class TokensHandlers extends AbstractModule {
   /**
    * Fields
    */

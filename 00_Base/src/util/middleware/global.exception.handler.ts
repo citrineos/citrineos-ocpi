@@ -7,7 +7,6 @@ import { Context } from 'vm';
 import { HttpStatus } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
 import { Service } from 'typedi';
-import { NotFoundException } from '../../exception/not.found.exception';
 import { UnknownTokenException } from '../../exception/unknown.token.exception';
 import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 import { WrongClientAccessException } from '../../exception/wrong.client.access.exception';

@@ -10,7 +10,7 @@ module.exports = {
       {
         country_code: 'US',
         party_id: 'S44',
-        uid: 'token123',
+        uid: '123e4567-e89b-12d3-a456-426614174000',
         type: 'RFID',
         contract_id: 'contract_001',
         visual_number: 'VIS001',
