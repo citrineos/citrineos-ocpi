@@ -7,6 +7,11 @@ import {
   Transaction,
 } from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
+import { CredentialsService } from '../services/credentials.service';
+import { ClientInformationProps } from '../model/ClientInformation';
+import { ModuleId } from '../model/ModuleId';
+import { ClientVersion } from '../model/ClientVersion';
+import { NotFoundError } from 'routing-controllers';
 
 @Service()
 export class SessionBroadcaster {
@@ -14,6 +19,7 @@ export class SessionBroadcaster {
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly sessionMapper: SessionMapper,
     private readonly sessionsClientApi: SessionsClientApi,
+    private readonly credentialsService: CredentialsService,
   ) {}
 
   init() {
@@ -45,11 +51,44 @@ export class SessionBroadcaster {
       session,
     );
 
-    // TODO: Get client information from credentials module
-    const clientInformation = new Set();
+    try {
+      const clientInformation =
+        await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(
+          session.cdr_token.country_code,
+          session.cdr_token.party_id,
+        );
+      const clientAuthorizationToken =
+        clientInformation[ClientInformationProps.clientToken];
+      const clientVersionList: ClientVersion[] =
+        clientInformation[ClientInformationProps.clientVersionDetails];
+      // todo is this correct that we broadcast to all ClientVersions that we have?
+      const clientSessionsModuleUrls = clientVersionList.reduce(
+        (acc: string[], clientVersion: ClientVersion) => {
+          const sessionsEndpoint = clientVersion.endpoints.find(
+            (endpoint) => endpoint.identifier === ModuleId.Sessions,
+          );
+          if (
+            sessionsEndpoint &&
+            sessionsEndpoint.url &&
+            sessionsEndpoint.url.length > 0
+          ) {
+            acc.push(sessionsEndpoint.url);
+          }
+        },
+        [],
+      ) as string[];
+      if (!clientSessionsModuleUrls || clientSessionsModuleUrls.length === 0) {
+        const msg = `Could not find clientSessionsModuleUrls for client of country code ${session.cdr_token.country_code} and party id ${session.cdr_token.party_id}`;
+        console.debug(msg);
+        throw new NotFoundError(msg);
+      }
 
-    // TODO: Get baseUrl from credentials module
-    this.sessionsClientApi.baseUrl = 'todo-from-creds';
-    await this.sessionsClientApi.putSession(params);
+      for (const clientSessionsModuleUrl of clientSessionsModuleUrls) {
+        this.sessionsClientApi.baseUrl = clientSessionsModuleUrl;
+        await this.sessionsClientApi.putSession(params);
+      }
+    } catch (e) {
+      // todo
+    }
   }
 }
