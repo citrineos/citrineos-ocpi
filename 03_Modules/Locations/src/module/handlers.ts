@@ -2,7 +2,6 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
-  ConnectorStatusEnumType,
   EventDataType,
   EventGroup,
   HandlerProperties,
@@ -21,7 +20,6 @@ import {
   CONNECTOR_COMPONENT,
   EVSE_COMPONENT,
   AVAILABILITY_STATE_VARIABLE,
-  LocationsClientApi,
   LocationsService
 } from "@citrineos/ocpi-base";
 
@@ -106,19 +104,22 @@ export class LocationsHandlers extends AbstractModule {
     const stationId = message.context.stationId;
 
     const events = message.payload.eventData as EventDataType[];
+
     for (const event of events) {
       const component = event.component;
       const variable = event.variable
-      const status = event.actualValue;
 
-      if ((component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT) || variable.name !== AVAILABILITY_STATE_VARIABLE) {
+      if ((component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT)) {
         this._logger.debug('Ignoring NotifyEvent since it is not a processed OCPI event.');
-      } else if (component.name === EVSE_COMPONENT) {
+      } else if (component.name === EVSE_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) {
+        // TODO must process variable values based on which variable is being changed, rather than assuming it's AvailabilityState
+        const status = event.actualValue;
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         // TODO use the message context timestamp when it's merged into 1.3.0
         // await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date(message.context.timestamp));
         await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date());
-      } else if (component.name === CONNECTOR_COMPONENT) {
+      } else if (component.name === CONNECTOR_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) {
+        // TODO must process variable values based on which variable is being changed, rather than assuming it's AvailabilityState
         const connectorId = component.evse?.connectorId ?? 1; // TODO better fallback
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         // TODO use the message context timestamp when it's merged into 1.3.0
