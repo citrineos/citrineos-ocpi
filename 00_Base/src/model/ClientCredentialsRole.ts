@@ -20,59 +20,75 @@ import {
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
+import { Image } from './Image';
+
+export enum ClientCredentialsRoleProps {
+  role = 'role',
+  partyId = 'party_id',
+  countryCode = 'country_code',
+  businessDetails = 'business_details',
+  clientInformationId = 'clientInformationId',
+  clientInformation = 'clientInformation',
+  cpoTenantId = 'cpoTenantId',
+  cpoTenant = 'cpoTenant',
+}
 
 @Table
 export class ClientCredentialsRole extends Model implements ICredentialsRole {
   // todo seems like CredentialsRole base may be better fit as an interface
   @Column(DataType.ENUM(Role.EMSP))
-  role = Role.EMSP;
+  [ClientCredentialsRoleProps.role] = Role.EMSP;
 
   @Column(DataType.STRING(3))
   @IsString()
   @IsNotEmpty()
   @Length(3, 3)
-  party_id!: string;
+  [ClientCredentialsRoleProps.partyId]!: string;
 
   @Column(DataType.STRING(2))
   @IsString()
   @IsNotEmpty()
   @Length(2, 2)
-  country_code!: string; // todo should we use CountryCode enum?
+  [ClientCredentialsRoleProps.countryCode]!: string; // todo should we use CountryCode enum?
 
   @Exclude()
   @HasOne(() => BusinessDetails, {
     onDelete: ON_DELETE_CASCADE,
   })
-  business_details!: BusinessDetails;
+  [ClientCredentialsRoleProps.businessDetails]!: BusinessDetails;
 
   @Exclude()
   @ForeignKey(() => ClientInformation)
   @Column(DataType.INTEGER)
-  clientInformationId!: number;
+  [ClientCredentialsRoleProps.clientInformationId]!: number;
 
   @Exclude()
   @BelongsTo(() => ClientInformation)
-  clientInformation!: ClientInformation;
+  [ClientCredentialsRoleProps.clientInformation]!: ClientInformation;
 
   @Exclude()
   @ForeignKey(() => CpoTenant)
   @Column(DataType.INTEGER)
-  cpoTenantId!: number;
+  [ClientCredentialsRoleProps.cpoTenantId]!: number;
 
   @Exclude()
   @BelongsTo(() => CpoTenant)
-  cpoTenant!: CpoTenant;
+  [ClientCredentialsRoleProps.cpoTenant]!: CpoTenant;
 
-  static buildClientCredentialsRole(
-    countryCode: string,
-    partyId: string,
-    businessDetails: BusinessDetails,
-  ) {
-    const clientCredentialsRole = new ClientCredentialsRole();
-    clientCredentialsRole.country_code = countryCode;
-    clientCredentialsRole.party_id = partyId;
-    clientCredentialsRole.business_details = businessDetails;
-    return clientCredentialsRole;
+  static fromDto(credentialsRole: CredentialsRoleDTO) {
+    return ClientCredentialsRole.build(
+      {
+        ...(credentialsRole as Partial<ClientCredentialsRole>),
+      },
+      {
+        include: [
+          {
+            model: BusinessDetails,
+            include: [Image],
+          },
+        ],
+      },
+    );
   }
 }
 

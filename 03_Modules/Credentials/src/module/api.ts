@@ -2,8 +2,10 @@ import {
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
+  ClientInformation,
   CredentialsDTO,
   CredentialsResponse,
+  CredentialsService,
   generateMockOcpiResponse,
   ModuleId,
   OcpiEmptyResponse,
@@ -14,7 +16,6 @@ import {
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
-  CredentialsService,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
@@ -26,7 +27,6 @@ import {
   JsonController,
   Post,
   Put,
-  QueryParam,
 } from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
@@ -162,13 +162,14 @@ export class CredentialsModuleApi
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('registerCredentialsTokenA', credentials);
-    const clientInformation =
+    let clientInformation: ClientInformation =
       await this.credentialsService?.registerCredentialsTokenA(
         versionNumber,
         credentials,
       );
-    return CredentialsResponse.build(
-      toCredentialsDTO(clientInformation.get({ plain: true })),
-    );
+    clientInformation = clientInformation.get
+      ? clientInformation.get({ plain: true })
+      : clientInformation;
+    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 }

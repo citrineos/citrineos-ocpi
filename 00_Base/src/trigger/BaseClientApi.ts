@@ -1,6 +1,5 @@
 import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
-import { VersionNumber } from '../model/VersionNumber';
 import { OcpiRegistrationParams } from './util/ocpi.registration.params';
 import { OcpiParams } from './util/ocpi.params';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
@@ -45,9 +44,12 @@ export class BaseClientApi {
   }
 
   async options<T>(url: string, options: IRequestOptions): Promise<T> {
-    return this.optionsRaw<T>(url, options).then((response) =>
-      this.handleResponse<T>(response),
-    );
+    try {
+      const response = await this.optionsRaw<T>(url, options);
+      return this.handleResponse<T>(response);
+    } catch (e: any) {
+      return this.handleError<T>(e);
+    }
   }
 
   async getRaw<T>(
@@ -58,9 +60,12 @@ export class BaseClientApi {
   }
 
   async get<T>(options: IRequestOptions, url = ''): Promise<T> {
-    return this.getRaw<T>(url, options).then((response) =>
-      this.handleResponse<T>(response),
-    );
+    try {
+      const response = await this.getRaw<T>(url, options);
+      return this.handleResponse<T>(response);
+    } catch (e: any) {
+      return this.handleError<T>(e);
+    }
   }
 
   async delRaw<T>(
@@ -71,9 +76,12 @@ export class BaseClientApi {
   }
 
   async del<T>(options: IRequestOptions, url = ''): Promise<T> {
-    return this.delRaw<T>(url, options).then((response) =>
-      this.handleResponse<T>(response),
-    );
+    try {
+      const response = await this.delRaw<T>(url, options);
+      return this.handleResponse<T>(response);
+    } catch (e: any) {
+      return this.handleError<T>(e);
+    }
   }
 
   async createRaw<T>(
@@ -85,9 +93,12 @@ export class BaseClientApi {
   }
 
   async create<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
-    return this.createRaw<T>(url, body, options).then((response) =>
-      this.handleResponse<T>(response),
-    );
+    try {
+      const response = await this.createRaw<T>(url, body, options);
+      return this.handleResponse<T>(response);
+    } catch (e: any) {
+      return this.handleError<T>(e);
+    }
   }
 
   async updateRaw<T>(
@@ -99,9 +110,12 @@ export class BaseClientApi {
   }
 
   async update<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
-    return this.updateRaw<T>(url, body, options).then((response) =>
-      this.handleResponse<T>(response),
-    );
+    try {
+      const response = await this.updateRaw<T>(url, body, options);
+      return this.handleResponse<T>(response);
+    } catch (e: any) {
+      return this.handleError<T>(e);
+    }
   }
 
   async replaceRaw<T>(
@@ -113,9 +127,12 @@ export class BaseClientApi {
   }
 
   async replace<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
-    return this.replaceRaw<T>(url, body, options).then((response) =>
-      this.handleResponse<T>(response),
-    );
+    try {
+      const response = await this.replaceRaw<T>(url, body, options);
+      return this.handleResponse<T>(response);
+    } catch (e: any) {
+      return this.handleError<T>(e);
+    }
   }
 
   validateRequiredParam(params: any, ...paramNameList: string[]) {
@@ -202,6 +219,12 @@ export class BaseClientApi {
       options: {},
       params: {},
     };
+  }
+
+  protected handleError<T>(error: Error): Promise<T> {
+    const msg = `Rest client error: ${error.message}`;
+    console.error(msg);
+    return Promise.reject(new UnsuccessfulRequestException(msg));
   }
 
   protected handleResponse<T>(response: IRestResponse<T>): T {

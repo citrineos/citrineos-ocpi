@@ -18,20 +18,19 @@ import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
 import {
   RepositoryStore,
-  SequelizeDeviceModelRepository,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
-import {
   SequelizeAuthorizationRepository,
   SequelizeBootRepository,
   SequelizeCertificateRepository,
+  SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   SequelizeMessageInfoRepository,
   SequelizeSecurityEventRepository,
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
+  SequelizeTransactionEventRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
+import { CredentialsService } from './services/credentials.service';
 
 export { ImageDTO } from './model/DTO/ImageDTO';
 export { CredentialsClientApi } from './trigger/CredentialsClientApi';

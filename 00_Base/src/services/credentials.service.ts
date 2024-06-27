@@ -3,9 +3,13 @@ import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
 import {
   ClientCredentialsRole,
+  ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import { ClientInformation } from '../model/ClientInformation';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -62,7 +66,7 @@ const CpoCredentialsRole = CredentialsRoleDTO.build(
     'https://citrineos.github.io/',
     ImageDTO.build(
       'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
-      'CitrineOS Logo',
+      'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
       ImageCategory.OTHER,
       ImageType.png,
       100,
@@ -329,18 +333,17 @@ export class CredentialsService {
     }
 
     const clientCredentialsUrl = clientCredentialsEndpoint.url;
-    const postCredentialsResponse = await this.getPostCredentialsResponse(
-      clientCredentialsUrl,
-      versionNumber,
-      credentialsTokenA,
-      credentialsTokenB,
-      serverVersionUrl,
-    );
-    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
-    const credentialsTokenC = postCredentials.token;
-    clientInformation.clientToken = credentialsTokenC;
-    await clientCpoTenant.save();
-    return clientInformation;
+    const updatedClientInformation =
+      await this.performPostAndReturnSavedClientCredentials(
+        clientInformation,
+        clientCredentialsUrl,
+        versionNumber,
+        credentialsTokenA,
+        credentialsTokenB,
+        serverVersionUrl,
+      );
+    console.debug('updatedClientInformation', updatedClientInformation);
+    return updatedClientInformation;
   }
 
   private async getPostCredentialsResponse(
@@ -363,7 +366,7 @@ export class CredentialsService {
       !postCredentialsResponse ||
       postCredentialsResponse.status_code !==
         OcpiResponseStatusCode.GenericSuccessCode ||
-      !!postCredentialsResponse.data
+      !postCredentialsResponse.data
     ) {
       throw new InternalServerError(
         'Could not successfully post credentials to client',
@@ -469,5 +472,60 @@ export class CredentialsService {
         include: [Endpoint],
       },
     );
+  }
+
+  private async performPostAndReturnSavedClientCredentials(
+    clientInformation: ClientInformation,
+    clientCredentialsUrl: string,
+    versionNumber: VersionNumber,
+    credentialsTokenA: string,
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): Promise<ClientInformation> {
+    const postCredentialsResponse = await this.getPostCredentialsResponse(
+      clientCredentialsUrl,
+      versionNumber,
+      credentialsTokenA,
+      credentialsTokenB,
+      serverVersionUrl,
+    );
+    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
+    const credentialsTokenC = postCredentials.token;
+    clientInformation.clientToken = credentialsTokenC;
+
+    const clientCredentialsRoles = postCredentials.roles;
+    // remove old roles that were passed in via endpoint // todo maybe dont set roles in endpoint then?
+    for (const clientCredentialsRole of clientInformation.clientCredentialsRoles) {
+      // todo can this be done in one query??
+      await clientInformation.$remove(
+        ClientInformationProps.clientCredentialsRoles,
+        clientCredentialsRole,
+      );
+      await clientCredentialsRole.destroy();
+    }
+    // add new
+    const newClientCredentialsRoles = clientCredentialsRoles.map(
+      (credentialsRoleDTO) =>
+        ClientCredentialsRole.create(
+          {
+            ...(credentialsRoleDTO as Partial<ClientCredentialsRole>),
+            [ClientCredentialsRoleProps.clientInformationId]:
+              clientInformation.id,
+          },
+          {
+            include: [
+              {
+                model: BusinessDetails,
+                include: [Image],
+              },
+            ],
+          },
+        ),
+    );
+    clientInformation.setDataValue(
+      ClientInformationProps.clientCredentialsRoles,
+      newClientCredentialsRoles,
+    );
+    return await clientInformation.save();
   }
 }
