@@ -25,15 +25,19 @@ export { NotRegisteredException } from './exception/NotRegisteredException';
 export { Image } from './model/Image';
 export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
+export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
+export { EndpointRepository } from './repository/EndpointRepository';
+export { SessionChargingProfileRepository } from './repository/SessionChargingProfileRepository';
 
 export { ClientInformation } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
+export { ActiveChargingProfile } from './model/ActiveChargingProfile';
 export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
 export { ClearChargingProfileResult } from './model/ChargingprofilesClearProfileResult';
 export { ChargingProfileResponse } from './model/ChargingProfileResponse';
@@ -91,6 +95,7 @@ export { AsyncResponder } from './util/AsyncResponder';
 export { ResponseGenerator } from './util/response.generator';
 
 export { versionIdParam } from './util/decorators/version.number.param';
+export { PutChargingProfileParams, buildPutChargingProfileParams } from './trigger/param/charging.profiles/put.charging.profile.params';
 
 useContainer(Container);
 

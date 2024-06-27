@@ -148,7 +148,7 @@ export class BaseClientApi {
     if (
       !params.authorization ||
       !params.authorization.length ||
-      params.authorization.length > 0
+      params.authorization.length === 0
     ) {
       throw new MissingRequiredParamException(
         params.authorization,

@@ -27,6 +27,7 @@ import {
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { BadRequestError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
+import {SessionChargingProfileRepository} from "../repository/SessionChargingProfileRepository";
 
 @Service()
 export class CommandExecutor {
@@ -34,6 +35,7 @@ export class CommandExecutor {
     readonly abstractModule: AbstractModule,
     readonly responseUrlRepo: ResponseUrlRepository,
     readonly ocpiEvseEntityRepo: OcpiEvseEntityRepository,
+    readonly sessionChargingProfileRepo: SessionChargingProfileRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
   ) {}
@@ -223,6 +225,11 @@ export class CommandExecutor {
       stationId,
       evseId,
     );
+    await this.sessionChargingProfileRepo.createOrUpdateSessionChargingProfile(
+        sessionId,
+        setChargingProfileRequest.chargingProfile.id,
+        setChargingProfileRequest.chargingProfile.chargingSchedule[0].id
+    );
 
     this.abstractModule.sendCall(
       stationId,
@@ -232,6 +239,28 @@ export class CommandExecutor {
       undefined,
       correlationId,
       MessageOrigin.CentralSystem,
+    );
+  }
+
+  public async executeGetCompositeProfile(
+      evseId: number,
+      stationId: string,
+      duration: number,
+      correlationId: string,
+  ): Promise<void> {
+    const request = {
+      duration: duration,
+      evseId: evseId,
+    } as GetCompositeScheduleRequest;
+
+    this.abstractModule.sendCall(
+        stationId,
+        'tenantId',
+        CallAction.GetCompositeSchedule,
+        request,
+        undefined,
+        correlationId,
+        MessageOrigin.CentralSystem,
     );
   }
 

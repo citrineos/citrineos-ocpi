@@ -5,7 +5,7 @@
 
 import { ChargingProfilesModuleApi } from './module/api';
 import {
-  CacheWrapper,
+  CacheWrapper, ChargingProfilesService,
   OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
@@ -53,6 +53,7 @@ export class ChargingProfilesModule implements OcpiModule {
         this.config as SystemConfig,
         this.cache.cache,
         Container.get(AsyncResponder),
+        Container.get(ChargingProfilesService),
         handler,
         sender,
         this.logger,
