@@ -21,6 +21,7 @@ import { OcpiConnector } from '../model/OcpiConnector';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from "../model/OcpiTariff";
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
+import { AsyncJobStatus } from '../model/AsyncJobStatus';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -63,7 +64,8 @@ export class OcpiSequelizeInstance {
         ResponseUrlCorrelationId,
         OcpiTariff,
         SessionChargingProfile,
-        Token
+        Token,
+        AsyncJobStatus
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

@@ -165,6 +165,7 @@ export { ModelmockService } from './services/ModelmockService';
 export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
+export {AsyncJobStatusDTO} from './model/AsyncJobStatus';
 export { SessionsService } from './services/sessions.service';
 
 export { TariffsService } from './services/tariffs.service';
