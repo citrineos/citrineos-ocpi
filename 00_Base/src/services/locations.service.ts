@@ -36,7 +36,6 @@ import { OcpiConnector } from "../model/Connector";
 import { PutLocationParams } from "../trigger/param/locations/put.location.params";
 import { ConnectorStatusEnumType } from "../../../../citrineos-core/00_Base";
 import { LocationsClientApi } from "../trigger/LocationsClientApi";
-import { EvseStatus } from "../model/EvseStatus";
 
 @Service()
 export class LocationsService {
@@ -115,7 +114,9 @@ export class LocationsService {
       return locationResponse;
     }
 
-    const stationIds = citrineLocation.chargingPool.map(chargingStation => chargingStation.id);
+    const stationIds = citrineLocation.chargingPool
+      .map((chargingStation: ChargingStation) => chargingStation.id);
+
     const chargingStationVariableAttributesMap = await this.createChargingStationVariableAttributesMap(stationIds);
 
     locationResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
@@ -143,7 +144,8 @@ export class LocationsService {
       return evseResponse;
     }
 
-    const matchingChargingStation = citrineLocation.chargingPool.filter(chargingStation => chargingStation.id === stationId)
+    const matchingChargingStation = citrineLocation.chargingPool
+      .filter((chargingStation: ChargingStation) => chargingStation.id === stationId);
 
     if (matchingChargingStation.length === 0) {
       evseResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
