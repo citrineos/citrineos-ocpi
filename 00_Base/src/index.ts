@@ -95,7 +95,10 @@ export { AsyncResponder } from './util/AsyncResponder';
 export { ResponseGenerator } from './util/response.generator';
 
 export { versionIdParam } from './util/decorators/version.number.param';
-export { PutChargingProfileParams, buildPutChargingProfileParams } from './trigger/param/charging.profiles/put.charging.profile.params';
+export {
+  PutChargingProfileParams,
+  buildPutChargingProfileParams,
+} from './trigger/param/charging.profiles/put.charging.profile.params';
 
 useContainer(Container);
 

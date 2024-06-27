@@ -15,7 +15,7 @@ import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
-import { SessionChargingProfile}  from "../model/SessionChargingProfile";
+import { SessionChargingProfile } from '../model/SessionChargingProfile';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';

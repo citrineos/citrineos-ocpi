@@ -26,9 +26,9 @@ import {
   TransactionEventRequest,
   TriggerReasonEnumType,
 } from '@citrineos/base';
-import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import {ILogObj, Logger} from 'tslog';
+import { ILogObj, Logger } from 'tslog';
 import {
   ActiveChargingProfileResult,
   AsyncResponder,
@@ -38,7 +38,7 @@ import {
   ClearChargingProfileResult,
   ActiveChargingProfile,
 } from '@citrineos/ocpi-base';
-import {Service} from 'typedi';
+import { Service } from 'typedi';
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
@@ -95,8 +95,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
     const compositeSchedule = message.payload.schedule;
     const profileResult = compositeSchedule
-        ? this.mapOcppScheduleToOcpi(compositeSchedule)
-        : undefined
+      ? this.mapOcppScheduleToOcpi(compositeSchedule)
+      : undefined;
     try {
       await this.asyncResponder.send(message.context.correlationId, {
         result: this.getResult(message.payload.status),
@@ -105,7 +105,10 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     } catch (e) {
       console.error(e);
       if (compositeSchedule && profileResult) {
-        await this.service.pushChargingProfile(compositeSchedule.evseId, profileResult);
+        await this.service.pushChargingProfile(
+          compositeSchedule.evseId,
+          profileResult,
+        );
       }
     }
   }
@@ -130,11 +133,15 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       // This needs to be improved when we are able to match the request using response
       if (status === ClearChargingProfileStatusEnumType.Accepted) {
         const stationId = message.context.stationId;
-        const evseIds = await this.service.getEvseIdsWithActiveTransactionByStationId(stationId);
+        const evseIds =
+          await this.service.getEvseIdsWithActiveTransactionByStationId(
+            stationId,
+          );
         for (const evseId of evseIds) {
-          const existingSchedule: boolean = await this.service.checkExistingSchedule(stationId, evseId);
+          const existingSchedule: boolean =
+            await this.service.checkExistingSchedule(stationId, evseId);
           if (existingSchedule) {
-            await this.service.getCompositeSchedules(stationId, evseId)
+            await this.service.getCompositeSchedules(stationId, evseId);
           }
         }
       }
@@ -161,11 +168,15 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       // This needs to be improved when we are able to match the request and response
       if (status === ChargingProfileStatusEnumType.Accepted) {
         const stationId = message.context.stationId;
-        const evseIds = await this.service.getEvseIdsWithActiveTransactionByStationId(stationId);
+        const evseIds =
+          await this.service.getEvseIdsWithActiveTransactionByStationId(
+            stationId,
+          );
         for (const evseId of evseIds) {
-          const existingSchedule: boolean = await this.service.checkExistingSchedule(stationId, evseId);
+          const existingSchedule: boolean =
+            await this.service.checkExistingSchedule(stationId, evseId);
           if (existingSchedule) {
-            await this.service.getCompositeSchedules(stationId, evseId)
+            await this.service.getCompositeSchedules(stationId, evseId);
           }
         }
       }
@@ -174,8 +185,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   @AsHandler(CallAction.NotifyEVChargingSchedule)
   protected async _handleNotifyEVChargingScheduleRequest(
-      message: IMessage<NotifyEVChargingScheduleRequest>,
-      props?: HandlerProperties,
+    message: IMessage<NotifyEVChargingScheduleRequest>,
+    props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
@@ -186,32 +197,45 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     //  After it is implemented,
     //  we need to do the same validation on the schedule here as in the core handler
     //  before sending the getCompositeSchedule call
-    const isValidSchedule: boolean = true;
-    const existingSchedule: boolean = await this.service.checkExistingSchedule(message.context.stationId, message.payload.evseId);
+    const isValidSchedule = true;
+    const existingSchedule: boolean = await this.service.checkExistingSchedule(
+      message.context.stationId,
+      message.payload.evseId,
+    );
     if (isValidSchedule && existingSchedule) {
-        await this.service.getCompositeSchedules(message.context.stationId, message.payload.evseId)
+      await this.service.getCompositeSchedules(
+        message.context.stationId,
+        message.payload.evseId,
+      );
     }
   }
 
   @AsHandler(CallAction.NotifyChargingLimit)
   protected async _handleNotifyChargingLimitRequest(
-      message: IMessage<NotifyChargingLimitRequest>,
-      props?: HandlerProperties,
+    message: IMessage<NotifyChargingLimitRequest>,
+    props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
     if (message.payload.evseId) {
-      const existingSchedule: boolean = await this.service.checkExistingSchedule(message.context.stationId, message.payload.evseId);
+      const existingSchedule: boolean =
+        await this.service.checkExistingSchedule(
+          message.context.stationId,
+          message.payload.evseId,
+        );
       if (existingSchedule) {
-        await this.service.getCompositeSchedules(message.context.stationId, message.payload.evseId)
+        await this.service.getCompositeSchedules(
+          message.context.stationId,
+          message.payload.evseId,
+        );
       }
     }
   }
 
   @AsHandler(CallAction.TransactionEvent)
   protected async _handleTransactionEventRequest(
-      message: IMessage<TransactionEventRequest>,
-      props?: HandlerProperties,
+    message: IMessage<TransactionEventRequest>,
+    props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
     const request = message.payload;
@@ -219,13 +243,26 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const transactionId = request.transactionInfo.transactionId;
 
     if (request.triggerReason === TriggerReasonEnumType.ChargingRateChanged) {
-      const existingSchedule: boolean = await this.service.checkExistingSchedule(stationId, request.evse?.id, transactionId);
+      const existingSchedule: boolean =
+        await this.service.checkExistingSchedule(
+          stationId,
+          request.evse?.id,
+          transactionId,
+        );
       if (existingSchedule) {
-        const evseId = request.evse ? request.evse.id : await this.service.getEvseIdByStationIdAndTransactionId(stationId, transactionId);
+        const evseId = request.evse
+          ? request.evse.id
+          : await this.service.getEvseIdByStationIdAndTransactionId(
+              stationId,
+              transactionId,
+            );
         if (!evseId) {
           console.error('Failed to get evseId');
         } else {
-          await this.service.getCompositeSchedules(message.context.stationId, evseId);
+          await this.service.getCompositeSchedules(
+            message.context.stationId,
+            evseId,
+          );
         }
       }
     }

@@ -27,7 +27,9 @@ export class AsyncResponder {
         data,
       );
     } else {
-      throw new Error('No response url found for correlationId: ' + correlationId);
+      throw new Error(
+        'No response url found for correlationId: ' + correlationId,
+      );
     }
   }
 }

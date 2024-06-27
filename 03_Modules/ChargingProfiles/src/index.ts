@@ -5,7 +5,8 @@
 
 import { ChargingProfilesModuleApi } from './module/api';
 import {
-  CacheWrapper, ChargingProfilesService,
+  CacheWrapper,
+  ChargingProfilesService,
   OcpiModule,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';

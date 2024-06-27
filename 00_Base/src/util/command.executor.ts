@@ -27,7 +27,7 @@ import {
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { BadRequestError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
-import {SessionChargingProfileRepository} from "../repository/SessionChargingProfileRepository";
+import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 
 @Service()
 export class CommandExecutor {
@@ -107,9 +107,9 @@ export class CommandExecutor {
   }
 
   public async executeGetActiveChargingProfile(
-      sessionId: string,
-      duration: number,
-      responseUrl: string,
+    sessionId: string,
+    duration: number,
+    responseUrl: string,
   ) {
     // const transaction =
     //   await this.transactionRepo.findByTransactionId(sessionId);
@@ -135,19 +135,19 @@ export class CommandExecutor {
     } as GetCompositeScheduleRequest;
 
     this.abstractModule.sendCall(
-        transaction.stationId,
-        'tenantId',
-        CallAction.GetCompositeSchedule,
-        request,
-        undefined,
-        correlationId,
-        MessageOrigin.CentralSystem,
+      transaction.stationId,
+      'tenantId',
+      CallAction.GetCompositeSchedule,
+      request,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
     );
   }
 
   public async executeClearChargingProfile(
-      sessionId: string,
-      responseUrl: string,
+    sessionId: string,
+    responseUrl: string,
   ) {
     // const transaction =
     //   await this.transactionRepo.findByTransactionId(sessionId);
@@ -175,13 +175,13 @@ export class CommandExecutor {
     } as ClearChargingProfileRequest;
 
     this.abstractModule.sendCall(
-        transaction.stationId,
-        'tenantId',
-        CallAction.ClearChargingProfile,
-        request,
-        undefined,
-        correlationId,
-        MessageOrigin.CentralSystem,
+      transaction.stationId,
+      'tenantId',
+      CallAction.ClearChargingProfile,
+      request,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
     );
   }
 
@@ -226,9 +226,9 @@ export class CommandExecutor {
       evseId,
     );
     await this.sessionChargingProfileRepo.createOrUpdateSessionChargingProfile(
-        sessionId,
-        setChargingProfileRequest.chargingProfile.id,
-        setChargingProfileRequest.chargingProfile.chargingSchedule[0].id
+      sessionId,
+      setChargingProfileRequest.chargingProfile.id,
+      setChargingProfileRequest.chargingProfile.chargingSchedule[0].id,
     );
 
     this.abstractModule.sendCall(
@@ -243,10 +243,10 @@ export class CommandExecutor {
   }
 
   public async executeGetCompositeProfile(
-      evseId: number,
-      stationId: string,
-      duration: number,
-      correlationId: string,
+    evseId: number,
+    stationId: string,
+    duration: number,
+    correlationId: string,
   ): Promise<void> {
     const request = {
       duration: duration,
@@ -254,13 +254,13 @@ export class CommandExecutor {
     } as GetCompositeScheduleRequest;
 
     this.abstractModule.sendCall(
-        stationId,
-        'tenantId',
-        CallAction.GetCompositeSchedule,
-        request,
-        undefined,
-        correlationId,
-        MessageOrigin.CentralSystem,
+      stationId,
+      'tenantId',
+      CallAction.GetCompositeSchedule,
+      request,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
     );
   }
 
