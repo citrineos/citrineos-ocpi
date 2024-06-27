@@ -2,6 +2,7 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
+  ConnectorStatusEnumType,
   EventDataType,
   EventGroup,
   HandlerProperties,
@@ -117,7 +118,7 @@ export class LocationsHandlers extends AbstractModule {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         // TODO use the message context timestamp when it's merged into 1.3.0
         // await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date(message.context.timestamp));
-        await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date());
+        await this.locationsService.processEvseUpdate(stationId, evseId, status as ConnectorStatusEnumType, new Date());
       } else if (component.name === CONNECTOR_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) {
         // TODO must process variable values based on which variable is being changed, rather than assuming it's AvailabilityState
         const status = event.actualValue;
@@ -125,7 +126,7 @@ export class LocationsHandlers extends AbstractModule {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         // TODO use the message context timestamp when it's merged into 1.3.0
         // await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date(message.context.timestamp));
-        await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date());
+        await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status as ConnectorStatusEnumType, new Date());
       }
     }
   }
