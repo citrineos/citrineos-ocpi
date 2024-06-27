@@ -267,6 +267,8 @@ export class LocationsService {
     await this.locationsClientApi.patchEvse(params);
   }
 
+  // TODO make more flexible to take in any number of different changed fields to map to a ConnectorDTO
+  // OR pre-map ConnectorDTO elsewhere before passing in, which requires updates to the mapper for flexibility
   async processConnectorUpdate(
     stationId: string,
     evseId: number,
