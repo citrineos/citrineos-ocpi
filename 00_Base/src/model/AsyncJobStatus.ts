@@ -35,6 +35,9 @@ export class AsyncJobStatus extends Model {
   @Column(DataType.JSON)
   paginatedParams?: PaginatedParams;
 
+  @Column(DataType.STRING)
+  failureMessage?: string; //Used to keep track of the errors. If this is set, it means something went wrong
+
 
   toDTO(): AsyncJobStatusDTO {
     return {
