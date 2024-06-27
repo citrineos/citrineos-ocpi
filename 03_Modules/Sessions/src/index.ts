@@ -13,7 +13,7 @@ import {
   IMessageHandler,
   IMessageSender,
   SystemConfig,
-} from '../../../../citrineos-core/00_Base';
+} from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { Container, Service } from 'typedi';
 import { SessionsOcppHandlers } from './module/handlers';
