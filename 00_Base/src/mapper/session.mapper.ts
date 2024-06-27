@@ -5,7 +5,7 @@ import {
   MeterValueType,
   TransactionEventEnumType,
   TransactionEventRequest,
-} from '../../../../citrineos-core/00_Base';
+} from '@citrineos/base;
 import { AuthMethod } from '../model/AuthMethod';
 import { SessionStatus } from '../model/SessionStatus';
 import { Transaction } from '@citrineos/data';
