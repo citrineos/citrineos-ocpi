@@ -3,27 +3,41 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {TokensModuleApi} from './module/api'
-import {IOcpiModule} from "@citrineos/ocpi-base";
-import {EventGroup, ICache, IMessageHandler, IMessageSender, SystemConfig} from "@citrineos/base";
-import {ILogObj, Logger} from "tslog";
+import { TokensModuleApi } from './module/api';
+import { CacheWrapper, OcpiModule, OcpiServerConfig } from '@citrineos/ocpi-base';
+import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
+import { ILogObj, Logger } from 'tslog';
+import { TokensHandlers } from './module/module';
+import { Service } from 'typedi';
 
 export { TokensModuleApi } from './module/api';
 export { ITokensModuleApi } from './module/interface';
 
-export class TokensModule implements IOcpiModule {
+@Service()
+export class TokensModule implements OcpiModule {
 
-    constructor(
-        config: SystemConfig,
-        cache: ICache,
-        handler: IMessageHandler,
-        sender: IMessageSender,
-        eventGroup: EventGroup,
-        logger?: Logger<ILogObj>,
-    ) {}
+  handler!: IMessageHandler;
+  sender!: IMessageSender;
 
-    getController(): any {
-        return TokensModuleApi
+  constructor(
+    readonly config: OcpiServerConfig,
+    readonly cacheWrapper: CacheWrapper,
+    readonly logger?: Logger<ILogObj>,
+  ) {
+  }
 
-    }
+  init(handler: IMessageHandler, sender: IMessageSender): void {
+    new TokensHandlers(
+      this.config as SystemConfig,
+      this.cacheWrapper.cache,
+      this.sender,
+      this.handler,
+      this.logger,
+    );
+  }
+
+  getController(): any {
+    return TokensModuleApi;
+
+  }
 }

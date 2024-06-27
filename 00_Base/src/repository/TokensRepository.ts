@@ -5,13 +5,17 @@
 
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, Token } from '../model/Token';
+import { SingleTokenRequest, Token, TokenDTO } from '../model/Token';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
+import { instanceToPlain } from 'class-transformer';
+import { UnknownTokenException } from '../exception/unknown.token.exception';
+import { InvalidParamException } from '../exception/invalid.param.exception';
+
 
 
 @Service()
@@ -47,25 +51,28 @@ export class TokensRepository extends SequelizeRepository<Token> {
     return this.create(token);
   }
 
-  async updateToken(token: Partial<Token>) {
-    if (token.uid === undefined) {
-      throw new Error('uid is required');
+  async updateToken(partialToken: Partial<Token>) {
+    if (partialToken.uid === undefined) {
+      throw new InvalidParamException('uid is required');
     }
-    if (token.party_id === undefined) {
-      throw new Error('party_id is required');
+    if (partialToken.party_id === undefined) {
+      throw new InvalidParamException('party_id is required');
     }
-    if (token.country_code === undefined) {
-      throw new Error('country_code is required');
+    if (partialToken.country_code === undefined) {
+      throw new InvalidParamException('country_code is required');
     }
-    if (token.type === undefined) {
-      throw new Error('type is required');
-    }
-    const newToken = Token.build({country_code: token.country_code, party_id: token.party_id, uid: token.uid, type: token.type});
-    return this.updateAllByQuery(newToken, {
+    const existingToken = await this.readOnlyOneByQuery({
       where: {
-        country_code: "US",
-      },
-    });
+        uid: partialToken.uid,
+        party_id: partialToken.party_id,
+        country_code: partialToken.country_code,
+      }});
+
+    if (existingToken === undefined) {
+      throw new UnknownTokenException('Token not found in the database');
+    }
+    //TODO update to repository method
+    return await existingToken.update(partialToken);
   }
 }
 

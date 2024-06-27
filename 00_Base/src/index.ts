@@ -12,7 +12,6 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { TokensController } from './controllers/tokens.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -90,13 +89,17 @@ export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
+export { Token, SingleTokenRequest, TokenDTO, TokenResponse } from './model/Token';
+export { TokenType } from './model/TokenType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
+export { TokensRepository } from './repository/TokensRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
+export {EnumQueryParam} from './util/decorators/enum.query.param';
 export { CommandResult } from './model/CommandResult';
 export { OcpiTariff, TariffKey } from './model/OcpiTariff';
 export {
@@ -124,6 +127,10 @@ export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+export {InvalidParamException} from './exception/invalid.param.exception';
+export {MissingParamException} from './exception/missing.param.exception';
+export {UnknownTokenException} from './exception/unknown.token.exception';
+export {WrongClientAccessException} from './exception/wrong.client.access.exception';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
@@ -154,6 +161,8 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
+export { ModelmockService } from './services/ModelmockService';
+export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { SessionsService } from './services/sessions.service';
