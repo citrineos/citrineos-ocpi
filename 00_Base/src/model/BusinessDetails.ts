@@ -71,7 +71,7 @@ export class BusinessDetails extends Model {
 export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {
   const businessDetailsDTO = new BusinessDetailsDTO();
   businessDetailsDTO.name = businessDetails.name;
-  businessDetailsDTO.website = businessDetails.websites;
+  businessDetailsDTO.website = businessDetails.website;
   if (businessDetails.logo) {
     businessDetailsDTO.logo = toImageDTO(businessDetails.logo);
   }
