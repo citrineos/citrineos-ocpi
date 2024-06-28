@@ -67,6 +67,7 @@ export class LocationsService {
         await this.processLocationUpdate(location.id, new Date(location.updatedAt)))
     );
   }
+
   /**
    * Sender Methods
    */
@@ -74,13 +75,24 @@ export class LocationsService {
   async getLocations(
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    // TODO make in-memory pagination
+    // TODO add Link header
 
     const paginatedLocationResponse = new PaginatedLocationResponse();
+    const dateFrom = paginatedParams?.date_from;
+    const dateTo = paginatedParams?.date_to;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
+    const ocpiLocationInfosMap = (await this.ocpiLocationRepository.getLocations(limit, offset, dateFrom, dateTo))
+      .reduce((acc: any, cur) => {
+        acc[cur.id] = cur;
+        return acc;
+      }, {});
+
+    const locationsTotal = await this.ocpiLocationRepository.getLocationsCount(dateFrom, dateTo);
+
     const citrineLocations = await this.locationRepository.readAllByQuery({
+      where: [...Object.keys(ocpiLocationInfosMap).map(id => Number(id))],
       include: [ChargingStation]
     });
 
@@ -89,13 +101,13 @@ export class LocationsService {
     for (let citrineLocation of citrineLocations) {
       const stationIds = citrineLocation.chargingPool.map(chargingStation => chargingStation.id);
       const chargingStationVariableAttributesMap = await this.createChargingStationVariableAttributesMap(stationIds);
-      ocpiLocations.push(this.locationMapper.mapToOcpiLocation(citrineLocation, chargingStationVariableAttributesMap));
+      ocpiLocations.push(this.locationMapper.mapToOcpiLocation(citrineLocation, chargingStationVariableAttributesMap, ocpiLocationInfosMap[citrineLocation.id]));
     }
 
     paginatedLocationResponse.offset = offset;
     paginatedLocationResponse.limit = limit;
     paginatedLocationResponse.data = ocpiLocations;
-    paginatedLocationResponse.total = citrineLocations.length;
+    paginatedLocationResponse.total = locationsTotal;
 
     return paginatedLocationResponse;
   }

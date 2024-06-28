@@ -25,9 +25,54 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     );
   }
 
+  async getLocations(
+    limit: number,
+    offset: number,
+    dateFrom?: Date,
+    dateTo?: Date
+  ): Promise<OcpiLocation[]> {
+    return await this.readAllByQuery({
+      ...(this.createDateQuery(dateFrom, dateTo)),
+      limit,
+      offset
+    })
+  }
+
+  async getLocationsCount(
+    dateFrom?: Date,
+    dateTo?: Date
+  ): Promise<number> {
+    return await this.existByQuery(
+      {
+        ...(this.createDateQuery(dateFrom, dateTo))
+      }
+    )
+  }
+
   async createOrUpdateOcpiLocation(
     location: OcpiLocation
   ) {
     // TODO
+  }
+
+  private createDateQuery(
+    dateFrom?: Date,
+    dateTo?: Date
+  ) {
+    if (!dateFrom && !dateTo) {
+      return {};
+    }
+
+    const query: any = { where: { lastUpdated: {} } };
+
+    if (dateFrom) {
+      query.where.lastUpdated['gte'] = dateFrom;
+    }
+
+    if (dateTo) {
+      query.where.lastUpdated['lt'] = dateTo;
+    }
+
+    return query;
   }
 }
