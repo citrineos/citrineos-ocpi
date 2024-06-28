@@ -111,7 +111,7 @@ export class ChargingProfilesService {
         );
       } else {
         return buildGenericServerErrorResponse(
-          {} as ChargingProfileResponse,
+          undefined,
           e as Error,
         );
       }

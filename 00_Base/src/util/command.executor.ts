@@ -187,15 +187,12 @@ export class CommandExecutor {
     sessionId: string,
     setChargingProfile: SetChargingProfile,
   ) {
-    // TODO: find a way to get station id and remove the mock data below
-    const stationId = 'cp001';
-    // TODO: find a way to map sessionId to transactionId and use transactionId in the db query
+    // based on the current assumption, transactionId is equal to sessionId
+    // If this map assumption changes, this needs to be changed
     const transaction =
-      await this.transactionRepo.readTransactionByStationIdAndTransactionId(
-        stationId,
+      await this.transactionRepo.findByTransactionId(
         sessionId,
       );
-
     if (!transaction) {
       throw new NotFoundException('Session not found');
     }
@@ -212,6 +209,7 @@ export class CommandExecutor {
       setChargingProfile.response_url,
     );
 
+    const stationId = transaction.stationId;
     const setChargingProfileRequest = await this.mapSetChargingProfileRequest(
       setChargingProfile.charging_profile,
       evseId,
