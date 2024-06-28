@@ -18,18 +18,16 @@ import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
 import {
   RepositoryStore,
-  SequelizeDeviceModelRepository,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
-import {
   SequelizeAuthorizationRepository,
   SequelizeBootRepository,
   SequelizeCertificateRepository,
+  SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   SequelizeMessageInfoRepository,
   SequelizeSecurityEventRepository,
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
+  SequelizeTransactionEventRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
@@ -154,9 +152,6 @@ export class OcpiServer extends KoaServer {
       return module;
     });
 
-    const broadcaster = Container.get(SessionBroadcaster);
-    broadcaster.init();
-
     this.initServer();
   }
 
@@ -243,5 +238,10 @@ export class OcpiServer extends KoaServer {
       SequelizeVariableMonitoringRepository,
       this.repositoryStore.variableMonitoringRepository,
     );
+    this.onContainerInitialized();
+  }
+
+  private onContainerInitialized() {
+    Container.get(SessionBroadcaster); // init session broadcaster
   }
 }

@@ -2,7 +2,10 @@ import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
-import { SequelizeTransactionEventRepository, Transaction, } from '@citrineos/data';
+import {
+  SequelizeTransactionEventRepository,
+  Transaction,
+} from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 import { CredentialsService } from '../services/credentials.service';
 import { ClientInformationProps } from '../model/ClientInformation';
@@ -18,9 +21,6 @@ export class SessionBroadcaster {
     private readonly sessionsClientApi: SessionsClientApi,
     private readonly credentialsService: CredentialsService,
   ) {
-  }
-
-  init() {
     this.transactionRepository.transaction.on('created', (transactions) =>
       this.broadcast(transactions),
     );
