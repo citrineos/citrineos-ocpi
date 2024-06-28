@@ -7,40 +7,17 @@ import {
   TransactionEventRequest,
 } from '@citrineos/base;
 import { AuthMethod } from '../model/AuthMethod';
-import { SessionStatus } from '../model/SessionStatus';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { SequelizeLocationRepository } from '@citrineos/data';
 import { Token } from '../model/Token';
 import { Location } from '../model/Location';
 import { CdrToken } from '../model/CdrToken';
-import { TokenType } from '../model/TokenType';
+import { SessionStatus } from '../model/SessionStatus';
 
 @Service()
 export class SessionMapper {
-  constructor(
-    private readonly locationRepository: SequelizeLocationRepository,
-  ) {}
-
-  private getTokensForTransactions(
-    transactions: Transaction[],
-    mspCountryCode?: string,
-    mspPartyId?: string,
-  ): Map<string, Token> {
-    // TODO: Create mapping between Transaction.idToken and OCPI Token
-    // Only get Tokens that belong to the MSP if provided
-    return new Map();
-  }
-
-  private getLocationsForTransactions(
-    transactions: Transaction[],
-    cpoCountryCode?: string,
-    cpoPartyId?: string,
-  ): Map<string, Location> {
-    // TODO: Create mapping between transactions and locations
-    // Only get Locations that belong to the CPO if provided
-    return new Map();
+  constructor() {
   }
 
   public async mapTransactionsToSessions(
@@ -90,18 +67,20 @@ export class SessionMapper {
       country_code: location.country_code,
       party_id: location.party_id,
       id: transaction.id,
-      start_date_time: startEvent ? new Date(startEvent.timestamp) : null,
+      start_date_time: new Date(startEvent.timestamp),
       end_date_time: endEvent ? new Date(endEvent.timestamp) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
+      // TODO: Implement other auth methods
       auth_method: AuthMethod.WHITELIST,
       location_id: String(location.id),
       evse_uid: this.getEvseUid(transaction),
       connector_id: String(transaction.evse?.connectorId),
       currency: this.getCurrency(location),
       charging_periods: this.getChargingPeriods(transaction.meterValues),
-      status: endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE,
-      last_updated: new Date(),
+      status: this.getTransactionStatus(endEvent),
+      last_updated: this.getLatestEvent(transaction.transactionEvents!),
+      // TODO: Fill in optional values
       authorization_reference: null,
       total_cost: null,
       meter_id: null,
@@ -111,36 +90,49 @@ export class SessionMapper {
   private getStartAndEndEvents(
     transactionEvents: TransactionEventRequest[] = [],
   ): [
-    TransactionEventRequest | undefined,
-    TransactionEventRequest | undefined,
+    TransactionEventRequest,
+      TransactionEventRequest | undefined,
   ] {
+    const startEvent = transactionEvents.find(
+      (event) => event.eventType === TransactionEventEnumType.Started,
+    );
+    if (!startEvent) {
+      throw new Error("No 'Started' event found in transaction events");
+    }
+
     return [
-      transactionEvents.find(
-        (event) => event.eventType === TransactionEventEnumType.Started,
-      ),
+      startEvent,
       transactionEvents.find(
         (event) => event.eventType === TransactionEventEnumType.Ended,
       ),
     ];
   }
 
+  private getLatestEvent(
+    transactionEvents: TransactionEventRequest[],
+  ): Date {
+    return transactionEvents.reduce((latestDate, current) => {
+      const currentDate = new Date(current.timestamp);
+      if (!latestDate || currentDate > latestDate) {
+        return currentDate;
+      }
+      return latestDate;
+    }, new Date(transactionEvents[0].timestamp));
+  }
+
+
   private createCdrToken(token: Token): CdrToken {
     return {
       uid: token.uid,
-      type: this.mapTokenType(token.type),
+      type: token.type,
       contract_id: token.contract_id,
       country_code: token.country_code,
       party_id: token.party_id,
     };
   }
 
-  private mapTokenType(ocpiTokenType: string): TokenType {
-    // TODO: Implement mapping from OCPI Token type to CDR Token type
-    return TokenType.OTHER;
-  }
-
   private getEvseUid(transaction: Transaction): string {
-    // TODO: Figure out EVSE UID Mapping
+    // TODO: Can be mapped using UID_FORMAT method in EvseDTO from Location Module
     // Leaving it as a concat of stationId and evseID for now
     return `${transaction.stationId}-${transaction.evse?.id}`;
   }
@@ -160,6 +152,7 @@ export class SessionMapper {
           type: this.mapMeasurandToCdrDimensionType(sampledValue.measurand),
           volume: sampledValue.value as number,
         })),
+        // TODO: Fill in tariff_id value
         tariff_id: null,
       }))
       .sort(
@@ -172,5 +165,49 @@ export class SessionMapper {
   ): CdrDimensionType {
     // TODO: Implement mapping logic based on MeasurandEnumType
     return CdrDimensionType.ENERGY;
+  }
+
+  private getLocationsForTransactions(
+    transactions: Transaction[],
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
+  ): Map<string, Location> {
+    // TODO: Create mapping between transactions and locations
+    // Only get Locations that belong to the CPO if provided
+
+    // TODO: Remove this mock mapping and replace with real location fetch
+    const map = new Map();
+    for (const transaction of transactions) {
+      const location = new Location();
+      location.country_code = cpoCountryCode || 'US';
+      location.party_id = cpoPartyId || 'CPO';
+      map.set(transaction.id, location);
+    }
+    return map;
+  }
+
+  private getTokensForTransactions(
+    transactions: Transaction[],
+    mspCountryCode?: string,
+    mspPartyId?: string,
+  ): Map<string, Token> {
+    // TODO: Create mapping between Transaction.idToken and OCPI Token
+    // Only get Tokens that belong to the MSP if provided
+
+    // TODO: Remove this mock mapping and replace with real token fetch
+    const map = new Map();
+    for (const transaction of transactions) {
+      const token = new Token();
+      token.country_code = mspCountryCode || 'US';
+      token.party_id = mspPartyId || 'MSP';
+      map.set(transaction.id, token);
+    }
+
+    return map;
+  }
+
+  private getTransactionStatus(endEvent: TransactionEventRequest | undefined): SessionStatus {
+    // TODO: Implement other session status
+    return endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }
 }

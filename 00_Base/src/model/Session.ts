@@ -40,19 +40,17 @@ export class Session {
   @IsDateString()
   @IsNotEmpty()
   @Type(() => Date)
-  start_date_time!: Date | null;
-  // StartTransaction timestamp
+  start_date_time!: Date;
 
   @IsString()
   @IsDateString()
   @Optional()
   @Type(() => Date)
   end_date_time?: Date | null;
-  // StopTransaction timestamp
 
   @IsNumber()
   @IsNotEmpty()
-  kwh!: number | undefined;
+  kwh!: number;
 
   @IsObject()
   @IsNotEmpty()
@@ -98,7 +96,7 @@ export class Session {
   @IsArray()
   @Optional()
   @Type(() => ChargingPeriod)
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   charging_periods?: ChargingPeriod[] | null;
 
   @Optional()
@@ -119,7 +117,7 @@ export class Session {
 
 export class PaginatedSessionResponse extends PaginatedResponse<Session> {
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Session)
