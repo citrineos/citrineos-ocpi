@@ -7,8 +7,8 @@ import { Service } from 'typedi';
 import { ChargingStation, SequelizeDeviceModelRepository, SequelizeLocationRepository } from '@citrineos/data';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 import { LocationDTO, LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
-import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import { EvseDTO, EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { ConnectorDTO, ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
@@ -256,8 +256,7 @@ export class LocationsService {
   async processEvseUpdate(
     stationId: string,
     evseId: number,
-    status: ConnectorStatusEnumType,
-    lastUpdated: Date
+    partialEvse: Partial<EvseDTO>
   ): Promise<void> {
     const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
@@ -267,28 +266,23 @@ export class LocationsService {
 
     const locationId = chargingStation.locationId;
 
-    await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
-    await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
+    await this.setOcpiEvseLastUpdated(stationId, evseId, partialEvse.last_updated ?? new Date());
+    await this.setOcpiLocationLastUpdated(locationId, partialEvse.last_updated ?? new Date());
 
     const params = PatchEvseParams.build(
       locationId,
       UID_FORMAT(stationId, evseId),
-      {
-        status: this.locationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(status),
-        last_updated: lastUpdated
-      });
+      partialEvse
+    );
 
     await this.locationsClientApi.patchEvse(params);
   }
 
-  // TODO make more flexible to take in any number of different changed fields to map to a ConnectorDTO
-  // OR pre-map ConnectorDTO elsewhere before passing in, which requires updates to the mapper for flexibility
   async processConnectorUpdate(
     stationId: string,
     evseId: number,
     connectorId: number,
-    status: ConnectorStatusEnumType,
-    lastUpdated: Date
+    partialConnector: Partial<ConnectorDTO>
   ): Promise<void> {
     const chargingStation = await this.locationRepository.readChargingStationByStationId(stationId);
 
@@ -298,17 +292,16 @@ export class LocationsService {
 
     const locationId = chargingStation.locationId;
 
-    await this.setOcpiConnectorLastUpdated(stationId, evseId, connectorId, lastUpdated);
-    await this.setOcpiEvseLastUpdated(stationId, evseId, lastUpdated);
-    await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
+    await this.setOcpiConnectorLastUpdated(stationId, evseId, connectorId, partialConnector.last_updated ?? new Date());
+    await this.setOcpiEvseLastUpdated(stationId, evseId, partialConnector.last_updated ?? new Date());
+    await this.setOcpiLocationLastUpdated(locationId, partialConnector.last_updated ?? new Date());
 
     const params = PatchConnectorParams.build(
       locationId,
       UID_FORMAT(stationId, evseId),
       connectorId,
-      {
-        last_updated: lastUpdated
-      });
+      partialConnector
+    );
 
     await this.locationsClientApi.patchConnector(params);
   }

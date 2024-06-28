@@ -21,8 +21,9 @@ import {
   CONNECTOR_COMPONENT,
   EVSE_COMPONENT,
   AVAILABILITY_STATE_VARIABLE,
-  LocationsService
-} from "@citrineos/ocpi-base";
+  LocationsService, EvseDTO, ConnectorDTO,
+} from '@citrineos/ocpi-base';
+import { CitrineOcpiLocationMapper } from '@citrineos/ocpi-base/dist/mapper/CitrineOcpiLocationMapper';
 
 
 /**
@@ -89,7 +90,6 @@ export class LocationsHandlers extends AbstractModule {
     }
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
-
   }
 
   /**
@@ -103,8 +103,10 @@ export class LocationsHandlers extends AbstractModule {
     this._logger.debug('NotifyEvent received:', message, props);
 
     const stationId = message.context.stationId;
-
     const events = message.payload.eventData as EventDataType[];
+
+    const evseUpdateMap: Record<number, Partial<EvseDTO>> = {};
+    const connectorUpdateMap: Record<number, Record<number, Partial<ConnectorDTO>>> = {}
 
     for (const event of events) {
       const component = event.component;
@@ -112,21 +114,35 @@ export class LocationsHandlers extends AbstractModule {
 
       if ((component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT)) {
         this._logger.debug('Ignoring NotifyEvent since it is not a processed OCPI event.');
-      } else if (component.name === EVSE_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) {
-        // TODO must process variable values based on which variable is being changed, rather than assuming it's AvailabilityState
-        const status = event.actualValue;
+      } else if (component.name === EVSE_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) { // TODO add logic to process other variable attribute values used for OCPI mapping
         const evseId = component.evse?.id ?? 1; // TODO better fallback
+        const partialEvse: Partial<EvseDTO> = {};
+        partialEvse.status = CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus( event.actualValue);
         // TODO use the message context timestamp when it's merged into 1.3.0
-        // await this.locationsService.processEvseUpdate(stationId, evseId, status, new Date(message.context.timestamp));
-        await this.locationsService.processEvseUpdate(stationId, evseId, status as ConnectorStatusEnumType, new Date());
+        // partialEvse.last_updated = new Date(message.context.timestamp);
+        partialEvse.last_updated = new Date();
+        evseUpdateMap[evseId] = partialEvse;
       } else if (component.name === CONNECTOR_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) {
-        // TODO must process variable values based on which variable is being changed, rather than assuming it's AvailabilityState
+        // TODO add logic to process other variable attribute values used for OCPI mapping
         const status = event.actualValue;
         const connectorId = component.evse?.connectorId ?? 1; // TODO better fallback
         const evseId = component.evse?.id ?? 1; // TODO better fallback
+        const partialConnector: Partial<ConnectorDTO> = {};
         // TODO use the message context timestamp when it's merged into 1.3.0
-        // await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date(message.context.timestamp));
-        await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status as ConnectorStatusEnumType, new Date());
+        // partialConnector.last_updated = new Date(message.context.timestamp);
+        partialConnector.last_updated = new Date();
+        connectorUpdateMap[evseId][connectorId] = partialConnector;
+      }
+    }
+
+    // TODO consolidate EVSE updates between EVSE and Connector
+    for (let [evseId, partialEvse] of Object.entries(evseUpdateMap)) {
+      await this.locationsService.processEvseUpdate(stationId, Number(evseId), partialEvse);
+    }
+
+    for (let [evseId, connectorsMap] of Object.entries(connectorUpdateMap)) {
+      for (let [connectorId, partialConnector] of Object.entries(connectorsMap)) {
+        await this.locationsService.processConnectorUpdate(stationId, Number(evseId), Number(connectorId), partialConnector);
       }
     }
   }
@@ -141,8 +157,10 @@ export class LocationsHandlers extends AbstractModule {
     const stationId = message.context.stationId;
     const evseId = message.payload.evseId;
     const connectorId = message.payload.connectorId;
-    const status = message.payload.connectorStatus;
-    await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, status, new Date(message.payload.timestamp));
+    const partialConnector: Partial<ConnectorDTO> = {};
+    partialConnector.last_updated =  new Date(message.payload.timestamp);
+
+    await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, partialConnector);
   }
 
 }
