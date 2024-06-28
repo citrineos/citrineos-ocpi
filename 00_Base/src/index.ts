@@ -90,6 +90,7 @@ export { OcpiNamespace } from './util/ocpi.namespace';
 export { OcpiLogger } from './util/logger';
 export { OcpiSequelizeInstance } from './util/sequelize';
 export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint';
+export { OcpiHeaders } from './model/OcpiHeaders';
 export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
