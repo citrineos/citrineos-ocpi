@@ -5,7 +5,12 @@
 
 import { ICommandsModuleApi } from './interface';
 
-import { Body, Controller, Post } from 'routing-controllers';
+import { Body, JsonController, Post } from 'routing-controllers';
+
+import { plainToInstance } from 'class-transformer';
+
+import { validate } from 'class-validator';
+
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
@@ -17,12 +22,15 @@ import {
   generateMockOcpiResponse,
   ModuleId,
   MultipleTypes,
-  OcpiCommandResponse,
   ReserveNow,
   ResponseSchema,
   StartSession,
   StopSession,
   UnlockConnector,
+  OcpiResponse,
+  CommandResponse,
+  versionIdParam,
+  ResponseGenerator,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
@@ -30,7 +38,7 @@ import { Service } from 'typedi';
 /**
  * Server API for the provisioning component.
  */
-@Controller(`/${ModuleId.Commands}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsModuleApi
   extends BaseController
@@ -42,11 +50,11 @@ export class CommandsModuleApi
 
   @Post('/:commandType')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiCommandResponse, {
+  @ResponseSchema(OcpiResponse<CommandResponse>, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(OcpiCommandResponse),
+      success: generateMockOcpiResponse(OcpiResponse<CommandResponse>),
     },
   })
   async postCommand(
@@ -66,9 +74,42 @@ export class CommandsModuleApi
       | StartSession
       | StopSession
       | UnlockConnector,
-  ): Promise<OcpiCommandResponse> {
+  ): Promise<OcpiResponse<CommandResponse | undefined>> {
     console.log('postCommand', _commandType, _payload);
-    // return this.commandsService.postCommand(_commandType, _payload);
-    return this.commandsService.postCommand(_commandType, _payload);
+    switch (_commandType) {
+      case CommandType.CANCEL_RESERVATION:
+        _payload = plainToInstance(CancelReservation, _payload);
+        break;
+      case CommandType.RESERVE_NOW:
+        _payload = plainToInstance(ReserveNow, _payload);
+        break;
+      case CommandType.START_SESSION:
+        _payload = plainToInstance(StartSession, _payload);
+        break;
+      case CommandType.STOP_SESSION:
+        _payload = plainToInstance(StopSession, _payload);
+        break;
+      case CommandType.UNLOCK_CONNECTOR:
+        _payload = plainToInstance(UnlockConnector, _payload);
+        break;
+      default:
+        return ResponseGenerator.buildGenericClientErrorResponse(
+          undefined,
+          'Unknown command type: ' + _commandType,
+          undefined,
+        );
+    }
+    return await validate(_payload).then(async (errors) => {
+      if (errors.length > 0) {
+        const errorString = errors.map((error) => error.toString()).join(', ');
+        return ResponseGenerator.buildGenericClientErrorResponse(
+          undefined,
+          errorString,
+          undefined,
+        );
+      } else {
+        return await this.commandsService.postCommand(_commandType, _payload);
+      }
+    });
   }
 }

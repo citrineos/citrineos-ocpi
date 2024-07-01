@@ -21,7 +21,12 @@ export class OcpiHeaders {
   @Length(3)
   toPartyId!: string;
 
-  constructor(fromCountryCode: string, fromPartyId: string, toCountryCode: string, toPartyId: string) {
+  constructor(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+  ) {
     this.fromCountryCode = fromCountryCode;
     this.fromPartyId = fromPartyId;
     this.toCountryCode = toCountryCode;

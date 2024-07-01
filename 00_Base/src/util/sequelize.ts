@@ -20,6 +20,7 @@ export const ON_DELETE_CASCADE = 'CASCADE';
 export const ON_DELETE_NO_ACTION = 'NO_ACTION';
 export const ON_DELETE_SET_DEFAULT = 'SET_DEFAULT';
 export const ON_DELETE_SET_NULL = 'SET NULL';
+import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 
 @Service()
 export class OcpiSequelizeInstance {
@@ -50,6 +51,7 @@ export class OcpiSequelizeInstance {
         Endpoint,
         Version,
         VersionEndpoint,
+        ResponseUrlCorrelationId,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
