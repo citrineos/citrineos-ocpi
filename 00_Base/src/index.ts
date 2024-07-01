@@ -12,7 +12,6 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { LocationsController } from './controllers/locations.controller';
 import { SessionsController } from './controllers/sessions.controller';
 import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
@@ -56,8 +55,10 @@ export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
 export {
   generateMockOcpiResponse,
+  generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
+export { PaginatedParams } from './controllers/param/paginated.params';
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -82,6 +83,20 @@ export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
+export {
+  LocationDTO,
+  LocationResponse,
+  PaginatedLocationResponse,
+} from './model/DTO/LocationDTO';
+export {
+  EvseDTO,
+  EvseResponse,
+  UID_FORMAT,
+  EXTRACT_EVSE_ID,
+  EXTRACT_STATION_ID,
+} from './model/DTO/EvseDTO';
+export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
+
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
@@ -94,10 +109,25 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
+export { Paginated } from './util/decorators/paginated';
+
+export {
+  AUTH_CONTROLLER_COMPONENT,
+  EVSE_COMPONENT,
+  CONNECTOR_COMPONENT,
+  TOKEN_READER_COMPONENT,
+  AVAILABILITY_STATE_VARIABLE,
+  UNKNOWN_ID,
+  NOT_APPLICABLE,
+} from './util/consts';
+
 export { ResponseSchema } from './openapi-spec-helper/decorators';
 export { BaseClientApi } from './trigger/BaseClientApi';
+export { LocationsClientApi } from './trigger/LocationsClientApi';
+
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
+export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
@@ -160,7 +190,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          LocationsController,
           SessionsController,
           TariffsController,
           TokensController,

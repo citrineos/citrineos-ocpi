@@ -1,7 +1,7 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Location } from '../../../model/Location';
+import { LocationDTO } from '../../../model/DTO/LocationDTO';
 
 export class PutLocationParams extends OcpiParams {
   @IsString()
@@ -10,7 +10,14 @@ export class PutLocationParams extends OcpiParams {
   locationId!: string;
 
   @IsNotEmpty()
-  @Type(() => Location)
+  @Type(() => LocationDTO)
   @ValidateNested()
-  location!: Location;
+  location!: LocationDTO;
+
+  static build(locationId: number, location: LocationDTO): PutLocationParams {
+    const params = new PutLocationParams();
+    params.locationId = String(locationId);
+    params.location = location;
+    return params;
+  }
 }
