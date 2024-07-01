@@ -196,7 +196,6 @@ export class CommandExecutor {
     if (!transaction) {
       throw new NotFoundException('Session not found');
     }
-    console.log(`Found transaction: ${JSON.stringify(transaction)}`);
 
     if (!transaction.evse) {
       throw new NotFoundException('Evse not found');
@@ -272,9 +271,7 @@ export class CommandExecutor {
       ),
     } as ChargingScheduleType;
 
-    const profileId = await this.chargingProfileRepo.readNextId('id', {
-      where: { stationId: stationId },
-    });
+    const profileId = await this.chargingProfileRepo.getNextChargingProfileId(stationId);
     const setChargingProfileRequest = {
       evseId,
       chargingProfile: {
