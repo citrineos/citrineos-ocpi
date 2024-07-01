@@ -37,8 +37,5 @@ export const buildPutChargingProfileParams = (
   (params as PutChargingProfileParams).activeChargingProfile =
     activeChargingProfile;
   (params as PutChargingProfileParams).url = url;
-  console.log(
-    `Built PutChargingProfileParams: ${JSON.stringify(params as PutChargingProfileParams)}`,
-  );
   return params as PutChargingProfileParams;
 };

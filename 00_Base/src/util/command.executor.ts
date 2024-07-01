@@ -242,28 +242,6 @@ export class CommandExecutor {
     );
   }
 
-  public async executeGetCompositeProfile(
-    evseId: number,
-    stationId: string,
-    duration: number,
-    correlationId: string,
-  ): Promise<void> {
-    const request = {
-      duration: duration,
-      evseId: evseId,
-    } as GetCompositeScheduleRequest;
-
-    this.abstractModule.sendCall(
-      stationId,
-      'tenantId',
-      CallAction.GetCompositeSchedule,
-      request,
-      undefined,
-      correlationId,
-      MessageOrigin.CentralSystem,
-    );
-  }
-
   private async mapSetChargingProfileRequest(
     chargingProfile: ChargingProfile,
     evseId: number,

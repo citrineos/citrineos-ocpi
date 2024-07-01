@@ -4,6 +4,7 @@ import { AsyncReceiverApi } from '../trigger/AsyncReceiverApi';
 import { ActiveChargingProfileResult } from '../model/ActiveChargingProfileResult';
 import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
 import { ChargingProfileResult } from '../model/ChargingProfileResult';
+import { NotFoundError } from 'routing-controllers';
 
 @Service()
 export class AsyncResponder {
@@ -27,7 +28,7 @@ export class AsyncResponder {
         data,
       );
     } else {
-      throw new Error(
+      throw new NotFoundError(
         'No response url found for correlationId: ' + correlationId,
       );
     }
