@@ -43,7 +43,7 @@ export function createLocalConfig() {
       },
       tenant: {
         endpointPrefix: '/tenant',
-      }
+      },
     },
     data: {
       sequelize: {

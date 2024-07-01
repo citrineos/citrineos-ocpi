@@ -6,23 +6,24 @@ import {
   IsObject,
   IsString,
   MaxLength,
-  ValidateNested
-} from "class-validator";
-import { Optional } from "../../util/decorators/optional";
-import { Enum } from "../../util/decorators/enum";
-import { EvseStatus } from "../EvseStatus";
-import { Type } from "class-transformer";
-import { EvseStatusSchedule } from "../EvseStatusSchedule";
-import { Capability } from "../Capability";
-import { ConnectorDTO } from "./ConnectorDTO";
-import { GeoLocation } from "../GeoLocation";
-import { DisplayText } from "../DisplayText";
-import { ParkingRestriction } from "../ParkingRestriction";
-import { OcpiResponse } from "../ocpi.response";
+  ValidateNested,
+} from 'class-validator';
+import { Optional } from '../../util/decorators/optional';
+import { Enum } from '../../util/decorators/enum';
+import { EvseStatus } from '../EvseStatus';
+import { Type } from 'class-transformer';
+import { EvseStatusSchedule } from '../EvseStatusSchedule';
+import { Capability } from '../Capability';
+import { ConnectorDTO } from './ConnectorDTO';
+import { GeoLocation } from '../GeoLocation';
+import { DisplayText } from '../DisplayText';
+import { ParkingRestriction } from '../ParkingRestriction';
+import { OcpiResponse } from '../ocpi.response';
 
 // TODO make dynamic
 const uidDelimiter = '::';
-export const UID_FORMAT = (stationId: string, evseId: number): string => `${stationId}${uidDelimiter}${evseId}`;
+export const UID_FORMAT = (stationId: string, evseId: number): string =>
+  `${stationId}${uidDelimiter}${evseId}`;
 
 export const EXTRACT_STATION_ID = (evseUid: string) => {
   const split = evseUid.split(uidDelimiter);
@@ -35,7 +36,6 @@ export const EXTRACT_EVSE_ID = (evseUid: string) => {
 };
 
 export class EvseDTO {
-
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()

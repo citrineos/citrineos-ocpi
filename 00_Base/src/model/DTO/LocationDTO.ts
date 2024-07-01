@@ -1,25 +1,26 @@
 import {
   IsArray,
-  IsBoolean, IsDateString,
+  IsBoolean,
+  IsDateString,
   IsNotEmpty,
   IsObject,
   IsString,
   MaxLength,
   MinLength,
-  ValidateNested
-} from "class-validator";
-import { Optional } from "../../util/decorators/optional";
-import { Type } from "class-transformer";
-import { PublishTokenType } from "../PublishTokenType";
-import { GeoLocation } from "../GeoLocation";
-import { AdditionalGeoLocation } from "../AdditionalGeoLocation";
-import { EvseDTO } from "./EvseDTO";
-import { BusinessDetails } from "../BusinessDetails";
-import { Facilities } from "../Facilities";
-import { Hours } from "../Hours";
-import { EnergyMix } from "../EnergyMix";
-import { OcpiResponse } from "../ocpi.response";
-import { PaginatedResponse } from "../PaginatedResponse";
+  ValidateNested,
+} from 'class-validator';
+import { Optional } from '../../util/decorators/optional';
+import { Type } from 'class-transformer';
+import { PublishTokenType } from '../PublishTokenType';
+import { GeoLocation } from '../GeoLocation';
+import { AdditionalGeoLocation } from '../AdditionalGeoLocation';
+import { EvseDTO } from './EvseDTO';
+import { BusinessDetails } from '../BusinessDetails';
+import { Facilities } from '../Facilities';
+import { Hours } from '../Hours';
+import { EnergyMix } from '../EnergyMix';
+import { OcpiResponse } from '../ocpi.response';
+import { PaginatedResponse } from '../PaginatedResponse';
 
 export class LocationDTO {
   @MaxLength(2)

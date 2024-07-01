@@ -29,36 +29,26 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     limit: number,
     offset: number,
     dateFrom?: Date,
-    dateTo?: Date
+    dateTo?: Date,
   ): Promise<OcpiLocation[]> {
     return await this.readAllByQuery({
-      ...(this.createDateQuery(dateFrom, dateTo)),
+      ...this.createDateQuery(dateFrom, dateTo),
       limit,
-      offset
-    })
+      offset,
+    });
   }
 
-  async getLocationsCount(
-    dateFrom?: Date,
-    dateTo?: Date
-  ): Promise<number> {
-    return await this.existByQuery(
-      {
-        ...(this.createDateQuery(dateFrom, dateTo))
-      }
-    )
+  async getLocationsCount(dateFrom?: Date, dateTo?: Date): Promise<number> {
+    return await this.existByQuery({
+      ...this.createDateQuery(dateFrom, dateTo),
+    });
   }
 
-  async createOrUpdateOcpiLocation(
-    location: OcpiLocation
-  ) {
+  async createOrUpdateOcpiLocation(location: OcpiLocation) {
     // TODO
   }
 
-  private createDateQuery(
-    dateFrom?: Date,
-    dateTo?: Date
-  ) {
+  private createDateQuery(dateFrom?: Date, dateTo?: Date) {
     if (!dateFrom && !dateTo) {
       return {};
     }

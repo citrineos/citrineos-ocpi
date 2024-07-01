@@ -2,7 +2,7 @@ import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
-import { EvseDTO } from "../../../model/DTO/EvseDTO";
+import { EvseDTO } from '../../../model/DTO/EvseDTO';
 
 export class PutConnectorParams extends OcpiParams {
   @IsString()
@@ -29,7 +29,7 @@ export class PutConnectorParams extends OcpiParams {
     locationId: number,
     evseUid: string,
     connectorId: number,
-    connector: ConnectorDTO
+    connector: ConnectorDTO,
   ): PutConnectorParams {
     const params = new PutConnectorParams();
     params.locationId = String(locationId);

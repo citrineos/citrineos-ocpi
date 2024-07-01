@@ -1,6 +1,6 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { ConnectorDTO } from "../../../model/DTO/ConnectorDTO";
+import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
 
 export class PatchConnectorParams extends OcpiParams {
   @IsString()
@@ -24,7 +24,7 @@ export class PatchConnectorParams extends OcpiParams {
     locationId: number,
     evseUid: string,
     connectorId: number,
-    connector: Partial<ConnectorDTO>
+    connector: Partial<ConnectorDTO>,
   ): PatchConnectorParams {
     const params = new PatchConnectorParams();
     params.locationId = String(locationId);

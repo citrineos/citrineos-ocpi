@@ -6,26 +6,29 @@ import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
 import { GeoLocation } from '../model/GeoLocation';
 import { Location } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
-import { ConnectorEnumType, ConnectorStatusEnumType, } from '@citrineos/base';
+import { ConnectorEnumType, ConnectorStatusEnumType } from '@citrineos/base';
 import { Capability } from '../model/Capability';
 import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
-import { ChargingStationVariableAttributes } from "../model/variable-attributes/ChargingStationVariableAttributes";
-import { EvseVariableAttributes } from "../model/variable-attributes/EvseVariableAttributes";
-import { OcpiEvse } from "../model/Evse";
-import { ConnectorVariableAttributes } from "../model/variable-attributes/ConnectorVariableAttributes";
-import { OcpiConnector } from "../model/Connector";
-import { Service } from "typedi";
-import { NOT_APPLICABLE } from "../util/consts";
+import { ChargingStationVariableAttributes } from '../model/variable-attributes/ChargingStationVariableAttributes';
+import { EvseVariableAttributes } from '../model/variable-attributes/EvseVariableAttributes';
+import { OcpiEvse } from '../model/Evse';
+import { ConnectorVariableAttributes } from '../model/variable-attributes/ConnectorVariableAttributes';
+import { OcpiConnector } from '../model/Connector';
+import { Service } from 'typedi';
+import { NOT_APPLICABLE } from '../util/consts';
 
 @Service()
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   // TODO pass credentials
   mapToOcpiLocation(
     citrineLocation: Location,
-    chargingStationVariableAttributesMap: Record<string, ChargingStationVariableAttributes>,
-    ocpiLocationInfo?: OcpiLocation
+    chargingStationVariableAttributesMap: Record<
+      string,
+      ChargingStationVariableAttributes
+    >,
+    ocpiLocationInfo?: OcpiLocation,
   ): LocationDTO {
     const ocpiLocation = new LocationDTO();
 
@@ -50,14 +53,18 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     const evses: EvseDTO[] = [];
 
-    for (let chargingStationAttributes of Object.values(chargingStationVariableAttributesMap)) {
-      for (let evseAttributes of Object.values(chargingStationAttributes.evses)) {
+    for (const chargingStationAttributes of Object.values(
+      chargingStationVariableAttributesMap,
+    )) {
+      for (const evseAttributes of Object.values(
+        chargingStationAttributes.evses,
+      )) {
         evses.push(
           this.mapToOcpiEvse(
             citrineLocation,
             chargingStationAttributes,
-            evseAttributes
-          )
+            evseAttributes,
+          ),
         );
       }
     }
@@ -83,21 +90,36 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     citrineLocation: Location,
     chargingStationAttributes: ChargingStationVariableAttributes,
     evseAttributes: EvseVariableAttributes,
-    ocpiEvseInformation?: OcpiEvse
+    ocpiEvseInformation?: OcpiEvse,
   ): EvseDTO {
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id); // format evse uid
-    evse.status = CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(evseAttributes.evse_availability_state, chargingStationAttributes.bay_occupancy_sensor_active);
+    evse.status =
+      CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(
+        evseAttributes.evse_availability_state,
+        chargingStationAttributes.bay_occupancy_sensor_active,
+      );
     evse.evse_id = evseAttributes.evse_id;
-    evse.capabilities = this.getCapabilities(chargingStationAttributes.authorize_remote_start, chargingStationAttributes.token_reader_enabled);
+    evse.capabilities = this.getCapabilities(
+      chargingStationAttributes.authorize_remote_start,
+      chargingStationAttributes.token_reader_enabled,
+    );
     evse.coordinates = this.getCoordinates(citrineLocation.coordinates);
     evse.physical_reference = ocpiEvseInformation?.physicalReference;
-    evse.last_updated = ocpiEvseInformation?.lastUpdated ?? new Date() // TODO better fallback
+    evse.last_updated = ocpiEvseInformation?.lastUpdated ?? new Date(); // TODO better fallback
 
     const connectors = [];
 
-    for (let [connectorId, connectorAttributes] of Object.entries(evseAttributes.connectors)) {
-      connectors.push(this.mapToOcpiConnector(Number(connectorId), evseAttributes, connectorAttributes));
+    for (const [connectorId, connectorAttributes] of Object.entries(
+      evseAttributes.connectors,
+    )) {
+      connectors.push(
+        this.mapToOcpiConnector(
+          Number(connectorId),
+          evseAttributes,
+          connectorAttributes,
+        ),
+      );
     }
 
     evse.connectors = [...connectors];
@@ -116,7 +138,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     id: number,
     evseAttributes: EvseVariableAttributes,
     connectorAttributes: ConnectorVariableAttributes,
-    ocpiConnectorInfo?: OcpiConnector
+    ocpiConnectorInfo?: OcpiConnector,
   ): ConnectorDTO {
     const ocppConnectorType = connectorAttributes.connector_type;
 
@@ -148,7 +170,10 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return geoLocation;
   }
 
-  private getCapabilities(authorizeRemoteStart: string, tokenReaderEnabled: string): Capability[] {
+  private getCapabilities(
+    authorizeRemoteStart: string,
+    tokenReaderEnabled: string,
+  ): Capability[] {
     // TODO add remaining capabilities
     const capabilities: Capability[] = [];
 
@@ -164,7 +189,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
   static mapOCPPAvailabilityStateToOCPIEvseStatus(
     availabilityState: string,
-    parkingBayOccupancy?: string // TODO should this be optional?
+    parkingBayOccupancy?: string, // TODO should this be optional?
   ): EvseStatus {
     if (parkingBayOccupancy === 'true') {
       return EvseStatus.BLOCKED;
@@ -187,7 +212,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  private getConnectorStandard(connectorType: string | undefined): ConnectorType {
+  private getConnectorStandard(
+    connectorType: string | undefined,
+  ): ConnectorType {
     // TODO determine if mappings are possible for:
     // s309-1P-32A
     // sBS1361

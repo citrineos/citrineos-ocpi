@@ -1,4 +1,4 @@
-import { Table, Model, DataType, Column } from "sequelize-typescript";
+import { Table, Model, DataType, Column } from 'sequelize-typescript';
 
 /**
  * OCPI representation of an EVSE -- not named 'Evse' to avoid collisions
@@ -10,13 +10,13 @@ export class OcpiEvse extends Model {
   // not the eMI3 id
   @Column({
     type: DataType.INTEGER,
-    unique: 'evseId_stationId'
+    unique: 'evseId_stationId',
   })
   declare evseId: number;
 
   @Column({
     type: DataType.STRING,
-    unique: 'evseId_stationId'
+    unique: 'evseId_stationId',
   })
   declare stationId: string;
 

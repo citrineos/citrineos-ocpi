@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { ConnectorVariableAttributes } from "./ConnectorVariableAttributes";
+import { IsNotEmpty, IsString } from 'class-validator';
+import { ConnectorVariableAttributes } from './ConnectorVariableAttributes';
 
 /**
  * Represents the EVSE variable attributes
@@ -9,7 +9,7 @@ import { ConnectorVariableAttributes } from "./ConnectorVariableAttributes";
  * as CamelCase does register.
  */
 export class EvseVariableAttributes {
-  id!: number
+  id!: number;
 
   @IsString()
   @IsNotEmpty()
@@ -33,13 +33,16 @@ export class EvseVariableAttributes {
 
   @IsString()
   @IsNotEmpty()
-  connector_ids_string!: string
+  connector_ids_string!: string;
 
   // not a database-derived field
   connectors: Record<number, ConnectorVariableAttributes> = {};
 }
 
-export const evseVariableAttributesQuery = (stationId: string, evseComponentId: number) => `
+export const evseVariableAttributesQuery = (
+  stationId: string,
+  evseComponentId: number,
+) => `
   select * 
   from 
     coalesce(

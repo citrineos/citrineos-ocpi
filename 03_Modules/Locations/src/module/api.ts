@@ -20,7 +20,7 @@ import {
   ConnectorResponse,
   EvseResponse,
   EXTRACT_STATION_ID,
-  EXTRACT_EVSE_ID
+  EXTRACT_EVSE_ID,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
@@ -38,17 +38,18 @@ const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
  */
 @Controller(`/${ModuleId.Locations}`)
 @Service()
-export class LocationsModuleApi extends BaseController implements ILocationsModuleApi {
+export class LocationsModuleApi
+  extends BaseController
+  implements ILocationsModuleApi
+{
   /**
    * Constructs a new instance of the class.
    *
    * @param {LocationsService} locationsService - The Locations service.
    */
-  constructor(
-    readonly locationsService: LocationsService
-  ) {
-      super();
-    }
+  constructor(readonly locationsService: LocationsService) {
+    super();
+  }
 
   @Get()
   @AsOcpiFunctionalEndpoint()
@@ -56,8 +57,8 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_PAGINATED_LOCATION
-    }
+      success: MOCK_PAGINATED_LOCATION,
+    },
   })
   async getLocations(
     @Paginated() paginatedParams?: PaginatedParams,
@@ -71,11 +72,11 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_LOCATION
-    }
+      success: MOCK_LOCATION,
+    },
   })
   async getLocationById(
-    @Param('location_id') locationId: number
+    @Param('location_id') locationId: number,
   ): Promise<LocationResponse> {
     return this.locationsService.getLocationById(locationId);
   }
@@ -86,17 +87,21 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_EVSE
-    }
+      success: MOCK_EVSE,
+    },
   })
   async getEvseById(
     @Param('location_id') locationId: number,
-    @Param('evse_uid') evseUid: string
+    @Param('evse_uid') evseUid: string,
   ): Promise<EvseResponse> {
     const stationId = EXTRACT_STATION_ID(evseUid);
     const evseId = EXTRACT_EVSE_ID(evseUid);
 
-    return this.locationsService.getEvseById(locationId, stationId, Number(evseId));
+    return this.locationsService.getEvseById(
+      locationId,
+      stationId,
+      Number(evseId),
+    );
   }
 
   @Get('/:location_id/:evse_uid/:connector_id')
@@ -105,8 +110,8 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: MOCK_CONNECTOR
-    }
+      success: MOCK_CONNECTOR,
+    },
   })
   async getConnectorById(
     @Param('location_id') locationId: number,
@@ -116,7 +121,11 @@ export class LocationsModuleApi extends BaseController implements ILocationsModu
     const stationId = EXTRACT_STATION_ID(evseUid);
     const evseId = EXTRACT_EVSE_ID(evseUid);
 
-    return this.locationsService.getConnectorById(locationId, stationId, Number(evseId), Number(connectorId));
+    return this.locationsService.getConnectorById(
+      locationId,
+      stationId,
+      Number(evseId),
+      Number(connectorId),
+    );
   }
-
 }

@@ -27,7 +27,7 @@ export class LocationsModule implements OcpiModule {
     readonly config: SystemConfig,
     readonly cache: ICache,
     readonly logger?: Logger<ILogObj>,
-  ) { }
+  ) {}
 
   init(handler: IMessageHandler, sender: IMessageSender): void {
     this.handler = handler;

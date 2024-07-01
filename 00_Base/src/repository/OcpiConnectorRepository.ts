@@ -25,26 +25,28 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
     );
   }
 
-  async createOrUpdateOcpiConnector(
-    connector: OcpiConnector
-  ) {
-    const [savedOcpiConnector, ocpiConnectorCreated] = await this._readOrCreateByQuery({
-      where: {
-        connectorId: connector.connectorId,
-        evseId: connector.evseId,
-        stationId: connector.stationId,
-      },
-      defaults: {
-        connectorId: connector.connectorId,
-        evseId: connector.evseId,
-        stationId: connector.stationId,
-        lastUpdated: connector.lastUpdated
-      }
-    });
+  async createOrUpdateOcpiConnector(connector: OcpiConnector) {
+    const [savedOcpiConnector, ocpiConnectorCreated] =
+      await this._readOrCreateByQuery({
+        where: {
+          connectorId: connector.connectorId,
+          evseId: connector.evseId,
+          stationId: connector.stationId,
+        },
+        defaults: {
+          connectorId: connector.connectorId,
+          evseId: connector.evseId,
+          stationId: connector.stationId,
+          lastUpdated: connector.lastUpdated,
+        },
+      });
     if (!ocpiConnectorCreated) {
-      await this._updateByKey({
-        lastUpdated: connector.lastUpdated
-      }, savedOcpiConnector.id);
+      await this._updateByKey(
+        {
+          lastUpdated: connector.lastUpdated,
+        },
+        savedOcpiConnector.id,
+      );
     }
   }
 }

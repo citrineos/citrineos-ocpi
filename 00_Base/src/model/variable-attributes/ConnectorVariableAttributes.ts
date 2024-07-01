@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from 'class-validator';
 
 /**
  * Represents the Connector variable attributes
@@ -19,7 +19,11 @@ export class ConnectorVariableAttributes {
   connector_availability_state!: string;
 }
 
-export const connectorVariableAttributesQuery = (stationId: string, evseComponentId: number, connectorId: number) => `
+export const connectorVariableAttributesQuery = (
+  stationId: string,
+  evseComponentId: number,
+  connectorId: number,
+) => `
   select * 
   from
     coalesce(

@@ -22,7 +22,7 @@ export class PutEvseParams extends OcpiParams {
   static build(
     locationId: number,
     evseUid: string,
-    evse: EvseDTO
+    evse: EvseDTO,
   ): PutEvseParams {
     const params = new PutEvseParams();
     params.locationId = String(locationId);

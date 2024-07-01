@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { EvseVariableAttributes } from "./EvseVariableAttributes";
+import { IsNotEmpty, IsString } from 'class-validator';
+import { EvseVariableAttributes } from './EvseVariableAttributes';
 
 /**
  * Represents the Charging Station variable attributes
@@ -27,7 +27,7 @@ export class ChargingStationVariableAttributes {
 
   @IsString()
   @IsNotEmpty()
-  evse_ids_string!: string
+  evse_ids_string!: string;
 
   // not a database-derived field
   evses: Record<number, EvseVariableAttributes> = {};

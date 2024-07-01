@@ -81,13 +81,17 @@ export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { CommandResultType } from './model/CommandResult';
-export { LocationDTO, LocationResponse, PaginatedLocationResponse } from './model/DTO/LocationDTO';
+export {
+  LocationDTO,
+  LocationResponse,
+  PaginatedLocationResponse,
+} from './model/DTO/LocationDTO';
 export {
   EvseDTO,
   EvseResponse,
   UID_FORMAT,
   EXTRACT_EVSE_ID,
-  EXTRACT_STATION_ID
+  EXTRACT_STATION_ID,
 } from './model/DTO/EvseDTO';
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 
@@ -111,7 +115,7 @@ export {
   TOKEN_READER_COMPONENT,
   AVAILABILITY_STATE_VARIABLE,
   UNKNOWN_ID,
-  NOT_APPLICABLE
+  NOT_APPLICABLE,
 } from './util/consts';
 
 export { ResponseSchema } from './openapi-spec-helper/decorators';

@@ -14,5 +14,5 @@ export enum OcpiNamespace {
   CpoTenant = 'CpoTenant',
   OcpiLocation = 'OcpiLocation',
   OcpiEvse = 'OcpiEvse',
-  OcpiConnector = 'OcpiConnector'
+  OcpiConnector = 'OcpiConnector',
 }
