@@ -8,7 +8,7 @@ import { CommandType } from '../model/CommandType';
 import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
 import { CommandExecutor } from '../util/command.executor';
 import { OcpiResponse } from '../model/ocpi.response';
-import { NotFoundException } from '../exception/NotFoundException';
+import { NotFoundError } from 'routing-controllers';
 import { ResponseGenerator } from '../util/response.generator';
 
 @Service()
@@ -77,14 +77,14 @@ export class CommandsService {
         timeout: this.TIMEOUT,
       });
     } catch (e) {
-      if (e instanceof NotFoundException) {
+      if (e instanceof NotFoundError) {
         return ResponseGenerator.buildUnknownLocationResponse(
           {
             result: CommandResponseType.REJECTED,
             timeout: this.TIMEOUT,
           },
           undefined,
-          e as NotFoundException,
+          e as NotFoundError,
         );
       } else {
         console.error(e);
@@ -110,14 +110,14 @@ export class CommandsService {
         timeout: this.TIMEOUT,
       });
     } catch (e) {
-      if (e instanceof NotFoundException) {
+      if (e instanceof NotFoundError) {
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.UNKNOWN_SESSION,
             timeout: this.TIMEOUT,
           },
           undefined,
-          e as NotFoundException,
+          e as NotFoundError,
         );
       } else {
         console.error(e);

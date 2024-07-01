@@ -5,11 +5,7 @@
 
 import { ICommandsModuleApi } from './interface';
 
-import {
-  Body,
-  JsonController,
-  Post,
-} from 'routing-controllers';
+import { Body, JsonController, Post } from 'routing-controllers';
 
 import { plainToInstance } from 'class-transformer';
 
@@ -34,10 +30,10 @@ import {
   OcpiResponse,
   CommandResponse,
   versionIdParam,
+  ResponseGenerator,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import { ResponseGenerator } from '@citrineos/ocpi-base';
 
 /**
  * Server API for the provisioning component.
@@ -103,7 +99,6 @@ export class CommandsModuleApi
           undefined,
         );
     }
-
     return await validate(_payload).then(async (errors) => {
       if (errors.length > 0) {
         const errorString = errors.map((error) => error.toString()).join(', ');

@@ -11,7 +11,7 @@ import { Service } from 'typedi';
 import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { StopSession } from '../model/StopSession';
-import { NotFoundException } from '../exception/NotFoundException';
+import { NotFoundError } from 'routing-controllers';
 import { OcpiEvseEntityRepository } from '../repository/ocpi.evse.repository';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
 
@@ -31,7 +31,7 @@ export class CommandExecutor {
     );
 
     if (!evse) {
-      throw new NotFoundException('EVSE not found');
+      throw new NotFoundError('EVSE not found');
     }
 
     const correlationId = uuidv4();
@@ -65,7 +65,7 @@ export class CommandExecutor {
     );
 
     if (!transaction) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundError('Session not found');
     }
 
     const correlationId = uuidv4();

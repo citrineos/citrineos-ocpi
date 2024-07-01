@@ -33,8 +33,6 @@ import {
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 
-export { NotFoundException } from './exception/NotFoundException';
-
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';

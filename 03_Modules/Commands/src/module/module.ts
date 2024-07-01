@@ -41,14 +41,6 @@ export class CommandsModule implements OcpiModule {
         this.logger,
       ),
     );
-
-    Container.set(
-      SequelizeTransactionEventRepository,
-      new SequelizeTransactionEventRepository(
-        this.config as SystemConfig,
-        this.logger,
-      ),
-    );
   }
 
   getController(): any {
