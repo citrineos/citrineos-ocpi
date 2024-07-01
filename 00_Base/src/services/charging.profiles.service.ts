@@ -23,7 +23,7 @@ import { ActiveChargingProfile } from '../model/ActiveChargingProfile';
 import {
   Evse,
   SequelizeTransactionEventRepository,
-} from '../../../../citrineos-core/01_Data';
+} from '@citrineos/data';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 
 @Service()
