@@ -36,7 +36,7 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery,
 } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiLocation } from '../model/Location';
+import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/Evse';
 import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
 import { PatchConnectorParams } from '../trigger/param/locations/patch.connector.params';

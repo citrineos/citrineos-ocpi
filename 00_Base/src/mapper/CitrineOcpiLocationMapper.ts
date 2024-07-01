@@ -1,5 +1,5 @@
 import { IOcpiLocationMapper } from './IOcpiLocationMapper';
-import { OcpiLocation } from '../model/Location';
+import { OcpiLocation } from '../model/OcpiLocation';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { ConnectorDTO } from '../model/DTO/ConnectorDTO';

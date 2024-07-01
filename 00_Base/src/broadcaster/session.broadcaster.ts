@@ -58,21 +58,19 @@ export class SessionBroadcaster {
       const clientVersionList: ClientVersion[] =
         clientInformation[ClientInformationProps.clientVersionDetails];
       // todo is this correct that we broadcast to all ClientVersions that we have?
-      const clientSessionsModuleUrls = clientVersionList.reduce(
-        (acc: string[], clientVersion: ClientVersion) => {
-          const sessionsEndpoint = clientVersion.endpoints.find(
-            (endpoint) => endpoint.identifier === ModuleId.Sessions,
-          );
-          if (
-            sessionsEndpoint &&
-            sessionsEndpoint.url &&
-            sessionsEndpoint.url.length > 0
-          ) {
-            acc.push(sessionsEndpoint.url);
-          }
-        },
-        [],
-      ) as string[];
+      const clientSessionsModuleUrls = [];
+      for (const clientVersion of clientVersionList) {
+        const sessionsEndpoint = clientVersion.endpoints.find(
+          (endpoint) => endpoint.identifier === ModuleId.Sessions,
+        );
+        if (
+          sessionsEndpoint &&
+          sessionsEndpoint.url &&
+          sessionsEndpoint.url.length > 0
+        ) {
+          clientSessionsModuleUrls.push(sessionsEndpoint.url);
+        }
+      }
       if (!clientSessionsModuleUrls || clientSessionsModuleUrls.length === 0) {
         const msg = `Could not find clientSessionsModuleUrls for client of country code ${session.cdr_token.country_code} and party id ${session.cdr_token.party_id}`;
         console.debug(msg);
@@ -85,6 +83,8 @@ export class SessionBroadcaster {
       }
     } catch (e) {
       // todo
+      console.log('todo');
+      throw e;
     }
   }
 }

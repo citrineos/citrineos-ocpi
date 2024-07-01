@@ -56,9 +56,7 @@ export class CredentialsService {
     readonly versionsClientApi: VersionsClientApi,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
     readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
-  ) {
-    this.getServerCredentialsRoleByCountryCodeAndPartyId('US', 'CPO').then();
-  }
+  ) {}
 
   async getClientCredentialsRoleByCountryCodeAndPartyId(
     countryCode: string,

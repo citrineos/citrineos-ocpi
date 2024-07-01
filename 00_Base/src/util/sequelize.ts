@@ -14,7 +14,7 @@ import { ClientVersion } from '../model/ClientVersion';
 import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
-import { OcpiLocation } from '../model/Location';
+import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/Evse';
 import { OcpiConnector } from '../model/Connector';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';

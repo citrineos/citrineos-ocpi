@@ -12,7 +12,6 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { SessionsController } from './controllers/sessions.controller';
 import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
 import {
@@ -36,7 +35,6 @@ export { ChargingPreferences } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/paginated.params';
 export { Paginated } from './util/decorators/paginated';
 export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
-export { generateMockOcpiPaginatedResponse } from './controllers/base.controller';
 export { PaginatedSessionResponse } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
@@ -64,7 +62,6 @@ export {
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
-export { PaginatedParams } from './controllers/param/paginated.params';
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -75,7 +72,6 @@ export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
 export { Version, IVersion } from './model/Version';
 export { Endpoint } from './model/Endpoint';
-export { CredentialsRole } from './model/CredentialsRole';
 export { CredentialsResponse } from './model/CredentialsResponse';
 export { OcpiResponseStatusCode } from './model/ocpi.response';
 export { OcpiEmptyResponse } from './model/ocpi.empty.response';
@@ -115,7 +111,6 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
-export { Paginated } from './util/decorators/paginated';
 
 export {
   AUTH_CONTROLLER_COMPONENT,
@@ -198,7 +193,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          SessionsController,
           TariffsController,
           TokensController,
         ],
