@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { ChargingStation, SequelizeDeviceModelRepository, SequelizeLocationRepository } from '@citrineos/data';
+import { ChargingStation, Location, SequelizeDeviceModelRepository, SequelizeLocationRepository } from '@citrineos/data';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 import { LocationDTO, LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
 import { EvseDTO, EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
@@ -34,19 +34,17 @@ import { PatchEvseParams } from "../trigger/param/locations/patch.evse.params";
 import { PatchConnectorParams } from "../trigger/param/locations/patch.connector.params";
 import { OcpiConnector } from "../model/Connector";
 import { PutLocationParams } from "../trigger/param/locations/put.location.params";
-import { ConnectorStatusEnumType } from "../../../../citrineos-core/00_Base";
 import { LocationsClientApi } from "../trigger/LocationsClientApi";
+import { type ILogObj, Logger } from 'tslog';
 
 @Service()
 export class LocationsService {
-  // TODO set timeout on refreshing internal cache
-
   LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string => `Location ${locationId} does not exist.`;
   EVSE_NOT_FOUND_MESSAGE = (evseUid: string): string => `EVSE ${evseUid} does not exist.`;
   CONNECTOR_NOT_FOUND_MESSAGE = (connectorId: number): string => `Connector ${connectorId} does not exist.`;
 
-  // TODO dynamically choose the appropriate location mapper, not just the Citrine one
   constructor(
+    private logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private deviceModelRepository: SequelizeDeviceModelRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
@@ -55,16 +53,14 @@ export class LocationsService {
     private locationMapper: CitrineOcpiLocationMapper,
     private locationsClientApi: LocationsClientApi,
 ) {
-    // TODO add database triggers for EVSEs and Connectors if possible
-
     this.locationRepository.on('created', async (locations) =>
       locations.forEach(async (location) => 
-        await this.processLocationCreate(location.id))
+        await this.processLocationCreate(location))
     );
 
     this.locationRepository.on('updated', async (locations) =>
       locations.forEach(async (location) =>
-        await this.processLocationUpdate(location.id, new Date(location.updatedAt)))
+        await this.processLocationUpdate(location))
     );
   }
 
@@ -223,34 +219,30 @@ export class LocationsService {
    * Receiver Methods
    */
   async processLocationCreate(
-    locationId: number
+    location: Location
   ): Promise<void> {
-    const locationResponse = await this.getLocationById(locationId);
-    await this.setOcpiLocationLastUpdated(locationId, new Date());
-    const params = PutLocationParams.build(locationId, locationResponse.data);
-    await this.locationsClientApi.putLocation(params);
+    this.logger.info("Received Location 'created' event:", JSON.stringify(location));
+    // const locationResponse = await this.getLocationById(locationId);
+    // await this.setOcpiLocationLastUpdated(locationId, new Date());
+    // const params = PutLocationParams.build(locationId, locationResponse.data);
+    // await this.locationsClientApi.putLocation(params);
   }
 
   async processLocationUpdate(
-    locationId: number,
-    lastUpdated: Date
+    partialLocation: Partial<Location>
   ): Promise<void> {
-    const location = await this.getLocationById(locationId);
+    this.logger.info("Received Location 'updated' event:", JSON.stringify(location));
 
-    if (!location) {
-      throw new Error(`Location ${locationId} does not exist!`);
-    }
+    // const locationId = partialLocation.id;
 
-    await this.setOcpiLocationLastUpdated(locationId, lastUpdated);
-
-    // TODO more robust location update
-    const params = PatchLocationParams.build(
-      locationId,
-      {
-        last_updated: lastUpdated
-      });
-
-    await this.locationsClientApi.patchLocation(params);
+    // await this.setOcpiLocationLastUpdated(locationId, partialLocation.updatedAt);
+    //
+    // // TODO more robust location update
+    // const params = PatchLocationParams.build(
+    //   locationId,
+    //   partialLocation);
+    //
+    // await this.locationsClientApi.patchLocation(params);
   }
 
   async processEvseUpdate(
@@ -278,6 +270,8 @@ export class LocationsService {
     await this.locationsClientApi.patchEvse(params);
   }
 
+  // TODO based on whether the database created or updated the connector
+  // choose PUT or PATCH connector respectively
   async processConnectorUpdate(
     stationId: string,
     evseId: number,
