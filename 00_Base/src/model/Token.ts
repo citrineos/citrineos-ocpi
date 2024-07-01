@@ -24,7 +24,7 @@ import { TokenType } from './TokenType';
 @Table
 export class Token extends Model {
   static readonly MODEL_NAME: string = OcpiNamespace.Tokens;
-//OCPI 12.3.2 The combination of uid and type should be unique for every token within the eMSP’s system.
+  // OCPI 12.3.2 The combination of uid and type should be unique for every token within the eMSP’s system.
   @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @MaxLength(2)
   @MinLength(2)
@@ -105,7 +105,7 @@ export class Token extends Model {
   @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
-  last_updated!: Date;
+  last_updated!: Date; // TODO: we could try to use @UpdatedAt to avoid duplicated cols, last_updated and updatedAt
 
   public toTokenDTO(): TokenDTO {
     const dto = new TokenDTO();
@@ -127,7 +127,6 @@ export class Token extends Model {
 
     return dto;
   }
-
 }
 
 export class TokenDTO {
@@ -208,7 +207,11 @@ export class TokenResponse extends OcpiResponse<TokenDTO> {
   @ValidateNested()
   data!: TokenDTO;
 
-  static build(statusCode: OcpiResponseStatusCode, data?: TokenDTO, message?: string): TokenResponse {
+  static build(
+    statusCode: OcpiResponseStatusCode,
+    data?: TokenDTO,
+    message?: string,
+  ): TokenResponse {
     const response = new TokenResponse();
     response.status_code = statusCode;
     response.data = data!;
@@ -252,14 +255,14 @@ export class SingleTokenRequest {
     country_code: string,
     party_id: string,
     uid: string,
-    type?: string): SingleTokenRequest {
+    type?: string,
+  ): SingleTokenRequest {
     const request = new SingleTokenRequest();
     request.country_code = country_code;
     request.party_id = party_id;
     request.uid = uid;
-    //OCPI specifies: Token.type of the Token to retrieve. Default if omitted: RFID
+    // OCPI specifies: Token.type of the Token to retrieve. Default if omitted: RFID
     request.type = type ? type : TokenType.RFID;
     return request;
   }
-
 }

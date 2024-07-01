@@ -1,9 +1,16 @@
-import { Column, DataType, Default, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Default,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 import { v4 as uuidv4 } from 'uuid';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 
 export enum AsyncJobName {
-  FETCH_OCPI_TOKENS = 'fetch OCPI tokens'
+  FETCH_OCPI_TOKENS = 'fetch OCPI tokens',
 }
 
 @Table
@@ -20,24 +27,29 @@ export class AsyncJobStatus extends Model {
   @Column(DataType.BOOLEAN)
   isFinished!: boolean;
 
-  @Column(DataType.DATE) //Start Time is automatically set with the created at field
+  @Column(DataType.STRING)
+  countryCode!: string;
+
+  @Column(DataType.STRING)
+  partyId!: string;
+
+  @Column(DataType.DATE) // Start Time is automatically set with the created at field
   stopTime?: Date;
 
-  @Column(DataType.INTEGER) //Updated after first request is done and the response shows the pagination information
+  @Column(DataType.INTEGER) // Updated after first request is done and the response shows the pagination information
   totalObjects?: number;
 
-  @Column(DataType.INTEGER) //Use to keep track of how far we are
+  @Column(DataType.INTEGER) // Use to keep track of how far we are
   currentOffset?: number;
 
-  @Column(DataType.INTEGER) //Used to keep track how bi the steps are and how fast we are going
+  @Column(DataType.INTEGER) // Used to keep track how big the steps are and how fast we are going
   currentLimit?: number;
 
   @Column(DataType.JSON)
   paginatedParams?: PaginatedParams;
 
   @Column(DataType.STRING)
-  failureMessage?: string; //Used to keep track of the errors. If this is set, it means something went wrong
-
+  failureMessage?: string; // Used to keep track of the errors. If this is set, it means something went wrong
 
   toDTO(): AsyncJobStatusDTO {
     return {
@@ -49,6 +61,8 @@ export class AsyncJobStatus extends Model {
       currentOffset: this.currentOffset,
       currentLimit: this.currentLimit,
       paginatedParams: this.paginatedParams,
+      countryCode: this.countryCode,
+      partyId: this.partyId,
     };
   }
 }
@@ -62,4 +76,6 @@ export class AsyncJobStatusDTO {
   currentOffset?: number;
   currentLimit?: number;
   paginatedParams?: PaginatedParams;
+  countryCode!: string;
+  partyId!: string;
 }

@@ -10,6 +10,8 @@ import { base64Encode } from '../util/util';
 import { OcpiResponse } from '../model/ocpi.response';
 import { PaginatedResponse } from '../model/PaginatedResponse';
 import { Constructable } from 'typedi';
+import { PaginatedParams } from '../controllers/param/paginated.params';
+import { plainToInstance } from 'class-transformer';
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -57,7 +59,7 @@ export class BaseClientApi {
     options: TriggerRequestOptions,
   ): Promise<T> {
     return this.optionsRaw<T>(
-      // if options fields are both otpional, is this a risk?
+      // if options fields are both optional, is this a risk?
       this.getPath(options!.version!, options!.path!),
       options,
     ).then((response) => this.handleResponse(clazz, response));

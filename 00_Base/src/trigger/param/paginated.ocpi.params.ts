@@ -38,3 +38,32 @@ export class PaginatedOcpiParams extends OcpiParams {
     this._date_to = value.toISOString();
   }
 }
+
+export const buildPaginatedOcpiParams = (
+  toCountryCode: string,
+  toPartyId: string,
+  fromCountryCode: string,
+  fromPartyId: string,
+  offset?: number,
+  limit?: number,
+  dateFrom?: Date,
+  dateTo?: Date,
+): PaginatedOcpiParams => {
+  const params = new OcpiParams();
+  params.fromCountryCode = fromCountryCode;
+  params.fromPartyId = fromPartyId;
+  params.toCountryCode = toCountryCode;
+  params.toPartyId = toPartyId;
+  (params as PaginatedOcpiParams).limit = limit ?? DEFAULT_LIMIT;
+  (params as PaginatedOcpiParams).offset = offset ?? DEFAULT_OFFSET;
+  if (dateFrom) {
+    (params as PaginatedOcpiParams).date_from = dateFrom;
+  }
+  if (dateTo) {
+    (params as PaginatedOcpiParams).date_to = dateTo;
+  }
+  console.log(
+    `Built PaginatedOcpiParams: ${JSON.stringify(params as PaginatedOcpiParams)}`,
+  );
+  return params as PaginatedOcpiParams;
+};

@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-
 import { Service } from 'typedi';
 import { SingleTokenRequest, Token, TokenDTO } from '../model/Token';
 import { OcpiSequelizeInstance } from '../util/sequelize';
@@ -12,19 +11,17 @@ import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
-import { instanceToPlain } from 'class-transformer';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { InvalidParamException } from '../exception/invalid.param.exception';
-
-
+import { Op } from 'sequelize';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<Token> {
-
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     private readonly logger: OcpiLogger,
-    ocpiSequelizeInstance: OcpiSequelizeInstance) {
+    ocpiSequelizeInstance: OcpiSequelizeInstance,
+  ) {
     super(
       ocpiSystemConfig as SystemConfig,
       OcpiNamespace.Tokens,
@@ -33,8 +30,9 @@ export class TokensRepository extends SequelizeRepository<Token> {
     );
   }
 
-  async getSingleToken(tokenRequest: SingleTokenRequest): Promise<Token | undefined> {
-
+  async getSingleToken(
+    tokenRequest: SingleTokenRequest,
+  ): Promise<Token | undefined> {
     const query: any = {
       where: {
         country_code: tokenRequest.country_code,
@@ -48,10 +46,10 @@ export class TokensRepository extends SequelizeRepository<Token> {
   }
 
   async saveToken(token: Token) {
-    return this.create(token);
+    return this._create(token);
   }
 
-  async updateToken(partialToken: Partial<Token>) {
+  async updateToken(partialToken: Partial<Token>): Promise<Token> {
     if (partialToken.uid === undefined) {
       throw new InvalidParamException('uid is required');
     }
@@ -66,13 +64,106 @@ export class TokensRepository extends SequelizeRepository<Token> {
         uid: partialToken.uid,
         party_id: partialToken.party_id,
         country_code: partialToken.country_code,
-      }});
+      },
+    });
 
     if (existingToken === undefined) {
       throw new UnknownTokenException('Token not found in the database');
     }
-    //TODO update to repository method
-    return await existingToken.update(partialToken);
+
+    const updatedToken = await this._updateByKey(
+        {
+          ...partialToken,
+        },
+        existingToken.id,
+    );
+    if (!updatedToken) {
+      throw new UnknownTokenException('Token not found in the database');
+    }
+    return updatedToken;
+  }
+
+  /**
+   * Set existing tokens to invalid and then update or create tokens
+   * @param tokenDTOs tokens need to be created or updated
+   * @param countryCode country code
+   * @param partyId party id
+   * @param dateFrom last update timestamp from
+   * @param dateTo last update timestamp to
+   */
+  async fetchTokens(
+    tokenDTOs: TokenDTO[],
+    countryCode: string,
+    partyId: string,
+    dateFrom?: string,
+    dateTo?: string,
+  ): Promise<void> {
+    const batchFailedTokens: TokenDTO[] = [];
+    await this.s.transaction(async (transaction) => {
+      // set existing tokens to invalid
+      await this.s.models[Token.MODEL_NAME].update(
+        {
+          valid: false,
+        },
+        {
+          where: {
+            country_code: countryCode,
+            party_id: partyId,
+            ...this.generateUpdatedAtQuery(dateFrom, dateTo),
+          },
+          transaction,
+        },
+      );
+
+      // update tokens
+      for (const tokenDTO of tokenDTOs) {
+        try {
+          const [storedToken, created] = await this.s.models[
+            Token.MODEL_NAME
+          ].findOrCreate({
+            where: {
+              country_code: tokenDTO.country_code,
+              party_id: tokenDTO.party_id,
+              uid: tokenDTO.uid,
+              type: tokenDTO.type,
+            },
+            defaults: {
+              ...tokenDTO,
+            },
+            transaction,
+          });
+          if (!created) {
+            await this.s.models[Token.MODEL_NAME].update({...tokenDTO}, {
+                where: {
+                  id: (storedToken as Token).id,
+                },
+                transaction,
+            });
+          }
+        } catch (e) {
+          this.logger.error(e);
+          batchFailedTokens.push(tokenDTO);
+        }
+      }
+    });
+
+    if (batchFailedTokens.length > 0) {
+      throw new Error(
+        `Failed to fetch tokens: ${JSON.stringify(batchFailedTokens)}`,
+      );
+    }
+  }
+
+  private generateUpdatedAtQuery(from?: string, to?: string): any {
+    if (!from && !to) {
+      return {};
+    }
+    if (!from && to) {
+      return { updatedAt: { [Op.lte]: to } };
+    }
+    if (from && !to) {
+      return { updatedAt: { [Op.gte]: from } };
+    }
+    return { updatedAt: { [Op.between]: [from, to] } };
   }
 }
-

@@ -89,7 +89,12 @@ export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
-export { Token, SingleTokenRequest, TokenDTO, TokenResponse } from './model/Token';
+export {
+  Token,
+  SingleTokenRequest,
+  TokenDTO,
+  TokenResponse,
+} from './model/Token';
 export { TokenType } from './model/TokenType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
@@ -127,10 +132,10 @@ export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
-export {InvalidParamException} from './exception/invalid.param.exception';
-export {MissingParamException} from './exception/missing.param.exception';
-export {UnknownTokenException} from './exception/unknown.token.exception';
-export {WrongClientAccessException} from './exception/wrong.client.access.exception';
+export { InvalidParamException } from './exception/invalid.param.exception';
+export { MissingParamException } from './exception/missing.param.exception';
+export { UnknownTokenException } from './exception/unknown.token.exception';
+export { WrongClientAccessException } from './exception/wrong.client.access.exception';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
@@ -181,6 +186,9 @@ export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
+export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
+export { Paginated } from './util/decorators/paginated';
+export { PaginatedParams } from './controllers/param/paginated.params';
 
 useContainer(Container);
 
