@@ -2,7 +2,7 @@ import { Enum } from '../util/decorators/enum';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { Optional } from '../util/decorators/optional';
 import { Type } from 'class-transformer';
-import { Displaytext } from './Displaytext';
+import { DisplayText } from './DisplayText';
 import { OcpiResponse } from './ocpi.response';
 
 export enum CommandResultType {
@@ -23,9 +23,9 @@ export class CommandResult {
   result!: CommandResultType;
 
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested()
-  message?: Displaytext;
+  message?: DisplayText;
 }
 
 export class OcpiCommandResult extends OcpiResponse<CommandResult> {

@@ -17,6 +17,8 @@
     "03_Modules/Credentials/**/*.json",
     "03_Modules/Versions/**/*.ts",
     "03_Modules/Versions/**/*.json",
+    "03_Modules/Locations/**/*.ts",
+    "03_Modules/Locations/**/*.json",
     "03_Modules/Sessions/**/*.ts",
     "03_Modules/Sessions/**/*.json",
     "Server/**/*.ts",
