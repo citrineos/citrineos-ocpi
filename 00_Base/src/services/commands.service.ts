@@ -50,7 +50,7 @@ export class CommandsService {
   }
 
   private handleCancelReservation(
-    cancelReservation: CancelReservation,
+    _cancelReservation: CancelReservation,
   ): OcpiResponse<CommandResponse> {
     return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
@@ -59,7 +59,7 @@ export class CommandsService {
   }
 
   private handleReserveNow(
-    reserveNow: ReserveNow,
+    _reserveNow: ReserveNow,
   ): OcpiResponse<CommandResponse> {
     return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
@@ -131,7 +131,7 @@ export class CommandsService {
   }
 
   private handleUnlockConnector(
-    unlockConnector: UnlockConnector,
+    _unlockConnector: UnlockConnector,
   ): OcpiResponse<CommandResponse> {
     return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,

@@ -11,10 +11,10 @@ import {
   IMessageHandler,
   IMessageSender,
   SystemConfig,
-} from "@citrineos/base";
-import { RabbitMqReceiver, RabbitMqSender, Timer } from "@citrineos/util";
-import deasyncPromise from "deasync-promise";
-import { ILogObj, Logger } from "tslog";
+} from '@citrineos/base';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import deasyncPromise from 'deasync-promise';
+import { ILogObj, Logger } from 'tslog';
 
 /**
  * Component that handles provisioning related messages.
@@ -60,11 +60,11 @@ export class SessionsOcppHandlers extends AbstractModule {
     );
 
     const timer = new Timer();
-    this._logger.info("Initializing...");
+    this._logger.info('Initializing...');
 
     if (!deasyncPromise(this._initHandler(this._requests, this._responses))) {
       throw new Error(
-        "Could not initialize module due to failure in handler initialization.",
+        'Could not initialize module due to failure in handler initialization.',
       );
     }
 

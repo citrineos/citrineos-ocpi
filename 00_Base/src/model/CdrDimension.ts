@@ -11,4 +11,3 @@ export class CdrDimension {
   @IsNotEmpty()
   volume!: number;
 }
- 

@@ -98,7 +98,7 @@ export class TokenResponse extends OcpiResponse<Token> {
 
 export class PaginatedTokenResponse extends PaginatedResponse<Token> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Token)

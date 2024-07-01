@@ -1,6 +1,11 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest, } from '@citrineos/base'
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -12,8 +17,7 @@ import { SessionStatus } from '../model/SessionStatus';
 
 @Service()
 export class SessionMapper {
-  constructor() {
-  }
+  constructor() {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -84,10 +88,7 @@ export class SessionMapper {
 
   private getStartAndEndEvents(
     transactionEvents: TransactionEventRequest[] = [],
-  ): [
-    TransactionEventRequest,
-      TransactionEventRequest | undefined,
-  ] {
+  ): [TransactionEventRequest, TransactionEventRequest | undefined] {
     const startEvent = transactionEvents.find(
       (event) => event.eventType === TransactionEventEnumType.Started,
     );
@@ -103,9 +104,7 @@ export class SessionMapper {
     ];
   }
 
-  private getLatestEvent(
-    transactionEvents: TransactionEventRequest[],
-  ): Date {
+  private getLatestEvent(transactionEvents: TransactionEventRequest[]): Date {
     return transactionEvents.reduce((latestDate, current) => {
       const currentDate = new Date(current.timestamp);
       if (!latestDate || currentDate > latestDate) {
@@ -114,7 +113,6 @@ export class SessionMapper {
       return latestDate;
     }, new Date(transactionEvents[0].timestamp));
   }
-
 
   private createCdrToken(token: Token): CdrToken {
     return {
@@ -132,7 +130,7 @@ export class SessionMapper {
     return `${transaction.stationId}-${transaction.evse?.id}`;
   }
 
-  private getCurrency(location: Location): string {
+  private getCurrency(_location: Location): string {
     // TODO: Implement currency determination logic based on location or configuration
     return 'USD';
   }
@@ -156,7 +154,7 @@ export class SessionMapper {
   }
 
   private mapMeasurandToCdrDimensionType(
-    measurand: MeasurandEnumType | undefined,
+    _measurand: MeasurandEnumType | undefined,
   ): CdrDimensionType {
     // TODO: Implement mapping logic based on MeasurandEnumType
     return CdrDimensionType.ENERGY;
@@ -201,7 +199,9 @@ export class SessionMapper {
     return map;
   }
 
-  private getTransactionStatus(endEvent: TransactionEventRequest | undefined): SessionStatus {
+  private getTransactionStatus(
+    endEvent: TransactionEventRequest | undefined,
+  ): SessionStatus {
     // TODO: Implement other session status
     return endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }

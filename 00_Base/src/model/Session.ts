@@ -96,7 +96,7 @@ export class Session {
   @IsArray()
   @Optional()
   @Type(() => ChargingPeriod)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   charging_periods?: ChargingPeriod[] | null;
 
   @Optional()
@@ -117,7 +117,7 @@ export class Session {
 
 export class PaginatedSessionResponse extends PaginatedResponse<Session> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Session)

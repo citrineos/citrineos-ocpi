@@ -18,7 +18,6 @@ import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { SessionsModule } from '@citrineos/ocpi-sessions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
-import { Container } from 'typedi';
 import { RepositoryStore } from '@citrineos/data';
 
 class CitrineOSServer {
