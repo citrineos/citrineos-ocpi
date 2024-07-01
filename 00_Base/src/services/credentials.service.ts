@@ -3,9 +3,13 @@ import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
 import {
   ClientCredentialsRole,
+  ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import { ClientInformation } from '../model/ClientInformation';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -19,6 +23,13 @@ import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredExcept
 import { NotRegisteredException } from '../exception/NotRegisteredException';
 import { BusinessDetails } from '../model/BusinessDetails';
 import { Image } from '../model/Image';
+import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
+import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
+import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
 
 const clientInformationInclude = [
   {
@@ -43,9 +54,143 @@ export class CredentialsService {
     readonly logger: OcpiLogger,
     readonly clientInformationRepository: ClientInformationRepository,
     readonly versionsClientApi: VersionsClientApi,
-  ) {}
+    readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
+    readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
+  ) {
+    this.getServerCredentialsRoleByCountryCodeAndPartyId('US', 'CPO').then();
+  }
 
-  async getClientInformation(token: string): Promise<ClientInformation> {
+  async getClientCredentialsRoleByCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientCredentialsRole> {
+    const clientCredentialsRole =
+      await this.clientCredentialsRoleRepository.readOnlyOneByQuery(
+        {
+          where: {
+            [ClientCredentialsRoleProps.partyId]: partyId,
+            [ClientCredentialsRoleProps.countryCode]: countryCode,
+          },
+        },
+        OcpiNamespace.Credentials,
+      );
+    if (!clientCredentialsRole) {
+      const msg =
+        'Client credentials role not found for country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientCredentialsRole;
+  }
+
+  async getServerCredentialsRoleByCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ServerCredentialsRole> {
+    const serverCredentialsRole =
+      await this.serverCredentialsRoleRepository.readOnlyOneByQuery(
+        {
+          where: {
+            [ServerCredentialsRoleProps.partyId]: partyId,
+            [ServerCredentialsRoleProps.countryCode]: countryCode,
+          },
+        },
+        OcpiNamespace.Credentials,
+      );
+    if (!serverCredentialsRole) {
+      const msg =
+        'Server credentials role not found for country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError('Server credentials not found');
+    }
+    return serverCredentialsRole;
+  }
+
+  async getCpoTenantByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const serverCredentialsRole =
+      await this.getServerCredentialsRoleByCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const cpoTenant: CpoTenant | null = await serverCredentialsRole.$get(
+      ServerCredentialsRoleProps.cpoTenant,
+    );
+    if (!cpoTenant) {
+      const msg = 'CpoTenant not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return cpoTenant;
+  }
+
+  async getCpoTenantByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const clientInformation: ClientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const cpoTenant: CpoTenant | null = await clientInformation.$get(
+      ClientInformationProps.cpoTenant,
+    );
+    if (!cpoTenant) {
+      const msg = 'CpoTenant not found for client country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return cpoTenant;
+  }
+
+  async getClientInformationByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientInformation[]> {
+    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
+      countryCode,
+      partyId,
+    );
+    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
+      CpoTenantProps.clientInformation,
+    );
+    if (!clientInformation || clientInformation.length === 0) {
+      const msg =
+        'Client information not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientInformation;
+  }
+
+  async getClientInformationByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientInformation> {
+    const clientCredentialsRole =
+      await this.getClientCredentialsRoleByCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const clientInformation: ClientInformation | null =
+      await clientCredentialsRole.$get(
+        ClientCredentialsRoleProps.clientInformation,
+      );
+    if (!clientInformation) {
+      const msg =
+        'Client information not found for client country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientInformation;
+  }
+
+  async getClientInformationByServerToken(
+    token: string,
+  ): Promise<ClientInformation> {
     const clientInformationResponse =
       await this.clientInformationRepository.readOnlyOneByQuery(
         {
@@ -63,12 +208,34 @@ export class CredentialsService {
     return clientInformationResponse;
   }
 
+  async getClientInformationByClientToken(
+    token: string,
+  ): Promise<ClientInformation> {
+    const clientInformationResponse =
+      await this.clientInformationRepository.readOnlyOneByQuery(
+        {
+          where: {
+            clientToken: token,
+          },
+          include: clientInformationInclude,
+        },
+        OcpiNamespace.Credentials,
+      );
+    if (!clientInformationResponse) {
+      this.logger.debug('Client information not found for token', token);
+      throw new NotFoundError('Credentials not found');
+    }
+    return clientInformationResponse;
+  }
+
   async postCredentials(
     token: string,
     credentials: CredentialsDTO,
     version: VersionNumber,
   ): Promise<ClientInformation> {
-    const clientInformation = await this.getClientInformation(token);
+    const clientInformation =
+      await this.getClientInformationByServerToken(token);
+    await this.getClientInformationByServerToken(token);
     if (clientInformation.registered) {
       throw new AlreadyRegisteredException();
     }
@@ -122,7 +289,8 @@ export class CredentialsService {
     token: string,
     credentials: CredentialsDTO,
   ): Promise<ClientInformation> {
-    const clientInformation = await this.getClientInformation(token);
+    const clientInformation =
+      await this.getClientInformationByServerToken(token);
     if (!clientInformation.registered) {
       throw new NotRegisteredException();
     }

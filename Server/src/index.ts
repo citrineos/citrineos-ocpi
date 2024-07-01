@@ -17,6 +17,7 @@ import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { LocationsModule } from '@citrineos/ocpi-locations';
 import { VersionsModule } from '@citrineos/ocpi-versions';
+import { SessionsModule } from '@citrineos/ocpi-sessions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
 import { Container } from 'typedi';
 import { RepositoryStore } from '@citrineos/data';
@@ -67,6 +68,11 @@ class CitrineOSServer {
       },
       {
         module: LocationsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: SessionsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

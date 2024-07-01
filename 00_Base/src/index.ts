@@ -17,21 +17,27 @@ import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
 import {
   RepositoryStore,
-  SequelizeDeviceModelRepository,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
-import {
   SequelizeAuthorizationRepository,
   SequelizeBootRepository,
   SequelizeCertificateRepository,
+  SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   SequelizeMessageInfoRepository,
   SequelizeSecurityEventRepository,
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
+  SequelizeTransactionEventRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
+import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
+export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
+export { ChargingPreferences } from './model/ChargingPreferences';
+export { PaginatedParams } from './controllers/param/paginated.params';
+export { Paginated } from './util/decorators/paginated';
+export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
+export { generateMockOcpiPaginatedResponse } from './controllers/base.controller';
+export { PaginatedSessionResponse } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
@@ -134,7 +140,9 @@ export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 export { ResponseGenerator } from './util/response.generator';
 
+export { SessionsService } from './services/sessions.service';
 export { versionIdParam } from './util/decorators/version.number.param';
+export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
 useContainer(Container);
 
@@ -263,5 +271,10 @@ export class OcpiServer extends KoaServer {
       SequelizeVariableMonitoringRepository,
       this.repositoryStore.variableMonitoringRepository,
     );
+    this.onContainerInitialized();
+  }
+
+  private onContainerInitialized() {
+    Container.get(SessionBroadcaster); // init session broadcaster
   }
 }
