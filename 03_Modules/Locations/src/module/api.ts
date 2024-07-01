@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Controller, Get, Param } from 'routing-controllers';
+import { JsonController, Get, Param } from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
 import {
   AsOcpiFunctionalEndpoint,
@@ -36,7 +36,7 @@ const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
 /**
  * Server API for the provisioning component.
  */
-@Controller(`/${ModuleId.Locations}`)
+@JsonController(`/${ModuleId.Locations}`)
 @Service()
 export class LocationsModuleApi
   extends BaseController
