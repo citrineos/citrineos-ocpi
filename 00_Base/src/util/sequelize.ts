@@ -17,6 +17,7 @@ import { VersionEndpoint } from '../model/VersionEndpoint';
 import { OcpiLocation } from '../model/Location';
 import { OcpiEvse } from '../model/Evse';
 import { OcpiConnector } from '../model/Connector';
+import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -56,6 +57,7 @@ export class OcpiSequelizeInstance {
         OcpiLocation,
         OcpiEvse,
         OcpiConnector,
+        ResponseUrlCorrelationId,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

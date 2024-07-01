@@ -44,6 +44,7 @@ export { NotRegisteredException } from './exception/NotRegisteredException';
 export { Image } from './model/Image';
 export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
+export { CommandsClientApi } from './trigger/CommandsClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
@@ -80,6 +81,7 @@ export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
+export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
 export {
   LocationDTO,
@@ -101,6 +103,7 @@ export { OcpiNamespace } from './util/ocpi.namespace';
 export { OcpiLogger } from './util/logger';
 export { OcpiSequelizeInstance } from './util/sequelize';
 export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint';
+export { OcpiHeaders } from './model/OcpiHeaders';
 export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
@@ -129,6 +132,7 @@ export { VersionService } from './services/version.service';
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
+export { ResponseGenerator } from './util/response.generator';
 
 export { versionIdParam } from './util/decorators/version.number.param';
 

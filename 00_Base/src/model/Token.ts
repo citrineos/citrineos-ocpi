@@ -1,7 +1,7 @@
 import {
   IsArray,
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsNotEmpty,
   IsObject,
   IsString,
@@ -81,8 +81,7 @@ export class Token {
   @ValidateNested()
   energy_contract?: TokenEnergyContract | null;
 
-  @IsString()
-  @IsDateString()
+  @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
