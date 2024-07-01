@@ -2,7 +2,6 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
-  ConnectorStatusEnumType,
   EventDataType,
   EventGroup,
   HandlerProperties,
@@ -12,19 +11,20 @@ import {
   IMessageSender,
   NotifyEventRequest,
   StatusNotificationRequest,
-  SystemConfig
-} from "@citrineos/base";
-import { RabbitMqReceiver, RabbitMqSender, Timer } from "@citrineos/util";
-import { ILogObj, Logger } from "tslog";
-import deasyncPromise from "deasync-promise";
+  SystemConfig,
+} from '@citrineos/base';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import { ILogObj, Logger } from 'tslog';
+import deasyncPromise from 'deasync-promise';
 import {
-  CONNECTOR_COMPONENT,
-  EVSE_COMPONENT,
   AVAILABILITY_STATE_VARIABLE,
-  LocationsService, EvseDTO, ConnectorDTO,
+  CONNECTOR_COMPONENT,
+  ConnectorDTO,
+  EVSE_COMPONENT,
+  EvseDTO,
+  LocationsService,
 } from '@citrineos/ocpi-base';
 import { CitrineOcpiLocationMapper } from '@citrineos/ocpi-base/dist/mapper/CitrineOcpiLocationMapper';
-
 
 /**
  * Component that handles provisioning related messages.
@@ -37,10 +37,9 @@ export class LocationsHandlers extends AbstractModule {
    */
   protected _requests: CallAction[] = [
     CallAction.NotifyEvent,
-    CallAction.StatusNotification
+    CallAction.StatusNotification,
   ];
-  protected _responses: CallAction[] = [
-  ];
+  protected _responses: CallAction[] = [];
 
   /**
    * This is the constructor function that initializes the {@link LocationsHandlers}.
@@ -106,25 +105,43 @@ export class LocationsHandlers extends AbstractModule {
     const events = message.payload.eventData as EventDataType[];
 
     const evseUpdateMap: Record<number, Partial<EvseDTO>> = {};
-    const connectorUpdateMap: Record<number, Record<number, Partial<ConnectorDTO>>> = {}
+    const connectorUpdateMap: Record<
+      number,
+      Record<number, Partial<ConnectorDTO>>
+    > = {};
 
     for (const event of events) {
       const component = event.component;
-      const variable = event.variable
+      const variable = event.variable;
 
-      if ((component.name !== EVSE_COMPONENT && component.name !== CONNECTOR_COMPONENT)) {
-        this._logger.debug('Ignoring NotifyEvent since it is not a processed OCPI event.');
-      } else if (component.name === EVSE_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) { // TODO add logic to process other variable attribute values used for OCPI mapping
+      if (
+        component.name !== EVSE_COMPONENT &&
+        component.name !== CONNECTOR_COMPONENT
+      ) {
+        this._logger.debug(
+          'Ignoring NotifyEvent since it is not a processed OCPI event.',
+        );
+      } else if (
+        component.name === EVSE_COMPONENT &&
+        variable.name === AVAILABILITY_STATE_VARIABLE
+      ) {
+        // TODO add logic to process other variable attribute values used for OCPI mapping
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialEvse: Partial<EvseDTO> = {};
-        partialEvse.status = CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus( event.actualValue);
+        partialEvse.status =
+          CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(
+            event.actualValue,
+          );
         // TODO use the message context timestamp when it's merged into 1.3.0
         // partialEvse.last_updated = new Date(message.context.timestamp);
         partialEvse.last_updated = new Date();
         evseUpdateMap[evseId] = partialEvse;
-      } else if (component.name === CONNECTOR_COMPONENT && variable.name === AVAILABILITY_STATE_VARIABLE) {
+      } else if (
+        component.name === CONNECTOR_COMPONENT &&
+        variable.name === AVAILABILITY_STATE_VARIABLE
+      ) {
         // TODO add logic to process other variable attribute values used for OCPI mapping
-        const status = event.actualValue;
+        const _status = event.actualValue;
         const connectorId = component.evse?.connectorId ?? 1; // TODO better fallback
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialConnector: Partial<ConnectorDTO> = {};
@@ -136,13 +153,24 @@ export class LocationsHandlers extends AbstractModule {
     }
 
     // TODO consolidate EVSE updates between EVSE and Connector
-    for (let [evseId, partialEvse] of Object.entries(evseUpdateMap)) {
-      await this.locationsService.processEvseUpdate(stationId, Number(evseId), partialEvse);
+    for (const [evseId, partialEvse] of Object.entries(evseUpdateMap)) {
+      await this.locationsService.processEvseUpdate(
+        stationId,
+        Number(evseId),
+        partialEvse,
+      );
     }
 
-    for (let [evseId, connectorsMap] of Object.entries(connectorUpdateMap)) {
-      for (let [connectorId, partialConnector] of Object.entries(connectorsMap)) {
-        await this.locationsService.processConnectorUpdate(stationId, Number(evseId), Number(connectorId), partialConnector);
+    for (const [evseId, connectorsMap] of Object.entries(connectorUpdateMap)) {
+      for (const [connectorId, partialConnector] of Object.entries(
+        connectorsMap,
+      )) {
+        await this.locationsService.processConnectorUpdate(
+          stationId,
+          Number(evseId),
+          Number(connectorId),
+          partialConnector,
+        );
       }
     }
   }
@@ -158,9 +186,13 @@ export class LocationsHandlers extends AbstractModule {
     const evseId = message.payload.evseId;
     const connectorId = message.payload.connectorId;
     const partialConnector: Partial<ConnectorDTO> = {};
-    partialConnector.last_updated =  new Date(message.payload.timestamp);
+    partialConnector.last_updated = new Date(message.payload.timestamp);
 
-    await this.locationsService.processConnectorUpdate(stationId, evseId, connectorId, partialConnector);
+    await this.locationsService.processConnectorUpdate(
+      stationId,
+      evseId,
+      connectorId,
+      partialConnector,
+    );
   }
-
 }

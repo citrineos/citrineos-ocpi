@@ -45,15 +45,16 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   }
 
   async createOrUpdateOcpiLocation(location: OcpiLocation) {
-    const [savedOcpiLocation, ocpiLocationCreated] = await this._readOrCreateByQuery({
-      where: {
-        id: location.id
-      },
-      defaults: {
-        id: location.id,
-        lastUpdated: location.lastUpdated,
-      },
-    });
+    const [savedOcpiLocation, ocpiLocationCreated] =
+      await this._readOrCreateByQuery({
+        where: {
+          id: location.id,
+        },
+        defaults: {
+          id: location.id,
+          lastUpdated: location.lastUpdated,
+        },
+      });
     if (!ocpiLocationCreated) {
       await this._updateByKey(
         {

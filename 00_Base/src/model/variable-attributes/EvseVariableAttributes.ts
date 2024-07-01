@@ -9,8 +9,6 @@ import { ConnectorVariableAttributes } from './ConnectorVariableAttributes';
  * as CamelCase does register.
  */
 export class EvseVariableAttributes {
-  id!: number;
-
   @IsString()
   @IsNotEmpty()
   evse_availability_state!: string;
@@ -34,6 +32,8 @@ export class EvseVariableAttributes {
   @IsString()
   @IsNotEmpty()
   connector_ids_string!: string;
+
+  id!: number;
 
   // not a database-derived field
   connectors: Record<number, ConnectorVariableAttributes> = {};

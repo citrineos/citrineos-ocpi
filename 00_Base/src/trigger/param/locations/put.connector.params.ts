@@ -2,7 +2,6 @@ import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
-import { EvseDTO } from '../../../model/DTO/EvseDTO';
 
 export class PutConnectorParams extends OcpiParams {
   @IsString()

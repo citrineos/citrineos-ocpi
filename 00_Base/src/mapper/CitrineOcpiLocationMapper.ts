@@ -21,6 +21,31 @@ import { NOT_APPLICABLE } from '../util/consts';
 
 @Service()
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
+  static mapOCPPAvailabilityStateToOCPIEvseStatus(
+    availabilityState: string,
+    parkingBayOccupancy?: string, // TODO should this be optional?
+  ): EvseStatus {
+    if (parkingBayOccupancy === 'true') {
+      return EvseStatus.BLOCKED;
+    }
+
+    // TODO add case for REMOVED
+    switch (availabilityState) {
+      case ConnectorStatusEnumType.Occupied:
+        return EvseStatus.CHARGING;
+      case ConnectorStatusEnumType.Available:
+        return EvseStatus.AVAILABLE;
+      case ConnectorStatusEnumType.Unavailable:
+        return EvseStatus.INOPERATIVE;
+      case ConnectorStatusEnumType.Faulted:
+        return EvseStatus.OUTOFORDER;
+      case ConnectorStatusEnumType.Reserved:
+        return EvseStatus.RESERVED;
+      default:
+        return EvseStatus.UNKNOWN;
+    }
+  }
+
   // TODO pass credentials
   mapToOcpiLocation(
     citrineLocation: Location,
@@ -185,31 +210,6 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
 
     return capabilities;
-  }
-
-  static mapOCPPAvailabilityStateToOCPIEvseStatus(
-    availabilityState: string,
-    parkingBayOccupancy?: string, // TODO should this be optional?
-  ): EvseStatus {
-    if (parkingBayOccupancy === 'true') {
-      return EvseStatus.BLOCKED;
-    }
-
-    // TODO add case for REMOVED
-    switch (availabilityState) {
-      case ConnectorStatusEnumType.Occupied:
-        return EvseStatus.CHARGING;
-      case ConnectorStatusEnumType.Available:
-        return EvseStatus.AVAILABLE;
-      case ConnectorStatusEnumType.Unavailable:
-        return EvseStatus.INOPERATIVE;
-      case ConnectorStatusEnumType.Faulted:
-        return EvseStatus.OUTOFORDER;
-      case ConnectorStatusEnumType.Reserved:
-        return EvseStatus.RESERVED;
-      default:
-        return EvseStatus.UNKNOWN;
-    }
   }
 
   private getConnectorStandard(

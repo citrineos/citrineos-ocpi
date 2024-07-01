@@ -8,8 +8,6 @@ import { IsNotEmpty, IsString } from 'class-validator';
  * as CamelCase does register.
  */
 export class ConnectorVariableAttributes {
-  id!: number;
-
   @IsString()
   @IsNotEmpty()
   connector_type!: string;
@@ -17,6 +15,8 @@ export class ConnectorVariableAttributes {
   @IsString()
   @IsNotEmpty()
   connector_availability_state!: string;
+
+  id!: number;
 }
 
 export const connectorVariableAttributesQuery = (

@@ -38,23 +38,14 @@ import {
 } from '../model/variable-attributes/ConnectorVariableAttributes';
 import { OcpiLocation } from '../model/Location';
 import { OcpiEvse } from '../model/Evse';
-import { PatchLocationParams } from '../trigger/param/locations/patch.location.params';
 import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
 import { PatchConnectorParams } from '../trigger/param/locations/patch.connector.params';
 import { OcpiConnector } from '../model/Connector';
-import { PutLocationParams } from '../trigger/param/locations/put.location.params';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 
 @Service()
 export class LocationsService {
-  LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
-    `Location ${locationId} does not exist.`;
-  EVSE_NOT_FOUND_MESSAGE = (evseUid: string): string =>
-    `EVSE ${evseUid} does not exist.`;
-  CONNECTOR_NOT_FOUND_MESSAGE = (connectorId: number): string =>
-    `Connector ${connectorId} does not exist.`;
-
   constructor(
     private logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
@@ -77,6 +68,13 @@ export class LocationsService {
       ),
     );
   }
+
+  LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
+    `Location ${locationId} does not exist.`;
+  EVSE_NOT_FOUND_MESSAGE = (evseUid: string): string =>
+    `EVSE ${evseUid} does not exist.`;
+  CONNECTOR_NOT_FOUND_MESSAGE = (connectorId: number): string =>
+    `Connector ${connectorId} does not exist.`;
 
   /**
    * Sender Methods
@@ -289,7 +287,7 @@ export class LocationsService {
   }
 
   async processLocationUpdate(
-    partialLocation: Partial<Location>,
+    _partialLocation: Partial<Location>,
   ): Promise<void> {
     this.logger.info(
       "Received Location 'updated' event:",
