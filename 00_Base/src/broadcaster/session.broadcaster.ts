@@ -55,8 +55,6 @@ export class SessionBroadcaster {
           session.cdr_token.country_code,
           session.cdr_token.party_id,
         );
-      const clientAuthorizationToken =
-        clientInformation[ClientInformationProps.clientToken];
       const clientVersionList: ClientVersion[] =
         clientInformation[ClientInformationProps.clientVersionDetails];
       // todo is this correct that we broadcast to all ClientVersions that we have?
