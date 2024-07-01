@@ -6,7 +6,7 @@
     "@eslint/js": "^9.0.0",
     "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
     "concurrently": "^8.2.2",
-    "eslint": "8.57.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.2.5",
@@ -30,7 +30,8 @@
     "start-windows": "cd ./Server && npm run start-windows",
     "lint": "npx eslint --ext .ts ./",
     "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
   "workspaces": [
     "Server",

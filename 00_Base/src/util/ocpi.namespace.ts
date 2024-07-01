@@ -13,4 +13,5 @@ export enum OcpiNamespace {
   ClientCredentialsRole = 'ClientCredentialsRole',
   ServerCredentialsRole = 'ServerCredentialsRole',
   CpoTenant = 'CpoTenant',
+  ResponseUrlCorrelationId = 'ResponseUrlCorrelationId',
 }
