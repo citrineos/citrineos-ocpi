@@ -1,23 +1,19 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import {
-  MeasurandEnumType,
-  MeterValueType,
-  TransactionEventEnumType,
-  TransactionEventRequest,
-} from '@citrineos/base';
+import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest, } from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
 import { Token } from '../model/Token';
-import { Location } from '../model/Location';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
+import { LocationDTO } from '../model/DTO/LocationDTO';
 
 @Service()
 export class SessionMapper {
-  constructor() {}
+  constructor() {
+  }
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -55,7 +51,7 @@ export class SessionMapper {
 
   private mapTransactionToSession(
     transaction: Transaction,
-    location: Location,
+    location: LocationDTO,
     token: Token,
   ): Session {
     const [startEvent, endEvent] = this.getStartAndEndEvents(
@@ -130,7 +126,7 @@ export class SessionMapper {
     return `${transaction.stationId}-${transaction.evse?.id}`;
   }
 
-  private getCurrency(_location: Location): string {
+  private getCurrency(_location: LocationDTO): string {
     // TODO: Implement currency determination logic based on location or configuration
     return 'USD';
   }
@@ -164,14 +160,14 @@ export class SessionMapper {
     transactions: Transaction[],
     cpoCountryCode?: string,
     cpoPartyId?: string,
-  ): Map<string, Location> {
+  ): Map<string, LocationDTO> {
     // TODO: Create mapping between transactions and locations
     // Only get Locations that belong to the CPO if provided
 
     // TODO: Remove this mock mapping and replace with real location fetch
     const map = new Map();
     for (const transaction of transactions) {
-      const location = new Location();
+      const location = new LocationDTO();
       location.country_code = cpoCountryCode || 'US';
       location.party_id = cpoPartyId || 'CPO';
       map.set(transaction.id, location);

@@ -33,10 +33,8 @@ import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
-export { PaginatedParams } from './controllers/param/paginated.params';
 export { Paginated } from './util/decorators/paginated';
 export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
-export { generateMockOcpiPaginatedResponse } from './controllers/base.controller';
 export { PaginatedSessionResponse } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
@@ -115,7 +113,6 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
-export { Paginated } from './util/decorators/paginated';
 
 export {
   AUTH_CONTROLLER_COMPONENT,
