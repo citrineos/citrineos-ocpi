@@ -1,37 +1,14 @@
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasOne,
-  Model,
-  Table,
-} from '@citrineos/data';
-import { Role } from './Role';
-import { ICredentialsRole } from './BaseCredentialsRole';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { ClientInformation } from './ClientInformation';
-import { CpoTenant } from './CpoTenant';
-import {
-  BusinessDetails,
-  fromBusinessDetailsDTO,
-  toBusinessDetailsDTO,
-} from './BusinessDetails';
-import { Exclude } from 'class-transformer';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
-import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
-import { Image } from './Image';
-
-export enum ClientCredentialsRoleProps {
-  role = 'role',
-  partyId = 'party_id',
-  countryCode = 'country_code',
-  businessDetails = 'business_details',
-  clientInformationId = 'clientInformationId',
-  clientInformation = 'clientInformation',
-  cpoTenantId = 'cpoTenantId',
-  cpoTenant = 'cpoTenant',
-}
+import {BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table,} from '@citrineos/data';
+import {Role} from './Role';
+import {ICredentialsRole} from './BaseCredentialsRole';
+import {IsNotEmpty, IsString, Length} from 'class-validator';
+import {ClientInformation} from './ClientInformation';
+import {CpoTenant} from './CpoTenant';
+import {BusinessDetails, fromBusinessDetailsDTO, toBusinessDetailsDTO,} from './BusinessDetails';
+import {Exclude} from 'class-transformer';
+import {ON_DELETE_CASCADE} from '../util/sequelize';
+import {CredentialsRoleDTO} from './DTO/CredentialsRoleDTO';
+import {Image} from './Image';
 
 export enum ClientCredentialsRoleProps {
   role = 'role',
