@@ -100,18 +100,23 @@ export {
 } from './model/DTO/EvseDTO';
 export {ConnectorDTO, ConnectorResponse} from './model/DTO/ConnectorDTO';
 export {CitrineOcpiLocationMapper} from './mapper/CitrineOcpiLocationMapper';
-export {AsOcpiFunctionalEndpoint} from './util/decorators/as.ocpi.functional.endpoint';
-export {MultipleTypes} from './util/decorators/multiple.types';
-export {OcpiNamespace} from './util/ocpi.namespace';
-export {OcpiLogger} from './util/logger';
-export {OcpiSequelizeInstance} from './util/sequelize';
-export {AsOcpiRegistrationEndpoint} from './util/decorators/as.ocpi.registration.endpoint';
-export {OcpiHeaders} from './model/OcpiHeaders';
-export {AuthToken} from './util/decorators//auth.token';
-export {VersionNumberParam} from './util/decorators/version.number.param';
-export {EnumParam} from './util/decorators/enum.param';
-export {GlobalExceptionHandler} from './util/middleware/global.exception.handler';
-export {LoggingMiddleware} from './util/middleware/logging.middleware';
+export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
+export { MultipleTypes } from './util/decorators/multiple.types';
+export { OcpiNamespace } from './util/ocpi.namespace';
+export { OcpiLogger } from './util/logger';
+export { OcpiSequelizeInstance } from './util/sequelize';
+export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint';
+export { OcpiHeaders } from './model/OcpiHeaders';
+export { AuthToken } from './util/decorators//auth.token';
+export { VersionNumberParam } from './util/decorators/version.number.param';
+export { EnumParam } from './util/decorators/enum.param';
+export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+export { LoggingMiddleware } from './util/middleware/logging.middleware';
+export { MessageSenderWrapper } from './util/MessageSenderWrapper';
+export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
+export { CacheWrapper } from './util/CacheWrapper';
+export { ResponseGenerator } from './util/response.generator';
+export { versionIdParam } from './util/decorators/version.number.param';
 
 export {
   AUTH_CONTROLLER_COMPONENT,
@@ -127,18 +132,15 @@ export {ResponseSchema} from './openapi-spec-helper/decorators';
 export {BaseClientApi} from './trigger/BaseClientApi';
 export {LocationsClientApi} from './trigger/LocationsClientApi';
 
-export {CommandsService} from './services/commands.service';
-export {CredentialsService} from './services/credentials.service';
-export {LocationsService} from './services/locations.service';
-export {VersionService} from './services/version.service';
-export {MessageSenderWrapper} from './util/MessageSenderWrapper';
-export {MessageHandlerWrapper} from './util/MessageHandlerWrapper';
-export {CacheWrapper} from './util/CacheWrapper';
-export {ResponseGenerator} from './util/response.generator';
+export { CommandsService } from './services/commands.service';
+export { CredentialsService } from './services/credentials.service';
+export { LocationsService } from './services/locations.service';
+export { VersionService } from './services/version.service';
+export { SessionsService } from './services/sessions.service';
 
-export {SessionsService} from './services/sessions.service';
-export {versionIdParam} from './util/decorators/version.number.param';
-export {SessionBroadcaster} from './broadcaster/session.broadcaster';
+export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
+export { SessionBroadcaster } from './broadcaster/session.broadcaster';
+export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 
 useContainer(Container);
 

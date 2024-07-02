@@ -14,6 +14,8 @@ export enum OcpiLocationProps {
  * with Citrine's version of a Location.
  *
  * Note that the id of OcpiLocation should match Citrine's Location.
+ *
+ * TODO add link to credentials for the correct tenant
  */
 @Table
 export class OcpiLocation extends Model {

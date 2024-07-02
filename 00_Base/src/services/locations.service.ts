@@ -36,11 +36,6 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery,
 } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiLocation } from '../model/OcpiLocation';
-import { OcpiEvse } from '../model/OcpiEvse';
-import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
-import { PatchConnectorParams } from '../trigger/param/locations/patch.connector.params';
-import { OcpiConnector } from '../model/OcpiConnector';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
@@ -56,7 +51,6 @@ export class LocationsService {
     private ocpiEvseRepository: OcpiEvseRepository,
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
-    private locationsClientApi: LocationsClientApi,
   ) { }
 
   LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
@@ -272,116 +266,6 @@ export class LocationsService {
     );
 
     return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedConnector);
-  }
-
-  /**
-   * Receiver Methods
-   */
-  async processLocationCreate(location: Location): Promise<void> {
-    this.logger.info(
-      "Received Location 'created' event:",
-      JSON.stringify(location),
-    );
-    // const locationResponse = await this.getLocationById(location.id);
-    // await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-    //   OcpiLocation.buildWithLastUpdated(location.id, partialLocation.createdAt ?? new Date())
-    // );
-    // const params = PutLocationParams.build(location.id, locationResponse.data);
-    // await this.locationsClientApi.putLocation(params);
-  }
-
-  async processLocationUpdate(
-    partialLocation: Partial<Location>,
-  ): Promise<void> {
-    this.logger.info(
-      "Received Location 'updated' event:",
-      JSON.stringify(partialLocation),
-    );
-
-    // const locationId = partialLocation.id;
-    //
-    // await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-    //   OcpiLocation.buildWithLastUpdated(locationId, partialLocation.updatedAt ?? new Date())
-    // );
-    //
-    // // TODO more robust location update
-    // const params = PatchLocationParams.build(
-    //   locationId,
-    //   partialLocation);
-    //
-    // await this.locationsClientApi.patchLocation(params);
-  }
-
-  async processEvseUpdate(
-    stationId: string,
-    evseId: number,
-    partialEvse: Partial<EvseDTO>,
-  ): Promise<void> {
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-
-    if (!chargingStation || !chargingStation.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-    const lastUpdated = partialEvse.last_updated ?? new Date();
-
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
-    );
-
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
-    );
-
-    const params = PatchEvseParams.build(
-      locationId,
-      UID_FORMAT(stationId, evseId),
-      partialEvse,
-    );
-
-    await this.locationsClientApi.patchEvse(params);
-  }
-
-  // TODO based on whether the database created or updated the connector
-  // choose PUT or PATCH connector respectively
-  async processConnectorUpdate(
-    stationId: string,
-    evseId: number,
-    connectorId: number,
-    partialConnector: Partial<ConnectorDTO>,
-  ): Promise<void> {
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-
-    if (!chargingStation || !chargingStation.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-    const lastUpdated = partialConnector.last_updated ?? new Date();
-
-    await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
-      OcpiConnector.buildWithLastUpdated(connectorId, evseId, stationId, lastUpdated)
-    );
-
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
-    );
-
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
-    );
-
-    const params = PatchConnectorParams.build(
-      locationId,
-      UID_FORMAT(stationId, evseId),
-      connectorId,
-      partialConnector,
-    );
-
-    await this.locationsClientApi.patchConnector(params);
   }
 
   /**
