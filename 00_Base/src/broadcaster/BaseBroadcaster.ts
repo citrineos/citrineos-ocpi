@@ -22,9 +22,10 @@ export class BaseBroadcaster {
   ) {
   }
 
-  protected async getRequiredOcpiParams(
+  private async getRequiredOcpiParams(
     cpoCountryCode: string,
     cpoPartyId: string,
+    moduleId: ModuleId,
   ): Promise<RequiredOcpiParams[]> {
     const urlCountryCodeAndPartyIdList: RequiredOcpiParams[] = [];
     const clientInformationList = await this.credentialsService.getClientInformationByServerCountryCodeAndPartyId(cpoCountryCode, cpoPartyId);
@@ -47,7 +48,7 @@ export class BaseBroadcaster {
         const clientCredentialRole = clientCredentialRoles[i];
         const clientVersion = clientVersions[i];
         const matchingEndpoint = clientVersion.endpoints.find(
-          (endpoint) => endpoint.identifier === ModuleId.Sessions,
+          (endpoint) => endpoint.identifier === moduleId,
         );
         if (
           matchingEndpoint &&
@@ -69,11 +70,12 @@ export class BaseBroadcaster {
   protected async broadcastToClients<P extends OcpiParams, C extends BaseClientApi>(
     cpoCountryCode: string,
     cpoPartyId: string,
+    moduleId: ModuleId,
     params: P,
     clientApi: C,
     requestFunction: (...args: any[]) => Promise<any>,
   ): Promise<void> {
-    const requiredOcpiParams = await this.getRequiredOcpiParams(cpoCountryCode, cpoPartyId);
+    const requiredOcpiParams = await this.getRequiredOcpiParams(cpoCountryCode, cpoPartyId, moduleId);
     if (requiredOcpiParams.length === 0) {
       this.logger.error("requiredOcpiParams empty");
       return; // todo

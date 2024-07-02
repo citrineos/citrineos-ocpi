@@ -7,6 +7,7 @@ import {SessionMapper} from '../mapper/session.mapper';
 import {CredentialsService} from '../services/credentials.service';
 import {ILogObj, Logger} from "tslog";
 import {BaseBroadcaster} from "./BaseBroadcaster";
+import {ModuleId} from "../model/ModuleId";
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -46,6 +47,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     await this.broadcastToClients(
       cpoCountryCode,
       cpoPartyId,
+      ModuleId.Sessions,
       params,
       this.sessionsClientApi,
       this.sessionsClientApi.putSession
