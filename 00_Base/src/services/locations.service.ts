@@ -86,6 +86,8 @@ export class LocationsService {
         offset,
         dateFrom,
         dateTo,
+        ocpiHeaders.toCountryCode,
+        ocpiHeaders.toPartyId,
       )
     ).reduce((acc: any, cur) => {
       acc[cur.id] = cur;

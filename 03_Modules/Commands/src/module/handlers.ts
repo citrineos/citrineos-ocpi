@@ -18,12 +18,11 @@ import {
   RequestStopTransactionResponse,
   SystemConfig,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
-import { ILogObj, Logger } from 'tslog';
-import { CommandsClientApi, ResponseUrlRepository } from '@citrineos/ocpi-base';
-import { Service } from 'typedi';
-import { CommandResultType } from '@citrineos/ocpi-base/dist/model/CommandResult';
+import {ILogObj, Logger} from 'tslog';
+import {CommandResultType, CommandsClientApi, ResponseUrlRepository} from '@citrineos/ocpi-base';
+import {Service} from 'typedi';
 
 /**
  * Component that handles provisioning related messages.
