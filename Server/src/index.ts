@@ -20,6 +20,7 @@ import { VersionsModule } from '@citrineos/ocpi-versions';
 import { SessionsModule } from '@citrineos/ocpi-sessions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
 import { Container } from 'typedi';
+import { TariffsModule } from "@citrineos/ocpi-tariffs";
 import { RepositoryStore } from '@citrineos/data';
 
 class CitrineOSServer {
@@ -73,6 +74,11 @@ class CitrineOSServer {
       },
       {
         module: SessionsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: TariffsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

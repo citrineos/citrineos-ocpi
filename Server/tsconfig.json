@@ -30,6 +30,9 @@
     },
     {
       "path": "../03_Modules/Sessions"
+    },
+    {
+      "path": "../03_Modules/Tariffs"
     }
   ]
 }

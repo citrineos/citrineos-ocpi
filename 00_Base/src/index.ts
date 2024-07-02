@@ -12,9 +12,8 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { SessionsController } from './controllers/sessions.controller';
-import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
+import { SessionsController } from './controllers/sessions.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -27,6 +26,7 @@ import {
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
   SequelizeTransactionEventRepository,
+  SequelizeTariffElementRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
@@ -36,7 +36,6 @@ export { ChargingPreferences } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/paginated.params';
 export { Paginated } from './util/decorators/paginated';
 export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
-export { generateMockOcpiPaginatedResponse } from './controllers/base.controller';
 export { PaginatedSessionResponse } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
@@ -64,7 +63,6 @@ export {
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
-export { PaginatedParams } from './controllers/param/paginated.params';
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -115,7 +113,6 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
-export { Paginated } from './util/decorators/paginated';
 
 export {
   AUTH_CONTROLLER_COMPONENT,
@@ -139,6 +136,9 @@ export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 export { ResponseGenerator } from './util/response.generator';
+export { TariffsService } from './services/tariffs.service';
+export { TariffsBroadcaster } from './services/tariffs.broadcaster';
+export { TariffDto, PaginatedTariffResponse } from './model/tariff/TariffDto';
 
 export { SessionsService } from './services/sessions.service';
 export { versionIdParam } from './util/decorators/version.number.param';
@@ -199,7 +199,6 @@ export class OcpiServer extends KoaServer {
           CdrsController,
           ChargingProfilesController,
           SessionsController,
-          TariffsController,
           TokensController,
         ],
         routePrefix: '/ocpi',
@@ -262,6 +261,10 @@ export class OcpiServer extends KoaServer {
     Container.set(
       SequelizeTariffRepository,
       this.repositoryStore.tariffRepository,
+    );
+    Container.set(
+        SequelizeTariffElementRepository,
+        this.repositoryStore.tariffElementRepository,
     );
     Container.set(
       SequelizeTransactionEventRepository,

@@ -20,6 +20,7 @@ import { ServerVersion } from './ServerVersion';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { ModuleId } from './ModuleId';
 import { Endpoint } from './Endpoint';
+import {VersionNumber} from "./VersionNumber";
 
 export enum ClientInformationProps {
   clientToken = 'clientToken',
@@ -81,6 +82,14 @@ export class ClientInformation extends Model {
   @Exclude()
   @BelongsTo(() => CpoTenant)
   [ClientInformationProps.cpoTenant]!: CpoTenant;
+
+  public getReceiversOf(module: ModuleId): { version: VersionNumber, endpoints: Endpoint[] }[] {
+    return this[ClientInformationProps.clientVersionDetails]
+        .flatMap(clientVersion => {
+          const endpoints = clientVersion.endpoints.filter(endpoint => endpoint.isReceiverOf(module));
+          return endpoints.length > 0 ? [{ version: clientVersion.version, endpoints }] : [];
+        });
+  }
 
   static buildClientInformation(
     clientToken: string,

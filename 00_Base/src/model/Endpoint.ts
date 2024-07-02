@@ -74,6 +74,10 @@ export class Endpoint extends Model {
   @BelongsTo(() => ServerVersion)
   serverVersion!: ServerVersion;
 
+  public isReceiverOf(module: ModuleId): boolean {
+      return this.role === InterfaceRole.RECEIVER && this.identifier === module;
+  }
+
   static buildEndpoint(
     identifier: ModuleId,
     role: InterfaceRole,

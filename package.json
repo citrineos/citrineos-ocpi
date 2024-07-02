@@ -41,6 +41,7 @@
     "03_Modules/Locations",
     "03_Modules/Versions",
     "03_Modules/Sessions",
+    "03_Modules/Tariffs",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"

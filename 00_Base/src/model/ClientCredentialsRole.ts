@@ -74,6 +74,10 @@ export class ClientCredentialsRole extends Model implements ICredentialsRole {
   @BelongsTo(() => CpoTenant)
   [ClientCredentialsRoleProps.cpoTenant]!: CpoTenant;
 
+  public isMsp(): boolean {
+    return this.role === Role.EMSP;
+  }
+
   static buildClientCredentialsRole(
     countryCode: string,
     partyId: string,

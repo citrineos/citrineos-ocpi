@@ -6,7 +6,10 @@ import { PutTariffParams } from './param/tariffs/put.tariff.params';
 import { DeleteTariffParams } from './param/tariffs/delete.tariff.params';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { ModuleId } from '../model/ModuleId';
+import {Service} from "typedi";
+import {TariffDto} from "../model/tariff/TariffDto";
 
+@Service()
 export class TariffsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tariffs;
 
@@ -28,8 +31,8 @@ export class TariffsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
-      'countryCode',
-      'partyId',
+      'fromCountryCode',
+      'fromPartyId',
       'tariffId',
       'tariff',
     );
@@ -43,13 +46,13 @@ export class TariffsClientApi extends BaseClientApi {
           .replace('tariffId', encodeURIComponent(params.tariffId)),
         additionalHeaders,
       },
-      params.tariff,
+      TariffDto.from(params.tariff).toJson(),
     );
   }
 
   async deleteTariff(params: DeleteTariffParams): Promise<OcpiResponse<void>> {
     this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'countryCode', 'partyId', 'tariffId');
+    this.validateRequiredParam(params, 'fromCountryCode', 'fromPartyId', 'tariffId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.del<OcpiResponse<void>>({
       version: params.version,
