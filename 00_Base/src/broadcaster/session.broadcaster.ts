@@ -5,26 +5,20 @@ import {PutSessionParams} from '../trigger/param/sessions/put.session.params';
 import {SequelizeTransactionEventRepository, Transaction,} from '@citrineos/data';
 import {SessionMapper} from '../mapper/session.mapper';
 import {CredentialsService} from '../services/credentials.service';
-import {ClientInformationProps} from '../model/ClientInformation';
-import {ModuleId} from '../model/ModuleId';
 import {ILogObj, Logger} from "tslog";
-import {ClientCredentialsRoleProps} from "../model/ClientCredentialsRole";
-
-interface UrlCountryCodeAndPartyId {
-  url: string;
-  countryCode: string;
-  partyId: string;
-}
+import {BaseBroadcaster} from "./BaseBroadcaster";
+import {VersionNumber} from "../model/VersionNumber";
 
 @Service()
-export class SessionBroadcaster {
+export class SessionBroadcaster extends BaseBroadcaster {
   constructor(
-    private readonly logger: Logger<ILogObj>,
-    private readonly transactionRepository: SequelizeTransactionEventRepository,
-    private readonly sessionMapper: SessionMapper,
-    private readonly sessionsClientApi: SessionsClientApi,
-    private readonly credentialsService: CredentialsService,
+    readonly logger: Logger<ILogObj>,
+    readonly transactionRepository: SequelizeTransactionEventRepository,
+    readonly sessionMapper: SessionMapper,
+    readonly sessionsClientApi: SessionsClientApi,
+    readonly credentialsService: CredentialsService,
   ) {
+    super(logger, credentialsService);
     this.transactionRepository.transaction.on('created', (transactions) =>
       this.broadcast(transactions),
     );
@@ -39,65 +33,33 @@ export class SessionBroadcaster {
       await this.sessionMapper.mapTransactionsToSessions(transactions);
 
     for (const session of sessions) {
-      await this.sendSessionToClient(session);
+      await this.sendSessionToClients(session);
     }
   }
 
-  private async sendSessionToClient(session: Session): Promise<void> {
+  private async sendSessionToClients(session: Session): Promise<void> {
     const cpoCountryCode = session.country_code;
     const cpoPartyId = session.party_id;
-    const urlCountryCodeAndPartyIdList: UrlCountryCodeAndPartyId[] = [];
-    const clientInformationList = await this.credentialsService.getClientInformationByServerCountryCodeAndPartyId(cpoCountryCode, cpoPartyId);
-    if (!clientInformationList || clientInformationList.length === 0) {
-      this.logger.error("clientInformationList empty");
+    const requiredOcpiParams = await this.getRequiredOcpiParams(cpoCountryCode, cpoPartyId);
+    if (requiredOcpiParams.length === 0) {
+      this.logger.error("requiredOcpiParams empty");
       return; // todo
     }
-    for (let clientInformation of clientInformationList) {
-      const clientVersions = await clientInformation.$get(ClientInformationProps.clientVersionDetails);
-      if (!clientVersions || clientVersions.length === 0) {
-        this.logger.error("clientVersions empty");
-        continue;
-      }
-      const clientCredentialRoles = await clientInformation.$get(ClientInformationProps.clientCredentialsRoles);
-      if (!clientCredentialRoles || clientCredentialRoles.length === 0) {
-        this.logger.error("clientCredentialRoles empty");
-        continue;
-      }
-      for (let i = 0; i < clientCredentialRoles.length; i++) {
-        const clientCredentialRole = clientCredentialRoles[i];
-        const clientVersion = clientVersions[i];
-        const sessionsEndpoint = clientVersion.endpoints.find(
-          (endpoint) => endpoint.identifier === ModuleId.Sessions,
-        );
-        if (
-          sessionsEndpoint &&
-          sessionsEndpoint.url &&
-          sessionsEndpoint.url.length > 0
-        ) {
-          urlCountryCodeAndPartyIdList.push({
-            url: sessionsEndpoint.url,
-            countryCode: clientCredentialRole[ClientCredentialsRoleProps.countryCode],
-            partyId: clientCredentialRole[ClientCredentialsRoleProps.partyId],
-          });
-        }
-      }
-    }
-    if (urlCountryCodeAndPartyIdList.length === 0) {
-      this.logger.error("urlCountryCodeAndPartyIdList empty");
-      return; // todo
-    }
-
-    for (const urlCountryCodeAndPartyId of urlCountryCodeAndPartyIdList) {
+    for (const requiredOcpiParam of requiredOcpiParams) {
       try {
         const params = PutSessionParams.build(
           session.country_code,
           session.party_id,
-          urlCountryCodeAndPartyId.countryCode,
-          urlCountryCodeAndPartyId.partyId,
+          requiredOcpiParam.clientCountryCode,
+          requiredOcpiParam.clientPartyId,
+          requiredOcpiParam.authToken,
+          "xRequestId", // todo
+          "xCorrelationId", // todo
+          VersionNumber.TWO_DOT_TWO_DOT_ONE,
           session.id,
           session,
         );
-        this.sessionsClientApi.baseUrl = urlCountryCodeAndPartyId.url;
+        this.sessionsClientApi.baseUrl = requiredOcpiParam.clientUrl;
         const response = await this.sessionsClientApi.putSession(params);
         this.logger.info("putSession response: " + response);
       } catch (e) {
@@ -105,7 +67,5 @@ export class SessionBroadcaster {
         this.logger.error(e);
       }
     }
-
-
   }
 }
