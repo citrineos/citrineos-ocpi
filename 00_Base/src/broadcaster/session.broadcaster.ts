@@ -7,7 +7,6 @@ import {SessionMapper} from '../mapper/session.mapper';
 import {CredentialsService} from '../services/credentials.service';
 import {ILogObj, Logger} from "tslog";
 import {BaseBroadcaster} from "./BaseBroadcaster";
-import {VersionNumber} from "../model/VersionNumber";
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -38,34 +37,18 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   private async sendSessionToClients(session: Session): Promise<void> {
+    const params = PutSessionParams.build(
+      session.id,
+      session,
+    );
     const cpoCountryCode = session.country_code;
     const cpoPartyId = session.party_id;
-    const requiredOcpiParams = await this.getRequiredOcpiParams(cpoCountryCode, cpoPartyId);
-    if (requiredOcpiParams.length === 0) {
-      this.logger.error("requiredOcpiParams empty");
-      return; // todo
-    }
-    for (const requiredOcpiParam of requiredOcpiParams) {
-      try {
-        const params = PutSessionParams.build(
-          session.country_code,
-          session.party_id,
-          requiredOcpiParam.clientCountryCode,
-          requiredOcpiParam.clientPartyId,
-          requiredOcpiParam.authToken,
-          "xRequestId", // todo
-          "xCorrelationId", // todo
-          VersionNumber.TWO_DOT_TWO_DOT_ONE,
-          session.id,
-          session,
-        );
-        this.sessionsClientApi.baseUrl = requiredOcpiParam.clientUrl;
-        const response = await this.sessionsClientApi.putSession(params);
-        this.logger.info("putSession response: " + response);
-      } catch (e) {
-        // todo
-        this.logger.error(e);
-      }
-    }
+    await this.broadcastToClients(
+      cpoCountryCode,
+      cpoPartyId,
+      params,
+      this.sessionsClientApi,
+      this.sessionsClientApi.putSession
+    );
   }
 }

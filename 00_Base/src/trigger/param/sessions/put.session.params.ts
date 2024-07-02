@@ -16,46 +16,13 @@ export class PutSessionParams extends OcpiParams {
   session!: Session;
 
 
-  constructor(
-    fromCountryCode?: string,
-    fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string,
-    authorization?: string,
-    xRequestId?: string,
-    xCorrelationId?: string,
-    version?: VersionNumber,
-    sessionId?: string,
-    session?: Session
-  ) {
-    super(fromCountryCode, fromPartyId, toCountryCode, toPartyId, authorization, xRequestId, xCorrelationId, version);
-    this.sessionId = sessionId!;
-    this.session = session!;
-  }
-
   static build(
-    fromCountryCode: string,
-    fromPartyId: string,
-    toCountryCode: string,
-    toPartyId: string,
-    authorization: string,
-    xRequestId: string,
-    xCorrelationId: string,
-    version: VersionNumber,
     sessionId: string,
     session: Session
   ) {
-    return new PutSessionParams(
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-      authorization,
-      xRequestId,
-      xCorrelationId,
-      version,
-      sessionId,
-      session,
-    );
+    const params = new PutSessionParams();
+    params.sessionId = sessionId;
+    params.session = session;
+    return params;
   }
 }
