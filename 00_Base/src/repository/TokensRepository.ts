@@ -91,30 +91,12 @@ export class TokensRepository extends SequelizeRepository<Token> {
    * @param dateFrom last update timestamp from
    * @param dateTo last update timestamp to
    */
-  async fetchTokens(
-    tokenDTOs: TokenDTO[],
-    countryCode: string,
-    partyId: string,
-    dateFrom?: string,
-    dateTo?: string,
+  async updateBatchedTokens(
+    //TODO map to Token first
+    tokenDTOs: TokenDTO[]
   ): Promise<void> {
     const batchFailedTokens: TokenDTO[] = [];
     await this.s.transaction(async (transaction) => {
-      // set existing tokens to invalid
-      await this.s.models[Token.MODEL_NAME].update(
-        {
-          valid: false,
-        },
-        {
-          where: {
-            country_code: countryCode,
-            party_id: partyId,
-            ...this.generateUpdatedAtQuery(dateFrom, dateTo),
-          },
-          transaction,
-        },
-      );
-
       // update tokens
       for (const tokenDTO of tokenDTOs) {
         try {
@@ -154,16 +136,4 @@ export class TokensRepository extends SequelizeRepository<Token> {
     }
   }
 
-  private generateUpdatedAtQuery(from?: string, to?: string): any {
-    if (!from && !to) {
-      return {};
-    }
-    if (!from && to) {
-      return { updatedAt: { [Op.lte]: to } };
-    }
-    if (from && !to) {
-      return { updatedAt: { [Op.gte]: from } };
-    }
-    return { updatedAt: { [Op.between]: [from, to] } };
-  }
 }

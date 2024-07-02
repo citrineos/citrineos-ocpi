@@ -31,12 +31,13 @@ export interface TriggerRequestOptions extends IRequestOptions {
 
 export class BaseClientApi {
   CONTROLLER_PATH = 'null';
-  private _baseUrl = 'http://localhost:3000';
   private restClient!: RestClient;
 
   constructor() {
     this.initRestClient();
   }
+
+  private _baseUrl = 'http://localhost:3000';
 
   get baseUrl(): string {
     return this._baseUrl;

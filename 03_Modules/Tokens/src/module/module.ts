@@ -35,7 +35,7 @@ export class TokensHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [CallAction.Authorize];
+  protected _requests: CallAction[] = [];
   protected _responses: CallAction[] = [];
 
   /**
@@ -84,40 +84,5 @@ export class TokensHandlers extends AbstractModule {
     }
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
-  }
-
-  @AsHandler(CallAction.Authorize)
-  protected async _handleAuthorizeRequest(
-    message: IMessage<AuthorizeRequest>,
-    props?: HandlerProperties,
-  ): Promise<void> {
-    this._logger.debug('Handling:', message, props);
-    const idToken = message.payload.idToken;
-
-    // TODO: We need to decide how OCPI and OCPP work together for the real-time authorization
-    // TODO: we need a way to figure out the countryCode and partyId of the given idToken
-    const token = await this.service.getTokenByIdTokenType(
-      CountryCode.US,
-      Role.EMSP,
-      idToken,
-    );
-    if (token) {
-      if (
-        token.whitelist === WhitelistType.NEVER ||
-        token.whitelist === WhitelistType.ALLOWED_OFFLINE
-      ) {
-        try {
-          // TODO: Implement send post Real-time authorization request and store the authorization response
-        } catch (e) {
-          this._logger.error(`Error while getting token: ${JSON.stringify(e)}`);
-          if (token.whitelist !== WhitelistType.ALLOWED_OFFLINE) {
-            // TODO:Reject the authorization
-          }
-        }
-      }
-    } else {
-      this._logger.warn(`Token by ${JSON.stringify(idToken)} not found`);
-      // TODO:Reject the authorization
-    }
   }
 }

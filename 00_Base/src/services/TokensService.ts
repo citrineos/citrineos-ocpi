@@ -10,10 +10,7 @@ import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
-import {
-  IdTokenEnumType,
-  IdTokenType,
-} from '../../../../citrineos-core/00_Base';
+import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenInfoType, IdTokenType } from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
 import { TokensClientApi } from '../trigger/TokensClientApi';
 import { buildPaginatedOcpiParams } from '../trigger/param/paginated.ocpi.params';
@@ -22,6 +19,8 @@ import { Role } from '../model/Role';
 import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
+import { Authorization } from '@citrineos/data';
+import { AuthorizationRepository } from '../repository/AuthorizationRepository';
 
 @Service()
 export class TokensService {
@@ -31,7 +30,9 @@ export class TokensService {
     private readonly tokenRepository: TokensRepository,
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
-  ) {}
+    private readonly authorizationRepository: AuthorizationRepository,
+  ) {
+  }
 
   // TODO get existing token
   async getSingleToken(
@@ -41,8 +42,12 @@ export class TokensService {
   }
 
   async saveToken(token: Token): Promise<Token> {
+    this.authorizationRepository.createOrUpdateByQuerystring(this.mapOcpiTokenToOcppAuthorization(token), {
+      idToken: token.uid,
+      type: this.mapTokenTypeToIdTokenType(token.type),
+    });
     try {
-      return await this.tokenRepository.updateToken(token);
+      return this.tokenRepository.updateToken(token);
     } catch (e) {
       this.logger.info(`Token not found, creating new token.`);
       return this.tokenRepository.saveToken(token);
@@ -74,7 +79,6 @@ export class TokensService {
 
     const retryLimit = 5;
     // TODO spin off fetching tokens without waiting here
-    // TODO create jobId and save to DB together with countrycode and partyId and start date and pagination params and potentially progress
     let asyncJobStatus: AsyncJobStatus | undefined = AsyncJobStatus.build({
       jobName: AsyncJobName.FETCH_OCPI_TOKENS,
       paginationParams: paginationParams,
@@ -109,28 +113,27 @@ export class TokensService {
         ) {
           retryCount--;
         } else {
-          retryCount = retryLimit;
           batchTokens = response.data;
+          try {
+            //TODO save to OCPP Auth
+            await this.tokenRepository.updateBatchedTokens(batchTokens);
+            asyncJobStatus.currentOffset = offset;
+            await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
+          } catch (e) {
+            this.logger.error(e);
+          }
           totalTokens.push(...batchTokens);
+          retryCount = retryLimit;
           offset += limit;
+
         }
       } while (retryCount > 0 || (batchTokens && batchTokens.length === limit));
 
-      try {
-        await this.tokenRepository.fetchTokens(
-          totalTokens,
-          countryCode,
-          partyId,
-          paginationParams?.date_from?.toISOString(),
-          paginationParams?.date_to?.toISOString(),
-        );
-      } catch (e) {
-        this.logger.error(e);
-      }
 
       asyncJobStatus.stopTime = new Date();
       asyncJobStatus.totalObjects = totalTokens.length;
       asyncJobStatus.isFinished = true;
+      this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
       return asyncJobStatus;
     } catch (e) {
       console.error(e);
@@ -149,20 +152,6 @@ export class TokensService {
     return await this.asyncJobStatusRepository.readByKey(jobId);
   }
 
-  async getTokenByIdTokenType(
-    countryCode: string,
-    partyId: string,
-    idTokenType: IdTokenType,
-  ): Promise<Token | undefined> {
-    const tokenRequest = SingleTokenRequest.build(
-      countryCode,
-      partyId,
-      idTokenType.idToken,
-      this.mapIdTokenTypeToTokenType(idTokenType.type),
-    );
-    return this.getSingleToken(tokenRequest);
-  }
-
   private mapIdTokenTypeToTokenType(idTokenType: IdTokenEnumType): TokenType {
     switch (idTokenType) {
       case IdTokenEnumType.eMAID:
@@ -179,5 +168,41 @@ export class TokensService {
       default:
         throw new Error(`Unknown id token type: ${idTokenType}`);
     }
+  }
+
+
+  /** TODO: Are these mappings correct?
+   *
+   * @param tokenType
+   * @private
+   */
+  private mapTokenTypeToIdTokenType(tokenType: TokenType): IdTokenEnumType {
+    switch (tokenType) {
+      case TokenType.OTHER:
+        return IdTokenEnumType.eMAID;
+      case TokenType.RFID:
+        //TODO how to decide on RFID type? Config?
+        return IdTokenEnumType.ISO14443;
+      case TokenType.APP_USER:
+        return IdTokenEnumType.Central;//TODO Or is this eMAID?
+      default:
+        throw new Error(`Unknown token type: ${tokenType}`);
+    }
+  }
+
+  private mapOcpiTokenToOcppAuthorization(ocpiToken: Token): Authorization {
+    return Authorization.build({
+      idToken: {
+        idToken: ocpiToken.uid,
+        type: this.mapTokenTypeToIdTokenType(ocpiToken.type),
+      } as IdTokenType,
+      idTokenInfo: {
+        status: ocpiToken.valid ? 'Accepted' as AuthorizationStatusEnumType : 'Blocked' as AuthorizationStatusEnumType,
+        groupIdToken: {
+          idToken: ocpiToken.contract_id,
+          type: this.mapTokenTypeToIdTokenType(ocpiToken.type),
+        } as IdTokenType,
+      } as IdTokenInfoType,
+    });
   }
 }

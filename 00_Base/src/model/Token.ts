@@ -45,9 +45,9 @@ export class Token extends Model {
   uid!: string;
 
   @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
-  @IsString()
+  @Enum(TokenType, 'TokenType')
   @IsNotEmpty()
-  type!: string;
+  type!: TokenType;
 
   @Column(DataType.STRING)
   @MaxLength(36)

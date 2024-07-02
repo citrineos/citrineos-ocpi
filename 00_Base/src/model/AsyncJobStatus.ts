@@ -42,9 +42,6 @@ export class AsyncJobStatus extends Model {
   @Column(DataType.INTEGER) // Use to keep track of how far we are
   currentOffset?: number;
 
-  @Column(DataType.INTEGER) // Used to keep track how big the steps are and how fast we are going
-  currentLimit?: number;
-
   @Column(DataType.JSON)
   paginatedParams?: PaginatedParams;
 
@@ -59,7 +56,6 @@ export class AsyncJobStatus extends Model {
       stopTime: this.stopTime,
       totalObjects: this.totalObjects,
       currentOffset: this.currentOffset,
-      currentLimit: this.currentLimit,
       paginatedParams: this.paginatedParams,
       countryCode: this.countryCode,
       partyId: this.partyId,
