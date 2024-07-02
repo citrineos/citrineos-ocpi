@@ -12,7 +12,7 @@ export enum OcpiLocationProps {
  * OCPI representation of a Location -- not named 'Location' to avoid collisions
  * with Citrine's version of a Location.
  *
- * Note that the id of OcpiLocation should match Citrine's Location
+ * Note that the id of OcpiLocation should match Citrine's Location.
  */
 @Table
 export class OcpiLocation extends Model {
@@ -33,4 +33,14 @@ export class OcpiLocation extends Model {
   @IsNotEmpty()
   @Length(2, 2)
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
+
+  static buildWithLastUpdated(
+    id: number,
+    lastUpdated: Date
+  ): OcpiLocation {
+    const location = new OcpiLocation();
+    location.id = id;
+    location.lastUpdated = lastUpdated;
+    return location;
+  }
 }

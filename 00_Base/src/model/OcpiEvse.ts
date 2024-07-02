@@ -25,4 +25,16 @@ export class OcpiEvse extends Model {
 
   @Column(DataType.DATE)
   declare lastUpdated: Date;
+
+  static buildWithLastUpdated(
+    evseId: number,
+    stationId: string,
+    lastUpdated: Date
+  ): OcpiEvse {
+    const evse = new OcpiEvse();
+    evse.evseId = evseId;
+    evse.stationId = stationId;
+    evse.lastUpdated = lastUpdated;
+    return evse;
+  }
 }

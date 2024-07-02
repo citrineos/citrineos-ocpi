@@ -13,9 +13,9 @@ import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
 import { ChargingStationVariableAttributes } from '../model/variable-attributes/ChargingStationVariableAttributes';
 import { EvseVariableAttributes } from '../model/variable-attributes/EvseVariableAttributes';
-import { OcpiEvse } from '../model/Evse';
+import { OcpiEvse } from '../model/OcpiEvse';
 import { ConnectorVariableAttributes } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiConnector } from '../model/Connector';
+import { OcpiConnector } from '../model/OcpiConnector';
 import { Service } from 'typedi';
 import { NOT_APPLICABLE } from '../util/consts';
 

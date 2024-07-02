@@ -37,10 +37,10 @@ import {
   connectorVariableAttributesQuery,
 } from '../model/variable-attributes/ConnectorVariableAttributes';
 import { OcpiLocation } from '../model/OcpiLocation';
-import { OcpiEvse } from '../model/Evse';
+import { OcpiEvse } from '../model/OcpiEvse';
 import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
 import { PatchConnectorParams } from '../trigger/param/locations/patch.connector.params';
-import { OcpiConnector } from '../model/Connector';
+import { OcpiConnector } from '../model/OcpiConnector';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 

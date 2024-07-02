@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { OcpiEvse } from '../model/Evse';
+import { OcpiEvse } from '../model/OcpiEvse';
 import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';

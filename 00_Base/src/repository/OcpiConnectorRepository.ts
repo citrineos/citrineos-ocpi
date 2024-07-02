@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { OcpiConnector } from '../model/Connector';
+import { OcpiConnector } from '../model/OcpiConnector';
 import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';
@@ -23,6 +23,20 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
       logger,
       ocpiSequelizeInstance.sequelize,
     );
+  }
+
+  async getConnectorById(
+    stationId: string,
+    evseId: number,
+    connectorId: number
+  ): Promise<OcpiConnector | undefined> {
+    return await this.readOnlyOneByQuery({
+      where: {
+        stationId,
+        evseId,
+        connectorId
+      }
+    });
   }
 
   async createOrUpdateOcpiConnector(connector: OcpiConnector) {
