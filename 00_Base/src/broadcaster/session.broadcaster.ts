@@ -25,6 +25,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     this.transactionRepository.transaction.on('updated', (transactions) =>
       this.broadcast(transactions),
     );
+    this.broadcast([Transaction.build()]).then();
   }
 
   private async broadcast(transactions: Transaction[]) {

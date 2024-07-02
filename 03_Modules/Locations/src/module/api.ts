@@ -3,27 +3,29 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {Get, JsonController, Param} from 'routing-controllers';
-import {ILocationsModuleApi} from './interface';
+import { JsonController, Get, Param } from 'routing-controllers';
+import { ILocationsModuleApi } from './interface';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  ConnectorResponse,
-  EvseResponse,
-  EXTRACT_EVSE_ID,
-  EXTRACT_STATION_ID,
-  generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
-  LocationResponse,
   LocationsService,
   ModuleId,
-  Paginated,
   PaginatedLocationResponse,
-  PaginatedParams,
+  generateMockOcpiPaginatedResponse,
   ResponseSchema,
+  generateMockOcpiResponse,
+  LocationResponse,
+  PaginatedParams,
+  Paginated,
+  ConnectorResponse,
+  EvseResponse,
+  EXTRACT_STATION_ID,
+  EXTRACT_EVSE_ID,
 } from '@citrineos/ocpi-base';
-import {Service} from 'typedi';
-import {HttpStatus} from '@citrineos/base';
+import { Service } from 'typedi';
+import { HttpStatus } from '@citrineos/base';
+import {FunctionalEndpointParams} from "@citrineos/ocpi-base";
+import {OcpiHeaders} from "@citrineos/ocpi-base";
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -40,7 +42,8 @@ const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
 @Service()
 export class LocationsModuleApi
   extends BaseController
-  implements ILocationsModuleApi {
+  implements ILocationsModuleApi
+{
   /**
    * Constructs a new instance of the class.
    *
@@ -52,7 +55,7 @@ export class LocationsModuleApi
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedLocationResponse, {
+  @ResponseSchema(() => PaginatedLocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -60,14 +63,15 @@ export class LocationsModuleApi
     },
   })
   async getLocations(
+    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    return this.locationsService.getLocations(paginatedParams);
+    return this.locationsService.getLocations(ocpiHeaders, paginatedParams);
   }
 
   @Get('/:location_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(LocationResponse, {
+  @ResponseSchema(() => LocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -82,7 +86,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(EvseResponse, {
+  @ResponseSchema(() => EvseResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -105,7 +109,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid/:connector_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(ConnectorResponse, {
+  @ResponseSchema(() => ConnectorResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {

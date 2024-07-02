@@ -44,6 +44,7 @@ import { OcpiConnector } from '../model/OcpiConnector';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
+import {OcpiHeaders} from "../model/OcpiHeaders";
 
 @Service()
 export class LocationsService {
@@ -70,6 +71,7 @@ export class LocationsService {
    */
 
   async getLocations(
+    ocpiHeaders: OcpiHeaders,
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     // TODO add Link header
@@ -84,6 +86,8 @@ export class LocationsService {
         offset,
         dateFrom,
         dateTo,
+        ocpiHeaders.toCountryCode,
+        ocpiHeaders.toPartyId,
       )
     ).reduce((acc: any, cur) => {
       acc[cur.id] = cur;

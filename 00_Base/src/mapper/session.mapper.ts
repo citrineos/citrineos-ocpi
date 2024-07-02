@@ -195,19 +195,21 @@ export class SessionMapper {
     mspCountryCode?: string,
     mspPartyId?: string,
   ): { [key: string]: Token } {
+
+    const transactionIdToTokenMap: { [key: string]: Token } = {};
+
     // TODO: Create mapping between Transaction.idToken and OCPI Token
     // Only get Tokens that belong to the MSP if provided
 
     // TODO: Remove this mock mapping and replace with real token fetch
-    const map = new Map();
     for (const transaction of transactions) {
       const token = new Token();
       token.country_code = mspCountryCode || 'US';
       token.party_id = mspPartyId || 'MSP';
-      map.set(transaction.id, token);
+      transactionIdToTokenMap[transaction.id] = token;
     }
 
-    return map as any;
+    return transactionIdToTokenMap;
   }
 
   private getTransactionStatus(
