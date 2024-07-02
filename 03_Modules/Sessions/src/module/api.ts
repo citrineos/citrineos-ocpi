@@ -3,27 +3,28 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ISessionsModuleApi } from './interface';
+import {ISessionsModuleApi} from './interface';
 
-import { Body, Get, JsonController, Param, Put } from 'routing-controllers';
-import { HttpStatus } from '@citrineos/base';
+import {Body, Get, JsonController, Param, Put} from 'routing-controllers';
+import {HttpStatus} from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   ChargingPreferences,
   ChargingPreferencesResponse,
+  FunctionalEndpointParams,
   generateMockOcpiPaginatedResponse,
   generateMockOcpiResponse,
   ModuleId,
+  OcpiHeaders,
   Paginated,
-  PaginatedOcpiParams,
   PaginatedParams,
   PaginatedSessionResponse,
   ResponseSchema,
   SessionsService,
 } from '@citrineos/ocpi-base';
 
-import { Service } from 'typedi';
+import {Service} from 'typedi';
 
 const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
   PaginatedSessionResponse,
@@ -37,8 +38,7 @@ const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
 @Service()
 export class SessionsModuleApi
   extends BaseController
-  implements ISessionsModuleApi
-{
+  implements ISessionsModuleApi {
   constructor(readonly sessionsService: SessionsService) {
     super();
   }
@@ -53,21 +53,22 @@ export class SessionsModuleApi
     },
   })
   async getSessions(
-    @Paginated() paginationParams?: PaginatedOcpiParams,
+    @Paginated() paginatedParams?: PaginatedParams,
+    @FunctionalEndpointParams() ocpiHeaders?: OcpiHeaders,
   ): Promise<PaginatedSessionResponse> {
     console.info(
-      paginationParams?.date_from,
-      paginationParams?.fromCountryCode,
-      paginationParams?.fromPartyId,
-      paginationParams?.toCountryCode,
-      paginationParams?.toPartyId,
+      ocpiHeaders!.fromCountryCode,
+      ocpiHeaders!.fromPartyId,
+      ocpiHeaders!.toCountryCode,
+      ocpiHeaders!.toPartyId,
+      paginatedParams?.date_from
     );
     return this.sessionsService.getSessions(
-      paginationParams!.fromCountryCode,
-      paginationParams!.fromPartyId,
-      paginationParams!.toCountryCode,
-      paginationParams!.toPartyId,
-      paginationParams!.date_from,
+      ocpiHeaders!.fromCountryCode,
+      ocpiHeaders!.fromPartyId,
+      ocpiHeaders!.toCountryCode,
+      ocpiHeaders!.toPartyId,
+      paginatedParams!.date_from!,
     );
   }
 
