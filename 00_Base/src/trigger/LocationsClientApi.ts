@@ -1,18 +1,18 @@
-import { GetConnectorParams } from './param/locations/get.connector.params';
-import { GetEvseParams } from './param/locations/get.evse.params';
-import { GetLocationParams } from './param/locations/get.location.params';
-import { PatchConnectorParams } from './param/locations/patch.connector.params';
-import { PatchEvseParams } from './param/locations/patch.evse.params';
-import { PatchLocationParams } from './param/locations/patch.location.params';
-import { PutConnectorParams } from './param/locations/put.connector.params';
-import { PutEvseParams } from './param/locations/put.evse.params';
-import { PutLocationParams } from './param/locations/put.location.params';
-import { IHeaders } from 'typed-rest-client/Interfaces';
-import { BaseClientApi } from './BaseClientApi';
-import { ConnectorResponse } from '../model/Connector';
-import { EvseResponse } from '../model/Evse';
-import { LocationResponse } from '../model/Location';
-import { OcpiResponse } from '../model/ocpi.response';
+import {GetConnectorParams} from './param/locations/get.connector.params';
+import {GetEvseParams} from './param/locations/get.evse.params';
+import {GetLocationParams} from './param/locations/get.location.params';
+import {PatchConnectorParams} from './param/locations/patch.connector.params';
+import {PatchEvseParams} from './param/locations/patch.evse.params';
+import {PatchLocationParams} from './param/locations/patch.location.params';
+import {PutConnectorParams} from './param/locations/put.connector.params';
+import {PutEvseParams} from './param/locations/put.evse.params';
+import {PutLocationParams} from './param/locations/put.location.params';
+import {IHeaders} from 'typed-rest-client/Interfaces';
+import {BaseClientApi} from './BaseClientApi';
+import {OcpiResponse} from '../model/ocpi.response';
+import {ConnectorResponse} from "../model/DTO/ConnectorDTO";
+import {LocationResponse} from "../model/DTO/LocationDTO";
+import {EvseResponse} from "../model/DTO/EvseDTO";
 
 export class LocationsClientApi extends BaseClientApi {
   async getConnector(params: GetConnectorParams): Promise<ConnectorResponse> {
@@ -30,7 +30,7 @@ export class LocationsClientApi extends BaseClientApi {
       .replace('countryCode', encodeURIComponent(params.fromCountryCode))
       .replace('partyId', encodeURIComponent(params.fromPartyId))
       .replace('locationId', encodeURIComponent(params.locationId))
-      .replace('evseUId', encodeURIComponent(params.evseUId))
+      .replace('evseUId', encodeURIComponent(params.evseUid))
       .replace('connectorId', encodeURIComponent(params.connectorId));
     return await this.get<ConnectorResponse>(
       {
@@ -54,7 +54,7 @@ export class LocationsClientApi extends BaseClientApi {
       .replace('countryCode', encodeURIComponent(params.fromCountryCode))
       .replace('partyId', encodeURIComponent(params.fromPartyId))
       .replace('locationId', encodeURIComponent(params.locationId))
-      .replace('evseUId', encodeURIComponent(params.evseUId));
+      .replace('evseUId', encodeURIComponent(params.evseUid));
     return await this.get<EvseResponse>(
       {
         additionalHeaders,
@@ -97,7 +97,7 @@ export class LocationsClientApi extends BaseClientApi {
       .replace('countryCode', encodeURIComponent(params.fromCountryCode))
       .replace('partyId', encodeURIComponent(params.fromPartyId))
       .replace('locationId', encodeURIComponent(params.locationId))
-      .replace('evseUId', encodeURIComponent(params.evseUId))
+      .replace('evseUId', encodeURIComponent(params.evseUid))
       .replace('connectorId', encodeURIComponent(params.connectorId));
     return await this.update<OcpiResponse<void>>(
       {
@@ -123,7 +123,7 @@ export class LocationsClientApi extends BaseClientApi {
       .replace('countryCode', encodeURIComponent(params.fromCountryCode))
       .replace('partyId', encodeURIComponent(params.fromPartyId))
       .replace('locationId', encodeURIComponent(params.locationId))
-      .replace('evseUId', encodeURIComponent(params.evseUId));
+      .replace('evseUId', encodeURIComponent(params.evseUid));
     return await this.update<OcpiResponse<void>>(
       {
         additionalHeaders,
@@ -174,7 +174,7 @@ export class LocationsClientApi extends BaseClientApi {
       .replace('countryCode', encodeURIComponent(params.fromCountryCode))
       .replace('partyId', encodeURIComponent(params.fromPartyId))
       .replace('locationId', encodeURIComponent(params.locationId))
-      .replace('evseUId', encodeURIComponent(params.evseUId))
+      .replace('evseUId', encodeURIComponent(params.evseUid))
       .replace('connectorId', encodeURIComponent(params.connectorId));
     return await this.replace<OcpiResponse<void>>(
       {
@@ -200,7 +200,7 @@ export class LocationsClientApi extends BaseClientApi {
       .replace('countryCode', encodeURIComponent(params.fromCountryCode))
       .replace('partyId', encodeURIComponent(params.fromPartyId))
       .replace('locationId', encodeURIComponent(params.locationId))
-      .replace('evseUId', encodeURIComponent(params.evseUId));
+      .replace('evseUId', encodeURIComponent(params.evseUid));
     return await this.replace<OcpiResponse<void>>(
       {
         additionalHeaders,

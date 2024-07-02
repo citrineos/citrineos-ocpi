@@ -1,45 +1,44 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Service } from 'typedi';
-import { InternalServerError, NotFoundError } from 'routing-controllers';
+import {v4 as uuidv4} from 'uuid';
+import {Service} from 'typedi';
+import {InternalServerError, NotFoundError} from 'routing-controllers';
 import {
   ClientCredentialsRole,
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
-import { ClientInformationRepository } from '../repository/ClientInformationRepository';
-import { ClientVersion } from '../model/ClientVersion';
-import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
-import { Endpoint } from '../model/Endpoint';
-import { OcpiLogger } from '../util/logger';
-import { OcpiNamespace } from '../util/ocpi.namespace';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { VersionNumber } from '../model/VersionNumber';
-import { VersionsClientApi } from '../trigger/VersionsClientApi';
-import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException';
-import { NotRegisteredException } from '../exception/NotRegisteredException';
-import { BusinessDetails } from '../model/BusinessDetails';
-import { Image } from '../model/Image';
-import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { Role } from '../model/Role';
-import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
-import { ImageDTO } from '../model/DTO/ImageDTO';
-import { ImageCategory } from '../model/ImageCategory';
-import { ImageType } from '../model/ImageType';
-import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
-import { VersionRepository } from '../repository/VersionRepository';
-import { VersionEndpoint } from '../model/VersionEndpoint';
-import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
-import { ServerVersion } from '../model/ServerVersion';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { CredentialsResponse } from '../model/CredentialsResponse';
-import { buildPostCredentialsParams } from '../trigger/param/credentials/post.credentials.params';
-import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import {ClientInformation, ClientInformationProps,} from '../model/ClientInformation';
+import {ClientInformationRepository} from '../repository/ClientInformationRepository';
+import {ClientVersion} from '../model/ClientVersion';
+import {CredentialsDTO} from '../model/DTO/CredentialsDTO';
+import {Endpoint} from '../model/Endpoint';
+import {OcpiLogger} from '../util/logger';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {OcpiSequelizeInstance} from '../util/sequelize';
+import {VersionNumber} from '../model/VersionNumber';
+import {VersionsClientApi} from '../trigger/VersionsClientApi';
+import {AlreadyRegisteredException} from '../exception/AlreadyRegisteredException';
+import {NotRegisteredException} from '../exception/NotRegisteredException';
+import {BusinessDetails} from '../model/BusinessDetails';
+import {Image} from '../model/Image';
+import {CredentialsRoleDTO} from '../model/DTO/CredentialsRoleDTO';
+import {Role} from '../model/Role';
+import {BusinessDetailsDTO} from '../model/DTO/BusinessDetailsDTO';
+import {ImageDTO} from '../model/DTO/ImageDTO';
+import {ImageCategory} from '../model/ImageCategory';
+import {ImageType} from '../model/ImageType';
+import {CredentialsClientApi} from '../trigger/CredentialsClientApi';
+import {VersionRepository} from '../repository/VersionRepository';
+import {VersionEndpoint} from '../model/VersionEndpoint';
+import {CpoTenant, CpoTenantProps} from '../model/CpoTenant';
+import {ServerCredentialsRole, ServerCredentialsRoleProps} from '../model/ServerCredentialsRole';
+import {ServerVersion} from '../model/ServerVersion';
+import {ModuleId} from '../model/ModuleId';
+import {InterfaceRole} from '../model/InterfaceRole';
+import {CredentialsResponse} from '../model/CredentialsResponse';
+import {buildPostCredentialsParams} from '../trigger/param/credentials/post.credentials.params';
+import {OcpiResponseStatusCode} from '../model/ocpi.response';
+import {ServerCredentialsRoleRepository} from '../repository/ServerCredentialsRoleRepository';
+import {ClientCredentialsRoleRepository} from '../repository/ClientCredentialsRoleRepository';
 
 const clientInformationInclude = [
   {
@@ -84,9 +83,142 @@ export class CredentialsService {
     readonly versionsClientApi: VersionsClientApi,
     readonly credentialsClientApi: CredentialsClientApi,
     readonly versionRepository: VersionRepository,
-  ) {}
+    readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
+    readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
+  ) {
+  }
 
-  async getClientInformation(token: string): Promise<ClientInformation> {
+  async getClientCredentialsRoleByCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientCredentialsRole> {
+    const clientCredentialsRole =
+      await this.clientCredentialsRoleRepository.readOnlyOneByQuery(
+        {
+          where: {
+            [ClientCredentialsRoleProps.partyId]: partyId,
+            [ClientCredentialsRoleProps.countryCode]: countryCode,
+          },
+        },
+        OcpiNamespace.Credentials,
+      );
+    if (!clientCredentialsRole) {
+      const msg =
+        'Client credentials role not found for country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientCredentialsRole;
+  }
+
+  async getServerCredentialsRoleByCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ServerCredentialsRole> {
+    const serverCredentialsRole =
+      await this.serverCredentialsRoleRepository.readOnlyOneByQuery(
+        {
+          where: {
+            [ServerCredentialsRoleProps.partyId]: partyId,
+            [ServerCredentialsRoleProps.countryCode]: countryCode,
+          },
+        },
+        OcpiNamespace.Credentials,
+      );
+    if (!serverCredentialsRole) {
+      const msg =
+        'Server credentials role not found for country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError('Server credentials not found');
+    }
+    return serverCredentialsRole;
+  }
+
+  async getCpoTenantByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const serverCredentialsRole =
+      await this.getServerCredentialsRoleByCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const cpoTenant: CpoTenant | null = await serverCredentialsRole.$get(
+      ServerCredentialsRoleProps.cpoTenant,
+    );
+    if (!cpoTenant) {
+      const msg = 'CpoTenant not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return cpoTenant;
+  }
+
+  async getCpoTenantByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const clientInformation: ClientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const cpoTenant: CpoTenant | null = await clientInformation.$get(
+      ClientInformationProps.cpoTenant,
+    );
+    if (!cpoTenant) {
+      const msg = 'CpoTenant not found for client country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return cpoTenant;
+  }
+
+  async getClientInformationByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientInformation[]> {
+    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
+      countryCode,
+      partyId,
+    );
+    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
+      CpoTenantProps.clientInformation,
+    );
+    if (!clientInformation || clientInformation.length === 0) {
+      const msg =
+        'Client information not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientInformation;
+  }
+
+  async getClientInformationByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientInformation> {
+    const clientCredentialsRole =
+      await this.getClientCredentialsRoleByCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const clientInformation: ClientInformation | null =
+      await clientCredentialsRole.$get(
+        ClientCredentialsRoleProps.clientInformation,
+      );
+    if (!clientInformation) {
+      const msg =
+        'Client information not found for client country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientInformation;
+  }
+
+  async getClientInformationByServerToken(
+    token: string,
+  ): Promise<ClientInformation> {
     const clientInformationResponse =
       await this.clientInformationRepository.readOnlyOneByQuery(
         {
@@ -104,12 +236,34 @@ export class CredentialsService {
     return clientInformationResponse;
   }
 
+  async getClientInformationByClientToken(
+    token: string,
+  ): Promise<ClientInformation> {
+    const clientInformationResponse =
+      await this.clientInformationRepository.readOnlyOneByQuery(
+        {
+          where: {
+            clientToken: token,
+          },
+          include: clientInformationInclude,
+        },
+        OcpiNamespace.Credentials,
+      );
+    if (!clientInformationResponse) {
+      this.logger.debug('Client information not found for token', token);
+      throw new NotFoundError('Credentials not found');
+    }
+    return clientInformationResponse;
+  }
+
   async postCredentials(
     token: string,
     credentials: CredentialsDTO,
     version: VersionNumber,
   ): Promise<ClientInformation> {
-    const clientInformation = await this.getClientInformation(token);
+    const clientInformation =
+      await this.getClientInformationByServerToken(token);
+    await this.getClientInformationByServerToken(token);
     if (clientInformation.registered) {
       throw new AlreadyRegisteredException();
     }
@@ -163,7 +317,8 @@ export class CredentialsService {
     token: string,
     credentials: CredentialsDTO,
   ): Promise<ClientInformation> {
-    const clientInformation = await this.getClientInformation(token);
+    const clientInformation =
+      await this.getClientInformationByServerToken(token);
     if (!clientInformation.registered) {
       throw new NotRegisteredException();
     }
@@ -365,7 +520,7 @@ export class CredentialsService {
     if (
       !postCredentialsResponse ||
       postCredentialsResponse.status_code !==
-        OcpiResponseStatusCode.GenericSuccessCode ||
+      OcpiResponseStatusCode.GenericSuccessCode ||
       !postCredentialsResponse.data
     ) {
       throw new InternalServerError(
@@ -510,7 +665,7 @@ export class CredentialsService {
           {
             ...(credentialsRoleDTO as Partial<ClientCredentialsRole>),
             [ClientCredentialsRoleProps.clientInformationId]:
-              clientInformation.id,
+            clientInformation.id,
           },
           {
             include: [

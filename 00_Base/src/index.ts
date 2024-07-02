@@ -1,21 +1,19 @@
-import { RoutingControllersOptions, useContainer } from 'routing-controllers';
-import { Constructable, Container } from 'typedi';
-import { OcpiModule } from './model/OcpiModule';
-import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
-import { LoggingMiddleware } from './util/middleware/logging.middleware';
-import { OcpiServerConfig } from './config/ocpi.server.config';
-import { OcpiSequelizeInstance } from './util/sequelize';
-import { KoaServer } from './util/koa.server';
+import {RoutingControllersOptions, useContainer} from 'routing-controllers';
+import {Constructable, Container} from 'typedi';
+import {OcpiModule} from './model/OcpiModule';
+import {GlobalExceptionHandler} from './util/middleware/global.exception.handler';
+import {LoggingMiddleware} from './util/middleware/logging.middleware';
+import {OcpiServerConfig} from './config/ocpi.server.config';
+import {OcpiSequelizeInstance} from './util/sequelize';
+import {KoaServer} from './util/koa.server';
 import Koa from 'koa';
-import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
-import { ILogObj, Logger } from 'tslog';
-import { CacheWrapper } from './util/CacheWrapper';
-import { CdrsController } from './controllers/cdrs.controller';
-import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { LocationsController } from './controllers/locations.controller';
-import { SessionsController } from './controllers/sessions.controller';
-import { TariffsController } from './controllers/tariffs.controller';
-import { TokensController } from './controllers/tokens.controller';
+import {ICache, IMessageHandler, IMessageSender} from '@citrineos/base';
+import {ILogObj, Logger} from 'tslog';
+import {CacheWrapper} from './util/CacheWrapper';
+import {CdrsController} from './controllers/cdrs.controller';
+import {ChargingProfilesController} from './controllers/charging.profiles.controller';
+import {TariffsController} from './controllers/tariffs.controller';
+import {TokensController} from './controllers/tokens.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -30,89 +28,121 @@ import {
   SequelizeTransactionEventRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
-import { CredentialsService } from './services/credentials.service';
+import {SessionBroadcaster} from './broadcaster/session.broadcaster';
 
-export { ImageDTO } from './model/DTO/ImageDTO';
-export { CredentialsClientApi } from './trigger/CredentialsClientApi';
-export { BusinessDetailsDTO } from './model/DTO/BusinessDetailsDTO';
-export { ServerCredentialsRole } from './model/ServerCredentialsRole';
-export { VersionEndpoint } from './model/VersionEndpoint';
-export { ServerVersion } from './model/ServerVersion';
-export { CpoTenant } from './model/CpoTenant';
-export { CredentialsRoleDTO } from './model/DTO/CredentialsRoleDTO';
-export { buildPostCredentialsParams } from './trigger/param/credentials/post.credentials.params';
-export { Role } from './model/Role';
-export { ImageCategory } from './model/ImageCategory';
-export { ImageType } from './model/ImageType';
-export { CountryCode } from './util/util';
-export { KoaServer } from './util/koa.server';
-export { InterfaceRole } from './model/InterfaceRole';
-export { toCredentialsDTO } from './model/ClientInformation';
-export { AlreadyRegisteredException } from './exception/AlreadyRegisteredException';
-export { NotRegisteredException } from './exception/NotRegisteredException';
-export { Image } from './model/Image';
-export { BusinessDetails } from './model/BusinessDetails';
-export { VersionsClientApi } from './trigger/VersionsClientApi';
-export { CredentialsDTO } from './model/DTO/CredentialsDTO';
-export { ClientVersion } from './model/ClientVersion';
-export { ClientInformationRepository } from './repository/ClientInformationRepository';
-export { ClientInformation } from './model/ClientInformation';
-export { ClientCredentialsRole } from './model/ClientCredentialsRole';
-export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
-export { OcpiServerConfig } from './config/ocpi.server.config';
-export { CommandResponse } from './model/CommandResponse';
+export {FunctionalEndpointParams} from "./util/decorators/FunctionEndpointParams";
+export {PaginatedOcpiParams} from './trigger/param/paginated.ocpi.params';
+export {ChargingPreferences} from './model/ChargingPreferences';
+export {PaginatedParams} from './controllers/param/paginated.params';
+export {Paginated} from './util/decorators/paginated';
+export {ChargingPreferencesResponse} from './model/ChargingPreferencesResponse';
+export {PaginatedSessionResponse} from './model/Session';
+export {Role} from './model/Role';
+export {ImageCategory} from './model/ImageCategory';
+export {ImageType} from './model/ImageType';
+export {CountryCode} from './util/util';
+export {KoaServer} from './util/koa.server';
+export {InterfaceRole} from './model/InterfaceRole';
+export {toCredentialsDTO} from './model/ClientInformation';
+export {AlreadyRegisteredException} from './exception/AlreadyRegisteredException';
+export {NotRegisteredException} from './exception/NotRegisteredException';
+export {Image} from './model/Image';
+export {BusinessDetails} from './model/BusinessDetails';
+export {VersionsClientApi} from './trigger/VersionsClientApi';
+export {CommandsClientApi} from './trigger/CommandsClientApi';
+export {CredentialsDTO} from './model/DTO/CredentialsDTO';
+export {ClientVersion} from './model/ClientVersion';
+export {ClientInformationRepository} from './repository/ClientInformationRepository';
+export {ClientInformation} from './model/ClientInformation';
+export {ClientCredentialsRole} from './model/ClientCredentialsRole';
+export {fromCredentialsRoleDTO} from './model/ClientCredentialsRole';
+export {OcpiServerConfig} from './config/ocpi.server.config';
+export {CommandResponse} from './model/CommandResponse';
 export {
   generateMockOcpiResponse,
+  generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
-export { CommandType } from './model/CommandType';
-export { CancelReservation } from './model/CancelReservation';
-export { ReserveNow } from './model/ReserveNow';
-export { StartSession } from './model/StartSession';
-export { StopSession } from './model/StopSession';
-export { UnlockConnector } from './model/UnlockConnector';
-export { OcpiCommandResponse } from './model/CommandResponse';
-export { ModuleId } from './model/ModuleId';
-export { Version, IVersion } from './model/Version';
-export { Endpoint } from './model/Endpoint';
-export { CredentialsRole } from './model/CredentialsRole';
-export { CredentialsResponse } from './model/CredentialsResponse';
-export { OcpiResponseStatusCode } from './model/ocpi.response';
-export { OcpiEmptyResponse } from './model/ocpi.empty.response';
-export { VersionNumber } from './model/VersionNumber';
-export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
-export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
-export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
-export { VersionDTO } from './model/DTO/VersionDTO';
-export { OcpiResponse } from './model/ocpi.response';
-export { OcpiModule } from './model/OcpiModule';
-export { VersionRepository } from './repository/VersionRepository';
-export { CommandResultType } from './model/CommandResult';
-export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
-export { MultipleTypes } from './util/decorators/multiple.types';
-export { OcpiNamespace } from './util/ocpi.namespace';
-export { OcpiLogger } from './util/logger';
-export { OcpiSequelizeInstance } from './util/sequelize';
-export { AsOcpiRegistrationEndpoint } from './util/decorators/as.ocpi.registration.endpoint';
-export { AuthToken } from './util/decorators//auth.token';
-export { VersionNumberParam } from './util/decorators/version.number.param';
-export { EnumParam } from './util/decorators/enum.param';
-export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
-export { LoggingMiddleware } from './util/middleware/logging.middleware';
-export { ResponseSchema } from './openapi-spec-helper/decorators';
-export { BaseClientApi } from './trigger/BaseClientApi';
-export { CommandsService } from './services/commands.service';
-export { CredentialsService } from './services/credentials.service';
-export { VersionService } from './services/version.service';
-export { MessageSenderWrapper } from './util/MessageSenderWrapper';
-export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
-export { CacheWrapper } from './util/CacheWrapper';
+export {CommandType} from './model/CommandType';
+export {CancelReservation} from './model/CancelReservation';
+export {ReserveNow} from './model/ReserveNow';
+export {StartSession} from './model/StartSession';
+export {StopSession} from './model/StopSession';
+export {UnlockConnector} from './model/UnlockConnector';
+export {OcpiCommandResponse} from './model/CommandResponse';
+export {ModuleId} from './model/ModuleId';
+export {Version, IVersion} from './model/Version';
+export {Endpoint} from './model/Endpoint';
+export {CredentialsResponse} from './model/CredentialsResponse';
+export {OcpiResponseStatusCode} from './model/ocpi.response';
+export {OcpiEmptyResponse} from './model/ocpi.empty.response';
+export {VersionNumber} from './model/VersionNumber';
+export {VersionDetailsResponseDTO} from './model/DTO/VersionDetailsResponseDTO';
+export {VersionListResponseDTO} from './model/DTO/VersionListResponseDTO';
+export {VersionDetailsDTO} from './model/DTO/VersionDetailsDTO';
+export {VersionDTO} from './model/DTO/VersionDTO';
+export {OcpiResponse} from './model/ocpi.response';
+export {OcpiModule} from './model/OcpiModule';
+export {VersionRepository} from './repository/VersionRepository';
+export {ResponseUrlRepository} from './repository/response.url.repository';
+export {CommandResultType} from './model/CommandResult';
+export {
+  LocationDTO,
+  LocationResponse,
+  PaginatedLocationResponse,
+} from './model/DTO/LocationDTO';
+export {
+  EvseDTO,
+  EvseResponse,
+  UID_FORMAT,
+  EXTRACT_EVSE_ID,
+  EXTRACT_STATION_ID,
+} from './model/DTO/EvseDTO';
+export {ConnectorDTO, ConnectorResponse} from './model/DTO/ConnectorDTO';
 
-export { versionIdParam } from './util/decorators/version.number.param';
+export {AsOcpiFunctionalEndpoint} from './util/decorators/as.ocpi.functional.endpoint';
+export {MultipleTypes} from './util/decorators/multiple.types';
+export {OcpiNamespace} from './util/ocpi.namespace';
+export {OcpiLogger} from './util/logger';
+export {OcpiSequelizeInstance} from './util/sequelize';
+export {AsOcpiRegistrationEndpoint} from './util/decorators/as.ocpi.registration.endpoint';
+export {OcpiHeaders} from './model/OcpiHeaders';
+export {AuthToken} from './util/decorators//auth.token';
+export {VersionNumberParam} from './util/decorators/version.number.param';
+export {EnumParam} from './util/decorators/enum.param';
+export {GlobalExceptionHandler} from './util/middleware/global.exception.handler';
+export {LoggingMiddleware} from './util/middleware/logging.middleware';
+
+export {
+  AUTH_CONTROLLER_COMPONENT,
+  EVSE_COMPONENT,
+  CONNECTOR_COMPONENT,
+  TOKEN_READER_COMPONENT,
+  AVAILABILITY_STATE_VARIABLE,
+  UNKNOWN_ID,
+  NOT_APPLICABLE,
+} from './util/consts';
+
+export {ResponseSchema} from './openapi-spec-helper/decorators';
+export {BaseClientApi} from './trigger/BaseClientApi';
+export {LocationsClientApi} from './trigger/LocationsClientApi';
+
+export {CommandsService} from './services/commands.service';
+export {CredentialsService} from './services/credentials.service';
+export {LocationsService} from './services/locations.service';
+export {VersionService} from './services/version.service';
+export {MessageSenderWrapper} from './util/MessageSenderWrapper';
+export {MessageHandlerWrapper} from './util/MessageHandlerWrapper';
+export {CacheWrapper} from './util/CacheWrapper';
+export {ResponseGenerator} from './util/response.generator';
+
+export {SessionsService} from './services/sessions.service';
+export {versionIdParam} from './util/decorators/version.number.param';
+export {SessionBroadcaster} from './broadcaster/session.broadcaster';
 
 useContainer(Container);
 
-export { Container } from 'typedi';
+export {Container} from 'typedi';
 
 export class OcpiModuleConfig {
   module!: Constructable<OcpiModule>;
@@ -164,8 +194,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          LocationsController,
-          SessionsController,
           TariffsController,
           TokensController,
         ],
@@ -185,7 +213,6 @@ export class OcpiServer extends KoaServer {
           },
         ],
       );
-      this.initLogger();
     } catch (error) {
       console.error(error);
       process.exit(1);
@@ -239,5 +266,10 @@ export class OcpiServer extends KoaServer {
       SequelizeVariableMonitoringRepository,
       this.repositoryStore.variableMonitoringRepository,
     );
+    this.onContainerInitialized();
+  }
+
+  private onContainerInitialized() {
+    Container.get(SessionBroadcaster); // init session broadcaster
   }
 }

@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, ValidateNested } from 'class-validator';
-import { Displaytext } from './Displaytext';
+import { DisplayText } from './DisplayText';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
@@ -22,9 +22,9 @@ export class CommandResponse {
   timeout!: number;
 
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested()
-  message?: Displaytext;
+  message?: DisplayText;
 }
 
 export class OcpiCommandResponse extends OcpiResponse<CommandResponse> {

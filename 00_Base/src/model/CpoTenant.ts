@@ -4,19 +4,24 @@ import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 
+export enum CpoTenantProps {
+  serverCredentialsRoles = 'serverCredentialsRoles',
+  clientInformation = 'clientInformation',
+}
+
 @Table
 export class CpoTenant extends Model {
   @Exclude()
   @HasMany(() => ServerCredentialsRole, {
     onDelete: ON_DELETE_CASCADE,
   })
-  serverCredentialsRoles!: ServerCredentialsRole[];
+  [CpoTenantProps.serverCredentialsRoles]!: ServerCredentialsRole[];
 
   @Exclude()
   @HasMany(() => ClientInformation, {
     onDelete: ON_DELETE_CASCADE,
   })
-  clientInformation!: ClientInformation[];
+  [CpoTenantProps.clientInformation]!: ClientInformation[];
 
   static buildCpoTenant(
     serverCredentialsRoles: ServerCredentialsRole[],

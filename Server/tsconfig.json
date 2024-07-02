@@ -24,6 +24,12 @@
     },
     {
       "path": "../03_Modules/Commands"
+    },
+    {
+      "path": "../03_Modules/Locations"
+    },
+    {
+      "path": "../03_Modules/Sessions"
     }
   ]
 }

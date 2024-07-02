@@ -1,7 +1,7 @@
 import {
   IsArray,
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsNotEmpty,
   IsObject,
   IsString,
@@ -16,6 +16,7 @@ import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
 import { OcpiResponse } from './ocpi.response';
 import { PaginatedResponse } from './PaginatedResponse';
+import { TokenType } from './TokenType';
 
 export class Token {
   @MaxLength(2)
@@ -36,7 +37,7 @@ export class Token {
 
   @IsString()
   @IsNotEmpty()
-  type!: string;
+  type!: TokenType;
 
   @MaxLength(36)
   @IsString()
@@ -81,8 +82,7 @@ export class Token {
   @ValidateNested()
   energy_contract?: TokenEnergyContract | null;
 
-  @IsString()
-  @IsDateString()
+  @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;

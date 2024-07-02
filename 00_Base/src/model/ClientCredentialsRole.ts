@@ -33,6 +33,17 @@ export enum ClientCredentialsRoleProps {
   cpoTenant = 'cpoTenant',
 }
 
+export enum ClientCredentialsRoleProps {
+  role = 'role',
+  partyId = 'party_id',
+  countryCode = 'country_code',
+  businessDetails = 'business_details',
+  clientInformationId = 'clientInformationId',
+  clientInformation = 'clientInformation',
+  cpoTenantId = 'cpoTenantId',
+  cpoTenant = 'cpoTenant',
+}
+
 @Table
 export class ClientCredentialsRole extends Model implements ICredentialsRole {
   // todo seems like CredentialsRole base may be better fit as an interface

@@ -9,15 +9,15 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { ConnectorType } from './ConnectorType';
-import { ConnectorFormat } from './ConnectorFormat';
-import { PowerType } from './PowerType';
+import { ConnectorType } from '../ConnectorType';
+import { ConnectorFormat } from '../ConnectorFormat';
+import { PowerType } from '../PowerType';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
+import { Optional } from '../../util/decorators/optional';
+import { Enum } from '../../util/decorators/enum';
+import { OcpiResponse } from '../ocpi.response';
 
-export class Connector {
+export class ConnectorDTO {
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()
@@ -63,17 +63,17 @@ export class Connector {
   last_updated!: Date;
 }
 
-export class ConnectorResponse extends OcpiResponse<Connector> {
+export class ConnectorResponse extends OcpiResponse<ConnectorDTO> {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => Connector)
+  @Type(() => ConnectorDTO)
   @ValidateNested()
-  data!: Connector;
+  data?: ConnectorDTO | undefined;
 }
 
-export class ConnectorListResponse extends OcpiResponse<Connector[]> {
+export class ConnectorListResponse extends OcpiResponse<ConnectorDTO[]> {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => Connector)
-  data!: Connector[];
+  @Type(() => ConnectorDTO)
+  data!: ConnectorDTO[];
 }

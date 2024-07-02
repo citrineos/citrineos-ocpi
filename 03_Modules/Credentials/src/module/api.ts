@@ -63,7 +63,7 @@ export class CredentialsModuleApi
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
     const clientInformation =
-      await this.credentialsService?.getClientInformation(token);
+      await this.credentialsService?.getClientInformationByServerToken(token);
     const credentialsDto = toCredentialsDTO(
       clientInformation.get({ plain: true }),
     );

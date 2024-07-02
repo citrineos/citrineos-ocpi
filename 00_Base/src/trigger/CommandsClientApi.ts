@@ -1,14 +1,13 @@
-import { BaseClientApi } from './BaseClientApi';
-import { CommandResponse } from '../model/CommandResponse';
-import { OcpiResponse } from '../model/ocpi.response';
-import { PostCommandParams } from './param/commands/post.command.params';
-import { IHeaders } from 'typed-rest-client/Interfaces';
-import { ModuleId } from '../model/ModuleId';
+import {BaseClientApi} from './BaseClientApi';
+import {OcpiResponse} from '../model/ocpi.response';
+import {CommandResult} from '../model/CommandResult';
+import {Service} from 'typedi';
 
+@Service()
 export class CommandsClientApi extends BaseClientApi {
-  CONTROLLER_PATH = ModuleId.Commands;
 
-  async postCommand(
+  // todo I think we need the validate and get ocpi headers helpers
+  /*async postCommand(
     params: PostCommandParams,
   ): Promise<OcpiResponse<CommandResponse>> {
     this.validateOcpiParams(params);
@@ -18,7 +17,14 @@ export class CommandsClientApi extends BaseClientApi {
       {
         additionalHeaders,
       },
-      params.commandResult,
+      params.commandResult
+  });*/
+  async postCommandResult(
+    url: string,
+    body: CommandResult,
+  ): Promise<OcpiResponse<string> | null> {
+    return this.createRaw<OcpiResponse<string>>(url, body, {}).then(
+      (response) => response.result,
     );
   }
 }
