@@ -1,23 +1,23 @@
-import { IOcpiLocationMapper } from './IOcpiLocationMapper';
-import { OcpiLocation } from '../model/OcpiLocation';
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
-import { GeoLocation } from '../model/GeoLocation';
-import { Location } from '@citrineos/data';
-import { EvseStatus } from '../model/EvseStatus';
-import { ConnectorEnumType, ConnectorStatusEnumType } from '@citrineos/base';
-import { Capability } from '../model/Capability';
-import { ConnectorType } from '../model/ConnectorType';
-import { ConnectorFormat } from '../model/ConnectorFormat';
-import { PowerType } from '../model/PowerType';
-import { ChargingStationVariableAttributes } from '../model/variable-attributes/ChargingStationVariableAttributes';
-import { EvseVariableAttributes } from '../model/variable-attributes/EvseVariableAttributes';
-import { OcpiEvse } from '../model/OcpiEvse';
-import { ConnectorVariableAttributes } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiConnector } from '../model/OcpiConnector';
-import { Service } from 'typedi';
-import { NOT_APPLICABLE } from '../util/consts';
+import {IOcpiLocationMapper} from './IOcpiLocationMapper';
+import {OcpiLocation, OcpiLocationProps} from '../model/OcpiLocation';
+import {LocationDTO} from '../model/DTO/LocationDTO';
+import {EvseDTO, UID_FORMAT} from '../model/DTO/EvseDTO';
+import {ConnectorDTO} from '../model/DTO/ConnectorDTO';
+import {GeoLocation} from '../model/GeoLocation';
+import {Location} from '@citrineos/data';
+import {EvseStatus} from '../model/EvseStatus';
+import {ConnectorEnumType, ConnectorStatusEnumType} from '@citrineos/base';
+import {Capability} from '../model/Capability';
+import {ConnectorType} from '../model/ConnectorType';
+import {ConnectorFormat} from '../model/ConnectorFormat';
+import {PowerType} from '../model/PowerType';
+import {ChargingStationVariableAttributes} from '../model/variable-attributes/ChargingStationVariableAttributes';
+import {EvseVariableAttributes} from '../model/variable-attributes/EvseVariableAttributes';
+import {OcpiEvse} from '../model/OcpiEvse';
+import {ConnectorVariableAttributes} from '../model/variable-attributes/ConnectorVariableAttributes';
+import {OcpiConnector} from '../model/OcpiConnector';
+import {Service} from 'typedi';
+import {NOT_APPLICABLE} from '../util/consts';
 
 @Service()
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
@@ -46,7 +46,6 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  // TODO pass credentials
   mapToOcpiLocation(
     citrineLocation: Location,
     chargingStationVariableAttributesMap: Record<
@@ -59,9 +58,10 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     ocpiLocation.id = citrineLocation.id;
 
-    // TODO update with credentials
-    ocpiLocation.country_code = 'US'; // TODO update with credentials
-    ocpiLocation.party_id = 'COS'; // TODO update with credentials
+    if (ocpiLocationInfo) {
+      ocpiLocation.country_code = ocpiLocationInfo[OcpiLocationProps.countryCode];
+      ocpiLocation.party_id = ocpiLocationInfo[OcpiLocationProps.partyId];
+    }
 
     // TODO update with dynamic data
     ocpiLocation.last_updated = ocpiLocationInfo?.lastUpdated ?? new Date(); // TODO better fallback

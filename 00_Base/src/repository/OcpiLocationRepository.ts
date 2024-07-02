@@ -1,12 +1,12 @@
-import { Service } from 'typedi';
-import { OcpiLocation } from '../model/OcpiLocation';
-import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { ILogObj, Logger } from 'tslog';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { OcpiNamespace } from '../util/ocpi.namespace';
-import { SystemConfig } from '@citrineos/base';
-import { Op } from 'sequelize';
+import {Service} from 'typedi';
+import {OcpiLocation, OcpiLocationProps} from '../model/OcpiLocation';
+import {SequelizeRepository} from '@citrineos/data';
+import {OcpiServerConfig} from '../config/ocpi.server.config';
+import {ILogObj, Logger} from 'tslog';
+import {OcpiSequelizeInstance} from '../util/sequelize';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {SystemConfig} from '@citrineos/base';
+import {Op} from 'sequelize';
 
 /**
  * Repository for OCPI Location
@@ -31,9 +31,11 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     offset: number,
     dateFrom?: Date,
     dateTo?: Date,
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
   ): Promise<OcpiLocation[]> {
     return await this.readAllByQuery({
-      ...this.createDateQuery(dateFrom, dateTo),
+      ...this.createDateQuery(dateFrom, dateTo, cpoCountryCode, cpoPartyId),
       limit,
       offset,
     });
@@ -66,7 +68,12 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     }
   }
 
-  private createDateQuery(dateFrom?: Date, dateTo?: Date) {
+  private createDateQuery(
+    dateFrom?: Date,
+    dateTo?: Date,
+    cpoCountryCode?: string,
+    cpoPartyId?: string
+  ) {
     if (!dateFrom && !dateTo) {
       return {};
     }
@@ -79,6 +86,11 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
 
     if (dateTo) {
       query.where.lastUpdated[Op.lt] = dateTo;
+    }
+
+    if (cpoCountryCode && cpoPartyId) {
+      query.where[OcpiLocationProps.countryCode] = cpoCountryCode;
+      query.where[OcpiLocationProps.partyId] = cpoPartyId;
     }
 
     return query;
