@@ -165,8 +165,8 @@ export class SessionMapper {
 
   private getLocationsForTransactions = async (
     transactions: Transaction[],
-    _cpoCountryCode?: string,
-    _cpoPartyId?: string,
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
   ): Promise<{ [key: string]: OcpiLocation }> => {
     const transactionIdToLocationMap: { [key: string]: OcpiLocation } = {};
     for (const transaction of transactions) {
@@ -182,7 +182,9 @@ export class SessionMapper {
       if (!ocpiLocation) {
         throw new Error(`todo`); // todo
       }
-      transactionIdToLocationMap[transaction.id] = ocpiLocation;
+      if (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode && ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId) {
+        transactionIdToLocationMap[transaction.id] = ocpiLocation;
+      }
     }
 
     return transactionIdToLocationMap;
