@@ -46,6 +46,7 @@ export class CommandExecutor {
         idToken: startSession.token.contract_id,
         type: IdTokenEnumType.eMAID,
       },
+      evseId: evse.evseId,
     } as RequestStartTransactionRequest;
 
     this.abstractModule.sendCall(

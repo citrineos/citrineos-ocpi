@@ -37,7 +37,7 @@ export class LocationsHandlers extends AbstractModule {
    */
   protected _requests: CallAction[] = [
     CallAction.NotifyEvent,
-    CallAction.StatusNotification,
+    // CallAction.StatusNotification,
   ];
   protected _responses: CallAction[] = [];
 

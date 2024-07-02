@@ -170,7 +170,7 @@ export class SessionMapper {
   ): Promise<{ [key: string]: OcpiLocation }> => {
     const transactionIdToLocationMap: { [key: string]: OcpiLocation } = {};
     for (const transaction of transactions) {
-      const chargingStation = transaction.station;
+      const chargingStation = await transaction.$get("station");
       if (!chargingStation) {
         throw new Error(`todo`); // todo
       }
