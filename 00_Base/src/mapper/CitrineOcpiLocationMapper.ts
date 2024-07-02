@@ -118,7 +118,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiEvseInformation?: OcpiEvse,
   ): EvseDTO {
     const evse = new EvseDTO();
-    evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id); // format evse uid
+    evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id);
     evse.status =
       CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(
         evseAttributes.evse_availability_state,
@@ -188,10 +188,10 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     Helpers
   */
 
-  private getCoordinates(ocppCoordinates: [number, number]): GeoLocation {
+  private getCoordinates(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
-    geoLocation.latitude = String(ocppCoordinates[0]);
-    geoLocation.longitude = String(ocppCoordinates[1]);
+    geoLocation.latitude = String(ocppCoordinates['coordinates'][0]);
+    geoLocation.longitude = String(ocppCoordinates['coordinates'][1]);
     return geoLocation;
   }
 
