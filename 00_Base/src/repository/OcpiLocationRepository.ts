@@ -6,6 +6,7 @@ import { ILogObj, Logger } from 'tslog';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { SystemConfig } from '@citrineos/base';
+import { Op } from 'sequelize';
 
 /**
  * Repository for OCPI Location
@@ -73,11 +74,11 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     const query: any = { where: { lastUpdated: {} } };
 
     if (dateFrom) {
-      query.where.lastUpdated['gte'] = dateFrom;
+      query.where.lastUpdated[Op.gte] = dateFrom;
     }
 
     if (dateTo) {
-      query.where.lastUpdated['lt'] = dateTo;
+      query.where.lastUpdated[Op.lt] = dateTo;
     }
 
     return query;

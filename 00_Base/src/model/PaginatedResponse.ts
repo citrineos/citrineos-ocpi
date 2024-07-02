@@ -1,7 +1,6 @@
 import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
 import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { Paginated } from '../util/decorators/paginated';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;

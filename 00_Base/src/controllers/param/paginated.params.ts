@@ -29,11 +29,11 @@ export class PaginatedParams {
     return this._date_to ? new Date(this._date_to!) : undefined;
   }
 
-  set date_from(value: Date) {
-    this._date_from = value.toISOString();
+  set date_from(value: string) {
+    this._date_from = value;
   }
 
-  set date_to(value: Date) {
-    this._date_to = value.toISOString();
+  set date_to(value: string) {
+    this._date_to = value;
   }
 }
