@@ -1,7 +1,8 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import {Column, DataType, Model, Table} from 'sequelize-typescript';
+import {IsNotEmpty, IsString, Length} from 'class-validator';
 
 export enum OcpiLocationProps {
+  locationId = 'locationId',
   publish = 'publish',
   lastUpdated = 'lastUpdated',
   partyId = 'party_id',
@@ -16,6 +17,10 @@ export enum OcpiLocationProps {
  */
 @Table
 export class OcpiLocation extends Model {
+
+  @Column(DataType.INTEGER)
+  [OcpiLocationProps.locationId]!: number;
+
   @Column(DataType.BOOLEAN)
   [OcpiLocationProps.publish]?: boolean;
 

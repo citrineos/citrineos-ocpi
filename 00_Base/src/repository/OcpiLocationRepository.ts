@@ -61,7 +61,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
         {
           lastUpdated: location.lastUpdated,
         },
-        savedOcpiLocation.id,
+        String(savedOcpiLocation.id),
       );
     }
   }
@@ -71,7 +71,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
       return {};
     }
 
-    const query: any = { where: { lastUpdated: {} } };
+    const query: any = {where: {lastUpdated: {}}};
 
     if (dateFrom) {
       query.where.lastUpdated[Op.gte] = dateFrom;
