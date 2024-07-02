@@ -43,7 +43,7 @@ export class CommandExecutor {
     const request = {
       remoteStartId: responseUrlEntity.id,
       idToken: {
-        idToken: startSession.token.contract_id,
+        idToken: startSession.token.uid,
         type: IdTokenEnumType.eMAID,
       },
       evseId: evse.evseId,
