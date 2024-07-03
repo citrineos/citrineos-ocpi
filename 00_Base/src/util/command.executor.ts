@@ -112,15 +112,10 @@ export class CommandExecutor {
     duration: number,
     responseUrl: string,
   ) {
-    // const transaction =
-    //   await this.transactionRepo.findByTransactionId(sessionId);
-
-    const transaction = {
-      stationId: 'CS01',
-      evse: {
-        id: 1,
-      },
-    };
+    // based on the current assumption, transactionId is equal to sessionId
+    // If this map assumption changes, this needs to be changed
+    const transaction =
+        await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
@@ -150,29 +145,30 @@ export class CommandExecutor {
     sessionId: string,
     responseUrl: string,
   ) {
-    // const transaction =
-    //   await this.transactionRepo.findByTransactionId(sessionId);
-
-    const transaction = {
-      stationId: 'CS01',
-      evse: {
-        id: 1,
-      },
-    };
+    // based on the current assumption, transactionId is equal to sessionId
+    // If this map assumption changes, this needs to be changed
+    const transaction =
+        await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
     }
 
-    // TODO: fetch chargingProfileId
+    const chargingProfiles = await this.sessionChargingProfileRepo.readAllByQuery({
+      where: {
+        sessionId: sessionId // sessionId is unique constraint
+      }
+    });
+    if (!chargingProfiles || chargingProfiles.length === 0) {
+      throw new NotFoundError('Charging profile not found');
+    }
 
     const correlationId = uuidv4();
 
     await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
 
     const request = {
-      // TODO: use chargingProfileId from transaction
-      chargingProfileId: 1,
+      chargingProfileId: chargingProfiles[0].chargingProfileId,
     } as ClearChargingProfileRequest;
 
     this.abstractModule.sendCall(
