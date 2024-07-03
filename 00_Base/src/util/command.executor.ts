@@ -27,7 +27,7 @@ export class CommandExecutor {
   public async executeStartSession(startSession: StartSession): Promise<void> {
     // TODO: update to handle optional evse uid.
     const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
-      startSession.evse_uid!
+      startSession.evse_uid!,
     );
 
     if (!evse) {

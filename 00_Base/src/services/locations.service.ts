@@ -19,8 +19,15 @@ import {
 import { EvseDTO, EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { ConnectorDTO, ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
-import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
+import {
+  buildOcpiResponse,
+  OcpiResponseStatusCode,
+} from '../model/ocpi.response';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
@@ -44,7 +51,7 @@ import { OcpiConnector } from '../model/OcpiConnector';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
-import {OcpiHeaders} from "../model/OcpiHeaders";
+import { OcpiHeaders } from '../model/OcpiHeaders';
 
 @Service()
 export class LocationsService {
@@ -57,7 +64,7 @@ export class LocationsService {
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
     private locationsClientApi: LocationsClientApi,
-  ) { }
+  ) {}
 
   LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
     `Location ${locationId} does not exist.`;
@@ -105,13 +112,13 @@ export class LocationsService {
         locationsTotal,
         limit,
         offset,
-        []
+        [],
       ) as PaginatedLocationResponse;
     }
 
     const citrineLocations = await this.locationRepository.readAllByQuery({
       where: {
-        id: [...Object.keys(ocpiLocationInfosMap).map((id) => Number(id))]
+        id: [...Object.keys(ocpiLocationInfosMap).map((id) => Number(id))],
       },
       include: [ChargingStation],
     });
@@ -138,7 +145,7 @@ export class LocationsService {
       locationsTotal,
       limit,
       offset,
-      [...ocpiLocations]
+      [...ocpiLocations],
     ) as PaginatedLocationResponse;
   }
 
@@ -149,11 +156,13 @@ export class LocationsService {
     if (!citrineLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
-        this.LOCATION_NOT_FOUND_MESSAGE(locationId)
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as LocationResponse;
     }
 
-    const ocpiLocationInfo = await this.ocpiLocationRepository.readByKey(citrineLocation.id);
+    const ocpiLocationInfo = await this.ocpiLocationRepository.readByKey(
+      citrineLocation.id,
+    );
 
     const stationIds = citrineLocation.chargingPool.map(
       (chargingStation: ChargingStation) => chargingStation.id,
@@ -165,10 +174,13 @@ export class LocationsService {
     const mappedLocation = this.locationMapper.mapToOcpiLocation(
       citrineLocation,
       chargingStationVariableAttributesMap,
-      ocpiLocationInfo
+      ocpiLocationInfo,
     );
 
-    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedLocation) as LocationResponse;
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      mappedLocation,
+    ) as LocationResponse;
   }
 
   async getEvseById(
@@ -182,7 +194,7 @@ export class LocationsService {
     if (!citrineLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
-        this.LOCATION_NOT_FOUND_MESSAGE(locationId)
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as EvseResponse;
     }
 
@@ -193,7 +205,7 @@ export class LocationsService {
     if (matchingChargingStation.length === 0) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
-        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId))
+        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId)),
       ) as EvseResponse;
     }
 
@@ -203,13 +215,12 @@ export class LocationsService {
         Number(evseId),
       );
 
-    const ocpiEvseInfo = await this.ocpiEvseRepository
-      .readOnlyOneByQuery({
-        where: {
-          stationId,
-          evseId
-        }
-      })
+    const ocpiEvseInfo = await this.ocpiEvseRepository.readOnlyOneByQuery({
+      where: {
+        stationId,
+        evseId,
+      },
+    });
 
     const mappedEvse = this.locationMapper.mapToOcpiEvse(
       citrineLocation,
@@ -218,7 +229,10 @@ export class LocationsService {
       ocpiEvseInfo,
     );
 
-    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedEvse);
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      mappedEvse,
+    );
   }
 
   async getConnectorById(
@@ -233,7 +247,7 @@ export class LocationsService {
     if (!citrineLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
-        this.LOCATION_NOT_FOUND_MESSAGE(locationId)
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as ConnectorResponse;
     }
 
@@ -244,7 +258,7 @@ export class LocationsService {
     if (matchingChargingStation.length === 0) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
-        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId))
+        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId)),
       ) as ConnectorResponse;
     }
 
@@ -258,20 +272,28 @@ export class LocationsService {
     if (!evseVariableAttributesMap[evseId].connectors) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
-        this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId)
+        this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId),
       ) as ConnectorResponse;
     }
 
-    const ocpiConnectorInfo = await this.ocpiConnectorRepository.getConnectorById(stationId, evseId, connectorId);
+    const ocpiConnectorInfo =
+      await this.ocpiConnectorRepository.getConnectorById(
+        stationId,
+        evseId,
+        connectorId,
+      );
 
     const mappedConnector = this.locationMapper.mapToOcpiConnector(
       Number(connectorId),
       evseVariableAttributesMap[evseId],
       evseVariableAttributesMap[evseId].connectors[connectorId],
-      ocpiConnectorInfo
+      ocpiConnectorInfo,
     );
 
-    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedConnector);
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      mappedConnector,
+    );
   }
 
   /**
@@ -328,11 +350,11 @@ export class LocationsService {
     const lastUpdated = partialEvse.last_updated ?? new Date();
 
     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
+      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
     );
 
     await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
+      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
     );
 
     const params = PatchEvseParams.build(
@@ -363,15 +385,20 @@ export class LocationsService {
     const lastUpdated = partialConnector.last_updated ?? new Date();
 
     await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
-      OcpiConnector.buildWithLastUpdated(connectorId, evseId, stationId, lastUpdated)
+      OcpiConnector.buildWithLastUpdated(
+        connectorId,
+        evseId,
+        stationId,
+        lastUpdated,
+      ),
     );
 
     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
+      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
     );
 
     await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
+      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
     );
 
     const params = PatchConnectorParams.build(

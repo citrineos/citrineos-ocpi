@@ -29,7 +29,7 @@ export class OcpiEvse extends Model {
   static buildWithLastUpdated(
     evseId: number,
     stationId: string,
-    lastUpdated: Date
+    lastUpdated: Date,
   ): OcpiEvse {
     const evse = new OcpiEvse();
     evse.evseId = evseId;

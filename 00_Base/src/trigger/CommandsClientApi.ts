@@ -1,13 +1,12 @@
-import {BaseClientApi} from './BaseClientApi';
-import {OcpiResponse} from '../model/ocpi.response';
-import {CommandResult} from '../model/CommandResult';
-import {Service} from 'typedi';
+import { BaseClientApi } from './BaseClientApi';
+import { OcpiResponse } from '../model/ocpi.response';
+import { CommandResult } from '../model/CommandResult';
+import { Service } from 'typedi';
 
 @Service()
 export class CommandsClientApi extends BaseClientApi {
-
   // todo I think we need the validate and get ocpi headers helpers
-  /*async postCommand(
+  /* async postCommand(
     params: PostCommandParams,
   ): Promise<OcpiResponse<CommandResponse>> {
     this.validateOcpiParams(params);

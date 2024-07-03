@@ -1,18 +1,22 @@
-import {Service} from 'typedi';
-import {Session} from '../model/Session';
-import {MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest,} from '@citrineos/base';
-import {AuthMethod} from '../model/AuthMethod';
-import {Transaction} from '@citrineos/data';
-import {ChargingPeriod} from '../model/ChargingPeriod';
-import {CdrDimensionType} from '../model/CdrDimensionType';
-import {Token} from '../model/Token';
-import {OcpiLocation, OcpiLocationProps} from '../model/OcpiLocation';
-import {CdrToken} from '../model/CdrToken';
-import {SessionStatus} from '../model/SessionStatus';
-import {CredentialsService} from '../services/credentials.service';
-import {OcpiLocationRepository} from '../repository/OcpiLocationRepository';
-import {ILogObj, Logger} from "tslog";
-
+import { Service } from 'typedi';
+import { Session } from '../model/Session';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
+import { AuthMethod } from '../model/AuthMethod';
+import { Transaction } from '@citrineos/data';
+import { ChargingPeriod } from '../model/ChargingPeriod';
+import { CdrDimensionType } from '../model/CdrDimensionType';
+import { Token } from '../model/Token';
+import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
+import { CdrToken } from '../model/CdrToken';
+import { SessionStatus } from '../model/SessionStatus';
+import { CredentialsService } from '../services/credentials.service';
+import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { ILogObj, Logger } from 'tslog';
 
 @Service()
 export class SessionMapper {
@@ -20,8 +24,7 @@ export class SessionMapper {
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
-  ) {
-  }
+  ) {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -170,7 +173,7 @@ export class SessionMapper {
   ): Promise<{ [key: string]: OcpiLocation }> => {
     const transactionIdToLocationMap: { [key: string]: OcpiLocation } = {};
     for (const transaction of transactions) {
-      const chargingStation = await transaction.$get("station");
+      const chargingStation = await transaction.$get('station');
       if (!chargingStation) {
         throw new Error(`todo`); // todo
       }
@@ -178,11 +181,16 @@ export class SessionMapper {
       if (!locationId) {
         throw new Error(`todo`); // todo
       }
-      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(String(locationId));
+      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(
+        String(locationId),
+      );
       if (!ocpiLocation) {
         throw new Error(`todo`); // todo
       }
-      if (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode && ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId) {
+      if (
+        ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&
+        ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId
+      ) {
         transactionIdToLocationMap[transaction.id] = ocpiLocation;
       }
     }
@@ -195,7 +203,6 @@ export class SessionMapper {
     mspCountryCode?: string,
     mspPartyId?: string,
   ): { [key: string]: Token } {
-
     const transactionIdToTokenMap: { [key: string]: Token } = {};
 
     // TODO: Create mapping between Transaction.idToken and OCPI Token

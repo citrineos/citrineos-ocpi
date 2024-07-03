@@ -1,18 +1,18 @@
-import {GetConnectorParams} from './param/locations/get.connector.params';
-import {GetEvseParams} from './param/locations/get.evse.params';
-import {GetLocationParams} from './param/locations/get.location.params';
-import {PatchConnectorParams} from './param/locations/patch.connector.params';
-import {PatchEvseParams} from './param/locations/patch.evse.params';
-import {PatchLocationParams} from './param/locations/patch.location.params';
-import {PutConnectorParams} from './param/locations/put.connector.params';
-import {PutEvseParams} from './param/locations/put.evse.params';
-import {PutLocationParams} from './param/locations/put.location.params';
-import {IHeaders} from 'typed-rest-client/Interfaces';
-import {BaseClientApi} from './BaseClientApi';
-import {OcpiResponse} from '../model/ocpi.response';
-import {ConnectorResponse} from "../model/DTO/ConnectorDTO";
-import {LocationResponse} from "../model/DTO/LocationDTO";
-import {EvseResponse} from "../model/DTO/EvseDTO";
+import { GetConnectorParams } from './param/locations/get.connector.params';
+import { GetEvseParams } from './param/locations/get.evse.params';
+import { GetLocationParams } from './param/locations/get.location.params';
+import { PatchConnectorParams } from './param/locations/patch.connector.params';
+import { PatchEvseParams } from './param/locations/patch.evse.params';
+import { PatchLocationParams } from './param/locations/patch.location.params';
+import { PutConnectorParams } from './param/locations/put.connector.params';
+import { PutEvseParams } from './param/locations/put.evse.params';
+import { PutLocationParams } from './param/locations/put.location.params';
+import { IHeaders } from 'typed-rest-client/Interfaces';
+import { BaseClientApi } from './BaseClientApi';
+import { OcpiResponse } from '../model/ocpi.response';
+import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import { LocationResponse } from '../model/DTO/LocationDTO';
+import { EvseResponse } from '../model/DTO/EvseDTO';
 
 export class LocationsClientApi extends BaseClientApi {
   async getConnector(params: GetConnectorParams): Promise<ConnectorResponse> {

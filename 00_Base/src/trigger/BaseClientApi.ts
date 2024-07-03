@@ -1,12 +1,12 @@
-import {IRequestOptions, IRestResponse, RestClient} from 'typed-rest-client';
-import {IHeaders, IRequestQueryParams} from 'typed-rest-client/Interfaces';
-import {OcpiRegistrationParams} from './util/ocpi.registration.params';
-import {OcpiParams} from './util/ocpi.params';
-import {UnsuccessfulRequestException} from '../exception/UnsuccessfulRequestException';
-import {HttpHeader} from '@citrineos/base';
-import {OcpiHttpHeader} from '../util/ocpi.http.header';
-import {base64Encode} from '../util/util';
-import {VersionNumber} from '../model/VersionNumber';
+import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
+import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
+import { OcpiRegistrationParams } from './util/ocpi.registration.params';
+import { OcpiParams } from './util/ocpi.params';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
+import { HttpHeader } from '@citrineos/base';
+import { OcpiHttpHeader } from '../util/ocpi.http.header';
+import { base64Encode } from '../util/util';
+import { VersionNumber } from '../model/VersionNumber';
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -223,7 +223,10 @@ export class BaseClientApi {
     return this.getPathForVersion(params.version);
   }
 
-  protected getPath(version = VersionNumber.TWO_DOT_TWO_DOT_ONE, path: string = '') {
+  protected getPath(
+    version = VersionNumber.TWO_DOT_TWO_DOT_ONE,
+    path: string = '',
+  ) {
     return `${this.getPathForVersion(version)}/${path}`;
   }
 

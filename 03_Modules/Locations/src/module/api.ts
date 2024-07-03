@@ -24,8 +24,8 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
-import {FunctionalEndpointParams} from "@citrineos/ocpi-base";
-import {OcpiHeaders} from "@citrineos/ocpi-base";
+import { FunctionalEndpointParams } from '@citrineos/ocpi-base';
+import { OcpiHeaders } from '@citrineos/ocpi-base';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,

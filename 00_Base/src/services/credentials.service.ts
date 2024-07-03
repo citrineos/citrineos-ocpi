@@ -1,44 +1,50 @@
-import {v4 as uuidv4} from 'uuid';
-import {Service} from 'typedi';
-import {InternalServerError, NotFoundError} from 'routing-controllers';
+import { v4 as uuidv4 } from 'uuid';
+import { Service } from 'typedi';
+import { InternalServerError, NotFoundError } from 'routing-controllers';
 import {
   ClientCredentialsRole,
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import {ClientInformation, ClientInformationProps,} from '../model/ClientInformation';
-import {ClientInformationRepository} from '../repository/ClientInformationRepository';
-import {ClientVersion} from '../model/ClientVersion';
-import {CredentialsDTO} from '../model/DTO/CredentialsDTO';
-import {Endpoint} from '../model/Endpoint';
-import {OcpiLogger} from '../util/logger';
-import {OcpiNamespace} from '../util/ocpi.namespace';
-import {OcpiSequelizeInstance} from '../util/sequelize';
-import {VersionNumber} from '../model/VersionNumber';
-import {VersionsClientApi} from '../trigger/VersionsClientApi';
-import {AlreadyRegisteredException} from '../exception/AlreadyRegisteredException';
-import {NotRegisteredException} from '../exception/NotRegisteredException';
-import {BusinessDetails} from '../model/BusinessDetails';
-import {Image} from '../model/Image';
-import {CredentialsRoleDTO} from '../model/DTO/CredentialsRoleDTO';
-import {Role} from '../model/Role';
-import {BusinessDetailsDTO} from '../model/DTO/BusinessDetailsDTO';
-import {ImageDTO} from '../model/DTO/ImageDTO';
-import {ImageCategory} from '../model/ImageCategory';
-import {ImageType} from '../model/ImageType';
-import {CredentialsClientApi} from '../trigger/CredentialsClientApi';
-import {VersionRepository} from '../repository/VersionRepository';
-import {VersionEndpoint} from '../model/VersionEndpoint';
-import {CpoTenant, CpoTenantProps} from '../model/CpoTenant';
-import {ServerCredentialsRole, ServerCredentialsRoleProps} from '../model/ServerCredentialsRole';
-import {ServerVersion} from '../model/ServerVersion';
-import {ModuleId} from '../model/ModuleId';
-import {InterfaceRole} from '../model/InterfaceRole';
-import {CredentialsResponse} from '../model/CredentialsResponse';
-import {buildPostCredentialsParams} from '../trigger/param/credentials/post.credentials.params';
-import {OcpiResponseStatusCode} from '../model/ocpi.response';
-import {ServerCredentialsRoleRepository} from '../repository/ServerCredentialsRoleRepository';
-import {ClientCredentialsRoleRepository} from '../repository/ClientCredentialsRoleRepository';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
+import { ClientInformationRepository } from '../repository/ClientInformationRepository';
+import { ClientVersion } from '../model/ClientVersion';
+import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
+import { Endpoint } from '../model/Endpoint';
+import { OcpiLogger } from '../util/logger';
+import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiSequelizeInstance } from '../util/sequelize';
+import { VersionNumber } from '../model/VersionNumber';
+import { VersionsClientApi } from '../trigger/VersionsClientApi';
+import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException';
+import { NotRegisteredException } from '../exception/NotRegisteredException';
+import { BusinessDetails } from '../model/BusinessDetails';
+import { Image } from '../model/Image';
+import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
+import { Role } from '../model/Role';
+import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
+import { ImageDTO } from '../model/DTO/ImageDTO';
+import { ImageCategory } from '../model/ImageCategory';
+import { ImageType } from '../model/ImageType';
+import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
+import { VersionRepository } from '../repository/VersionRepository';
+import { VersionEndpoint } from '../model/VersionEndpoint';
+import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
+import { ServerVersion } from '../model/ServerVersion';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { CredentialsResponse } from '../model/CredentialsResponse';
+import { buildPostCredentialsParams } from '../trigger/param/credentials/post.credentials.params';
+import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
+import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
 
 const clientInformationInclude = [
   {
@@ -87,8 +93,7 @@ export class CredentialsService {
     readonly versionRepository: VersionRepository,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
     readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
-  ) {
-  }
+  ) {}
 
   async getClientCredentialsRoleByCountryCodeAndPartyId(
     countryCode: string,
@@ -523,7 +528,7 @@ export class CredentialsService {
     if (
       !postCredentialsResponse ||
       postCredentialsResponse.status_code !==
-      OcpiResponseStatusCode.GenericSuccessCode ||
+        OcpiResponseStatusCode.GenericSuccessCode ||
       !postCredentialsResponse.data
     ) {
       throw new InternalServerError(
@@ -668,7 +673,7 @@ export class CredentialsService {
           {
             ...(credentialsRoleDTO as Partial<ClientCredentialsRole>),
             [ClientCredentialsRoleProps.clientInformationId]:
-            clientInformation.id,
+              clientInformation.id,
           },
           {
             include: [

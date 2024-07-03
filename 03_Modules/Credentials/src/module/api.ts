@@ -146,7 +146,7 @@ export class CredentialsModuleApi
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
-  @Post('/admin')
+  @Post('/register-credentials-token-a')
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

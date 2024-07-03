@@ -1,5 +1,5 @@
-import {Column, DataType, Model, Table} from 'sequelize-typescript';
-import {IsNotEmpty, IsString, Length} from 'class-validator';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export enum OcpiLocationProps {
   locationId = 'locationId',
@@ -17,7 +17,6 @@ export enum OcpiLocationProps {
  */
 @Table
 export class OcpiLocation extends Model {
-
   @Column(DataType.INTEGER)
   [OcpiLocationProps.locationId]!: number;
 
@@ -39,10 +38,7 @@ export class OcpiLocation extends Model {
   @Length(2, 2)
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
 
-  static buildWithLastUpdated(
-    id: number,
-    lastUpdated: Date
-  ): OcpiLocation {
+  static buildWithLastUpdated(id: number, lastUpdated: Date): OcpiLocation {
     const location = new OcpiLocation();
     location.id = id;
     location.lastUpdated = lastUpdated;

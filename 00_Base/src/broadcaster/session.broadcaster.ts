@@ -1,13 +1,16 @@
-import {Service} from 'typedi';
-import {Session} from '../model/Session';
-import {SessionsClientApi} from '../trigger/SessionsClientApi';
-import {PutSessionParams} from '../trigger/param/sessions/put.session.params';
-import {SequelizeTransactionEventRepository, Transaction,} from '@citrineos/data';
-import {SessionMapper} from '../mapper/session.mapper';
-import {CredentialsService} from '../services/credentials.service';
-import {ILogObj, Logger} from "tslog";
-import {BaseBroadcaster} from "./BaseBroadcaster";
-import {ModuleId} from "../model/ModuleId";
+import { Service } from 'typedi';
+import { Session } from '../model/Session';
+import { SessionsClientApi } from '../trigger/SessionsClientApi';
+import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
+import {
+  SequelizeTransactionEventRepository,
+  Transaction,
+} from '@citrineos/data';
+import { SessionMapper } from '../mapper/session.mapper';
+import { CredentialsService } from '../services/credentials.service';
+import { ILogObj, Logger } from 'tslog';
+import { BaseBroadcaster } from './BaseBroadcaster';
+import { ModuleId } from '../model/ModuleId';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -38,10 +41,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   private async sendSessionToClients(session: Session): Promise<void> {
-    const params = PutSessionParams.build(
-      session.id,
-      session,
-    );
+    const params = PutSessionParams.build(session.id, session);
     const cpoCountryCode = session.country_code;
     const cpoPartyId = session.party_id;
     await this.broadcastToClients(
@@ -50,7 +50,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
       ModuleId.Sessions,
       params,
       this.sessionsClientApi,
-      this.sessionsClientApi.putSession
+      this.sessionsClientApi.putSession,
     );
   }
 }
