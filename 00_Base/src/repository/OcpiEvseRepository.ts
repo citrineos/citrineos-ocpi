@@ -1,11 +1,12 @@
 import { Service } from 'typedi';
-import { OcpiEvse } from '../model/Evse';
+import { OcpiEvse } from '../model/OcpiEvse';
 import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { SystemConfig } from '@citrineos/base';
+import { EXTRACT_EVSE_ID, EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
 
 /**
  * Repository for OCPIEvse
@@ -23,6 +24,32 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
       logger,
       ocpiSequelizeInstance.sequelize,
     );
+  }
+
+  async getOcpiEvseByEvseUid(
+    evseUid: string
+  ): Promise<OcpiEvse | undefined> {
+    const evseId = EXTRACT_EVSE_ID(evseUid);
+    const stationId = EXTRACT_STATION_ID(evseUid);
+
+    return await this.readOnlyOneByQuery({
+      where: {
+        evseId,
+        stationId
+      }
+    });
+  }
+
+  async getEvseByEvseId(
+    evseId: number,
+    stationId: string
+  ): Promise<OcpiEvse | undefined> {
+    return await this.readOnlyOneByQuery({
+      where: {
+        evseId,
+        stationId
+      }
+    });
   }
 
   async createOrUpdateOcpiEvse(evse: OcpiEvse): Promise<void> {

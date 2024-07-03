@@ -12,22 +12,22 @@ import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { StopSession } from '../model/StopSession';
 import { NotFoundError } from 'routing-controllers';
-import { OcpiEvseEntityRepository } from '../repository/ocpi.evse.repository';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 
 @Service()
 export class CommandExecutor {
   constructor(
     readonly abstractModule: AbstractModule,
     readonly responseUrlRepo: ResponseUrlRepository,
-    readonly ocpiEvseEntityRepo: OcpiEvseEntityRepository,
+    readonly ocpiEvseEntityRepo: OcpiEvseRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
   ) {}
 
   public async executeStartSession(startSession: StartSession): Promise<void> {
     // TODO: update to handle optional evse uid.
-    const evse = await this.ocpiEvseEntityRepo.findByUid(
-      startSession.evse_uid!,
+    const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
+      startSession.evse_uid!
     );
 
     if (!evse) {
@@ -43,13 +43,14 @@ export class CommandExecutor {
     const request = {
       remoteStartId: responseUrlEntity.id,
       idToken: {
-        idToken: startSession.token.contract_id,
+        idToken: startSession.token.uid,
         type: IdTokenEnumType.eMAID,
       },
+      evseId: evse.evseId,
     } as RequestStartTransactionRequest;
 
     this.abstractModule.sendCall(
-      evse.chargingStationId,
+      evse.stationId,
       'tenantId',
       CallAction.RequestStartTransaction,
       request,

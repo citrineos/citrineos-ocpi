@@ -159,7 +159,7 @@ export class LocationResponse extends OcpiResponse<LocationDTO> {
   @IsNotEmpty()
   @Type(() => LocationDTO)
   @ValidateNested()
-  data!: LocationDTO;
+  data?: LocationDTO | undefined;
 }
 
 export class PaginatedLocationResponse extends PaginatedResponse<LocationDTO> {

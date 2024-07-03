@@ -68,7 +68,7 @@ export class ConnectorResponse extends OcpiResponse<ConnectorDTO> {
   @IsNotEmpty()
   @Type(() => ConnectorDTO)
   @ValidateNested()
-  data!: ConnectorDTO;
+  data?: ConnectorDTO | undefined;
 }
 
 export class ConnectorListResponse extends OcpiResponse<ConnectorDTO[]> {

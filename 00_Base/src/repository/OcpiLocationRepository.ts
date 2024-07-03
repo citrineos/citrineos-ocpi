@@ -1,11 +1,12 @@
-import { Service } from 'typedi';
-import { OcpiLocation } from '../model/Location';
-import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { ILogObj, Logger } from 'tslog';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { OcpiNamespace } from '../util/ocpi.namespace';
-import { SystemConfig } from '@citrineos/base';
+import {Service} from 'typedi';
+import {OcpiLocation, OcpiLocationProps} from '../model/OcpiLocation';
+import {SequelizeRepository} from '@citrineos/data';
+import {OcpiServerConfig} from '../config/ocpi.server.config';
+import {ILogObj, Logger} from 'tslog';
+import {OcpiSequelizeInstance} from '../util/sequelize';
+import {OcpiNamespace} from '../util/ocpi.namespace';
+import {SystemConfig} from '@citrineos/base';
+import {Op} from 'sequelize';
 
 /**
  * Repository for OCPI Location
@@ -30,9 +31,11 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     offset: number,
     dateFrom?: Date,
     dateTo?: Date,
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
   ): Promise<OcpiLocation[]> {
     return await this.readAllByQuery({
-      ...this.createDateQuery(dateFrom, dateTo),
+      ...this.createQuery(dateFrom, dateTo, cpoCountryCode, cpoPartyId),
       limit,
       offset,
     });
@@ -40,44 +43,58 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
 
   async getLocationsCount(dateFrom?: Date, dateTo?: Date): Promise<number> {
     return await this.existByQuery({
-      ...this.createDateQuery(dateFrom, dateTo),
+      ...this.createQuery(dateFrom, dateTo),
     });
   }
 
-  async createOrUpdateOcpiLocation(location: OcpiLocation) {
-    const [savedOcpiLocation, ocpiLocationCreated] =
-      await this._readOrCreateByQuery({
-        where: {
-          id: location.id,
-        },
-        defaults: {
-          id: location.id,
-          lastUpdated: location.lastUpdated,
-        },
-      });
-    if (!ocpiLocationCreated) {
-      await this._updateByKey(
-        {
-          lastUpdated: location.lastUpdated,
-        },
-        savedOcpiLocation.id,
-      );
-    }
+  async getLocationByCitrineLocationId(id: number): Promise<OcpiLocation | undefined> {
+    return await this.readOnlyOneByQuery({
+      where: {
+        [OcpiLocationProps.citrineLocationId]: id
+      }
+    })
   }
 
-  private createDateQuery(dateFrom?: Date, dateTo?: Date) {
-    if (!dateFrom && !dateTo) {
+  async updateOcpiLocation(location: OcpiLocation): Promise<OcpiLocation | undefined> {
+    const existingOcpiLocation = await this.getLocationByCitrineLocationId(location[OcpiLocationProps.citrineLocationId]);
+
+    if (!existingOcpiLocation) {
+      return undefined;
+    }
+
+    const updatedOcpiLocation = await this._updateByKey(
+      {
+        [OcpiLocationProps.lastUpdated]: location[OcpiLocationProps.lastUpdated],
+      },
+      String(existingOcpiLocation.id),
+    );
+
+    return updatedOcpiLocation;
+  }
+
+  private createQuery(
+    dateFrom?: Date,
+    dateTo?: Date,
+    cpoCountryCode?: string,
+    cpoPartyId?: string
+  ) {
+    if (!dateFrom && !dateTo && !cpoCountryCode && !cpoPartyId) {
       return {};
     }
 
-    const query: any = { where: { lastUpdated: {} } };
+    const query: any = {where: { lastUpdated: { } }};
 
     if (dateFrom) {
-      query.where.lastUpdated['gte'] = dateFrom;
+      query.where[OcpiLocationProps.lastUpdated][Op.gte] = dateFrom;
     }
 
     if (dateTo) {
-      query.where.lastUpdated['lt'] = dateTo;
+      query.where[OcpiLocationProps.lastUpdated][Op.lt] = dateTo;
+    }
+
+    if (cpoCountryCode && cpoPartyId) {
+      query.where[OcpiLocationProps.countryCode] = cpoCountryCode;
+      query.where[OcpiLocationProps.partyId] = cpoPartyId;
     }
 
     return query;

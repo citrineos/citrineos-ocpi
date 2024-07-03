@@ -13,24 +13,24 @@ import {
   StatusNotificationRequest,
   SystemConfig,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
-import { ILogObj, Logger } from 'tslog';
+import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
+import {ILogObj, Logger} from 'tslog';
 import deasyncPromise from 'deasync-promise';
 import {
   AVAILABILITY_STATE_VARIABLE,
+  CitrineOcpiLocationMapper,
   CONNECTOR_COMPONENT,
   ConnectorDTO,
   EVSE_COMPONENT,
   EvseDTO,
-  LocationsService,
+  LocationsBroadcaster,
 } from '@citrineos/ocpi-base';
-import { CitrineOcpiLocationMapper } from '@citrineos/ocpi-base/dist/mapper/CitrineOcpiLocationMapper';
 
 /**
  * Component that handles provisioning related messages.
  */
 export class LocationsHandlers extends AbstractModule {
-  locationsService: LocationsService;
+  locationsBroadcaster: LocationsBroadcaster;
 
   /**
    * Fields
@@ -48,7 +48,7 @@ export class LocationsHandlers extends AbstractModule {
    *
    * @param {ICache} [cache] - The cache instance which is shared among the modules & Central System to pass information such as blacklisted actions or boot status.
    *
-   * @param {LocationsService} [locationsService] - The LocationsService holds the business logic necessary to process incoming handled requests.
+   * @param {LocationsBroadcaster} [locationsBroadcaster] - The LocationsBroadcaster holds the business logic necessary to push incoming requests to the relevant MSPs.
    *
    * @param {IMessageSender} [sender] - The `sender` parameter is an optional parameter that represents an instance of the {@link IMessageSender} interface.
    * It is used to send messages from the central system to external systems or devices. If no `sender` is provided, a default {@link RabbitMqSender} instance is created and used.
@@ -63,7 +63,7 @@ export class LocationsHandlers extends AbstractModule {
   constructor(
     config: SystemConfig,
     cache: ICache,
-    locationsService: LocationsService,
+    locationsBroadcaster: LocationsBroadcaster,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -77,7 +77,7 @@ export class LocationsHandlers extends AbstractModule {
       logger,
     );
 
-    this.locationsService = locationsService;
+    this.locationsBroadcaster = locationsBroadcaster;
 
     const timer = new Timer();
     this._logger.info('Initializing...');
@@ -154,7 +154,7 @@ export class LocationsHandlers extends AbstractModule {
 
     // TODO consolidate EVSE updates between EVSE and Connector
     for (const [evseId, partialEvse] of Object.entries(evseUpdateMap)) {
-      await this.locationsService.processEvseUpdate(
+      await this.locationsBroadcaster.broadcastOnEvseUpdate(
         stationId,
         Number(evseId),
         partialEvse,
@@ -165,7 +165,7 @@ export class LocationsHandlers extends AbstractModule {
       for (const [connectorId, partialConnector] of Object.entries(
         connectorsMap,
       )) {
-        await this.locationsService.processConnectorUpdate(
+        await this.locationsBroadcaster.broadcastOnConnectorUpdate(
           stationId,
           Number(evseId),
           Number(connectorId),
@@ -188,7 +188,7 @@ export class LocationsHandlers extends AbstractModule {
     const partialConnector: Partial<ConnectorDTO> = {};
     partialConnector.last_updated = new Date(message.payload.timestamp);
 
-    await this.locationsService.processConnectorUpdate(
+    await this.locationsBroadcaster.broadcastOnConnectorUpdate(
       stationId,
       evseId,
       connectorId,

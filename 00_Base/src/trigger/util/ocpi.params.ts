@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { OcpiRegistrationParams } from './ocpi.registration.params';
+import {IsNotEmpty, IsString, Length} from 'class-validator';
+import {OcpiRegistrationParams} from './ocpi.registration.params';
+import {VersionNumber} from "../../model/VersionNumber";
 
 export class OcpiParams extends OcpiRegistrationParams {
   @IsString()
@@ -21,4 +22,22 @@ export class OcpiParams extends OcpiRegistrationParams {
   @IsNotEmpty()
   @Length(3)
   toPartyId!: string;
+
+
+  constructor(
+    fromCountryCode?: string,
+    fromPartyId?: string,
+    toCountryCode?: string,
+    toPartyId?: string,
+    authorization?: string,
+    xRequestId?: string,
+    xCorrelationId?: string,
+    version?: VersionNumber
+  ) {
+    super(authorization, xRequestId, xCorrelationId, version);
+    this.fromCountryCode = fromCountryCode!;
+    this.fromPartyId = fromPartyId!;
+    this.toCountryCode = toCountryCode!;
+    this.toPartyId = toPartyId!;
+  }
 }

@@ -6,7 +6,6 @@
 import { Service } from 'typedi';
 import {
   ChargingStation,
-  Location,
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
 } from '@citrineos/data';
@@ -16,11 +15,11 @@ import {
   LocationResponse,
   PaginatedLocationResponse,
 } from '../model/DTO/LocationDTO';
-import { EvseDTO, EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO, ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
+import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
@@ -36,38 +35,22 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery,
 } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiLocation } from '../model/Location';
-import { OcpiEvse } from '../model/Evse';
-import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
-import { PatchConnectorParams } from '../trigger/param/locations/patch.connector.params';
-import { OcpiConnector } from '../model/Connector';
-import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
+import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
+import {OcpiHeaders} from "../model/OcpiHeaders";
+import { OcpiLocationProps } from '../model/OcpiLocation';
 
 @Service()
 export class LocationsService {
   constructor(
-    private logger: Logger<ILogObj>,
+    private _logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private deviceModelRepository: SequelizeDeviceModelRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
-    private locationsClientApi: LocationsClientApi,
-  ) {
-    this.locationRepository.on('created', async (locations) =>
-      locations.forEach(
-        async (location) => await this.processLocationCreate(location),
-      ),
-    );
-
-    this.locationRepository.on('updated', async (locations) =>
-      locations.forEach(
-        async (location) => await this.processLocationUpdate(location),
-      ),
-    );
-  }
+  ) { }
 
   LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
     `Location ${locationId} does not exist.`;
@@ -81,11 +64,10 @@ export class LocationsService {
    */
 
   async getLocations(
+    ocpiHeaders: OcpiHeaders,
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     // TODO add Link header
-
-    const paginatedLocationResponse = new PaginatedLocationResponse();
     const dateFrom = paginatedParams?.date_from;
     const dateTo = paginatedParams?.date_to;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
@@ -97,9 +79,11 @@ export class LocationsService {
         offset,
         dateFrom,
         dateTo,
+        ocpiHeaders.toCountryCode,
+        ocpiHeaders.toPartyId,
       )
     ).reduce((acc: any, cur) => {
-      acc[cur.id] = cur;
+      acc[cur[OcpiLocationProps.citrineLocationId]] = cur;
       return acc;
     }, {});
 
@@ -108,8 +92,20 @@ export class LocationsService {
       dateTo,
     );
 
+    if (locationsTotal === 0) {
+      return buildOcpiPaginatedResponse(
+        OcpiResponseStatusCode.GenericSuccessCode,
+        locationsTotal,
+        limit,
+        offset,
+        []
+      ) as PaginatedLocationResponse;
+    }
+
     const citrineLocations = await this.locationRepository.readAllByQuery({
-      where: [...Object.keys(ocpiLocationInfosMap).map((id) => Number(id))],
+      where: {
+        id: [...Object.keys(ocpiLocationInfosMap).map((citrineLocationId) => Number(citrineLocationId))]
+      },
       include: [ChargingStation],
     });
 
@@ -130,28 +126,27 @@ export class LocationsService {
       );
     }
 
-    paginatedLocationResponse.offset = offset;
-    paginatedLocationResponse.limit = limit;
-    paginatedLocationResponse.data = ocpiLocations;
-    paginatedLocationResponse.total = locationsTotal;
-
-    return paginatedLocationResponse;
+    return buildOcpiPaginatedResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      locationsTotal,
+      limit,
+      offset,
+      [...ocpiLocations]
+    ) as PaginatedLocationResponse;
   }
 
   async getLocationById(locationId: number): Promise<LocationResponse> {
-    const locationResponse = new LocationResponse();
-    locationResponse.timestamp = new Date();
-
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
 
     if (!citrineLocation) {
-      locationResponse.status_code =
-        OcpiResponseStatusCode.ClientUnknownLocation;
-      locationResponse.status_message =
-        this.LOCATION_NOT_FOUND_MESSAGE(locationId);
-      return locationResponse;
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId)
+      ) as LocationResponse;
     }
+
+    const ocpiLocationInfo = await this.ocpiLocationRepository.getLocationByCitrineLocationId(citrineLocation.id);
 
     const stationIds = citrineLocation.chargingPool.map(
       (chargingStation: ChargingStation) => chargingStation.id,
@@ -160,13 +155,13 @@ export class LocationsService {
     const chargingStationVariableAttributesMap =
       await this.createChargingStationVariableAttributesMap(stationIds);
 
-    locationResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
-    locationResponse.data = this.locationMapper.mapToOcpiLocation(
+    const mappedLocation = this.locationMapper.mapToOcpiLocation(
       citrineLocation,
       chargingStationVariableAttributesMap,
+      ocpiLocationInfo
     );
 
-    return locationResponse;
+    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedLocation) as LocationResponse;
   }
 
   async getEvseById(
@@ -174,16 +169,14 @@ export class LocationsService {
     stationId: string,
     evseId: number,
   ): Promise<EvseResponse> {
-    const evseResponse = new EvseResponse();
-    evseResponse.timestamp = new Date();
-
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
 
     if (!citrineLocation) {
-      evseResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
-      evseResponse.status_message = this.LOCATION_NOT_FOUND_MESSAGE(locationId);
-      return evseResponse;
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId)
+      ) as EvseResponse;
     }
 
     const matchingChargingStation = citrineLocation.chargingPool.filter(
@@ -191,27 +184,28 @@ export class LocationsService {
     );
 
     if (matchingChargingStation.length === 0) {
-      evseResponse.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
-      evseResponse.status_message = this.EVSE_NOT_FOUND_MESSAGE(
-        UID_FORMAT(stationId, evseId),
-      );
-      return evseResponse;
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId))
+      ) as EvseResponse;
     }
 
     const chargingStationVariableAttributesMap =
       await this.createChargingStationVariableAttributesMap(
-        [...matchingChargingStation[0].id],
+        [matchingChargingStation[0].id],
         Number(evseId),
       );
 
-    evseResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
-    evseResponse.data = this.locationMapper.mapToOcpiEvse(
+    const ocpiEvseInfo = await this.ocpiEvseRepository.getEvseByEvseId(evseId, stationId);
+
+    const mappedEvse = this.locationMapper.mapToOcpiEvse(
       citrineLocation,
       chargingStationVariableAttributesMap[stationId],
       chargingStationVariableAttributesMap[stationId].evses[Number(evseId)],
+      ocpiEvseInfo,
     );
 
-    return evseResponse;
+    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedEvse);
   }
 
   async getConnectorById(
@@ -220,18 +214,14 @@ export class LocationsService {
     evseId: number,
     connectorId: number,
   ): Promise<ConnectorResponse> {
-    const connectorResponse = new ConnectorResponse();
-
-    const citrineLocation = await this.locationRepository.readByKey(
-      String(locationId),
-    );
+    const citrineLocation =
+      await this.locationRepository.readLocationById(locationId);
 
     if (!citrineLocation) {
-      connectorResponse.status_code =
-        OcpiResponseStatusCode.ClientUnknownLocation;
-      connectorResponse.status_message =
-        this.LOCATION_NOT_FOUND_MESSAGE(locationId);
-      return connectorResponse;
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId)
+      ) as ConnectorResponse;
     }
 
     const matchingChargingStation = citrineLocation.chargingPool.filter(
@@ -239,12 +229,10 @@ export class LocationsService {
     );
 
     if (matchingChargingStation.length === 0) {
-      connectorResponse.status_code =
-        OcpiResponseStatusCode.ClientUnknownLocation;
-      connectorResponse.status_message = this.EVSE_NOT_FOUND_MESSAGE(
-        UID_FORMAT(stationId, evseId),
-      );
-      return connectorResponse;
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId))
+      ) as ConnectorResponse;
     }
 
     const evseVariableAttributesMap =
@@ -255,131 +243,22 @@ export class LocationsService {
       );
 
     if (!evseVariableAttributesMap[evseId].connectors) {
-      connectorResponse.status_code =
-        OcpiResponseStatusCode.ClientUnknownLocation;
-      connectorResponse.status_message =
-        this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId);
-      return connectorResponse;
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId)
+      ) as ConnectorResponse;
     }
 
-    connectorResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
-    connectorResponse.data = this.locationMapper.mapToOcpiConnector(
+    const ocpiConnectorInfo = await this.ocpiConnectorRepository.getConnectorByConnectorId(stationId, evseId, connectorId);
+
+    const mappedConnector = this.locationMapper.mapToOcpiConnector(
       Number(connectorId),
       evseVariableAttributesMap[evseId],
       evseVariableAttributesMap[evseId].connectors[connectorId],
+      ocpiConnectorInfo
     );
 
-    return connectorResponse;
-  }
-
-  /**
-   * Receiver Methods
-   */
-  async processLocationCreate(location: Location): Promise<void> {
-    this.logger.info(
-      "Received Location 'created' event:",
-      JSON.stringify(location),
-    );
-    // const locationResponse = await this.getLocationById(locationId);
-    // await this.setOcpiLocationLastUpdated(locationId, new Date());
-    // const params = PutLocationParams.build(locationId, locationResponse.data);
-    // await this.locationsClientApi.putLocation(params);
-  }
-
-  async processLocationUpdate(
-    _partialLocation: Partial<Location>,
-  ): Promise<void> {
-    this.logger.info(
-      "Received Location 'updated' event:",
-      JSON.stringify(location),
-    );
-
-    // const locationId = partialLocation.id;
-
-    // await this.setOcpiLocationLastUpdated(locationId, partialLocation.updatedAt);
-    //
-    // // TODO more robust location update
-    // const params = PatchLocationParams.build(
-    //   locationId,
-    //   partialLocation);
-    //
-    // await this.locationsClientApi.patchLocation(params);
-  }
-
-  async processEvseUpdate(
-    stationId: string,
-    evseId: number,
-    partialEvse: Partial<EvseDTO>,
-  ): Promise<void> {
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-
-    if (!chargingStation || !chargingStation.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-
-    await this.setOcpiEvseLastUpdated(
-      stationId,
-      evseId,
-      partialEvse.last_updated ?? new Date(),
-    );
-    await this.setOcpiLocationLastUpdated(
-      locationId,
-      partialEvse.last_updated ?? new Date(),
-    );
-
-    const params = PatchEvseParams.build(
-      locationId,
-      UID_FORMAT(stationId, evseId),
-      partialEvse,
-    );
-
-    await this.locationsClientApi.patchEvse(params);
-  }
-
-  // TODO based on whether the database created or updated the connector
-  // choose PUT or PATCH connector respectively
-  async processConnectorUpdate(
-    stationId: string,
-    evseId: number,
-    connectorId: number,
-    partialConnector: Partial<ConnectorDTO>,
-  ): Promise<void> {
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-
-    if (!chargingStation || !chargingStation.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-
-    await this.setOcpiConnectorLastUpdated(
-      stationId,
-      evseId,
-      connectorId,
-      partialConnector.last_updated ?? new Date(),
-    );
-    await this.setOcpiEvseLastUpdated(
-      stationId,
-      evseId,
-      partialConnector.last_updated ?? new Date(),
-    );
-    await this.setOcpiLocationLastUpdated(
-      locationId,
-      partialConnector.last_updated ?? new Date(),
-    );
-
-    const params = PatchConnectorParams.build(
-      locationId,
-      UID_FORMAT(stationId, evseId),
-      connectorId,
-      partialConnector,
-    );
-
-    await this.locationsClientApi.patchConnector(params);
+    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, mappedConnector);
   }
 
   /**
@@ -426,6 +305,7 @@ export class LocationsService {
     return chargingStationVariableAttributesMap;
   }
 
+  // TODO also map Evse OCPI information
   private async createEvsesVariableAttributesMap(
     stationId: string,
     evseIds: number[],
@@ -462,6 +342,7 @@ export class LocationsService {
     return evseAttributesMap;
   }
 
+  // TODO also map Connector OCPI information
   private async createConnectorVariableAttributesMap(
     stationId: string,
     evseId: number,
@@ -484,44 +365,6 @@ export class LocationsService {
     }
 
     return connectorAttributesMap;
-  }
-
-  private async setOcpiLocationLastUpdated(
-    locationId: number,
-    lastUpdated: Date,
-  ): Promise<void> {
-    const ocpiLocation = new OcpiLocation();
-    ocpiLocation.id = locationId;
-    ocpiLocation.lastUpdated = lastUpdated;
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(ocpiLocation);
-  }
-
-  private async setOcpiEvseLastUpdated(
-    stationId: string,
-    evseId: number,
-    lastUpdated: Date,
-  ): Promise<void> {
-    const ocpiEvse = new OcpiEvse();
-    ocpiEvse.stationId = stationId;
-    ocpiEvse.evseId = evseId;
-    ocpiEvse.lastUpdated = lastUpdated;
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse(ocpiEvse);
-  }
-
-  private async setOcpiConnectorLastUpdated(
-    stationId: string,
-    evseId: number,
-    connectorId: number,
-    lastUpdated: Date,
-  ): Promise<void> {
-    const ocpiConnector = new OcpiConnector();
-    ocpiConnector.stationId = stationId;
-    ocpiConnector.evseId = evseId;
-    ocpiConnector.connectorId = connectorId;
-    ocpiConnector.lastUpdated = lastUpdated;
-    await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
-      ocpiConnector,
-    );
   }
 
   private getRelevantIdsList(idString: string, idToCompare?: number): number[] {

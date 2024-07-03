@@ -1,5 +1,5 @@
 import { IOcpiLocationMapper } from './IOcpiLocationMapper';
-import { OcpiLocation } from '../model/Location';
+import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
@@ -13,9 +13,9 @@ import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
 import { ChargingStationVariableAttributes } from '../model/variable-attributes/ChargingStationVariableAttributes';
 import { EvseVariableAttributes } from '../model/variable-attributes/EvseVariableAttributes';
-import { OcpiEvse } from '../model/Evse';
+import { OcpiEvse } from '../model/OcpiEvse';
 import { ConnectorVariableAttributes } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiConnector } from '../model/Connector';
+import { OcpiConnector } from '../model/OcpiConnector';
 import { Service } from 'typedi';
 import { NOT_APPLICABLE } from '../util/consts';
 
@@ -46,7 +46,6 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  // TODO pass credentials
   mapToOcpiLocation(
     citrineLocation: Location,
     chargingStationVariableAttributesMap: Record<
@@ -59,9 +58,8 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     ocpiLocation.id = citrineLocation.id;
 
-    // TODO update with credentials
-    ocpiLocation.country_code = 'US'; // TODO update with credentials
-    ocpiLocation.party_id = 'COS'; // TODO update with credentials
+    ocpiLocation.country_code = ocpiLocationInfo ? ocpiLocationInfo[OcpiLocationProps.countryCode] : 'US';
+    ocpiLocation.party_id = ocpiLocationInfo ? ocpiLocationInfo[OcpiLocationProps.partyId] : 'CPO';
 
     // TODO update with dynamic data
     ocpiLocation.last_updated = ocpiLocationInfo?.lastUpdated ?? new Date(); // TODO better fallback
@@ -118,7 +116,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiEvseInformation?: OcpiEvse,
   ): EvseDTO {
     const evse = new EvseDTO();
-    evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id); // format evse uid
+    evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id);
     evse.status =
       CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(
         evseAttributes.evse_availability_state,
@@ -188,10 +186,10 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     Helpers
   */
 
-  private getCoordinates(ocppCoordinates: [number, number]): GeoLocation {
+  private getCoordinates(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
-    geoLocation.latitude = String(ocppCoordinates[0]);
-    geoLocation.longitude = String(ocppCoordinates[1]);
+    geoLocation.latitude = String(ocppCoordinates['coordinates'][0]);
+    geoLocation.longitude = String(ocppCoordinates['coordinates'][1]);
     return geoLocation;
   }
 

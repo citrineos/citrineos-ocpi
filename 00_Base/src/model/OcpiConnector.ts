@@ -27,4 +27,18 @@ export class OcpiConnector extends Model {
 
   @Column(DataType.DATE)
   declare lastUpdated: Date;
+
+  static buildWithLastUpdated(
+    connectorId: number,
+    evseId: number,
+    stationId: string,
+    lastUpdated: Date
+  ): OcpiConnector {
+    const connector = new OcpiConnector();
+    connector.connectorId = connectorId;
+    connector.evseId = evseId;
+    connector.stationId = stationId;
+    connector.lastUpdated = lastUpdated;
+    return connector;
+  }
 }

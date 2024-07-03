@@ -1,26 +1,24 @@
-import { Service } from 'typedi';
-import { Session } from '../model/Session';
-import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
-import {
-  SequelizeTransactionEventRepository,
-  Transaction,
-} from '@citrineos/data';
-import { SessionMapper } from '../mapper/session.mapper';
-import { CredentialsService } from '../services/credentials.service';
-import { ClientInformationProps } from '../model/ClientInformation';
-import { ModuleId } from '../model/ModuleId';
-import { ClientVersion } from '../model/ClientVersion';
-import { NotFoundError } from 'routing-controllers';
+import {Service} from 'typedi';
+import {Session} from '../model/Session';
+import {SessionsClientApi} from '../trigger/SessionsClientApi';
+import {PutSessionParams} from '../trigger/param/sessions/put.session.params';
+import {SequelizeTransactionEventRepository, Transaction,} from '@citrineos/data';
+import {SessionMapper} from '../mapper/session.mapper';
+import {CredentialsService} from '../services/credentials.service';
+import {ILogObj, Logger} from "tslog";
+import {BaseBroadcaster} from "./BaseBroadcaster";
+import {ModuleId} from "../model/ModuleId";
 
 @Service()
-export class SessionBroadcaster {
+export class SessionBroadcaster extends BaseBroadcaster {
   constructor(
-    private readonly transactionRepository: SequelizeTransactionEventRepository,
-    private readonly sessionMapper: SessionMapper,
-    private readonly sessionsClientApi: SessionsClientApi,
-    private readonly credentialsService: CredentialsService,
+    readonly logger: Logger<ILogObj>,
+    readonly transactionRepository: SequelizeTransactionEventRepository,
+    readonly sessionMapper: SessionMapper,
+    readonly sessionsClientApi: SessionsClientApi,
+    readonly credentialsService: CredentialsService,
   ) {
+    super(logger, credentialsService);
     this.transactionRepository.transaction.on('created', (transactions) =>
       this.broadcast(transactions),
     );
@@ -35,56 +33,24 @@ export class SessionBroadcaster {
       await this.sessionMapper.mapTransactionsToSessions(transactions);
 
     for (const session of sessions) {
-      await this.sendSessionToClient(session);
+      await this.sendSessionToClients(session);
     }
   }
 
-  private async sendSessionToClient(session: Session): Promise<void> {
+  private async sendSessionToClients(session: Session): Promise<void> {
     const params = PutSessionParams.build(
-      session.country_code,
-      session.party_id,
-      session.cdr_token.country_code,
-      session.cdr_token.party_id,
       session.id,
       session,
     );
-
-    try {
-      const clientInformation =
-        await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(
-          session.cdr_token.country_code,
-          session.cdr_token.party_id,
-        );
-      const clientVersionList: ClientVersion[] =
-        clientInformation[ClientInformationProps.clientVersionDetails];
-      // todo is this correct that we broadcast to all ClientVersions that we have?
-      const clientSessionsModuleUrls = clientVersionList.reduce(
-        (acc: string[], clientVersion: ClientVersion) => {
-          const sessionsEndpoint = clientVersion.endpoints.find(
-            (endpoint) => endpoint.identifier === ModuleId.Sessions,
-          );
-          if (
-            sessionsEndpoint &&
-            sessionsEndpoint.url &&
-            sessionsEndpoint.url.length > 0
-          ) {
-            acc.push(sessionsEndpoint.url);
-          }
-        },
-        [],
-      ) as string[];
-      if (!clientSessionsModuleUrls || clientSessionsModuleUrls.length === 0) {
-        const msg = `Could not find clientSessionsModuleUrls for client of country code ${session.cdr_token.country_code} and party id ${session.cdr_token.party_id}`;
-        console.debug(msg);
-        throw new NotFoundError(msg);
-      }
-
-      for (const clientSessionsModuleUrl of clientSessionsModuleUrls) {
-        this.sessionsClientApi.baseUrl = clientSessionsModuleUrl;
-        await this.sessionsClientApi.putSession(params);
-      }
-    } catch (e) {
-      // todo
-    }
+    const cpoCountryCode = session.country_code;
+    const cpoPartyId = session.party_id;
+    await this.broadcastToClients(
+      cpoCountryCode,
+      cpoPartyId,
+      ModuleId.Sessions,
+      params,
+      this.sessionsClientApi,
+      this.sessionsClientApi.putSession
+    );
   }
 }

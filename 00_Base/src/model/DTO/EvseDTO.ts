@@ -112,7 +112,7 @@ export class EvseResponse extends OcpiResponse<EvseDTO> {
   @IsNotEmpty()
   @Type(() => EvseDTO)
   @ValidateNested()
-  data!: EvseDTO;
+  data?: EvseDTO | undefined;
 }
 
 export class EvseListResponse extends OcpiResponse<EvseDTO[]> {

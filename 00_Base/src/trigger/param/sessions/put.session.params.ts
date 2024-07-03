@@ -1,7 +1,8 @@
-import { OcpiParams } from '../../util/ocpi.params';
-import { Session } from '../../../model/Session';
-import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import {OcpiParams} from '../../util/ocpi.params';
+import {Session} from '../../../model/Session';
+import {IsNotEmpty, IsString, Length, ValidateNested} from 'class-validator';
+import {Type} from 'class-transformer';
+import {VersionNumber} from "../../../model/VersionNumber";
 
 export class PutSessionParams extends OcpiParams {
   @IsString()
@@ -14,19 +15,12 @@ export class PutSessionParams extends OcpiParams {
   @ValidateNested()
   session!: Session;
 
+
   static build(
-    fromCountryCode: string,
-    fromPartyId: string,
-    toCountryCode: string,
-    toPartyId: string,
     sessionId: string,
-    session: Session,
+    session: Session
   ) {
     const params = new PutSessionParams();
-    params.fromCountryCode = fromCountryCode;
-    params.fromPartyId = fromPartyId;
-    params.toCountryCode = toCountryCode;
-    params.toPartyId = toPartyId;
     params.sessionId = sessionId;
     params.session = session;
     return params;

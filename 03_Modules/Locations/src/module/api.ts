@@ -24,6 +24,8 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
+import {FunctionalEndpointParams} from "@citrineos/ocpi-base";
+import {OcpiHeaders} from "@citrineos/ocpi-base";
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -47,7 +49,9 @@ export class LocationsModuleApi
    *
    * @param {LocationsService} locationsService - The Locations service.
    */
-  constructor(readonly locationsService: LocationsService) {
+  constructor(
+    readonly locationsService: LocationsService,
+  ) {
     super();
   }
 
@@ -61,9 +65,10 @@ export class LocationsModuleApi
     },
   })
   async getLocations(
+    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    return this.locationsService.getLocations(paginatedParams);
+    return this.locationsService.getLocations(ocpiHeaders, paginatedParams);
   }
 
   @Get('/:location_id')
