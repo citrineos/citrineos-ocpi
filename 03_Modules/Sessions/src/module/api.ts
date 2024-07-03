@@ -5,7 +5,7 @@
 
 import { ISessionsModuleApi } from './interface';
 
-import { Body, Controller, Get, Param, Put } from 'routing-controllers';
+import { Body, JsonController, Get, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
@@ -37,7 +37,7 @@ const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
   ChargingPreferencesResponse,
 );
 
-@Controller(`/:${versionIdParam}/${ModuleId.Sessions}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Sessions}`)
 @Service()
 export class SessionsModuleApi
   extends BaseController
