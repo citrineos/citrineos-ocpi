@@ -62,11 +62,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     const lastUpdated = partialEvse.last_updated ?? new Date();
 
     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
+      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
     );
 
     const ocpiLocation = await this.ocpiLocationRepository.updateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
+      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
     );
 
     const params = PatchEvseParams.build(
@@ -78,12 +78,12 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     // TODO flexible country code + party id
     await this.broadcastToClients(
       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
-      ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] :'CPO',
+      ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
       ModuleId.Locations,
       params,
       this.locationsClientApi,
-      this.locationsClientApi.patchEvse
-    )
+      this.locationsClientApi.patchEvse,
+    );
   }
 
   // TODO based on whether the database created or updated the connector
@@ -105,15 +105,20 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     const lastUpdated = partialConnector.last_updated ?? new Date();
 
     await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
-      OcpiConnector.buildWithLastUpdated(connectorId, evseId, stationId, lastUpdated)
+      OcpiConnector.buildWithLastUpdated(
+        connectorId,
+        evseId,
+        stationId,
+        lastUpdated,
+      ),
     );
 
     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
+      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
     );
 
     const ocpiLocation = await this.ocpiLocationRepository.updateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
+      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
     );
 
     const params = PatchConnectorParams.build(
@@ -126,11 +131,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     // TODO flexible country code + party id
     await this.broadcastToClients(
       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
-      ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] :'CPO',
+      ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
       ModuleId.Locations,
       params,
       this.locationsClientApi,
-      this.locationsClientApi.patchConnector
+      this.locationsClientApi.patchConnector,
     );
   }
 }

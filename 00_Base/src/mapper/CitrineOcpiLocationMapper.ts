@@ -58,8 +58,12 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     ocpiLocation.id = citrineLocation.id;
 
-    ocpiLocation.country_code = ocpiLocationInfo ? ocpiLocationInfo[OcpiLocationProps.countryCode] : 'US';
-    ocpiLocation.party_id = ocpiLocationInfo ? ocpiLocationInfo[OcpiLocationProps.partyId] : 'CPO';
+    ocpiLocation.country_code = ocpiLocationInfo
+      ? ocpiLocationInfo[OcpiLocationProps.countryCode]
+      : 'US';
+    ocpiLocation.party_id = ocpiLocationInfo
+      ? ocpiLocationInfo[OcpiLocationProps.partyId]
+      : 'CPO';
 
     // TODO update with dynamic data
     ocpiLocation.last_updated = ocpiLocationInfo?.lastUpdated ?? new Date(); // TODO better fallback

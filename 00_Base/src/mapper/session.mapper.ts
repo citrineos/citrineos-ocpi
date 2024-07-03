@@ -1,6 +1,11 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -13,15 +18,13 @@ import { CredentialsService } from '../services/credentials.service';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
 
-
 @Service()
 export class SessionMapper {
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
-  ) {
-  }
+  ) {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -149,7 +152,7 @@ export class SessionMapper {
             type: this.mapMeasurandToCdrDimensionType(sampledValue.measurand),
             volume: sampledValue.value as number,
           }))
-          .filter(dimension => dimension.type), // only include supported dimension types
+          .filter((dimension) => dimension.type), // only include supported dimension types
         // TODO: Fill in tariff_id value
         tariff_id: null,
       }))
@@ -193,7 +196,7 @@ export class SessionMapper {
   ): Promise<{ [key: string]: OcpiLocation }> => {
     const transactionIdToLocationMap: { [key: string]: OcpiLocation } = {};
     for (const transaction of transactions) {
-      const chargingStation = await transaction.$get("station");
+      const chargingStation = await transaction.$get('station');
       if (!chargingStation) {
         throw new Error(`todo`); // todo
       }
@@ -201,11 +204,16 @@ export class SessionMapper {
       if (!locationId) {
         throw new Error(`todo`); // todo
       }
-      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(String(locationId));
+      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(
+        String(locationId),
+      );
       if (!ocpiLocation) {
         throw new Error(`todo`); // todo
       }
-      if (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode && ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId) {
+      if (
+        ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&
+        ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId
+      ) {
         transactionIdToLocationMap[transaction.id] = ocpiLocation;
       }
     }
