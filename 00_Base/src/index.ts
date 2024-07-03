@@ -30,7 +30,8 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
-export { NotFoundException } from './exception/NotFoundException';export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
+export { NotFoundException } from './exception/NotFoundException';
+export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/paginated.params';
@@ -49,14 +50,15 @@ export { NotRegisteredException } from './exception/NotRegisteredException';
 export { Image } from './model/Image';
 export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
-export {  CredentialsDTO } from './model/DTO/CredentialsDTO';
+export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
 export { ClientInformation } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
-export { CommandResponse } from './model/CommandResponse';export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
+export { CommandResponse } from './model/CommandResponse';
+export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
 export { ClearChargingProfileResult } from './model/ChargingprofilesClearProfileResult';
 export { ChargingProfileResponse } from './model/ChargingProfileResponse';
 export { ChargingProfileResult } from './model/ChargingProfileResult';
@@ -70,7 +72,7 @@ export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
 export { SetChargingProfile } from './model/SetChargingProfile';
-export {StartSession } from './model/StartSession';
+export { StartSession } from './model/StartSession';
 export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
@@ -89,7 +91,8 @@ export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
-export { CommandResultType } from './model/CommandResult';export { CommandResult } from './model/CommandResult';
+export { CommandResultType } from './model/CommandResult';
+export { CommandResult } from './model/CommandResult';
 export {
   LocationDTO,
   LocationResponse,
