@@ -18,8 +18,6 @@ import { Service } from 'typedi';
 import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { StopSession } from '../model/StopSession';
-import { NotFoundException } from '../exception/NotFoundException';
-import { OcpiEvseEntityRepository } from '../repository/ocpi.evse.repository';
 import {
   SequelizeChargingProfileRepository,
   SequelizeTransactionEventRepository,
@@ -27,25 +25,27 @@ import {
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { BadRequestError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
+import { NotFoundError } from 'routing-controllers';
+import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 
 @Service()
 export class CommandExecutor {
   constructor(
     readonly abstractModule: AbstractModule,
     readonly responseUrlRepo: ResponseUrlRepository,
-    readonly ocpiEvseEntityRepo: OcpiEvseEntityRepository,
+    readonly ocpiEvseEntityRepo: OcpiEvseRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
   ) {}
 
   public async executeStartSession(startSession: StartSession): Promise<void> {
     // TODO: update to handle optional evse uid.
-    const evse = await this.ocpiEvseEntityRepo.findByUid(
+    const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
       startSession.evse_uid!,
     );
 
     if (!evse) {
-      throw new NotFoundException('EVSE not found');
+        throw new NotFoundError('EVSE not found');
     }
 
     const correlationId = uuidv4();
@@ -57,13 +57,14 @@ export class CommandExecutor {
     const request = {
       remoteStartId: responseUrlEntity.id,
       idToken: {
-        idToken: startSession.token.contract_id,
+        idToken: startSession.token.uid,
         type: IdTokenEnumType.eMAID,
       },
+      evseId: evse.evseId,
     } as RequestStartTransactionRequest;
 
     this.abstractModule.sendCall(
-      evse.chargingStationId,
+      evse.stationId,
       'tenantId',
       CallAction.RequestStartTransaction,
       request,
@@ -79,7 +80,7 @@ export class CommandExecutor {
     );
 
     if (!transaction) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundError('Session not found');
     }
 
     const correlationId = uuidv4();
@@ -120,7 +121,7 @@ export class CommandExecutor {
     };
 
     if (!transaction) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundError('Session not found');
     }
 
     const correlationId = uuidv4();
@@ -158,7 +159,7 @@ export class CommandExecutor {
     };
 
     if (!transaction) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundError('Session not found');
     }
 
     // TODO: fetch chargingProfileId
@@ -194,11 +195,11 @@ export class CommandExecutor {
         sessionId,
       );
     if (!transaction) {
-      throw new NotFoundException('Session not found');
+      throw new NotFoundError('Session not found');
     }
 
     if (!transaction.evse) {
-      throw new NotFoundException('Evse not found');
+      throw new NotFoundError('Evse not found');
     }
     const evseId = transaction.evse.id;
 

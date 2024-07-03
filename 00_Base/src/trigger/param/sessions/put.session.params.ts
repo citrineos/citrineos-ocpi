@@ -2,6 +2,7 @@ import { OcpiParams } from '../../util/ocpi.params';
 import { Session } from '../../../model/Session';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { VersionNumber } from '../../../model/VersionNumber';
 
 export class PutSessionParams extends OcpiParams {
   @IsString()
@@ -13,4 +14,11 @@ export class PutSessionParams extends OcpiParams {
   @Type(() => Session)
   @ValidateNested()
   session!: Session;
+
+  static build(sessionId: string, session: Session) {
+    const params = new PutSessionParams();
+    params.sessionId = sessionId;
+    params.session = session;
+    return params;
+  }
 }

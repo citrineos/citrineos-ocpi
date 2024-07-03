@@ -1,5 +1,6 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { EvseDTO } from '../../../model/DTO/EvseDTO';
 
 export class PatchEvseParams extends OcpiParams {
   @IsString()
@@ -10,7 +11,19 @@ export class PatchEvseParams extends OcpiParams {
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
-  evseUId!: string;
+  evseUid!: string;
 
-  requestBody!: { [key: string]: object };
+  requestBody!: Partial<EvseDTO>;
+
+  static build(
+    locationId: number,
+    evseUid: string,
+    evse: Partial<EvseDTO>,
+  ): PatchEvseParams {
+    const params = new PatchEvseParams();
+    params.locationId = String(locationId);
+    params.evseUid = evseUid;
+    params.requestBody = evse;
+    return params;
+  }
 }

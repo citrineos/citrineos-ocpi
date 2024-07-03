@@ -30,17 +30,23 @@
     "start-windows": "cd ./Server && npm run start-windows",
     "lint": "npx eslint --ext .ts ./",
     "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
   "workspaces": [
     "Server",
     "00_Base",
     "03_Modules/Commands",
     "03_Modules/Credentials",
+    "03_Modules/Locations",
     "03_Modules/Versions",
     "03_Modules/ChargingProfiles",
+    "03_Modules/Sessions",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
     "../citrineos-core/02_Util"
-  ]
+  ],
+  "dependencies": {
+    "all": "^0.0.0"
+  }
 }

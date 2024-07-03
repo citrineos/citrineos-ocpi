@@ -148,7 +148,7 @@ export class BaseClientApi {
     if (
       !params.authorization ||
       !params.authorization.length ||
-      params.authorization.length > 0
+      params.authorization.length === 0
     ) {
       throw new MissingRequiredParamException(
         params.authorization,
@@ -157,7 +157,7 @@ export class BaseClientApi {
     }
     if (!params.version) {
       throw new MissingRequiredParamException(
-        params.version,
+        params.version!,
         'Required parameter version must be present',
       );
     }
@@ -211,7 +211,7 @@ export class BaseClientApi {
     return `Required parameters [${params.join(',')}] are null or undefined`;
   }
 
-  protected getPathForVersion(version: VersionNumber) {
+  protected getPathForVersion(version = VersionNumber.TWO_DOT_TWO_DOT_ONE) {
     return `/ocpi/${version}/${this.CONTROLLER_PATH}`;
   }
 
@@ -219,7 +219,10 @@ export class BaseClientApi {
     return this.getPathForVersion(params.version);
   }
 
-  protected getPath(version: VersionNumber, path: string = '') {
+  protected getPath(
+    version = VersionNumber.TWO_DOT_TWO_DOT_ONE,
+    path: string = '',
+  ) {
     return `${this.getPathForVersion(version)}/${path}`;
   }
 
