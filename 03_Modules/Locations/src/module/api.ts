@@ -49,7 +49,9 @@ export class LocationsModuleApi
    *
    * @param {LocationsService} locationsService - The Locations service.
    */
-  constructor(readonly locationsService: LocationsService) {
+  constructor(
+    readonly locationsService: LocationsService,
+  ) {
     super();
   }
 

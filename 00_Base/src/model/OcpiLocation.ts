@@ -1,8 +1,9 @@
-import {Column, DataType, Model, Table} from 'sequelize-typescript';
-import {IsNotEmpty, IsString, Length} from 'class-validator';
+import { Column, DataType, Model, Table, ForeignKey } from 'sequelize-typescript';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { Location } from '@citrineos/data';
 
 export enum OcpiLocationProps {
-  locationId = 'locationId',
+  citrineLocationId = 'citrineLocationId',
   publish = 'publish',
   lastUpdated = 'lastUpdated',
   partyId = 'party_id',
@@ -20,8 +21,12 @@ export enum OcpiLocationProps {
 @Table
 export class OcpiLocation extends Model {
 
-  @Column(DataType.INTEGER)
-  [OcpiLocationProps.locationId]!: number;
+  @Column({
+    type: DataType.INTEGER,
+    unique: true
+  })
+  @ForeignKey(() => Location)
+  [OcpiLocationProps.citrineLocationId]!: number;
 
   @Column(DataType.BOOLEAN)
   [OcpiLocationProps.publish]?: boolean;
@@ -42,11 +47,11 @@ export class OcpiLocation extends Model {
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
 
   static buildWithLastUpdated(
-    id: number,
+    citrineLocationId: number,
     lastUpdated: Date
   ): OcpiLocation {
     const location = new OcpiLocation();
-    location.id = id;
+    location.citrineLocationId = citrineLocationId;
     location.lastUpdated = lastUpdated;
     return location;
   }

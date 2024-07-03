@@ -6,7 +6,6 @@
 import { Service } from 'typedi';
 import {
   ChargingStation,
-  Location,
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
 } from '@citrineos/data';
@@ -16,8 +15,8 @@ import {
   LocationResponse,
   PaginatedLocationResponse,
 } from '../model/DTO/LocationDTO';
-import { EvseDTO, EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO, ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
@@ -36,15 +35,15 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery,
 } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
 import {OcpiHeaders} from "../model/OcpiHeaders";
+import { OcpiLocationProps } from '../model/OcpiLocation';
 
 @Service()
 export class LocationsService {
   constructor(
-    private logger: Logger<ILogObj>,
+    private _logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private deviceModelRepository: SequelizeDeviceModelRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
@@ -84,7 +83,7 @@ export class LocationsService {
         ocpiHeaders.toPartyId,
       )
     ).reduce((acc: any, cur) => {
-      acc[cur.id] = cur;
+      acc[cur[OcpiLocationProps.citrineLocationId]] = cur;
       return acc;
     }, {});
 
@@ -105,7 +104,7 @@ export class LocationsService {
 
     const citrineLocations = await this.locationRepository.readAllByQuery({
       where: {
-        id: [...Object.keys(ocpiLocationInfosMap).map((id) => Number(id))]
+        id: [...Object.keys(ocpiLocationInfosMap).map((citrineLocationId) => Number(citrineLocationId))]
       },
       include: [ChargingStation],
     });
@@ -147,7 +146,7 @@ export class LocationsService {
       ) as LocationResponse;
     }
 
-    const ocpiLocationInfo = await this.ocpiLocationRepository.readByKey(citrineLocation.id);
+    const ocpiLocationInfo = await this.ocpiLocationRepository.getLocationByCitrineLocationId(citrineLocation.id);
 
     const stationIds = citrineLocation.chargingPool.map(
       (chargingStation: ChargingStation) => chargingStation.id,
@@ -197,13 +196,7 @@ export class LocationsService {
         Number(evseId),
       );
 
-    const ocpiEvseInfo = await this.ocpiEvseRepository
-      .readOnlyOneByQuery({
-        where: {
-          stationId,
-          evseId
-        }
-      })
+    const ocpiEvseInfo = await this.ocpiEvseRepository.getEvseByEvseId(evseId, stationId);
 
     const mappedEvse = this.locationMapper.mapToOcpiEvse(
       citrineLocation,
@@ -256,7 +249,7 @@ export class LocationsService {
       ) as ConnectorResponse;
     }
 
-    const ocpiConnectorInfo = await this.ocpiConnectorRepository.getConnectorById(stationId, evseId, connectorId);
+    const ocpiConnectorInfo = await this.ocpiConnectorRepository.getConnectorByConnectorId(stationId, evseId, connectorId);
 
     const mappedConnector = this.locationMapper.mapToOcpiConnector(
       Number(connectorId),

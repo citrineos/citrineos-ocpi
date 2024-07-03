@@ -32,37 +32,18 @@ export class LocationsBroadcaster extends BaseBroadcaster {
 
   async broadcastOnLocationCreate(location: Location): Promise<void> {
     this.logger.info(
-      "Received Location 'created' event:",
+      "broadcastOnLocationCreate not yet implemented. Received Location 'created' event:",
       JSON.stringify(location),
     );
-    // const locationResponse = await this.getLocationById(location.id);
-    // await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-    //   OcpiLocation.buildWithLastUpdated(location.id, partialLocation.createdAt ?? new Date())
-    // );
-    // const params = PutLocationParams.build(location.id, locationResponse.data);
-    // await this.locationsClientApi.putLocation(params);
   }
 
   async broadcastOnLocationUpdate(
     partialLocation: Partial<Location>,
   ): Promise<void> {
     this.logger.info(
-      "Received Location 'updated' event:",
+      "broadcastOnLocationUpdate not yet implemented. Received Location 'updated' event:",
       JSON.stringify(partialLocation),
     );
-
-    // const locationId = partialLocation.id;
-    //
-    // await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-    //   OcpiLocation.buildWithLastUpdated(locationId, partialLocation.updatedAt ?? new Date())
-    // );
-    //
-    // // TODO more robust location update
-    // const params = PatchLocationParams.build(
-    //   locationId,
-    //   partialLocation);
-    //
-    // await this.locationsClientApi.patchLocation(params);
   }
 
   async broadcastOnEvseUpdate(
