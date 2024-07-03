@@ -29,7 +29,7 @@ const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
   new PaginatedParams(),
 );
 
-@JsonController(`/${ModuleId.Cdrs}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Cdrs}`)
 @Service()
 export class CdrsModuleApi
   extends BaseController
