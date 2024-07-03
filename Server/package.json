@@ -47,6 +47,7 @@
     "@citrineos/ocpi-versions": "1.1.1",
     "@citrineos/ocpi-charging-profiles": "1.1.1",
     "@citrineos/ocpi-sessions": "1.3.0",
+    "@citrineos/ocpi-tariffs": "1.1.1",
     "@koa/multer": "^3.0.2",
     "@koa/router": "^12.0.1",
     "@mockoon/cli": "^8.1.1",

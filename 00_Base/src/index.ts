@@ -12,7 +12,6 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { TariffsController } from './controllers/tariffs.controller';
 import { TokensController } from './controllers/tokens.controller';
 import {
   RepositoryStore,
@@ -94,6 +93,7 @@ export { VersionRepository } from './repository/VersionRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
 export { CommandResult } from './model/CommandResult';
+export { OcpiTariff, TariffKey } from './model/OcpiTariff';
 export {
   LocationDTO,
   LocationResponse,
@@ -148,10 +148,15 @@ export { CredentialsService } from './services/credentials.service';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { SessionsService } from './services/sessions.service';
+export { TariffsService } from './services/tariffs.service';
+export { TariffsBroadcaster } from './services/tariffs.broadcaster';
+export { TariffMapper } from './services/tariff.mapper';
+export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
 
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
+export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 
 useContainer(Container);
 
@@ -207,7 +212,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          TariffsController,
           TokensController,
         ],
         routePrefix: '/ocpi',

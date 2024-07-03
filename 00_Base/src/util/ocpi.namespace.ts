@@ -3,7 +3,7 @@ export enum OcpiNamespace {
   Version = 'Version',
   Endpoint = 'Endpoint',
   Cdrs = 'Cdrs',
-  Tariffs = 'Tariffs',
+  OcpiTariff = 'OcpiTariff',
   ChargingProfiles = 'ChargingProfiles',
   Commands = 'Commands',
   Sessions = 'Sessions',

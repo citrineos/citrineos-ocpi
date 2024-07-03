@@ -1,7 +1,7 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Tariff } from '../../../model/Tariff';
+import {TariffDTO} from "../../../model/DTO/TariffDTO";
 
 export class PutTariffParams extends OcpiParams {
   @IsString()
@@ -10,7 +10,13 @@ export class PutTariffParams extends OcpiParams {
   tariffId!: string;
 
   @IsNotEmpty()
-  @Type(() => Tariff)
+  @Type(() => TariffDTO)
   @ValidateNested()
-  tariff!: Tariff;
+  tariff!: TariffDTO;
+
+  public constructor(params: PutTariffParams) {
+    super();
+    // noinspection TypeScriptValidateTypes
+    Object.assign(this, params);
+  }
 }

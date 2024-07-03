@@ -23,6 +23,8 @@
     "03_Modules/Locations/**/*.json",
     "03_Modules/Sessions/**/*.ts",
     "03_Modules/Sessions/**/*.json",
+    "03_Modules/Tariffs/**/*.ts",
+    "03_Modules/Tariffs/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.json",
     "mock-client/**/*.ts",
