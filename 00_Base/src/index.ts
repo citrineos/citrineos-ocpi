@@ -62,6 +62,7 @@ export { CommandResponse } from './model/CommandResponse';
 export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
 export { ClearChargingProfileResult } from './model/ChargingprofilesClearProfileResult';
 export { ChargingProfileResponse } from './model/ChargingProfileResponse';
+export { ChargingProfileResult } from './model/ChargingProfileResult';
 export { ChargingProfileResultType } from './model/ChargingProfileResult';
 export {
   generateMockOcpiResponse,
@@ -71,6 +72,7 @@ export {
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
+export { SetChargingProfile } from './model/SetChargingProfile';
 export { StartSession } from './model/StartSession';
 export { StopSession } from './model/StopSession';
 export { UnlockConnector } from './model/UnlockConnector';

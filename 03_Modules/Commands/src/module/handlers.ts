@@ -22,10 +22,7 @@ import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 import { AsyncResponder } from '@citrineos/ocpi-base';
-import {
-  CommandResult,
-  CommandResultType,
-} from '@citrineos/ocpi-base';
+import { CommandResult, CommandResultType } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 
 /**
