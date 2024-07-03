@@ -55,25 +55,21 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     })
   }
 
-  async createOrUpdateOcpiLocation(location: OcpiLocation) {
-    const [savedOcpiLocation, ocpiLocationCreated] =
-      await this._readOrCreateByQuery({
-        where: {
-          citrineLocationId: location[OcpiLocationProps.citrineLocationId],
-        },
-        defaults: {
-          [OcpiLocationProps.citrineLocationId]: location[OcpiLocationProps.citrineLocationId],
-          [OcpiLocationProps.lastUpdated]: location[OcpiLocationProps.lastUpdated],
-        },
-      });
-    if (!ocpiLocationCreated) {
-      await this._updateByKey(
-        {
-          [OcpiLocationProps.lastUpdated]: location[OcpiLocationProps.lastUpdated],
-        },
-        String(savedOcpiLocation.id),
-      );
+  async updateOcpiLocation(location: OcpiLocation): Promise<OcpiLocation | undefined> {
+    const existingOcpiLocation = await this.getLocationByCitrineLocationId(location[OcpiLocationProps.citrineLocationId]);
+
+    if (!existingOcpiLocation) {
+      return undefined;
     }
+
+    const updatedOcpiLocation = await this._updateByKey(
+      {
+        [OcpiLocationProps.lastUpdated]: location[OcpiLocationProps.lastUpdated],
+      },
+      String(existingOcpiLocation.id),
+    );
+
+    return updatedOcpiLocation;
   }
 
   private createQuery(
@@ -86,7 +82,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
       return {};
     }
 
-    const query: any = {where: {}};
+    const query: any = {where: { lastUpdated: { } }};
 
     if (dateFrom) {
       query.where[OcpiLocationProps.lastUpdated][Op.gte] = dateFrom;

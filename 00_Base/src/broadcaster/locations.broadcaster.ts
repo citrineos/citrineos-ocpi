@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { Location, SequelizeLocationRepository } from '@citrineos/data';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { OcpiEvse } from '../model/OcpiEvse';
-import { OcpiLocation } from '../model/OcpiLocation';
+import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
 import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
 import { OcpiConnector } from '../model/OcpiConnector';
@@ -65,7 +65,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
     );
 
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
+    const ocpiLocation = await this.ocpiLocationRepository.updateOcpiLocation(
       OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
     );
 
@@ -77,8 +77,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
 
     // TODO flexible country code + party id
     await this.broadcastToClients(
-      'US',
-      'CPO',
+      ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
+      ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] :'CPO',
       ModuleId.Locations,
       params,
       this.locationsClientApi,
@@ -112,7 +112,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated)
     );
 
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
+    const ocpiLocation = await this.ocpiLocationRepository.updateOcpiLocation(
       OcpiLocation.buildWithLastUpdated(locationId, lastUpdated)
     );
 
@@ -125,8 +125,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
 
     // TODO flexible country code + party id
     await this.broadcastToClients(
-      'US',
-      'CPO',
+      ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
+      ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] :'CPO',
       ModuleId.Locations,
       params,
       this.locationsClientApi,
