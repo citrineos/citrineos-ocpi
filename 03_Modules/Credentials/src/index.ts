@@ -25,7 +25,7 @@ export class CredentialsModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  init(handler: IMessageHandler, sender: IMessageSender): void {
+  init(_handler: IMessageHandler, _sender: IMessageSender): void {
     new CredentialsHandlers(
       this.config as SystemConfig,
       this.cacheWrapper.cache,

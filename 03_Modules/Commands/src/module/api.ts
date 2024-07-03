@@ -34,10 +34,10 @@ import {
   OcpiResponse,
   CommandResponse,
   versionIdParam,
+  ResponseGenerator,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import { ResponseGenerator } from '@citrineos/ocpi-base';
 
 /**
  * Server API for the provisioning component.

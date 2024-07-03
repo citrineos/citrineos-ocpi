@@ -10,5 +10,5 @@ export class GetEvseParams extends OcpiParams {
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
-  evseUId!: string;
+  evseUid!: string;
 }

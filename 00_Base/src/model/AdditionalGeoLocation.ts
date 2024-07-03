@@ -1,12 +1,12 @@
 import { ValidateNested } from 'class-validator';
 import { GeoLocation } from './GeoLocation';
-import { Displaytext } from './Displaytext';
+import { DisplayText } from './DisplayText';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 
 export class AdditionalGeoLocation extends GeoLocation {
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested()
-  name?: Displaytext | null;
+  name?: DisplayText | null;
 }

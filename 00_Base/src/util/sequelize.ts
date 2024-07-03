@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
@@ -14,6 +14,9 @@ import { ClientVersion } from '../model/ClientVersion';
 import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
+import { OcpiLocation } from '../model/OcpiLocation';
+import { OcpiEvse } from '../model/OcpiEvse';
+import { OcpiConnector } from '../model/OcpiConnector';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
@@ -51,6 +54,9 @@ export class OcpiSequelizeInstance {
         Endpoint,
         Version,
         VersionEndpoint,
+        OcpiLocation,
+        OcpiEvse,
+        OcpiConnector,
         ResponseUrlCorrelationId,
       ],
       logging: (_sql: string, _timing?: number) => {

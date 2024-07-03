@@ -3,7 +3,7 @@ import { Endpoint } from './Endpoint';
 import { ClientInformation } from './ClientInformation';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
-import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from '@citrineos/data';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Enum } from '../util/decorators/enum';
 import { VersionEndpoint } from './VersionEndpoint';

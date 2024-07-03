@@ -31,6 +31,7 @@ export class KoaServer {
 
   protected initApp(options: RoutingControllersOptions = {}) {
     this.app = useKoaServer(this.koa, options);
+    this.initLogger();
   }
 
   protected initKoaSwagger(info: InfoObject, servers: ServerObject[] = []) {

@@ -9,12 +9,22 @@ import {
   HasOne,
   Model,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { ClientCredentialsRole } from './ClientCredentialsRole';
 import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';
+
+export enum BusinessDetailsProps {
+  name = 'name',
+  website = 'website',
+  logo = 'logo',
+  clientCredentialsRoleId = 'clientCredentialsRoleId',
+  clientCredentialsRole = 'clientCredentialsRole',
+  serverCredentialsRoleId = 'serverCredentialsRoleId',
+  serverCredentialsRole = 'serverCredentialsRole',
+}
 
 @Table // todo note here need for both client and server credential roles models because using base wont work
 export class BusinessDetails extends Model {
@@ -22,37 +32,40 @@ export class BusinessDetails extends Model {
   @MaxLength(100)
   @IsString()
   @IsNotEmpty()
-  name!: string;
+  [BusinessDetailsProps.name]!: string;
 
-  @Column(DataType.STRING)
+  @Column({
+    type: DataType.STRING,
+    field: BusinessDetailsProps.website,
+  })
   @IsString()
   @IsUrl({ require_tld: false })
   @Optional()
-  website?: string | null;
+  [BusinessDetailsProps.website]?: string | null;
 
   @Exclude()
   @HasOne(() => Image, {
     onDelete: ON_DELETE_CASCADE,
   })
-  logo?: Image | null;
+  [BusinessDetailsProps.logo]?: Image | null;
 
   @Exclude()
   @ForeignKey(() => ClientCredentialsRole)
   @Column(DataType.INTEGER)
-  clientCredentialsRoleId!: number;
+  [BusinessDetailsProps.clientCredentialsRoleId]!: number;
 
   @Exclude()
   @BelongsTo(() => ClientCredentialsRole)
-  clientCredentialsRole!: ClientCredentialsRole;
+  [BusinessDetailsProps.clientCredentialsRole]!: ClientCredentialsRole;
 
   @Exclude()
   @ForeignKey(() => ServerCredentialsRole)
   @Column(DataType.INTEGER)
-  serverCredentialsRoleId!: number;
+  [BusinessDetailsProps.serverCredentialsRoleId]!: number;
 
   @Exclude()
   @BelongsTo(() => ServerCredentialsRole)
-  serverCredentialsRole!: ServerCredentialsRole;
+  [BusinessDetailsProps.serverCredentialsRole]!: ServerCredentialsRole;
 }
 
 export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {

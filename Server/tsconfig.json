@@ -27,6 +27,12 @@
     },
     {
       "path": "../03_Modules/ChargingProfiles"
+    },
+    {
+      "path": "../03_Modules/Locations"
+    },
+    {
+      "path": "../03_Modules/Sessions"
     }
   ]
 }

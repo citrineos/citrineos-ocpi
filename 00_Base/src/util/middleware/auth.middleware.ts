@@ -58,10 +58,17 @@ export class AuthMiddleware
           context,
           OcpiHttpHeader.OcpiFromPartyId,
         );
+        const toCountryCode = this.getHeader(
+          context,
+          OcpiHttpHeader.OcpiToCountryCode,
+        );
+        const toPartyId = this.getHeader(context, OcpiHttpHeader.OcpiToPartyId);
         await this.clientInformationRepository.authorizeToken(
           token,
           fromCountryCode,
           fromPartyId,
+          toCountryCode,
+          toPartyId,
         );
       } catch (error) {
         return this.throwError(context);
