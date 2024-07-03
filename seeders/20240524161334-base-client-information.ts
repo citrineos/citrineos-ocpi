@@ -26,7 +26,7 @@ export = {
       ModuleId.Credentials,
       ModuleId.Versions,
       ModuleId.Cdrs,
-      ModuleId.Chargingprofiles,
+      ModuleId.ChargingProfiles,
       ModuleId.Commands,
       ModuleId.Locations,
       ModuleId.Sessions,

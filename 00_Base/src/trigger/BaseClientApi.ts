@@ -1,12 +1,12 @@
 import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
+import { VersionNumber } from '../model/VersionNumber';
 import { OcpiRegistrationParams } from './util/ocpi.registration.params';
 import { OcpiParams } from './util/ocpi.params';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { HttpHeader } from '@citrineos/base';
 import { OcpiHttpHeader } from '../util/ocpi.http.header';
 import { base64Encode } from '../util/util';
-import { VersionNumber } from '../model/VersionNumber';
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -17,6 +17,11 @@ export class MissingRequiredParamException extends Error {
   ) {
     super(msg);
   }
+}
+
+export interface TriggerRequestOptions extends IRequestOptions {
+  version?: VersionNumber;
+  path?: string;
 }
 
 export class BaseClientApi {
@@ -44,13 +49,11 @@ export class BaseClientApi {
     return this.restClient.options<T>(url, options);
   }
 
-  async options<T>(url: string, options: IRequestOptions): Promise<T> {
-    try {
-      const response = await this.optionsRaw<T>(url, options);
-      return this.handleResponse<T>(response);
-    } catch (e: any) {
-      return this.handleError<T>(e);
-    }
+  async options<T>(options: TriggerRequestOptions): Promise<T> {
+    return this.optionsRaw<T>(
+      this.getPath(options!.version!, options!.path!),
+      options,
+    ).then((response) => this.handleResponse<T>(response));
   }
 
   async getRaw<T>(
@@ -60,13 +63,11 @@ export class BaseClientApi {
     return this.restClient.get<T>(url, options);
   }
 
-  async get<T>(options: IRequestOptions, url = ''): Promise<T> {
-    try {
-      const response = await this.getRaw<T>(url, options);
-      return this.handleResponse<T>(response);
-    } catch (e: any) {
-      return this.handleError<T>(e);
-    }
+  async get<T>(options: TriggerRequestOptions): Promise<T> {
+    return this.getRaw<T>(
+      this.getPath(options!.version!, options!.path!),
+      options,
+    ).then((response) => this.handleResponse<T>(response));
   }
 
   async delRaw<T>(
@@ -76,13 +77,11 @@ export class BaseClientApi {
     return this.restClient.del<T>(url, options);
   }
 
-  async del<T>(options: IRequestOptions, url = ''): Promise<T> {
-    try {
-      const response = await this.delRaw<T>(url, options);
-      return this.handleResponse<T>(response);
-    } catch (e: any) {
-      return this.handleError<T>(e);
-    }
+  async del<T>(options: TriggerRequestOptions): Promise<T> {
+    return this.delRaw<T>(
+      this.getPath(options!.version!, options!.path!),
+      options,
+    ).then((response) => this.handleResponse<T>(response));
   }
 
   async createRaw<T>(
@@ -93,13 +92,12 @@ export class BaseClientApi {
     return this.restClient.create<T>(url, body, options);
   }
 
-  async create<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
-    try {
-      const response = await this.createRaw<T>(url, body, options);
-      return this.handleResponse<T>(response);
-    } catch (e: any) {
-      return this.handleError<T>(e);
-    }
+  async create<T>(options: TriggerRequestOptions, body: any): Promise<T> {
+    return this.createRaw<T>(
+      this.getPath(options!.version!, options!.path!),
+      body,
+      options,
+    ).then((response) => this.handleResponse<T>(response));
   }
 
   async updateRaw<T>(
@@ -110,13 +108,12 @@ export class BaseClientApi {
     return this.restClient.update<T>(url, body, options);
   }
 
-  async update<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
-    try {
-      const response = await this.updateRaw<T>(url, body, options);
-      return this.handleResponse<T>(response);
-    } catch (e: any) {
-      return this.handleError<T>(e);
-    }
+  async update<T>(options: TriggerRequestOptions, body: any): Promise<T> {
+    return this.updateRaw<T>(
+      this.getPath(options!.version!, options!.path!),
+      body,
+      options,
+    ).then((response) => this.handleResponse<T>(response));
   }
 
   async replaceRaw<T>(
@@ -127,13 +124,12 @@ export class BaseClientApi {
     return this.restClient.replace<T>(url, body, options);
   }
 
-  async replace<T>(options: IRequestOptions, body: any, url = ''): Promise<T> {
-    try {
-      const response = await this.replaceRaw<T>(url, body, options);
-      return this.handleResponse<T>(response);
-    } catch (e: any) {
-      return this.handleError<T>(e);
-    }
+  async replace<T>(options: TriggerRequestOptions, body: any): Promise<T> {
+    return this.replaceRaw<T>(
+      this.getPath(options!.version!, options!.path!),
+      body,
+      options,
+    ).then((response) => this.handleResponse<T>(response));
   }
 
   validateRequiredParam(params: any, ...paramNameList: string[]) {
@@ -235,12 +231,6 @@ export class BaseClientApi {
       options: {},
       params: {},
     };
-  }
-
-  protected handleError<T>(error: Error): Promise<T> {
-    const msg = `Rest client error: ${error.message}`;
-    console.error(msg);
-    return Promise.reject(new UnsuccessfulRequestException(msg));
   }
 
   protected handleResponse<T>(response: IRestResponse<T>): T {

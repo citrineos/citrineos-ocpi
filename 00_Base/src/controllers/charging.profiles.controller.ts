@@ -13,7 +13,7 @@ import { ResponseSchema } from '../openapi-spec-helper';
 
 const MOCK = generateMockOcpiResponse(OcpiEmptyResponse);
 
-@Controller(`/${ModuleId.Chargingprofiles}`)
+@Controller(`/${ModuleId.ChargingProfiles}`)
 @Service()
 export class ChargingProfilesController extends BaseController {
   @Post('/:id')

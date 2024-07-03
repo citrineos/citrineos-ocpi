@@ -2,6 +2,8 @@ import { StartSession } from '../model/StartSession';
 import {
   AbstractModule,
   CallAction,
+  ClearChargingProfileRequest,
+  GetCompositeScheduleRequest,
   IdTokenEnumType,
   MessageOrigin,
   RequestStartTransactionRequest,
@@ -31,7 +33,7 @@ export class CommandExecutor {
     );
 
     if (!evse) {
-      throw new NotFoundError('EVSE not found');
+        throw new NotFoundError('EVSE not found');
     }
 
     const correlationId = uuidv4();
@@ -88,6 +90,85 @@ export class CommandExecutor {
       undefined,
       correlationId,
       MessageOrigin.CentralSystem,
+    );
+  }
+
+  public async executeGetActiveChargingProfile(
+      sessionId: string,
+      duration: number,
+      responseUrl: string,
+  ) {
+    // const transaction =
+    //   await this.transactionRepo.findByTransactionId(sessionId);
+
+    const transaction = {
+      stationId: 'CS01',
+      evse: {
+        id: 1,
+      },
+    };
+
+    if (!transaction) {
+      throw new NotFoundError('Session not found');
+    }
+
+    const correlationId = uuidv4();
+
+    await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+
+    const request = {
+      duration: duration,
+      evseId: transaction.evse?.id,
+    } as GetCompositeScheduleRequest;
+
+    this.abstractModule.sendCall(
+        transaction.stationId,
+        'tenantId',
+        CallAction.GetCompositeSchedule,
+        request,
+        undefined,
+        correlationId,
+        MessageOrigin.CentralSystem,
+    );
+  }
+
+  public async executeClearChargingProfile(
+      sessionId: string,
+      responseUrl: string,
+  ) {
+    // const transaction =
+    //   await this.transactionRepo.findByTransactionId(sessionId);
+
+    const transaction = {
+      stationId: 'CS01',
+      evse: {
+        id: 1,
+      },
+    };
+
+    if (!transaction) {
+      throw new NotFoundError('Session not found');
+    }
+
+    // TODO: fetch chargingProfileId
+
+    const correlationId = uuidv4();
+
+    await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+
+    const request = {
+      // TODO: use chargingProfileId from transaction
+      chargingProfileId: 1,
+    } as ClearChargingProfileRequest;
+
+    this.abstractModule.sendCall(
+        transaction.stationId,
+        'tenantId',
+        CallAction.ClearChargingProfile,
+        request,
+        undefined,
+        correlationId,
+        MessageOrigin.CentralSystem,
     );
   }
 }

@@ -25,7 +25,7 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
     );
   }
 
-  async getConnectorById(
+  async getConnectorByConnectorId(
     stationId: string,
     evseId: number,
     connectorId: number,

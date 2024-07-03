@@ -38,6 +38,18 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
     });
   }
 
+  async getEvseByEvseId(
+    evseId: number,
+    stationId: string,
+  ): Promise<OcpiEvse | undefined> {
+    return await this.readOnlyOneByQuery({
+      where: {
+        evseId,
+        stationId,
+      },
+    });
+  }
+
   async createOrUpdateOcpiEvse(evse: OcpiEvse): Promise<void> {
     const [savedOcpiEvse, ocpiEvseCreated] = await this._readOrCreateByQuery({
       where: {

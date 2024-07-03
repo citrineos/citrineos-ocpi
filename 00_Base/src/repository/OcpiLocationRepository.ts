@@ -35,7 +35,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     cpoPartyId?: string,
   ): Promise<OcpiLocation[]> {
     return await this.readAllByQuery({
-      ...this.createDateQuery(dateFrom, dateTo, cpoCountryCode, cpoPartyId),
+      ...this.createQuery(dateFrom, dateTo, cpoCountryCode, cpoPartyId),
       limit,
       offset,
     });
@@ -43,49 +43,60 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
 
   async getLocationsCount(dateFrom?: Date, dateTo?: Date): Promise<number> {
     return await this.existByQuery({
-      ...this.createDateQuery(dateFrom, dateTo),
+      ...this.createQuery(dateFrom, dateTo),
     });
   }
 
-  async createOrUpdateOcpiLocation(location: OcpiLocation) {
-    const [savedOcpiLocation, ocpiLocationCreated] =
-      await this._readOrCreateByQuery({
-        where: {
-          id: location.id,
-        },
-        defaults: {
-          id: location.id,
-          lastUpdated: location.lastUpdated,
-        },
-      });
-    if (!ocpiLocationCreated) {
-      await this._updateByKey(
-        {
-          lastUpdated: location.lastUpdated,
-        },
-        String(savedOcpiLocation.id),
-      );
-    }
+  async getLocationByCitrineLocationId(
+    id: number,
+  ): Promise<OcpiLocation | undefined> {
+    return await this.readOnlyOneByQuery({
+      where: {
+        [OcpiLocationProps.citrineLocationId]: id,
+      },
+    });
   }
 
-  private createDateQuery(
+  async updateOcpiLocation(
+    location: OcpiLocation,
+  ): Promise<OcpiLocation | undefined> {
+    const existingOcpiLocation = await this.getLocationByCitrineLocationId(
+      location[OcpiLocationProps.citrineLocationId],
+    );
+
+    if (!existingOcpiLocation) {
+      return undefined;
+    }
+
+    const updatedOcpiLocation = await this._updateByKey(
+      {
+        [OcpiLocationProps.lastUpdated]:
+          location[OcpiLocationProps.lastUpdated],
+      },
+      String(existingOcpiLocation.id),
+    );
+
+    return updatedOcpiLocation;
+  }
+
+  private createQuery(
     dateFrom?: Date,
     dateTo?: Date,
     cpoCountryCode?: string,
     cpoPartyId?: string,
   ) {
-    if (!dateFrom && !dateTo) {
+    if (!dateFrom && !dateTo && !cpoCountryCode && !cpoPartyId) {
       return {};
     }
 
     const query: any = { where: { lastUpdated: {} } };
 
     if (dateFrom) {
-      query.where.lastUpdated[Op.gte] = dateFrom;
+      query.where[OcpiLocationProps.lastUpdated][Op.gte] = dateFrom;
     }
 
     if (dateTo) {
-      query.where.lastUpdated[Op.lt] = dateTo;
+      query.where[OcpiLocationProps.lastUpdated][Op.lt] = dateTo;
     }
 
     if (cpoCountryCode && cpoPartyId) {

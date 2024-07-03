@@ -6,7 +6,6 @@
 import { Service } from 'typedi';
 import {
   ChargingStation,
-  Location,
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
 } from '@citrineos/data';
@@ -16,8 +15,8 @@ import {
   LocationResponse,
   PaginatedLocationResponse,
 } from '../model/DTO/LocationDTO';
-import { EvseDTO, EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO, ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import {
   buildOcpiPaginatedResponse,
@@ -43,27 +42,21 @@ import {
   ConnectorVariableAttributes,
   connectorVariableAttributesQuery,
 } from '../model/variable-attributes/ConnectorVariableAttributes';
-import { OcpiLocation } from '../model/OcpiLocation';
-import { OcpiEvse } from '../model/OcpiEvse';
-import { PatchEvseParams } from '../trigger/param/locations/patch.evse.params';
-import { PatchConnectorParams } from '../trigger/param/locations/patch.connector.params';
-import { OcpiConnector } from '../model/OcpiConnector';
-import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { type ILogObj, Logger } from 'tslog';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
 import { OcpiHeaders } from '../model/OcpiHeaders';
+import { OcpiLocationProps } from '../model/OcpiLocation';
 
 @Service()
 export class LocationsService {
   constructor(
-    private logger: Logger<ILogObj>,
+    private _logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private deviceModelRepository: SequelizeDeviceModelRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationMapper: CitrineOcpiLocationMapper,
-    private locationsClientApi: LocationsClientApi,
   ) {}
 
   LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
@@ -97,7 +90,7 @@ export class LocationsService {
         ocpiHeaders.toPartyId,
       )
     ).reduce((acc: any, cur) => {
-      acc[cur.id] = cur;
+      acc[cur[OcpiLocationProps.citrineLocationId]] = cur;
       return acc;
     }, {});
 
@@ -118,7 +111,11 @@ export class LocationsService {
 
     const citrineLocations = await this.locationRepository.readAllByQuery({
       where: {
-        id: [...Object.keys(ocpiLocationInfosMap).map((id) => Number(id))],
+        id: [
+          ...Object.keys(ocpiLocationInfosMap).map((citrineLocationId) =>
+            Number(citrineLocationId),
+          ),
+        ],
       },
       include: [ChargingStation],
     });
@@ -160,9 +157,10 @@ export class LocationsService {
       ) as LocationResponse;
     }
 
-    const ocpiLocationInfo = await this.ocpiLocationRepository.readByKey(
-      citrineLocation.id,
-    );
+    const ocpiLocationInfo =
+      await this.ocpiLocationRepository.getLocationByCitrineLocationId(
+        citrineLocation.id,
+      );
 
     const stationIds = citrineLocation.chargingPool.map(
       (chargingStation: ChargingStation) => chargingStation.id,
@@ -215,12 +213,10 @@ export class LocationsService {
         Number(evseId),
       );
 
-    const ocpiEvseInfo = await this.ocpiEvseRepository.readOnlyOneByQuery({
-      where: {
-        stationId,
-        evseId,
-      },
-    });
+    const ocpiEvseInfo = await this.ocpiEvseRepository.getEvseByEvseId(
+      evseId,
+      stationId,
+    );
 
     const mappedEvse = this.locationMapper.mapToOcpiEvse(
       citrineLocation,
@@ -277,7 +273,7 @@ export class LocationsService {
     }
 
     const ocpiConnectorInfo =
-      await this.ocpiConnectorRepository.getConnectorById(
+      await this.ocpiConnectorRepository.getConnectorByConnectorId(
         stationId,
         evseId,
         connectorId,
@@ -294,121 +290,6 @@ export class LocationsService {
       OcpiResponseStatusCode.GenericSuccessCode,
       mappedConnector,
     );
-  }
-
-  /**
-   * Receiver Methods
-   */
-  async processLocationCreate(location: Location): Promise<void> {
-    this.logger.info(
-      "Received Location 'created' event:",
-      JSON.stringify(location),
-    );
-    // const locationResponse = await this.getLocationById(location.id);
-    // await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-    //   OcpiLocation.buildWithLastUpdated(location.id, partialLocation.createdAt ?? new Date())
-    // );
-    // const params = PutLocationParams.build(location.id, locationResponse.data);
-    // await this.locationsClientApi.putLocation(params);
-  }
-
-  async processLocationUpdate(
-    partialLocation: Partial<Location>,
-  ): Promise<void> {
-    this.logger.info(
-      "Received Location 'updated' event:",
-      JSON.stringify(partialLocation),
-    );
-
-    // const locationId = partialLocation.id;
-    //
-    // await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-    //   OcpiLocation.buildWithLastUpdated(locationId, partialLocation.updatedAt ?? new Date())
-    // );
-    //
-    // // TODO more robust location update
-    // const params = PatchLocationParams.build(
-    //   locationId,
-    //   partialLocation);
-    //
-    // await this.locationsClientApi.patchLocation(params);
-  }
-
-  async processEvseUpdate(
-    stationId: string,
-    evseId: number,
-    partialEvse: Partial<EvseDTO>,
-  ): Promise<void> {
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-
-    if (!chargingStation || !chargingStation.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-    const lastUpdated = partialEvse.last_updated ?? new Date();
-
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
-    );
-
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
-    );
-
-    const params = PatchEvseParams.build(
-      locationId,
-      UID_FORMAT(stationId, evseId),
-      partialEvse,
-    );
-
-    await this.locationsClientApi.patchEvse(params);
-  }
-
-  // TODO based on whether the database created or updated the connector
-  // choose PUT or PATCH connector respectively
-  async processConnectorUpdate(
-    stationId: string,
-    evseId: number,
-    connectorId: number,
-    partialConnector: Partial<ConnectorDTO>,
-  ): Promise<void> {
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-
-    if (!chargingStation || !chargingStation.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-    const lastUpdated = partialConnector.last_updated ?? new Date();
-
-    await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
-      OcpiConnector.buildWithLastUpdated(
-        connectorId,
-        evseId,
-        stationId,
-        lastUpdated,
-      ),
-    );
-
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-      OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
-    );
-
-    await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-      OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
-    );
-
-    const params = PatchConnectorParams.build(
-      locationId,
-      UID_FORMAT(stationId, evseId),
-      connectorId,
-      partialConnector,
-    );
-
-    await this.locationsClientApi.patchConnector(params);
   }
 
   /**
@@ -455,6 +336,7 @@ export class LocationsService {
     return chargingStationVariableAttributesMap;
   }
 
+  // TODO also map Evse OCPI information
   private async createEvsesVariableAttributesMap(
     stationId: string,
     evseIds: number[],
@@ -491,6 +373,7 @@ export class LocationsService {
     return evseAttributesMap;
   }
 
+  // TODO also map Connector OCPI information
   private async createConnectorVariableAttributesMap(
     stationId: string,
     evseId: number,
