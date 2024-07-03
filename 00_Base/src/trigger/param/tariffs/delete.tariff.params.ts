@@ -7,10 +7,9 @@ export class DeleteTariffParams extends OcpiParams {
   @Length(36, 36)
   tariffId!: string;
 
-  // TODO: implement
-  public constructor(params: DeleteTariffParams) {
-    super();
-    // noinspection TypeScriptValidateTypes
-    Object.assign(this, params);
+  static build(tariffId: string) {
+    const params = new DeleteTariffParams();
+    params.tariffId = tariffId;
+    return params;
   }
 }

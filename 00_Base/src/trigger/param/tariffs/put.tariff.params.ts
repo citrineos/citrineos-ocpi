@@ -14,9 +14,10 @@ export class PutTariffParams extends OcpiParams {
   @ValidateNested()
   tariff!: TariffDTO;
 
-  public constructor(params: PutTariffParams) {
-    super();
-    // noinspection TypeScriptValidateTypes
-    Object.assign(this, params);
+  static build(tariffId: string, tariff: TariffDTO) {
+    const params = new PutTariffParams();
+    params.tariffId = tariffId;
+    params.tariff = tariff;
+    return params;
   }
 }

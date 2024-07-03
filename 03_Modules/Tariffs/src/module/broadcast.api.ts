@@ -1,5 +1,5 @@
 import {Body, JsonController, Post} from "routing-controllers";
-import {BaseController, TariffsBroadcaster} from "@citrineos/ocpi-base";
+import {BaseController, TariffKey, TariffsBroadcaster} from "@citrineos/ocpi-base";
 import {Service} from "typedi";
 import {ITariffsModuleApi} from "./interface";
 
