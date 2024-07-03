@@ -149,7 +149,7 @@ export class CdrMapper {
     return connectorDto?.power_type || '';
   }
 
-  private async getSignedData(session: Session): Promise<SignedData | undefined> {
+  private async getSignedData(_session: Session): Promise<SignedData | undefined> {
     // TODO: Implement signed data logic if required
     return undefined;
   }
@@ -160,12 +160,12 @@ export class CdrMapper {
     };
   }
 
-  private async calculateTotalFixedCost(tariff: any): Promise<Price | undefined> {
+  private async calculateTotalFixedCost(_tariff: any): Promise<Price | undefined> {
     // TODO: Return total fixed cost if needed
     return undefined;
   }
 
-  private async calculateTotalEnergyCost(session: Session, tariff: Tariff): Promise<Price | undefined> {
+  private async calculateTotalEnergyCost(_session: Session, _tariff: Tariff): Promise<Price | undefined> {
     // TODO: Return total energy cost if needed
     return undefined;
   }
@@ -177,42 +177,42 @@ export class CdrMapper {
     return 0;
   }
 
-  private async calculateTotalTimeCost(session: Session, tariff: Tariff): Promise<Price | undefined> {
+  private async calculateTotalTimeCost(_session: Session, _tariff: Tariff): Promise<Price | undefined> {
     // TODO: Return total time cost if needed
     return undefined;
   }
 
-  private async calculateTotalParkingTime(session: Session): Promise<number> {
+  private async calculateTotalParkingTime(_session: Session): Promise<number> {
     // TODO: Return total parking time if needed
     return 0;
   }
 
-  private async calculateTotalParkingCost(session: Session, tariff: Tariff): Promise<Price | undefined> {
+  private async calculateTotalParkingCost(_session: Session, _tariff: Tariff): Promise<Price | undefined> {
     // TODO: Return total parking cost if needed
     return undefined;
   }
 
-  private async calculateTotalReservationCost(session: Session, tariff: Tariff): Promise<Price | undefined> {
+  private async calculateTotalReservationCost(_session: Session, _tariff: Tariff): Promise<Price | undefined> {
     // TODO: Return total reservation cost if needed
     return undefined;
   }
 
-  private generateRemark(session: Session): string | undefined {
+  private generateRemark(_session: Session): string | undefined {
     // TODO: Generate remark based on session details if needed
     return undefined;
   }
 
-  private async generateInvoiceReferenceId(session: Session): Promise<string | undefined> {
+  private async generateInvoiceReferenceId(_session: Session): Promise<string | undefined> {
     // TODO: Generate invoice reference ID if needed
     return undefined;
   }
 
-  private isCredit(session: Session, tariff: Tariff): boolean | undefined {
+  private isCredit(_session: Session, _tariff: Tariff): boolean | undefined {
     // TODO: Return whether CDR is a Credit CDR if needed
     return undefined;
   }
 
-  private generateCreditReferenceId(session: Session, tariff: Tariff): string | undefined {
+  private generateCreditReferenceId(_session: Session, _tariff: Tariff): string | undefined {
     // TODO: Return Credit Reference ID for Credit CDR if needed
     return undefined;
   }
