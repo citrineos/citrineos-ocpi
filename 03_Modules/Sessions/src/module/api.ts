@@ -70,9 +70,9 @@ export class SessionsModuleApi
       ocpiHeaders!.toCountryCode,
       ocpiHeaders!.toPartyId,
       paginatedParams!.date_from!,
-      paginatedParams?.date_to!,
-      paginatedParams?.offset!,
-      paginatedParams?.limit!,
+      paginatedParams?.date_to,
+      paginatedParams?.offset,
+      paginatedParams?.limit,
     );
   }
 
