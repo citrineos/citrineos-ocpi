@@ -5,7 +5,7 @@
 
 import { ISessionsModuleApi } from './interface';
 
-import { Body, Get, JsonController, Param, Put } from 'routing-controllers';
+import { Body, Controller, Get, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
@@ -22,6 +22,9 @@ import {
   PaginatedSessionResponse,
   ResponseSchema,
   SessionsService,
+  versionIdParam,
+  VersionNumber,
+  VersionNumberParam,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
@@ -34,7 +37,7 @@ const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
   ChargingPreferencesResponse,
 );
 
-@JsonController(`/${ModuleId.Sessions}`)
+@Controller(`/:${versionIdParam}/${ModuleId.Sessions}`)
 @Service()
 export class SessionsModuleApi
   extends BaseController
@@ -54,22 +57,19 @@ export class SessionsModuleApi
     },
   })
   async getSessions(
+    @VersionNumberParam() versionNumber: VersionNumber,
     @Paginated() paginatedParams?: PaginatedParams,
     @FunctionalEndpointParams() ocpiHeaders?: OcpiHeaders,
   ): Promise<PaginatedSessionResponse> {
-    console.info(
-      ocpiHeaders!.fromCountryCode,
-      ocpiHeaders!.fromPartyId,
-      ocpiHeaders!.toCountryCode,
-      ocpiHeaders!.toPartyId,
-      paginatedParams?.date_from,
-    );
     return this.sessionsService.getSessions(
       ocpiHeaders!.fromCountryCode,
       ocpiHeaders!.fromPartyId,
       ocpiHeaders!.toCountryCode,
       ocpiHeaders!.toPartyId,
       paginatedParams!.date_from!,
+      paginatedParams?.date_to,
+      paginatedParams?.offset,
+      paginatedParams?.limit,
     );
   }
 

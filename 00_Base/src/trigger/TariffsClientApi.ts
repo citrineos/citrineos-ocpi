@@ -1,20 +1,20 @@
 import { BaseClientApi } from './BaseClientApi';
-import { OcpiResponse } from '../model/ocpi.response';
-import { Tariff } from '../model/Tariff';
+import { TariffResponse } from '../model/Tariff';
 import { GetTariffParams } from './param/tariffs/get.tariff.params';
 import { PutTariffParams } from './param/tariffs/put.tariff.params';
 import { DeleteTariffParams } from './param/tariffs/delete.tariff.params';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { ModuleId } from '../model/ModuleId';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 
 export class TariffsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tariffs;
 
-  async getTariff(params: GetTariffParams): Promise<OcpiResponse<Tariff>> {
+  async getTariff(params: GetTariffParams): Promise<TariffResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'tariffId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<OcpiResponse<Tariff>>({
+    return await this.get(TariffResponse, {
       version: params.version,
       path: '{countryCode}/{partyId}/{tariffId}'
         .replace('countryCode', encodeURIComponent(params.fromCountryCode))
@@ -24,7 +24,7 @@ export class TariffsClientApi extends BaseClientApi {
     });
   }
 
-  async putTariff(params: PutTariffParams): Promise<OcpiResponse<Tariff>> {
+  async putTariff(params: PutTariffParams): Promise<TariffResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -34,7 +34,8 @@ export class TariffsClientApi extends BaseClientApi {
       'tariff',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace<OcpiResponse<Tariff>>(
+    return await this.replace(
+      TariffResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{tariffId}'
@@ -47,11 +48,11 @@ export class TariffsClientApi extends BaseClientApi {
     );
   }
 
-  async deleteTariff(params: DeleteTariffParams): Promise<OcpiResponse<void>> {
+  async deleteTariff(params: DeleteTariffParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'tariffId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.del<OcpiResponse<void>>({
+    return await this.del(OcpiEmptyResponse, {
       version: params.version,
       path: '{countryCode}/{partyId}/{tariffId}'
         .replace('countryCode', encodeURIComponent(params.fromCountryCode))

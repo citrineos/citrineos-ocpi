@@ -23,7 +23,7 @@ export class VersionsClientApi extends BaseClientApi {
       response = await this.getRaw<VersionListResponseDTO>('/ocpi/versions', {
         additionalHeaders,
       });
-      return this.handleResponse(response);
+      return this.handleResponse(VersionListResponseDTO, response);
     } catch (e) {
       throw new UnsuccessfulRequestException(
         'Could not get version list',
@@ -44,7 +44,7 @@ export class VersionsClientApi extends BaseClientApi {
         // note URL set elsewhere
         additionalHeaders,
       });
-      return this.handleResponse(response);
+      return this.handleResponse(VersionDetailsResponseDTO, response);
     } catch (e) {
       throw new UnsuccessfulRequestException(
         'Could not get version details',

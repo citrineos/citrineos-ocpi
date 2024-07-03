@@ -12,8 +12,8 @@ import { BaseClientApi } from './BaseClientApi';
 import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { EvseResponse } from '../model/DTO/EvseDTO';
 import { LocationResponse } from '../model/DTO/LocationDTO';
-import { OcpiResponse } from '../model/ocpi.response';
 import { Service } from 'typedi';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
@@ -28,7 +28,7 @@ export class LocationsClientApi extends BaseClientApi {
       'connectorId',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<ConnectorResponse>({
+    return await this.get(ConnectorResponse, {
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUid}/{connectorId}'
         .replace('countryCode', encodeURIComponent(params.fromCountryCode))
@@ -50,7 +50,7 @@ export class LocationsClientApi extends BaseClientApi {
       'evseUid',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<EvseResponse>({
+    return await this.get(EvseResponse, {
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}/{evseUid}'
         .replace('countryCode', encodeURIComponent(params.fromCountryCode))
@@ -65,7 +65,7 @@ export class LocationsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'countryCode', 'partyId', 'locationId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<LocationResponse>({
+    return await this.get(LocationResponse, {
       version: params.version,
       path: '{countryCode}/{partyId}/{locationId}'
         .replace('countryCode', encodeURIComponent(params.fromCountryCode))
@@ -77,7 +77,7 @@ export class LocationsClientApi extends BaseClientApi {
 
   async patchConnector(
     params: PatchConnectorParams,
-  ): Promise<OcpiResponse<void>> {
+  ): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -89,7 +89,8 @@ export class LocationsClientApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update<OcpiResponse<void>>(
+    return await this.update(
+      OcpiEmptyResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{locationId}/{evseUid}/{connectorId}'
@@ -104,7 +105,7 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
-  async patchEvse(params: PatchEvseParams): Promise<OcpiResponse<void>> {
+  async patchEvse(params: PatchEvseParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -115,7 +116,8 @@ export class LocationsClientApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update<OcpiResponse<void>>(
+    return await this.update(
+      OcpiEmptyResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{locationId}/{evseUid}'
@@ -129,9 +131,7 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
-  async patchLocation(
-    params: PatchLocationParams,
-  ): Promise<OcpiResponse<void>> {
+  async patchLocation(params: PatchLocationParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -141,7 +141,8 @@ export class LocationsClientApi extends BaseClientApi {
       'requestBody',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return this.update<OcpiResponse<void>>(
+    return this.update(
+      OcpiEmptyResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{locationId}'
@@ -155,7 +156,7 @@ export class LocationsClientApi extends BaseClientApi {
   }
 
   // TODO invoke when new connector is added
-  async putConnector(params: PutConnectorParams): Promise<OcpiResponse<void>> {
+  async putConnector(params: PutConnectorParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -167,7 +168,8 @@ export class LocationsClientApi extends BaseClientApi {
       'connector',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace<OcpiResponse<void>>(
+    return await this.replace(
+      OcpiEmptyResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{locationId}/{evseUid}/{connectorId}'
@@ -183,7 +185,7 @@ export class LocationsClientApi extends BaseClientApi {
   }
 
   // TODO invoke when new evse is added
-  async putEvse(params: PutEvseParams): Promise<OcpiResponse<void>> {
+  async putEvse(params: PutEvseParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -194,7 +196,8 @@ export class LocationsClientApi extends BaseClientApi {
       'evse',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace<OcpiResponse<void>>(
+    return await this.replace(
+      OcpiEmptyResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{locationId}/{evseUid}'
@@ -208,7 +211,7 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
-  async putLocation(params: PutLocationParams): Promise<OcpiResponse<void>> {
+  async putLocation(params: PutLocationParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
       params,
@@ -218,7 +221,8 @@ export class LocationsClientApi extends BaseClientApi {
       'location',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace<OcpiResponse<void>>(
+    return await this.replace(
+      OcpiEmptyResponse,
       {
         version: params.version,
         path: '{countryCode}/{partyId}/{locationId}'

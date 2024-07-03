@@ -6,6 +6,7 @@ import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
+import { OcpiResponse } from './ocpi.response';
 
 export class AuthorizationInfo {
   @Enum(AuthorizationInfoAllowed, 'AuthorizationInfoAllowed')
@@ -29,4 +30,11 @@ export class AuthorizationInfo {
   @Type(() => LocationReferences)
   @ValidateNested()
   location?: LocationReferences;
+}
+
+export class AuthorizationInfoResponse extends OcpiResponse<AuthorizationInfo> {
+  @IsNotEmpty()
+  @Type(() => AuthorizationInfo)
+  @ValidateNested()
+  data!: AuthorizationInfo;
 }

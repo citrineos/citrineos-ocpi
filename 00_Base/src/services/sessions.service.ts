@@ -1,8 +1,13 @@
 import { Service } from 'typedi';
 import { PaginatedSessionResponse } from '../model/Session';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
 import { SessionMapper } from '../mapper/session.mapper';
+import { OcpiResponseStatusCode } from '../model/ocpi.response';
 
 @Service()
 export class SessionsService {
@@ -39,12 +44,18 @@ export class SessionsService {
       toPartyId,
     );
 
-    const response = new PaginatedSessionResponse();
+    const response = buildOcpiPaginatedResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      total,
+      limit,
+      offset,
+      sessions,
+    );
     response.data = sessions;
     response.total = total;
     response.offset = offset;
     response.limit = limit;
 
-    return response;
+    return response as PaginatedSessionResponse;
   }
 }

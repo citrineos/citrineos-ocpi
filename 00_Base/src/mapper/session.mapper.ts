@@ -271,9 +271,12 @@ export class SessionMapper {
       if (!locationId) {
         throw new Error(`todo`); // todo
       }
-      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(
-        String(locationId),
-      );
+      const ocpiLocation =
+        await this.ocpiLocationsRepository.readOnlyOneByQuery({
+          where: {
+            [OcpiLocationProps.citrineLocationId]: locationId,
+          },
+        });
       if (!ocpiLocation) {
         throw new Error(`todo`); // todo
       }
