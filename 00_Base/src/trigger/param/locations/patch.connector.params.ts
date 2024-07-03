@@ -1,5 +1,6 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
 
 export class PatchConnectorParams extends OcpiParams {
   @IsString()
@@ -10,12 +11,26 @@ export class PatchConnectorParams extends OcpiParams {
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
-  evseUId!: string;
+  evseUid!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(36, 36)
   connectorId!: string;
 
-  requestBody!: { [key: string]: object };
+  requestBody!: Partial<ConnectorDTO>;
+
+  static build(
+    locationId: number,
+    evseUid: string,
+    connectorId: number,
+    connector: Partial<ConnectorDTO>,
+  ): PatchConnectorParams {
+    const params = new PatchConnectorParams();
+    params.locationId = String(locationId);
+    params.evseUid = evseUid;
+    params.connectorId = String(connectorId);
+    params.requestBody = connector;
+    return params;
+  }
 }

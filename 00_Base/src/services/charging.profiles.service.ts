@@ -12,6 +12,7 @@ import {
 } from '../util/ResponseGenerator';
 import { NotFoundException } from '../exception/NotFoundException';
 import { SetChargingProfile } from '../model/SetChargingProfile';
+import { NotFoundError } from 'routing-controllers';
 
 @Service()
 export class ChargingProfilesService {
@@ -35,7 +36,7 @@ export class ChargingProfilesService {
         timeout: this.TIMEOUT,
       });
     } catch (e) {
-      if (e instanceof NotFoundException) {
+      if (e instanceof NotFoundError) {
         return buildUnknownSessionResponse(
           {
             result: ChargingProfileResultType.UNKNOWN_SESSION,
@@ -68,7 +69,7 @@ export class ChargingProfilesService {
         timeout: this.TIMEOUT,
       });
     } catch (e) {
-      if (e instanceof NotFoundException) {
+      if (e instanceof NotFoundError) {
         return buildUnknownSessionResponse(
           {
             result: ChargingProfileResultType.UNKNOWN_SESSION,
@@ -101,7 +102,7 @@ export class ChargingProfilesService {
         timeout: this.TIMEOUT,
       });
     } catch (e) {
-      if (e instanceof NotFoundException) {
+      if (e instanceof NotFoundError) {
         return buildUnknownSessionResponse(
           {
             result: ChargingProfileResultType.UNKNOWN_SESSION,
@@ -109,12 +110,14 @@ export class ChargingProfilesService {
           },
           e as NotFoundException,
         );
-      } else {
-        return buildGenericServerErrorResponse(
-          {} as ChargingProfileResponse,
-          e as Error,
-        );
       }
+      return buildGenericServerErrorResponse(
+        {
+          result: ChargingProfileResultType.REJECTED,
+          timeout: this.TIMEOUT,
+        },
+        e as Error,
+      );
     }
   }
 }

@@ -8,19 +8,34 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { EvseStatusSchedule } from './EvseStatusSchedule';
-import { Capability } from './Capability';
-import { ParkingRestriction } from './ParkingRestriction';
-import { EvseStatus } from './EvseStatus';
-import { Connector } from './Connector';
-import { GeoLocation } from './GeoLocation';
-import { Displaytext } from './Displaytext';
+import { Optional } from '../../util/decorators/optional';
+import { Enum } from '../../util/decorators/enum';
+import { EvseStatus } from '../EvseStatus';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
+import { EvseStatusSchedule } from '../EvseStatusSchedule';
+import { Capability } from '../Capability';
+import { ConnectorDTO } from './ConnectorDTO';
+import { GeoLocation } from '../GeoLocation';
+import { DisplayText } from '../DisplayText';
+import { ParkingRestriction } from '../ParkingRestriction';
+import { OcpiResponse } from '../ocpi.response';
 
-export class Evse {
+// TODO make dynamic
+const uidDelimiter = '::';
+export const UID_FORMAT = (stationId: string, evseId: number): string =>
+  `${stationId}${uidDelimiter}${evseId}`;
+
+export const EXTRACT_STATION_ID = (evseUid: string) => {
+  const split = evseUid.split(uidDelimiter);
+  return split.length > 1 ? split[0] : '';
+};
+
+export const EXTRACT_EVSE_ID = (evseUid: string) => {
+  const split = evseUid.split(uidDelimiter);
+  return split.length > 1 ? split[split.length - 1] : '';
+};
+
+export class EvseDTO {
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()
@@ -50,9 +65,9 @@ export class Evse {
   @ArrayMinSize(1)
   @IsArray()
   @IsNotEmpty()
-  @Type(() => Connector)
+  @Type(() => ConnectorDTO)
   @ValidateNested({ each: true })
-  connectors!: Connector[];
+  connectors!: ConnectorDTO[];
 
   @MaxLength(4)
   @IsString()
@@ -71,9 +86,9 @@ export class Evse {
 
   @IsArray()
   @Optional()
-  @Type(() => Displaytext)
+  @Type(() => DisplayText)
   @ValidateNested()
-  directions?: Displaytext[] | null;
+  directions?: DisplayText[] | null;
 
   @IsArray()
   @Optional()
@@ -92,17 +107,17 @@ export class Evse {
   last_updated!: Date;
 }
 
-export class EvseResponse extends OcpiResponse<Evse> {
+export class EvseResponse extends OcpiResponse<EvseDTO> {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => Evse)
+  @Type(() => EvseDTO)
   @ValidateNested()
-  data!: Evse;
+  data?: EvseDTO | undefined;
 }
 
-export class EvseListResponse extends OcpiResponse<Evse[]> {
+export class EvseListResponse extends OcpiResponse<EvseDTO[]> {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => Evse)
-  data!: Evse[];
+  @Type(() => EvseDTO)
+  data!: EvseDTO[];
 }

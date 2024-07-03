@@ -7,7 +7,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { CdrDimention } from './CdrDimention';
+import { CdrDimension } from './CdrDimension';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 
@@ -21,9 +21,9 @@ export class ChargingPeriod {
   @ArrayMinSize(1)
   @IsArray()
   @IsNotEmpty()
-  @Type(() => CdrDimention)
+  @Type(() => CdrDimension)
   @ValidateNested({ each: true })
-  dimensions!: CdrDimention[];
+  dimensions!: CdrDimension[];
 
   @MaxLength(36)
   @IsString()

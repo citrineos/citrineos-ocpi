@@ -13,7 +13,19 @@ export class OcpiRegistrationParams {
   @IsOptional()
   xCorrelationId?: string;
 
-  version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
+  version?: VersionNumber = VersionNumber.TWO_DOT_TWO_DOT_ONE;
+
+  constructor(
+    authorization?: string,
+    xRequestId?: string,
+    xCorrelationId?: string,
+    version?: VersionNumber,
+  ) {
+    this.authorization = authorization!;
+    this.xRequestId = xRequestId;
+    this.xCorrelationId = xCorrelationId;
+    this.version = version;
+  }
 }
 
 export const buildOcpiRegistrationParams = (
@@ -21,11 +33,9 @@ export const buildOcpiRegistrationParams = (
   authorization: string,
   xRequestId?: string,
   xCorrelationId?: string,
-): OcpiRegistrationParams => {
-  const params = new OcpiRegistrationParams();
-  params.version = version;
-  params.authorization = authorization;
-  params.xRequestId = xRequestId;
-  params.xCorrelationId = xCorrelationId;
-  return params;
-};
+): OcpiRegistrationParams => new OcpiRegistrationParams(
+    authorization,
+    xRequestId,
+    xCorrelationId,
+    version,
+  );

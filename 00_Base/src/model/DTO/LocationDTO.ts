@@ -9,20 +9,20 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { PublishTokenType } from './PublishTokenType';
-import { AdditionalGeoLocation } from './AdditionalGeoLocation';
-import { BusinessDetails } from './BusinessDetails';
-import { Facilities } from './Facilities';
-import { Hours } from './Hours';
-import { GeoLocation } from './GeoLocation';
-import { Evse } from './Evse';
-import { EnergyMix } from './EnergyMix';
+import { Optional } from '../../util/decorators/optional';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { OcpiResponse } from './ocpi.response';
-import { PaginatedResponse } from './PaginatedResponse';
+import { PublishTokenType } from '../PublishTokenType';
+import { GeoLocation } from '../GeoLocation';
+import { AdditionalGeoLocation } from '../AdditionalGeoLocation';
+import { EvseDTO } from './EvseDTO';
+import { BusinessDetails } from '../BusinessDetails';
+import { Facilities } from '../Facilities';
+import { Hours } from '../Hours';
+import { EnergyMix } from '../EnergyMix';
+import { OcpiResponse } from '../ocpi.response';
+import { PaginatedResponse } from '../PaginatedResponse';
 
-export class Location {
+export class LocationDTO {
   @MaxLength(2)
   @MinLength(2)
   @IsString()
@@ -98,9 +98,9 @@ export class Location {
 
   @IsArray()
   @Optional()
-  @Type(() => Evse)
+  @Type(() => EvseDTO)
   @ValidateNested({ each: true })
-  evses?: Evse[] | null;
+  evses?: EvseDTO[] | null;
 
   @IsArray()
   @Optional()
@@ -154,19 +154,19 @@ export class Location {
   last_updated!: Date;
 }
 
-export class LocationResponse extends OcpiResponse<Location> {
+export class LocationResponse extends OcpiResponse<LocationDTO> {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => Location)
+  @Type(() => LocationDTO)
   @ValidateNested()
-  data!: Location;
+  data?: LocationDTO | undefined;
 }
 
-export class PaginatedLocationResponse extends PaginatedResponse<Location> {
+export class PaginatedLocationResponse extends PaginatedResponse<LocationDTO> {
   @IsArray()
   @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
-  @Type(() => Location)
-  data!: Location[];
+  @Type(() => LocationDTO)
+  data!: LocationDTO[];
 }

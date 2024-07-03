@@ -14,11 +14,11 @@ import {
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
+  CredentialsService,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
 import { ICredentialsModuleApi } from './interface';
-import { CredentialsService } from './credentials.service';
 import {
   Body,
   Delete,
@@ -62,7 +62,7 @@ export class CredentialsModuleApi
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
     const clientInformation =
-      await this.credentialsService?.getClientInformation(token);
+      await this.credentialsService?.getClientInformationByServerToken(token);
     const credentialsDto = toCredentialsDTO(
       clientInformation.get({ plain: true }),
     );

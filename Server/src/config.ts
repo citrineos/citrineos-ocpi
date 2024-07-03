@@ -41,6 +41,9 @@ export function createLocalConfig() {
         endpointPrefix: '/transactions',
         costUpdatedInterval: 60,
       },
+      tenant: {
+        endpointPrefix: '/tenant',
+      },
     },
     data: {
       sequelize: {
