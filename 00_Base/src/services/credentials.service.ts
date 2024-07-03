@@ -366,6 +366,7 @@ export class CredentialsService {
     }
   }
 
+  // TODO: add server details for multi tenant support
   async registerCredentialsTokenA(
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
