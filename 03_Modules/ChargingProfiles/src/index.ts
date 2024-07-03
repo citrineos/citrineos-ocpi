@@ -6,8 +6,12 @@
 import { ChargingProfilesModuleApi } from './module/api';
 import {
   CacheWrapper,
+  ChargingProfilesClientApi,
+  ClientInformationRepository,
+  EndpointRepository,
   OcpiModule,
   OcpiServerConfig,
+  SessionChargingProfileRepository,
 } from '@citrineos/ocpi-base';
 import {
   AbstractModule,
@@ -53,6 +57,11 @@ export class ChargingProfilesModule implements OcpiModule {
         this.config as SystemConfig,
         this.cache.cache,
         Container.get(AsyncResponder),
+        Container.get(ChargingProfilesClientApi),
+        Container.get(SequelizeTransactionEventRepository),
+        Container.get(EndpointRepository),
+        Container.get(ClientInformationRepository),
+        Container.get(SessionChargingProfileRepository),
         handler,
         sender,
         this.logger,

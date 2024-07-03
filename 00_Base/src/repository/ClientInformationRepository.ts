@@ -47,6 +47,23 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     }
   }
 
+  public async getClientToken(
+    toCountryCode: string,
+    toPartyId: string,
+  ): Promise<string | undefined> {
+    const info = (
+      await this.readAllByQuery({
+        include: [
+          {
+            model: ClientCredentialsRole,
+            where: { country_code: toCountryCode, party_id: toPartyId },
+          },
+        ],
+      })
+    )[0];
+    return info?.clientToken;
+  }
+
   private getExistingCredentials = async (
     token: string,
     fromCountryCode?: string,
