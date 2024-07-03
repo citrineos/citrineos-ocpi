@@ -19,7 +19,10 @@ import { ILogObj, Logger } from 'tslog';
 
 import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
-import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import {
+  SequelizeChargingProfileRepository,
+  SequelizeTransactionEventRepository,
+} from '@citrineos/data';
 
 useContainer(Container);
 
@@ -36,6 +39,10 @@ export class ChargingProfilesModule implements OcpiModule {
     Container.set(
       SequelizeTransactionEventRepository,
       new SequelizeTransactionEventRepository(config as SystemConfig, logger),
+    );
+    Container.set(
+      SequelizeChargingProfileRepository,
+      new SequelizeChargingProfileRepository(config as SystemConfig, logger),
     );
   }
 

@@ -5,11 +5,7 @@
 
 import { ICommandsModuleApi } from './interface';
 
-import {
-  Body,
-  JsonController,
-  Post,
-} from 'routing-controllers';
+import { Body, JsonController, Post } from 'routing-controllers';
 
 import { plainToInstance } from 'class-transformer';
 
