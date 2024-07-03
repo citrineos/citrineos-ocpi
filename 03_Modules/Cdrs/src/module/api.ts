@@ -10,13 +10,15 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  CdrsService,
+  FunctionalEndpointParams,
   generateMockOcpiPaginatedResponse,
   ModuleId,
+  OcpiHeaders,
   Paginated,
   PaginatedOcpiParams,
   PaginatedParams,
   ResponseSchema,
-  SessionsService,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
@@ -32,7 +34,7 @@ const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
 export class CdrsModuleApi
   extends BaseController
   implements ICdrsModuleApi {
-  constructor(readonly sessionsService: SessionsService) {
+  constructor(readonly cdrsService: CdrsService) {
     super();
   }
 
@@ -47,14 +49,17 @@ export class CdrsModuleApi
   })
   async getCdrs(
     @Paginated() paginationParams?: PaginatedOcpiParams,
+    @FunctionalEndpointParams() ocpiHeaders?: OcpiHeaders,
   ): Promise<PaginatedCdrResponse> {
-    console.info(
-      paginationParams?.date_from,
-      paginationParams?.fromCountryCode,
-      paginationParams?.fromPartyId,
-      paginationParams?.toCountryCode,
-      paginationParams?.toPartyId,
+    return this.cdrsService.getCdrs(
+      ocpiHeaders!.fromCountryCode,
+      ocpiHeaders!.fromPartyId,
+      ocpiHeaders!.toCountryCode,
+      ocpiHeaders!.toPartyId,
+      paginationParams!.date_from!,
+      paginationParams?.date_to,
+      paginationParams?.offset,
+      paginationParams?.limit,
     );
-    return new PaginatedCdrResponse();
   }
 }
