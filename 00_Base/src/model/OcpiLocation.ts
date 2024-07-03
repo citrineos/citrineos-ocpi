@@ -25,7 +25,6 @@ export class OcpiLocation extends Model {
     type: DataType.INTEGER,
     unique: true
   })
-  @ForeignKey(() => Location)
   [OcpiLocationProps.citrineLocationId]!: number;
 
   @Column(DataType.BOOLEAN)
