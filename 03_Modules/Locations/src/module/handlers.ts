@@ -13,8 +13,8 @@ import {
   StatusNotificationRequest,
   SystemConfig,
 } from '@citrineos/base';
-import {RabbitMqReceiver, RabbitMqSender, Timer} from '@citrineos/util';
-import {ILogObj, Logger} from 'tslog';
+import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import { ILogObj, Logger } from 'tslog';
 import deasyncPromise from 'deasync-promise';
 import {
   AVAILABILITY_STATE_VARIABLE,

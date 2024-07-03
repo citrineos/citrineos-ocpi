@@ -28,14 +28,14 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
   async getConnectorByConnectorId(
     stationId: string,
     evseId: number,
-    connectorId: number
+    connectorId: number,
   ): Promise<OcpiConnector | undefined> {
     return await this.readOnlyOneByQuery({
       where: {
         stationId,
         evseId,
-        connectorId
-      }
+        connectorId,
+      },
     });
   }
 

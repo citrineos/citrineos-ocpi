@@ -32,7 +32,7 @@ export class OcpiConnector extends Model {
     connectorId: number,
     evseId: number,
     stationId: string,
-    lastUpdated: Date
+    lastUpdated: Date,
   ): OcpiConnector {
     const connector = new OcpiConnector();
     connector.connectorId = connectorId;
