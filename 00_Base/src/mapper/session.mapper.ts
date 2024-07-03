@@ -1,17 +1,17 @@
-import {Service} from 'typedi';
-import {Session} from '../model/Session';
-import {MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest,} from '@citrineos/base';
-import {AuthMethod} from '../model/AuthMethod';
-import {Transaction} from '@citrineos/data';
-import {ChargingPeriod} from '../model/ChargingPeriod';
-import {CdrDimensionType} from '../model/CdrDimensionType';
-import {Token} from '../model/Token';
-import {OcpiLocation, OcpiLocationProps} from '../model/OcpiLocation';
-import {CdrToken} from '../model/CdrToken';
-import {SessionStatus} from '../model/SessionStatus';
-import {CredentialsService} from '../services/credentials.service';
-import {OcpiLocationRepository} from '../repository/OcpiLocationRepository';
-import {ILogObj, Logger} from "tslog";
+import { Service } from 'typedi';
+import { Session } from '../model/Session';
+import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import { AuthMethod } from '../model/AuthMethod';
+import { Transaction } from '@citrineos/data';
+import { ChargingPeriod } from '../model/ChargingPeriod';
+import { CdrDimensionType } from '../model/CdrDimensionType';
+import { Token } from '../model/Token';
+import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
+import { CdrToken } from '../model/CdrToken';
+import { SessionStatus } from '../model/SessionStatus';
+import { CredentialsService } from '../services/credentials.service';
+import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { ILogObj, Logger } from 'tslog';
 
 
 @Service()
@@ -144,10 +144,12 @@ export class SessionMapper {
     return meterValues
       .map((meterValue) => ({
         start_date_time: new Date(meterValue.timestamp),
-        dimensions: meterValue.sampledValue.map((sampledValue) => ({
-          type: this.mapMeasurandToCdrDimensionType(sampledValue.measurand),
-          volume: sampledValue.value as number,
-        })),
+        dimensions: meterValue.sampledValue
+          .map((sampledValue) => ({
+            type: this.mapMeasurandToCdrDimensionType(sampledValue.measurand),
+            volume: sampledValue.value as number,
+          }))
+          .filter(dimension => dimension.type), // only include supported dimension types
         // TODO: Fill in tariff_id value
         tariff_id: null,
       }))
@@ -157,8 +159,29 @@ export class SessionMapper {
   }
 
   private mapMeasurandToCdrDimensionType(
-    _measurand: MeasurandEnumType | undefined,
+    measurand: MeasurandEnumType | undefined,
   ): CdrDimensionType {
+    // TODO handle chargers that only report measurands in phases
+
+    // current import == current
+    // energy active import register == energy_import
+    // -- use the one without "phase"
+    // power active import == power
+    // energy active export register == energy export
+    // soc = state of charge
+    // (cdr dimension type) energy === calculated, not a measurand :(, amount of energy charged since the previous charging period
+    // -- current minus previous
+    // time
+    // -- session active
+
+    switch (measurand) {
+      case MeasurandEnumType.Current_Import:
+        return CdrDimensionType.CURRENT;
+      case MeasurandEnumType.Energy_Active_Import_Register:
+        return CdrDimensionType.ENERGY_IMPORT;
+      case MeasurandEnumType.SoC:
+        return CdrDimensionType.STATE_OF_CHARGE;
+    }
     // TODO: Implement mapping logic based on MeasurandEnumType
     return CdrDimensionType.ENERGY;
   }
@@ -199,15 +222,17 @@ export class SessionMapper {
     // Only get Tokens that belong to the MSP if provided
 
     // TODO: Remove this mock mapping and replace with real token fetch
+    const transactionIdToTokenMap: { [key: string]: Token } = {};
+
     const map = new Map();
     for (const transaction of transactions) {
       const token = new Token();
       token.country_code = mspCountryCode || 'US';
       token.party_id = mspPartyId || 'MSP';
-      map.set(transaction.id, token);
+      transactionIdToTokenMap[transaction.id] = token;
     }
 
-    return map as any;
+    return transactionIdToTokenMap;
   }
 
   private getTransactionStatus(
