@@ -56,6 +56,8 @@ const clientInformationInclude = [
   },
 ];
 
+// TODO: temporarily creating CPO credentials, but for multi tenant support, the server credentials
+// should only be made via the admin endpoints and not be hardcoded
 const CpoCredentialsRole = CredentialsRoleDTO.build(
   Role.CPO,
   'COS', // todo is this okay?
