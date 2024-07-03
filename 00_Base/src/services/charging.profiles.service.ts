@@ -12,7 +12,7 @@ import {
 } from '../util/ResponseGenerator';
 import { NotFoundException } from '../exception/NotFoundException';
 import { SetChargingProfile } from '../model/SetChargingProfile';
-import {NotFoundError} from "routing-controllers";
+import { NotFoundError } from 'routing-controllers';
 
 @Service()
 export class ChargingProfilesService {
@@ -112,11 +112,11 @@ export class ChargingProfilesService {
         );
       }
       return buildGenericServerErrorResponse(
-          {
-            result: ChargingProfileResultType.REJECTED,
-            timeout: this.TIMEOUT,
-          },
-          e as Error,
+        {
+          result: ChargingProfileResultType.REJECTED,
+          timeout: this.TIMEOUT,
+        },
+        e as Error,
       );
     }
   }

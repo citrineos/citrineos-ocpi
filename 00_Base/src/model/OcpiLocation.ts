@@ -3,10 +3,8 @@ import {
   DataType,
   Model,
   Table,
-  ForeignKey,
 } from 'sequelize-typescript';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { Location } from '@citrineos/data';
 
 export enum OcpiLocationProps {
   citrineLocationId = 'citrineLocationId',

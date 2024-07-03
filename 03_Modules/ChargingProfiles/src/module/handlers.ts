@@ -29,7 +29,7 @@ import {
   ActiveChargingProfileResult,
   AsyncResponder,
   ChargingProfileResultType,
-  ChargingProfileResult
+  ChargingProfileResult,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { ClearChargingProfileResult } from '@citrineos/ocpi-base';

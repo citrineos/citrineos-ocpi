@@ -45,7 +45,7 @@ export class CommandExecutor {
     );
 
     if (!evse) {
-        throw new NotFoundError('EVSE not found');
+      throw new NotFoundError('EVSE not found');
     }
 
     const correlationId = uuidv4();
@@ -106,9 +106,9 @@ export class CommandExecutor {
   }
 
   public async executeGetActiveChargingProfile(
-      sessionId: string,
-      duration: number,
-      responseUrl: string,
+    sessionId: string,
+    duration: number,
+    responseUrl: string,
   ) {
     // const transaction =
     //   await this.transactionRepo.findByTransactionId(sessionId);
@@ -134,19 +134,19 @@ export class CommandExecutor {
     } as GetCompositeScheduleRequest;
 
     this.abstractModule.sendCall(
-        transaction.stationId,
-        'tenantId',
-        CallAction.GetCompositeSchedule,
-        request,
-        undefined,
-        correlationId,
-        MessageOrigin.CentralSystem,
+      transaction.stationId,
+      'tenantId',
+      CallAction.GetCompositeSchedule,
+      request,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
     );
   }
 
   public async executeClearChargingProfile(
-      sessionId: string,
-      responseUrl: string,
+    sessionId: string,
+    responseUrl: string,
   ) {
     // const transaction =
     //   await this.transactionRepo.findByTransactionId(sessionId);
@@ -174,13 +174,13 @@ export class CommandExecutor {
     } as ClearChargingProfileRequest;
 
     this.abstractModule.sendCall(
-        transaction.stationId,
-        'tenantId',
-        CallAction.ClearChargingProfile,
-        request,
-        undefined,
-        correlationId,
-        MessageOrigin.CentralSystem,
+      transaction.stationId,
+      'tenantId',
+      CallAction.ClearChargingProfile,
+      request,
+      undefined,
+      correlationId,
+      MessageOrigin.CentralSystem,
     );
   }
 
@@ -191,9 +191,7 @@ export class CommandExecutor {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
     const transaction =
-      await this.transactionRepo.findByTransactionId(
-        sessionId,
-      );
+      await this.transactionRepo.findByTransactionId(sessionId);
     if (!transaction) {
       throw new NotFoundError('Session not found');
     }
@@ -272,7 +270,8 @@ export class CommandExecutor {
       ),
     } as ChargingScheduleType;
 
-    const profileId = await this.chargingProfileRepo.getNextChargingProfileId(stationId);
+    const profileId =
+      await this.chargingProfileRepo.getNextChargingProfileId(stationId);
     const setChargingProfileRequest = {
       evseId,
       chargingProfile: {
