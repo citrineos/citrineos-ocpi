@@ -1,4 +1,10 @@
-import { Column, DataType, Model, Table, ForeignKey } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Model,
+  Table,
+  ForeignKey,
+} from 'sequelize-typescript';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { Location } from '@citrineos/data';
 
@@ -20,10 +26,9 @@ export enum OcpiLocationProps {
  */
 @Table
 export class OcpiLocation extends Model {
-
   @Column({
     type: DataType.INTEGER,
-    unique: true
+    unique: true,
   })
   [OcpiLocationProps.citrineLocationId]!: number;
 
@@ -47,7 +52,7 @@ export class OcpiLocation extends Model {
 
   static buildWithLastUpdated(
     citrineLocationId: number,
-    lastUpdated: Date
+    lastUpdated: Date,
   ): OcpiLocation {
     const location = new OcpiLocation();
     location.citrineLocationId = citrineLocationId;

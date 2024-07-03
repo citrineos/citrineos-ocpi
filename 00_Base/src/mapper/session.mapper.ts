@@ -1,6 +1,11 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -12,7 +17,7 @@ import { SessionStatus } from '../model/SessionStatus';
 import { CredentialsService } from '../services/credentials.service';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
-
+import { CdrDimension } from '../model/CdrDimension';
 
 @Service()
 export class SessionMapper {
@@ -20,8 +25,7 @@ export class SessionMapper {
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
-  ) {
-  }
+  ) {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -79,7 +83,10 @@ export class SessionMapper {
       evse_uid: this.getEvseUid(transaction),
       connector_id: String(transaction.evse?.connectorId),
       currency: this.getCurrency(location),
-      charging_periods: this.getChargingPeriods(transaction.meterValues),
+      charging_periods: this.getChargingPeriods(
+        transaction.meterValues,
+        new Date(startEvent.timestamp),
+      ),
       status: this.getTransactionStatus(endEvent),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
       // TODO: Fill in optional values
@@ -140,50 +147,113 @@ export class SessionMapper {
 
   private getChargingPeriods(
     meterValues: MeterValueType[] = [],
+    transactionStart: Date,
   ): ChargingPeriod[] {
     return meterValues
-      .map((meterValue) => ({
-        start_date_time: new Date(meterValue.timestamp),
-        dimensions: meterValue.sampledValue
-          .map((sampledValue) => ({
-            type: this.mapMeasurandToCdrDimensionType(sampledValue.measurand),
-            volume: sampledValue.value as number,
-          }))
-          .filter(dimension => dimension.type), // only include supported dimension types
-        // TODO: Fill in tariff_id value
-        tariff_id: null,
-      }))
       .sort(
-        (a, b) => a.start_date_time.getTime() - b.start_date_time.getTime(),
-      );
+        (a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      )
+      .map((meterValue, index, sortedMeterValues) => {
+        const previousMeterValue =
+          index > 0 ? sortedMeterValues[index - 1] : undefined;
+        return this.mapMeterValueToChargingPeriod(
+          meterValue,
+          transactionStart,
+          previousMeterValue,
+        );
+      });
   }
 
-  private mapMeasurandToCdrDimensionType(
-    measurand: MeasurandEnumType | undefined,
-  ): CdrDimensionType {
-    // TODO handle chargers that only report measurands in phases
+  private mapMeterValueToChargingPeriod(
+    meterValue: MeterValueType,
+    transactionStart: Date,
+    previousMeterValue?: MeterValueType,
+  ): ChargingPeriod {
+    return {
+      start_date_time: new Date(meterValue.timestamp),
+      dimensions: this.getCdrDimensions(
+        meterValue,
+        transactionStart,
+        previousMeterValue,
+      ),
+      tariff_id: null, // TODO: Fill in tariff_id value
+    };
+  }
 
-    // current import == current
-    // energy active import register == energy_import
-    // -- use the one without "phase"
-    // power active import == power
-    // energy active export register == energy export
-    // soc = state of charge
-    // (cdr dimension type) energy === calculated, not a measurand :(, amount of energy charged since the previous charging period
-    // -- current minus previous
-    // time
-    // -- session active
-
-    switch (measurand) {
-      case MeasurandEnumType.Current_Import:
-        return CdrDimensionType.CURRENT;
-      case MeasurandEnumType.Energy_Active_Import_Register:
-        return CdrDimensionType.ENERGY_IMPORT;
-      case MeasurandEnumType.SoC:
-        return CdrDimensionType.STATE_OF_CHARGE;
+  private getCdrDimensions(
+    meterValue: MeterValueType,
+    transactionStart: Date,
+    previousMeterValue?: MeterValueType,
+  ): CdrDimension[] {
+    const cdrDimensions: CdrDimension[] = [];
+    for (const sampledValue of meterValue.sampledValue) {
+      switch (sampledValue.measurand) {
+        case MeasurandEnumType.Current_Import:
+          if (sampledValue.phase === 'N') {
+            cdrDimensions.push({
+              type: CdrDimensionType.CURRENT,
+              volume: sampledValue.value,
+            });
+          }
+          break;
+        case MeasurandEnumType.Energy_Active_Import_Register:
+          if (!sampledValue.phase) {
+            cdrDimensions.push({
+              type: CdrDimensionType.ENERGY_IMPORT,
+              volume: sampledValue.value,
+            });
+            const previousEnergy =
+              this.getEnergyImportForMeterValue(previousMeterValue);
+            previousEnergy &&
+              cdrDimensions.push({
+                type: CdrDimensionType.ENERGY,
+                volume: sampledValue.value - previousEnergy,
+              });
+          }
+          break;
+        case MeasurandEnumType.SoC:
+          cdrDimensions.push({
+            type: CdrDimensionType.STATE_OF_CHARGE,
+            volume: sampledValue.value,
+          });
+          break;
+      }
     }
-    // TODO: Implement mapping logic based on MeasurandEnumType
-    return CdrDimensionType.ENERGY;
+    cdrDimensions.push({
+      type: CdrDimensionType.TIME,
+      volume: this.getTimeElapsedForMeterValue(
+        meterValue,
+        transactionStart,
+        previousMeterValue,
+      ),
+    });
+    return cdrDimensions;
+  }
+
+  private getEnergyImportForMeterValue(meterValue?: MeterValueType) {
+    return (
+      meterValue?.sampledValue.find(
+        (sampledValue) =>
+          sampledValue.measurand ===
+            MeasurandEnumType.Energy_Active_Import_Register &&
+          !sampledValue.phase,
+      )?.value ?? undefined
+    );
+  }
+
+  private getTimeElapsedForMeterValue(
+    meterValue: MeterValueType,
+    transactionStart: Date,
+    previousMeterValue?: MeterValueType,
+  ): number {
+    const timeDiffMs = previousMeterValue
+      ? new Date(meterValue.timestamp).getTime() -
+        new Date(previousMeterValue.timestamp).getTime()
+      : new Date(meterValue.timestamp).getTime() - transactionStart.getTime();
+
+    // Convert milliseconds to hours
+    return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
   }
 
   private getLocationsForTransactions = async (
@@ -193,7 +263,7 @@ export class SessionMapper {
   ): Promise<{ [key: string]: OcpiLocation }> => {
     const transactionIdToLocationMap: { [key: string]: OcpiLocation } = {};
     for (const transaction of transactions) {
-      const chargingStation = await transaction.$get("station");
+      const chargingStation = await transaction.$get('station');
       if (!chargingStation) {
         throw new Error(`todo`); // todo
       }
@@ -201,11 +271,16 @@ export class SessionMapper {
       if (!locationId) {
         throw new Error(`todo`); // todo
       }
-      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(String(locationId));
+      const ocpiLocation = await this.ocpiLocationsRepository.readByKey(
+        String(locationId),
+      );
       if (!ocpiLocation) {
         throw new Error(`todo`); // todo
       }
-      if (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode && ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId) {
+      if (
+        ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&
+        ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId
+      ) {
         transactionIdToLocationMap[transaction.id] = ocpiLocation;
       }
     }
@@ -224,7 +299,6 @@ export class SessionMapper {
     // TODO: Remove this mock mapping and replace with real token fetch
     const transactionIdToTokenMap: { [key: string]: Token } = {};
 
-    const map = new Map();
     for (const transaction of transactions) {
       const token = new Token();
       token.country_code = mspCountryCode || 'US';
