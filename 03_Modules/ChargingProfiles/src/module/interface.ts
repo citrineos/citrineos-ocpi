@@ -3,4 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-export { CommandsModule } from './module/module';
+/**
+ * Interface for the ChargingProfiles module.
+ */
+export interface IChargingProfilesModuleApi {}

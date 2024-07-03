@@ -21,10 +21,10 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
+import { AsyncResponder } from '@citrineos/ocpi-base';
 import {
+  CommandResult,
   CommandResultType,
-  CommandsClientApi,
-  ResponseUrlRepository,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 
@@ -45,8 +45,7 @@ export class CommandsOcppHandlers extends AbstractModule {
   constructor(
     config: SystemConfig,
     cache: ICache,
-    readonly responseUrlRepo: ResponseUrlRepository,
-    readonly commandsClient: CommandsClientApi,
+    readonly asyncResponder: AsyncResponder,
     sender?: IMessageSender,
     handler?: IMessageHandler,
     logger?: Logger<ILogObj>,
@@ -54,8 +53,8 @@ export class CommandsOcppHandlers extends AbstractModule {
     super(
       config,
       cache,
-      handler || new RabbitMqReceiver(config, logger),
-      sender || new RabbitMqSender(config, logger),
+      handler ?? new RabbitMqReceiver(config, logger),
+      sender ?? new RabbitMqSender(config, logger),
       EventGroup.Commands,
       logger,
     );
@@ -115,20 +114,13 @@ export class CommandsOcppHandlers extends AbstractModule {
     correlationId: string,
     result: CommandResultType,
   ) {
-    const responseUrlEntity =
-      await this.responseUrlRepo.getResponseUrl(correlationId);
-    if (responseUrlEntity) {
-      try {
-        const response = await this.commandsClient.postCommandResult(
-          responseUrlEntity.responseUrl,
-          {
-            result: result,
-          },
-        );
-        console.log('Async response: ', response);
-      } catch (error) {
-        this._logger.error(error);
-      }
+    try {
+      const response = await this.asyncResponder.send(correlationId, {
+        result: result,
+      } as CommandResult);
+      console.log('Async response: ', response);
+    } catch (e) {
+      console.error(e);
     }
   }
 }

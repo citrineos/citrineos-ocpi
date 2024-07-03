@@ -1,6 +1,6 @@
 export enum ModuleId {
   Cdrs = 'cdrs',
-  Chargingprofiles = 'chargingprofiles',
+  ChargingProfiles = 'chargingprofiles',
   Commands = 'commands',
   Credentials = 'credentials',
   Hubclientinfo = 'hubclientinfo',

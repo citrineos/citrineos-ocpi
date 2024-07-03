@@ -5,7 +5,11 @@
 
 import { ICommandsModuleApi } from './interface';
 
-import { Body, JsonController, Post } from 'routing-controllers';
+import {
+  Body,
+  JsonController,
+  Post,
+} from 'routing-controllers';
 
 import { plainToInstance } from 'class-transformer';
 
@@ -99,6 +103,7 @@ export class CommandsModuleApi
           undefined,
         );
     }
+
     return await validate(_payload).then(async (errors) => {
       if (errors.length > 0) {
         const errorString = errors.map((error) => error.toString()).join(', ');

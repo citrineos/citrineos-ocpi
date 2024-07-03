@@ -30,6 +30,8 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
+export { NotFoundException } from './exception/NotFoundException';
+
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
@@ -49,7 +51,6 @@ export { NotRegisteredException } from './exception/NotRegisteredException';
 export { Image } from './model/Image';
 export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
-export { CommandsClientApi } from './trigger/CommandsClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
@@ -58,6 +59,10 @@ export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
+export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
+export { ClearChargingProfileResult } from './model/ChargingprofilesClearProfileResult';
+export { ChargingProfileResponse } from './model/ChargingProfileResponse';
+export { ChargingProfileResultType } from './model/ChargingProfileResult';
 export {
   generateMockOcpiResponse,
   generateMockOcpiPaginatedResponse,
@@ -86,6 +91,7 @@ export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
+export { CommandResult } from './model/CommandResult';
 export {
   LocationDTO,
   LocationResponse,
@@ -112,6 +118,9 @@ export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
+export { ChargingProfilesService } from './services/charging.profiles.service';
+export { AsyncResponder } from './util/AsyncResponder';
+
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
