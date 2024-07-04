@@ -13,14 +13,20 @@ import {
   CompositeScheduleType,
   EventGroup,
   GenericStatusEnumType,
+  GetCompositeScheduleRequest,
   GetCompositeScheduleResponse,
   HandlerProperties,
   ICache,
   IMessage,
   IMessageHandler,
   IMessageSender,
-  SystemConfig,
+  MessageOrigin,
+  NotifyChargingLimitRequest,
+  NotifyEVChargingScheduleRequest,
   SetChargingProfileResponse,
+  SystemConfig,
+  TransactionEventRequest,
+  TriggerReasonEnumType,
 } from '@citrineos/base';
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
@@ -28,19 +34,36 @@ import { ILogObj, Logger } from 'tslog';
 import {
   ActiveChargingProfileResult,
   AsyncResponder,
-  ChargingProfileResultType,
   ChargingProfileResult,
+  ChargingProfileResultType,
+  ClearChargingProfileResult,
+  ActiveChargingProfile,
+  ModuleId,
+  InterfaceRole,
+  buildPutChargingProfileParams,
+  EndpointRepository,
+  ClientInformationRepository,
+  ChargingProfilesClientApi,
+  SessionChargingProfileRepository,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
-import { ClearChargingProfileResult } from '@citrineos/ocpi-base';
-import { ActiveChargingProfile } from '../../../../00_Base/src/model/ActiveChargingProfile';
+import { Evse, SequelizeTransactionEventRepository } from '@citrineos/data';
+import { v4 as uuidv4 } from 'uuid';
+import { NotFoundError } from 'routing-controllers';
 
 @Service()
 export class ChargingProfilesOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [];
+  // duration: 3600s. Guide from OCPI 2.2.1: between 5 and 60 minutes.
+  readonly COMPOSITE_SCHEDULE_DURATION: number = 60 * 60;
+
+  protected _requests: CallAction[] = [
+    CallAction.NotifyEVChargingSchedule,
+    CallAction.NotifyChargingLimit,
+    CallAction.TransactionEvent,
+  ];
   protected _responses: CallAction[] = [
     CallAction.GetCompositeSchedule,
     CallAction.ClearChargingProfile,
@@ -51,6 +74,11 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     config: SystemConfig,
     cache: ICache,
     readonly asyncResponder: AsyncResponder,
+    readonly client: ChargingProfilesClientApi,
+    readonly transactionEventRepository: SequelizeTransactionEventRepository,
+    readonly endpointRepository: EndpointRepository,
+    readonly clientInformationRepository: ClientInformationRepository,
+    readonly sessionChargingProfileRepository: SessionChargingProfileRepository,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -83,15 +111,20 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
+    const ocppSchedule = message.payload.schedule;
+    const ocpiSchedule = ocppSchedule
+      ? this.mapOcppScheduleToOcpi(ocppSchedule)
+      : undefined;
     try {
       await this.asyncResponder.send(message.context.correlationId, {
         result: this.getResult(message.payload.status),
-        profile: message.payload.schedule
-          ? this.mapOcppScheduleToOcpi(message.payload.schedule)
-          : undefined,
+        profile: ocpiSchedule,
       } as ActiveChargingProfileResult);
     } catch (e) {
       console.error(e);
+      if (ocppSchedule && ocpiSchedule) {
+        await this.pushChargingProfile(ocppSchedule.evseId, ocpiSchedule);
+      }
     }
   }
 
@@ -101,13 +134,48 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
+    const status = message.payload.status;
 
     try {
       await this.asyncResponder.send(message.context.correlationId, {
-        result: this.getResult(message.payload.status),
+        result: this.getResult(status),
       } as ClearChargingProfileResult);
     } catch (e) {
       console.error(e);
+      // If no response URL is present, i.e., the request is sent by CPO for other reasons
+      // send GetCompositeSchedule to all EVSEs for charger
+      // since EVSE info is not included in ClearChargingProfile response
+      // This needs to be improved when we are able to match the request using response
+      if (
+        e instanceof NotFoundError &&
+        status === ClearChargingProfileStatusEnumType.Accepted
+      ) {
+        const stationId = message.context.stationId;
+        const evseIds =
+          await this.transactionEventRepository.getEvseIdsWithActiveTransactionByStationId(
+            stationId,
+          );
+        for (const evseId of evseIds) {
+          const existingSchedule: boolean = await this.checkExistingSchedule(
+            stationId,
+            evseId,
+          );
+          if (existingSchedule) {
+            this.sendCall(
+              stationId,
+              'tenantId',
+              CallAction.GetCompositeSchedule,
+              {
+                duration: this.COMPOSITE_SCHEDULE_DURATION,
+                evseId: evseId,
+              } as GetCompositeScheduleRequest,
+              undefined,
+              uuidv4(),
+              MessageOrigin.CentralSystem,
+            );
+          }
+        }
+      }
     }
   }
 
@@ -117,13 +185,160 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
+    const status = message.payload.status;
 
     try {
       await this.asyncResponder.send(message.context.correlationId, {
-        result: this.getResult(message.payload.status),
+        result: this.getResult(status),
       } as ChargingProfileResult);
     } catch (e) {
       console.error(e);
+      // If no response URL is present, i.e., the request is sent by CPO for other reasons
+      // send GetCompositeSchedule to all EVSEs for charger
+      // since EVSE info is not included in SetChargingProfile response
+      // This needs to be improved when we are able to match the request and response
+      if (
+        e instanceof NotFoundError &&
+        status === ChargingProfileStatusEnumType.Accepted
+      ) {
+        const stationId = message.context.stationId;
+        const evseIds =
+          await this.transactionEventRepository.getEvseIdsWithActiveTransactionByStationId(
+            stationId,
+          );
+        for (const evseId of evseIds) {
+          const existingSchedule: boolean = await this.checkExistingSchedule(
+            stationId,
+            evseId,
+          );
+          if (existingSchedule) {
+            this.sendCall(
+              stationId,
+              'tenantId',
+              CallAction.GetCompositeSchedule,
+              {
+                duration: this.COMPOSITE_SCHEDULE_DURATION,
+                evseId: evseId,
+              } as GetCompositeScheduleRequest,
+              undefined,
+              uuidv4(),
+              MessageOrigin.CentralSystem,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  @AsHandler(CallAction.NotifyEVChargingSchedule)
+  protected async _handleNotifyEVChargingScheduleRequest(
+    message: IMessage<NotifyEVChargingScheduleRequest>,
+    props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling:', message, props);
+
+    // TODO: We want to send GetCompositeSchedule only when the schedule in the request is validated
+    //  i.e., citrine accepts the schedule.
+    //  But NotifyEVChargingSchedule belongs to ISO 15118 based Smart Charging
+    //  which has not been implemented yet in core.
+    //  After it is implemented,
+    //  we need to do the same validation on the schedule here as in the core handler
+    //  before sending the getCompositeSchedule call
+    const isValidSchedule = true;
+    const existingSchedule: boolean = await this.checkExistingSchedule(
+      message.context.stationId,
+      message.payload.evseId,
+    );
+    if (isValidSchedule && existingSchedule) {
+      this.sendCall(
+        message.context.stationId,
+        'tenantId',
+        CallAction.GetCompositeSchedule,
+        {
+          duration: this.COMPOSITE_SCHEDULE_DURATION,
+          evseId: message.payload.evseId,
+        } as GetCompositeScheduleRequest,
+        undefined,
+        uuidv4(),
+        MessageOrigin.CentralSystem,
+      );
+    }
+  }
+
+  @AsHandler(CallAction.NotifyChargingLimit)
+  protected async _handleNotifyChargingLimitRequest(
+    message: IMessage<NotifyChargingLimitRequest>,
+    props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling:', message, props);
+
+    if (message.payload.evseId) {
+      const existingSchedule: boolean = await this.checkExistingSchedule(
+        message.context.stationId,
+        message.payload.evseId,
+      );
+      if (existingSchedule) {
+        this.sendCall(
+          message.context.stationId,
+          'tenantId',
+          CallAction.GetCompositeSchedule,
+          {
+            duration: this.COMPOSITE_SCHEDULE_DURATION,
+            evseId: message.payload.evseId,
+          } as GetCompositeScheduleRequest,
+          undefined,
+          uuidv4(),
+          MessageOrigin.CentralSystem,
+        );
+      }
+    }
+  }
+
+  @AsHandler(CallAction.TransactionEvent)
+  protected async _handleTransactionEventRequest(
+    message: IMessage<TransactionEventRequest>,
+    props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling:', message, props);
+    const request = message.payload;
+    const stationId = message.context.stationId;
+    const transactionId = request.transactionInfo.transactionId;
+
+    if (request.triggerReason === TriggerReasonEnumType.ChargingRateChanged) {
+      const existingSchedule: boolean = await this.checkExistingSchedule(
+        stationId,
+        request.evse?.id,
+        transactionId,
+      );
+      if (existingSchedule) {
+        let evseId;
+        if (request.evse) {
+          evseId = request.evse.id;
+        } else {
+          const transaction =
+            await this.transactionEventRepository.readTransactionByStationIdAndTransactionId(
+              stationId,
+              transactionId,
+            );
+          evseId = transaction?.evse?.id;
+        }
+        if (!evseId) {
+          console.error('Failed to get evseId');
+        } else {
+          this.sendCall(
+            message.context.stationId,
+            'tenantId',
+            CallAction.GetCompositeSchedule,
+            {
+              duration: this.COMPOSITE_SCHEDULE_DURATION,
+              evseId: evseId,
+            } as GetCompositeScheduleRequest,
+            undefined,
+            uuidv4(),
+            MessageOrigin.CentralSystem,
+          );
+        }
+      }
     }
   }
 
@@ -165,5 +380,97 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
         ),
       },
     };
+  }
+
+  private async pushChargingProfile(
+    evseId: number,
+    profileResult: ActiveChargingProfile,
+  ) {
+    // TODO: after Session Module is implemented
+    //  (1) find the active session by evseId
+    //  (2) find the session object by session id
+    //  (3) get the country code and party id from the session and its cdr_token
+    const sessionId = '12345';
+    const toCountryCode = 'NL';
+    const toPartyId = 'EXA';
+    const fromCountryCode = 'NL';
+    const fromPartyId = 'CPO';
+    const url = await this.endpointRepository.readEndpoint(
+      toCountryCode,
+      toPartyId,
+      ModuleId.ChargingProfiles,
+      InterfaceRole.RECEIVER,
+    );
+    console.log(`Found endpointURL: ${url}`);
+    const token = await this.clientInformationRepository.getClientToken(
+      toCountryCode,
+      toPartyId,
+    );
+    if (url && token) {
+      const params = buildPutChargingProfileParams(
+        `${url}/${sessionId}`,
+        profileResult,
+        token,
+        fromCountryCode,
+        fromPartyId,
+        toCountryCode,
+        toPartyId,
+      );
+      const response = await this.client.putChargingProfile(params);
+      console.log(
+        `Pushed charging profile with response: ${JSON.stringify(response)}`,
+      );
+    } else {
+      console.error(
+        `No URL or token found for charging profile with country code ${toCountryCode} and party id ${toPartyId}`,
+      );
+    }
+  }
+
+  private async checkExistingSchedule(
+    stationId: string,
+    evseId?: number,
+    transactionId?: string,
+  ): Promise<boolean> {
+    if (!evseId && !transactionId) {
+      console.error('Missing evseId or transactionId');
+      return false;
+    }
+    let activeTransactionId;
+    if (transactionId) {
+      activeTransactionId = transactionId;
+    } else {
+      const activeTransaction = (
+        await this.transactionEventRepository.readAllTransactionsByQuery({
+          where: {
+            stationId: stationId,
+            isActive: true,
+          },
+          include: [
+            {
+              model: Evse,
+              where: {
+                id: evseId,
+              },
+            },
+          ],
+        })
+      )[0];
+      activeTransactionId = activeTransaction?.transactionId;
+    }
+
+    if (activeTransactionId) {
+      // TODO: map transactionId to sessionId after session module is implemented
+      const sessionId = activeTransactionId;
+      const existingSchedule =
+        await this.sessionChargingProfileRepository.existByQuery({
+          where: {
+            sessionId: sessionId,
+          },
+        });
+      return existingSchedule > 0;
+    }
+
+    return false;
   }
 }

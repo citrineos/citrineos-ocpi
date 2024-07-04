@@ -25,6 +25,7 @@ import {
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { BadRequestError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
+import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 import { NotFoundError } from 'routing-controllers';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 
@@ -33,6 +34,7 @@ export class CommandExecutor {
   constructor(
     readonly abstractModule: AbstractModule,
     readonly responseUrlRepo: ResponseUrlRepository,
+    readonly sessionChargingProfileRepo: SessionChargingProfileRepository,
     readonly ocpiEvseEntityRepo: OcpiEvseRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
@@ -110,15 +112,10 @@ export class CommandExecutor {
     duration: number,
     responseUrl: string,
   ) {
-    // const transaction =
-    //   await this.transactionRepo.findByTransactionId(sessionId);
-
-    const transaction = {
-      stationId: 'CS01',
-      evse: {
-        id: 1,
-      },
-    };
+    // based on the current assumption, transactionId is equal to sessionId
+    // If this map assumption changes, this needs to be changed
+    const transaction =
+        await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
@@ -148,29 +145,30 @@ export class CommandExecutor {
     sessionId: string,
     responseUrl: string,
   ) {
-    // const transaction =
-    //   await this.transactionRepo.findByTransactionId(sessionId);
-
-    const transaction = {
-      stationId: 'CS01',
-      evse: {
-        id: 1,
-      },
-    };
+    // based on the current assumption, transactionId is equal to sessionId
+    // If this map assumption changes, this needs to be changed
+    const transaction =
+        await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
     }
 
-    // TODO: fetch chargingProfileId
+    const chargingProfiles = await this.sessionChargingProfileRepo.readAllByQuery({
+      where: {
+        sessionId: sessionId // sessionId is unique constraint
+      }
+    });
+    if (!chargingProfiles || chargingProfiles.length === 0) {
+      throw new NotFoundError('Charging profile not found');
+    }
 
     const correlationId = uuidv4();
 
     await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
 
     const request = {
-      // TODO: use chargingProfileId from transaction
-      chargingProfileId: 1,
+      chargingProfileId: chargingProfiles[0].chargingProfileId,
     } as ClearChargingProfileRequest;
 
     this.abstractModule.sendCall(
@@ -218,6 +216,11 @@ export class CommandExecutor {
       setChargingProfileRequest.chargingProfile,
       stationId,
       evseId,
+    );
+    await this.sessionChargingProfileRepo.createOrUpdateSessionChargingProfile(
+      sessionId,
+      setChargingProfileRequest.chargingProfile.id,
+      setChargingProfileRequest.chargingProfile.chargingSchedule[0].id,
     );
 
     this.abstractModule.sendCall(
