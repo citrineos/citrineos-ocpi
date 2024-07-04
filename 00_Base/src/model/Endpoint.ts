@@ -15,6 +15,7 @@ import { Exclude } from 'class-transformer';
 import { ClientVersion } from './ClientVersion';
 import { ServerVersion } from './ServerVersion';
 import { VersionNumber } from './VersionNumber';
+import { VersionEndpoint } from './VersionEndpoint';
 
 export class EndpointDTO {
   @IsString()
@@ -84,6 +85,18 @@ export class Endpoint extends Model {
       role,
       url,
     });
+  }
+
+  static fromVersionEndpoint(versionEndpoint: VersionEndpoint): Endpoint {
+    return Endpoint.buildEndpoint(
+      versionEndpoint.identifier,
+      versionEndpoint.role,
+      versionEndpoint.url,
+    );
+  }
+
+  static fromEndpointDTO(dto: EndpointDTO): Endpoint {
+    return Endpoint.buildEndpoint(dto.identifier, dto.role, dto.url);
   }
 
   public toEndpointDTO(): EndpointDTO {

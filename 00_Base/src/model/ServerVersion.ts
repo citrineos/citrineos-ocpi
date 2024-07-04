@@ -15,7 +15,7 @@ import { Endpoint } from './Endpoint';
 import { ClientInformation } from './ClientInformation';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
-import { IVersion } from './Version';
+import { IVersion, Version } from './Version';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 
 @Table
@@ -50,11 +50,21 @@ export class ServerVersion extends Model implements IVersion {
     url: string,
     endpoints: Endpoint[],
   ): ServerVersion {
-    const v = new ServerVersion();
-    v.version = version;
-    v.url = url;
-    v.endpoints = endpoints;
-    return v;
+    return ServerVersion.build({
+      version,
+      url,
+      endpoints,
+    });
+  }
+
+  static fromVersion(version: Version): ServerVersion {
+    return ServerVersion.buildServerVersion(
+      version.version,
+      version.url,
+      version.endpoints.map((endpoint) =>
+        Endpoint.fromVersionEndpoint(endpoint),
+      ),
+    );
   }
 
   public toVersionDTO(): VersionDTO {

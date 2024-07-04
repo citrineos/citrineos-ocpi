@@ -1,4 +1,11 @@
-/*
+import {
+  buildOcpiRegistrationParams,
+  OcpiRegistrationParams,
+} from '../../util/ocpi.registration.params';
+import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { CredentialsDTO } from '../../../model/DTO/CredentialsDTO';
+import { VersionNumber } from '../../../model/VersionNumber';
+import { Type } from 'class-transformer';
 
 export class PostCredentialsParams extends OcpiRegistrationParams {
   @IsNotEmpty()
@@ -23,4 +30,3 @@ export const buildPostCredentialsParams = (
   (params as PostCredentialsParams).credentials = credentials;
   return params as PostCredentialsParams;
 };
-*/

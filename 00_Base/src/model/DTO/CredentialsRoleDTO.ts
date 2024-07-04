@@ -23,4 +23,18 @@ export class CredentialsRoleDTO {
   @Type(() => BusinessDetailsDTO)
   @ValidateNested()
   business_details!: BusinessDetailsDTO;
+
+  static build(
+    role: Role,
+    party_id: string,
+    country_code: string,
+    business_details: BusinessDetailsDTO,
+  ): CredentialsRoleDTO {
+    const credentialsRole = new CredentialsRoleDTO();
+    credentialsRole.role = role;
+    credentialsRole.party_id = party_id;
+    credentialsRole.country_code = country_code;
+    credentialsRole.business_details = business_details;
+    return credentialsRole;
+  }
 }
