@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
 import { SequelizeLocationRepository, SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
-import { Tariff as OcpiTariff } from '../model/Tariff';
+import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionMapper } from './session.mapper';
 import { OcpiLogger } from '../util/logger';
 import { CdrLocation } from '../model/CdrLocation';
@@ -91,7 +91,7 @@ export class CdrMapper {
       tariffs: [tariff as unknown as OcpiTariff],
       charging_periods: session.charging_periods || [],
       signed_data: await this.getSignedData(session),
-      total_cost: await this.calculateTotalCost(session.kwh, tariff.price),
+      total_cost: await this.calculateTotalCost(session.kwh, tariff.pricePerKwh),
       total_fixed_cost: await this.calculateTotalFixedCost(tariff),
       total_energy: session.kwh,
       total_energy_cost: await this.calculateTotalEnergyCost(session, tariff),
