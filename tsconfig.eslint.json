@@ -25,6 +25,8 @@
     "03_Modules/Sessions/**/*.json",
     "03_Modules/Tariffs/**/*.ts",
     "03_Modules/Tariffs/**/*.json",
+    "03_Modules/Cdrs/**/*.ts",
+    "03_Modules/Cdrs/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.json",
     "mock-client/**/*.ts",

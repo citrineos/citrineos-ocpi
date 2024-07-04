@@ -30,7 +30,6 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
 export { NotFoundException } from './exception/NotFoundException';
-
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
@@ -50,14 +49,19 @@ export { NotRegisteredException } from './exception/NotRegisteredException';
 export { Image } from './model/Image';
 export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
+export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
+export { EndpointRepository } from './repository/EndpointRepository';
+export { SessionChargingProfileRepository } from './repository/SessionChargingProfileRepository';
+
 export { ClientInformation } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
 export { CommandResponse } from './model/CommandResponse';
+export { ActiveChargingProfile } from './model/ActiveChargingProfile';
 export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
 export { ClearChargingProfileResult } from './model/ChargingprofilesClearProfileResult';
 export { ChargingProfileResponse } from './model/ChargingProfileResponse';
@@ -128,6 +132,10 @@ export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
 export { CacheWrapper } from './util/CacheWrapper';
 export { ResponseGenerator } from './util/response.generator';
 export { versionIdParam } from './util/decorators/version.number.param';
+export {
+  PutChargingProfileParams,
+  buildPutChargingProfileParams,
+} from './trigger/param/charging.profiles/put.charging.profile.params';
 
 export {
   AUTH_CONTROLLER_COMPONENT,
@@ -148,10 +156,13 @@ export { CredentialsService } from './services/credentials.service';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { SessionsService } from './services/sessions.service';
+
 export { TariffsService } from './services/tariffs.service';
 export { TariffsBroadcaster } from './services/tariffs.broadcaster';
 export { TariffMapper } from './services/tariff.mapper';
 export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
+
+export { CdrsService } from './services/cdrs.service';
 
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';

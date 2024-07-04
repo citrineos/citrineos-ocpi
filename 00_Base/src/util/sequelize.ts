@@ -19,6 +19,7 @@ import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from "../model/OcpiTariff";
+import { SessionChargingProfile } from '../model/SessionChargingProfile';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -60,6 +61,7 @@ export class OcpiSequelizeInstance {
         OcpiConnector,
         ResponseUrlCorrelationId,
         OcpiTariff,
+        SessionChargingProfile,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

@@ -13,7 +13,6 @@ export class TokensClientApi extends BaseClientApi {
     this.validateRequiredParam(params, 'tokenId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.get<PaginatedTokenResponse>({
-      version: params.version,
       additionalHeaders,
     });
   }
@@ -26,15 +25,14 @@ export class TokensClientApi extends BaseClientApi {
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
     return await this.create<AuthorizationInfo>(
       {
-        version: params.version,
-        path: '{tokenId}/authorize'.replace(
-          'tokenId',
-          encodeURIComponent(params.tokenId),
-        ),
         additionalHeaders,
         queryParameters,
       },
       params.locationReferences,
+      '{tokenId}/authorize'.replace(
+        'tokenId',
+        encodeURIComponent(params.tokenId),
+      ),
     );
   }
 }

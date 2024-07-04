@@ -24,4 +24,16 @@ export class BusinessDetailsDTO {
   @Type(() => ImageDTO)
   @ValidateNested()
   logo?: ImageDTO | null;
+
+  static build(
+    name: string,
+    website: string | null,
+    logo: ImageDTO | null,
+  ): BusinessDetailsDTO {
+    const businessDetails = new BusinessDetailsDTO();
+    businessDetails.name = name;
+    businessDetails.website = website;
+    businessDetails.logo = logo;
+    return businessDetails;
+  }
 }
