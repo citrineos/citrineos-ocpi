@@ -14,6 +14,7 @@ import { InvalidParamException } from '../../exception/invalid.param.exception';
 import { MissingParamException } from '../../exception/missing.param.exception';
 import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
 import { NotRegisteredException } from '../../exception/NotRegisteredException';
+import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -94,6 +95,15 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+                (err as any).message,
+              ),
+            )
+            break;
+          case UnsuccessfulRequestException.name:
+            context.status = HttpStatus.OK;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ServerGenericError,
                 (err as any).message,
               ),
             )

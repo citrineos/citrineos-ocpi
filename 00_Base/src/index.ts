@@ -50,6 +50,7 @@ export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
 export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
+export { TokenDTO } from './model/DTO/TokenDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
 export { EndpointRepository } from './repository/EndpointRepository';
@@ -92,7 +93,6 @@ export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
 export {
   Token,
   SingleTokenRequest,
-  TokenDTO,
   TokenResponse,
 } from './model/Token';
 export { TokenType } from './model/TokenType';
@@ -104,7 +104,7 @@ export { VersionRepository } from './repository/VersionRepository';
 export { TokensRepository } from './repository/TokensRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
-export {EnumQueryParam} from './util/decorators/enum.query.param';
+export { EnumQueryParam } from './util/decorators/enum.query.param';
 export { CommandResult } from './model/CommandResult';
 export { OcpiTariff, TariffKey } from './model/OcpiTariff';
 export {
@@ -170,7 +170,7 @@ export { ModelmockService } from './services/ModelmockService';
 export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
-export {AsyncJobStatusDTO} from './model/AsyncJobStatus';
+export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
 export { SessionsService } from './services/sessions.service';
 
 export { TariffsService } from './services/tariffs.service';
@@ -186,9 +186,6 @@ export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
-export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
-export { Paginated } from './util/decorators/paginated';
-export { PaginatedParams } from './controllers/param/paginated.params';
 
 useContainer(Container);
 

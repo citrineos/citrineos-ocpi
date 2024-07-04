@@ -146,9 +146,10 @@ export class TokenDTO {
   @IsNotEmpty()
   uid!: string;
 
+  @Enum(TokenType, 'TokenType')
   @IsString()
   @IsNotEmpty()
-  type!: string;
+  type!: TokenType;
 
   @MaxLength(36)
   @IsString()
@@ -198,6 +199,26 @@ export class TokenDTO {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
+
+  toToken(): Token {
+    const token = new Token();
+    token.id = undefined;
+    token.country_code = this.country_code;
+    token.party_id = this.party_id;
+    token.uid = this.uid;
+    token.type = this.type;
+    token.contract_id = this.contract_id;
+    token.visual_number = this.visual_number;
+    token.issuer = this.issuer;
+    token.group_id = this.group_id;
+    token.valid = this.valid;
+    token.whitelist = this.whitelist;
+    token.language = this.language;
+    token.default_profile_type = this.default_profile_type;
+    token.energy_contract = this.energy_contract;
+    token.last_updated = this.last_updated;
+    return token;
+  }
 }
 
 export class TokenResponse extends OcpiResponse<TokenDTO> {

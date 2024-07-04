@@ -2,7 +2,7 @@ import { IsDateString, IsInt, Min } from 'class-validator';
 import { Optional } from '../../util/decorators/optional';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../../model/PaginatedResponse';
 import { OcpiParams } from '../util/ocpi.params';
-
+import { v4 as uuidv4 } from 'uuid';
 export class PaginatedOcpiParams extends OcpiParams {
   @IsInt()
   @Min(0)
@@ -54,6 +54,8 @@ export const buildPaginatedOcpiParams = (
   params.fromPartyId = fromPartyId;
   params.toCountryCode = toCountryCode;
   params.toPartyId = toPartyId;
+  params.xRequestId = uuidv4();
+  params.xCorrelationId = uuidv4();
   (params as PaginatedOcpiParams).limit = limit ?? DEFAULT_LIMIT;
   (params as PaginatedOcpiParams).offset = offset ?? DEFAULT_OFFSET;
   if (dateFrom) {

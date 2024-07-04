@@ -4,23 +4,26 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, Token, TokenDTO } from '../model/Token';
+import { SingleTokenRequest, Token } from '../model/Token';
 import { OcpiSequelizeInstance } from '../util/sequelize';
-import { SequelizeRepository } from '@citrineos/data';
+import { SequelizeAuthorizationRepository, SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
-import { InvalidParamException } from '../exception/invalid.param.exception';
 import { Op } from 'sequelize';
+import { OCPITokensMapper } from '../util/mappers/OCPITokensMapper';
+import { TokensValidators } from '../util/validators/TokensValidators';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<Token> {
+
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     private readonly logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
+    private readonly authorizationRepository: SequelizeAuthorizationRepository,
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
@@ -30,104 +33,147 @@ export class TokensRepository extends SequelizeRepository<Token> {
     );
   }
 
+  /**
+   * Retrieves a single token based on the provided SingleTokenRequest.
+   *
+   * @param {SingleTokenRequest} tokenRequest - The request object containing the token details.
+   * @return {Promise<Token | undefined>} A promise that resolves to the retrieved token or undefined if not found.
+   */
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
   ): Promise<Token | undefined> {
+    try {
+      const ocppAuth = await this.authorizationRepository.readAllByQuerystring({
+        idToken: tokenRequest.uid,
+        type: OCPITokensMapper.mapSingleTokenRequestToIdTokenType(tokenRequest),
+      });
+      if (ocppAuth.length === 0) {
+        return undefined;
+      }
+      // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
+      const ocppAuthIds = ocppAuth.map(auth => auth.id);
+      //Use query to validate the belongs to the right party
+      const query: any = {
+        where: {
+          id: {
+            [Op.in]: ocppAuthIds,
+          },
+          country_code: tokenRequest.country_code,
+          party_id: tokenRequest.party_id,
+          type: tokenRequest.type,
+        },
+      };
+
+      return this.readOnlyOneByQuery(query);
+    } catch (error) {
+      this.logger.error('Error retrieving single token', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Saves a new token.
+   *
+   * @param {Token} token - The token to save.
+   * @return {Promise<Token>} The saved token.
+   */
+  async saveToken(token: Token): Promise<Token> {
+
+      const ocppAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token);
+      const newOcppAuth = await this.authorizationRepository.createOrUpdateByQuerystring(ocppAuth, {
+        idToken: token.uid,
+        type: OCPITokensMapper.mapTokenTypeToIdTokenType(token),
+      });
+      token.id = newOcppAuth!.id!;
+    try {
+      const ocpiToken = await this.updateByKey(token.dataValues, token.id);
+      if (ocpiToken) {
+        return ocpiToken;
+      }
+      return await this.create(token);
+    } catch (error) {
+      this.logger.error('Error saving token', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Updates an existing token.
+   *
+   * @param {Partial<Token>} partialToken - The partial token to update.
+   * @return {Promise<Token>} The updated token.
+   * @throws {UnknownTokenException} If the token is not found.
+   */
+  async updateToken(partialToken: Partial<Token>): Promise<Token> {
+
+    TokensValidators.validatePartialTokenForUniquenessRequiredFields(partialToken);
+
+    const ocppAuthList = await this.authorizationRepository.readAllByQuerystring({
+      idToken: partialToken.uid!,
+      type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
+    });
+    if (ocppAuthList.length == 0) {
+      throw new UnknownTokenException('Token not found in the database');
+    }
+    // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
+    const ocppAuthIds = ocppAuthList.map(auth => auth.id);
+    //Use query to validate the belongs to the right party
     const query: any = {
       where: {
-        country_code: tokenRequest.country_code,
-        party_id: tokenRequest.party_id,
-        uid: tokenRequest.uid,
-        type: tokenRequest.type,
+        id: {
+          [Op.in]: ocppAuthIds,
+        },
+        country_code: partialToken.country_code,
+        party_id: partialToken.party_id,
+        type: partialToken.type,
       },
     };
 
-    return this.readOnlyOneByQuery(query);
-  }
+    const existingOCPIToken = await this.readOnlyOneByQuery(query);
+    if (!existingOCPIToken) throw new UnknownTokenException('Token not found in the database');
 
-  async saveToken(token: Token) {
-    return this._create(token);
-  }
-
-  async updateToken(partialToken: Partial<Token>): Promise<Token> {
-    if (partialToken.uid === undefined) {
-      throw new InvalidParamException('uid is required');
-    }
-    if (partialToken.party_id === undefined) {
-      throw new InvalidParamException('party_id is required');
-    }
-    if (partialToken.country_code === undefined) {
-      throw new InvalidParamException('country_code is required');
-    }
-    const existingToken = await this.readOnlyOneByQuery({
-      where: {
-        uid: partialToken.uid,
-        party_id: partialToken.party_id,
-        country_code: partialToken.country_code,
-      },
-    });
-
-    if (existingToken === undefined) {
-      throw new UnknownTokenException('Token not found in the database');
-    }
-
-    const updatedToken = await this._updateByKey(
-        {
-          ...partialToken,
-        },
-        existingToken.id,
+    partialToken.id = undefined;
+    const updatedToken = await this._updateByKey(partialToken.dataValues,
+      existingOCPIToken.id,
     );
     if (!updatedToken) {
       throw new UnknownTokenException('Token not found in the database');
     }
+
+    const newOCPPAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(updatedToken);
+    newOCPPAuth.id = existingOCPIToken.id;
+    const updatedOcppAuth = await this.authorizationRepository.createOrUpdateByQuerystring(newOCPPAuth, {
+      idToken: partialToken.uid!,
+      type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
+    });
+
+    if (!updatedOcppAuth) {
+      throw new Error('Could not save token');
+    }
+
     return updatedToken;
   }
 
   /**
-   * Set existing tokens to invalid and then update or create tokens
-   * @param tokenDTOs tokens need to be created or updated
-   * @param countryCode country code
-   * @param partyId party id
-   * @param dateFrom last update timestamp from
-   * @param dateTo last update timestamp to
+   * Updates or creates tokens.
+   *
+   * @param {Token[]} tokens - Tokens to be created or updated.
+   * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
   async updateBatchedTokens(
-    //TODO map to Token first
-    tokenDTOs: TokenDTO[]
+    tokens: Token[],
   ): Promise<void> {
-    const batchFailedTokens: TokenDTO[] = [];
-    await this.s.transaction(async (transaction) => {
-      // update tokens
-      for (const tokenDTO of tokenDTOs) {
-        try {
-          const [storedToken, created] = await this.s.models[
-            Token.MODEL_NAME
-          ].findOrCreate({
-            where: {
-              country_code: tokenDTO.country_code,
-              party_id: tokenDTO.party_id,
-              uid: tokenDTO.uid,
-              type: tokenDTO.type,
-            },
-            defaults: {
-              ...tokenDTO,
-            },
-            transaction,
-          });
-          if (!created) {
-            await this.s.models[Token.MODEL_NAME].update({...tokenDTO}, {
-                where: {
-                  id: (storedToken as Token).id,
-                },
-                transaction,
-            });
-          }
-        } catch (e) {
-          this.logger.error(e);
-          batchFailedTokens.push(tokenDTO);
-        }
+    const batchFailedTokens: Token[] = [];
+
+    // update tokens
+    for (const token of tokens) {
+      try {
+        await this.saveToken(token);
+      } catch (e) {
+        this.logger.error(e);
+        batchFailedTokens.push(token);
       }
-    });
+    }
 
     if (batchFailedTokens.length > 0) {
       throw new Error(

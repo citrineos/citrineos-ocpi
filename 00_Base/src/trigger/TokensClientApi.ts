@@ -5,13 +5,18 @@ import { PaginatedOcpiParams } from './param/paginated.ocpi.params';
 import { BaseClientApi, TriggerRequestOptions } from './BaseClientApi';
 import { PaginatedTokenResponse } from '../model/Token';
 import { VersionNumber } from '../model/VersionNumber';
+import { Service } from 'typedi';
+import { ModuleId } from '../model/ModuleId';
 
+@Service()
 export class TokensClientApi extends BaseClientApi {
+  CONTROLLER_PATH = ModuleId.Tokens;
+
   async getTokens(
     params: PaginatedOcpiParams,
   ): Promise<PaginatedTokenResponse> {
+
     this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'tokenId');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
 
       const options = {

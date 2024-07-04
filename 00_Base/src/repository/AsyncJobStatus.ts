@@ -31,8 +31,8 @@ export class AsyncJobStatusRepository extends SequelizeRepository<AsyncJobStatus
     ) {
       return await this._create(jobStatus);
     } else {
-      const updatedJobStatus = await this._updateByKey(
-        jobStatus,
+      const updatedJobStatus = await this.updateByKey(
+        jobStatus.dataValues,
         jobStatus.jobId,
       );
       if (!updatedJobStatus) {

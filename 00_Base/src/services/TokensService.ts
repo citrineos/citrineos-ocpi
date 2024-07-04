@@ -4,14 +4,11 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, Token, TokenDTO } from '../model/Token';
-import { ModelmockService } from './ModelmockService';
+import { SingleTokenRequest, Token } from '../model/Token';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
-import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenInfoType, IdTokenType } from '@citrineos/base';
-import { TokenType } from '../model/TokenType';
 import { TokensClientApi } from '../trigger/TokensClientApi';
 import { buildPaginatedOcpiParams } from '../trigger/param/paginated.ocpi.params';
 import { CountryCode } from '../util/util';
@@ -20,21 +17,18 @@ import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { Authorization } from '@citrineos/data';
-import { AuthorizationRepository } from '../repository/AuthorizationRepository';
+
 
 @Service()
 export class TokensService {
   constructor(
-    private readonly modelMockService: ModelmockService,
     private readonly logger: OcpiLogger,
     private readonly tokenRepository: TokensRepository,
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
-    private readonly authorizationRepository: AuthorizationRepository,
   ) {
   }
 
-  // TODO get existing token
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
   ): Promise<Token | undefined> {
@@ -42,16 +36,12 @@ export class TokensService {
   }
 
   async saveToken(token: Token): Promise<Token> {
-    this.authorizationRepository.createOrUpdateByQuerystring(this.mapOcpiTokenToOcppAuthorization(token), {
-      idToken: token.uid,
-      type: this.mapTokenTypeToIdTokenType(token.type),
-    });
-    try {
-      return this.tokenRepository.updateToken(token);
-    } catch (e) {
-      this.logger.info(`Token not found, creating new token.`);
-      return this.tokenRepository.saveToken(token);
-    }
+    // try {
+    //   return this.tokenRepository.updateToken(token);
+    // } catch (e) {
+    //   this.logger.info(`Token not found, creating new token.`);
+    return this.tokenRepository.saveToken(token);
+    // }
   }
 
   async updateToken(token: Partial<Token>): Promise<Token> {
@@ -63,7 +53,7 @@ export class TokensService {
     partyId: string,
     paginationParams?: PaginatedParams,
   ): Promise<AsyncJobStatus> {
-    const existingJob = await this.asyncJobStatusRepository.existByQuery({
+    const existingJob = await this.asyncJobStatusRepository.readOnlyOneByQuery({
       where: {
         jobName: AsyncJobName.FETCH_OCPI_TOKENS,
         countryCode: countryCode,
@@ -71,9 +61,9 @@ export class TokensService {
         isFinished: false,
       },
     });
-    if (existingJob > 0) {
+    if (existingJob) {
       throw new UnsuccessfulRequestException(
-        `Another job for country ${countryCode} and party ${partyId}  already in progress.`,
+        `Another job for country ${countryCode} and party ${partyId} already in progress with Id ${existingJob.jobId}`,
       );
     }
 
@@ -94,8 +84,8 @@ export class TokensService {
       const limit = paginationParams?.limit ?? 1000;
       let offset = 0;
       let retryCount = 5;
-      const totalTokens: TokenDTO[] = [];
-      let batchTokens: TokenDTO[] | undefined;
+      const totalTokens: Token[] = [];
+      let batchTokens: Token[] | undefined;
       do {
         const params = buildPaginatedOcpiParams(
           countryCode,
@@ -107,15 +97,16 @@ export class TokensService {
           paginationParams?.date_from,
           paginationParams?.date_to,
         );
+
+        //TODO use actually next link
         const response = await this.client.getTokens(params);
         if (
           response.status_code !== OcpiResponseStatusCode.GenericSuccessCode
         ) {
           retryCount--;
         } else {
-          batchTokens = response.data;
+          batchTokens = response.data.map(dto => dto.toToken());
           try {
-            //TODO save to OCPP Auth
             await this.tokenRepository.updateBatchedTokens(batchTokens);
             asyncJobStatus.currentOffset = offset;
             await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
@@ -136,7 +127,7 @@ export class TokensService {
       this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
       return asyncJobStatus;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e);
 
       asyncJobStatus.failureMessage = JSON.stringify(e);
       asyncJobStatus.isFinished = true;
@@ -144,7 +135,7 @@ export class TokensService {
         asyncJobStatus,
       );
 
-      throw new UnsuccessfulRequestException('Could not fetch tokens.');
+      throw new UnsuccessfulRequestException(`Could not fetch tokens. Error ${e}`);
     }
   }
 
@@ -152,57 +143,8 @@ export class TokensService {
     return await this.asyncJobStatusRepository.readByKey(jobId);
   }
 
-  private mapIdTokenTypeToTokenType(idTokenType: IdTokenEnumType): TokenType {
-    switch (idTokenType) {
-      case IdTokenEnumType.eMAID:
-      case IdTokenEnumType.NoAuthorization:
-      case IdTokenEnumType.KeyCode: // TODO: decide if this is correct
-      case IdTokenEnumType.MacAddress: // TODO: decide if this is correct
-        return TokenType.OTHER;
-      case IdTokenEnumType.ISO14443:
-      case IdTokenEnumType.ISO15693:
-        return TokenType.RFID;
-      case IdTokenEnumType.Central:
-      case IdTokenEnumType.Local:
-        return TokenType.APP_USER;
-      default:
-        throw new Error(`Unknown id token type: ${idTokenType}`);
-    }
-  }
 
-
-  /** TODO: Are these mappings correct?
-   *
-   * @param tokenType
-   * @private
-   */
-  private mapTokenTypeToIdTokenType(tokenType: TokenType): IdTokenEnumType {
-    switch (tokenType) {
-      case TokenType.OTHER:
-        return IdTokenEnumType.eMAID;
-      case TokenType.RFID:
-        //TODO how to decide on RFID type? Config?
-        return IdTokenEnumType.ISO14443;
-      case TokenType.APP_USER:
-        return IdTokenEnumType.Central;//TODO Or is this eMAID?
-      default:
-        throw new Error(`Unknown token type: ${tokenType}`);
-    }
-  }
-
-  private mapOcpiTokenToOcppAuthorization(ocpiToken: Token): Authorization {
-    return Authorization.build({
-      idToken: {
-        idToken: ocpiToken.uid,
-        type: this.mapTokenTypeToIdTokenType(ocpiToken.type),
-      } as IdTokenType,
-      idTokenInfo: {
-        status: ocpiToken.valid ? 'Accepted' as AuthorizationStatusEnumType : 'Blocked' as AuthorizationStatusEnumType,
-        groupIdToken: {
-          idToken: ocpiToken.contract_id,
-          type: this.mapTokenTypeToIdTokenType(ocpiToken.type),
-        } as IdTokenType,
-      } as IdTokenInfoType,
-    });
+  private mapPartialOcpiTokenToOcppAuthorization(ocpiToken: Partial<Token>): Authorization {
+    return new Authorization();
   }
 }

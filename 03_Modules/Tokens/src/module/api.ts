@@ -219,7 +219,7 @@ export class TokensModuleApi
     return jobStatus.toDTO();
   }
 
-  @Post('/:countryCode/:partyId/fetch/:jobId')
+  @Get('/:countryCode/:partyId/fetch/:jobId')
   @ResponseSchema(AsyncJobStatusDTO, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
