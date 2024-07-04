@@ -31,7 +31,6 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 
 export { NotFoundException } from './exception/NotFoundException';
-
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
@@ -157,6 +156,7 @@ export { CredentialsService } from './services/credentials.service';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { SessionsService } from './services/sessions.service';
+export { CdrsService } from './services/cdrs.service';
 
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
