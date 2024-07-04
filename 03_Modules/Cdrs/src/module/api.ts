@@ -19,6 +19,7 @@ import {
   PaginatedOcpiParams,
   PaginatedParams,
   ResponseSchema,
+  versionIdParam,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';

@@ -6,4 +6,10 @@ export class DeleteTariffParams extends OcpiParams {
   @IsNotEmpty()
   @Length(36, 36)
   tariffId!: string;
+
+  static build(tariffId: string) {
+    const params = new DeleteTariffParams();
+    params.tariffId = tariffId;
+    return params;
+  }
 }

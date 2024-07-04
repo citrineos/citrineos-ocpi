@@ -23,6 +23,8 @@
     "03_Modules/Locations/**/*.json",
     "03_Modules/Sessions/**/*.ts",
     "03_Modules/Sessions/**/*.json",
+    "03_Modules/Tariffs/**/*.ts",
+    "03_Modules/Tariffs/**/*.json",
     "03_Modules/Cdrs/**/*.ts",
     "03_Modules/Cdrs/**/*.json",
     "Server/**/*.ts",

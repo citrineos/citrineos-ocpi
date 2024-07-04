@@ -17,7 +17,7 @@ import { ChargingPeriod } from './ChargingPeriod';
 import { SignedData } from './SignedData';
 import { Price } from './Price';
 import { AuthMethod } from './AuthMethod';
-import { Tariff } from './Tariff';
+import { OcpiTariff } from './OcpiTariff';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
@@ -92,9 +92,9 @@ export class Cdr {
 
   @IsArray()
   @Optional()
-  @Type(() => Tariff)
+  @Type(() => OcpiTariff)
   @ValidateNested({ each: true })
-  tariffs?: Tariff[] | null;
+  tariffs?: OcpiTariff[] | null;
 
   @ArrayMinSize(1)
   @IsArray()

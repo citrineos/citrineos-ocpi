@@ -23,16 +23,17 @@ export class TokensClientApi extends BaseClientApi {
     const queryParameters: IRequestQueryParams = this.newQueryParams();
     queryParameters.params['type'] = params.type as string;
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.create<AuthorizationInfo>(
+    return await this.create(
       {
+        version: params.version,
+        path: '{tokenId}/authorize'.replace(
+          'tokenId',
+          encodeURIComponent(params.tokenId),
+        ),
         additionalHeaders,
         queryParameters,
       },
       params.locationReferences,
-      '{tokenId}/authorize'.replace(
-        'tokenId',
-        encodeURIComponent(params.tokenId),
-      ),
     );
   }
 }

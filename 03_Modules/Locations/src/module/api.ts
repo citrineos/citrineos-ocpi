@@ -55,7 +55,7 @@ export class LocationsModuleApi
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(() => PaginatedLocationResponse, {
+  @ResponseSchema(PaginatedLocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -71,7 +71,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(() => LocationResponse, {
+  @ResponseSchema(LocationResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -86,7 +86,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(() => EvseResponse, {
+  @ResponseSchema(EvseResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -109,7 +109,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid/:connector_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(() => ConnectorResponse, {
+  @ResponseSchema(ConnectorResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
