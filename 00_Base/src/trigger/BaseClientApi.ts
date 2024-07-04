@@ -258,7 +258,9 @@ export class BaseClientApi {
   }
 
   protected getOffsetFromLink(link: string): number {
-    const url = new URL(link);
+    // Reference https://github.com/ocpi/ocpi/blob/d7d82b6524106e0454101d8cde472cd6f807d9c7/transport_and_format.asciidoc?plain=1#L181
+    // Link: <url>; rel="next"
+    const url = new URL(link.substring(1, link.indexOf('>')));
     const offset = url.searchParams.get('offset');
     if (offset) {
       return parseInt(offset, 10);
