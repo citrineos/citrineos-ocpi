@@ -96,7 +96,7 @@ export class TokensService {
 
       this.client.baseUrl = clientVersions[0].url;
 
-      var done = false;
+      let done = false;
       do {
         const params = buildPaginatedOcpiParams(
           countryCode,
@@ -109,10 +109,10 @@ export class TokensService {
           paginationParams?.date_to,
         );
         params.authorization = token;
-        //TODO get version from DB
+        // TODO get version from DB
         params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 
-        //TODO use actually next link
+        // TODO use actually next link
         const response = await this.client.getTokens(params);
         if (
           response.status_code !== OcpiResponseStatusCode.GenericSuccessCode
@@ -126,7 +126,7 @@ export class TokensService {
             await this.tokenRepository.updateBatchedTokens(batchTokens);
             asyncJobStatus.currentOffset = offset;
             if (!asyncJobStatus.totalObjects) {
-              //TODO to test set a hardcoded total here remove after test
+              // TODO to test set a hardcoded total here remove after test
               response.total = 3;
 
               asyncJobStatus.totalObjects = response.total;
@@ -142,7 +142,7 @@ export class TokensService {
           offset += limit;
         }
 
-        //TODO check if link to next page exists here instead of limit
+        // TODO check if link to next page exists here instead of limit
         if (
           retryCount === 0 ||
           (batchTokens && totalTokens >= asyncJobStatus.totalObjects!)

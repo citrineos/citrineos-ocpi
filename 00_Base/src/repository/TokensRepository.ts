@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
+import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import {
   SequelizeAuthorizationRepository,
@@ -54,7 +54,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
       }
       // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
       const ocppAuthIds = ocppAuth.map((auth) => auth.id);
-      //Use query to validate the belongs to the right party
+      // Use query to validate the belongs to the right party
       const query: any = {
         where: {
           id: {
@@ -116,12 +116,12 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
         idToken: partialToken.uid!,
         type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
       });
-    if (ocppAuthList.length == 0) {
+    if (ocppAuthList.length === 0) {
       throw new UnknownTokenException('Token not found in the database');
     }
     // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
     const ocppAuthIds = ocppAuthList.map((auth) => auth.id);
-    //Use query to validate the belongs to the right party
+    // Use query to validate the belongs to the right party
     const query: any = {
       where: {
         id: {
@@ -134,8 +134,9 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
     };
 
     const existingOCPIToken = await this.readOnlyOneByQuery(query);
-    if (!existingOCPIToken)
+    if (!existingOCPIToken) {
       throw new UnknownTokenException('Token not found in the database');
+    }
 
     partialToken.id = undefined;
     const updatedToken = await this.updateByKey(
@@ -175,7 +176,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
     const batchFailedTokens: OCPIToken[] = [];
 
     // update tokens
-    //TODO save in bulk instead
+    // TODO save in bulk instead
     for (const token of tokens) {
       try {
         await this.saveToken(token);

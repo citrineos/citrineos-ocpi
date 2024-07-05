@@ -20,7 +20,7 @@ export class OCPITokensMapper {
   ): IdTokenEnumType {
     switch (token.type) {
       case TokenType.RFID:
-        //If you are actually using ISO15693, you need to change this
+        // If you are actually using ISO15693, you need to change this
         return IdTokenEnumType.ISO14443;
       case TokenType.APP_USER:
       case TokenType.OTHER:
@@ -35,7 +35,7 @@ export class OCPITokensMapper {
   ): IdTokenEnumType {
     switch (tokenRequest.type) {
       case TokenType.RFID:
-        //If you are actually using ISO15693, you need to change this
+        // If you are actually using ISO15693, you need to change this
         return IdTokenEnumType.ISO14443;
       case TokenType.APP_USER:
       case TokenType.OTHER:
@@ -49,7 +49,7 @@ export class OCPITokensMapper {
     ocpiToken: OCPIToken,
   ): Authorization {
     // Map the token's group_id if present
-    let groupId: IdTokenType | undefined = undefined;
+    let groupId: IdTokenType | undefined;
     if (ocpiToken.group_id) {
       groupId = {
         idToken: ocpiToken.group_id,

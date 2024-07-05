@@ -5,10 +5,10 @@ import {
   buildOcpiPaginatedResponse,
   generateMockOcpiResponse,
   ModuleId,
-  ResponseSchema,
   OcpiResponseStatusCode,
   OCPIToken,
   PaginatedTokenResponse,
+  ResponseSchema,
   TokenResponse,
   TokenType,
   WhitelistType,
@@ -16,9 +16,6 @@ import {
 import { HttpStatus } from '@citrineos/base';
 
 const TOKENS_LIST_MOCK = generateMockOcpiResponse(PaginatedTokenResponse); // todo create real mocks for tests
-
-const EMSP_HOST = 'http://localhost:8086';
-const EMSP_BASE_URL = `${EMSP_HOST}/ocpi/2.2.1`;
 
 @JsonController(`/2.2.1/${ModuleId.Tokens}`)
 @Service()
@@ -57,7 +54,7 @@ export class TokensController extends BaseController {
       }).toTokenDTO(),
     ];
 
-    //TODO, this should return the pagination part as headers
+    // TODO, this should return the pagination part as headers
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
       1,

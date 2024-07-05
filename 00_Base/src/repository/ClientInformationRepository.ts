@@ -72,6 +72,46 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     return info?.clientToken;
   }
 
+  async getCpoTenantByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const serverCredentialsRole =
+      await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const cpoTenant: CpoTenant | null = await serverCredentialsRole.$get(
+      ServerCredentialsRoleProps.cpoTenant,
+    );
+    if (!cpoTenant) {
+      const msg = 'CpoTenant not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return cpoTenant;
+  }
+
+  async getClientInformationByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientInformation[]> {
+    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
+      countryCode,
+      partyId,
+    );
+    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
+      CpoTenantProps.clientInformation,
+    );
+    if (!clientInformation || clientInformation.length === 0) {
+      const msg =
+        'Client information not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientInformation;
+  }
+
   private getExistingCredentials = async (
     token: string,
     fromCountryCode?: string,
@@ -127,44 +167,4 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     }
     return null;
   };
-
-  async getCpoTenantByServerCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<CpoTenant> {
-    const serverCredentialsRole =
-      await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
-        countryCode,
-        partyId,
-      );
-    const cpoTenant: CpoTenant | null = await serverCredentialsRole.$get(
-      ServerCredentialsRoleProps.cpoTenant,
-    );
-    if (!cpoTenant) {
-      const msg = 'CpoTenant not found for server country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    return cpoTenant;
-  }
-
-  async getClientInformationByServerCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<ClientInformation[]> {
-    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
-      countryCode,
-      partyId,
-    );
-    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
-      CpoTenantProps.clientInformation,
-    );
-    if (!clientInformation || clientInformation.length === 0) {
-      const msg =
-        'Client information not found for server country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    return clientInformation;
-  }
 }
