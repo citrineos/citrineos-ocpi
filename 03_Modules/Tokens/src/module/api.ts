@@ -28,7 +28,7 @@ import {
   OcpiResponseStatusCode,
   ResponseSchema,
   SingleTokenRequest,
-  Token,
+  OCPIToken,
   TokenDTO,
   TokenResponse,
   TokensService,
@@ -128,7 +128,7 @@ export class TokensModuleApi
         'Path token_uid and body token_uid must match',
       );
     }
-    const _token = plainToInstance(Token, tokenDTO);
+    const _token = plainToInstance(OCPIToken, tokenDTO);
     _token.type = type ? type : TokenType.RFID;
     // TODO save Token
     await this.tokensService.saveToken(_token);
@@ -186,7 +186,7 @@ export class TokensModuleApi
     } else {
       token.uid = tokenId;
     }
-    const _token = Token.build(token);
+    const _token = OCPIToken.build(token);
     _token.type = type ? type : TokenType.RFID;
 
     await this.tokensService.updateToken(_token);

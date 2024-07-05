@@ -39,7 +39,6 @@ export class OCPIToken extends Model {
   @IsNotEmpty()
   party_id!: string;
 
-  @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()
@@ -68,7 +67,6 @@ export class OCPIToken extends Model {
   @IsNotEmpty()
   issuer!: string;
 
-  @Column(DataType.STRING)
   @MaxLength(36)
   @IsString()
   @Optional()
@@ -84,7 +82,7 @@ export class OCPIToken extends Model {
   @IsNotEmpty()
   whitelist!: WhitelistType;
 
-  @Column(DataType.STRING)
+
   @MaxLength(2)
   @MinLength(2)
   @IsString()
