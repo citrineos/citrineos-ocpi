@@ -6,5 +6,4 @@
 /**
  * Interface for the Tariffs module.
  */
-export interface ITariffsModuleApi {
-}
+export interface ITariffsModuleApi {}

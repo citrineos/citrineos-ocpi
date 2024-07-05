@@ -18,9 +18,10 @@ import { CommandsModule } from '@citrineos/ocpi-commands';
 import { LocationsModule } from '@citrineos/ocpi-locations';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { SessionsModule } from '@citrineos/ocpi-sessions';
+import { CdrsModule } from '@citrineos/ocpi-cdrs';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
 import { Container } from 'typedi';
-import { TariffsModule } from "@citrineos/ocpi-tariffs";
+import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { RepositoryStore } from '@citrineos/data';
 import { TokensModule } from '@citrineos/ocpi-tokens';
@@ -91,6 +92,11 @@ class CitrineOSServer {
       },
       {
         module: TokensModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: CdrsModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

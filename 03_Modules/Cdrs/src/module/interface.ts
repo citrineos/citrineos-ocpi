@@ -6,5 +6,4 @@
 /**
  * Interface for the Cdrs module.
  */
-export interface ICdrsModuleApi {
-}
+export interface ICdrsModuleApi {}

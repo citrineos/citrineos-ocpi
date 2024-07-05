@@ -1,10 +1,16 @@
-import {Column, DataType, Index, Model, PrimaryKey, Table} from "@citrineos/data";
-import {CreationOptional} from 'sequelize';
-import {DisplayText} from "./DisplayText";
+import {
+  Column,
+  DataType,
+  Index,
+  Model,
+  PrimaryKey,
+  Table,
+} from '@citrineos/data';
+import { CreationOptional } from 'sequelize';
+import { DisplayText } from './DisplayText';
 
 @Table
 export class OcpiTariff extends Model {
-
   @PrimaryKey
   @Column(DataType.STRING(36))
   declare id: string;
@@ -36,11 +42,10 @@ export class OcpiTariff extends Model {
       partyId: this.partyId,
     };
   }
-
 }
 
-export type TariffKey = {
+export interface TariffKey {
   id: string;
   countryCode: string;
   partyId: string;
-};
+}

@@ -1,9 +1,12 @@
 import { Service } from 'typedi';
-import { SequelizeTransactionEventRepository, Transaction, } from '@citrineos/data';
+import {
+  SequelizeTransactionEventRepository,
+  Transaction,
+} from '@citrineos/data';
 import { CredentialsService } from '../services/credentials.service';
-import { ILogObj, Logger } from "tslog";
-import { BaseBroadcaster } from "./BaseBroadcaster";
-import { ModuleId } from "../model/ModuleId";
+import { ILogObj, Logger } from 'tslog';
+import { BaseBroadcaster } from './BaseBroadcaster';
+import { ModuleId } from '../model/ModuleId';
 import { CdrMapper } from '../mapper/cdr.mapper';
 import { Cdr } from '../model/Cdr';
 import { CdrsClientApi } from '../trigger/CdrsClientApi';
@@ -22,11 +25,12 @@ export class CdrBroadcaster extends BaseBroadcaster {
     this.transactionRepository.transaction.on('updated', (transactions) =>
       this.broadcast(
         transactions.filter(
-          transaction => transaction.transactionEvents?.some(
-            event => event.eventType === 'Ended'
-          ) ?? false
-        )
-      )
+          (transaction) =>
+            transaction.transactionEvents?.some(
+              (event) => event.eventType === 'Ended',
+            ) ?? false,
+        ),
+      ),
     );
   }
 
@@ -40,9 +44,7 @@ export class CdrBroadcaster extends BaseBroadcaster {
   }
 
   private async sendCdrToClients(cdr: Cdr): Promise<void> {
-    const params = PostCdrParams.build(
-      cdr
-    );
+    const params = PostCdrParams.build(cdr);
     const cpoCountryCode = cdr.country_code;
     const cpoPartyId = cdr.party_id;
     await this.broadcastToClients(
@@ -51,7 +53,7 @@ export class CdrBroadcaster extends BaseBroadcaster {
       ModuleId.Cdrs,
       params,
       this.cdrsClientApi,
-      this.cdrsClientApi.postCdr
+      this.cdrsClientApi.postCdr,
     );
   }
 }

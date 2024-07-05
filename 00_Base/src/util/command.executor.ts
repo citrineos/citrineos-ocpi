@@ -72,7 +72,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -103,7 +103,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -115,7 +115,7 @@ export class CommandExecutor {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
     const transaction =
-        await this.transactionRepo.findByTransactionId(sessionId);
+      await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
@@ -137,7 +137,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -148,17 +148,18 @@ export class CommandExecutor {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
     const transaction =
-        await this.transactionRepo.findByTransactionId(sessionId);
+      await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
     }
 
-    const chargingProfiles = await this.sessionChargingProfileRepo.readAllByQuery({
-      where: {
-        sessionId: sessionId // sessionId is unique constraint
-      }
-    });
+    const chargingProfiles =
+      await this.sessionChargingProfileRepo.readAllByQuery({
+        where: {
+          sessionId: sessionId, // sessionId is unique constraint
+        },
+      });
     if (!chargingProfiles || chargingProfiles.length === 0) {
       throw new NotFoundError('Charging profile not found');
     }
@@ -178,7 +179,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -230,7 +231,7 @@ export class CommandExecutor {
       setChargingProfileRequest,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
