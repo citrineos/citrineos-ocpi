@@ -281,8 +281,9 @@ export class SessionMapper {
         throw new Error(`todo`); // todo
       }
       if (
-        ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&
-        ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId
+        (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&
+          ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId) ||
+        (!cpoCountryCode && !cpoPartyId)
       ) {
         transactionIdToLocationMap[transaction.id] = ocpiLocation;
       }

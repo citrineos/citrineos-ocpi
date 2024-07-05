@@ -5,11 +5,13 @@ import { ModuleId } from '../model/ModuleId';
 import { NotFoundError } from 'routing-controllers';
 import { BaseClientApi } from './BaseClientApi';
 import { CdrResponse } from '../model/Cdr';
+import { Service } from 'typedi';
 
 interface PostCdrResponseHeaders {
   Location: string;
 }
 
+@Service()
 export class CdrsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Cdrs;
 

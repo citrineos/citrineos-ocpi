@@ -76,7 +76,7 @@ export class Endpoint extends Model {
   serverVersion!: ServerVersion;
 
   public isReceiverOf(module: ModuleId): boolean {
-      return this.role === InterfaceRole.RECEIVER && this.identifier === module;
+    return this.role === InterfaceRole.RECEIVER && this.identifier === module;
   }
 
   static buildEndpoint(
