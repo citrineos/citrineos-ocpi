@@ -34,7 +34,8 @@ export class TariffsModuleApi
       case 'created':
         return this.tariffsPublisher.broadcastByKey(broadcastRequest);
       default:
-        const exhaustiveCheck: never = broadcastRequest.eventType;
+        // const _exhaustiveCheck: never = broadcastRequest.eventType;
+        return Promise.resolve();
     }
   }
 }

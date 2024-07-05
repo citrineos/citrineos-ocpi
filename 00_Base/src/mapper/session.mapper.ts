@@ -205,11 +205,12 @@ export class SessionMapper {
             });
             const previousEnergy =
               this.getEnergyImportForMeterValue(previousMeterValue);
-            previousEnergy &&
+            if (previousEnergy) {
               cdrDimensions.push({
                 type: CdrDimensionType.ENERGY,
                 volume: sampledValue.value - previousEnergy,
               });
+            }
           }
           break;
         case MeasurandEnumType.SoC:

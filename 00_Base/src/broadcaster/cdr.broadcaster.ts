@@ -21,7 +21,7 @@ export class CdrBroadcaster extends BaseBroadcaster {
     readonly cdrsClientApi: CdrsClientApi,
     readonly credentialsService: CredentialsService,
   ) {
-    super();
+    super(logger, credentialsService);
     this.transactionRepository.transaction.on('updated', (transactions) =>
       this.broadcast(
         transactions.filter(
@@ -47,11 +47,12 @@ export class CdrBroadcaster extends BaseBroadcaster {
     const params = PostCdrParams.build(cdr);
     const cpoCountryCode = cdr.country_code;
     const cpoPartyId = cdr.party_id;
-    await this.cdrsClientApi.broadcastToClients(
+    await this.broadcastToClients(
       cpoCountryCode,
       cpoPartyId,
       ModuleId.Cdrs,
       params,
+      this.cdrsClientApi,
       this.cdrsClientApi.postCdr,
     );
   }

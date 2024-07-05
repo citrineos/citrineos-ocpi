@@ -29,7 +29,7 @@ export class TariffsModule implements OcpiModule {
     eventsDispatcher.initializeListeners();
   }
 
-  init(handler?: IMessageHandler, sender?: IMessageSender): void {}
+  init(_handler?: IMessageHandler, _sender?: IMessageSender): void {}
 
   getController(): any {
     return TariffsModuleApi;
