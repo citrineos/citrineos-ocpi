@@ -1,5 +1,7 @@
-import { IsInt, IsNotEmpty } from 'class-validator';
+import { IsInt, IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
 import { Enum } from '../util/decorators/enum';
+import { OcpiResponse } from './ocpi.response';
+import { Type } from 'class-transformer';
 
 export enum ChargingProfileResultType {
   ACCEPTED = 'ACCEPTED',
@@ -17,4 +19,12 @@ export class ChargingProfileResponse {
   @IsInt()
   @IsNotEmpty()
   timeout!: number;
+}
+
+export class ChargingProfileResponseResponse extends OcpiResponse<ChargingProfileResponse> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => ChargingProfileResponse)
+  @ValidateNested()
+  data!: ChargingProfileResponse;
 }

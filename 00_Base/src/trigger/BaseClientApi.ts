@@ -7,6 +7,9 @@ import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestEx
 import { HttpHeader } from '@citrineos/base';
 import { OcpiHttpHeader } from '../util/ocpi.http.header';
 import { base64Encode } from '../util/util';
+import { OcpiResponse } from '../model/ocpi.response';
+import { PaginatedResponse } from '../model/PaginatedResponse';
+import { Constructable } from 'typedi';
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -49,11 +52,14 @@ export class BaseClientApi {
     return this.restClient.options<T>(url, options);
   }
 
-  async options<T>(options: TriggerRequestOptions): Promise<T> {
+  async options<T extends OcpiResponse<any>>(
+    clazz: Constructable<T>,
+    options: TriggerRequestOptions,
+  ): Promise<T> {
     return this.optionsRaw<T>(
       this.getPath(options!.version!, options!.path!),
       options,
-    ).then((response) => this.handleResponse<T>(response));
+    ).then((response) => this.handleResponse(clazz, response));
   }
 
   async getRaw<T>(
@@ -63,11 +69,14 @@ export class BaseClientApi {
     return this.restClient.get<T>(url, options);
   }
 
-  async get<T>(options: TriggerRequestOptions): Promise<T> {
+  async get<T>(
+    clazz: Constructable<T>,
+    options: TriggerRequestOptions,
+  ): Promise<T> {
     return this.getRaw<T>(
       this.getPath(options!.version!, options!.path!),
       options,
-    ).then((response) => this.handleResponse<T>(response));
+    ).then((response) => this.handleResponse(clazz, response));
   }
 
   async delRaw<T>(
@@ -77,11 +86,14 @@ export class BaseClientApi {
     return this.restClient.del<T>(url, options);
   }
 
-  async del<T>(options: TriggerRequestOptions): Promise<T> {
+  async del<T extends OcpiResponse<any>>(
+    clazz: Constructable<T>,
+    options: TriggerRequestOptions,
+  ): Promise<T> {
     return this.delRaw<T>(
       this.getPath(options!.version!, options!.path!),
       options,
-    ).then((response) => this.handleResponse<T>(response));
+    ).then((response) => this.handleResponse(clazz, response));
   }
 
   async createRaw<T>(
@@ -92,12 +104,16 @@ export class BaseClientApi {
     return this.restClient.create<T>(url, body, options);
   }
 
-  async create<T>(options: TriggerRequestOptions, body: any): Promise<T> {
+  async create<T extends OcpiResponse<any>>(
+    clazz: Constructable<T>,
+    options: TriggerRequestOptions,
+    body: any,
+  ): Promise<T> {
     return this.createRaw<T>(
       this.getPath(options!.version!, options!.path!),
       body,
       options,
-    ).then((response) => this.handleResponse<T>(response));
+    ).then((response) => this.handleResponse(clazz, response));
   }
 
   async updateRaw<T>(
@@ -108,12 +124,16 @@ export class BaseClientApi {
     return this.restClient.update<T>(url, body, options);
   }
 
-  async update<T>(options: TriggerRequestOptions, body: any): Promise<T> {
+  async update<T extends OcpiResponse<any>>(
+    clazz: Constructable<T>,
+    options: TriggerRequestOptions,
+    body: any,
+  ): Promise<T> {
     return this.updateRaw<T>(
       this.getPath(options!.version!, options!.path!),
       body,
       options,
-    ).then((response) => this.handleResponse<T>(response));
+    ).then((response) => this.handleResponse(clazz, response));
   }
 
   async replaceRaw<T>(
@@ -124,12 +144,16 @@ export class BaseClientApi {
     return this.restClient.replace<T>(url, body, options);
   }
 
-  async replace<T>(options: TriggerRequestOptions, body: any): Promise<T> {
+  async replace<T extends OcpiResponse<any>>(
+    clazz: Constructable<T>,
+    options: TriggerRequestOptions,
+    body: any,
+  ): Promise<T> {
     return this.replaceRaw<T>(
       this.getPath(options!.version!, options!.path!),
       body,
       options,
-    ).then((response) => this.handleResponse<T>(response));
+    ).then((response) => this.handleResponse(clazz, response));
   }
 
   validateRequiredParam(params: any, ...paramNameList: string[]) {
@@ -233,9 +257,50 @@ export class BaseClientApi {
     };
   }
 
-  protected handleResponse<T>(response: IRestResponse<T>): T {
+  protected getOffsetFromLink(link: string): number {
+    const url = new URL(link);
+    const offset = url.searchParams.get('offset');
+    if (offset) {
+      return parseInt(offset, 10);
+    }
+    return 0;
+  }
+
+  protected handleResponse<T>(
+    clazz: Constructable<T>,
+    response: IRestResponse<T>,
+  ): T {
     if (response.statusCode >= 200 && response.statusCode <= 299) {
-      return response.result as T;
+      if (
+        Object.prototype.isPrototypeOf.call(
+          PaginatedResponse.prototype,
+          clazz.prototype,
+        )
+      ) {
+        const headers: any = response.headers;
+        const result = response.result as PaginatedResponse<any>;
+        if (headers) {
+          let link = headers[OcpiHttpHeader.Link.toLowerCase()];
+          const xTotalCount = headers[OcpiHttpHeader.XTotalCount.toLowerCase()];
+          const xLimit = headers[OcpiHttpHeader.XLimit.toLowerCase()];
+          if (xLimit) {
+            result.limit = parseInt(xLimit, 10);
+          }
+          if (xTotalCount) {
+            result.total = parseInt(xTotalCount, 10);
+          }
+          if (link) {
+            // Reference https://github.com/ocpi/ocpi/blob/d7d82b6524106e0454101d8cde472cd6f807d9c7/transport_and_format.asciidoc?plain=1#L181
+            // Link: <url>; rel="next"
+            link = link.substring(1, link.indexOf('>'));
+            result.link = link;
+            result.offset = this.getOffsetFromLink(link);
+          }
+        }
+        return result as T;
+      } else {
+        return response.result as T;
+      }
     } else {
       throw new UnsuccessfulRequestException(
         'Request did not return a successful status code',

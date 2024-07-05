@@ -25,7 +25,7 @@ export class PaginatedMiddleware
     const paginatedResponse = context.response.body as PaginatedResponse<any>;
     const link = this.createLink(context, paginatedResponse);
     if (link) {
-      context.response.set(OcpiHttpHeader.Link, link);
+      context.response.set(OcpiHttpHeader.Link, `<${link}>; rel="next"`);
     }
     context.response.set(OcpiHttpHeader.XTotalCount, paginatedResponse.total);
     context.response.set(OcpiHttpHeader.XLimit, paginatedResponse.limit);

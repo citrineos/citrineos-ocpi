@@ -62,7 +62,8 @@ export = {
       );
     };
 
-    const createTransaction = async () => await queryInterface.bulkInsert(
+    const createTransaction = async () =>
+      await queryInterface.bulkInsert(
         'Transactions',
         [
           {
@@ -84,7 +85,8 @@ export = {
         } as QueryOptions,
       );
 
-    const createTransactionEvents = async (transactionDatabaseId: any) => await queryInterface.bulkInsert(
+    const createTransactionEvents = async (transactionDatabaseId: any) =>
+      await queryInterface.bulkInsert(
         'TransactionEvents',
         [
           {
@@ -249,7 +251,8 @@ export = {
       );
     };
 
-    const createLocations = async () => await queryInterface.bulkInsert(
+    const createLocations = async () =>
+      await queryInterface.bulkInsert(
         'Locations',
         [
           {

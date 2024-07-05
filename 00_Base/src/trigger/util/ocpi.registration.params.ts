@@ -33,7 +33,8 @@ export const buildOcpiRegistrationParams = (
   authorization: string,
   xRequestId?: string,
   xCorrelationId?: string,
-): OcpiRegistrationParams => new OcpiRegistrationParams(
+): OcpiRegistrationParams =>
+  new OcpiRegistrationParams(
     authorization,
     xRequestId,
     xCorrelationId,

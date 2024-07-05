@@ -18,6 +18,7 @@ import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
 import { CdrToken } from './CdrToken';
 import { PaginatedResponse } from './PaginatedResponse';
+import { OcpiResponse } from './ocpi.response';
 
 export class Session {
   @MaxLength(2)
@@ -113,6 +114,14 @@ export class Session {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
+}
+
+export class SessionResponse extends OcpiResponse<Session> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => Session)
+  @ValidateNested()
+  data!: Session;
 }
 
 export class PaginatedSessionResponse extends PaginatedResponse<Session> {

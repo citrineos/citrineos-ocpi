@@ -86,6 +86,7 @@ export { Endpoint } from './model/Endpoint';
 export { CredentialsResponse } from './model/CredentialsResponse';
 export { OcpiResponseStatusCode } from './model/ocpi.response';
 export { OcpiEmptyResponse } from './model/ocpi.empty.response';
+export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';

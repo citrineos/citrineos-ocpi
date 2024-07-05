@@ -1,9 +1,4 @@
-import {
-  Column,
-  DataType,
-  Model,
-  Table,
-} from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export enum OcpiLocationProps {

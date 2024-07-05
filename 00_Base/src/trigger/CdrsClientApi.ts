@@ -16,7 +16,8 @@ export class CdrsClientApi extends BaseClientApi {
   async getCdr(params: GetCdrParams): Promise<CdrResponse> {
     this.validateOcpiParams(params);
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get<CdrResponse>({
+    return await this.get(CdrResponse, {
+      version: params.version,
       additionalHeaders,
     });
   }
