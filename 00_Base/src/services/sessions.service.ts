@@ -51,10 +51,6 @@ export class SessionsService {
       offset,
       sessions,
     );
-    response.data = sessions;
-    response.total = total;
-    response.offset = offset;
-    response.limit = limit;
 
     return response as PaginatedSessionResponse;
   }
