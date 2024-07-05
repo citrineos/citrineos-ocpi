@@ -1,7 +1,6 @@
 import { JsonController, Param, Patch } from 'routing-controllers';
 import { Service } from 'typedi';
 import {
-  AsOcpiRegistrationEndpoint,
   BaseController,
   ModuleId,
   OcpiEmptyResponse,
@@ -34,10 +33,10 @@ export class SessionsController extends BaseController {
     },
   })
   async getVersions(
-    @Param('countryCode') countryCode: string,
-    @Param('partyId') partyId: string,
-    @Param('sessionId') sessionId: string,
-    @VersionNumberParam() versionNumber: VersionNumber,
+    @Param('countryCode') _countryCode: string,
+    @Param('partyId') _partyId: string,
+    @Param('sessionId') _sessionId: string,
+    @VersionNumberParam() _versionNumber: VersionNumber,
   ): Promise<OcpiEmptyResponse> {
     console.log('mock getVersions returning', PUT_SESSION_MOCK);
     return PUT_SESSION_MOCK;

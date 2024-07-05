@@ -24,6 +24,7 @@ import { Container } from 'typedi';
 import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { RepositoryStore } from '@citrineos/data';
+import { TokensModule } from '@citrineos/ocpi-tokens';
 
 class CitrineOSServer {
   private readonly config: SystemConfig;
@@ -86,6 +87,11 @@ class CitrineOSServer {
       },
       {
         module: TariffsModule,
+        handler: this._createHandler(),
+        sender: this._createSender(),
+      },
+      {
+        module: TokensModule,
         handler: this._createHandler(),
         sender: this._createSender(),
       },

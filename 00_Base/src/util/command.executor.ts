@@ -23,10 +23,9 @@ import {
   SequelizeTransactionEventRepository,
 } from '@citrineos/data';
 import { SetChargingProfile } from '../model/SetChargingProfile';
-import { BadRequestError } from 'routing-controllers';
+import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
-import { NotFoundError } from 'routing-controllers';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 
 @Service()
@@ -65,7 +64,7 @@ export class CommandExecutor {
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       evse.stationId,
       'tenantId',
       CallAction.RequestStartTransaction,
@@ -96,7 +95,7 @@ export class CommandExecutor {
       transactionId: stopSession.session_id,
     } as RequestStopTransactionRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
       CallAction.RequestStopTransaction,
@@ -130,7 +129,7 @@ export class CommandExecutor {
       evseId: transaction.evse?.id,
     } as GetCompositeScheduleRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
       CallAction.GetCompositeSchedule,
@@ -172,7 +171,7 @@ export class CommandExecutor {
       chargingProfileId: chargingProfiles[0].chargingProfileId,
     } as ClearChargingProfileRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
       CallAction.ClearChargingProfile,
@@ -224,7 +223,7 @@ export class CommandExecutor {
       setChargingProfileRequest.chargingProfile.chargingSchedule[0].id,
     );
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       stationId,
       'tenantId',
       CallAction.SetChargingProfile,

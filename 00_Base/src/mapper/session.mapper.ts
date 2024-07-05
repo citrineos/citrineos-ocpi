@@ -10,7 +10,7 @@ import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { Token } from '../model/Token';
+import { OCPIToken } from '../model/OCPIToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
@@ -63,7 +63,7 @@ export class SessionMapper {
   private mapTransactionToSession(
     transaction: Transaction,
     location: OcpiLocation,
-    token: Token,
+    token: OCPIToken,
   ): Session {
     const [startEvent, endEvent] = this.getStartAndEndEvents(
       transaction.transactionEvents,
@@ -124,7 +124,7 @@ export class SessionMapper {
     }, new Date(transactionEvents[0].timestamp));
   }
 
-  private createCdrToken(token: Token): CdrToken {
+  private createCdrToken(token: OCPIToken): CdrToken {
     return {
       uid: token.uid,
       type: token.type,
@@ -297,15 +297,15 @@ export class SessionMapper {
     transactions: Transaction[],
     mspCountryCode?: string,
     mspPartyId?: string,
-  ): { [key: string]: Token } {
+  ): { [key: string]: OCPIToken } {
     // TODO: Create mapping between Transaction.idToken and OCPI Token
     // Only get Tokens that belong to the MSP if provided
 
     // TODO: Remove this mock mapping and replace with real token fetch
-    const transactionIdToTokenMap: { [key: string]: Token } = {};
+    const transactionIdToTokenMap: { [key: string]: OCPIToken } = {};
 
     for (const transaction of transactions) {
-      const token = new Token();
+      const token = new OCPIToken();
       token.country_code = mspCountryCode || 'US';
       token.party_id = mspPartyId || 'MSP';
       transactionIdToTokenMap[transaction.id] = token;

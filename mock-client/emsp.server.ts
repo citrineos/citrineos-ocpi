@@ -11,6 +11,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { MemoryCache } from '@citrineos/util';
 import { ILogObj, Logger } from 'tslog';
+import { TokensController } from './tokens';
 import { SessionsController } from './sessions';
 
 @Service()
@@ -28,7 +29,7 @@ export class EmspServer extends KoaServer {
       );
       this.koa = new Koa();
       this.initApp({
-        controllers: [VersionsController, SessionsController],
+        controllers: [VersionsController, SessionsController, TokensController],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,

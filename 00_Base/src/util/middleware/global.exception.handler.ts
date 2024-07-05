@@ -8,9 +8,14 @@ import { Context } from 'vm';
 import { HttpStatus } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
 import { Service } from 'typedi';
+import { UnknownTokenException } from '../../exception/unknown.token.exception';
 import { OcpiResponseStatusCode } from '../../model/ocpi.response';
+import { WrongClientAccessException } from '../../exception/wrong.client.access.exception';
+import { InvalidParamException } from '../../exception/invalid.param.exception';
+import { MissingParamException } from '../../exception/missing.param.exception';
 import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
 import { NotRegisteredException } from '../../exception/NotRegisteredException';
+import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -47,7 +52,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
               ),
             );
             break;
-          case 'ParamRequiredError':
+          case MissingParamException.name:
             context.status = HttpStatus.BAD_REQUEST;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
@@ -71,6 +76,36 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientNotEnoughInformation,
                 'Client not registered',
+              ),
+            );
+            break;
+          case UnknownTokenException.name:
+            context.status = HttpStatus.OK;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientUnknownToken,
+                (err as any).message,
+              ),
+            );
+            break;
+          case WrongClientAccessException.name:
+            context.status = HttpStatus.NOT_FOUND;
+            break;
+          case InvalidParamException.name:
+            context.status = HttpStatus.OK;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+                (err as any).message,
+              ),
+            );
+            break;
+          case UnsuccessfulRequestException.name:
+            context.status = HttpStatus.OK;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ServerGenericError,
+                (err as any).message,
               ),
             );
             break;

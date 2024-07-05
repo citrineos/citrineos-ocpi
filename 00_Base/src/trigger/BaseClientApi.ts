@@ -10,6 +10,7 @@ import { base64Encode } from '../util/util';
 import { OcpiResponse } from '../model/ocpi.response';
 import { PaginatedResponse } from '../model/PaginatedResponse';
 import { Constructable, Inject } from 'typedi';
+import { v4 as uuidv4 } from 'uuid';
 import { ModuleId } from '../model/ModuleId';
 import { ClientInformationProps } from '../model/ClientInformation';
 import { ClientCredentialsRoleProps } from '../model/ClientCredentialsRole';
@@ -47,8 +48,8 @@ export class BaseClientApi {
   protected clientInformationRepository!: ClientInformationRepository;
 
   CONTROLLER_PATH = 'null';
-  private _baseUrl = 'http://localhost:3000';
   private restClient!: RestClient;
+  private _baseUrl = 'http://localhost:3000';
 
   constructor() {
     this.initRestClient();
@@ -75,6 +76,7 @@ export class BaseClientApi {
     options: TriggerRequestOptions,
   ): Promise<T> {
     return this.optionsRaw<T>(
+      // if options fields are both optional, is this a risk?
       this.getPath(options!.version!, options!.path!),
       options,
     ).then((response) => this.handleResponse(clazz, response));
@@ -253,6 +255,42 @@ export class BaseClientApi {
     return `Required parameters [${params.join(',')}] are null or undefined`;
   }
 
+  public async broadcastToClients<P extends OcpiParams>(
+    cpoCountryCode: string,
+    cpoPartyId: string,
+    moduleId: ModuleId,
+    params: P,
+    requestFunction: (...args: any[]) => Promise<any>,
+  ): Promise<void> {
+    const requiredOcpiParams = await this.getRequiredOcpiParams(
+      cpoCountryCode,
+      cpoPartyId,
+      moduleId,
+    );
+    if (requiredOcpiParams.length === 0) {
+      this.logger.error('requiredOcpiParams empty');
+      return; // todo
+    }
+    for (const requiredOcpiParam of requiredOcpiParams) {
+      try {
+        params.fromCountryCode = cpoCountryCode;
+        params.fromPartyId = cpoPartyId;
+        params.toCountryCode = requiredOcpiParam.clientCountryCode;
+        params.toPartyId = requiredOcpiParam.clientPartyId;
+        params.authorization = requiredOcpiParam.authToken;
+        params.xRequestId = 'xRequestId'; // todo
+        params.xCorrelationId = 'xCorrelationId'; // todo
+        params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE; // todo
+        this.baseUrl = requiredOcpiParam.clientUrl;
+        const response = await requestFunction(params);
+        this.logger.info('broadcastToClients request response: ' + response);
+      } catch (e) {
+        // todo
+        this.logger.error(e);
+      }
+    }
+  }
+
   protected getPathForVersion(version = VersionNumber.TWO_DOT_TWO_DOT_ONE) {
     return `/ocpi/${version}/${this.CONTROLLER_PATH}`;
   }
@@ -339,11 +377,9 @@ export class BaseClientApi {
   ): IHeaders => {
     const headerParameters: IHeaders = {};
     headerParameters[OcpiHttpHeader.XRequestId] =
-      params.xRequestId != null ? String(params.xRequestId) : 'placeholder';
+      params.xRequestId != null ? String(params.xRequestId) : uuidv4();
     headerParameters[OcpiHttpHeader.XCorrelationId] =
-      params.xCorrelationId != null
-        ? String(params.xCorrelationId)
-        : 'placeholder';
+      params.xCorrelationId != null ? String(params.xCorrelationId) : uuidv4();
     this.setAuthHeader(headerParameters, params.authorization);
     return headerParameters;
   };
@@ -439,41 +475,5 @@ export class BaseClientApi {
       }
     }
     return urlCountryCodeAndPartyIdList;
-  }
-
-  public async broadcastToClients<P extends OcpiParams>(
-    cpoCountryCode: string,
-    cpoPartyId: string,
-    moduleId: ModuleId,
-    params: P,
-    requestFunction: (...args: any[]) => Promise<any>,
-  ): Promise<void> {
-    const requiredOcpiParams = await this.getRequiredOcpiParams(
-      cpoCountryCode,
-      cpoPartyId,
-      moduleId,
-    );
-    if (requiredOcpiParams.length === 0) {
-      this.logger.error('requiredOcpiParams empty');
-      return; // todo
-    }
-    for (const requiredOcpiParam of requiredOcpiParams) {
-      try {
-        params.fromCountryCode = cpoCountryCode;
-        params.fromPartyId = cpoPartyId;
-        params.toCountryCode = requiredOcpiParam.clientCountryCode;
-        params.toPartyId = requiredOcpiParam.clientPartyId;
-        params.authorization = requiredOcpiParam.authToken;
-        params.xRequestId = 'xRequestId'; // todo
-        params.xCorrelationId = 'xCorrelationId'; // todo
-        params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE; // todo
-        this.baseUrl = requiredOcpiParam.clientUrl;
-        const response = await requestFunction(params);
-        this.logger.info('broadcastToClients request response: ' + response);
-      } catch (e) {
-        // todo
-        this.logger.error(e);
-      }
-    }
   }
 }

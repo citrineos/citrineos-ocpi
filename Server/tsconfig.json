@@ -39,6 +39,9 @@
     },
     {
       "path": "../03_Modules/Tariffs"
+    },
+    {
+      "path": "../03_Modules/Tokens"
     }
   ]
 }

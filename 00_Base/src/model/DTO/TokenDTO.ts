@@ -1,24 +1,21 @@
+import { Enum } from '../../util/decorators/enum';
+import { TokenType } from '../TokenType';
+import { Optional } from '../../util/decorators/optional';
+import { WhitelistType } from '../WhitelistType';
+import { TokenEnergyContract } from '../TokenEnergyContract';
+import { OCPIToken } from '../OCPIToken';
 import {
-  IsArray,
   IsBoolean,
   IsDate,
   IsNotEmpty,
-  IsObject,
   IsString,
   MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { TokenEnergyContract } from './TokenEnergyContract';
-import { WhitelistType } from './WhitelistType';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
-import { PaginatedResponse } from './PaginatedResponse';
-import { TokenType } from './TokenType';
 
-export class Token {
+export class TokenDTO {
   @MaxLength(2)
   @MinLength(2)
   @IsString()
@@ -35,6 +32,7 @@ export class Token {
   @IsNotEmpty()
   uid!: string;
 
+  @Enum(TokenType, 'TokenType')
   @IsString()
   @IsNotEmpty()
   type!: TokenType;
@@ -86,21 +84,24 @@ export class Token {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
-}
 
-export class TokenResponse extends OcpiResponse<Token> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => Token)
-  @ValidateNested()
-  data!: Token;
-}
-
-export class PaginatedTokenResponse extends PaginatedResponse<Token> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @Optional(false)
-  @Type(() => Token)
-  data!: Token[];
+  toToken(): OCPIToken {
+    const token = new OCPIToken();
+    token.id = undefined;
+    token.country_code = this.country_code;
+    token.party_id = this.party_id;
+    token.uid = this.uid;
+    token.type = this.type;
+    token.contract_id = this.contract_id;
+    token.visual_number = this.visual_number;
+    token.issuer = this.issuer;
+    token.group_id = this.group_id;
+    token.valid = this.valid;
+    token.whitelist = this.whitelist;
+    token.language = this.language;
+    token.default_profile_type = this.default_profile_type;
+    token.energy_contract = this.energy_contract;
+    token.last_updated = this.last_updated;
+    return token;
+  }
 }

@@ -12,7 +12,6 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 import { CdrsController } from './controllers/cdrs.controller';
 import { ChargingProfilesController } from './controllers/charging.profiles.controller';
-import { TokensController } from './controllers/tokens.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -51,6 +50,7 @@ export { BusinessDetails } from './model/BusinessDetails';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
 export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
+export { TokenDTO } from './model/DTO/TokenDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';
 export { EndpointRepository } from './repository/EndpointRepository';
@@ -72,6 +72,7 @@ export {
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
+export { buildOcpiPaginatedResponse } from './model/PaginatedResponse';
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -90,13 +91,23 @@ export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
+export {
+  OCPIToken,
+  PaginatedTokenResponse,
+  SingleTokenRequest,
+  TokenResponse,
+} from './model/OCPIToken';
+export { TokenType } from './model/TokenType';
+export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
 export { OcpiModule } from './model/OcpiModule';
 export { VersionRepository } from './repository/VersionRepository';
+export { TokensRepository } from './repository/TokensRepository';
 export { ResponseUrlRepository } from './repository/response.url.repository';
 export { CommandResultType } from './model/CommandResult';
+export { EnumQueryParam } from './util/decorators/enum.query.param';
 export { CommandResult } from './model/CommandResult';
 export { OcpiTariff, TariffKey } from './model/OcpiTariff';
 export {
@@ -113,6 +124,7 @@ export {
 } from './model/DTO/EvseDTO';
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
+export { OCPITokensMapper } from './mapper/OCPITokensMapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
@@ -124,6 +136,10 @@ export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
 export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+export { InvalidParamException } from './exception/invalid.param.exception';
+export { MissingParamException } from './exception/missing.param.exception';
+export { UnknownTokenException } from './exception/unknown.token.exception';
+export { WrongClientAccessException } from './exception/wrong.client.access.exception';
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
@@ -154,14 +170,18 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
+export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
+export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
 export { SessionsService } from './services/sessions.service';
 
 export { TariffsService } from './services/tariffs.service';
 export { TariffsBroadcaster } from './services/tariffs.broadcaster';
 export { TariffMapper } from './services/tariff.mapper';
 export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
+
+export { OcpiHttpHeader } from './util/ocpi.http.header';
 
 export { CdrsService } from './services/cdrs.service';
 
@@ -224,7 +244,6 @@ export class OcpiServer extends KoaServer {
           ...controllers,
           CdrsController,
           ChargingProfilesController,
-          TokensController,
         ],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],

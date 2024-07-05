@@ -7,7 +7,7 @@ export enum OcpiNamespace {
   ChargingProfiles = 'ChargingProfiles',
   Commands = 'Commands',
   Sessions = 'Sessions',
-  Tokens = 'Tokens',
+  OcpiTokens = 'OCPIToken',
   ClientInformation = 'ClientInformation',
   ClientCredentialsRole = 'ClientCredentialsRole',
   ServerCredentialsRole = 'ServerCredentialsRole',

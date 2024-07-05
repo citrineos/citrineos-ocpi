@@ -27,6 +27,8 @@
     "03_Modules/Tariffs/**/*.json",
     "03_Modules/Cdrs/**/*.ts",
     "03_Modules/Cdrs/**/*.json",
+    "03_Modules/Tokens/**/*.ts",
+    "03_Modules/Tokens/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.json",
     "mock-client/**/*.ts",

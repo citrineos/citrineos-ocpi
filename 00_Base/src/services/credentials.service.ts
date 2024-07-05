@@ -144,6 +144,7 @@ export class CredentialsService {
         countryCode,
         partyId,
       );
+
     const cpoTenant: CpoTenant | null = await clientInformation.$get(
       ClientInformationProps.cpoTenant,
     );
