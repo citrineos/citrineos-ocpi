@@ -5,7 +5,7 @@ import {
   generateMockOcpiResponse,
   ModuleId,
   ResponseSchema,
-  Token,
+  OCPIToken,
   TokenResponse,
   TokenType,
 } from '@citrineos/ocpi-base';
@@ -41,7 +41,7 @@ export class TokensController extends BaseController {
   })
   async getTokens(): Promise<PaginatedTokenResponse> {
     console.log('mock get Tokens returning', generateMockOcpiResponse(TokenResponse));
-    const data = [Token.build({
+    const data = [OCPIToken.build({
       country_code: 'US',
       party_id: 'MSP',
       uid: 'uid',
@@ -57,7 +57,7 @@ export class TokensController extends BaseController {
     }).toTokenDTO()];
 
     //TODO, this should return the pagination part as headers
-    const response = buildOcpiPaginatedResponse(OcpiResponseStatusCode.GenericSuccessCode, 1,1,0,data) as PaginatedTokenResponse;
+    const response = buildOcpiPaginatedResponse(OcpiResponseStatusCode.GenericSuccessCode, 1, 1, 0, data) as PaginatedTokenResponse;
     return response;
 
   }
