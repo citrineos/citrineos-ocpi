@@ -29,7 +29,7 @@ export class TokensClientApi extends BaseClientApi {
       {
         version: params.version,
         path: '{tokenId}/authorize'.replace(
-          'tokenId',
+          '{tokenId}',
           encodeURIComponent(params.tokenId),
         ),
         additionalHeaders,

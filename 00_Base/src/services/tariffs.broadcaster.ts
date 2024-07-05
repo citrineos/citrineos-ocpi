@@ -24,7 +24,7 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     private readonly clientInformationRepository: ClientInformationRepository,
     private readonly tariffsClientApi: TariffsClientApi,
   ) {
-    super(logger, credentialsService);
+    super();
   }
 
   public async broadcastOcpiUpdate(tariffs: OcpiTariff[]) {
@@ -60,12 +60,11 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   private async broadcastTariff(tariff: TariffDTO) {
     try {
       const params = PutTariffParams.build(tariff.id, tariff);
-      await this.broadcastToClients(
+      await this.tariffsClientApi.broadcastToClients(
         tariff.country_code,
         tariff.party_id,
         ModuleId.Tariffs,
         params,
-        this.tariffsClientApi,
         this.tariffsClientApi.putTariff,
       );
     } catch (error) {
@@ -80,12 +79,11 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }: TariffKey): Promise<void> {
     try {
       const params = DeleteTariffParams.build(id);
-      await this.broadcastToClients(
+      await this.tariffsClientApi.broadcastToClients(
         countryCode,
         partyId,
         ModuleId.Tariffs,
         params,
-        this.tariffsClientApi,
         this.tariffsClientApi.deleteTariff,
       );
     } catch (error) {
