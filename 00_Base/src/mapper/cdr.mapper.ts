@@ -1,20 +1,17 @@
 import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
-import {
-  SequelizeLocationRepository,
-  SequelizeTariffRepository,
-  Tariff,
-  Transaction,
-} from '@citrineos/data';
-import { OcpiTariff } from '../model/OcpiTariff';
+import { SequelizeLocationRepository, SequelizeTariffRepository, Tariff, Transaction, } from '@citrineos/data';
+import { TariffKey } from '../model/OcpiTariff';
 import { SessionMapper } from './session.mapper';
 import { OcpiLogger } from '../util/logger';
 import { CdrLocation } from '../model/CdrLocation';
 import { TransactionEventRequest } from '@citrineos/base';
 import { Price } from '../model/Price';
+import { Tariff as OcpiTariff } from '../model/Tariff';
 import { SignedData } from '../model/SignedData';
 import { LocationDTO } from '../model/DTO/LocationDTO';
+import { TariffsService } from '../services/tariffs.service';
 
 @Service()
 export class CdrMapper {
@@ -23,7 +20,9 @@ export class CdrMapper {
     readonly logger: OcpiLogger,
     readonly locationRepository: SequelizeLocationRepository,
     readonly tariffRepository: SequelizeTariffRepository,
-  ) {}
+    readonly tariffsService: TariffsService
+  ) {
+  }
 
   public async mapTransactionsToCdrs(
     transactions: Transaction[],
@@ -34,8 +33,7 @@ export class CdrMapper {
   ): Promise<Cdr[]> {
     try {
       const validTransactions = this.getCompletedTransactions(transactions);
-      const transactionIdToTariffMap: Map<string, Tariff> =
-        await this.getTariffsForTransactions(validTransactions);
+
       const sessions = await this.mapTransactionsToSessions(
         validTransactions,
         fromCountryCode,
@@ -43,7 +41,12 @@ export class CdrMapper {
         toCountryCode,
         toPartyId,
       );
-      return await this.mapSessionsToCDRs(sessions, transactionIdToTariffMap);
+
+      const transactionIdToTariffMap: Map<string, Tariff> =
+        await this.getTariffsForTransactions(validTransactions);
+      const transactionIdToOcpiTariffMap: Map<string, OcpiTariff> =
+        await this.getOcpiTariffsForTransactions(sessions, transactionIdToTariffMap, toCountryCode, toPartyId);
+      return await this.mapSessionsToCDRs(sessions, transactionIdToTariffMap, transactionIdToOcpiTariffMap);
     } catch (error) {
       // TODO: Handle Error
       throw new Error();
@@ -67,6 +70,30 @@ export class CdrMapper {
     return transactionIdToTariffMap;
   }
 
+  private async getOcpiTariffsForTransactions(
+    sessions: Session[],
+    transactionIdToTariffMap: Map<string, Tariff>,
+    cpoCountryCode?: string,
+    cpoPartyId?: string
+  ): Promise<Map<string, OcpiTariff>> {
+    const transactionIdToOcpiTariffMap = new Map<string, OcpiTariff>();
+    await Promise.all(
+      sessions.map(async (session) => {
+        const tariffKey = {
+          id: String(transactionIdToTariffMap.get(session.id)?.id),
+          // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
+          countryCode: cpoCountryCode || 'CPO',
+          partyId: cpoPartyId || 'US'
+        } as TariffKey
+        const tariff = await this.tariffsService.getTariffByCoreKey(tariffKey);
+        if (tariff) {
+          transactionIdToOcpiTariffMap.set(session.id, tariff);
+        }
+      }),
+    );
+    return transactionIdToOcpiTariffMap;
+  }
+
   private async mapTransactionsToSessions(
     transactions: Transaction[],
     fromCountryCode?: string,
@@ -86,6 +113,7 @@ export class CdrMapper {
   private async mapSessionsToCDRs(
     sessions: Session[],
     transactionIdToTariffMap: Map<string, Tariff>,
+    transactionIdToOcpiTariffMap: Map<string, OcpiTariff>
   ): Promise<Cdr[]> {
     return Promise.all(
       sessions
@@ -94,6 +122,7 @@ export class CdrMapper {
           this.mapSessionToCDR(
             session,
             transactionIdToTariffMap.get(session.id)!,
+            transactionIdToOcpiTariffMap.get(session.id)!
           ),
         ),
     );
@@ -102,6 +131,7 @@ export class CdrMapper {
   private async mapSessionToCDR(
     session: Session,
     tariff: Tariff,
+    ocpiTariff: OcpiTariff
   ): Promise<Cdr> {
     // TODO: Get LocationDTO from location service
     const location = new LocationDTO();
@@ -120,7 +150,7 @@ export class CdrMapper {
       meter_id: session.meter_id,
       currency: session.currency,
       // TODO: Map OCPP Tariff to OCPI Tariff
-      tariffs: [tariff as unknown as OcpiTariff],
+      tariffs: [ocpiTariff],
       charging_periods: session.charging_periods || [],
       signed_data: await this.getSignedData(session),
       total_cost: await this.calculateTotalCost(
@@ -338,8 +368,8 @@ export class CdrMapper {
   private getStartAndEndEvents(
     transaction: Transaction,
   ): [
-    TransactionEventRequest | undefined,
-    TransactionEventRequest | undefined,
+      TransactionEventRequest | undefined,
+      TransactionEventRequest | undefined,
   ] {
     const startEvent = transaction.transactionEvents?.find(
       (event) => event.eventType === 'Started',
