@@ -2,18 +2,18 @@ import { Get, JsonController } from 'routing-controllers';
 import { Service } from 'typedi';
 import {
   BaseController,
+  buildOcpiPaginatedResponse,
   generateMockOcpiResponse,
   ModuleId,
   ResponseSchema,
+  OcpiResponseStatusCode,
   OCPIToken,
+  PaginatedTokenResponse,
   TokenResponse,
   TokenType,
   WhitelistType
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
-import { PaginatedTokenResponse } from '../00_Base/src/model/OCPIToken';
-import { buildOcpiPaginatedResponse } from '../00_Base/src/model/PaginatedResponse';
-import { OcpiResponseStatusCode } from '../00_Base';
 
 const TOKENS_LIST_MOCK = generateMockOcpiResponse(
   PaginatedTokenResponse,

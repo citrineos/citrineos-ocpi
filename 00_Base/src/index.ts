@@ -72,6 +72,7 @@ export {
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/base.controller';
+export { buildOcpiPaginatedResponse } from './model/PaginatedResponse';
 export { CommandType } from './model/CommandType';
 export { CancelReservation } from './model/CancelReservation';
 export { ReserveNow } from './model/ReserveNow';
@@ -92,10 +93,12 @@ export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
 export {
   OCPIToken,
+  PaginatedTokenResponse,
   SingleTokenRequest,
   TokenResponse,
 } from './model/OCPIToken';
 export { TokenType } from './model/TokenType';
+export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
 export { OcpiResponse } from './model/ocpi.response';
