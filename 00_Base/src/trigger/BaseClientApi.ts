@@ -258,9 +258,7 @@ export class BaseClientApi {
   }
 
   protected getOffsetFromLink(link: string): number {
-    // Reference https://github.com/ocpi/ocpi/blob/d7d82b6524106e0454101d8cde472cd6f807d9c7/transport_and_format.asciidoc?plain=1#L181
-    // Link: <url>; rel="next"
-    const url = new URL(link.substring(1, link.indexOf('>')));
+    const url = new URL(link);
     const offset = url.searchParams.get('offset');
     if (offset) {
       return parseInt(offset, 10);
@@ -292,11 +290,9 @@ export class BaseClientApi {
             result.total = parseInt(xTotalCount, 10);
           }
           if (link) {
-            const regex = /(?<=<)(.*?)(?=>)/; // get link between < and >
-            const matches = regex.exec(link);
-            if (matches) {
-              link = matches[0];
-            }
+            // Reference https://github.com/ocpi/ocpi/blob/d7d82b6524106e0454101d8cde472cd6f807d9c7/transport_and_format.asciidoc?plain=1#L181
+            // Link: <url>; rel="next"
+            link = link.substring(1, link.indexOf('>'));
             result.link = link;
             result.offset = this.getOffsetFromLink(link);
           }
