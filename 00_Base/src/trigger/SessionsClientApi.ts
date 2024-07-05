@@ -64,7 +64,7 @@ export class SessionsClientApi extends BaseClientApi {
       'session',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
+    return await this.update(
       OcpiEmptyResponse,
       {
         version: params.version,

@@ -20,6 +20,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
+import { Image } from './Image';
 
 export enum ClientCredentialsRoleProps {
   role = 'role',
@@ -74,16 +75,20 @@ export class ClientCredentialsRole extends Model implements ICredentialsRole {
   @BelongsTo(() => CpoTenant)
   [ClientCredentialsRoleProps.cpoTenant]!: CpoTenant;
 
-  static buildClientCredentialsRole(
-    countryCode: string,
-    partyId: string,
-    businessDetails: BusinessDetails,
-  ) {
-    const clientCredentialsRole = new ClientCredentialsRole();
-    clientCredentialsRole.country_code = countryCode;
-    clientCredentialsRole.party_id = partyId;
-    clientCredentialsRole.business_details = businessDetails;
-    return clientCredentialsRole;
+  static fromDto(credentialsRole: CredentialsRoleDTO) {
+    return ClientCredentialsRole.build(
+      {
+        ...(credentialsRole as Partial<ClientCredentialsRole>),
+      },
+      {
+        include: [
+          {
+            model: BusinessDetails,
+            include: [Image],
+          },
+        ],
+      },
+    );
   }
 }
 

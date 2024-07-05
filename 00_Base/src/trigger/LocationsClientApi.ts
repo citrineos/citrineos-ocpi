@@ -10,12 +10,10 @@ import { PutLocationParams } from './param/locations/put.location.params';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { BaseClientApi } from './BaseClientApi';
 import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
-import { EvseResponse } from '../model/DTO/EvseDTO';
 import { LocationResponse } from '../model/DTO/LocationDTO';
-import { Service } from 'typedi';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { EvseResponse } from '../model/DTO/EvseDTO';
 
-@Service()
 export class LocationsClientApi extends BaseClientApi {
   async getConnector(params: GetConnectorParams): Promise<ConnectorResponse> {
     this.validateOcpiParams(params);
@@ -155,7 +153,6 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
-  // TODO invoke when new connector is added
   async putConnector(params: PutConnectorParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
@@ -168,7 +165,7 @@ export class LocationsClientApi extends BaseClientApi {
       'connector',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
+    return await this.update(
       OcpiEmptyResponse,
       {
         version: params.version,
@@ -184,7 +181,6 @@ export class LocationsClientApi extends BaseClientApi {
     );
   }
 
-  // TODO invoke when new evse is added
   async putEvse(params: PutEvseParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(
@@ -196,7 +192,7 @@ export class LocationsClientApi extends BaseClientApi {
       'evse',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
+    return await this.update(
       OcpiEmptyResponse,
       {
         version: params.version,
@@ -221,7 +217,7 @@ export class LocationsClientApi extends BaseClientApi {
       'location',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
+    return await this.update(
       OcpiEmptyResponse,
       {
         version: params.version,

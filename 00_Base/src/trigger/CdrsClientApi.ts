@@ -26,13 +26,9 @@ export class CdrsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'cdr');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    const response = await this.createRaw<void>(
-      this.getPath(params.version),
-      params.cdr,
-      {
-        additionalHeaders,
-      },
-    );
+    const response = await this.createRaw<void>('', params.cdr, {
+      additionalHeaders,
+    });
     const headers = response.headers as PostCdrResponseHeaders;
     const cdrLocationUrl = headers.Location;
     if (!cdrLocationUrl) {

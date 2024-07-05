@@ -2,8 +2,10 @@ import {
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
+  ClientInformation,
   CredentialsDTO,
   CredentialsResponse,
+  CredentialsService,
   generateMockOcpiResponse,
   ModuleId,
   OcpiEmptyResponse,
@@ -14,7 +16,6 @@ import {
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
-  CredentialsService,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
@@ -143,5 +144,32 @@ export class CredentialsModuleApi
     this.logger.info('deleteCredentials', _version);
     await this.credentialsService?.deleteCredentials(token);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Post('/register-credentials-token-a')
+  @ResponseSchema(CredentialsResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async registerCredentialsTokenA(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() credentials: CredentialsDTO,
+  ): Promise<CredentialsResponse> {
+    this.logger.info('registerCredentialsTokenA', credentials);
+    let clientInformation: ClientInformation =
+      await this.credentialsService?.registerCredentialsTokenA(
+        versionNumber,
+        credentials,
+      );
+    clientInformation = clientInformation.get
+      ? clientInformation.get({ plain: true })
+      : clientInformation;
+    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 }

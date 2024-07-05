@@ -23,12 +23,27 @@ import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredExcept
 import { NotRegisteredException } from '../exception/NotRegisteredException';
 import { BusinessDetails } from '../model/BusinessDetails';
 import { Image } from '../model/Image';
-import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
+import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
+import { Role } from '../model/Role';
+import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
+import { ImageDTO } from '../model/DTO/ImageDTO';
+import { ImageCategory } from '../model/ImageCategory';
+import { ImageType } from '../model/ImageType';
+import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
+import { VersionRepository } from '../repository/VersionRepository';
+import { VersionEndpoint } from '../model/VersionEndpoint';
 import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
 import {
   ServerCredentialsRole,
   ServerCredentialsRoleProps,
 } from '../model/ServerCredentialsRole';
+import { ServerVersion } from '../model/ServerVersion';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { CredentialsResponse } from '../model/CredentialsResponse';
+import { buildPostCredentialsParams } from '../trigger/param/credentials/post.credentials.params';
+import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
 
 const clientInformationInclude = [
@@ -47,6 +62,26 @@ const clientInformationInclude = [
   },
 ];
 
+// TODO: temporarily creating CPO credentials, but for multi tenant support, the server credentials
+// should only be made via the admin endpoints and not be hardcoded
+const CpoCredentialsRole = CredentialsRoleDTO.build(
+  Role.CPO,
+  'COS', // todo is this okay?
+  'US',
+  BusinessDetailsDTO.build(
+    'CitrineOS',
+    'https://citrineos.github.io/',
+    ImageDTO.build(
+      'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
+      'https://citrineos.github.io/assets/images/231002_Citrine_OS_Logo_CitrineOS_Logo_negative.svg',
+      ImageCategory.OTHER,
+      ImageType.png,
+      100,
+      100,
+    ),
+  ),
+);
+
 @Service()
 export class CredentialsService {
   constructor(
@@ -54,6 +89,8 @@ export class CredentialsService {
     readonly logger: OcpiLogger,
     readonly clientInformationRepository: ClientInformationRepository,
     readonly versionsClientApi: VersionsClientApi,
+    readonly credentialsClientApi: CredentialsClientApi,
+    readonly versionRepository: VersionRepository,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
     readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
   ) {}
@@ -336,6 +373,180 @@ export class CredentialsService {
     }
   }
 
+  // TODO: add server details for multi tenant support
+  async registerCredentialsTokenA(
+    versionNumber: VersionNumber,
+    credentials: CredentialsDTO,
+  ): Promise<ClientInformation> {
+    const credentialsTokenA = credentials.token;
+
+    const serverVersionResponse = await this.versionRepository.readAllByQuery({
+      where: {
+        version: versionNumber,
+      },
+      include: [VersionEndpoint],
+    });
+    if (!serverVersionResponse || !serverVersionResponse[0]) {
+      throw new NotFoundError('Version not found');
+    }
+    const serverVersion = serverVersionResponse[0];
+    // TODO, should version url should be in DB?
+    const serverVersionUrl =
+      'https://plugfest-dallas.demo.citrineos.app:445/ocpi/versions';
+
+    const clientVersion = await this.getVersionDetails(
+      versionNumber,
+      credentials.url,
+      credentialsTokenA,
+    );
+    if (!clientVersion) {
+      throw new NotFoundError(
+        'Did not successfully retrieve client version details',
+      );
+    }
+
+    const credentialsTokenB = uuidv4();
+
+    const clientCpoTenant = CpoTenant.build(
+      {
+        serverCredentialsRoles: [CpoCredentialsRole],
+        clientInformation: [
+          {
+            registered: true,
+            clientToken: credentialsTokenA,
+            serverToken: credentialsTokenB,
+            clientCredentialsRoles: credentials.roles,
+            clientVersionDetails: [
+              {
+                version: clientVersion.version,
+                url: clientVersion.url,
+                endpoints: clientVersion.endpoints.map((endpoint) => ({
+                  identifier: endpoint.identifier,
+                  role: endpoint.role,
+                  url: endpoint.url,
+                })),
+              },
+            ],
+            serverVersionDetails: [
+              {
+                version: serverVersion.version,
+                url: serverVersion.url,
+                endpoints: serverVersion.endpoints.map((endpoint) => ({
+                  identifier: endpoint.identifier,
+                  role: endpoint.role,
+                  url: endpoint.url,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        include: [
+          {
+            model: ServerCredentialsRole,
+            include: [
+              {
+                model: BusinessDetails,
+                include: [Image],
+              },
+            ],
+          },
+          {
+            model: ClientInformation,
+            include: [
+              {
+                model: ClientVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ServerVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ClientCredentialsRole,
+                include: [
+                  {
+                    model: BusinessDetails,
+                    include: [Image],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    );
+
+    const clientInformation = clientCpoTenant.clientInformation[0];
+
+    // await clientInformation.save(); // todo
+    await clientCpoTenant.save();
+
+    const clientCredentialsEndpoint = clientVersion.endpoints.find(
+      (endpoint) =>
+        endpoint.identifier === ModuleId.Credentials &&
+        endpoint.role === InterfaceRole.RECEIVER,
+    );
+
+    if (!clientCredentialsEndpoint || !clientCredentialsEndpoint.url) {
+      throw new NotFoundError(
+        'Did not successfully retrieve client credentials from version details',
+      );
+    }
+
+    const clientCredentialsUrl = clientCredentialsEndpoint.url;
+    const updatedClientInformation =
+      await this.performPostAndReturnSavedClientCredentials(
+        clientInformation,
+        clientCredentialsUrl,
+        versionNumber,
+        credentialsTokenA,
+        credentialsTokenB,
+        serverVersionUrl,
+      );
+    console.debug('updatedClientInformation', updatedClientInformation);
+    return updatedClientInformation;
+  }
+
+  private async getPostCredentialsResponse(
+    clientCredentialsUrl: string,
+    versionNumber: VersionNumber,
+    credentialsTokenA: string,
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): Promise<CredentialsResponse> {
+    this.credentialsClientApi.baseUrl = clientCredentialsUrl;
+    const postCredentialsResponse =
+      await this.credentialsClientApi.postCredentials(
+        buildPostCredentialsParams(
+          versionNumber,
+          credentialsTokenA,
+          this.buildCredentialsDTO(credentialsTokenB, serverVersionUrl),
+        ),
+      );
+    if (
+      !postCredentialsResponse ||
+      postCredentialsResponse.status_code !==
+        OcpiResponseStatusCode.GenericSuccessCode ||
+      !postCredentialsResponse.data
+    ) {
+      throw new InternalServerError(
+        'Could not successfully post credentials to client',
+      );
+    }
+    return postCredentialsResponse;
+  }
+
+  private buildCredentialsDTO(
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): CredentialsDTO {
+    return CredentialsDTO.build(credentialsTokenB, serverVersionUrl, [
+      CpoCredentialsRole,
+    ]);
+  }
+
   private async updateClientCredentialRoles(
     clientInformation: ClientInformation,
     newClientCredentialsRoles: ClientCredentialsRole[],
@@ -376,10 +587,25 @@ export class CredentialsService {
     if (!existingVersionDetails) {
       throw new NotFoundError('Version details not found');
     }
-    this.versionsClientApi.baseUrl = existingVersionDetails.url;
+    const clientVersion = await this.getVersionDetails(
+      versionNumber,
+      existingVersionDetails.url,
+      credentials.token,
+    );
+    clientVersion.setDataValue('clientInformationId', clientInformation.id);
+    return clientVersion;
+  }
+
+  private async getVersionDetails(
+    versionNumber: VersionNumber,
+    url: string,
+    token: string,
+  ): Promise<ClientVersion> {
+    this.versionsClientApi.baseUrl = url;
+
     const versions = await this.versionsClientApi.getVersions({
       version: versionNumber,
-      authorization: credentials.token,
+      authorization: token,
     });
     if (!versions || !versions.data) {
       throw new NotFoundError('Versions not found');
@@ -393,15 +619,15 @@ export class CredentialsService {
     }
     this.versionsClientApi.baseUrl = version.url;
     const versionDetails = await this.versionsClientApi.getVersionDetails({
-      authorization: credentials.token,
+      authorization: token,
       version: versionNumber,
     });
     if (!versionDetails) {
       throw new NotFoundError('Matching version details not found');
     }
-    const clientVersion = ClientVersion.build(
+    return ClientVersion.build(
       {
-        identifier: versionNumber,
+        version: versionNumber,
         url: version.url,
         endpoints: versionDetails.data?.endpoints,
       },
@@ -409,7 +635,60 @@ export class CredentialsService {
         include: [Endpoint],
       },
     );
-    clientVersion.setDataValue('clientInformationId', clientInformation.id);
-    return clientVersion;
+  }
+
+  private async performPostAndReturnSavedClientCredentials(
+    clientInformation: ClientInformation,
+    clientCredentialsUrl: string,
+    versionNumber: VersionNumber,
+    credentialsTokenA: string,
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): Promise<ClientInformation> {
+    const postCredentialsResponse = await this.getPostCredentialsResponse(
+      clientCredentialsUrl,
+      versionNumber,
+      credentialsTokenA,
+      credentialsTokenB,
+      serverVersionUrl,
+    );
+    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
+    const credentialsTokenC = postCredentials.token;
+    clientInformation.clientToken = credentialsTokenC;
+
+    const clientCredentialsRoles = postCredentials.roles;
+    // remove old roles that were passed in via endpoint // todo maybe dont set roles in endpoint then?
+    for (const clientCredentialsRole of clientInformation.clientCredentialsRoles) {
+      // todo can this be done in one query??
+      await clientInformation.$remove(
+        ClientInformationProps.clientCredentialsRoles,
+        clientCredentialsRole,
+      );
+      await clientCredentialsRole.destroy();
+    }
+    // add new
+    const newClientCredentialsRoles = clientCredentialsRoles.map(
+      (credentialsRoleDTO) =>
+        ClientCredentialsRole.create(
+          {
+            ...(credentialsRoleDTO as Partial<ClientCredentialsRole>),
+            [ClientCredentialsRoleProps.clientInformationId]:
+              clientInformation.id,
+          },
+          {
+            include: [
+              {
+                model: BusinessDetails,
+                include: [Image],
+              },
+            ],
+          },
+        ),
+    );
+    clientInformation.setDataValue(
+      ClientInformationProps.clientCredentialsRoles,
+      newClientCredentialsRoles,
+    );
+    return await clientInformation.save();
   }
 }
