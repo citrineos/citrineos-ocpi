@@ -72,7 +72,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -103,7 +103,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -137,7 +137,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -179,7 +179,7 @@ export class CommandExecutor {
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -231,7 +231,7 @@ export class CommandExecutor {
       setChargingProfileRequest,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
