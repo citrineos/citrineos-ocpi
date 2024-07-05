@@ -1,6 +1,5 @@
 import { Service } from 'typedi';
 import { SequelizeTariffRepository } from '@citrineos/data';
-import { ClientInformationRepository } from '@citrineos/ocpi-base/src/repository/ClientInformationRepository';
 import { DeleteTariffParams } from '../trigger/param/tariffs/delete.tariff.params';
 import { CredentialsService } from './credentials.service';
 import { ModuleId } from '../model/ModuleId';
@@ -12,6 +11,7 @@ import { OcpiTariffRepository } from '../repository/OcpiTariffRepository';
 import { TariffsClientApi } from '../trigger/TariffsClientApi';
 import { BaseBroadcaster } from '../broadcaster/BaseBroadcaster';
 import { ILogObj, Logger } from 'tslog';
+import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {
