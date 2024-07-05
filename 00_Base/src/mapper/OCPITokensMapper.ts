@@ -1,7 +1,8 @@
-import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenType, IdTokenInfoType, AuthorizationData } from '@citrineos/base';
-import { SingleTokenRequest, Token } from '../../model/Token';
-import { TokenType } from '../../model/TokenType';
+import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenType, IdTokenInfoType } from '@citrineos/base';
+import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
+import { TokenType } from '../model/TokenType';
 import { Authorization } from '@citrineos/data';
+import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OCPITokensMapper {
 
@@ -10,7 +11,7 @@ export class OCPITokensMapper {
    * @private
    * @param token
    */
-  public static mapTokenTypeToIdTokenType(token: Partial<Token>): IdTokenEnumType {
+  public static mapTokenTypeToIdTokenType(token: Partial<OCPIToken>): IdTokenEnumType {
     switch (token.type) {
       case TokenType.RFID:
         //If you are actually using ISO15693, you need to change this
@@ -35,7 +36,8 @@ export class OCPITokensMapper {
         throw new Error(`Unknown token type: ${tokenRequest.type}`);
     }
   }
-  public static mapOcpiTokenToOcppAuthorization(ocpiToken: Token): Authorization {
+
+  public static mapOcpiTokenToOcppAuthorization(ocpiToken: OCPIToken): Authorization {
 
     // Map the token's group_id if present
     let groupId: IdTokenType | undefined = undefined;
@@ -61,9 +63,9 @@ export class OCPITokensMapper {
     };
 
     // Create the Authorization object
-    const auth = new Authorization()
+    const auth = new Authorization();
     auth.id = undefined;
-    auth.idToken = idToken
+    auth.idToken = idToken;
     auth.idTokenInfo = idTokenInfo;
 
 
@@ -71,5 +73,24 @@ export class OCPITokensMapper {
     // return Authorization.build(auth);
   }
 
+  public static mapTokenDtoToToken(tokenDto: TokenDTO) {
+    const token = new OCPIToken();
+    token.id = undefined;
+    token.country_code = tokenDto.country_code;
+    token.party_id = tokenDto.party_id;
+    token.uid = tokenDto.uid;
+    token.type = tokenDto.type;
+    token.contract_id = tokenDto.contract_id;
+    token.visual_number = tokenDto.visual_number;
+    token.issuer = tokenDto.issuer;
+    token.group_id = tokenDto.group_id;
+    token.valid = tokenDto.valid;
+    token.whitelist = tokenDto.whitelist;
+    token.language = tokenDto.language;
+    token.default_profile_type = tokenDto.default_profile_type;
+    token.energy_contract = tokenDto.energy_contract;
+    token.last_updated = tokenDto.last_updated;
+    return token;
+  }
 
 }

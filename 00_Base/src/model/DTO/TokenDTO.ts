@@ -3,7 +3,7 @@ import { TokenType } from '../TokenType';
 import { Optional } from '../../util/decorators/optional';
 import { WhitelistType } from '../WhitelistType';
 import { TokenEnergyContract } from '../TokenEnergyContract';
-import { Token } from '../Token';
+import { OCPIToken } from '../OCPIToken';
 import { IsBoolean, IsDate, IsNotEmpty, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -78,8 +78,8 @@ export class TokenDTO {
   @Type(() => Date)
   last_updated!: Date;
 
-  toToken(): Token {
-    const token = new Token();
+  toToken(): OCPIToken {
+    const token = new OCPIToken();
     token.id = undefined;
     token.country_code = this.country_code;
     token.party_id = this.party_id;

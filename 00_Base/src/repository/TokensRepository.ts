@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, Token } from '../model/Token';
+import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SequelizeAuthorizationRepository, SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
@@ -13,11 +13,11 @@ import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
-import { OCPITokensMapper } from '../util/mappers/OCPITokensMapper';
+import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
 import { TokensValidators } from '../util/validators/TokensValidators';
 
 @Service()
-export class TokensRepository extends SequelizeRepository<Token> {
+export class TokensRepository extends SequelizeRepository<OCPIToken> {
 
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
@@ -37,11 +37,11 @@ export class TokensRepository extends SequelizeRepository<Token> {
    * Retrieves a single token based on the provided SingleTokenRequest.
    *
    * @param {SingleTokenRequest} tokenRequest - The request object containing the token details.
-   * @return {Promise<Token | undefined>} A promise that resolves to the retrieved token or undefined if not found.
+   * @return {Promise<OCPIToken | undefined>} A promise that resolves to the retrieved token or undefined if not found.
    */
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
-  ): Promise<Token | undefined> {
+  ): Promise<OCPIToken | undefined> {
     try {
       const ocppAuth = await this.authorizationRepository.readAllByQuerystring({
         idToken: tokenRequest.uid,
@@ -74,17 +74,17 @@ export class TokensRepository extends SequelizeRepository<Token> {
   /**
    * Saves a new token.
    *
-   * @param {Token} token - The token to save.
-   * @return {Promise<Token>} The saved token.
+   * @param {OCPIToken} token - The token to save.
+   * @return {Promise<OCPIToken>} The saved token.
    */
-  async saveToken(token: Token): Promise<Token> {
+  async saveToken(token: OCPIToken): Promise<OCPIToken> {
 
       const ocppAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token);
       const newOcppAuth = await this.authorizationRepository.createOrUpdateByQuerystring(ocppAuth, {
         idToken: token.uid,
         type: OCPITokensMapper.mapTokenTypeToIdTokenType(token),
       });
-      token.id = newOcppAuth!.id!;
+      token.id = newOcppAuth!.id;
     try {
       const ocpiToken = await this.updateByKey(token.dataValues, token.id);
       if (ocpiToken) {
@@ -100,11 +100,11 @@ export class TokensRepository extends SequelizeRepository<Token> {
   /**
    * Updates an existing token.
    *
-   * @param {Partial<Token>} partialToken - The partial token to update.
-   * @return {Promise<Token>} The updated token.
+   * @param {Partial<OCPIToken>} partialToken - The partial token to update.
+   * @return {Promise<OCPIToken>} The updated token.
    * @throws {UnknownTokenException} If the token is not found.
    */
-  async updateToken(partialToken: Partial<Token>): Promise<Token> {
+  async updateToken(partialToken: Partial<OCPIToken>): Promise<OCPIToken> {
 
     TokensValidators.validatePartialTokenForUniquenessRequiredFields(partialToken);
 
@@ -133,7 +133,7 @@ export class TokensRepository extends SequelizeRepository<Token> {
     if (!existingOCPIToken) throw new UnknownTokenException('Token not found in the database');
 
     partialToken.id = undefined;
-    const updatedToken = await this._updateByKey(partialToken.dataValues,
+    const updatedToken = await this.updateByKey(partialToken.dataValues,
       existingOCPIToken.id,
     );
     if (!updatedToken) {
@@ -157,15 +157,16 @@ export class TokensRepository extends SequelizeRepository<Token> {
   /**
    * Updates or creates tokens.
    *
-   * @param {Token[]} tokens - Tokens to be created or updated.
+   * @param {OCPIToken[]} tokens - Tokens to be created or updated.
    * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
   async updateBatchedTokens(
-    tokens: Token[],
+    tokens: OCPIToken[],
   ): Promise<void> {
-    const batchFailedTokens: Token[] = [];
+    const batchFailedTokens: OCPIToken[] = [];
 
     // update tokens
+    //TODO save in bulk instead
     for (const token of tokens) {
       try {
         await this.saveToken(token);

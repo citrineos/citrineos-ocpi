@@ -91,10 +91,10 @@ export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
 export {
-  Token,
+  OCPIToken,
   SingleTokenRequest,
   TokenResponse,
-} from './model/Token';
+} from './model/OCPIToken';
 export { TokenType } from './model/TokenType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';

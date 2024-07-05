@@ -6,10 +6,7 @@ import {
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -33,10 +30,7 @@ import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
 import { VersionRepository } from '../repository/VersionRepository';
 import { VersionEndpoint } from '../model/VersionEndpoint';
 import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
-import {
-  ServerCredentialsRole,
-  ServerCredentialsRoleProps,
-} from '../model/ServerCredentialsRole';
+import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
 import { ServerVersion } from '../model/ServerVersion';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
@@ -170,6 +164,7 @@ export class CredentialsService {
         countryCode,
         partyId,
       );
+
     const cpoTenant: CpoTenant | null = await clientInformation.$get(
       ClientInformationProps.cpoTenant,
     );

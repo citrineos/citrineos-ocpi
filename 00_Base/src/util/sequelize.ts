@@ -14,7 +14,7 @@ import { ClientVersion } from '../model/ClientVersion';
 import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
-import { Token } from '../model/Token';
+import { OCPIToken } from '../model/OCPIToken';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
@@ -64,7 +64,7 @@ export class OcpiSequelizeInstance {
         ResponseUrlCorrelationId,
         OcpiTariff,
         SessionChargingProfile,
-        Token,
+        OCPIToken,
         AsyncJobStatus
       ],
       logging: (_sql: string, _timing?: number) => {

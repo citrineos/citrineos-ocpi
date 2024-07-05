@@ -12,6 +12,7 @@ import { PaginatedResponse } from '../model/PaginatedResponse';
 import { Constructable } from 'typedi';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import { plainToInstance } from 'class-transformer';
+import { v4 as uuidv4 } from 'uuid';
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -325,11 +326,11 @@ export class BaseClientApi {
   ): IHeaders => {
     const headerParameters: IHeaders = {};
     headerParameters[OcpiHttpHeader.XRequestId] =
-      params.xRequestId != null ? String(params.xRequestId) : 'placeholder';
+      params.xRequestId != null ? String(params.xRequestId) : uuidv4();
     headerParameters[OcpiHttpHeader.XCorrelationId] =
       params.xCorrelationId != null
         ? String(params.xCorrelationId)
-        : 'placeholder';
+        : uuidv4();
     this.setAuthHeader(headerParameters, params.authorization);
     return headerParameters;
   };

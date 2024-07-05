@@ -13,7 +13,7 @@ import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { LocationResponse } from '../model/DTO/LocationDTO';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 import { EvseResponse } from '../model/DTO/EvseDTO';
-import { Service } from "typedi";
+import { Service } from 'typedi';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {

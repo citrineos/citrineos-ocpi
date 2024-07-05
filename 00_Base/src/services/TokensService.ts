@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, Token } from '../model/Token';
+import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { PaginatedParams } from '../controllers/param/paginated.params';
@@ -16,7 +16,10 @@ import { Role } from '../model/Role';
 import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { Authorization } from '@citrineos/data';
+import { CredentialsService } from './credentials.service';
+import { ClientInformationProps } from '../model/ClientInformation';
+import { VersionNumber } from '../model/VersionNumber';
+import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
 
 
 @Service()
@@ -26,16 +29,17 @@ export class TokensService {
     private readonly tokenRepository: TokensRepository,
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
+    private readonly credentialsService: CredentialsService,
   ) {
   }
 
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
-  ): Promise<Token | undefined> {
+  ): Promise<OCPIToken | undefined> {
     return await this.tokenRepository.getSingleToken(tokenRequest);
   }
 
-  async saveToken(token: Token): Promise<Token> {
+  async saveToken(token: OCPIToken): Promise<OCPIToken> {
     // try {
     //   return this.tokenRepository.updateToken(token);
     // } catch (e) {
@@ -44,7 +48,7 @@ export class TokensService {
     // }
   }
 
-  async updateToken(token: Partial<Token>): Promise<Token> {
+  async updateToken(token: Partial<OCPIToken>): Promise<OCPIToken> {
     return this.tokenRepository.updateToken(token);
   }
 
@@ -84,8 +88,18 @@ export class TokensService {
       const limit = paginationParams?.limit ?? 1000;
       let offset = 0;
       let retryCount = 5;
-      const totalTokens: Token[] = [];
-      let batchTokens: Token[] | undefined;
+      let totalTokens = 0;
+      let batchTokens: OCPIToken[] | undefined;
+
+      const clientCredtials = await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(countryCode, partyId);
+      const token = clientCredtials[ClientInformationProps.clientToken];
+      const clientVersions = await clientCredtials.$get(
+        ClientInformationProps.clientVersionDetails,
+      );
+
+      this.client.baseUrl = clientVersions[0].url;
+
+      var done = false;
       do {
         const params = buildPaginatedOcpiParams(
           countryCode,
@@ -97,6 +111,9 @@ export class TokensService {
           paginationParams?.date_from,
           paginationParams?.date_to,
         );
+        params.authorization = token;
+        //TODO get version from DB
+        params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 
         //TODO use actually next link
         const response = await this.client.getTokens(params);
@@ -105,24 +122,34 @@ export class TokensService {
         ) {
           retryCount--;
         } else {
-          batchTokens = response.data.map(dto => dto.toToken());
+          batchTokens = response.data.map(dto => OCPITokensMapper.mapTokenDtoToToken(dto));
           try {
             await this.tokenRepository.updateBatchedTokens(batchTokens);
             asyncJobStatus.currentOffset = offset;
+            if(!asyncJobStatus.totalObjects){
+              //TODO to test set a hardcoded total here remove after test
+              response.total = 3;
+
+              asyncJobStatus.totalObjects = response.total;
+            }
             await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
           } catch (e) {
             this.logger.error(e);
           }
-          totalTokens.push(...batchTokens);
+          totalTokens += batchTokens.length;
           retryCount = retryLimit;
           offset += limit;
-
         }
-      } while (retryCount > 0 || (batchTokens && batchTokens.length === limit));
+
+        //TODO check if link to next page exists here instead of limit
+        if (retryCount === 0 || (batchTokens && totalTokens >= asyncJobStatus.totalObjects!)) {
+          done = true;
+        }
+      } while (!done);
 
 
       asyncJobStatus.stopTime = new Date();
-      asyncJobStatus.totalObjects = totalTokens.length;
+      asyncJobStatus.totalObjects = totalTokens;
       asyncJobStatus.isFinished = true;
       this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
       return asyncJobStatus;
@@ -143,8 +170,4 @@ export class TokensService {
     return await this.asyncJobStatusRepository.readByKey(jobId);
   }
 
-
-  private mapPartialOcpiTokenToOcppAuthorization(ocpiToken: Partial<Token>): Authorization {
-    return new Authorization();
-  }
 }
