@@ -53,7 +53,7 @@ To get started with CitrineOS OCPI, you will need to:
 
 1. Clone and build the CitrineOS Core repository.
 2. Clone and build the CitrineOS OCPI repository. Must have the same parent directory as CitrineOS Core.
-3. Follow the instructions provided on the ocpi setup page (TBD) to configure and run the combined modules with OCPI activated.
+3. Follow the instructions provided on the [Quickstart guide](https://citrineos.github.io/quickstart.html) to configure and run the combined modules with OCPI activated.
 
 ## Contributing
 
