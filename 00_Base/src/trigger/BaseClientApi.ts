@@ -282,7 +282,7 @@ export class BaseClientApi {
         const headers: any = response.headers;
         const result = response.result as PaginatedResponse<any>;
         if (headers) {
-          const link = headers[OcpiHttpHeader.Link.toLowerCase()];
+          let link = headers[OcpiHttpHeader.Link.toLowerCase()];
           const xTotalCount = headers[OcpiHttpHeader.XTotalCount.toLowerCase()];
           const xLimit = headers[OcpiHttpHeader.XLimit.toLowerCase()];
           if (xLimit) {
@@ -292,6 +292,11 @@ export class BaseClientApi {
             result.total = parseInt(xTotalCount, 10);
           }
           if (link) {
+            const regex = /(?<=<)(.*?)(?=>)/; // get link between < and >
+            const matches = regex.exec(link);
+            if (matches) {
+              link = matches[0];
+            }
             result.link = link;
             result.offset = this.getOffsetFromLink(link);
           }
