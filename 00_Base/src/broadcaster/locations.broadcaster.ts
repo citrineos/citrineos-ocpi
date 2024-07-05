@@ -27,7 +27,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationsClientApi: LocationsClientApi,
   ) {
-    super(logger, credentialsService);
+    super();
   }
 
   async broadcastOnLocationCreate(location: Location): Promise<void> {
@@ -76,12 +76,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     );
 
     // TODO flexible country code + party id
-    await this.broadcastToClients(
+    await this.locationsClientApi.broadcastToClients(
       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
       ModuleId.Locations,
       params,
-      this.locationsClientApi,
       this.locationsClientApi.patchEvse,
     );
   }
@@ -129,12 +128,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     );
 
     // TODO flexible country code + party id
-    await this.broadcastToClients(
+    await this.locationsClientApi.broadcastToClients(
       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
       ModuleId.Locations,
       params,
-      this.locationsClientApi,
       this.locationsClientApi.patchConnector,
     );
   }

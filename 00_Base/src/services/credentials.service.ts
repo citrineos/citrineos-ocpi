@@ -6,7 +6,10 @@ import {
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -29,8 +32,8 @@ import { ImageType } from '../model/ImageType';
 import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
 import { VersionRepository } from '../repository/VersionRepository';
 import { VersionEndpoint } from '../model/VersionEndpoint';
-import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
-import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
+import { CpoTenant } from '../model/CpoTenant';
+import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
 import { ServerVersion } from '../model/ServerVersion';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
@@ -116,43 +119,20 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<ServerCredentialsRole> {
-    const serverCredentialsRole =
-      await this.serverCredentialsRoleRepository.readOnlyOneByQuery(
-        {
-          where: {
-            [ServerCredentialsRoleProps.partyId]: partyId,
-            [ServerCredentialsRoleProps.countryCode]: countryCode,
-          },
-        },
-        OcpiNamespace.Credentials,
-      );
-    if (!serverCredentialsRole) {
-      const msg =
-        'Server credentials role not found for country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError('Server credentials not found');
-    }
-    return serverCredentialsRole;
+    return this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+      countryCode,
+      partyId,
+    );
   }
 
   async getCpoTenantByServerCountryCodeAndPartyId(
     countryCode: string,
     partyId: string,
   ): Promise<CpoTenant> {
-    const serverCredentialsRole =
-      await this.getServerCredentialsRoleByCountryCodeAndPartyId(
-        countryCode,
-        partyId,
-      );
-    const cpoTenant: CpoTenant | null = await serverCredentialsRole.$get(
-      ServerCredentialsRoleProps.cpoTenant,
+    return this.clientInformationRepository.getCpoTenantByServerCountryCodeAndPartyId(
+      countryCode,
+      partyId,
     );
-    if (!cpoTenant) {
-      const msg = 'CpoTenant not found for server country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    return cpoTenant;
   }
 
   async getCpoTenantByClientCountryCodeAndPartyId(
@@ -180,20 +160,10 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<ClientInformation[]> {
-    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
+    return this.clientInformationRepository.getClientInformationByServerCountryCodeAndPartyId(
       countryCode,
       partyId,
     );
-    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
-      CpoTenantProps.clientInformation,
-    );
-    if (!clientInformation || clientInformation.length === 0) {
-      const msg =
-        'Client information not found for server country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    return clientInformation;
   }
 
   async getClientInformationByClientCountryCodeAndPartyId(

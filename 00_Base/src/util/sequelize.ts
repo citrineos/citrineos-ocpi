@@ -65,7 +65,7 @@ export class OcpiSequelizeInstance {
         OcpiTariff,
         SessionChargingProfile,
         OCPIToken,
-        AsyncJobStatus
+        AsyncJobStatus,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

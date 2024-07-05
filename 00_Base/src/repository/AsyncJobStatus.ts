@@ -43,5 +43,4 @@ export class AsyncJobStatusRepository extends SequelizeRepository<AsyncJobStatus
       return updatedJobStatus;
     }
   }
-
 }

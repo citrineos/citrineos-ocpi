@@ -1,17 +1,23 @@
-import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenType, IdTokenInfoType } from '@citrineos/base';
+import {
+  AuthorizationStatusEnumType,
+  IdTokenEnumType,
+  IdTokenType,
+  IdTokenInfoType,
+} from '@citrineos/base';
 import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
 import { TokenType } from '../model/TokenType';
 import { Authorization } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OCPITokensMapper {
-
   /** TODO: Make this config based or at least an interface
    *
    * @private
    * @param token
    */
-  public static mapTokenTypeToIdTokenType(token: Partial<OCPIToken>): IdTokenEnumType {
+  public static mapTokenTypeToIdTokenType(
+    token: Partial<OCPIToken>,
+  ): IdTokenEnumType {
     switch (token.type) {
       case TokenType.RFID:
         //If you are actually using ISO15693, you need to change this
@@ -24,7 +30,9 @@ export class OCPITokensMapper {
     }
   }
 
-  public static mapSingleTokenRequestToIdTokenType(tokenRequest: SingleTokenRequest): IdTokenEnumType {
+  public static mapSingleTokenRequestToIdTokenType(
+    tokenRequest: SingleTokenRequest,
+  ): IdTokenEnumType {
     switch (tokenRequest.type) {
       case TokenType.RFID:
         //If you are actually using ISO15693, you need to change this
@@ -37,8 +45,9 @@ export class OCPITokensMapper {
     }
   }
 
-  public static mapOcpiTokenToOcppAuthorization(ocpiToken: OCPIToken): Authorization {
-
+  public static mapOcpiTokenToOcppAuthorization(
+    ocpiToken: OCPIToken,
+  ): Authorization {
     // Map the token's group_id if present
     let groupId: IdTokenType | undefined = undefined;
     if (ocpiToken.group_id) {
@@ -52,12 +61,16 @@ export class OCPITokensMapper {
     const idToken: IdTokenType = {
       idToken: ocpiToken.uid,
       type: OCPITokensMapper.mapTokenTypeToIdTokenType(ocpiToken),
-      additionalInfo: [{ additionalIdToken: ocpiToken.contract_id, type: 'ContractId' }],
+      additionalInfo: [
+        { additionalIdToken: ocpiToken.contract_id, type: 'ContractId' },
+      ],
     };
 
     // Create the IdTokenInfo object
     const idTokenInfo: IdTokenInfoType = {
-      status: ocpiToken.valid ? AuthorizationStatusEnumType.Accepted : AuthorizationStatusEnumType.Invalid,
+      status: ocpiToken.valid
+        ? AuthorizationStatusEnumType.Accepted
+        : AuthorizationStatusEnumType.Invalid,
       groupIdToken: groupId,
       language1: ocpiToken.language ?? undefined,
     };
@@ -67,7 +80,6 @@ export class OCPITokensMapper {
     auth.id = undefined;
     auth.idToken = idToken;
     auth.idTokenInfo = idTokenInfo;
-
 
     return auth;
   }
@@ -91,5 +103,4 @@ export class OCPITokensMapper {
     token.last_updated = tokenDto.last_updated;
     return token;
   }
-
 }
