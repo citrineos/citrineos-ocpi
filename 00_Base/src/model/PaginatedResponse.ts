@@ -1,5 +1,5 @@
 import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
-import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
+import {IsInt, IsNotEmpty, IsString, Max, Min} from 'class-validator';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;
@@ -19,6 +19,10 @@ export class PaginatedResponse<T> extends OcpiResponse<T[]> {
   @Min(0)
   @Max(200) // todo should this setting be in a config??
   limit?: number = DEFAULT_LIMIT;
+
+  @IsString()
+  @IsNotEmpty()
+  link?: string;
 }
 
 export const buildOcpiPaginatedResponse = <T>(

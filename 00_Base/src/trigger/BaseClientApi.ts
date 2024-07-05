@@ -292,6 +292,7 @@ export class BaseClientApi {
             result.total = parseInt(xTotalCount, 10);
           }
           if (link) {
+            result.link = link;
             result.offset = this.getOffsetFromLink(link);
           }
         }
