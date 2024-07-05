@@ -114,7 +114,6 @@ export class TokensModuleApi
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('putToken', countryCode, partyId, tokenId, tokenDTO, type);
-    // TODO When a client pushes a Client Owned Object, but the {object-id} in the URL is different from the id in the object being pushed, server implementations are advised to return an OCPI status code: 2001.
     if (
       ocpiHeader.fromCountryCode !== countryCode ||
       ocpiHeader.fromPartyId !== partyId
@@ -153,7 +152,6 @@ export class TokensModuleApi
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('patchToken', countryCode, partyId, tokenId, token, type);
-    // TODO When a client pushes a Client Owned Object, but the {object-id} in the URL is different from the id in the object being pushed, server implementations are advised to return an OCPI status code: 2001.
     if (
       ocpiHeader.fromCountryCode !== countryCode ||
       ocpiHeader.fromPartyId !== partyId

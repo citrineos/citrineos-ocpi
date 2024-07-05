@@ -167,7 +167,6 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
-export { ModelmockService } from './services/ModelmockService';
 export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';

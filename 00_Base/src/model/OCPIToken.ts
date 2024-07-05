@@ -24,7 +24,7 @@ import { TokenDTO } from './DTO/TokenDTO';
 
 @Table
 export class OCPIToken extends Model {
-  static readonly MODEL_NAME: string = OcpiNamespace.Tokens;
+  static readonly MODEL_NAME: string = OcpiNamespace.OcpiTokens;
   // OCPI 12.3.2 The combination of uid and type should be unique for every token within the eMSP’s system.
   @Column({ type: DataType.STRING, unique: 'uid_eMSP' })
   @MaxLength(2)

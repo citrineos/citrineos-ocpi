@@ -8,9 +8,9 @@ import {
   OCPIToken,
   TokenResponse,
   TokenType,
+  WhitelistType
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
-import { WhitelistType } from '@citrineos/ocpi-base/dist/model/WhitelistType';
 import { PaginatedTokenResponse } from '../00_Base/src/model/OCPIToken';
 import { buildOcpiPaginatedResponse } from '../00_Base/src/model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../00_Base';

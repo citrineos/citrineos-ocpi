@@ -70,7 +70,6 @@ export class OCPITokensMapper {
 
 
     return auth;
-    // return Authorization.build(auth);
   }
 
   public static mapTokenDtoToToken(tokenDto: TokenDTO) {

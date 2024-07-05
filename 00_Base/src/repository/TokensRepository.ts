@@ -27,7 +27,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.Tokens,
+      OcpiNamespace.OcpiTokens,
       logger,
       ocpiSequelizeInstance.sequelize,
     );

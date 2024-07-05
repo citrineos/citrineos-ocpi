@@ -40,12 +40,7 @@ export class TokensService {
   }
 
   async saveToken(token: OCPIToken): Promise<OCPIToken> {
-    // try {
-    //   return this.tokenRepository.updateToken(token);
-    // } catch (e) {
-    //   this.logger.info(`Token not found, creating new token.`);
     return this.tokenRepository.saveToken(token);
-    // }
   }
 
   async updateToken(token: Partial<OCPIToken>): Promise<OCPIToken> {

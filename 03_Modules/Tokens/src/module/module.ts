@@ -25,7 +25,6 @@ import {
   TokensService,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
-import { WhitelistType } from '@citrineos/ocpi-base/dist/model/WhitelistType';
 
 /**
  * Component that handles provisioning related messages.
