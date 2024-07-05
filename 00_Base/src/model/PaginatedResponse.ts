@@ -1,5 +1,5 @@
 import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
-import {IsInt, IsNotEmpty, IsString, Max, Min} from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;

@@ -9,8 +9,7 @@ export class CdrsService {
   constructor(
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly cdrMapper: CdrMapper,
-  ) {
-  }
+  ) {}
 
   public async getCdrs(
     fromCountryCode: string,

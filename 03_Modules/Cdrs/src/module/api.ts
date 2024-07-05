@@ -32,9 +32,7 @@ const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Cdrs}`)
 @Service()
-export class CdrsModuleApi
-  extends BaseController
-  implements ICdrsModuleApi {
+export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
   constructor(readonly cdrsService: CdrsService) {
     super();
   }

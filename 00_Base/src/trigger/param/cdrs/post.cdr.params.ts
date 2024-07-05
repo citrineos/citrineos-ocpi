@@ -9,9 +9,7 @@ export class PostCdrParams extends OcpiParams {
   @ValidateNested()
   cdr!: Cdr;
 
-  static build(
-    cdr: Cdr
-  ) {
+  static build(cdr: Cdr) {
     const params = new PostCdrParams();
     params.cdr = cdr;
     return params;
