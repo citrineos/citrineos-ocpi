@@ -184,11 +184,12 @@ export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
 export { OcpiHttpHeader } from './util/ocpi.http.header';
 
 export { CdrsService } from './services/cdrs.service';
-
+export { PaginatedCdrResponse } from './model/Cdr';
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
+export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 
 useContainer(Container);
 

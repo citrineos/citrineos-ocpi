@@ -1,5 +1,4 @@
 import { Service } from 'typedi';
-import { PaginatedParams } from '@citrineos/ocpi-base/src/controllers/param/paginated.params';
 import { SequelizeTariffRepository } from '@citrineos/data';
 import { Op } from 'sequelize';
 import { TariffDTO } from '../model/DTO/TariffDTO';
@@ -8,6 +7,7 @@ import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { TariffMapper } from './tariff.mapper';
 import { OcpiHeaders } from '../model/OcpiHeaders';
+import { PaginatedParams } from '../controllers/param/paginated.params';
 
 @Service()
 export class TariffsService {

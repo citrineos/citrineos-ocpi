@@ -17,6 +17,8 @@ import {
   OcpiHeaders,
   OcpiResponse,
   OcpiResponseStatusCode,
+  Paginated,
+  PaginatedParams,
   PaginatedTariffResponse,
   ResponseSchema,
   TariffKey,
@@ -25,8 +27,6 @@ import {
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import { Paginated } from '@citrineos/ocpi-base/src/util/decorators/paginated';
-import { PaginatedParams } from '@citrineos/ocpi-base/src/controllers/param/paginated.params';
 
 @Service()
 @JsonController(`/${ModuleId.Tariffs}`)

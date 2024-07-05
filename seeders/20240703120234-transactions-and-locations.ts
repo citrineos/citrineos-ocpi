@@ -8,7 +8,7 @@ import {
   TransactionEventEnumType,
   TriggerReasonEnumType,
 } from '../../citrineos-core/00_Base';
-import { OcpiLocationProps } from '@citrineos/ocpi-base/dist/model/OcpiLocation';
+import { OcpiLocationProps } from '@citrineos/ocpi-base';
 import { Sequelize } from 'sequelize-typescript';
 
 const START_ID = 1;
