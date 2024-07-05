@@ -5,7 +5,7 @@
 
 import { ISessionsModuleApi } from './interface';
 
-import { Body, JsonController, Get, Param, Put } from 'routing-controllers';
+import { Body, Get, JsonController, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,

@@ -26,7 +26,6 @@ export class SessionsController extends BaseController {
   }
 
   @Patch('/:countryCode/:partyId/:sessionId')
-  @AsOcpiRegistrationEndpoint()
   @ResponseSchema(VersionDetailsResponseDTO, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

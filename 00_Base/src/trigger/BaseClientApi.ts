@@ -463,7 +463,7 @@ export class BaseClientApi {
         params.fromPartyId = cpoPartyId;
         params.toCountryCode = requiredOcpiParam.clientCountryCode;
         params.toPartyId = requiredOcpiParam.clientPartyId;
-        params.authorization = base64Encode(requiredOcpiParam.authToken);
+        params.authorization = requiredOcpiParam.authToken;
         params.xRequestId = 'xRequestId'; // todo
         params.xCorrelationId = 'xCorrelationId'; // todo
         params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE; // todo
