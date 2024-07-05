@@ -25,6 +25,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@citrineos/ocpi-base": "1.1.1"
+    "@citrineos/ocpi-base": "0.1.0"
   }
 }
