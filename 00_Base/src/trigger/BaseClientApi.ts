@@ -9,10 +9,21 @@ import { OcpiHttpHeader } from '../util/ocpi.http.header';
 import { base64Encode } from '../util/util';
 import { OcpiResponse } from '../model/ocpi.response';
 import { PaginatedResponse } from '../model/PaginatedResponse';
-import { Constructable } from 'typedi';
-import { PaginatedParams } from '../controllers/param/paginated.params';
-import { plainToInstance } from 'class-transformer';
+import { Constructable, Inject } from 'typedi';
 import { v4 as uuidv4 } from 'uuid';
+import { ModuleId } from '../model/ModuleId';
+import { ClientInformationProps } from '../model/ClientInformation';
+import { ClientCredentialsRoleProps } from '../model/ClientCredentialsRole';
+import { ILogObj, Logger } from 'tslog';
+import { ClientInformationRepository } from '../repository/ClientInformationRepository';
+import { Endpoint } from '../model/Endpoint';
+
+export interface RequiredOcpiParams {
+  clientUrl: string;
+  authToken: string;
+  clientCountryCode: string;
+  clientPartyId: string;
+}
 
 export class MissingRequiredParamException extends Error {
   override name = 'MissingRequiredParamException' as const;
@@ -31,14 +42,18 @@ export interface TriggerRequestOptions extends IRequestOptions {
 }
 
 export class BaseClientApi {
+  @Inject()
+  protected logger!: Logger<ILogObj>;
+  @Inject()
+  protected clientInformationRepository!: ClientInformationRepository;
+
   CONTROLLER_PATH = 'null';
   private restClient!: RestClient;
+  private _baseUrl = 'http://localhost:3000';
 
   constructor() {
     this.initRestClient();
   }
-
-  private _baseUrl = 'http://localhost:3000';
 
   get baseUrl(): string {
     return this._baseUrl;
@@ -240,6 +255,42 @@ export class BaseClientApi {
     return `Required parameters [${params.join(',')}] are null or undefined`;
   }
 
+  public async broadcastToClients<P extends OcpiParams>(
+    cpoCountryCode: string,
+    cpoPartyId: string,
+    moduleId: ModuleId,
+    params: P,
+    requestFunction: (...args: any[]) => Promise<any>,
+  ): Promise<void> {
+    const requiredOcpiParams = await this.getRequiredOcpiParams(
+      cpoCountryCode,
+      cpoPartyId,
+      moduleId,
+    );
+    if (requiredOcpiParams.length === 0) {
+      this.logger.error('requiredOcpiParams empty');
+      return; // todo
+    }
+    for (const requiredOcpiParam of requiredOcpiParams) {
+      try {
+        params.fromCountryCode = cpoCountryCode;
+        params.fromPartyId = cpoPartyId;
+        params.toCountryCode = requiredOcpiParam.clientCountryCode;
+        params.toPartyId = requiredOcpiParam.clientPartyId;
+        params.authorization = requiredOcpiParam.authToken;
+        params.xRequestId = 'xRequestId'; // todo
+        params.xCorrelationId = 'xCorrelationId'; // todo
+        params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE; // todo
+        this.baseUrl = requiredOcpiParam.clientUrl;
+        const response = await requestFunction(params);
+        this.logger.info('broadcastToClients request response: ' + response);
+      } catch (e) {
+        // todo
+        this.logger.error(e);
+      }
+    }
+  }
+
   protected getPathForVersion(version = VersionNumber.TWO_DOT_TWO_DOT_ONE) {
     return `/ocpi/${version}/${this.CONTROLLER_PATH}`;
   }
@@ -328,9 +379,7 @@ export class BaseClientApi {
     headerParameters[OcpiHttpHeader.XRequestId] =
       params.xRequestId != null ? String(params.xRequestId) : uuidv4();
     headerParameters[OcpiHttpHeader.XCorrelationId] =
-      params.xCorrelationId != null
-        ? String(params.xCorrelationId)
-        : uuidv4();
+      params.xCorrelationId != null ? String(params.xCorrelationId) : uuidv4();
     this.setAuthHeader(headerParameters, params.authorization);
     return headerParameters;
   };
@@ -368,5 +417,63 @@ export class BaseClientApi {
       `CitrineOS OCPI ${this.CONTROLLER_PATH}`,
       this.baseUrl,
     );
+  }
+
+  private async getRequiredOcpiParams(
+    cpoCountryCode: string,
+    cpoPartyId: string,
+    moduleId: ModuleId,
+  ): Promise<RequiredOcpiParams[]> {
+    const urlCountryCodeAndPartyIdList: RequiredOcpiParams[] = [];
+    const clientInformationList =
+      await this.clientInformationRepository.getClientInformationByServerCountryCodeAndPartyId(
+        cpoCountryCode,
+        cpoPartyId,
+      );
+    if (!clientInformationList || clientInformationList.length === 0) {
+      this.logger.error('clientInformationList empty');
+      return urlCountryCodeAndPartyIdList; // todo
+    }
+    for (const clientInformation of clientInformationList) {
+      const clientVersions = await clientInformation.$get(
+        ClientInformationProps.clientVersionDetails,
+        {
+          include: [Endpoint],
+        },
+      );
+      if (!clientVersions || clientVersions.length === 0) {
+        this.logger.error('clientVersions empty');
+        continue;
+      }
+      const clientCredentialRoles = await clientInformation.$get(
+        ClientInformationProps.clientCredentialsRoles,
+      );
+      if (!clientCredentialRoles || clientCredentialRoles.length === 0) {
+        this.logger.error('clientCredentialRoles empty');
+        continue;
+      }
+      for (let i = 0; i < clientCredentialRoles.length; i++) {
+        const clientCredentialRole = clientCredentialRoles[i];
+        const clientVersion = clientVersions[i];
+        const matchingEndpoint = clientVersion.endpoints.find(
+          (endpoint) => endpoint.identifier === moduleId,
+        );
+        if (
+          matchingEndpoint &&
+          matchingEndpoint.url &&
+          matchingEndpoint.url.length > 0
+        ) {
+          urlCountryCodeAndPartyIdList.push({
+            clientUrl: matchingEndpoint.url,
+            authToken: clientInformation[ClientInformationProps.clientToken],
+            clientCountryCode:
+              clientCredentialRole[ClientCredentialsRoleProps.countryCode],
+            clientPartyId:
+              clientCredentialRole[ClientCredentialsRoleProps.partyId],
+          });
+        }
+      }
+    }
+    return urlCountryCodeAndPartyIdList;
   }
 }

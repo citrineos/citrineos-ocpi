@@ -1,6 +1,6 @@
 {
   "name": "@citrineos/ocpi-workspace",
-  "version": "1.1.1",
+  "version": "0.1.0",
   "private": false,
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -18,8 +18,7 @@
     "init-db": "sequelize-cli db:migrate --debug && sequelize-cli db:migrate:schema:timestamps:add --debug",
     "seed-db": "sequelize-cli db:seed:all --debug",
     "start-mock-emsp": "npm run build && nodemon ./mock-client/index.ts --config ./mock-client/nodemon.json",
-    "mock-emsp": "npm run start-mock-emsp",
-    "start-mockoon": "npm run mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000",
+    "start-mockoon": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000",
     "install-all": "npm i --workspaces --verbose",
     "fresh": "rm -rf package-lock.json **/package-lock.json **/**/package-lock.json dist **/dist **/**/dist node_modules **/node_modules **/**/node_modules tsconfig.tsbuildinfo **/tsconfig.tsbuildinfo **/**/tsconfig.tsbuildinfo",
     "build": "tsc --build --verbose",

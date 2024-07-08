@@ -7,16 +7,23 @@ import { ClientInformation } from '../model/ClientInformation';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { ILogObj, Logger } from 'tslog';
 import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
-import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
-import { BadRequestError } from 'routing-controllers';
+import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
+import { BadRequestError, NotFoundError } from 'routing-controllers';
+import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
+  logger: Logger<ILogObj>;
+
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
+    readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
@@ -24,6 +31,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
       logger,
       ocpiSequelizeInstance.sequelize,
     );
+    this.logger = logger;
   }
 
   public async authorizeToken(
@@ -62,6 +70,46 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
       })
     )[0];
     return info?.clientToken;
+  }
+
+  async getCpoTenantByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const serverCredentialsRole =
+      await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    const cpoTenant: CpoTenant | null = await serverCredentialsRole.$get(
+      ServerCredentialsRoleProps.cpoTenant,
+    );
+    if (!cpoTenant) {
+      const msg = 'CpoTenant not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return cpoTenant;
+  }
+
+  async getClientInformationByServerCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<ClientInformation[]> {
+    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
+      countryCode,
+      partyId,
+    );
+    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
+      CpoTenantProps.clientInformation,
+    );
+    if (!clientInformation || clientInformation.length === 0) {
+      const msg =
+        'Client information not found for server country code and party id';
+      this.logger.debug(msg, countryCode, partyId);
+      throw new NotFoundError(msg);
+    }
+    return clientInformation;
   }
 
   private getExistingCredentials = async (

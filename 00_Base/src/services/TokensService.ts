@@ -21,7 +21,6 @@ import { ClientInformationProps } from '../model/ClientInformation';
 import { VersionNumber } from '../model/VersionNumber';
 import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
 
-
 @Service()
 export class TokensService {
   constructor(
@@ -30,8 +29,7 @@ export class TokensService {
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
     private readonly credentialsService: CredentialsService,
-  ) {
-  }
+  ) {}
 
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
@@ -86,7 +84,11 @@ export class TokensService {
       let totalTokens = 0;
       let batchTokens: OCPIToken[] | undefined;
 
-      const clientCredtials = await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(countryCode, partyId);
+      const clientCredtials =
+        await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(
+          countryCode,
+          partyId,
+        );
       const token = clientCredtials[ClientInformationProps.clientToken];
       const clientVersions = await clientCredtials.$get(
         ClientInformationProps.clientVersionDetails,
@@ -94,7 +96,7 @@ export class TokensService {
 
       this.client.baseUrl = clientVersions[0].url;
 
-      var done = false;
+      let done = false;
       do {
         const params = buildPaginatedOcpiParams(
           countryCode,
@@ -107,27 +109,31 @@ export class TokensService {
           paginationParams?.date_to,
         );
         params.authorization = token;
-        //TODO get version from DB
+        // TODO get version from DB
         params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
 
-        //TODO use actually next link
+        // TODO use actually next link
         const response = await this.client.getTokens(params);
         if (
           response.status_code !== OcpiResponseStatusCode.GenericSuccessCode
         ) {
           retryCount--;
         } else {
-          batchTokens = response.data.map(dto => OCPITokensMapper.mapTokenDtoToToken(dto));
+          batchTokens = response.data.map((dto) =>
+            OCPITokensMapper.mapTokenDtoToToken(dto),
+          );
           try {
             await this.tokenRepository.updateBatchedTokens(batchTokens);
             asyncJobStatus.currentOffset = offset;
-            if(!asyncJobStatus.totalObjects){
-              //TODO to test set a hardcoded total here remove after test
+            if (!asyncJobStatus.totalObjects) {
+              // TODO to test set a hardcoded total here remove after test
               response.total = 3;
 
               asyncJobStatus.totalObjects = response.total;
             }
-            await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
+            await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(
+              asyncJobStatus,
+            );
           } catch (e) {
             this.logger.error(e);
           }
@@ -136,17 +142,21 @@ export class TokensService {
           offset += limit;
         }
 
-        //TODO check if link to next page exists here instead of limit
-        if (retryCount === 0 || (batchTokens && totalTokens >= asyncJobStatus.totalObjects!)) {
+        // TODO check if link to next page exists here instead of limit
+        if (
+          retryCount === 0 ||
+          (batchTokens && totalTokens >= asyncJobStatus.totalObjects!)
+        ) {
           done = true;
         }
       } while (!done);
 
-
       asyncJobStatus.stopTime = new Date();
       asyncJobStatus.totalObjects = totalTokens;
       asyncJobStatus.isFinished = true;
-      this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(asyncJobStatus);
+      this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(
+        asyncJobStatus,
+      );
       return asyncJobStatus;
     } catch (e) {
       this.logger.error(e);
@@ -157,12 +167,13 @@ export class TokensService {
         asyncJobStatus,
       );
 
-      throw new UnsuccessfulRequestException(`Could not fetch tokens. Error ${e}`);
+      throw new UnsuccessfulRequestException(
+        `Could not fetch tokens. Error ${e}`,
+      );
     }
   }
 
   async getFetchTokensJob(jobId: string): Promise<AsyncJobStatus | undefined> {
     return await this.asyncJobStatusRepository.readByKey(jobId);
   }
-
 }

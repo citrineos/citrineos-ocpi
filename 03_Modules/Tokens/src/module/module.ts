@@ -5,13 +5,9 @@
 
 import {
   AbstractModule,
-  AsHandler,
-  AuthorizeRequest,
   CallAction,
   EventGroup,
-  HandlerProperties,
   ICache,
-  IMessage,
   IMessageHandler,
   IMessageSender,
   SystemConfig,
@@ -19,11 +15,7 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
-import {
-  CountryCode,
-  Role,
-  TokensService,
-} from '@citrineos/ocpi-base';
+import { TokensService } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 
 /**

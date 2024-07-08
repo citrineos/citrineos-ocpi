@@ -4,9 +4,12 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
+import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
-import { SequelizeAuthorizationRepository, SequelizeRepository } from '@citrineos/data';
+import {
+  SequelizeAuthorizationRepository,
+  SequelizeRepository,
+} from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
@@ -18,7 +21,6 @@ import { TokensValidators } from '../util/validators/TokensValidators';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<OCPIToken> {
-
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     private readonly logger: OcpiLogger,
@@ -51,8 +53,8 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
         return undefined;
       }
       // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
-      const ocppAuthIds = ocppAuth.map(auth => auth.id);
-      //Use query to validate the belongs to the right party
+      const ocppAuthIds = ocppAuth.map((auth) => auth.id);
+      // Use query to validate the belongs to the right party
       const query: any = {
         where: {
           id: {
@@ -78,13 +80,13 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
    * @return {Promise<OCPIToken>} The saved token.
    */
   async saveToken(token: OCPIToken): Promise<OCPIToken> {
-
-      const ocppAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token);
-      const newOcppAuth = await this.authorizationRepository.createOrUpdateByQuerystring(ocppAuth, {
+    const ocppAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token);
+    const newOcppAuth =
+      await this.authorizationRepository.createOrUpdateByQuerystring(ocppAuth, {
         idToken: token.uid,
         type: OCPITokensMapper.mapTokenTypeToIdTokenType(token),
       });
-      token.id = newOcppAuth!.id;
+    token.id = newOcppAuth!.id;
     try {
       const ocpiToken = await this.updateByKey(token.dataValues, token.id);
       if (ocpiToken) {
@@ -105,19 +107,21 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
    * @throws {UnknownTokenException} If the token is not found.
    */
   async updateToken(partialToken: Partial<OCPIToken>): Promise<OCPIToken> {
+    TokensValidators.validatePartialTokenForUniquenessRequiredFields(
+      partialToken,
+    );
 
-    TokensValidators.validatePartialTokenForUniquenessRequiredFields(partialToken);
-
-    const ocppAuthList = await this.authorizationRepository.readAllByQuerystring({
-      idToken: partialToken.uid!,
-      type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
-    });
-    if (ocppAuthList.length == 0) {
+    const ocppAuthList =
+      await this.authorizationRepository.readAllByQuerystring({
+        idToken: partialToken.uid!,
+        type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
+      });
+    if (ocppAuthList.length === 0) {
       throw new UnknownTokenException('Token not found in the database');
     }
     // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
-    const ocppAuthIds = ocppAuthList.map(auth => auth.id);
-    //Use query to validate the belongs to the right party
+    const ocppAuthIds = ocppAuthList.map((auth) => auth.id);
+    // Use query to validate the belongs to the right party
     const query: any = {
       where: {
         id: {
@@ -130,22 +134,30 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
     };
 
     const existingOCPIToken = await this.readOnlyOneByQuery(query);
-    if (!existingOCPIToken) throw new UnknownTokenException('Token not found in the database');
+    if (!existingOCPIToken) {
+      throw new UnknownTokenException('Token not found in the database');
+    }
 
     partialToken.id = undefined;
-    const updatedToken = await this.updateByKey(partialToken.dataValues,
+    const updatedToken = await this.updateByKey(
+      partialToken.dataValues,
       existingOCPIToken.id,
     );
     if (!updatedToken) {
       throw new UnknownTokenException('Token not found in the database');
     }
 
-    const newOCPPAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(updatedToken);
+    const newOCPPAuth =
+      OCPITokensMapper.mapOcpiTokenToOcppAuthorization(updatedToken);
     newOCPPAuth.id = existingOCPIToken.id;
-    const updatedOcppAuth = await this.authorizationRepository.createOrUpdateByQuerystring(newOCPPAuth, {
-      idToken: partialToken.uid!,
-      type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
-    });
+    const updatedOcppAuth =
+      await this.authorizationRepository.createOrUpdateByQuerystring(
+        newOCPPAuth,
+        {
+          idToken: partialToken.uid!,
+          type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
+        },
+      );
 
     if (!updatedOcppAuth) {
       throw new Error('Could not save token');
@@ -160,13 +172,11 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
    * @param {OCPIToken[]} tokens - Tokens to be created or updated.
    * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
-  async updateBatchedTokens(
-    tokens: OCPIToken[],
-  ): Promise<void> {
+  async updateBatchedTokens(tokens: OCPIToken[]): Promise<void> {
     const batchFailedTokens: OCPIToken[] = [];
 
     // update tokens
-    //TODO save in bulk instead
+    // TODO save in bulk instead
     for (const token of tokens) {
       try {
         await this.saveToken(token);
@@ -182,5 +192,4 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
       );
     }
   }
-
 }

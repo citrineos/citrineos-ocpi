@@ -19,7 +19,7 @@ import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
-import { OcpiTariff } from "../model/OcpiTariff";
+import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
 import { AsyncJobStatus } from '../model/AsyncJobStatus';
 
@@ -65,7 +65,7 @@ export class OcpiSequelizeInstance {
         OcpiTariff,
         SessionChargingProfile,
         OCPIToken,
-        AsyncJobStatus
+        AsyncJobStatus,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that

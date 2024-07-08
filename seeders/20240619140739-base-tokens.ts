@@ -1,14 +1,14 @@
 'use strict';
 
-import { QueryInterface, QueryOptions } from 'sequelize';
-import { OCPITokensMapper, OCPIToken } from '@citrineos/ocpi-base';
-import { AuthorizationData, IdTokenInfoType, IdTokenType } from '@citrineos/base';
+import {QueryInterface, QueryOptions} from 'sequelize';
+import {OCPIToken, OCPITokensMapper} from '@citrineos/ocpi-base';
+import {AuthorizationData, IdTokenInfoType, IdTokenType} from '@citrineos/base';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 
-  up: async (queryInterface:QueryInterface) => {
-    const insertToken = async (tokenType :IdTokenType) => {
+  up: async (queryInterface: QueryInterface) => {
+    const insertToken = async (tokenType: IdTokenType) => {
       const result = await queryInterface.bulkInsert('IdTokens', [tokenType], {
         returning: true,
       } as QueryOptions)
@@ -16,10 +16,10 @@ module.exports = {
       return result as any[]
     }
 
-    const insertTokenInfo =  async (tokenInfo: IdTokenInfoType) => {
+    const insertTokenInfo = async (tokenInfo: IdTokenInfoType) => {
       const tokenList = await insertToken(tokenInfo.groupIdToken!)
-      if(tokenList && tokenList[0]) {
-        (tokenInfo as any).groupIdTokenId= tokenList[0].id;
+      if (tokenList && tokenList[0]) {
+        (tokenInfo as any).groupIdTokenId = tokenList[0].id;
       }
 
       const result = await queryInterface.bulkInsert('IdTokenInfos', [tokenInfo], {
@@ -61,23 +61,23 @@ module.exports = {
     }
 
     const token2 = {
-        country_code: 'US',
-        party_id: 'XYZ',
-        uid: '987e6543-e21b-65d4-b789-123456789012',
-        type: 'APP',
-        contract_id: 'contract_002',
-        visual_number: 'VIS002',
-        issuer: 'Issuer2',
-        group_id: 'group_002',
-        valid: false,
-        whitelist: 'ALWAYS',
-        language: 'EN',
-        default_profile_type: 'premium',
-        energy_contract: null,
-        last_updated: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+      country_code: 'US',
+      party_id: 'XYZ',
+      uid: '987e6543-e21b-65d4-b789-123456789012',
+      type: 'APP',
+      contract_id: 'contract_002',
+      visual_number: 'VIS002',
+      issuer: 'Issuer2',
+      group_id: 'group_002',
+      valid: false,
+      whitelist: 'ALWAYS',
+      language: 'EN',
+      default_profile_type: 'premium',
+      energy_contract: null,
+      last_updated: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
 
     const ocppAuth1 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token1 as OCPIToken)
     const ocppAuth2 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token2 as OCPIToken)
@@ -87,10 +87,9 @@ module.exports = {
     await queryInterface.bulkInsert('Tokens', [token1, token2], {});
   },
 
-  down: async (queryInterface :QueryInterface) => {
+  down: async (queryInterface: QueryInterface) => {
     await queryInterface.bulkDelete('Tokens', {}, {});
   },
-
 
 
 };

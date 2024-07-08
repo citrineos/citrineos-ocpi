@@ -2,7 +2,9 @@ import { OCPIToken } from '../../model/OCPIToken';
 import { InvalidParamException } from '../../exception/invalid.param.exception';
 
 export class TokensValidators {
-  public static validatePartialTokenForUniquenessRequiredFields(partialToken: Partial<OCPIToken>) {
+  public static validatePartialTokenForUniquenessRequiredFields(
+    partialToken: Partial<OCPIToken>,
+  ) {
     if (partialToken.uid === undefined) {
       throw new InvalidParamException('uid is required');
     }

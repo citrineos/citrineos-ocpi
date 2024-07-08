@@ -15,14 +15,13 @@ export class TokensClientApi extends BaseClientApi {
   async getTokens(
     params: PaginatedOcpiParams,
   ): Promise<PaginatedTokenResponse> {
-
     this.validateOcpiParams(params);
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
 
-      const options = {
-        version: params.version ?? VersionNumber.TWO_DOT_TWO_DOT_ONE,
-        additionalHeaders,
-      } as TriggerRequestOptions;
+    const options = {
+      version: params.version ?? VersionNumber.TWO_DOT_TWO_DOT_ONE,
+      additionalHeaders,
+    } as TriggerRequestOptions;
 
     if (params.offset || params.limit || params.date_from || params.date_to) {
       const queryParameters: IRequestQueryParams = this.newQueryParams();
@@ -48,7 +47,8 @@ export class TokensClientApi extends BaseClientApi {
     return await this.get(PaginatedTokenResponse, {
       version: params.version,
       additionalHeaders,
-    });  }
+    });
+  }
 
   async postToken(params: PostTokenParams): Promise<AuthorizationInfoResponse> {
     this.validateOcpiParams(params);
@@ -61,7 +61,7 @@ export class TokensClientApi extends BaseClientApi {
       {
         version: params.version,
         path: '{tokenId}/authorize'.replace(
-          'tokenId',
+          '{tokenId}',
           encodeURIComponent(params.tokenId),
         ),
         additionalHeaders,

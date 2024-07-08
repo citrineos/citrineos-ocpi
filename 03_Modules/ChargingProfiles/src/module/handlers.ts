@@ -171,7 +171,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
               } as GetCompositeScheduleRequest,
               undefined,
               uuidv4(),
-              MessageOrigin.CentralSystem,
+              MessageOrigin.ChargingStationManagementSystem,
             );
           }
         }
@@ -222,7 +222,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
               } as GetCompositeScheduleRequest,
               undefined,
               uuidv4(),
-              MessageOrigin.CentralSystem,
+              MessageOrigin.ChargingStationManagementSystem,
             );
           }
         }
@@ -260,7 +260,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
         } as GetCompositeScheduleRequest,
         undefined,
         uuidv4(),
-        MessageOrigin.CentralSystem,
+        MessageOrigin.ChargingStationManagementSystem,
       );
     }
   }
@@ -288,7 +288,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
           } as GetCompositeScheduleRequest,
           undefined,
           uuidv4(),
-          MessageOrigin.CentralSystem,
+          MessageOrigin.ChargingStationManagementSystem,
         );
       }
     }
@@ -335,7 +335,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
             } as GetCompositeScheduleRequest,
             undefined,
             uuidv4(),
-            MessageOrigin.CentralSystem,
+            MessageOrigin.ChargingStationManagementSystem,
           );
         }
       }

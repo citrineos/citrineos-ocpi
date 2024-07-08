@@ -4,7 +4,15 @@ import { Optional } from '../../util/decorators/optional';
 import { WhitelistType } from '../WhitelistType';
 import { TokenEnergyContract } from '../TokenEnergyContract';
 import { OCPIToken } from '../OCPIToken';
-import { IsBoolean, IsDate, IsNotEmpty, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TokenDTO {
@@ -56,7 +64,6 @@ export class TokenDTO {
   @Enum(WhitelistType, 'WhitelistType')
   @IsNotEmpty()
   whitelist!: WhitelistType;
-
 
   @MaxLength(2)
   @MinLength(2)

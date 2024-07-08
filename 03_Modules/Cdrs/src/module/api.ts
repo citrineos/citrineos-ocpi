@@ -23,7 +23,7 @@ import {
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import { PaginatedCdrResponse } from '@citrineos/ocpi-base/dist/model/Cdr';
+import { PaginatedCdrResponse } from '@citrineos/ocpi-base';
 
 const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
   PaginatedCdrResponse,
@@ -32,9 +32,7 @@ const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Cdrs}`)
 @Service()
-export class CdrsModuleApi
-  extends BaseController
-  implements ICdrsModuleApi {
+export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
   constructor(readonly cdrsService: CdrsService) {
     super();
   }

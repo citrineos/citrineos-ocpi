@@ -2,7 +2,8 @@ import {
   KoaMiddlewareInterface,
   Middleware,
   NotFoundError,
-  UnauthorizedError} from 'routing-controllers';
+  UnauthorizedError,
+} from 'routing-controllers';
 import { Context } from 'vm';
 import { HttpStatus } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
@@ -97,7 +98,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
                 (err as any).message,
               ),
-            )
+            );
             break;
           case UnsuccessfulRequestException.name:
             context.status = HttpStatus.OK;
@@ -106,7 +107,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
                 OcpiResponseStatusCode.ServerGenericError,
                 (err as any).message,
               ),
-            )
+            );
             break;
           default:
             context.status = HttpStatus.INTERNAL_SERVER_ERROR;

@@ -23,10 +23,9 @@ import {
   SequelizeTransactionEventRepository,
 } from '@citrineos/data';
 import { SetChargingProfile } from '../model/SetChargingProfile';
-import { BadRequestError } from 'routing-controllers';
+import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
-import { NotFoundError } from 'routing-controllers';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 
 @Service()
@@ -65,14 +64,14 @@ export class CommandExecutor {
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       evse.stationId,
       'tenantId',
       CallAction.RequestStartTransaction,
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -96,14 +95,14 @@ export class CommandExecutor {
       transactionId: stopSession.session_id,
     } as RequestStopTransactionRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
       CallAction.RequestStopTransaction,
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -115,7 +114,7 @@ export class CommandExecutor {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
     const transaction =
-        await this.transactionRepo.findByTransactionId(sessionId);
+      await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
@@ -130,14 +129,14 @@ export class CommandExecutor {
       evseId: transaction.evse?.id,
     } as GetCompositeScheduleRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
       CallAction.GetCompositeSchedule,
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -148,17 +147,18 @@ export class CommandExecutor {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
     const transaction =
-        await this.transactionRepo.findByTransactionId(sessionId);
+      await this.transactionRepo.findByTransactionId(sessionId);
 
     if (!transaction) {
       throw new NotFoundError('Session not found');
     }
 
-    const chargingProfiles = await this.sessionChargingProfileRepo.readAllByQuery({
-      where: {
-        sessionId: sessionId // sessionId is unique constraint
-      }
-    });
+    const chargingProfiles =
+      await this.sessionChargingProfileRepo.readAllByQuery({
+        where: {
+          sessionId: sessionId, // sessionId is unique constraint
+        },
+      });
     if (!chargingProfiles || chargingProfiles.length === 0) {
       throw new NotFoundError('Charging profile not found');
     }
@@ -171,14 +171,14 @@ export class CommandExecutor {
       chargingProfileId: chargingProfiles[0].chargingProfileId,
     } as ClearChargingProfileRequest;
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
       CallAction.ClearChargingProfile,
       request,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 
@@ -223,14 +223,14 @@ export class CommandExecutor {
       setChargingProfileRequest.chargingProfile.chargingSchedule[0].id,
     );
 
-    this.abstractModule.sendCall(
+    await this.abstractModule.sendCall(
       stationId,
       'tenantId',
       CallAction.SetChargingProfile,
       setChargingProfileRequest,
       undefined,
       correlationId,
-      MessageOrigin.CentralSystem,
+      MessageOrigin.ChargingStationManagementSystem,
     );
   }
 

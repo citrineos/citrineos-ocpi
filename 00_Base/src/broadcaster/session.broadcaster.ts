@@ -21,7 +21,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     readonly sessionsClientApi: SessionsClientApi,
     readonly credentialsService: CredentialsService,
   ) {
-    super(logger, credentialsService);
+    super();
     this.transactionRepository.transaction.on('created', (transactions) =>
       this.broadcast(transactions),
     );
@@ -44,13 +44,12 @@ export class SessionBroadcaster extends BaseBroadcaster {
     const params = PutSessionParams.build(session.id, session);
     const cpoCountryCode = session.country_code;
     const cpoPartyId = session.party_id;
-    await this.broadcastToClients(
+    await this.sessionsClientApi.broadcastToClients(
       cpoCountryCode,
       cpoPartyId,
       ModuleId.Sessions,
       params,
-      this.sessionsClientApi,
-      this.sessionsClientApi.putSession,
+      this.sessionsClientApi.putSession.bind(this.sessionsClientApi),
     );
   }
 }

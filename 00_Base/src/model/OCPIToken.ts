@@ -82,7 +82,6 @@ export class OCPIToken extends Model {
   @IsNotEmpty()
   whitelist!: WhitelistType;
 
-
   @MaxLength(2)
   @MinLength(2)
   @IsString()
@@ -155,7 +154,6 @@ export class PaginatedTokenResponse extends PaginatedResponse<TokenDTO> {
   @Optional(false)
   @Type(() => TokenDTO)
   data!: TokenDTO[];
-
 }
 
 export class SingleTokenRequest {

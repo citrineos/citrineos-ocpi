@@ -2,31 +2,24 @@ import { Get, JsonController } from 'routing-controllers';
 import { Service } from 'typedi';
 import {
   BaseController,
+  buildOcpiPaginatedResponse,
   generateMockOcpiResponse,
   ModuleId,
-  ResponseSchema,
+  OcpiResponseStatusCode,
   OCPIToken,
+  PaginatedTokenResponse,
+  ResponseSchema,
   TokenResponse,
   TokenType,
-  WhitelistType
+  WhitelistType,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
-import { PaginatedTokenResponse } from '../00_Base/src/model/OCPIToken';
-import { buildOcpiPaginatedResponse } from '../00_Base/src/model/PaginatedResponse';
-import { OcpiResponseStatusCode } from '../00_Base';
 
-const TOKENS_LIST_MOCK = generateMockOcpiResponse(
-  PaginatedTokenResponse,
-); // todo create real mocks for tests
-
-const EMSP_HOST = 'http://localhost:8086';
-const EMSP_BASE_URL = `${EMSP_HOST}/ocpi/2.2.1`;
+const TOKENS_LIST_MOCK = generateMockOcpiResponse(PaginatedTokenResponse); // todo create real mocks for tests
 
 @JsonController(`/2.2.1/${ModuleId.Tokens}`)
 @Service()
 export class TokensController extends BaseController {
-
-
   constructor() {
     super();
   }
@@ -40,26 +33,35 @@ export class TokensController extends BaseController {
     },
   })
   async getTokens(): Promise<PaginatedTokenResponse> {
-    console.log('mock get Tokens returning', generateMockOcpiResponse(TokenResponse));
-    const data = [OCPIToken.build({
-      country_code: 'US',
-      party_id: 'MSP',
-      uid: 'uid',
-      type: TokenType.RFID,
-      contract_id: 'contract_001',
-      visual_number: '12345',
-      issuer: 'issuer',
-      group_id: 'group',
-      valid: true,
-      whitelist: WhitelistType.ALLOWED,
-      language: 'en',
-      default_profile_type: 'profile',
-    }).toTokenDTO()];
+    console.log(
+      'mock get Tokens returning',
+      generateMockOcpiResponse(TokenResponse),
+    );
+    const data = [
+      OCPIToken.build({
+        country_code: 'US',
+        party_id: 'MSP',
+        uid: 'uid',
+        type: TokenType.RFID,
+        contract_id: 'contract_001',
+        visual_number: '12345',
+        issuer: 'issuer',
+        group_id: 'group',
+        valid: true,
+        whitelist: WhitelistType.ALLOWED,
+        language: 'en',
+        default_profile_type: 'profile',
+      }).toTokenDTO(),
+    ];
 
-    //TODO, this should return the pagination part as headers
-    const response = buildOcpiPaginatedResponse(OcpiResponseStatusCode.GenericSuccessCode, 1, 1, 0, data) as PaginatedTokenResponse;
+    // TODO, this should return the pagination part as headers
+    const response = buildOcpiPaginatedResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      1,
+      1,
+      0,
+      data,
+    ) as PaginatedTokenResponse;
     return response;
-
   }
 }
-
