@@ -64,7 +64,7 @@ export class OCPITokensMapper {
       additionalInfo: [
         {
           additionalIdToken: ocpiToken.contract_id,
-          type: IdTokenEnumType.eMAID, // todo implement non static
+          type: OCPITokensMapper.mapTokenTypeToIdTokenType(ocpiToken),
         },
       ],
     };
