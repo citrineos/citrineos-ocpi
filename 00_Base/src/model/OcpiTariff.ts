@@ -11,15 +11,9 @@ import { DisplayText } from './DisplayText';
 
 @Table
 export class OcpiTariff extends Model {
-  @PrimaryKey
-  @Column(DataType.STRING(36))
-  declare id: string;
-
-  @PrimaryKey
   @Column(DataType.CHAR(2))
   declare countryCode: string;
 
-  @PrimaryKey
   @Column(DataType.STRING(3))
   declare partyId: string;
 
