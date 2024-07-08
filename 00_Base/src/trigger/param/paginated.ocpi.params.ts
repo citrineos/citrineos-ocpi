@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, Min } from 'class-validator';
+import { IsDate, IsInt, Min } from 'class-validator';
 import { Optional } from '../../util/decorators/optional';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../../model/PaginatedResponse';
 import { OcpiParams } from '../util/ocpi.params';
@@ -14,13 +14,13 @@ export class PaginatedOcpiParams extends OcpiParams {
   @Optional()
   limit?: number = DEFAULT_LIMIT;
 
-  @IsDateString()
+  @IsDate()
   @Optional()
-  private _date_from?: string;
+  private _date_from?: Date;
 
-  @IsDateString()
+  @IsDate()
   @Optional()
-  private _date_to?: string;
+  private _date_to?: Date;
 
   get date_from(): Date {
     return new Date(this._date_from!);
@@ -30,12 +30,12 @@ export class PaginatedOcpiParams extends OcpiParams {
     return new Date(this._date_to!);
   }
 
-  set date_from(value: Date) {
-    this._date_from = value.toISOString();
+  set date_from(value: string | Date | undefined) {
+    this._date_from = value ? new Date(value) : undefined;
   }
 
-  set date_to(value: Date) {
-    this._date_to = value.toISOString();
+  set date_to(value: string | Date | undefined) {
+    this._date_to = value ? new Date(value) : undefined;
   }
 }
 
