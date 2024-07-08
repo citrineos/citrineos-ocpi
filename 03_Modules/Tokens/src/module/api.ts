@@ -7,10 +7,11 @@ import {
   Body,
   Get,
   JsonController,
+  NotFoundError,
   Param,
   Patch,
-  Put,
   Post,
+  Put,
 } from 'routing-controllers';
 import { Service } from 'typedi';
 
@@ -20,29 +21,30 @@ import {
   AsyncJobStatusDTO,
   BaseController,
   EnumQueryParam,
+  FunctionalEndpointParams,
   generateMockOcpiResponse,
   InvalidParamException,
   ModuleId,
   OcpiEmptyResponse,
   OcpiHeaders,
   OcpiResponseStatusCode,
+  OCPIToken,
+  Paginated,
+  PaginatedParams,
   ResponseSchema,
   SingleTokenRequest,
-  OCPIToken,
   TokenDTO,
   TokenResponse,
   TokensService,
   TokenType,
   UnknownTokenException,
   versionIdParam,
+  VersionNumber,
+  VersionNumberParam,
   WrongClientAccessException,
-  FunctionalEndpointParams,
-  Paginated,
-  PaginatedParams,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './interface';
 import { plainToInstance } from 'class-transformer';
-import { NotFoundError } from 'routing-controllers';
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
 @Service()
@@ -64,6 +66,7 @@ export class TokensModuleApi
     },
   })
   async getTokens(
+    @VersionNumberParam() version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
@@ -106,6 +109,7 @@ export class TokensModuleApi
     },
   })
   async putToken(
+    @VersionNumberParam() version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
@@ -144,6 +148,7 @@ export class TokensModuleApi
     },
   })
   async patchToken(
+    @VersionNumberParam() version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
@@ -204,6 +209,7 @@ export class TokensModuleApi
     },
   })
   async fetchTokens(
+    @VersionNumberParam() version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Paginated() paginationParams?: PaginatedParams,
@@ -226,6 +232,7 @@ export class TokensModuleApi
     },
   })
   async getFetchTokensJobStatus(
+    @VersionNumberParam() version: VersionNumber,
     @Param('countryCode') countryCode: string,
     @Param('partyId') partyId: string,
     @Param('jobId') jobId: string,
