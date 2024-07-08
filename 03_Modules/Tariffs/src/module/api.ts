@@ -24,12 +24,15 @@ import {
   TariffKey,
   TariffsBroadcaster,
   TariffsService,
+  versionIdParam,
+  VersionNumber,
+  VersionNumberParam,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
 
 @Service()
-@JsonController(`/${ModuleId.Tariffs}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Tariffs}`)
 export class TariffsModuleApi
   extends BaseController
   implements ITariffsModuleApi
@@ -51,6 +54,7 @@ export class TariffsModuleApi
     },
   })
   async getTariffs(
+    @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedTariffResponse> {

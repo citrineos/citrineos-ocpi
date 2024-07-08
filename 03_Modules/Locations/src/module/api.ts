@@ -21,6 +21,9 @@ import {
   EvseResponse,
   EXTRACT_STATION_ID,
   EXTRACT_EVSE_ID,
+  VersionNumber,
+  VersionNumberParam,
+  versionIdParam,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
@@ -38,7 +41,7 @@ const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
 /**
  * Server API for the provisioning component.
  */
-@JsonController(`/${ModuleId.Locations}`)
+@JsonController(`/:${versionIdParam}/${ModuleId.Locations}`)
 @Service()
 export class LocationsModuleApi
   extends BaseController
@@ -63,6 +66,7 @@ export class LocationsModuleApi
     },
   })
   async getLocations(
+    @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
@@ -79,6 +83,7 @@ export class LocationsModuleApi
     },
   })
   async getLocationById(
+    @VersionNumberParam() version: VersionNumber,
     @Param('location_id') locationId: number,
   ): Promise<LocationResponse> {
     return this.locationsService.getLocationById(locationId);
@@ -94,6 +99,7 @@ export class LocationsModuleApi
     },
   })
   async getEvseById(
+    @VersionNumberParam() version: VersionNumber,
     @Param('location_id') locationId: number,
     @Param('evse_uid') evseUid: string,
   ): Promise<EvseResponse> {
@@ -117,6 +123,7 @@ export class LocationsModuleApi
     },
   })
   async getConnectorById(
+    @VersionNumberParam() version: VersionNumber,
     @Param('location_id') locationId: number,
     @Param('evse_uid') evseUid: string,
     @Param('connector_id') connectorId: string,
