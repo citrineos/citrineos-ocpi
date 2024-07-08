@@ -27,6 +27,7 @@ import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
+import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
 
 @Service()
 export class CommandExecutor {
@@ -59,7 +60,7 @@ export class CommandExecutor {
       remoteStartId: responseUrlEntity.id,
       idToken: {
         idToken: startSession.token.uid,
-        type: IdTokenEnumType.eMAID,
+        type: OCPITokensMapper.mapTokenTypeToIdTokenType(startSession.token),
       },
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;
