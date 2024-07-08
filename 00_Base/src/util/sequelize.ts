@@ -1,4 +1,11 @@
-import { Sequelize } from '@citrineos/data';
+import {
+  AdditionalInfo,
+  Authorization,
+  IdToken,
+  IdTokenAdditionalInfo,
+  IdTokenInfo,
+  Sequelize,
+} from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
@@ -66,6 +73,11 @@ export class OcpiSequelizeInstance {
         SessionChargingProfile,
         OCPIToken,
         AsyncJobStatus,
+        Authorization,
+        IdToken, // todo make IdToken be directly exported from data
+        IdTokenInfo, // todo make IdTokenInfo be directly exported from data
+        IdTokenAdditionalInfo,
+        AdditionalInfo,
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
