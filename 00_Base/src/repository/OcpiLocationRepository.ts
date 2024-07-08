@@ -68,15 +68,13 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
       return undefined;
     }
 
-    const updatedOcpiLocation = await this._updateByKey(
+    return await this._updateByKey(
       {
         [OcpiLocationProps.lastUpdated]:
           location[OcpiLocationProps.lastUpdated],
       },
       String(existingOcpiLocation.id),
     );
-
-    return updatedOcpiLocation;
   }
 
   private createQuery(
@@ -89,13 +87,15 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
       return {};
     }
 
-    const query: any = { where: { lastUpdated: {} } };
+    const query: any = { where: { } };
 
     if (dateFrom) {
+      query.where[OcpiLocationProps.lastUpdated] = query.where[OcpiLocationProps.lastUpdated] ?? {};
       query.where[OcpiLocationProps.lastUpdated][Op.gte] = dateFrom;
     }
 
     if (dateTo) {
+      query.where[OcpiLocationProps.lastUpdated] = query.where[OcpiLocationProps.lastUpdated] ?? {};
       query.where[OcpiLocationProps.lastUpdated][Op.lt] = dateTo;
     }
 
