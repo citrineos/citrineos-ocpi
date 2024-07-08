@@ -81,7 +81,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
       ModuleId.Locations,
       params,
-      this.locationsClientApi.patchEvse,
+      this.locationsClientApi.patchEvse.bind(this.locationsClientApi),
     );
   }
 
@@ -133,7 +133,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
       ModuleId.Locations,
       params,
-      this.locationsClientApi.patchConnector,
+      this.locationsClientApi.patchConnector.bind(this.locationsClientApi),
     );
   }
 }
