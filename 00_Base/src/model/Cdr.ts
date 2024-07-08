@@ -93,14 +93,14 @@ export class Cdr {
   @IsArray()
   @Optional()
   @Type(() => Tariff)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   tariffs?: Tariff[] | null;
 
   @ArrayMinSize(1)
   @IsArray()
   @IsNotEmpty()
   @Type(() => ChargingPeriod)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   charging_periods!: ChargingPeriod[];
 
   @Optional()
@@ -190,7 +190,7 @@ export class CdrResponse extends OcpiResponse<Cdr> {
 
 export class PaginatedCdrResponse extends PaginatedResponse<Cdr> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => Cdr)

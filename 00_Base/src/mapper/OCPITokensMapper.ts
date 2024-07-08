@@ -1,12 +1,12 @@
 import {
   AuthorizationStatusEnumType,
   IdTokenEnumType,
-  IdTokenType,
   IdTokenInfoType,
+  IdTokenType,
 } from '@citrineos/base';
-import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
+import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
 import { TokenType } from '../model/TokenType';
-import { Authorization } from '@citrineos/data';
+import { Authorization, IdToken, IdTokenInfo } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OCPITokensMapper {
@@ -58,11 +58,14 @@ export class OCPITokensMapper {
     }
 
     // Create the IdToken object
-    const idToken: IdTokenType = {
+    const idToken = {
       idToken: ocpiToken.uid,
       type: OCPITokensMapper.mapTokenTypeToIdTokenType(ocpiToken),
       additionalInfo: [
-        { additionalIdToken: ocpiToken.contract_id, type: 'ContractId' },
+        {
+          additionalIdToken: ocpiToken.contract_id,
+          type: IdTokenEnumType.eMAID, // todo implement non static
+        },
       ],
     };
 
@@ -75,18 +78,25 @@ export class OCPITokensMapper {
       language1: ocpiToken.language ?? undefined,
     };
 
-    // Create the Authorization object
-    const auth = new Authorization();
-    auth.id = undefined;
-    auth.idToken = idToken;
-    auth.idTokenInfo = idTokenInfo;
+    const authBody = {
+      idToken: idToken,
+      idTokenInfo: idTokenInfo,
+    };
 
+    console.log('authBody', authBody);
+
+    const auth = Authorization.build(authBody, {
+      include: [IdToken, IdTokenInfo],
+    });
+
+    console.log('auth', auth);
+
+    // Create the Authorization object
     return auth;
   }
 
   public static mapTokenDtoToToken(tokenDto: TokenDTO) {
     const token = new OCPIToken();
-    token.id = undefined;
     token.country_code = tokenDto.country_code;
     token.party_id = tokenDto.party_id;
     token.uid = tokenDto.uid;

@@ -1,6 +1,11 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest, } from '@citrineos/base';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -21,9 +26,8 @@ export class SessionMapper {
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
-    readonly tokensService: TokensService
-  ) {
-  }
+    readonly tokensService: TokensService,
+  ) {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -235,7 +239,7 @@ export class SessionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-          MeasurandEnumType.Energy_Active_Import_Register &&
+            MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
@@ -248,7 +252,7 @@ export class SessionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-      new Date(previousMeterValue.timestamp).getTime()
+        new Date(previousMeterValue.timestamp).getTime()
       : new Date(meterValue.timestamp).getTime() - transactionStart.getTime();
 
     // Convert milliseconds to hours
@@ -299,15 +303,20 @@ export class SessionMapper {
     const tokenRequests: SingleTokenRequest[] = [];
     const validTransactions: Transaction[] = [];
 
-    transactions.forEach(transaction => {
-      if (transaction.transactionEvents && transaction.transactionEvents.length > 0) {
+    transactions.forEach((transaction) => {
+      if (
+        transaction.transactionEvents &&
+        transaction.transactionEvents.length > 0
+      ) {
         const idToken = transaction.transactionEvents[0].idToken;
         if (idToken?.idToken) {
-          tokenRequests.push(SingleTokenRequest.build(
-            mspCountryCode || '',
-            mspPartyId || '',
-            idToken.idToken
-          ));
+          tokenRequests.push(
+            SingleTokenRequest.build(
+              mspCountryCode || '',
+              mspPartyId || '',
+              idToken.idToken,
+            ),
+          );
           validTransactions.push(transaction);
         }
       }
@@ -315,7 +324,9 @@ export class SessionMapper {
 
     // Current implementation using getSingleToken with Promise.all
     const tokens = await Promise.all(
-      tokenRequests.map(request => this.tokensService.getSingleToken(request))
+      tokenRequests.map((request) =>
+        this.tokensService.getSingleToken(request),
+      ),
     );
 
     // Future implementation using getMultipleTokens
@@ -326,7 +337,8 @@ export class SessionMapper {
 
     validTransactions.forEach((transaction, index) => {
       if (tokens[index]) {
-        transactionIdToTokenMap[transaction.id] = tokens[index] ?? new OCPIToken();
+        transactionIdToTokenMap[transaction.id] =
+          tokens[index] ?? new OCPIToken();
       }
     });
 

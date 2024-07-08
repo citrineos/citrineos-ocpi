@@ -15,8 +15,7 @@ export class TariffsService {
     private readonly ocpiTariffRepository: OcpiTariffRepository,
     private readonly coreTariffRepository: SequelizeTariffRepository,
     private readonly tariffMapper: TariffMapper,
-  ) {
-  }
+  ) {}
 
   async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
     const ocpiTariff = await this.ocpiTariffRepository.findByTariffKey(key);
@@ -27,7 +26,8 @@ export class TariffsService {
   }
 
   async getTariffByCoreKey(coreKey: TariffKey): Promise<TariffDTO | undefined> {
-    const ocpiTariff = await this.ocpiTariffRepository.findByCoreTariffKey(coreKey);
+    const ocpiTariff =
+      await this.ocpiTariffRepository.findByCoreTariffKey(coreKey);
     if (ocpiTariff === undefined) {
       return undefined;
     }
@@ -52,7 +52,7 @@ export class TariffsService {
       return acc;
     }, {});
     const coreTariffs = await this.coreTariffRepository.readAllByQuery({
-      where: {id: {[Op.in]: Object.keys(coreTariffIdToOcpiTariff)}},
+      where: { id: { [Op.in]: Object.keys(coreTariffIdToOcpiTariff) } },
     });
 
     return coreTariffs.map((ocppTariff) =>
@@ -70,7 +70,7 @@ export class TariffsService {
     const limit = paginationParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginationParams?.offset ?? DEFAULT_OFFSET;
 
-    const {rows, count} = await this.ocpiTariffRepository.getTariffs(
+    const { rows, count } = await this.ocpiTariffRepository.getTariffs(
       limit,
       offset,
       paginationParams?.date_from,
@@ -80,8 +80,8 @@ export class TariffsService {
     );
 
     if (count === 0) {
-      return {data: [], count: 0};
+      return { data: [], count: 0 };
     }
-    return {data: await this.extendOcpiTariffs(rows), count};
+    return { data: await this.extendOcpiTariffs(rows), count };
   }
 }

@@ -24,19 +24,21 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
   }
 
   async findByTariffKey({
-                          id,
-                          countryCode,
-                          partyId,
-                        }: TariffKey): Promise<OcpiTariff | undefined> {
-    return this.readOnlyOneByQuery({where: {id, countryCode, partyId}});
+    id,
+    countryCode,
+    partyId,
+  }: TariffKey): Promise<OcpiTariff | undefined> {
+    return this.readOnlyOneByQuery({ where: { id, countryCode, partyId } });
   }
 
   async findByCoreTariffKey({
-                              id: coreTariffId,
-                              countryCode,
-                              partyId,
-                            }: TariffKey): Promise<OcpiTariff | undefined> {
-    return this.readOnlyOneByQuery({where: {coreTariffId, countryCode, partyId}});
+    id: coreTariffId,
+    countryCode,
+    partyId,
+  }: TariffKey): Promise<OcpiTariff | undefined> {
+    return this.readOnlyOneByQuery({
+      where: { coreTariffId, countryCode, partyId },
+    });
   }
 
   async getTariffs(
@@ -50,8 +52,8 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
     return this.findAndCount({
       where: {
         ...this.lastUpdated(dateFrom, dateTo),
-        ...(cpoCountryCode && {countryCode: cpoCountryCode}),
-        ...(cpoPartyId && {partyId: cpoPartyId}),
+        ...(cpoCountryCode && { countryCode: cpoCountryCode }),
+        ...(cpoPartyId && { partyId: cpoPartyId }),
       },
       offset,
       limit,
@@ -63,11 +65,11 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
       return {};
     }
     if (!from && to) {
-      return {updatedAt: {[Op.lte]: to}};
+      return { updatedAt: { [Op.lte]: to } };
     }
     if (from && !to) {
-      return {updatedAt: {[Op.gte]: from}};
+      return { updatedAt: { [Op.gte]: from } };
     }
-    return {updatedAt: {[Op.between]: [from, to]}};
+    return { updatedAt: { [Op.between]: [from, to] } };
   }
 }

@@ -1,46 +1,18 @@
 'use strict';
 
-import {QueryInterface, QueryOptions} from 'sequelize';
-import {OCPIToken, OCPITokensMapper} from '@citrineos/ocpi-base';
-import {AuthorizationData, IdTokenInfoType, IdTokenType} from '@citrineos/base';
+import { QueryInterface } from 'sequelize';
+import {
+  OcpiSequelizeInstance,
+  OcpiServerConfig,
+  OCPIToken,
+  OCPITokensMapper,
+} from '@citrineos/ocpi-base';
+
+const _sequelize = new OcpiSequelizeInstance(new OcpiServerConfig()); // needed to init models
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-
-  up: async (queryInterface: QueryInterface) => {
-    const insertToken = async (tokenType: IdTokenType) => {
-      const result = await queryInterface.bulkInsert('IdTokens', [tokenType], {
-        returning: true,
-      } as QueryOptions)
-      console.log('TokenType result', result);
-      return result as any[]
-    }
-
-    const insertTokenInfo = async (tokenInfo: IdTokenInfoType) => {
-      const tokenList = await insertToken(tokenInfo.groupIdToken!)
-      if (tokenList && tokenList[0]) {
-        (tokenInfo as any).groupIdTokenId = tokenList[0].id;
-      }
-
-      const result = await queryInterface.bulkInsert('IdTokenInfos', [tokenInfo], {
-        returning: true,
-      } as QueryOptions);
-      console.log('IdTokenInfoType result', result);
-      return result as any[]
-    }
-
-    const insertAuthorization = async (authorization: AuthorizationData) => {
-      const idToken = insertToken(authorization.idToken!);
-      const gropuIdToken = insertTokenInfo(authorization.idTokenInfo!);
-      (authorization as any).idTokenId = (await idToken)[0].id;
-      (authorization as any).idTokenInfoId = (await gropuIdToken)[0].id;
-      const result = await queryInterface.bulkInsert('Authorizations', [authorization], {
-        returning: true,
-      } as QueryOptions);
-      console.log('IdTokenInfoType result', result);
-      return result as any[]
-    }
-
+  up: async (_queryInterface: QueryInterface) => {
     const token1 = {
       country_code: 'US',
       party_id: 'S44',
@@ -58,13 +30,13 @@ module.exports = {
       last_updated: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    };
 
     const token2 = {
       country_code: 'US',
       party_id: 'XYZ',
       uid: '987e6543-e21b-65d4-b789-123456789012',
-      type: 'APP',
+      type: 'APP_USER',
       contract_id: 'contract_002',
       visual_number: 'VIS002',
       issuer: 'Issuer2',
@@ -77,19 +49,18 @@ module.exports = {
       last_updated: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
-
-    const ocppAuth1 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token1 as OCPIToken)
-    const ocppAuth2 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token2 as OCPIToken)
-    await insertAuthorization(ocppAuth1);
-    await insertAuthorization(ocppAuth2);
-
-    await queryInterface.bulkInsert('Tokens', [token1, token2], {});
+    };
+    const ocppAuth1 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(
+      token1 as OCPIToken,
+    );
+    const ocppAuth2 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(
+      token2 as OCPIToken,
+    );
+    await ocppAuth1.save();
+    await ocppAuth2.save();
   },
 
   down: async (queryInterface: QueryInterface) => {
     await queryInterface.bulkDelete('Tokens', {}, {});
   },
-
-
 };
