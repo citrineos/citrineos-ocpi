@@ -1,12 +1,4 @@
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasOne,
-  Model,
-  Table,
-} from '@citrineos/data';
+import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from '@citrineos/data';
 import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
@@ -24,7 +16,14 @@ export enum ServerCredentialsRoleProps {
   cpoTenant = 'cpoTenant',
 }
 
-@Table
+@Table({
+  indexes: [
+    {
+      unique: true,
+      fields: [ServerCredentialsRoleProps.countryCode, ServerCredentialsRoleProps.partyId],
+    },
+  ],
+})
 export class ServerCredentialsRole extends Model implements ICredentialsRole {
   @Column(DataType.ENUM(Role.CPO))
   [ServerCredentialsRoleProps.role] = Role.CPO;
