@@ -52,7 +52,7 @@ export class CdrBroadcaster extends BaseBroadcaster {
       cpoPartyId,
       ModuleId.Cdrs,
       params,
-      this.cdrsClientApi.postCdr,
+      this.cdrsClientApi.postCdr.bind(this.cdrsClientApi),
     );
   }
 }
