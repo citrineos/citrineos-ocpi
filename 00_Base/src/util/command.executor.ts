@@ -8,7 +8,6 @@ import {
   ChargingScheduleType,
   ClearChargingProfileRequest,
   GetCompositeScheduleRequest,
-  IdTokenEnumType,
   MessageOrigin,
   RequestStartTransactionRequest,
   RequestStopTransactionRequest,
@@ -27,7 +26,7 @@ import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
-import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
+import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 
 @Service()
 export class CommandExecutor {
@@ -60,7 +59,7 @@ export class CommandExecutor {
       remoteStartId: responseUrlEntity.id,
       idToken: {
         idToken: startSession.token.uid,
-        type: OCPITokensMapper.mapTokenTypeToIdTokenType(startSession.token),
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(startSession.token.type),
       },
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;
