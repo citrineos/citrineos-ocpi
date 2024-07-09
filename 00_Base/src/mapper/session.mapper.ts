@@ -1,13 +1,8 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import {
-  MeasurandEnumType,
-  MeterValueType,
-  TransactionEventEnumType,
-  TransactionEventRequest,
-} from '@citrineos/base';
+import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import { Transaction, TransactionEvent } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
-import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
 import { SingleTokenRequest } from '../model/OcpiToken';
@@ -53,8 +48,7 @@ export class SessionMapper {
     return transactions
       .filter(
         (transaction) =>
-          transactionIdToLocationMap[transaction.id] && // todo may be falsy, check for nullability
-          transactionIdToTokenMap[transaction.id], // todo may be falsy, check for nullability
+          transactionIdToLocationMap[transaction.id] // todo skipping check for token for now
       )
       .map((transaction) => {
         const location = transactionIdToLocationMap[transaction.id]!;
@@ -76,8 +70,8 @@ export class SessionMapper {
       country_code: location.country_code,
       party_id: location.party_id,
       id: transaction.transactionId,
-      start_date_time: new Date(startEvent.timestamp),
-      end_date_time: endEvent ? new Date(endEvent.timestamp) : null,
+      start_date_time: new Date(startEvent?.timestamp),
+      end_date_time: endEvent ? new Date(endEvent?.timestamp) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
@@ -102,15 +96,16 @@ export class SessionMapper {
   private getStartAndEndEvents(
     transactionEvents: TransactionEventRequest[] = [],
   ): [TransactionEventRequest, TransactionEventRequest | undefined] {
-    const startEvent = transactionEvents.find(
+    let startEvent = transactionEvents.find(
       (event) => event.eventType === TransactionEventEnumType.Started,
     );
     if (!startEvent) {
-      throw new Error("No 'Started' event found in transaction events");
+      this.logger.error("No 'Started' event found in transaction events");
+      startEvent = TransactionEvent.build();
     }
 
     return [
-      startEvent,
+      startEvent!,
       transactionEvents.find(
         (event) => event.eventType === TransactionEventEnumType.Ended,
       ),
@@ -129,11 +124,11 @@ export class SessionMapper {
 
   private createCdrToken(token: TokenDTO): CdrToken {
     return {
-      uid: token.uid,
-      type: token.type,
-      contract_id: token.contract_id,
-      country_code: token.country_code,
-      party_id: token.party_id,
+      uid: token?.uid,
+      type: token?.type,
+      contract_id: token?.contract_id,
+      country_code: token?.country_code,
+      party_id: token?.party_id,
     };
   }
 
@@ -240,7 +235,7 @@ export class SessionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-            MeasurandEnumType.Energy_Active_Import_Register &&
+          MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
@@ -253,7 +248,7 @@ export class SessionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-        new Date(previousMeterValue.timestamp).getTime()
+      new Date(previousMeterValue.timestamp).getTime()
       : new Date(meterValue.timestamp).getTime() - transactionStart.getTime();
 
     // Convert milliseconds to hours
@@ -269,11 +264,11 @@ export class SessionMapper {
     for (const transaction of transactions) {
       const chargingStation = await transaction.$get('station');
       if (!chargingStation) {
-        throw new Error(`todo`); // todo
+        continue; // todo
       }
       const locationId = chargingStation.locationId;
       if (!locationId) {
-        throw new Error(`todo`); // todo
+        continue; // todo
       }
       const ocpiLocation =
         await this.ocpiLocationsRepository.readOnlyOneByQuery({
@@ -282,7 +277,7 @@ export class SessionMapper {
           },
         });
       if (!ocpiLocation) {
-        throw new Error(`todo`); // todo
+        continue; // todo
       }
       if (
         (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&

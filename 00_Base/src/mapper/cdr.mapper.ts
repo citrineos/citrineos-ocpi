@@ -1,12 +1,7 @@
 import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
-import {
-  SequelizeLocationRepository,
-  SequelizeTariffRepository,
-  Tariff,
-  Transaction,
-} from '@citrineos/data';
+import { SequelizeLocationRepository, SequelizeTariffRepository, Tariff, Transaction, } from '@citrineos/data';
 import { TariffKey } from '../model/OcpiTariff';
 import { SessionMapper } from './session.mapper';
 import { OcpiLogger } from '../util/logger';
@@ -26,7 +21,8 @@ export class CdrMapper {
     readonly locationRepository: SequelizeLocationRepository,
     readonly tariffRepository: SequelizeTariffRepository,
     readonly tariffsService: TariffsService,
-  ) {}
+  ) {
+  }
 
   public async mapTransactionsToCdrs(
     transactions: Transaction[],
@@ -61,7 +57,7 @@ export class CdrMapper {
         transactionIdToOcpiTariffMap,
       );
     } catch (error) {
-      // TODO: Handle Error
+      // TODO: Handle Error 
       throw new Error();
     }
   }
@@ -76,7 +72,7 @@ export class CdrMapper {
           transaction.stationId,
         );
         if (tariff) {
-          transactionIdToTariffMap.set(transaction.id, tariff);
+          transactionIdToTariffMap.set(transaction.transactionId, tariff);
         }
       }),
     );
@@ -91,12 +87,12 @@ export class CdrMapper {
   ): Promise<Map<string, OcpiTariff>> {
     const transactionIdToOcpiTariffMap = new Map<string, OcpiTariff>();
     await Promise.all(
-      sessions.map(async (session) => {
+      sessions.filter(session => transactionIdToTariffMap.get(session.id)).map(async (session) => {
         const tariffKey = {
           id: String(transactionIdToTariffMap.get(session.id)?.id),
           // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
-          countryCode: cpoCountryCode || 'CPO',
-          partyId: cpoPartyId || 'US',
+          countryCode: cpoCountryCode || 'US',
+          partyId: cpoPartyId || 'CPO',
         } as TariffKey;
         const tariff = await this.tariffsService.getTariffByCoreKey(tariffKey);
         if (tariff) {
@@ -381,8 +377,8 @@ export class CdrMapper {
   private getStartAndEndEvents(
     transaction: Transaction,
   ): [
-    TransactionEventRequest | undefined,
-    TransactionEventRequest | undefined,
+      TransactionEventRequest | undefined,
+      TransactionEventRequest | undefined,
   ] {
     const startEvent = transaction.transactionEvents?.find(
       (event) => event.eventType === 'Started',

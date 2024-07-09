@@ -27,6 +27,7 @@ import {
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
+import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
@@ -187,6 +188,7 @@ export { CdrsService } from './services/cdrs.service';
 export { PaginatedCdrResponse } from './model/Cdr';
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
+export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
@@ -320,5 +322,6 @@ export class OcpiServer extends KoaServer {
 
   private onContainerInitialized() {
     Container.get(SessionBroadcaster); // init session broadcaster
+    Container.get(CdrBroadcaster);
   }
 }
