@@ -68,7 +68,7 @@ export class TokenDTO {
   @MinLength(2)
   @IsString()
   @Optional()
-  language?: string | null;
+  language?: string | null | undefined;
 
   @IsString()
   @Optional()

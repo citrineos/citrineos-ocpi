@@ -8,7 +8,7 @@ import {
 } from '@citrineos/base';
 import { OcpiToken } from '../model/OcpiToken';
 import { TokenType } from '../model/TokenType';
-import { Authorization, IdToken, IdTokenInfo } from '@citrineos/data';
+import { Authorization } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
@@ -28,7 +28,6 @@ export class OcpiTokensMapper {
       last_updated: tokenDto.last_updated,
     });
   }
-
   public static async toDto(
     authorization: Authorization,
     token: OcpiToken,
