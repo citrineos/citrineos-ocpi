@@ -32,8 +32,8 @@ export class SessionMapper {
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
-    fromCountryCode?: string,
-    fromPartyId?: string,
+    _fromCountryCode?: string,
+    _fromPartyId?: string,
     toCountryCode?: string,
     toPartyId?: string,
   ): Promise<Session[]> {
@@ -46,8 +46,6 @@ export class SessionMapper {
         ),
         this.getTokensForTransactions(
           transactions,
-          fromCountryCode,
-          fromPartyId,
         ),
       ]);
     return transactions
@@ -298,50 +296,29 @@ export class SessionMapper {
 
   private async getTokensForTransactions(
     transactions: Transaction[],
-    mspCountryCode?: string,
-    mspPartyId?: string,
   ): Promise<{ [key: string]: TokenDTO }> {
-    const tokenRequests: any = [];
-    const validTransactions: Transaction[] = [];
+    const transactionIdToTokenMap: { [transactionId: string]: TokenDTO } = {};
 
-    transactions.forEach((transaction) => {
+    for (const transaction of transactions) {
       if (
         transaction.transactionEvents &&
         transaction.transactionEvents.length > 0
       ) {
-        const idToken = transaction.transactionEvents[0].idToken;
+        const idToken = transaction.transactionEvents
+          .find(transaction => transaction.idToken)?.idToken;
+
         if (idToken?.idToken) {
-          tokenRequests.push({
-            idToken: idToken.idToken,
-            type: idToken.type
-          });
-          validTransactions.push(transaction);
+          const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
+            idToken.idToken,
+            idToken.type
+          );
+
+          if (tokenDto) {
+            transactionIdToTokenMap[transaction.id] = tokenDto;
+          }
         }
       }
-    });
-
-    // Current implementation using getSingleToken with Promise.all
-    const tokens = await Promise.all(
-      tokenRequests.map((request: any) =>
-        this.tokensRepository.getOcpiTokenByIdToken(
-          request.idToken,
-          request.type
-        )
-      ),
-    );
-
-    // Future implementation using getMultipleTokens
-    // TODO: Uncomment and use this once getMultipleTokens is implemented
-    // const tokens = await this.tokensService.getMultipleTokens(tokenRequests);
-
-    const transactionIdToTokenMap: { [key: string]: TokenDTO } = {};
-
-    validTransactions.forEach((transaction, index) => {
-      if (tokens[index]) {
-        transactionIdToTokenMap[transaction.id] =
-          tokens[index] ?? new TokenDTO();
-      }
-    });
+    }
 
     return transactionIdToTokenMap;
   }

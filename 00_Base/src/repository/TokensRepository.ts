@@ -84,23 +84,23 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
   }
 
-  async getOcpiTokenByIdToken(
+  async getTokenDtoByIdToken(
     idToken: string,
     type: IdTokenEnumType
-  ): Promise<OcpiToken | undefined> {
-    const ocppAuth = await this.authorizationRepository.readAllByQuerystring({
+  ): Promise<TokenDTO | undefined> {
+    const ocppAuth = await this.authorizationRepository.readOnlyOneByQuerystring({
       idToken,
       type
     });
 
-    if (ocppAuth.length === 0) {
+    if (!ocppAuth) {
       // TODO better error
       return undefined;
     }
 
     const ocpiToken = await this.readOnlyOneByQuery({
       where: {
-        authorization_id: ocppAuth[0].id
+        authorization_id: ocppAuth.id
       }
     });
 
@@ -109,7 +109,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       return undefined;
     }
 
-    return ocpiToken;
+    return OcpiTokensMapper.toDto(ocppAuth, ocpiToken);
   }
 
   /**
