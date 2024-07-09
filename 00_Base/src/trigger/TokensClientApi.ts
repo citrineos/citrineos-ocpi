@@ -3,7 +3,7 @@ import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { AuthorizationInfoResponse } from '../model/AuthorizationInfo';
 import { PaginatedOcpiParams } from './param/paginated.ocpi.params';
 import { BaseClientApi, TriggerRequestOptions } from './BaseClientApi';
-import { PaginatedTokenResponse } from '../model/OCPIToken';
+import { PaginatedTokenResponse } from '../model/OcpiToken';
 import { VersionNumber } from '../model/VersionNumber';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';

@@ -10,7 +10,7 @@ import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
+import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
@@ -19,6 +19,7 @@ import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
 import { TokensService } from '../services/TokensService';
+import { TokenDTO } from '../model/DTO/TokenDTO';
 
 @Service()
 export class SessionMapper {
@@ -65,7 +66,7 @@ export class SessionMapper {
   private mapTransactionToSession(
     transaction: Transaction,
     location: OcpiLocation,
-    token: OCPIToken,
+    token: TokenDTO,
   ): Session {
     const [startEvent, endEvent] = this.getStartAndEndEvents(
       transaction.transactionEvents,
@@ -126,7 +127,7 @@ export class SessionMapper {
     }, new Date(transactionEvents[0].timestamp));
   }
 
-  private createCdrToken(token: OCPIToken): CdrToken {
+  private createCdrToken(token: TokenDTO): CdrToken {
     return {
       uid: token.uid,
       type: token.type,
@@ -299,7 +300,7 @@ export class SessionMapper {
     transactions: Transaction[],
     mspCountryCode?: string,
     mspPartyId?: string,
-  ): Promise<{ [key: string]: OCPIToken }> {
+  ): Promise<{ [key: string]: TokenDTO }> {
     const tokenRequests: SingleTokenRequest[] = [];
     const validTransactions: Transaction[] = [];
 
@@ -333,12 +334,12 @@ export class SessionMapper {
     // TODO: Uncomment and use this once getMultipleTokens is implemented
     // const tokens = await this.tokensService.getMultipleTokens(tokenRequests);
 
-    const transactionIdToTokenMap: { [key: string]: OCPIToken } = {};
+    const transactionIdToTokenMap: { [key: string]: TokenDTO } = {};
 
     validTransactions.forEach((transaction, index) => {
       if (tokens[index]) {
         transactionIdToTokenMap[transaction.id] =
-          tokens[index] ?? new OCPIToken();
+          tokens[index] ?? new TokenDTO();
       }
     });
 

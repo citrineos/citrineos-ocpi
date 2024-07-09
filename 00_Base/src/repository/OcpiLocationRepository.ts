@@ -87,15 +87,17 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
       return {};
     }
 
-    const query: any = { where: { } };
+    const query: any = { where: {} };
 
     if (dateFrom) {
-      query.where[OcpiLocationProps.lastUpdated] = query.where[OcpiLocationProps.lastUpdated] ?? {};
+      query.where[OcpiLocationProps.lastUpdated] =
+        query.where[OcpiLocationProps.lastUpdated] ?? {};
       query.where[OcpiLocationProps.lastUpdated][Op.gte] = dateFrom;
     }
 
     if (dateTo) {
-      query.where[OcpiLocationProps.lastUpdated] = query.where[OcpiLocationProps.lastUpdated] ?? {};
+      query.where[OcpiLocationProps.lastUpdated] =
+        query.where[OcpiLocationProps.lastUpdated] ?? {};
       query.where[OcpiLocationProps.lastUpdated][Op.lt] = dateTo;
     }
 
