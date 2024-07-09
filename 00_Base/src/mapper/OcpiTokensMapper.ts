@@ -6,10 +6,10 @@ import {
   IdTokenInfoType,
   IdTokenType,
 } from '@citrineos/base';
-import { OcpiToken } from '../model/OcpiToken';
-import { TokenType } from '../model/TokenType';
-import { Authorization } from '@citrineos/data';
-import { TokenDTO } from '../model/DTO/TokenDTO';
+import {OcpiToken} from '../model/OcpiToken';
+import {TokenType} from '../model/TokenType';
+import {Authorization} from '@citrineos/data';
+import {TokenDTO} from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
   public static toEntity(authorizationId: number, tokenDto: TokenDTO): OcpiToken {
@@ -72,11 +72,9 @@ export class OcpiTokensMapper {
   public static mapOcpiTokenToOcppAuthorization(
     tokenDto: TokenDTO,
   ): AuthorizationData {
-    const ocppIdTokenType = OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
-
     const additionalInfo: AdditionalInfoType = {
       additionalIdToken: tokenDto.contract_id,
-      type: ocppIdTokenType,
+      type: IdTokenEnumType.eMAID,
     };
 
     const idToken: IdTokenType = {
@@ -95,7 +93,7 @@ export class OcpiTokensMapper {
     if (tokenDto.group_id) {
       idTokenInfo['groupIdToken'] = {
         idToken: tokenDto.group_id,
-        type: ocppIdTokenType,
+        type: IdTokenEnumType.Central,
       };
     }
 
