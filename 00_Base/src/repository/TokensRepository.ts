@@ -4,23 +4,26 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
+import { OcpiToken, SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import {
+  Authorization,
   SequelizeAuthorizationRepository,
   SequelizeRepository,
 } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
-import { SystemConfig } from '@citrineos/base';
+import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
-import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
+import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 import { TokensValidators } from '../util/validators/TokensValidators';
+import { TokenDTO } from '../model/DTO/TokenDTO';
+import { TokenType } from '../model/TokenType';
 
 @Service()
-export class TokensRepository extends SequelizeRepository<OCPIToken> {
+export class TokensRepository extends SequelizeRepository<OcpiToken> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     private readonly logger: OcpiLogger,
@@ -29,7 +32,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.OcpiTokens,
+      OcpiNamespace.OcpiToken,
       logger,
       ocpiSequelizeInstance.sequelize,
     );
@@ -39,60 +42,100 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
    * Retrieves a single token based on the provided SingleTokenRequest.
    *
    * @param {SingleTokenRequest} tokenRequest - The request object containing the token details.
-   * @return {Promise<OCPIToken | undefined>} A promise that resolves to the retrieved token or undefined if not found.
+   * @return {Promise<OcpiToken | undefined>} A promise that resolves to the retrieved token or undefined if not found.
    */
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
-  ): Promise<OCPIToken | undefined> {
+  ): Promise<TokenDTO | undefined> {
     try {
-      const ocppAuth = await this.authorizationRepository.readAllByQuerystring({
-        idToken: tokenRequest.uid,
-        type: OCPITokensMapper.mapSingleTokenRequestToIdTokenType(tokenRequest),
-      });
-      if (ocppAuth.length === 0) {
+      const ocppAuths = await this.authorizationRepository.readAllByQuerystring(
+        {
+          idToken: tokenRequest.uid,
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenRequest?.type ?? TokenType.RFID)
+        },
+      );
+
+      if (ocppAuths.length === 0) {
         return undefined;
       }
-      // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
-      const ocppAuthIds = ocppAuth.map((auth) => auth.id);
-      // Use query to validate the belongs to the right party
-      const query: any = {
+
+      const ocpiToken = await this.readOnlyOneByQuery({
         where: {
-          id: {
-            [Op.in]: ocppAuthIds,
+          authorization_id: {
+            [Op.in]: ocppAuths.map((ocppAuth) => ocppAuth.id),
           },
           country_code: tokenRequest.country_code,
           party_id: tokenRequest.party_id,
           type: tokenRequest.type,
         },
-      };
+      });
 
-      return this.readOnlyOneByQuery(query);
+      if (!ocpiToken) {
+        return undefined;
+      }
+
+      return OcpiTokensMapper.toDto(
+        this.getMatchingAuth(ocpiToken.authorization_id, ocppAuths)!,
+        ocpiToken,
+      );
     } catch (error) {
       this.logger.error('Error retrieving single token', error);
       throw error;
     }
   }
 
+  async getOcpiTokenByIdToken(
+    idToken: string,
+    type: IdTokenEnumType
+  ): Promise<OcpiToken | undefined> {
+    const ocppAuth = await this.authorizationRepository.readAllByQuerystring({
+      idToken,
+      type
+    });
+
+    if (ocppAuth.length === 0) {
+      // TODO better error
+      return undefined;
+    }
+
+    const ocpiToken = await this.readOnlyOneByQuery({
+      where: {
+        authorization_id: ocppAuth[0].id
+      }
+    });
+
+    if (!ocpiToken) {
+      // TODO better error
+      return undefined;
+    }
+
+    return ocpiToken;
+  }
+
   /**
    * Saves a new token.
    *
-   * @param {OCPIToken} token - The token to save.
-   * @return {Promise<OCPIToken>} The saved token.
+   * @param {TokenDTO} tokenDto - The token to save.
+   * @return {Promise<TokenDTO>} The saved token.
    */
-  async saveToken(token: OCPIToken): Promise<OCPIToken> {
-    const ocppAuth = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(token);
-    const newOcppAuth =
-      await this.authorizationRepository.createOrUpdateByQuerystring(ocppAuth, {
-        idToken: token.uid,
-        type: OCPITokensMapper.mapTokenTypeToIdTokenType(token),
-      });
-    token.id = newOcppAuth!.id;
+  async saveToken(tokenDto: TokenDTO): Promise<TokenDTO> {
+    const mappedOcppAuth = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(tokenDto);
+    const savedOcppAuth =
+      await this.authorizationRepository.createOrUpdateByQuerystring(
+        mappedOcppAuth,
+        {
+          idToken: tokenDto.uid,
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
+        },
+      );
+
+    if (!savedOcppAuth) {
+      throw new UnknownTokenException('Authorization could not be created upon saving token');
+    }
+
     try {
-      const ocpiToken = await this.updateByKey(token.dataValues, token.id);
-      if (ocpiToken) {
-        return ocpiToken;
-      }
-      return await this.create(token);
+      const ocpiToken = await this.createOrUpdateOcpiToken(savedOcppAuth?.id, tokenDto);
+      return OcpiTokensMapper.toDto(savedOcppAuth!, ocpiToken);
     } catch (error) {
       this.logger.error('Error saving token', error);
       throw error;
@@ -102,81 +145,79 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
   /**
    * Updates an existing token.
    *
-   * @param {Partial<OCPIToken>} partialToken - The partial token to update.
-   * @return {Promise<OCPIToken>} The updated token.
+   * @param {Partial<OcpiToken>} partialToken - The partial token to update.
+   * @return {Promise<OcpiToken>} The updated token.
    * @throws {UnknownTokenException} If the token is not found.
    */
-  async updateToken(partialToken: Partial<OCPIToken>): Promise<OCPIToken> {
+  async updateToken(partialToken: TokenDTO): Promise<TokenDTO> {
     TokensValidators.validatePartialTokenForUniquenessRequiredFields(
       partialToken,
     );
 
-    const ocppAuthList =
-      await this.authorizationRepository.readAllByQuerystring({
-        idToken: partialToken.uid!,
-        type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
-      });
-    if (ocppAuthList.length === 0) {
+    const ocppAuths = await this.authorizationRepository.readAllByQuerystring({
+      idToken: partialToken.uid!,
+      type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+        partialToken.type,
+      ),
+    });
+
+    if (ocppAuths.length === 0) {
       throw new UnknownTokenException('Token not found in the database');
     }
-    // Ids don't have to be unique on there own, only in combination with the type. So we need to search for all possible ids
-    const ocppAuthIds = ocppAuthList.map((auth) => auth.id);
-    // Use query to validate the belongs to the right party
-    const query: any = {
+
+    const existingOcpiToken = await this.readOnlyOneByQuery({
       where: {
-        id: {
-          [Op.in]: ocppAuthIds,
+        authorization_id: {
+          [Op.in]: ocppAuths.map((ocppAuth) => ocppAuth.id),
         },
         country_code: partialToken.country_code,
         party_id: partialToken.party_id,
         type: partialToken.type,
       },
-    };
+    });
 
-    const existingOCPIToken = await this.readOnlyOneByQuery(query);
-    if (!existingOCPIToken) {
+    if (!existingOcpiToken) {
       throw new UnknownTokenException('Token not found in the database');
     }
 
-    partialToken.id = undefined;
     const updatedToken = await this.updateByKey(
-      partialToken.dataValues,
-      existingOCPIToken.id,
+      partialToken,
+      existingOcpiToken.id,
     );
+
     if (!updatedToken) {
       throw new UnknownTokenException('Token not found in the database');
     }
+    //
+    // const newOCPPAuth =
+    //   OCPITokensMapper.mapOcpiTokenToOcppAuthorization(updatedToken);
+    // newOCPPAuth.id = existingOCPIToken.id;
+    // const updatedOcppAuth =
+    //   await this.authorizationRepository.createOrUpdateByQuerystring(
+    //     newOCPPAuth,
+    //     {
+    //       idToken: partialToken.uid!,
+    //       type: OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(partialToken.type),
+    //     },
+    //   );
+    //
+    // if (!updatedOcppAuth) {
+    //   throw new Error('Could not save token');
+    // }
 
-    const newOCPPAuth =
-      OCPITokensMapper.mapOcpiTokenToOcppAuthorization(updatedToken);
-    newOCPPAuth.id = existingOCPIToken.id;
-    const updatedOcppAuth =
-      await this.authorizationRepository.createOrUpdateByQuerystring(
-        newOCPPAuth,
-        {
-          idToken: partialToken.uid!,
-          type: OCPITokensMapper.mapTokenTypeToIdTokenType(partialToken),
-        },
-      );
-
-    if (!updatedOcppAuth) {
-      throw new Error('Could not save token');
-    }
-
-    return updatedToken;
+    return new TokenDTO();
   }
 
   /**
    * Updates or creates tokens.
    *
-   * @param {OCPIToken[]} tokens - Tokens to be created or updated.
+   * @param {OcpiToken[]} tokens - Tokens to be created or updated.
    * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
-  async updateBatchedTokens(tokens: OCPIToken[]): Promise<void> {
-    const batchFailedTokens: OCPIToken[] = [];
+  async updateBatchedTokens(tokens: TokenDTO[]): Promise<void> {
+    const batchFailedTokens: TokenDTO[] = [];
 
-    // update tokens
-    // TODO save in bulk instead
+    // TODO: do an actual bulk update
     for (const token of tokens) {
       try {
         await this.saveToken(token);
@@ -191,5 +232,49 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
         `Failed to fetch tokens: ${JSON.stringify(batchFailedTokens)}`,
       );
     }
+  }
+
+  async createOrUpdateOcpiToken(authorizationId: number, tokenDto: TokenDTO): Promise<OcpiToken> {
+    const [savedOcpiToken, ocpiTokenCreated] = await this._readOrCreateByQuery({
+      where: {
+        authorization_id: authorizationId
+      },
+      defaults: {
+        party_id: tokenDto.party_id,
+        country_code: tokenDto.country_code,
+        visual_number: tokenDto.visual_number,
+        issuer: tokenDto.issuer,
+        whitelist: tokenDto.whitelist,
+        default_profile_type: tokenDto.default_profile_type,
+        energy_contract: tokenDto.energy_contract,
+        last_updated: tokenDto.last_updated,
+        authorization_id: authorizationId,
+        type: tokenDto.type
+      },
+    });
+    // TODO confirm all updatable properties
+    if (!ocpiTokenCreated) {
+      await this._updateByKey(
+        {
+          visual_number: tokenDto.visual_number,
+          issuer: tokenDto.issuer,
+          whitelist: tokenDto.whitelist,
+          default_profile_type: tokenDto.default_profile_type,
+          energy_contract: tokenDto.energy_contract,
+          last_updated: tokenDto.last_updated,
+          type: tokenDto.type
+        },
+        savedOcpiToken.id,
+      );
+    }
+
+    return savedOcpiToken;
+  }
+
+  getMatchingAuth(
+    id: number,
+    ocppAuths: Authorization[],
+  ): Authorization | undefined {
+    return ocppAuths.find((ocppAuth) => ocppAuth.id === id);
   }
 }

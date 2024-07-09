@@ -4,8 +4,8 @@ import { QueryInterface } from 'sequelize';
 import {
   OcpiSequelizeInstance,
   OcpiServerConfig,
-  OCPIToken,
-  OCPITokensMapper,
+  OcpiTokensMapper,
+  TokenDTO,
 } from '@citrineos/ocpi-base';
 
 const _sequelize = new OcpiSequelizeInstance(new OcpiServerConfig()); // needed to init models
@@ -50,14 +50,16 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const ocppAuth1 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(
-      token1 as OCPIToken,
+    const ocppAuth1 = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(
+      token1 as TokenDTO,
     );
-    const ocppAuth2 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(
-      token2 as OCPIToken,
+    const ocppAuth2 = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(
+      token2 as TokenDTO,
     );
-    await ocppAuth1.save();
-    await ocppAuth2.save();
+
+    // TODO fix seeders after changing ocpi tokens mapper
+    // await ocppAuth1.save();
+    // await ocppAuth2.save();
   },
 
   down: async (queryInterface: QueryInterface) => {

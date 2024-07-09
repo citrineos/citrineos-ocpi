@@ -5,7 +5,7 @@ import { Transaction, TransactionEvent } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
+import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
@@ -13,7 +13,8 @@ import { CredentialsService } from '../services/credentials.service';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
-import { TokensService } from '../services/TokensService';
+import { TokenDTO } from '../model/DTO/TokenDTO';
+import { TokensRepository } from '../repository/TokensRepository';
 
 @Service()
 export class SessionMapper {
@@ -21,9 +22,8 @@ export class SessionMapper {
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
-    readonly tokensService: TokensService,
-  ) {
-  }
+    readonly tokensRepository: TokensRepository,
+  ) {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -60,7 +60,7 @@ export class SessionMapper {
   private mapTransactionToSession(
     transaction: Transaction,
     location: OcpiLocation,
-    token: OCPIToken,
+    token: TokenDTO,
   ): Session {
     const [startEvent, endEvent] = this.getStartAndEndEvents(
       transaction.transactionEvents,
@@ -122,7 +122,7 @@ export class SessionMapper {
     }, new Date(transactionEvents[0].timestamp));
   }
 
-  private createCdrToken(token: OCPIToken): CdrToken {
+  private createCdrToken(token: TokenDTO): CdrToken {
     return {
       uid: token?.uid,
       type: token?.type,
@@ -295,8 +295,8 @@ export class SessionMapper {
     transactions: Transaction[],
     mspCountryCode?: string,
     mspPartyId?: string,
-  ): Promise<{ [key: string]: OCPIToken }> {
-    const tokenRequests: SingleTokenRequest[] = [];
+  ): Promise<{ [key: string]: TokenDTO }> {
+    const tokenRequests: any = [];
     const validTransactions: Transaction[] = [];
 
     transactions.forEach((transaction) => {
@@ -306,13 +306,10 @@ export class SessionMapper {
       ) {
         const idToken = transaction.transactionEvents[0].idToken;
         if (idToken?.idToken) {
-          tokenRequests.push(
-            SingleTokenRequest.build(
-              mspCountryCode || '',
-              mspPartyId || '',
-              idToken.idToken,
-            ),
-          );
+          tokenRequests.push({
+            idToken: idToken.idToken,
+            type: idToken.type
+          });
           validTransactions.push(transaction);
         }
       }
@@ -320,8 +317,11 @@ export class SessionMapper {
 
     // Current implementation using getSingleToken with Promise.all
     const tokens = await Promise.all(
-      tokenRequests.map((request) =>
-        this.tokensService.getSingleToken(request),
+      tokenRequests.map((request: any) =>
+        this.tokensRepository.getOcpiTokenByIdToken(
+          request.idToken,
+          request.type
+        )
       ),
     );
 
@@ -329,12 +329,12 @@ export class SessionMapper {
     // TODO: Uncomment and use this once getMultipleTokens is implemented
     // const tokens = await this.tokensService.getMultipleTokens(tokenRequests);
 
-    const transactionIdToTokenMap: { [key: string]: OCPIToken } = {};
+    const transactionIdToTokenMap: { [key: string]: TokenDTO } = {};
 
     validTransactions.forEach((transaction, index) => {
       if (tokens[index]) {
         transactionIdToTokenMap[transaction.id] =
-          tokens[index] ?? new OCPIToken();
+          tokens[index] ?? new TokenDTO();
       }
     });
 
