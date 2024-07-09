@@ -32,18 +32,19 @@ import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 import {
+  ActiveChargingProfile,
   ActiveChargingProfileResult,
   AsyncResponder,
+  buildPutChargingProfileParams,
   ChargingProfileResult,
   ChargingProfileResultType,
-  ClearChargingProfileResult,
-  ActiveChargingProfile,
-  ModuleId,
-  InterfaceRole,
-  buildPutChargingProfileParams,
-  EndpointRepository,
-  ClientInformationRepository,
   ChargingProfilesClientApi,
+  ClearChargingProfileResult,
+  ClientInformationProps,
+  ClientInformationRepository,
+  EndpointRepository,
+  InterfaceRole,
+  ModuleId,
   SessionChargingProfileRepository,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
@@ -411,17 +412,17 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       InterfaceRole.RECEIVER,
     );
     console.log(`Found endpointURL: ${url}`);
-    const token = await this.clientInformationRepository.getClientToken(
+    const clientInfo = await this.clientInformationRepository.getClientInformation(
       fromCountryCode,
       fromPartyId,
       toCountryCode,
       toPartyId,
     );
-    if (url && token) {
+    if (url && clientInfo) {
       const params = buildPutChargingProfileParams(
         `${url}/${sessionId}`,
         profileResult,
-        token,
+        clientInfo[ClientInformationProps.clientToken],
         fromCountryCode,
         fromPartyId,
         toCountryCode,

@@ -55,12 +55,12 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     }
   }
 
-  public async getClientToken(
+  public async getClientInformation(
     fromCountryCode: string,
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-  ): Promise<string | undefined> {
+  ): Promise<ClientInformation | undefined> {
     const serverCredentialsRole =
       await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
         fromCountryCode,
@@ -69,7 +69,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     if (!serverCredentialsRole) {
       return undefined;
     }
-    const info = (
+    return (
       await this.readAllByQuery({
         where: {
           cpoTenantId:
@@ -83,7 +83,6 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
         ],
       })
     )[0];
-    return info?.clientToken;
   }
 
   async getCpoTenantByServerCountryCodeAndPartyId(

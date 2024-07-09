@@ -419,19 +419,19 @@ export class BaseClientApi {
     toCountryCode: string,
     toPartyId: string,
   ): Promise<string> {
-    const token = await this.clientInformationRepository.getClientToken(
+    const clientInfo = await this.clientInformationRepository.getClientInformation(
       fromCountryCode,
       fromPartyId,
       toCountryCode,
       toPartyId,
     );
-    if (!token) {
+    if (!clientInfo) {
       throw new MissingRequiredParamException(
         'authorization',
-        `No token found for client ${fromCountryCode} ${fromPartyId} ${toCountryCode} ${toPartyId}`,
+        `No ClientInformation found from ${fromCountryCode} ${fromPartyId} to ${toCountryCode} ${toPartyId}`,
       );
     }
-    return token;
+    return clientInfo[ClientInformationProps.clientToken];
   }
 
   private initRestClient() {
