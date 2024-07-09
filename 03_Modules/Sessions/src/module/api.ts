@@ -65,8 +65,8 @@ export class SessionsModuleApi
       ocpiHeaders!.fromPartyId,
       ocpiHeaders!.toCountryCode,
       ocpiHeaders!.toPartyId,
-      paginatedParams!.dateFrom!,
-      paginatedParams?.dateTo,
+      paginatedParams?.date_from,
+      paginatedParams?.date_to,
       paginatedParams?.offset,
       paginatedParams?.limit,
     );
