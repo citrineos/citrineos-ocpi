@@ -28,6 +28,12 @@ import { TokenDTO } from './DTO/TokenDTO';
 
 @Table
 export class OcpiToken extends Model {
+  @Column({
+    type: DataType.INTEGER,
+    unique: true
+  })
+  authorization_id!: number
+
   @Column(DataType.STRING)
   @MaxLength(2)
   @MinLength(2)

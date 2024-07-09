@@ -51,11 +51,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       const ocppAuths = await this.authorizationRepository.readAllByQuerystring(
         {
           idToken: tokenRequest.uid,
-          type: tokenRequest.type
-            ? OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-                tokenRequest!.type,
-              )
-            : TokenType.RFID,
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenRequest?.type ?? TokenType.RFID)
         },
       );
 
@@ -65,7 +61,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
 
       const ocpiToken = await this.readOnlyOneByQuery({
         where: {
-          id: {
+          authorization_id: {
             [Op.in]: ocppAuths.map((ocppAuth) => ocppAuth.id),
           },
           country_code: tokenRequest.country_code,
@@ -105,8 +101,12 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
         },
       );
 
+    if (!savedOcppAuth) {
+      throw new UnknownTokenException('Authorization could not be created upon saving token');
+    }
+
     try {
-      const ocpiToken = await this.createOrUpdateOcpiToken(OcpiTokensMapper.toEntity(tokenDto));
+      const ocpiToken = await this.createOrUpdateOcpiToken(OcpiTokensMapper.toEntity(savedOcppAuth?.id, tokenDto));
       return OcpiTokensMapper.toDto(savedOcppAuth!, ocpiToken);
     } catch (error) {
       this.logger.error('Error saving token', error);
@@ -139,7 +139,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
 
     const existingOcpiToken = await this.readOnlyOneByQuery({
       where: {
-        id: {
+        authorization_id: {
           [Op.in]: ocppAuths.map((ocppAuth) => ocppAuth.id),
         },
         country_code: partialToken.country_code,
@@ -209,16 +209,14 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   async createOrUpdateOcpiToken(token: OcpiToken): Promise<OcpiToken> {
     const [savedOcpiToken, ocpiTokenCreated] = await this._readOrCreateByQuery({
       where: {
-        country_code: token.country_code,
-        party_id: token.party_id,
-        type: token.type,
-        contract_id: token.contract_id
+        authorization_id: token.authorization_id
       },
       defaults: {
         country_code: token.country_code,
         party_id: token.party_id,
         type: token.type,
         contract_id: token.contract_id,
+        authorization_id: token.authorization_id,
         last_updated: token.last_updated
       },
     });

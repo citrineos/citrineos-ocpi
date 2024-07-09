@@ -183,7 +183,7 @@ export class TokensModuleApi
     } else {
       token.uid = tokenId;
     }
-    token.type = type ? type : TokenType.RFID;
+    token.type = type ?? TokenType.RFID;
 
     await this.tokensService.updateToken(token);
 

@@ -12,9 +12,9 @@ import { Authorization } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
-  public static toEntity(tokenDto: TokenDTO, id?: string): OcpiToken {
+  public static toEntity(authorizationId: number, tokenDto: TokenDTO): OcpiToken {
     return OcpiToken.build({
-      id: id,
+      authorization_id: authorizationId,
       country_code: tokenDto.country_code,
       party_id: tokenDto.party_id,
       uid: tokenDto.uid,
