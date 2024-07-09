@@ -1,28 +1,42 @@
 import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
-import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsUrl,
+  Max,
+  Min,
+} from 'class-validator';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;
 
+export enum PaginatedResponseProps {
+  total = 'total',
+  limit = 'limit',
+  offset = 'offset',
+  link = 'link',
+}
+
 export class PaginatedResponse<T> extends OcpiResponse<T[]> {
   @IsInt()
   @IsNotEmpty()
-  total?: number;
+  [PaginatedResponseProps.total]!: number;
 
   @IsInt()
   @IsNotEmpty()
   @Min(0)
-  offset?: number = DEFAULT_OFFSET;
+  [PaginatedResponseProps.offset]?: number = DEFAULT_OFFSET;
 
   @IsInt()
   @IsNotEmpty()
   @Min(0)
   @Max(200) // todo should this setting be in a config??
-  limit?: number = DEFAULT_LIMIT;
+  [PaginatedResponseProps.limit]?: number = DEFAULT_LIMIT;
 
-  @IsString()
-  @IsNotEmpty()
-  link?: string;
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  [PaginatedResponseProps.link]?: string;
 }
 
 export const buildOcpiPaginatedResponse = <T>(

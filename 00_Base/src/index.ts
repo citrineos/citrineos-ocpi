@@ -26,9 +26,11 @@ import {
   SequelizeTransactionEventRepository,
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
+
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
+export { ValidatedResponseSchema } from './util/decorators/ValidatedResponseSchema';
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
@@ -40,7 +42,7 @@ export { PaginatedSessionResponse } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
-export { CountryCode } from './util/util';
+export * from './util/util';
 export { KoaServer } from './util/koa.server';
 export { InterfaceRole } from './model/InterfaceRole';
 export { toCredentialsDTO } from './model/ClientInformation';
@@ -203,6 +205,8 @@ export class OcpiModuleConfig {
   sender?: IMessageSender;
 }
 
+export const OcpiRoutePrefix = '/ocpi';
+
 export class OcpiServer extends KoaServer {
   koa!: Koa;
   readonly serverConfig: OcpiServerConfig;
@@ -248,9 +252,10 @@ export class OcpiServer extends KoaServer {
           CdrsController,
           ChargingProfilesController,
         ],
-        routePrefix: '/ocpi',
+        routePrefix: OcpiRoutePrefix,
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
+        validation: true,
       } as RoutingControllersOptions;
       this.initApp(options);
       this.initKoaSwagger(
@@ -260,7 +265,7 @@ export class OcpiServer extends KoaServer {
         },
         [
           {
-            url: '/ocpi',
+            url: OcpiRoutePrefix,
           },
         ],
       );

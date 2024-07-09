@@ -11,6 +11,7 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  buildOcpiPaginatedResponse,
   FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
@@ -66,14 +67,13 @@ export class TariffsModuleApi
       paginationParams,
     );
 
-    return {
-      data: data,
-      total: count,
-      offset: paginationParams?.offset,
-      limit: paginationParams?.limit,
-      status_code: OcpiResponseStatusCode.GenericSuccessCode,
-      timestamp: new Date(),
-    };
+    return buildOcpiPaginatedResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      count,
+      paginationParams?.limit!,
+      paginationParams?.offset!,
+      data,
+    ) as PaginatedTariffResponse;
   }
 
   // TODO: auth & reorganize

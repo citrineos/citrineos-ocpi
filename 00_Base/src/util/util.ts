@@ -15,12 +15,14 @@ export enum CountryCode {
 }
 
 export const plainToClass = <T>(constructor: Constructable<T>, plain: T): T =>
-  plainToInstance(constructor, plain as T, {
-    excludeExtraneousValues: true,
-  });
+  plainToInstance(constructor, plain as T);
 
 export const base64Encode = (input: string): string =>
   Buffer.from(input).toString('base64');
 
 export const base64Decode = (input: string): string =>
   Buffer.from(input, 'base64').toString('utf-8');
+
+export const deleteProperty = <T>(obj: T, key: keyof T) => {
+  delete (obj as any)[key];
+};

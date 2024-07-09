@@ -19,10 +19,17 @@ export enum OcpiResponseStatusCode {
   HubConnectionProblem = 4003,
 }
 
+export enum OcpiResponseProps {
+  status_code = 'status_code',
+  status_message = 'status_message',
+  timestamp = 'timestamp',
+  data = 'data',
+}
+
 export class OcpiResponse<T> {
   @Enum(OcpiResponseStatusCode, 'OcpiResponseStatusCode')
   @IsNotEmpty()
-  status_code!: OcpiResponseStatusCode;
+  [OcpiResponseProps.status_code]!: OcpiResponseStatusCode;
   /**
    *
    * @type {string}
@@ -30,7 +37,7 @@ export class OcpiResponse<T> {
    */
   @IsString()
   @Optional()
-  status_message?: string;
+  [OcpiResponseProps.status_message]?: string;
 
   /**
    *
@@ -38,15 +45,14 @@ export class OcpiResponse<T> {
    * @memberof OcpiResponseDTO
    */
   @IsDate()
-  timestamp!: Date;
+  [OcpiResponseProps.timestamp]!: Date;
 
   /**
    *
    * @type {object}
    * @memberof OcpiResponseDTO
    */
-  @Optional()
-  data?: T;
+  [OcpiResponseProps.data]?: T;
 }
 
 export const buildOcpiResponse = <T>(
