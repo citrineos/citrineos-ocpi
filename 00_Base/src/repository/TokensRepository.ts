@@ -13,7 +13,7 @@ import {
 } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
-import { SystemConfig } from '@citrineos/base';
+import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
@@ -82,6 +82,34 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       this.logger.error('Error retrieving single token', error);
       throw error;
     }
+  }
+
+  async getOcpiTokenByIdToken(
+    idToken: string,
+    type: IdTokenEnumType
+  ): Promise<OcpiToken | undefined> {
+    const ocppAuth = await this.authorizationRepository.readAllByQuerystring({
+      idToken,
+      type
+    });
+
+    if (ocppAuth.length === 0) {
+      // TODO better error
+      return undefined;
+    }
+
+    const ocpiToken = await this.readOnlyOneByQuery({
+      where: {
+        authorization_id: ocppAuth[0].id
+      }
+    });
+
+    if (!ocpiToken) {
+      // TODO better error
+      return undefined;
+    }
+
+    return ocpiToken;
   }
 
   /**

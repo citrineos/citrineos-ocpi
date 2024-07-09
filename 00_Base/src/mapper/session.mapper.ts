@@ -18,8 +18,8 @@ import { CredentialsService } from '../services/credentials.service';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
-import { TokensService } from '../services/TokensService';
 import { TokenDTO } from '../model/DTO/TokenDTO';
+import { TokensRepository } from '../repository/TokensRepository';
 
 @Service()
 export class SessionMapper {
@@ -27,7 +27,7 @@ export class SessionMapper {
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
-    readonly tokensService: TokensService,
+    readonly tokensRepository: TokensRepository,
   ) {}
 
   public async mapTransactionsToSessions(
@@ -301,7 +301,7 @@ export class SessionMapper {
     mspCountryCode?: string,
     mspPartyId?: string,
   ): Promise<{ [key: string]: TokenDTO }> {
-    const tokenRequests: SingleTokenRequest[] = [];
+    const tokenRequests: any = [];
     const validTransactions: Transaction[] = [];
 
     transactions.forEach((transaction) => {
@@ -311,13 +311,10 @@ export class SessionMapper {
       ) {
         const idToken = transaction.transactionEvents[0].idToken;
         if (idToken?.idToken) {
-          tokenRequests.push(
-            SingleTokenRequest.build(
-              mspCountryCode || '',
-              mspPartyId || '',
-              idToken.idToken,
-            ),
-          );
+          tokenRequests.push({
+            idToken: idToken.idToken,
+            type: idToken.type
+          });
           validTransactions.push(transaction);
         }
       }
@@ -325,8 +322,11 @@ export class SessionMapper {
 
     // Current implementation using getSingleToken with Promise.all
     const tokens = await Promise.all(
-      tokenRequests.map((request) =>
-        this.tokensService.getSingleToken(request),
+      tokenRequests.map((request: any) =>
+        this.tokensRepository.getOcpiTokenByIdToken(
+          request.idToken,
+          request.type
+        )
       ),
     );
 
