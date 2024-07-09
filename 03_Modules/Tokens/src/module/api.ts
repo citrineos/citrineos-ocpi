@@ -28,7 +28,6 @@ import {
   OcpiResponseStatusCode,
   ResponseSchema,
   SingleTokenRequest,
-  OCPIToken,
   TokenDTO,
   TokenResponse,
   TokensService,

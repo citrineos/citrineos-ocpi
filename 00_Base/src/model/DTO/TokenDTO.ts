@@ -3,7 +3,6 @@ import { TokenType } from '../TokenType';
 import { Optional } from '../../util/decorators/optional';
 import { WhitelistType } from '../WhitelistType';
 import { TokenEnergyContract } from '../TokenEnergyContract';
-import { OCPIToken } from '../OCPIToken';
 import {
   IsBoolean,
   IsDate,

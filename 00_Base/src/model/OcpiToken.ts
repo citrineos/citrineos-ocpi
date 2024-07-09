@@ -21,21 +21,13 @@ import {
   Column,
   DataType,
   Model,
-  PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { OcpiNamespace } from '../util/ocpi.namespace';
 import { TokenType } from './TokenType';
 import { TokenDTO } from './DTO/TokenDTO';
 
 @Table
-export class OCPIToken extends Model {
-  static readonly MODEL_NAME: string = OcpiNamespace.OcpiTokens;
-
-  @PrimaryKey
-  @Column(DataType.STRING)
-  id!: string;
-
+export class OcpiToken extends Model {
   @Column(DataType.STRING)
   @MaxLength(2)
   @MinLength(2)

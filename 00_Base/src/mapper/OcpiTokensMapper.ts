@@ -1,17 +1,19 @@
 import {
+  AdditionalInfoType,
+  AuthorizationData,
   AuthorizationStatusEnumType,
   IdTokenEnumType,
   IdTokenInfoType,
   IdTokenType,
 } from '@citrineos/base';
-import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
+import { OcpiToken } from '../model/OcpiToken';
 import { TokenType } from '../model/TokenType';
 import { Authorization, IdToken, IdTokenInfo } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
-export class OCPITokensMapper {
-  public static toEntity(id: string, tokenDto: TokenDTO): OCPIToken {
-    return OCPIToken.build({
+export class OcpiTokensMapper {
+  public static toEntity(tokenDto: TokenDTO, id?: string): OcpiToken {
+    return OcpiToken.build({
       id: id,
       country_code: tokenDto.country_code,
       party_id: tokenDto.party_id,
@@ -29,7 +31,7 @@ export class OCPITokensMapper {
 
   public static async toDto(
     authorization: Authorization,
-    token: OCPIToken,
+    token: OcpiToken,
   ): Promise<TokenDTO> {
     const tokenDto = new TokenDTO();
 
@@ -70,43 +72,34 @@ export class OCPITokensMapper {
 
   public static mapOcpiTokenToOcppAuthorization(
     tokenDto: TokenDTO,
-  ): Authorization {
-    let groupId: IdTokenType | undefined;
-    if (tokenDto.group_id) {
-      groupId = {
-        idToken: tokenDto.group_id,
-        type: OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
-      };
-    }
+  ): AuthorizationData {
+    const ocppIdTokenType = OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
 
-    const idToken = {
+    const additionalInfo: AdditionalInfoType = {
+      additionalIdToken: tokenDto.contract_id,
+      type: ocppIdTokenType,
+    };
+
+    const idToken: IdTokenType = {
       idToken: tokenDto.uid,
-      type: OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
-      additionalInfo: [
-        {
-          additionalIdToken: tokenDto.contract_id,
-          type: OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-            tokenDto.type,
-          ),
-        },
-      ],
+      type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
+      additionalInfo: [additionalInfo],
     };
 
     const idTokenInfo: IdTokenInfoType = {
       status: tokenDto.valid
         ? AuthorizationStatusEnumType.Accepted
         : AuthorizationStatusEnumType.Invalid,
-      groupIdToken: groupId,
       language1: tokenDto.language ?? undefined,
     };
 
-    const authBody = {
-      idToken: idToken,
-      idTokenInfo: idTokenInfo,
-    };
+    if (tokenDto.group_id) {
+      idTokenInfo['groupIdToken'] = {
+        idToken: tokenDto.group_id,
+        type: ocppIdTokenType,
+      };
+    }
 
-    return Authorization.build(authBody, {
-      include: [IdToken, IdTokenInfo],
-    });
+    return { idToken, idTokenInfo };
   }
 }

@@ -1,4 +1,3 @@
-import { OCPIToken } from '../../model/OCPIToken';
 import { InvalidParamException } from '../../exception/invalid.param.exception';
 import { TokenDTO } from '../../model/DTO/TokenDTO';
 

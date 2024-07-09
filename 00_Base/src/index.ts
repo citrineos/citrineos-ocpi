@@ -92,11 +92,11 @@ export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
 export {
-  OCPIToken,
+  OcpiToken,
   PaginatedTokenResponse,
   SingleTokenRequest,
   TokenResponse,
-} from './model/OCPIToken';
+} from './model/OcpiToken';
 export { TokenType } from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
@@ -124,7 +124,7 @@ export {
 } from './model/DTO/EvseDTO';
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
-export { OCPITokensMapper } from './mapper/OCPITokensMapper';
+export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';

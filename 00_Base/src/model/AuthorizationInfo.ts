@@ -1,6 +1,6 @@
 import { LocationReferences } from './LocationReferences';
 import { DisplayText } from './DisplayText';
-import { OCPIToken } from './OCPIToken';
+import { OcpiToken } from './OcpiToken';
 import { AuthorizationInfoAllowed } from './AuthorizationInfoAllowed';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -14,9 +14,9 @@ export class AuthorizationInfo {
   allowed!: AuthorizationInfoAllowed;
 
   @IsNotEmpty()
-  @Type(() => OCPIToken)
+  @Type(() => OcpiToken)
   @ValidateNested()
-  token!: OCPIToken;
+  token!: OcpiToken;
 
   @IsString()
   authorizationReference!: string;

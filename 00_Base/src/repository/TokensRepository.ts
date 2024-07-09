@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { OCPIToken, SingleTokenRequest } from '../model/OCPIToken';
+import { OcpiToken, SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import {
   Authorization,
@@ -17,13 +17,13 @@ import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
-import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
+import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 import { TokensValidators } from '../util/validators/TokensValidators';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokenType } from '../model/TokenType';
 
 @Service()
-export class TokensRepository extends SequelizeRepository<OCPIToken> {
+export class TokensRepository extends SequelizeRepository<OcpiToken> {
   constructor(
     ocpiSystemConfig: OcpiServerConfig,
     private readonly logger: OcpiLogger,
@@ -32,7 +32,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
-      OcpiNamespace.OcpiTokens,
+      OcpiNamespace.OcpiToken,
       logger,
       ocpiSequelizeInstance.sequelize,
     );
@@ -42,7 +42,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
    * Retrieves a single token based on the provided SingleTokenRequest.
    *
    * @param {SingleTokenRequest} tokenRequest - The request object containing the token details.
-   * @return {Promise<OCPIToken | undefined>} A promise that resolves to the retrieved token or undefined if not found.
+   * @return {Promise<OcpiToken | undefined>} A promise that resolves to the retrieved token or undefined if not found.
    */
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
@@ -52,7 +52,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
         {
           idToken: tokenRequest.uid,
           type: tokenRequest.type
-            ? OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+            ? OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
                 tokenRequest!.type,
               )
             : TokenType.RFID,
@@ -78,7 +78,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
         return undefined;
       }
 
-      return OCPITokensMapper.toDto(
+      return OcpiTokensMapper.toDto(
         this.getMatchingAuth(ocpiToken.id, ocppAuths)!,
         ocpiToken,
       );
@@ -95,30 +95,19 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
    * @return {Promise<TokenDTO>} The saved token.
    */
   async saveToken(tokenDto: TokenDTO): Promise<TokenDTO> {
-    const ocppAuth =
+    const mappedOcppAuth = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(tokenDto);
+    const savedOcppAuth =
       await this.authorizationRepository.createOrUpdateByQuerystring(
-        OCPITokensMapper.mapOcpiTokenToOcppAuthorization(tokenDto),
+        mappedOcppAuth,
         {
           idToken: tokenDto.uid,
-          type: OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-            tokenDto.type,
-          ),
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
         },
       );
 
     try {
-      let ocpiToken = await this.updateByKey(
-        OCPITokensMapper.toEntity(ocppAuth!.id, tokenDto),
-        ocppAuth!.id,
-      );
-
-      if (!ocpiToken) {
-        ocpiToken = await this.create(
-          OCPITokensMapper.toEntity(ocppAuth!.id, tokenDto),
-        );
-      }
-
-      return OCPITokensMapper.toDto(ocppAuth!, ocpiToken);
+      const ocpiToken = await this.createOrUpdateOcpiToken(OcpiTokensMapper.toEntity(tokenDto));
+      return OcpiTokensMapper.toDto(savedOcppAuth!, ocpiToken);
     } catch (error) {
       this.logger.error('Error saving token', error);
       throw error;
@@ -128,8 +117,8 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
   /**
    * Updates an existing token.
    *
-   * @param {Partial<OCPIToken>} partialToken - The partial token to update.
-   * @return {Promise<OCPIToken>} The updated token.
+   * @param {Partial<OcpiToken>} partialToken - The partial token to update.
+   * @return {Promise<OcpiToken>} The updated token.
    * @throws {UnknownTokenException} If the token is not found.
    */
   async updateToken(partialToken: TokenDTO): Promise<TokenDTO> {
@@ -139,7 +128,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
 
     const ocppAuths = await this.authorizationRepository.readAllByQuerystring({
       idToken: partialToken.uid!,
-      type: OCPITokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+      type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
         partialToken.type,
       ),
     });
@@ -194,7 +183,7 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
   /**
    * Updates or creates tokens.
    *
-   * @param {OCPIToken[]} tokens - Tokens to be created or updated.
+   * @param {OcpiToken[]} tokens - Tokens to be created or updated.
    * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
   async updateBatchedTokens(tokens: TokenDTO[]): Promise<void> {
@@ -215,6 +204,42 @@ export class TokensRepository extends SequelizeRepository<OCPIToken> {
         `Failed to fetch tokens: ${JSON.stringify(batchFailedTokens)}`,
       );
     }
+  }
+
+  async createOrUpdateOcpiToken(token: OcpiToken): Promise<OcpiToken> {
+    const [savedOcpiToken, ocpiTokenCreated] = await this._readOrCreateByQuery({
+      where: {
+        country_code: token.country_code,
+        party_id: token.party_id,
+        type: token.type,
+        contract_id: token.contract_id
+      },
+      defaults: {
+        country_code: token.country_code,
+        party_id: token.party_id,
+        type: token.type,
+        contract_id: token.contract_id,
+        last_updated: token.last_updated
+      },
+    });
+    // TODO confirm all updatable properties
+    if (!ocpiTokenCreated) {
+      await this._updateByKey(
+        {
+          type: token.type,
+          contract_id: token.contract_id,
+          visual_number: token.visual_number,
+          issuer: token.issuer,
+          whitelist: token.whitelist,
+          default_profile_type: token.default_profile_type,
+          energy_contract: token.energy_contract,
+          last_updated: token.last_updated
+        },
+        savedOcpiToken.id,
+      );
+    }
+
+    return savedOcpiToken;
   }
 
   getMatchingAuth(

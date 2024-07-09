@@ -10,7 +10,7 @@ import { AuthMethod } from '../model/AuthMethod';
 import { Transaction } from '@citrineos/data';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { SingleTokenRequest } from '../model/OCPIToken';
+import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';

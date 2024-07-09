@@ -6,14 +6,11 @@ import {
   generateMockOcpiResponse,
   ModuleId,
   OcpiResponseStatusCode,
-  OCPIToken,
   Paginated,
   PaginatedParams,
   PaginatedTokenResponse,
   ResponseSchema,
   TokenDTO,
-  TokenType,
-  WhitelistType,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 

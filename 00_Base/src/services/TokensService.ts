@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest } from '../model/OCPIToken';
+import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { PaginatedParams } from '../controllers/param/paginated.params';
