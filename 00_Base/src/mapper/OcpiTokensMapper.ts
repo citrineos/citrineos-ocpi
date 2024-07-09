@@ -61,6 +61,7 @@ export class OcpiTokensMapper {
       case TokenType.RFID:
         // If you are actually using ISO15693, you need to change this
         return IdTokenEnumType.ISO14443;
+      case TokenType.AD_HOC_USER:
       case TokenType.APP_USER:
       case TokenType.OTHER:
         return IdTokenEnumType.Central;
