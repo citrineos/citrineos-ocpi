@@ -6,6 +6,7 @@ import {
   OcpiServerConfig,
   OCPIToken,
   OCPITokensMapper,
+  TokenDTO,
 } from '@citrineos/ocpi-base';
 
 const _sequelize = new OcpiSequelizeInstance(new OcpiServerConfig()); // needed to init models
@@ -51,10 +52,10 @@ module.exports = {
       updatedAt: new Date(),
     };
     const ocppAuth1 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(
-      token1 as OCPIToken,
+      token1 as TokenDTO,
     );
     const ocppAuth2 = OCPITokensMapper.mapOcpiTokenToOcppAuthorization(
-      token2 as OCPIToken,
+      token2 as TokenDTO,
     );
     await ocppAuth1.save();
     await ocppAuth2.save();
