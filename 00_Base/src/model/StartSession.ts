@@ -5,17 +5,17 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { OCPIToken } from './OCPIToken';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { ResponseUrl } from './ResponseUrl';
+import { TokenDTO } from './DTO/TokenDTO';
 
 export class StartSession extends ResponseUrl {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => OCPIToken)
+  @Type(() => TokenDTO)
   @ValidateNested()
-  token!: OCPIToken;
+  token!: TokenDTO;
 
   @MaxLength(36)
   @IsString()

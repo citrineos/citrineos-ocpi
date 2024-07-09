@@ -1,9 +1,9 @@
-import { OCPIToken } from '../../model/OCPIToken';
 import { InvalidParamException } from '../../exception/invalid.param.exception';
+import { TokenDTO } from '../../model/DTO/TokenDTO';
 
 export class TokensValidators {
   public static validatePartialTokenForUniquenessRequiredFields(
-    partialToken: Partial<OCPIToken>,
+    partialToken: TokenDTO,
   ) {
     if (partialToken.uid === undefined) {
       throw new InvalidParamException('uid is required');

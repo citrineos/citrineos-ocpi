@@ -27,6 +27,7 @@ import {
   SequelizeVariableMonitoringRepository,
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
+import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
@@ -92,11 +93,11 @@ export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
 export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
 export {
-  OCPIToken,
+  OcpiToken,
   PaginatedTokenResponse,
   SingleTokenRequest,
   TokenResponse,
-} from './model/OCPIToken';
+} from './model/OcpiToken';
 export { TokenType } from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
@@ -124,7 +125,7 @@ export {
 } from './model/DTO/EvseDTO';
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
-export { OCPITokensMapper } from './mapper/OCPITokensMapper';
+export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
@@ -187,6 +188,7 @@ export { CdrsService } from './services/cdrs.service';
 export { PaginatedCdrResponse } from './model/Cdr';
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
+export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
@@ -320,5 +322,6 @@ export class OcpiServer extends KoaServer {
 
   private onContainerInitialized() {
     Container.get(SessionBroadcaster); // init session broadcaster
+    Container.get(CdrBroadcaster);
   }
 }

@@ -28,7 +28,6 @@ import {
   OcpiEmptyResponse,
   OcpiHeaders,
   OcpiResponseStatusCode,
-  OCPIToken,
   Paginated,
   PaginatedParams,
   ResponseSchema,
@@ -88,14 +87,16 @@ export class TokensModuleApi
       tokenId,
       type,
     );
+
     const token = await this.tokensService.getSingleToken(tokenRequest);
+
     if (token === undefined) {
-      // throw here so that 2004 is returned for unknown token
       throw new UnknownTokenException('Token not found in the database');
     }
+
     return TokenResponse.build(
       OcpiResponseStatusCode.GenericSuccessCode,
-      token.toTokenDTO(),
+      token,
     );
   }
 
@@ -131,10 +132,8 @@ export class TokensModuleApi
         'Path token_uid and body token_uid must match',
       );
     }
-    const _token = plainToInstance(OCPIToken, tokenDTO);
-    _token.type = type ? type : TokenType.RFID;
-    // TODO save Token
-    await this.tokensService.saveToken(_token);
+    await this.tokensService.saveToken(tokenDTO);
+
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
@@ -153,7 +152,7 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @Body() token: Partial<TokenDTO>,
+    @Body() token: TokenDTO,
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('patchToken', countryCode, partyId, tokenId, token, type);
@@ -189,10 +188,10 @@ export class TokensModuleApi
     } else {
       token.uid = tokenId;
     }
-    const _token = OCPIToken.build(token);
-    _token.type = type ? type : TokenType.RFID;
+    token.type = type ?? TokenType.RFID;
 
-    await this.tokensService.updateToken(_token);
+    await this.tokensService.updateToken(token);
+
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
@@ -214,7 +213,6 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<AsyncJobStatusDTO> {
-    console.log('fetchTokens', countryCode, partyId, paginationParams);
     const jobStatus = await this.tokensService.startFetchTokensByParty(
       countryCode,
       partyId,

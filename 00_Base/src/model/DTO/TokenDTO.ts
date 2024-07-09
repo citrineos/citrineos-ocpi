@@ -3,7 +3,6 @@ import { TokenType } from '../TokenType';
 import { Optional } from '../../util/decorators/optional';
 import { WhitelistType } from '../WhitelistType';
 import { TokenEnergyContract } from '../TokenEnergyContract';
-import { OCPIToken } from '../OCPIToken';
 import {
   IsBoolean,
   IsDate,
@@ -69,7 +68,7 @@ export class TokenDTO {
   @MinLength(2)
   @IsString()
   @Optional()
-  language?: string | null;
+  language?: string | null | undefined;
 
   @IsString()
   @Optional()
@@ -84,24 +83,4 @@ export class TokenDTO {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
-
-  toToken(): OCPIToken {
-    const token = new OCPIToken();
-    token.id = undefined;
-    token.country_code = this.country_code;
-    token.party_id = this.party_id;
-    token.uid = this.uid;
-    token.type = this.type;
-    token.contract_id = this.contract_id;
-    token.visual_number = this.visual_number;
-    token.issuer = this.issuer;
-    token.group_id = this.group_id;
-    token.valid = this.valid;
-    token.whitelist = this.whitelist;
-    token.language = this.language;
-    token.default_profile_type = this.default_profile_type;
-    token.energy_contract = this.energy_contract;
-    token.last_updated = this.last_updated;
-    return token;
-  }
 }

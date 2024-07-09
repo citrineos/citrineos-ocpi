@@ -6,7 +6,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { OCPIToken } from './OCPIToken';
+import { OcpiToken } from './OcpiToken';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { ResponseUrl } from './ResponseUrl';
@@ -14,9 +14,9 @@ import { ResponseUrl } from './ResponseUrl';
 export class ReserveNow extends ResponseUrl {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => OCPIToken)
+  @Type(() => OcpiToken)
   @ValidateNested()
-  token!: OCPIToken;
+  token!: OcpiToken;
 
   @IsString()
   @IsDateString()

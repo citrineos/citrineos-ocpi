@@ -21,7 +21,7 @@ import { ClientVersion } from '../model/ClientVersion';
 import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
-import { OCPIToken } from '../model/OCPIToken';
+import { OcpiToken } from '../model/OcpiToken';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
@@ -71,7 +71,7 @@ export class OcpiSequelizeInstance {
         ResponseUrlCorrelationId,
         OcpiTariff,
         SessionChargingProfile,
-        OCPIToken,
+        OcpiToken,
         AsyncJobStatus,
         Authorization,
         IdToken, // todo make IdToken be directly exported from data

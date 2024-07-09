@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Service } from 'typedi';
-import { SingleTokenRequest, OCPIToken } from '../model/OCPIToken';
+import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { PaginatedParams } from '../controllers/param/paginated.params';
@@ -18,8 +18,7 @@ import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { CredentialsService } from './credentials.service';
 import { ClientInformationProps } from '../model/ClientInformation';
-import { VersionNumber } from '../model/VersionNumber';
-import { OCPITokensMapper } from '../mapper/OCPITokensMapper';
+import { TokenDTO } from '../model/DTO/TokenDTO';
 
 @Service()
 export class TokensService {
@@ -33,15 +32,15 @@ export class TokensService {
 
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
-  ): Promise<OCPIToken | undefined> {
+  ): Promise<TokenDTO | undefined> {
     return await this.tokenRepository.getSingleToken(tokenRequest);
   }
 
-  async saveToken(token: OCPIToken): Promise<OCPIToken> {
+  async saveToken(token: TokenDTO): Promise<TokenDTO> {
     return this.tokenRepository.saveToken(token);
   }
 
-  async updateToken(token: Partial<OCPIToken>): Promise<OCPIToken> {
+  async updateToken(token: TokenDTO): Promise<TokenDTO> {
     return this.tokenRepository.updateToken(token);
   }
 
@@ -58,39 +57,48 @@ export class TokensService {
         isFinished: false,
       },
     });
+
     if (existingJob) {
       throw new UnsuccessfulRequestException(
         `Another job for country ${countryCode} and party ${partyId} already in progress with Id ${existingJob.jobId}`,
       );
     }
 
-    const retryLimit = 5;
-    // TODO spin off fetching tokens without waiting here
     let asyncJobStatus: AsyncJobStatus | undefined = AsyncJobStatus.build({
       jobName: AsyncJobName.FETCH_OCPI_TOKENS,
       paginationParams: paginationParams,
       countryCode: countryCode,
       partyId: partyId,
     });
-    try {
-      asyncJobStatus =
-        await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(
-          asyncJobStatus,
-        );
 
-      const limit = paginationParams?.limit ?? 1000;
+    asyncJobStatus =
+      await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(
+        asyncJobStatus,
+      );
+
+    this.fetchTokens(asyncJobStatus);
+
+    return asyncJobStatus;
+  }
+
+  async fetchTokens(asyncJobStatus: AsyncJobStatus) {
+    const retryLimit = 5;
+    // TODO spin off fetching tokens without waiting here
+
+    try {
+      const limit = asyncJobStatus.paginatedParams?.limit ?? 1000;
       let offset = 0;
       let retryCount = 5;
-      let totalTokens = 0;
-      let batchTokens: OCPIToken[] | undefined;
+      let totalTokensFetched = 0;
+      let batchTokens: TokenDTO[] | undefined;
 
-      const clientCredtials =
+      const clientCredentials =
         await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(
-          countryCode,
-          partyId,
+          asyncJobStatus.countryCode,
+          asyncJobStatus.partyId,
         );
-      const token = clientCredtials[ClientInformationProps.clientToken];
-      const clientVersions = await clientCredtials.$get(
+      const token = clientCredentials[ClientInformationProps.clientToken];
+      const clientVersions = await clientCredentials.$get(
         ClientInformationProps.clientVersionDetails,
       );
 
@@ -99,18 +107,17 @@ export class TokensService {
       let done = false;
       do {
         const params = buildPaginatedOcpiParams(
-          countryCode,
-          partyId,
+          asyncJobStatus.countryCode,
+          asyncJobStatus.partyId,
           CountryCode.US, // TODO fromCountryCode and fromPartyId should be configured centrally based on env config
           Role.CPO,
           offset,
           limit,
-          paginationParams?.date_from,
-          paginationParams?.date_to,
+          asyncJobStatus.paginatedParams?.date_from,
+          asyncJobStatus.paginatedParams?.date_to,
         );
         params.authorization = token;
-        // TODO get version from DB
-        params.version = VersionNumber.TWO_DOT_TWO_DOT_ONE;
+        params.version = clientVersions[0].version;
 
         // TODO use actually next link
         const response = await this.client.getTokens(params);
@@ -119,16 +126,11 @@ export class TokensService {
         ) {
           retryCount--;
         } else {
-          batchTokens = response.data.map((dto) =>
-            OCPITokensMapper.mapTokenDtoToToken(dto),
-          );
+          batchTokens = response.data;
           try {
             await this.tokenRepository.updateBatchedTokens(batchTokens);
             asyncJobStatus.currentOffset = offset;
             if (!asyncJobStatus.totalObjects) {
-              // TODO to test set a hardcoded total here remove after test
-              response.total = 3;
-
               asyncJobStatus.totalObjects = response.total;
             }
             await this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(
@@ -137,7 +139,7 @@ export class TokensService {
           } catch (e) {
             this.logger.error(e);
           }
-          totalTokens += batchTokens.length;
+          totalTokensFetched += batchTokens.length;
           retryCount = retryLimit;
           offset += limit;
         }
@@ -145,14 +147,14 @@ export class TokensService {
         // TODO check if link to next page exists here instead of limit
         if (
           retryCount === 0 ||
-          (batchTokens && totalTokens >= asyncJobStatus.totalObjects!)
+          (batchTokens && totalTokensFetched >= asyncJobStatus.totalObjects!)
         ) {
           done = true;
         }
       } while (!done);
 
       asyncJobStatus.stopTime = new Date();
-      asyncJobStatus.totalObjects = totalTokens;
+      asyncJobStatus.totalObjects = totalTokensFetched;
       asyncJobStatus.isFinished = true;
       this.asyncJobStatusRepository.createOrUpdateAsyncJobStatus(
         asyncJobStatus,

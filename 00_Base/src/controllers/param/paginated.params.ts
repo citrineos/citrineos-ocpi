@@ -1,4 +1,4 @@
-import { IsDate, IsInt, Min } from 'class-validator';
+import { IsDateString, IsInt, Min } from 'class-validator';
 import { Optional } from '../../util/decorators/optional';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../../model/PaginatedResponse';
 
@@ -13,27 +13,27 @@ export class PaginatedParams {
   @Optional()
   limit?: number = DEFAULT_LIMIT;
 
-  @IsDate()
+  @IsDateString()
   @Optional()
-  private _date_from?: Date;
+  private _date_from?: string;
 
-  @IsDate()
+  @IsDateString()
   @Optional()
-  private _date_to?: Date;
+  private _date_to?: string;
 
-  get date_from(): Date | undefined {
-    return this._date_from ? new Date(this._date_from) : undefined;
+  get date_from(): Date {
+    return new Date(this._date_from!);
   }
 
-  get date_to(): Date | undefined {
-    return this._date_to ? new Date(this._date_to) : undefined;
+  get date_to(): Date {
+    return new Date(this._date_to!);
   }
 
-  set date_from(value: string | Date | undefined) {
-    this._date_from = value ? new Date(value) : undefined;
+  set date_from(value: Date) {
+    this._date_from = value.toISOString();
   }
 
-  set date_to(value: string | Date | undefined) {
-    this._date_to = value ? new Date(value) : undefined;
+  set date_to(value: Date) {
+    this._date_to = value.toISOString();
   }
 }
