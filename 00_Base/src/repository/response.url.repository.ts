@@ -39,11 +39,13 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
   public saveResponseUrl = async (
     correlationId: string,
     responseUrl: string,
+    sessionId?: string,
   ): Promise<ResponseUrlCorrelationId> =>
     await this.create(
       ResponseUrlCorrelationId.build({
         correlationId: correlationId,
         responseUrl: responseUrl,
+        sessionId: sessionId,
       }),
     );
 }

@@ -8,7 +8,6 @@ import {
   ChargingScheduleType,
   ClearChargingProfileRequest,
   GetCompositeScheduleRequest,
-  IdTokenEnumType,
   MessageOrigin,
   RequestStartTransactionRequest,
   RequestStopTransactionRequest,
@@ -123,7 +122,11 @@ export class CommandExecutor {
 
     const correlationId = uuidv4();
 
-    await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+    await this.responseUrlRepo.saveResponseUrl(
+      correlationId,
+      responseUrl,
+      transaction.transactionId,
+    );
 
     const request = {
       duration: duration,
@@ -166,7 +169,11 @@ export class CommandExecutor {
 
     const correlationId = uuidv4();
 
-    await this.responseUrlRepo.saveResponseUrl(correlationId, responseUrl);
+    await this.responseUrlRepo.saveResponseUrl(
+      correlationId,
+      responseUrl,
+      sessionId,
+    );
 
     const request = {
       chargingProfileId: chargingProfiles[0].chargingProfileId,
@@ -204,6 +211,7 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       setChargingProfile.response_url,
+      transaction.transactionId,
     );
 
     const stationId = transaction.stationId;

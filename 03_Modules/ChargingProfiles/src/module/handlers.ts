@@ -116,10 +116,13 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       ? this.mapOcppScheduleToOcpi(ocppSchedule)
       : undefined;
     try {
-      await this.asyncResponder.send(message.context.correlationId, {
-        result: this.getResult(message.payload.status),
-        profile: ocpiSchedule,
-      } as ActiveChargingProfileResult);
+      await this.asyncResponder.sendChargingProfileResult(
+        message.context.correlationId,
+        {
+          result: this.getResult(message.payload.status),
+          profile: ocpiSchedule,
+        } as ActiveChargingProfileResult,
+      );
     } catch (e) {
       console.error(e);
       if (ocppSchedule && ocpiSchedule) {
@@ -137,9 +140,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const status = message.payload.status;
 
     try {
-      await this.asyncResponder.send(message.context.correlationId, {
-        result: this.getResult(status),
-      } as ClearChargingProfileResult);
+      await this.asyncResponder.sendChargingProfileResult(
+        message.context.correlationId,
+        {
+          result: this.getResult(status),
+        } as ClearChargingProfileResult,
+      );
     } catch (e) {
       console.error(e);
       // If no response URL is present, i.e., the request is sent by CPO for other reasons
@@ -188,9 +194,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const status = message.payload.status;
 
     try {
-      await this.asyncResponder.send(message.context.correlationId, {
-        result: this.getResult(status),
-      } as ChargingProfileResult);
+      await this.asyncResponder.sendChargingProfileResult(
+        message.context.correlationId,
+        {
+          result: this.getResult(status),
+        } as ChargingProfileResult,
+      );
     } catch (e) {
       console.error(e);
       // If no response URL is present, i.e., the request is sent by CPO for other reasons
@@ -403,6 +412,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     );
     console.log(`Found endpointURL: ${url}`);
     const token = await this.clientInformationRepository.getClientToken(
+      fromCountryCode,
+      fromPartyId,
       toCountryCode,
       toPartyId,
     );
