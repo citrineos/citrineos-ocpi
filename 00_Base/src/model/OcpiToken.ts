@@ -74,7 +74,7 @@ export class OcpiToken extends Model {
   @Optional()
   default_profile_type?: string | null;
 
-  @Column(DataType.STRING)
+  @Column(DataType.JSON)
   @Optional()
   @Type(() => TokenEnergyContract)
   @ValidateNested()
