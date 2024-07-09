@@ -41,8 +41,7 @@ const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
 @Service()
 export class SessionsModuleApi
   extends BaseController
-  implements ISessionsModuleApi
-{
+  implements ISessionsModuleApi {
   constructor(readonly sessionsService: SessionsService) {
     super();
   }
