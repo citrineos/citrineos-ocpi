@@ -312,8 +312,6 @@ export class SessionMapper {
         const idToken = transaction.transactionEvents[0].idToken;
         if (idToken?.idToken) {
           tokenRequests.push({
-            countryCode: mspCountryCode ?? '',
-            partyId: mspPartyId ?? '',
             idToken: idToken.idToken,
             type: idToken.type
           });
@@ -326,8 +324,6 @@ export class SessionMapper {
     const tokens = await Promise.all(
       tokenRequests.map((request: any) =>
         this.tokensRepository.getOcpiTokenByIdToken(
-          request.countryCode,
-          request.partyId,
           request.idToken,
           request.type
         )
