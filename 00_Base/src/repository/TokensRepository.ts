@@ -75,7 +75,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       }
 
       return OcpiTokensMapper.toDto(
-        this.getMatchingAuth(ocpiToken.id, ocppAuths)!,
+        this.getMatchingAuth(ocpiToken.authorization_id, ocppAuths)!,
         ocpiToken,
       );
     } catch (error) {
@@ -106,7 +106,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
 
     try {
-      const ocpiToken = await this.createOrUpdateOcpiToken(OcpiTokensMapper.toEntity(savedOcppAuth?.id, tokenDto));
+      const ocpiToken = await this.createOrUpdateOcpiToken(savedOcppAuth?.id, tokenDto);
       return OcpiTokensMapper.toDto(savedOcppAuth!, ocpiToken);
     } catch (error) {
       this.logger.error('Error saving token', error);
@@ -206,32 +206,35 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
   }
 
-  async createOrUpdateOcpiToken(token: OcpiToken): Promise<OcpiToken> {
+  async createOrUpdateOcpiToken(authorizationId: number, tokenDto: TokenDTO): Promise<OcpiToken> {
     const [savedOcpiToken, ocpiTokenCreated] = await this._readOrCreateByQuery({
       where: {
-        authorization_id: token.authorization_id
+        authorization_id: authorizationId
       },
       defaults: {
-        country_code: token.country_code,
-        party_id: token.party_id,
-        type: token.type,
-        contract_id: token.contract_id,
-        authorization_id: token.authorization_id,
-        last_updated: token.last_updated
+        party_id: tokenDto.party_id,
+        country_code: tokenDto.country_code,
+        visual_number: tokenDto.visual_number,
+        issuer: tokenDto.issuer,
+        whitelist: tokenDto.whitelist,
+        default_profile_type: tokenDto.default_profile_type,
+        energy_contract: tokenDto.energy_contract,
+        last_updated: tokenDto.last_updated,
+        authorization_id: authorizationId,
+        type: tokenDto.type
       },
     });
     // TODO confirm all updatable properties
     if (!ocpiTokenCreated) {
       await this._updateByKey(
         {
-          type: token.type,
-          contract_id: token.contract_id,
-          visual_number: token.visual_number,
-          issuer: token.issuer,
-          whitelist: token.whitelist,
-          default_profile_type: token.default_profile_type,
-          energy_contract: token.energy_contract,
-          last_updated: token.last_updated
+          visual_number: tokenDto.visual_number,
+          issuer: tokenDto.issuer,
+          whitelist: tokenDto.whitelist,
+          default_profile_type: tokenDto.default_profile_type,
+          energy_contract: tokenDto.energy_contract,
+          last_updated: tokenDto.last_updated,
+          type: tokenDto.type
         },
         savedOcpiToken.id,
       );
@@ -241,7 +244,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   getMatchingAuth(
-    id: string,
+    id: number,
     ocppAuths: Authorization[],
   ): Authorization | undefined {
     return ocppAuths.find((ocppAuth) => ocppAuth.id === id);

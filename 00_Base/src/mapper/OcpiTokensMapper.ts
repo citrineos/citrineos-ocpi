@@ -8,7 +8,7 @@ import {
 } from '@citrineos/base';
 import {OcpiToken} from '../model/OcpiToken';
 import {TokenType} from '../model/TokenType';
-import {Authorization} from '@citrineos/data';
+import {Authorization, IdToken} from '@citrineos/data';
 import {TokenDTO} from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
@@ -38,7 +38,7 @@ export class OcpiTokensMapper {
     tokenDto.party_id = token.party_id;
     tokenDto.uid = (await authorization.$get('idToken'))!.idToken;
     tokenDto.type = token.type;
-    tokenDto.contract_id = token.contract_id;
+    tokenDto.contract_id = await this.getContractId(authorization);
     tokenDto.visual_number = token.visual_number;
     tokenDto.issuer = token.issuer;
     tokenDto.group_id = authorization.idTokenInfo?.groupIdToken?.idToken;
@@ -99,5 +99,13 @@ export class OcpiTokensMapper {
     }
 
     return { idToken, idTokenInfo };
+  }
+
+  public static async getContractId(authorization: Authorization): Promise<string> {
+    const idToken = await authorization.$get('idToken');
+    const additionalInfo = await (idToken! as IdToken).$get('additionalInfo');
+
+    // TODO: filter by type eMAID
+    return additionalInfo![0].additionalIdToken;
   }
 }

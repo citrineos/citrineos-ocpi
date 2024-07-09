@@ -53,12 +53,6 @@ export class OcpiToken extends Model {
   type!: TokenType;
 
   @Column(DataType.STRING)
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  contract_id!: string;
-
-  @Column(DataType.STRING)
   @MaxLength(64)
   @IsString()
   @Optional()
