@@ -73,8 +73,8 @@ export class TariffsService {
     const { rows, count } = await this.ocpiTariffRepository.getTariffs(
       limit,
       offset,
-      paginationParams?.date_from,
-      paginationParams?.date_to,
+      paginationParams?.dateFrom,
+      paginationParams?.dateTo,
       ocpiHeaders.toCountryCode,
       ocpiHeaders.toPartyId,
     );
