@@ -28,7 +28,6 @@ import {
   OcpiEmptyResponse,
   OcpiHeaders,
   OcpiResponseStatusCode,
-  OCPIToken,
   Paginated,
   PaginatedParams,
   ResponseSchema,
