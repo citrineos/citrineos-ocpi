@@ -184,15 +184,15 @@ export class LocationsHandlers extends AbstractModule {
 
     const stationId = message.context.stationId;
     const evseId = message.payload.evseId;
-    const connectorId = message.payload.connectorId;
-    const partialConnector: Partial<ConnectorDTO> = {};
-    partialConnector.last_updated = new Date(message.payload.timestamp);
+    const partialEvse: Partial<EvseDTO> = {};
+    partialEvse.last_updated = new Date(message.payload.timestamp);
 
-    await this.locationsBroadcaster.broadcastOnConnectorUpdate(
+    // TODO add proper connector mapping by getting
+    // connectors related to this evse and mapping
+    await this.locationsBroadcaster.broadcastOnEvseUpdate(
       stationId,
       evseId,
-      connectorId,
-      partialConnector,
+      partialEvse,
     );
   }
 }
