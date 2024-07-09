@@ -16,7 +16,6 @@ import {
   ModuleId,
   OcpiHeaders,
   Paginated,
-  PaginatedOcpiParams,
   PaginatedParams,
   ResponseSchema,
   versionIdParam,
@@ -47,7 +46,7 @@ export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
     },
   })
   async getCdrs(
-    @Paginated() paginationParams?: PaginatedOcpiParams,
+    @Paginated() paginationParams?: PaginatedParams,
     @FunctionalEndpointParams() ocpiHeaders?: OcpiHeaders,
   ): Promise<PaginatedCdrResponse> {
     return this.cdrsService.getCdrs(
