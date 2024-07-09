@@ -16,13 +16,13 @@ import {
   ModuleId,
   OcpiHeaders,
   Paginated,
+  PaginatedCdrResponse,
   PaginatedParams,
   ResponseSchema,
   versionIdParam,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import { PaginatedCdrResponse } from '@citrineos/ocpi-base';
 
 const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
   PaginatedCdrResponse,
@@ -54,8 +54,8 @@ export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
       ocpiHeaders!.fromPartyId,
       ocpiHeaders!.toCountryCode,
       ocpiHeaders!.toPartyId,
-      paginationParams!.date_from!,
-      paginationParams?.date_to,
+      paginationParams?.dateFrom as Date, // todo handle both dates optional
+      paginationParams?.dateTo,
       paginationParams?.offset,
       paginationParams?.limit,
     );

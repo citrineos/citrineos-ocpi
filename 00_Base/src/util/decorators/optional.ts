@@ -8,8 +8,10 @@ export const OPTIONAL_PARAM = 'isOptional';
  */
 export const Optional = (isOptional = true) =>
   function (object: NonNullable<unknown>, propertyName: string) {
-    // Apply the standard @IsOptional() decorator
-    IsOptional()(object, propertyName);
+    if (isOptional) {
+      // Apply the standard @IsOptional() decorator
+      IsOptional()(object, propertyName);
+    }
 
     // Add custom metadata for additional use cases
     Reflect.defineMetadata(OPTIONAL_PARAM, isOptional, object, propertyName);

@@ -75,8 +75,8 @@ export class LocationsService {
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     // TODO add Link header
-    const dateFrom = paginatedParams?.date_from;
-    const dateTo = paginatedParams?.date_to;
+    const dateFrom = paginatedParams?.dateFrom;
+    const dateTo = paginatedParams?.dateTo;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 

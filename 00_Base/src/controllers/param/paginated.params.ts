@@ -15,25 +15,37 @@ export class PaginatedParams {
 
   @IsDateString()
   @Optional()
-  private _date_from?: string;
+  private date_from?: string;
 
   @IsDateString()
   @Optional()
-  private _date_to?: string;
+  private date_to?: string;
 
-  get date_from(): Date {
-    return new Date(this._date_from!);
+  get dateFrom(): Date | undefined {
+    if (this.date_from) {
+      return new Date(this.date_from);
+    } else {
+      return undefined;
+    }
   }
 
-  get date_to(): Date {
-    return new Date(this._date_to!);
+  get dateTo(): Date | undefined {
+    if (this.date_to) {
+      return new Date(this.date_to);
+    } else {
+      return undefined;
+    }
   }
 
-  set date_from(value: Date) {
-    this._date_from = value.toISOString();
+  set dateFrom(value: Date | undefined) {
+    if (value) {
+      this.date_from = value.toISOString();
+    }
   }
 
-  set date_to(value: Date) {
-    this._date_to = value.toISOString();
+  set dateTo(value: Date | undefined) {
+    if (value) {
+      this.date_to = value.toISOString();
+    }
   }
 }
