@@ -85,8 +85,6 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   async getOcpiTokenByIdToken(
-    countryCode: string,
-    partyId: string,
     idToken: string,
     type: IdTokenEnumType
   ): Promise<OcpiToken | undefined> {
@@ -96,8 +94,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     });
 
     if (ocppAuth.length === 0) {
-      // TODO better error and/or don't throw
-      throw new UnknownTokenException('No token found');
+      // TODO better error
+      return undefined;
     }
 
     const ocpiToken = await this.readOnlyOneByQuery({
@@ -107,13 +105,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     });
 
     if (!ocpiToken) {
-      // TODO better error and/or don't throw
-      throw new UnknownTokenException('No token found');
-    }
-
-    if (ocpiToken.country_code !== countryCode || ocpiToken.party_id !== partyId) {
-      // TODO better error and/or don't throw
-      throw new UnknownTokenException('No token found');
+      // TODO better error
+      return undefined;
     }
 
     return ocpiToken;
