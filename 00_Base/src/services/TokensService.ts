@@ -113,8 +113,8 @@ export class TokensService {
           Role.CPO,
           offset,
           limit,
-          asyncJobStatus.paginatedParams?.date_from,
-          asyncJobStatus.paginatedParams?.date_to,
+          asyncJobStatus.paginatedParams?.dateFrom,
+          asyncJobStatus.paginatedParams?.dateTo,
         );
         params.authorization = token;
         params.version = clientVersions[0].version;

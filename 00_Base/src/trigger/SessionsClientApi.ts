@@ -48,7 +48,7 @@ export class SessionsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'sessionId', 'session');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update(
+    return await this.replace(
       OcpiEmptyResponse,
       {
         version: params.version,
