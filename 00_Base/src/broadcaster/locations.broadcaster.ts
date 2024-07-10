@@ -50,6 +50,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     stationId: string,
     evseId: number,
     partialEvse: Partial<EvseDTO>,
+    connectorId?: number
   ): Promise<void> {
     const chargingStation =
       await this.locationRepository.readChargingStationByStationId(stationId);
@@ -60,6 +61,12 @@ export class LocationsBroadcaster extends BaseBroadcaster {
 
     const locationId = chargingStation.locationId;
     const lastUpdated = partialEvse.last_updated ?? new Date();
+
+    if (connectorId) {
+      await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
+        OcpiConnector.buildWithLastUpdated(connectorId, evseId, stationId, lastUpdated)
+      );
+    }
 
     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
       OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),

@@ -24,13 +24,15 @@ import {
   EVSE_COMPONENT,
   EvseDTO,
   LocationsBroadcaster,
+  LocationsService,
 } from '@citrineos/ocpi-base';
 
 /**
  * Component that handles provisioning related messages.
  */
 export class LocationsHandlers extends AbstractModule {
-  locationsBroadcaster: LocationsBroadcaster;
+  private locationsBroadcaster: LocationsBroadcaster;
+  private locationsService: LocationsService;
 
   /**
    * Fields
@@ -50,6 +52,8 @@ export class LocationsHandlers extends AbstractModule {
    *
    * @param {LocationsBroadcaster} [locationsBroadcaster] - The LocationsBroadcaster holds the business logic necessary to push incoming requests to the relevant MSPs.
    *
+   * @param {LocationsService} [locationsService] - The LocationsService holds logic necessary to process OCPI locations.
+   *
    * @param {IMessageSender} [sender] - The `sender` parameter is an optional parameter that represents an instance of the {@link IMessageSender} interface.
    * It is used to send messages from the central system to external systems or devices. If no `sender` is provided, a default {@link RabbitMqSender} instance is created and used.
    *
@@ -64,6 +68,7 @@ export class LocationsHandlers extends AbstractModule {
     config: SystemConfig,
     cache: ICache,
     locationsBroadcaster: LocationsBroadcaster,
+    locationsService: LocationsService,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -78,6 +83,7 @@ export class LocationsHandlers extends AbstractModule {
     );
 
     this.locationsBroadcaster = locationsBroadcaster;
+    this.locationsService = locationsService;
 
     const timer = new Timer();
     this._logger.info('Initializing...');
@@ -126,15 +132,14 @@ export class LocationsHandlers extends AbstractModule {
         variable.name === AVAILABILITY_STATE_VARIABLE
       ) {
         // TODO add logic to process other variable attribute values used for OCPI mapping
+        // TODO retrieve other connector states before mapping
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialEvse: Partial<EvseDTO> = {};
         partialEvse.status =
-          CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(
-            event.actualValue,
+          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+            [event.actualValue],
           );
-        // TODO use the message context timestamp when it's merged into 1.3.0
-        // partialEvse.last_updated = new Date(message.context.timestamp);
-        partialEvse.last_updated = new Date();
+        partialEvse.last_updated = new Date(message.context.timestamp);
         evseUpdateMap[evseId] = partialEvse;
       } else if (
         component.name === CONNECTOR_COMPONENT &&
@@ -144,10 +149,10 @@ export class LocationsHandlers extends AbstractModule {
         const _status = event.actualValue;
         const connectorId = component.evse?.connectorId ?? 1; // TODO better fallback
         const evseId = component.evse?.id ?? 1; // TODO better fallback
+
+        // TODO send EVSE update, not connector update
         const partialConnector: Partial<ConnectorDTO> = {};
-        // TODO use the message context timestamp when it's merged into 1.3.0
-        // partialConnector.last_updated = new Date(message.context.timestamp);
-        partialConnector.last_updated = new Date();
+        partialConnector.last_updated = new Date(message.context.timestamp);
         connectorUpdateMap[evseId][connectorId] = partialConnector;
       }
     }
@@ -184,15 +189,24 @@ export class LocationsHandlers extends AbstractModule {
 
     const stationId = message.context.stationId;
     const evseId = message.payload.evseId;
+    const connectorId = message.payload.connectorId;
+
+    const chargingStationAttributes = (await this.locationsService.createChargingStationVariableAttributesMap([stationId], evseId))[stationId];
+    const evseAttributes = chargingStationAttributes ? chargingStationAttributes.evses[evseId] : null;
+    const connectorAvailabilityStates = evseAttributes ? Object.entries(evseAttributes.connectors)
+      .filter(([connectorIdKey, connectorAttributes]) => Number(connectorIdKey) !== connectorId)
+      .map(([connectorIdKey, connectorAttributes]) => connectorAttributes.connector_availability_state) : [];
+    connectorAvailabilityStates.push(message.payload.connectorStatus);
+
     const partialEvse: Partial<EvseDTO> = {};
+    partialEvse.status = CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(connectorAvailabilityStates, chargingStationAttributes?.bay_occupancy_sensor_active);
     partialEvse.last_updated = new Date(message.payload.timestamp);
 
-    // TODO add proper connector mapping by getting
-    // connectors related to this evse and mapping
     await this.locationsBroadcaster.broadcastOnEvseUpdate(
       stationId,
       evseId,
       partialEvse,
+      connectorId
     );
   }
 }
