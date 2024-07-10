@@ -31,14 +31,13 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
 
     const uniqueStates = [... new Set(availabilityStates)];
 
+    // TODO handle RESERVED
     if (uniqueStates.find(state => state === ConnectorStatusEnumType.Occupied)) {
       return EvseStatus.CHARGING;
     } else if (uniqueStates.find(state => state === ConnectorStatusEnumType.Available)) {
       return EvseStatus.AVAILABLE;
     } else if (uniqueStates.find(state => state === ConnectorStatusEnumType.Unavailable)) {
       return EvseStatus.INOPERATIVE;
-    } else if (uniqueStates.find(state => state === ConnectorStatusEnumType.Reserved)) {
-      return EvseStatus.RESERVED;
     } else if (uniqueStates.length === 1 && uniqueStates[0] === ConnectorStatusEnumType.Faulted) {
       return EvseStatus.OUTOFORDER;
     } else {
