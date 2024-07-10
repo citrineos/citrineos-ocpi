@@ -2,7 +2,10 @@ import { IOcpiLocationMapper } from './IOcpiLocationMapper';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO, TEMPORARY_CONNECTOR_ID } from '../model/DTO/ConnectorDTO';
+import {
+  ConnectorDTO,
+  TEMPORARY_CONNECTOR_ID,
+} from '../model/DTO/ConnectorDTO';
 import { GeoLocation } from '../model/GeoLocation';
 import { Location } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
@@ -33,7 +36,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
       return EvseStatus.BLOCKED;
     }
 
-    const uniqueStates = [... new Set(availabilityStates)];
+    const uniqueStates = [...new Set(availabilityStates)];
 
     // TODO handle RESERVED
     if (uniqueStates.find(state => state === ConnectorStatusEnumType.Occupied)) {
@@ -85,10 +88,15 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
       for (const evseAttributes of Object.values(
         chargingStationAttributes.evses,
       )) {
-        const ocpiEvseInfo = ocpiLocationInfo.ocpiEvses[`${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)}`];
+        const ocpiEvseInfo =
+          ocpiLocationInfo.ocpiEvses[
+            `${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)}`
+          ];
 
         if (!ocpiEvseInfo) {
-          throw new NotFoundException(`OCPI EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`);
+          throw new NotFoundException(
+            `OCPI EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`,
+          );
         }
 
         evses.push(
@@ -96,7 +104,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
             citrineLocation,
             chargingStationAttributes,
             evseAttributes,
-            ocpiEvseInfo
+            ocpiEvseInfo,
           ),
         );
       }
@@ -125,8 +133,11 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     evseAttributes: EvseVariableAttributes,
     ocpiEvseInfo: OcpiEvse,
   ): EvseDTO {
-    const connectorAvailabilityStates = Object.values(evseAttributes.connectors)
-      .map(connectorAttributes => connectorAttributes.connector_availability_state);
+    const connectorAvailabilityStates = Object.values(
+      evseAttributes.connectors,
+    ).map(
+      (connectorAttributes) => connectorAttributes.connector_availability_state,
+    );
 
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id);
@@ -149,10 +160,15 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     for (const connectorAttributes of Object.values(
       evseAttributes.connectors,
     )) {
-      const ocpiConnectorInfo = ocpiEvseInfo.ocpiConnectors[`${TEMPORARY_CONNECTOR_ID(connectorAttributes.station_id, connectorAttributes.evse_id, Number(connectorAttributes.id))}`];
+      const ocpiConnectorInfo =
+        ocpiEvseInfo.ocpiConnectors[
+          `${TEMPORARY_CONNECTOR_ID(connectorAttributes.station_id, connectorAttributes.evse_id, Number(connectorAttributes.id))}`
+        ];
 
       if (!ocpiConnectorInfo) {
-        throw new NotFoundException(`OCPI Connector ${connectorAttributes.id} on EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`);
+        throw new NotFoundException(
+          `OCPI Connector ${connectorAttributes.id} on EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`,
+        );
       }
 
       connectors.push(
@@ -209,7 +225,9 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
   private getCoordinates(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
     geoLocation.latitude = String(ocppCoordinates[this.coordinatesProperty][0]);
-    geoLocation.longitude = String(ocppCoordinates[this.coordinatesProperty][1]);
+    geoLocation.longitude = String(
+      ocppCoordinates[this.coordinatesProperty][1],
+    );
     return geoLocation;
   }
 
