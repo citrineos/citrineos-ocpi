@@ -57,7 +57,7 @@ export { ClientInformationRepository } from './repository/ClientInformationRepos
 export { EndpointRepository } from './repository/EndpointRepository';
 export { SessionChargingProfileRepository } from './repository/SessionChargingProfileRepository';
 
-export { ClientInformation } from './model/ClientInformation';
+export { ClientInformation, ClientInformationProps } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';

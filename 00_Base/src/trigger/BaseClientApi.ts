@@ -39,6 +39,7 @@ export class MissingRequiredParamException extends Error {
 export interface TriggerRequestOptions extends IRequestOptions {
   version?: VersionNumber;
   path?: string;
+  async?: boolean;
 }
 
 export class BaseClientApi {
@@ -130,7 +131,7 @@ export class BaseClientApi {
     body: any,
   ): Promise<T> {
     return this.createRaw<T>(
-      this.getPath(options!.version!, options!.path!),
+      options.async ? '' : this.getPath(options!.version!, options!.path!),
       body,
       options,
     ).then((response) => this.handleResponse(clazz, response));
@@ -411,6 +412,27 @@ export class BaseClientApi {
 
     return headerParameters;
   };
+
+  protected async getAuthToken(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+  ): Promise<string> {
+    const clientInfo = await this.clientInformationRepository.getClientInformation(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+    );
+    if (!clientInfo) {
+      throw new MissingRequiredParamException(
+        'authorization',
+        `No ClientInformation found from ${fromCountryCode} ${fromPartyId} to ${toCountryCode} ${toPartyId}`,
+      );
+    }
+    return clientInfo[ClientInformationProps.clientToken];
+  }
 
   private initRestClient() {
     this.restClient = new RestClient(
