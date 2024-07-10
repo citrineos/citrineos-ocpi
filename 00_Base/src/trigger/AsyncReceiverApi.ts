@@ -12,19 +12,19 @@ export class AsyncReceiverApi extends BaseClientApi {
     params: OcpiParams,
   ): Promise<OcpiResponse<void> | null> {
     params.authorization = await this.getAuthToken(
-        params.fromCountryCode,
-        params.fromPartyId,
-        params.toCountryCode,
-        params.toPartyId,
+      params.fromCountryCode,
+      params.fromPartyId,
+      params.toCountryCode,
+      params.toPartyId,
     );
     this.baseUrl = url;
     return this.create(
-        OcpiEmptyResponse,
-        {
-          async: true,
-          additionalHeaders: this.getOcpiHeaders(params),
-        },
-        body,
+      OcpiEmptyResponse,
+      {
+        async: true,
+        additionalHeaders: this.getOcpiHeaders(params),
+      },
+      body,
     );
   }
 }

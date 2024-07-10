@@ -27,8 +27,8 @@ import { ChargingProfile } from '../model/ChargingProfile';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
-import { SessionMapper } from "../mapper/session.mapper";
-import { OcpiParams } from "../trigger/util/ocpi.params";
+import { SessionMapper } from '../mapper/session.mapper';
+import { OcpiParams } from '../trigger/util/ocpi.params';
 
 @Service()
 export class CommandExecutor {
@@ -88,7 +88,9 @@ export class CommandExecutor {
       throw new NotFoundError('Transaction not found');
     }
 
-    let session = (await this.sessionMapper.mapTransactionsToSessions([transaction]))[0];
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
     if (!session) {
       throw new NotFoundError('Session not found');
     }
@@ -98,7 +100,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       stopSession.response_url,
-      new OcpiParams(session.country_code, session.party_id, session.cdr_token.country_code, session.cdr_token.party_id),
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const request = {
@@ -129,7 +136,9 @@ export class CommandExecutor {
       throw new NotFoundError('Transaction not found');
     }
 
-    let session = (await this.sessionMapper.mapTransactionsToSessions([transaction]))[0];
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
     if (!session) {
       throw new NotFoundError('Session not found');
     }
@@ -139,7 +148,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       responseUrl,
-      new OcpiParams(session.country_code, session.party_id, session.cdr_token.country_code, session.cdr_token.party_id),
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const request = {
@@ -170,7 +184,9 @@ export class CommandExecutor {
       throw new NotFoundError('Transaction not found');
     }
 
-    let session = (await this.sessionMapper.mapTransactionsToSessions([transaction]))[0];
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
     if (!session) {
       throw new NotFoundError('Session not found');
     }
@@ -190,7 +206,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       responseUrl,
-      new OcpiParams(session.country_code, session.party_id, session.cdr_token.country_code, session.cdr_token.party_id),
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const request = {
@@ -220,7 +241,9 @@ export class CommandExecutor {
       throw new NotFoundError('Transaction not found');
     }
 
-    let session = (await this.sessionMapper.mapTransactionsToSessions([transaction]))[0];
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
     if (!session) {
       throw new NotFoundError('Session not found');
     }
@@ -234,7 +257,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       setChargingProfile.response_url,
-      new OcpiParams(session.country_code, session.party_id, session.cdr_token.country_code, session.cdr_token.party_id),
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const stationId = transaction.stationId;

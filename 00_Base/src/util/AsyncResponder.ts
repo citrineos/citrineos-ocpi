@@ -6,7 +6,7 @@ import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfil
 import { ChargingProfileResult } from '../model/ChargingProfileResult';
 import { NotFoundError } from 'routing-controllers';
 import { CommandResult } from '../model/CommandResult';
-import { OcpiParams } from "../trigger/util/ocpi.params";
+import { OcpiParams } from '../trigger/util/ocpi.params';
 
 @Service()
 export class AsyncResponder {
@@ -29,7 +29,9 @@ export class AsyncResponder {
     if (responseUrlEntity) {
       params = params ?? responseUrlEntity.params;
       if (!params) {
-        throw new NotFoundError(`No OcpiParams found for correlationId: ${correlationId}`);
+        throw new NotFoundError(
+          `No OcpiParams found for correlationId: ${correlationId}`,
+        );
       }
 
       await this.asyncResponseApi.postAsyncResponse(

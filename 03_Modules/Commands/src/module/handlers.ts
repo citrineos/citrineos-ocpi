@@ -27,7 +27,7 @@ import {
   CommandResultType,
   OcpiParams,
   Session,
-  SessionMapper
+  SessionMapper,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
@@ -88,9 +88,14 @@ export class CommandsOcppHandlers extends AbstractModule {
 
     let session: Session | undefined;
     if (message.payload.transactionId) {
-      const transaction = await this.transactionEventRepository.findByTransactionId(message.payload.transactionId);
+      const transaction =
+        await this.transactionEventRepository.findByTransactionId(
+          message.payload.transactionId,
+        );
       if (transaction) {
-          session = (await this.sessionMapper.mapTransactionsToSessions([transaction]))[0];
+        session = (
+          await this.sessionMapper.mapTransactionsToSessions([transaction])
+        )[0];
       }
     }
     if (!session) {
@@ -100,7 +105,12 @@ export class CommandsOcppHandlers extends AbstractModule {
     this.sendCommandResult(
       message.context.correlationId,
       result,
-      new OcpiParams(session.country_code, session.party_id, session.cdr_token.country_code, session.cdr_token.party_id),
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
   }
 
@@ -142,7 +152,7 @@ export class CommandsOcppHandlers extends AbstractModule {
         {
           result: result,
         } as CommandResult,
-          params,
+        params,
       );
       console.log('Async response: ', response);
     } catch (e) {
