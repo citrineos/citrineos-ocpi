@@ -57,7 +57,10 @@ export { ClientInformationRepository } from './repository/ClientInformationRepos
 export { EndpointRepository } from './repository/EndpointRepository';
 export { SessionChargingProfileRepository } from './repository/SessionChargingProfileRepository';
 
-export { ClientInformation, ClientInformationProps } from './model/ClientInformation';
+export {
+  ClientInformation,
+  ClientInformationProps,
+} from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
@@ -192,6 +195,7 @@ export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
+export { BodyWithExample } from './util/decorators/BodyWithExample';
 
 useContainer(Container);
 
