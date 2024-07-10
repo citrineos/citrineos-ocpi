@@ -30,38 +30,6 @@ const DUMMY_IDS = {
 /** @type {import('sequelize-cli').Migration} */
 export = {
   up: async (queryInterface: QueryInterface) => {
-    const createEvses = async () => {
-      await queryInterface.bulkInsert(
-        'Evses',
-        [
-          {
-            databaseId: DUMMY_IDS.EVSE_ID,
-            id: DUMMY_IDS.EVSE_ID,
-            connectorId: 1,
-            createdAt: new Date(0),
-            updatedAt: new Date(),
-          },
-        ],
-        {},
-      );
-    };
-
-    const createIdToken = async () => {
-      await queryInterface.bulkInsert(
-        'IdTokens',
-        [
-          {
-            id: DUMMY_IDS.ID_TOKEN_ID,
-            idToken: DUMMY_IDS.ID_TOKEN,
-            type: IdTokenEnumType.eMAID,
-            createdAt: new Date(0),
-            updatedAt: new Date(),
-          },
-        ],
-        {},
-      );
-    };
-
     const createTransaction = async () =>
       await queryInterface.bulkInsert(
         'Transactions',
@@ -251,59 +219,7 @@ export = {
       );
     };
 
-    const createLocations = async () =>
-      await queryInterface.bulkInsert(
-        'Locations',
-        [
-          {
-            name: 'name',
-            address: 'address',
-            city: 'city',
-            postalCode: 'postalCode',
-            state: 'state',
-            country: 'country',
-            coordinates: Sequelize.fn('ST_GeomFromText', 'POINT(74 41)'), // converts to needed Geometry object
-            createdAt: new Date(0),
-            updatedAt: new Date(),
-          },
-        ],
-        {
-          returning: true,
-        } as QueryOptions,
-      );
-
-    const createOcpiLocations = async (location: any) => {
-      await queryInterface.bulkInsert('OcpiLocations', [
-        {
-          [OcpiLocationProps.citrineLocationId]: location.id,
-          [OcpiLocationProps.publish]: true,
-          [OcpiLocationProps.lastUpdated]: new Date(),
-          [OcpiLocationProps.partyId]: 'CPO',
-          [OcpiLocationProps.countryCode]: 'US',
-          createdAt: new Date(0),
-          updatedAt: new Date(),
-        },
-      ]);
-    };
-
-    const createChargingStation = async (location: any) => {
-      await queryInterface.bulkInsert('ChargingStations', [
-        {
-          id: DUMMY_IDS.CHARGING_STATION,
-          isOnline: true,
-          locationId: location.id,
-          createdAt: new Date(0),
-          updatedAt: new Date(),
-        },
-      ]);
-    };
-
     try {
-      const location = await createLocations();
-      await createOcpiLocations(location);
-      await createChargingStation(location);
-      await createEvses();
-      await createIdToken();
       const transaction = await createTransaction();
       const transactionDatabaseId = (transaction as any).id;
       await createTransactionEvents(transactionDatabaseId);
