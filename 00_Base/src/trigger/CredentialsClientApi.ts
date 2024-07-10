@@ -42,7 +42,7 @@ export class CredentialsClientApi extends BaseClientApi {
     this.validateOcpiRegistrationParams(params);
     this.validateRequiredParam(params, 'credentials');
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
-    return await this.update(
+    return await this.replace(
       CredentialsResponse,
       {
         additionalHeaders,

@@ -140,7 +140,7 @@ export class LocationsClientApi extends BaseClientApi {
       'connector',
     );
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update(
+    return await this.replace(
       OcpiEmptyResponse,
       {
         version: params.version,
@@ -160,7 +160,7 @@ export class LocationsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'locationId', 'evseUid', 'evse');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update(
+    return await this.replace(
       OcpiEmptyResponse,
       {
         version: params.version,
@@ -179,7 +179,7 @@ export class LocationsClientApi extends BaseClientApi {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'locationId', 'location');
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update(
+    return await this.replace(
       OcpiEmptyResponse,
       {
         version: params.version,
