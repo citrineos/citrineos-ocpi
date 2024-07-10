@@ -206,7 +206,6 @@ export class LocationsHandlers extends AbstractModule {
       stationId,
       evseId,
       partialEvse,
-      connectorId
     );
   }
 }
