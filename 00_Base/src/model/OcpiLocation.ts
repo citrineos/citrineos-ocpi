@@ -27,10 +27,10 @@ export class OcpiLocation extends Model {
   [OcpiLocationProps.citrineLocationId]!: number;
 
   @Column(DataType.BOOLEAN)
-  [OcpiLocationProps.publish]?: boolean;
+  [OcpiLocationProps.publish]!: boolean;
 
   @Column(DataType.DATE)
-  [OcpiLocationProps.lastUpdated]?: Date;
+  [OcpiLocationProps.lastUpdated]!: Date;
 
   @Column(DataType.STRING(3))
   @IsString()
@@ -45,7 +45,7 @@ export class OcpiLocation extends Model {
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
 
   /* Helper properties */
-  ocpiEvses?: Record<string, OcpiEvse>;
+  ocpiEvses!: Record<string, OcpiEvse>;
 
   static buildWithLastUpdated(
     citrineLocationId: number,
