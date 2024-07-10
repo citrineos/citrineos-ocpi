@@ -31,9 +31,7 @@ export class AsyncResponder {
     const responseUrlEntity =
       await this.responseUrlRepo.getResponseUrl(correlationId);
     if (responseUrlEntity) {
-      if (!sessionId) {
-        sessionId = responseUrlEntity.sessionId;
-      }
+      sessionId = sessionId ?? responseUrlEntity.sessionId;
       if (!sessionId) {
         throw new NotFoundError('Session Id not found');
       }
