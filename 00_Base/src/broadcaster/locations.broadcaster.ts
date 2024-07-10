@@ -75,7 +75,6 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       partialEvse,
     );
 
-    // TODO flexible country code + party id
     await this.locationsClientApi.broadcastToClients(
       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
@@ -127,7 +126,6 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       partialConnector,
     );
 
-    // TODO flexible country code + party id
     await this.locationsClientApi.broadcastToClients(
       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',

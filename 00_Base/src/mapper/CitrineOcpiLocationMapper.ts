@@ -21,28 +21,27 @@ import { NOT_APPLICABLE } from '../util/consts';
 
 @Service()
 export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
-  static mapOCPPAvailabilityStateToOCPIEvseStatus(
-    availabilityState: string,
-    parkingBayOccupancy?: string, // TODO should this be optional?
+  static mapConnectorAvailabilityStatesToEvseStatus(
+    availabilityStates: string[],
+    parkingBayOccupancy?: string,
   ): EvseStatus {
     if (parkingBayOccupancy === 'true') {
       return EvseStatus.BLOCKED;
     }
 
-    // TODO add case for REMOVED
-    switch (availabilityState) {
-      case ConnectorStatusEnumType.Occupied:
-        return EvseStatus.CHARGING;
-      case ConnectorStatusEnumType.Available:
-        return EvseStatus.AVAILABLE;
-      case ConnectorStatusEnumType.Unavailable:
-        return EvseStatus.INOPERATIVE;
-      case ConnectorStatusEnumType.Faulted:
-        return EvseStatus.OUTOFORDER;
-      case ConnectorStatusEnumType.Reserved:
-        return EvseStatus.RESERVED;
-      default:
-        return EvseStatus.UNKNOWN;
+    const uniqueStates = [... new Set(availabilityStates)];
+
+    // TODO handle RESERVED
+    if (uniqueStates.find(state => state === ConnectorStatusEnumType.Occupied)) {
+      return EvseStatus.CHARGING;
+    } else if (uniqueStates.find(state => state === ConnectorStatusEnumType.Available)) {
+      return EvseStatus.AVAILABLE;
+    } else if (uniqueStates.find(state => state === ConnectorStatusEnumType.Unavailable)) {
+      return EvseStatus.INOPERATIVE;
+    } else if (uniqueStates.length === 1 && uniqueStates[0] === ConnectorStatusEnumType.Faulted) {
+      return EvseStatus.OUTOFORDER;
+    } else {
+      return EvseStatus.UNKNOWN;
     }
   }
 
@@ -119,11 +118,14 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     evseAttributes: EvseVariableAttributes,
     ocpiEvseInformation?: OcpiEvse,
   ): EvseDTO {
+    const connectorAvailabilityStates = Object.values(evseAttributes.connectors)
+      .map(connectorAttributes => connectorAttributes.connector_availability_state);
+
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id);
     evse.status =
-      CitrineOcpiLocationMapper.mapOCPPAvailabilityStateToOCPIEvseStatus(
-        evseAttributes.evse_availability_state,
+      CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+        connectorAvailabilityStates,
         chargingStationAttributes.bay_occupancy_sensor_active,
       );
     evse.evse_id = evseAttributes.evse_id;
