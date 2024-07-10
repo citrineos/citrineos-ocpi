@@ -11,6 +11,7 @@ import { SystemConfig } from '@citrineos/base';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
+import { OcpiParams } from "../trigger/util/ocpi.params";
 
 @Service()
 export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrelationId> {
@@ -39,13 +40,13 @@ export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrel
   public saveResponseUrl = async (
     correlationId: string,
     responseUrl: string,
-    sessionId?: string,
+    params?: OcpiParams,
   ): Promise<ResponseUrlCorrelationId> =>
     await this.create(
       ResponseUrlCorrelationId.build({
         correlationId: correlationId,
         responseUrl: responseUrl,
-        sessionId: sessionId,
+        params: params,
       }),
     );
 }
