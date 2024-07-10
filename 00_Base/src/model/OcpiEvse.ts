@@ -1,4 +1,5 @@
 import { Table, Model, DataType, Column } from 'sequelize-typescript';
+import { OcpiConnector } from './OcpiConnector';
 
 /**
  * OCPI representation of an EVSE -- not named 'Evse' to avoid collisions
@@ -25,6 +26,9 @@ export class OcpiEvse extends Model {
 
   @Column(DataType.DATE)
   declare lastUpdated: Date;
+
+  /* Helper properties */
+  ocpiConnectors?: Record<string, OcpiConnector>;
 
   static buildWithLastUpdated(
     evseId: number,

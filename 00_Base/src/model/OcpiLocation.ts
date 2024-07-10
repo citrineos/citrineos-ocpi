@@ -1,5 +1,6 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { OcpiEvse } from './OcpiEvse';
 
 export enum OcpiLocationProps {
   citrineLocationId = 'citrineLocationId',
@@ -13,7 +14,7 @@ export enum OcpiLocationProps {
  * OCPI representation of a Location -- not named 'Location' to avoid collisions
  * with Citrine's version of a Location.
  *
- * Note that the id of OcpiLocation should match Citrine's Location.
+ * Note that "citrineLocationId" in OcpiLocation should match Citrine's Location id.
  *
  * TODO add link to credentials for the correct tenant
  */
@@ -42,6 +43,9 @@ export class OcpiLocation extends Model {
   @IsNotEmpty()
   @Length(2, 2)
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
+
+  /* Helper properties */
+  ocpiEvses?: Record<string, OcpiEvse>;
 
   static buildWithLastUpdated(
     citrineLocationId: number,
