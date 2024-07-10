@@ -9,28 +9,22 @@ export class AsyncReceiverApi extends BaseClientApi {
   async postAsyncResponse(
     url: string,
     body: any,
-    params?: OcpiParams,
+    params: OcpiParams,
   ): Promise<OcpiResponse<void> | null> {
-    if (params) {
-      params.authorization = await this.getAuthToken(
+    params.authorization = await this.getAuthToken(
         params.fromCountryCode,
         params.fromPartyId,
         params.toCountryCode,
         params.toPartyId,
-      );
-      this.baseUrl = url;
-      return this.create(
+    );
+    this.baseUrl = url;
+    return this.create(
         OcpiEmptyResponse,
         {
           async: true,
           additionalHeaders: this.getOcpiHeaders(params),
         },
         body,
-      );
-    } else {
-      return this.createRaw<OcpiResponse<void>>(url, body, {}).then(
-        (response) => response.result,
-      );
-    }
+    );
   }
 }

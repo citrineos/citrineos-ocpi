@@ -77,7 +77,11 @@ export class CommandsOcppHandlers extends AbstractModule {
 
     const result = this.getResult(message.payload.status);
 
-    this.sendCommandResult(message.context.correlationId, result);
+    this.sendCommandResult(
+      message.context.correlationId,
+      result,
+      message.payload.transactionId,
+    );
   }
 
   @AsHandler(CallAction.RequestStopTransaction)
@@ -110,11 +114,16 @@ export class CommandsOcppHandlers extends AbstractModule {
   private async sendCommandResult(
     correlationId: string,
     result: CommandResultType,
+    sessionId?: string,
   ) {
     try {
-      const response = await this.asyncResponder.send(correlationId, {
-        result: result,
-      } as CommandResult);
+      const response = await this.asyncResponder.send(
+        correlationId,
+        {
+          result: result,
+        } as CommandResult,
+        sessionId,
+      );
       console.log('Async response: ', response);
     } catch (e) {
       console.error(e);

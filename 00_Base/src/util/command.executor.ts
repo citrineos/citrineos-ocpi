@@ -59,7 +59,9 @@ export class CommandExecutor {
       remoteStartId: responseUrlEntity.id,
       idToken: {
         idToken: startSession.token.uid,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(startSession.token.type),
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+          startSession.token.type,
+        ),
       },
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;
@@ -89,6 +91,7 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       stopSession.response_url,
+      stopSession.session_id,
     );
 
     const request = {

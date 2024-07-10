@@ -19,39 +19,28 @@ export class AsyncResponder {
     readonly transactionRepo: SequelizeTransactionEventRepository,
   ) {}
 
-  async send(correlationId: string, data: CommandResult) {
-    const responseUrlEntity =
-      await this.responseUrlRepo.getResponseUrl(correlationId);
-    if (responseUrlEntity) {
-      await this.asyncResponseApi.postAsyncResponse(
-        responseUrlEntity.responseUrl,
-        data,
-      );
-    } else {
-      throw new NotFoundError(
-        'No response url found for correlationId: ' + correlationId,
-      );
-    }
-  }
-
-  async sendChargingProfileResult(
+  async send(
     correlationId: string,
     data:
       | ActiveChargingProfileResult
       | ClearChargingProfileResult
-      | ChargingProfileResult,
+      | ChargingProfileResult
+      | CommandResult,
+    sessionId?: string,
   ) {
     const responseUrlEntity =
       await this.responseUrlRepo.getResponseUrl(correlationId);
     if (responseUrlEntity) {
-      if (!responseUrlEntity.sessionId) {
+      if (!sessionId) {
+        sessionId = responseUrlEntity.sessionId;
+      }
+      if (!sessionId) {
         throw new NotFoundError('Session Id not found');
       }
 
       // TODO: refactor to get session from session table directly when it is implemented
-      const transaction = await this.transactionRepo.findByTransactionId(
-        responseUrlEntity.sessionId,
-      );
+      const transaction =
+        await this.transactionRepo.findByTransactionId(sessionId);
       if (!transaction) {
         throw new NotFoundError('Transaction not found');
       }
