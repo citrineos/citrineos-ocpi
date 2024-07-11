@@ -30,6 +30,7 @@ import {
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
+import { TariffDTO } from '@citrineos/ocpi-base/dist/model/DTO/TariffDTO';
 
 @Service()
 @JsonController(`/:${versionIdParam}/${ModuleId.Tariffs}`)
@@ -54,7 +55,6 @@ export class TariffsModuleApi
     },
   })
   async getTariffs(
-    @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedTariffResponse> {
@@ -96,5 +96,17 @@ export class TariffsModuleApi
       default:
         throw new Error(`Unsupported event type ${broadcastRequest.eventType}`);
     }
+  }
+
+  /**
+   * Admin Endpoints
+   */
+  
+  @Post('/')
+  async createTariff(
+    @Body() tariffDto: TariffDTO
+  ): Promise<void> {
+    // TODO invoke regular or admin tariff service
+    // this.tariffService.
   }
 }

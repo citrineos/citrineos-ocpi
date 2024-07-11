@@ -20,6 +20,7 @@ export class OcpiTariff extends Model {
   @Column(DataType.JSON)
   declare tariffAltText?: DisplayText[];
 
+
   declare updatedAt: CreationOptional<Date>;
 
   get key(): TariffKey {

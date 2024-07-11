@@ -30,6 +30,24 @@ export class TariffMapper {
     };
   }
 
+  public mapDtoToEntities(
+    tariffDto: TariffDTO
+  ): [OcpiTariff, Tariff] {
+    const ocpiTariff = new OcpiTariff();
+    ocpiTariff.id = tariffDto.id;
+    ocpiTariff.countryCode = tariffDto.country_code;
+    ocpiTariff.partyId = tariffDto.party_id;
+    ocpiTariff.tariffAltText = tariffDto.tariff_alt_text ?? undefined;
+
+    const ocppTariff = new Tariff();
+    ocppTariff.currency = tariffDto.currency;
+    ocppTariff.updatedAt = tariffDto.last_updated ?? new Date();
+
+    // TODO fill in elements
+
+    return [ocpiTariff, ocppTariff];
+  }
+
   private getTariffElement(coreTariff: Tariff): TariffElement {
     return {
       price_components: [
