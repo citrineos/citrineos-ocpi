@@ -98,6 +98,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiLocation.evses = [...evses];
 
     // TODO make dynamic mappings for the remaining optional fields
+    // ocpiLocation.time_zone
     // ocpiLocation.related_locations
     // ocpiLocation.parking_type
     // ocpiLocation.directions
