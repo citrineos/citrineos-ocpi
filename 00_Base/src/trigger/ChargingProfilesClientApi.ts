@@ -8,6 +8,8 @@ import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 
 @Service()
 export class ChargingProfilesClientApi extends BaseClientApi {
+  CONTROLLER_PATH = ModuleId.ChargingProfiles;
+
   async putChargingProfile(
     params: PutChargingProfileParams,
   ): Promise<OcpiEmptyResponse> {
