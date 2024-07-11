@@ -16,7 +16,8 @@ const DUMMY_IDS = {
 /** @type {import('sequelize-cli').Migration} */
 export = {
   up: async (queryInterface: QueryInterface) => {
-    const createEvses: any = async () => await queryInterface.bulkInsert(
+    const createEvses: any = async () =>
+      await queryInterface.bulkInsert(
         'Evses',
         [
           {
@@ -104,7 +105,8 @@ export = {
       ]);
     };
 
-    const createChargingStationComponent: any = async () => await queryInterface.bulkInsert(
+    const createChargingStationComponent: any = async () =>
+      await queryInterface.bulkInsert(
         'Components',
         [
           {
@@ -119,7 +121,8 @@ export = {
         } as QueryOptions,
       );
 
-    const createEvseComponent: any = async (evse: any) => await queryInterface.bulkInsert(
+    const createEvseComponent: any = async (evse: any) =>
+      await queryInterface.bulkInsert(
         'Components',
         [
           {
@@ -135,7 +138,8 @@ export = {
         } as QueryOptions,
       );
 
-    const createConnectorComponent: any = async (evse: any) => await queryInterface.bulkInsert(
+    const createConnectorComponent: any = async (evse: any) =>
+      await queryInterface.bulkInsert(
         'Components',
         [
           {
@@ -212,7 +216,8 @@ export = {
 
     const createChargingStationVariableAttributes: any = async (
       chargingStationComponent: any,
-    ) => await queryInterface.bulkInsert('VariableAttributes', [
+    ) =>
+      await queryInterface.bulkInsert('VariableAttributes', [
         {
           stationId: 1,
           variableId: 4,
@@ -239,7 +244,8 @@ export = {
         },
       ]);
 
-    const createEvseVariableAttributes: any = async (evseComponent: any) => await queryInterface.bulkInsert('VariableAttributes', [
+    const createEvseVariableAttributes: any = async (evseComponent: any) =>
+      await queryInterface.bulkInsert('VariableAttributes', [
         {
           stationId: 1,
           variableId: 18,
@@ -284,7 +290,8 @@ export = {
 
     const createConnectorVariableAttributes: any = async (
       connectorComponent: any,
-    ) => await queryInterface.bulkInsert('VariableAttributes', [
+    ) =>
+      await queryInterface.bulkInsert('VariableAttributes', [
         {
           stationId: 1,
           variableId: 18,

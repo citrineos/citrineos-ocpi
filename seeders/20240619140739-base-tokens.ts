@@ -23,7 +23,7 @@ module.exports = {
     const token1 = {
       country_code: 'US',
       party_id: 'MSP',
-      uid: '001',
+      uid: '1',
       type: 'APP_USER',
       contract_id: 'contract_001',
       visual_number: 'VIS001',
@@ -63,6 +63,7 @@ module.exports = {
       'IdTokens',
       [
         {
+          id: 1,
           idToken: ocppAuth.idToken.idToken,
           type: ocppAuth.idToken.type,
           createdAt: new Date(),
@@ -214,8 +215,22 @@ module.exports = {
   },
 
   down: async (queryInterface: QueryInterface) => {
-    await queryInterface.bulkDelete('OcpiTokens', {}, {});
     await queryInterface.bulkDelete('Authorizations', {}, {
+      cascade: true,
+    } as QueryOptions);
+    await queryInterface.bulkDelete('IdTokenInfos', {}, {
+      cascade: true,
+    } as QueryOptions);
+    await queryInterface.bulkDelete('IdTokens', {}, {
+      cascade: true,
+    } as QueryOptions);
+    await queryInterface.bulkDelete('IdTokenAdditionalInfos', {}, {
+      cascade: true,
+    } as QueryOptions);
+    await queryInterface.bulkDelete('AdditionalInfos', {}, {
+      cascade: true,
+    } as QueryOptions);
+    await queryInterface.bulkDelete('OcpiTokens', {}, {
       cascade: true,
     } as QueryOptions);
   },
