@@ -15,6 +15,8 @@ import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { ILogObj, Logger } from 'tslog';
 import { CredentialsService } from '../services/credentials.service';
 import { ModuleId } from '../model/ModuleId';
+import { LocationDTO } from '../model/DTO/LocationDTO';
+import { PutLocationParams } from '../trigger/param/locations/put.location.params';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -30,10 +32,20 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     super();
   }
 
-  async broadcastOnLocationCreate(location: Location): Promise<void> {
-    this.logger.info(
-      "broadcastOnLocationCreate not yet implemented. Received Location 'created' event:",
-      JSON.stringify(location),
+  async broadcastOnLocationCreate(locationDto: LocationDTO): Promise<void> {
+    this.logger.debug(`Broadcasting Location ${locationDto.id}`);
+
+    const params = PutLocationParams.build(
+      Number(locationDto.id),
+      locationDto,
+    );
+
+    this.locationsClientApi.broadcastToClients(
+      locationDto.country_code,
+      locationDto.party_id,
+      ModuleId.Locations,
+      params,
+      this.locationsClientApi.putLocation.bind(this.locationsClientApi),
     );
   }
 

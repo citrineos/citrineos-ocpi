@@ -22,7 +22,7 @@ import { EnergyMix } from '../EnergyMix';
 import { OcpiResponse } from '../ocpi.response';
 import { PaginatedResponse } from '../PaginatedResponse';
 
-export class LocationDTO {
+export class  LocationDTO {
   @MaxLength(2)
   @MinLength(2)
   @IsString()

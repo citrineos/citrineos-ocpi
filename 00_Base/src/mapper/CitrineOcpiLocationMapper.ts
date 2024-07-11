@@ -75,7 +75,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     ocpiLocation.postal_code = citrineLocation.postalCode ?? NOT_APPLICABLE;
     ocpiLocation.state = citrineLocation.state ?? NOT_APPLICABLE;
     ocpiLocation.country = citrineLocation.country ?? NOT_APPLICABLE;
-    ocpiLocation.coordinates = this.getCoordinates(citrineLocation.coordinates);
+    ocpiLocation.coordinates = this.mapOcppCoordinatesToGeoLocation(citrineLocation.coordinates);
 
     const evses: EvseDTO[] = [];
 
@@ -133,7 +133,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
       chargingStationAttributes.authorize_remote_start,
       chargingStationAttributes.token_reader_enabled,
     );
-    evse.coordinates = this.getCoordinates(citrineLocation.coordinates);
+    evse.coordinates = this.mapOcppCoordinatesToGeoLocation(citrineLocation.coordinates);
     evse.physical_reference = ocpiEvseInformation?.physicalReference;
     evse.last_updated = ocpiEvseInformation?.lastUpdated ?? new Date(); // TODO better fallback
 
@@ -192,7 +192,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     Helpers
   */
 
-  private getCoordinates(ocppCoordinates: any): GeoLocation {
+  private mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
     geoLocation.latitude = String(ocppCoordinates['coordinates'][0]);
     geoLocation.longitude = String(ocppCoordinates['coordinates'][1]);
@@ -255,6 +255,27 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
         // TODO figure out a different default value as needed
         return ConnectorType.IEC_62196_T1_COMBO;
     }
+  }
+
+  mapLocationDtoToEntities(
+    locationDto: LocationDTO
+  ): [OcpiLocation, Location] {
+    const ocpiLocation = new OcpiLocation();
+    ocpiLocation[OcpiLocationProps.countryCode] = locationDto.country_code;
+    ocpiLocation[OcpiLocationProps.partyId] = locationDto.party_id;
+    ocpiLocation[OcpiLocationProps.publish] = locationDto.publish;
+    ocpiLocation[OcpiLocationProps.lastUpdated] = locationDto.last_updated ?? new Date();
+
+    const citrineLocation = new Location();
+    citrineLocation.name = locationDto.name ?? NOT_APPLICABLE;
+    citrineLocation.address = locationDto.address;
+    citrineLocation.city = locationDto.city;
+    citrineLocation.postalCode = locationDto.postal_code ?? NOT_APPLICABLE;
+    citrineLocation.state = locationDto.state ?? NOT_APPLICABLE;
+    citrineLocation.country = locationDto.country ?? NOT_APPLICABLE;
+    citrineLocation.coordinates = [Number(locationDto.coordinates.latitude), Number(locationDto.coordinates.longitude)];
+
+    return [ocpiLocation, citrineLocation];
   }
 
   private getConnectorPowerType(connectorType: string | undefined): PowerType {
