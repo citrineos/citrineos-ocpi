@@ -11,8 +11,8 @@ import { Endpoint } from '../model/Endpoint';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { ClientVersion } from '../model/ClientVersion';
-import { ServerCredentialsRoleRepository } from "./ServerCredentialsRoleRepository";
-import { ServerCredentialsRoleProps } from "../model/ServerCredentialsRole";
+import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
+import { ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
 
 @Service()
 export class EndpointRepository extends SequelizeRepository<Endpoint> {
@@ -39,10 +39,10 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
     role: InterfaceRole,
   ): Promise<Endpoint | undefined> {
     const serverCredentialsRole =
-        await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
-            fromCountryCode,
-            fromPartyId,
-        );
+      await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+        fromCountryCode,
+        fromPartyId,
+      );
     if (!serverCredentialsRole) {
       return undefined;
     }
@@ -60,7 +60,9 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
                 model: ClientInformation,
                 where: {
                   cpoTenantId:
-                    serverCredentialsRole[ServerCredentialsRoleProps.cpoTenantId],
+                    serverCredentialsRole[
+                      ServerCredentialsRoleProps.cpoTenantId
+                    ],
                 },
                 include: [
                   {

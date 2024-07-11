@@ -43,7 +43,7 @@ import {
   ClientInformationRepository,
   EndpointRepository,
   SessionChargingProfileRepository,
-  SessionMapper
+  SessionMapper,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { Evse, SequelizeTransactionEventRepository } from '@citrineos/data';
@@ -127,7 +127,11 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     } catch (e) {
       if (e instanceof NotFoundError) {
         if (ocppSchedule && ocpiSchedule) {
-          await this.pushChargingProfile(message.context.stationId, ocppSchedule.evseId, ocpiSchedule);
+          await this.pushChargingProfile(
+            message.context.stationId,
+            ocppSchedule.evseId,
+            ocpiSchedule,
+          );
         }
       } else {
         this._logger.error(e);
@@ -400,13 +404,23 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     evseId: number,
     profileResult: ActiveChargingProfile,
   ) {
-    const activeTransaction = await this.transactionEventRepository.getActiveTransactionByStationIdAndEvseId(stationId, evseId);
+    const activeTransaction =
+      await this.transactionEventRepository.getActiveTransactionByStationIdAndEvseId(
+        stationId,
+        evseId,
+      );
     if (!activeTransaction) {
-      throw new NotFoundError(`No active transaction found for station ${stationId} and evse ${evseId}`);
+      throw new NotFoundError(
+        `No active transaction found for station ${stationId} and evse ${evseId}`,
+      );
     }
-    const session = (await this.sessionMapper.mapTransactionsToSessions([activeTransaction]))[0];
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([activeTransaction])
+    )[0];
     if (!session) {
-      throw new NotFoundError(`Mapping session failed for transaction ${activeTransaction.transactionId}`);
+      throw new NotFoundError(
+        `Mapping session failed for transaction ${activeTransaction.transactionId}`,
+      );
     }
 
     try {
@@ -418,7 +432,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
         session.cdr_token.country_code,
         session.cdr_token.party_id,
       );
-      const response= await this.client.putChargingProfile(params);
+      const response = await this.client.putChargingProfile(params);
       this._logger.info(
         `Pushed charging profile with response: ${JSON.stringify(response)}`,
       );

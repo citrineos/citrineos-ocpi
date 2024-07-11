@@ -17,8 +17,8 @@ import { ClientCredentialsRoleProps } from '../model/ClientCredentialsRole';
 import { ILogObj, Logger } from 'tslog';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { Endpoint } from '../model/Endpoint';
-import { EndpointRepository } from "../repository/EndpointRepository";
-import { InterfaceRole } from "../model/InterfaceRole";
+import { EndpointRepository } from '../repository/EndpointRepository';
+import { InterfaceRole } from '../model/InterfaceRole';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -423,12 +423,13 @@ export class BaseClientApi {
     toCountryCode: string,
     toPartyId: string,
   ): Promise<string> {
-    const clientInfo = await this.clientInformationRepository.getClientInformation(
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-    );
+    const clientInfo =
+      await this.clientInformationRepository.getClientInformation(
+        fromCountryCode,
+        fromPartyId,
+        toCountryCode,
+        toPartyId,
+      );
     if (!clientInfo) {
       throw new MissingRequiredParamException(
         'authorization',
@@ -439,12 +440,12 @@ export class BaseClientApi {
   }
 
   protected async getEndpointWithVersion(
-      fromCountryCode: string,
-      fromPartyId: string,
-      toCountryCode: string,
-      toPartyId: string,
-      moduleId: ModuleId,
-      role: InterfaceRole,
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    moduleId: ModuleId,
+    role: InterfaceRole,
   ): Promise<Endpoint> {
     const endpoint = await this.endpointRepository.readEndpoint(
       fromCountryCode,

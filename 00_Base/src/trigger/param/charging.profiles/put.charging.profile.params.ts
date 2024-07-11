@@ -1,5 +1,5 @@
 import { OcpiParams } from '../../util/ocpi.params';
-import { IsNotEmpty, IsString, IsUrl, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ActiveChargingProfile } from '../../../model/ActiveChargingProfile';
 
@@ -22,7 +22,12 @@ export const buildPutChargingProfileParams = (
   toCountryCode: string,
   toPartyId: string,
 ): PutChargingProfileParams => {
-  const ocpiParams = new OcpiParams(fromCountryCode, fromPartyId, toCountryCode, toPartyId);
+  const ocpiParams = new OcpiParams(
+    fromCountryCode,
+    fromPartyId,
+    toCountryCode,
+    toPartyId,
+  );
   (ocpiParams as PutChargingProfileParams).sessionId = sessionId;
   (ocpiParams as PutChargingProfileParams).activeChargingProfile =
     activeChargingProfile;
