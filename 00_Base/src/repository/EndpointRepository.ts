@@ -11,6 +11,8 @@ import { Endpoint } from '../model/Endpoint';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { ClientVersion } from '../model/ClientVersion';
+import { ServerCredentialsRoleRepository } from "./ServerCredentialsRoleRepository";
+import { ServerCredentialsRoleProps } from "../model/ServerCredentialsRole";
 
 @Service()
 export class EndpointRepository extends SequelizeRepository<Endpoint> {
@@ -18,6 +20,7 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
     ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
+    readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
       ocpiSystemConfig as SystemConfig,
@@ -28,12 +31,22 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
   }
 
   public async readEndpoint(
+    fromCountryCode: string,
+    fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
     moduleID: ModuleId,
     role: InterfaceRole,
-  ): Promise<string | undefined> {
-    const endPointEntry = (
+  ): Promise<Endpoint | undefined> {
+    const serverCredentialsRole =
+        await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+            fromCountryCode,
+            fromPartyId,
+        );
+    if (!serverCredentialsRole) {
+      return undefined;
+    }
+    return (
       await this.readAllByQuery({
         where: {
           identifier: moduleID,
@@ -45,6 +58,10 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
             include: [
               {
                 model: ClientInformation,
+                where: {
+                  cpoTenantId:
+                    serverCredentialsRole[ServerCredentialsRoleProps.cpoTenantId],
+                },
                 include: [
                   {
                     model: ClientCredentialsRole,
@@ -57,7 +74,5 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
         ],
       })
     )[0];
-
-    return endPointEntry?.url;
   }
 }

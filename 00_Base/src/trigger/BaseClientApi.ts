@@ -17,6 +17,8 @@ import { ClientCredentialsRoleProps } from '../model/ClientCredentialsRole';
 import { ILogObj, Logger } from 'tslog';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { Endpoint } from '../model/Endpoint';
+import { EndpointRepository } from "../repository/EndpointRepository";
+import { InterfaceRole } from "../model/InterfaceRole";
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -47,6 +49,8 @@ export class BaseClientApi {
   protected logger!: Logger<ILogObj>;
   @Inject()
   protected clientInformationRepository!: ClientInformationRepository;
+  @Inject()
+  protected endpointRepository!: EndpointRepository;
 
   CONTROLLER_PATH = 'null';
   private restClient!: RestClient;
@@ -432,6 +436,31 @@ export class BaseClientApi {
       );
     }
     return clientInfo[ClientInformationProps.clientToken];
+  }
+
+  protected async getEndpointWithVersion(
+      fromCountryCode: string,
+      fromPartyId: string,
+      toCountryCode: string,
+      toPartyId: string,
+      moduleId: ModuleId,
+      role: InterfaceRole,
+  ): Promise<Endpoint> {
+    const endpoint = await this.endpointRepository.readEndpoint(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      moduleId,
+      role,
+    );
+    if (!endpoint) {
+      throw new MissingRequiredParamException(
+        this._baseUrl,
+        `No endpoint found from ${fromCountryCode} ${fromPartyId} to ${toCountryCode} ${toPartyId}`,
+      );
+    }
+    return endpoint;
   }
 
   private initRestClient() {
