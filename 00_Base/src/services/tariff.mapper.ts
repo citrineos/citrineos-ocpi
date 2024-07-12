@@ -31,18 +31,18 @@ export class TariffMapper {
   }
 
   public mapDtoToEntities(
-    tariffDto: TariffDTO
+    tariffDto: Partial<TariffDTO>
   ): [OcpiTariff, Tariff] {
     const ocpiTariff = new OcpiTariff();
     ocpiTariff.id = tariffDto.id;
-    ocpiTariff.countryCode = tariffDto.country_code;
-    ocpiTariff.partyId = tariffDto.party_id;
+    ocpiTariff.countryCode = tariffDto.country_code ?? 'US';
+    ocpiTariff.partyId = tariffDto.party_id ?? 'CPO';
     ocpiTariff.tariffAltText = tariffDto.tariff_alt_text ?? undefined;
 
-    const coreTariffInformation = this.mapTariffElementToCoreTariff(tariffDto.elements);
+    const coreTariffInformation = this.mapTariffElementToCoreTariff(tariffDto.elements ?? []);
 
     const coreTariff = new Tariff();
-    coreTariff.currency = tariffDto.currency;
+    coreTariff.currency = tariffDto.currency ?? 'USD';
     coreTariff.updatedAt = tariffDto.last_updated ?? new Date();
     coreTariff.pricePerKwh = coreTariffInformation.pricePerKwh!;
     coreTariff.pricePerMin = coreTariffInformation.pricePerMin!;
@@ -87,7 +87,7 @@ export class TariffMapper {
   }
 
   // TODO make flexible for more complicated tariffs
-  mapTariffElementToCoreTariff(tariffElements: TariffElement[]): Partial<Tariff> {
+  private mapTariffElementToCoreTariff(tariffElements: TariffElement[]): Partial<Tariff> {
     if (tariffElements.length === 0) {
       return {
         pricePerKwh: 0,

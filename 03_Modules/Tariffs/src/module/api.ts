@@ -14,6 +14,7 @@ import {
   FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
+  OcpiEmptyResponse,
   OcpiHeaders,
   OcpiResponse,
   OcpiResponseStatusCode,
@@ -105,8 +106,9 @@ export class TariffsModuleApi
 
   @Post('/')
   async createTariff(
-    @Body() tariffDto: TariffDTO
-  ): Promise<void> {
+    @Body() tariffDto: Partial<TariffDTO>
+  ): Promise<OcpiEmptyResponse> {
     await this.tariffService.createTariff(tariffDto);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 }

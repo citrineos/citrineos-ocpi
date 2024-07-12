@@ -87,9 +87,8 @@ export class TariffsService {
   }
 
   async createTariff(
-    tariffDto: TariffDTO
+    tariffDto: Partial<TariffDTO>
   ): Promise<void> {
-    // map ocpi/core tariff
     const [ocpiTariff, coreTariff] = this.tariffMapper.mapDtoToEntities(tariffDto);
 
     const savedCoreTariff = await this.coreTariffRepository.create(coreTariff);
