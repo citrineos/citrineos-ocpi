@@ -5,7 +5,15 @@
 
 import { ITariffsModuleApi } from './interface';
 
-import { Body, Get, JsonController, Post } from 'routing-controllers';
+import {
+  JsonController,
+  Body,
+  Param,
+  Get,
+  Post,
+  Put,
+  Delete
+} from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
@@ -32,6 +40,9 @@ import {
 
 import { Service } from 'typedi';
 import { TariffDTO } from '@citrineos/ocpi-base/dist/model/DTO/TariffDTO';
+import { buildOcpiResponse } from '@citrineos/ocpi-base/dist/model/ocpi.response';
+import { buildOcpiErrorResponse, OcpiErrorResponse } from '@citrineos/ocpi-base/dist/model/ocpi.error.response';
+import { AdminTariffDTO } from '@citrineos/ocpi-base/dist/model/DTO/AdminTariffDTO';
 
 @Service()
 @JsonController(`/:${versionIdParam}/${ModuleId.Tariffs}`)
@@ -106,9 +117,34 @@ export class TariffsModuleApi
 
   @Post('/')
   async createTariff(
-    @Body() tariffDto: Partial<TariffDTO>
+    @Body() tariffDto: AdminTariffDTO
   ): Promise<OcpiEmptyResponse> {
     await this.tariffService.createTariff(tariffDto);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Put('/:tariffId')
+  async updateTariff(
+    @Param('tariffId') tariffId: number,
+    @Body() tariffDto: AdminTariffDTO
+  ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
+    if (!tariffId) {
+      return buildOcpiErrorResponse(OcpiResponseStatusCode.ClientInvalidOrMissingParameters, 'No tariff id provided');
+    }
+
+    await this.tariffService.updateTariff(tariffDto);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Delete('/:tariffId')
+  async deleteTariff(
+    @Param('tariffId') tariffId: number
+  ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
+    if (!tariffId) {
+      return buildOcpiErrorResponse(OcpiResponseStatusCode.ClientInvalidOrMissingParameters, 'No tariff id provided');
+    }
+
+    await this.tariffService.deleteTariff(tariffId);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 }

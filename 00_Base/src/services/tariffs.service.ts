@@ -9,6 +9,7 @@ import { TariffMapper } from './tariff.mapper';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import core from 'ajv/dist/vocabularies/core';
+import { AdminTariffDTO } from '../model/DTO/AdminTariffDTO';
 
 @Service()
 export class TariffsService {
@@ -87,13 +88,35 @@ export class TariffsService {
   }
 
   async createTariff(
-    tariffDto: Partial<TariffDTO>
+    adminTariffDto: AdminTariffDTO
   ): Promise<void> {
-    const [ocpiTariff, coreTariff] = this.tariffMapper.mapDtoToEntities(tariffDto);
-
+    const [ocpiTariff, coreTariff] = this.tariffMapper.mapDtoToEntities(adminTariffDto);
     const savedCoreTariff = await this.coreTariffRepository.create(coreTariff);
-
     ocpiTariff.coreTariffId = savedCoreTariff.id;
     await this.ocpiTariffRepository.create(ocpiTariff);
+  }
+
+  async updateTariff(
+    tariffDto: AdminTariffDTO
+  ): Promise<void> {
+    // TODO find corresponding ocpi and core tariffs and update appropriate
+  }
+
+  async deleteTariff(
+    tariffId: number
+  ): Promise<void> {
+    const savedOcpiTariff = await this.ocpiTariffRepository.readByKey(tariffId);
+
+    if (!savedOcpiTariff) {
+      return;
+    }
+
+    await this.ocpiTariffRepository.deleteByKey(String(tariffId));
+
+    if (savedOcpiTariff.coreTariffId) {
+      await this.coreTariffRepository.deleteByKey(String(savedOcpiTariff.coreTariffId))
+    }
+
+    // TODO push to MSP
   }
 }

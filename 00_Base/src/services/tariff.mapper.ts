@@ -6,6 +6,7 @@ import { TariffDimensionType } from '../model/TariffDimensionType';
 import { TariffElement } from '../model/TariffElement';
 import { TariffType } from '../model/TariffType';
 import { MINUTES_IN_HOUR } from '../util/consts';
+import { AdminTariffDTO } from '../model/DTO/AdminTariffDTO';
 
 @Service()
 export class TariffMapper {
@@ -31,19 +32,19 @@ export class TariffMapper {
   }
 
   public mapDtoToEntities(
-    tariffDto: Partial<TariffDTO>
+    tariffDto: AdminTariffDTO
   ): [OcpiTariff, Tariff] {
     const ocpiTariff = new OcpiTariff();
     ocpiTariff.id = tariffDto.id;
-    ocpiTariff.countryCode = tariffDto.country_code ?? 'US';
-    ocpiTariff.partyId = tariffDto.party_id ?? 'CPO';
-    ocpiTariff.tariffAltText = tariffDto.tariff_alt_text ?? undefined;
+    ocpiTariff.countryCode = tariffDto.country_code;
+    ocpiTariff.partyId = tariffDto.party_id;
+    ocpiTariff.tariffAltText = tariffDto.tariff_alt_text;
 
     const coreTariffInformation = this.mapTariffElementToCoreTariff(tariffDto.elements ?? []);
 
     const coreTariff = new Tariff();
-    coreTariff.currency = tariffDto.currency ?? 'USD';
-    coreTariff.updatedAt = tariffDto.last_updated ?? new Date();
+    coreTariff.currency = tariffDto.currency;
+    coreTariff.updatedAt = tariffDto.last_updated;
     coreTariff.pricePerKwh = coreTariffInformation.pricePerKwh!;
     coreTariff.pricePerMin = coreTariffInformation.pricePerMin!;
     coreTariff.pricePerSession = coreTariffInformation.pricePerSession!;
