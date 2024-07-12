@@ -3,13 +3,10 @@
 import { QueryInterface, QueryOptions } from 'sequelize';
 import {
   ChargingStateEnumType,
-  IdTokenEnumType,
   ReasonEnumType,
   TransactionEventEnumType,
   TriggerReasonEnumType,
 } from '../../citrineos-core/00_Base';
-import { OcpiLocationProps } from '@citrineos/ocpi-base';
-import { Sequelize } from 'sequelize-typescript';
 
 const START_ID = 1;
 
@@ -17,7 +14,7 @@ const DUMMY_IDS = {
   OCPI_LOCATION_ID: START_ID,
   LOCATION_ID: START_ID,
   EVSE_ID: START_ID,
-  ID_TOKEN: `IDTOKEN-0000${START_ID}`,
+  ID_TOKEN: START_ID,
   ID_TOKEN_ID: START_ID,
   CHARGING_STATION: START_ID,
   TRANSACTION_ID: START_ID,
@@ -30,7 +27,7 @@ const DUMMY_IDS = {
 /** @type {import('sequelize-cli').Migration} */
 export = {
   up: async (queryInterface: QueryInterface) => {
-    const createTransaction = async () =>
+    const createTransaction: any = async () =>
       await queryInterface.bulkInsert(
         'Transactions',
         [
@@ -44,7 +41,7 @@ export = {
             totalKwh: 40.5,
             stoppedReason: ReasonEnumType.Remote,
             remoteStartId: 1,
-            createdAt: new Date(Date.now() - 7200000), // 2 hours ago
+            createdAt: new Date('2024-04-03T13:55:49.466Z'),
             updatedAt: new Date(),
           },
         ],
@@ -61,7 +58,7 @@ export = {
             id: DUMMY_IDS.START_TRANSACTION_EVENT,
             stationId: DUMMY_IDS.CHARGING_STATION,
             eventType: TransactionEventEnumType.Started,
-            timestamp: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+            timestamp: new Date('2024-04-03T13:55:49.466Z').toISOString(),
             triggerReason: TriggerReasonEnumType.Authorized,
             seqNo: 1,
             transactionDatabaseId: transactionDatabaseId,
@@ -74,14 +71,14 @@ export = {
             transactionInfo: JSON.stringify({
               transactionId: DUMMY_IDS.TRANSACTION_ID,
             }),
-            createdAt: new Date(Date.now() - 7200000),
-            updatedAt: new Date(Date.now() - 7200000),
+            createdAt: new Date('2024-04-03T13:55:49.466Z'),
+            updatedAt: new Date('2024-04-03T13:55:49.466Z'),
           },
           {
             id: DUMMY_IDS.UPDATE_TRANSACTION_EVENT_1,
             stationId: DUMMY_IDS.CHARGING_STATION,
             eventType: TransactionEventEnumType.Updated,
-            timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+            timestamp: new Date('2024-04-03T14:00:00.147Z').toISOString(),
             triggerReason: TriggerReasonEnumType.MeterValuePeriodic,
             seqNo: 2,
             transactionDatabaseId: transactionDatabaseId,
@@ -93,33 +90,14 @@ export = {
             transactionInfo: JSON.stringify({
               transactionId: DUMMY_IDS.TRANSACTION_ID,
             }),
-            createdAt: new Date(Date.now() - 3600000),
-            updatedAt: new Date(Date.now() - 3600000),
-          },
-          {
-            id: DUMMY_IDS.UPDATE_TRANSACTION_EVENT_2,
-            stationId: DUMMY_IDS.CHARGING_STATION,
-            eventType: TransactionEventEnumType.Updated,
-            timestamp: new Date(Date.now() - 1800000).toISOString(), // 30 minutes ago
-            triggerReason: TriggerReasonEnumType.MeterValuePeriodic,
-            seqNo: 3,
-            transactionDatabaseId: transactionDatabaseId,
-            offline: false,
-            numberOfPhasesUsed: 3,
-            cableMaxCurrent: 32,
-            evseId: DUMMY_IDS.EVSE_ID,
-            idTokenId: DUMMY_IDS.ID_TOKEN_ID,
-            transactionInfo: JSON.stringify({
-              transactionId: DUMMY_IDS.TRANSACTION_ID,
-            }),
-            createdAt: new Date(Date.now() - 1800000),
-            updatedAt: new Date(Date.now() - 1800000),
+            createdAt: new Date('2024-04-03T14:00:00.147Z'),
+            updatedAt: new Date('2024-04-03T14:00:00.147Z'),
           },
           {
             id: DUMMY_IDS.END_TRANSACTION_EVENT,
             stationId: DUMMY_IDS.CHARGING_STATION,
             eventType: TransactionEventEnumType.Ended,
-            timestamp: new Date().toISOString(), // Now
+            timestamp: new Date('2024-04-03T14:01:23.297Z').toISOString(),
             triggerReason: TriggerReasonEnumType.StopAuthorized,
             seqNo: 4,
             transactionDatabaseId: transactionDatabaseId,
@@ -131,8 +109,8 @@ export = {
             transactionInfo: JSON.stringify({
               transactionId: DUMMY_IDS.TRANSACTION_ID,
             }),
-            createdAt: new Date(0),
-            updatedAt: new Date(),
+            createdAt: new Date('2024-04-03T14:01:23.297Z'),
+            updatedAt: new Date('2024-04-03T14:01:23.297Z'),
           },
         ],
         {},
@@ -143,76 +121,1075 @@ export = {
         'MeterValues',
         [
           {
-            transactionEventId: DUMMY_IDS.START_TRANSACTION_EVENT,
             transactionDatabaseId: transactionDatabaseId,
             sampledValue: JSON.stringify([
               {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
                 measurand: 'Energy.Active.Import.Register',
-                phase: null,
                 unitOfMeasure: {
-                  unit: 'kWh',
-                  multiplier: 1,
+                  unit: 'Wh',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0,
+              },
+              {
+                context: 'Transaction.Begin',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
                 },
                 value: 0,
               },
             ]),
-            timestamp: new Date(Date.now() - 7200000).toISOString(),
-            createdAt: new Date(Date.now() - 7200000),
-            updatedAt: new Date(Date.now() - 7200000),
+            timestamp: new Date('2024-04-03T13:55:48.914Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:55:48.914Z'),
+            updatedAt: new Date('2024-04-03T13:55:48.914Z'),
           },
           {
-            transactionEventId: DUMMY_IDS.UPDATE_TRANSACTION_EVENT_1,
             transactionDatabaseId: transactionDatabaseId,
             sampledValue: JSON.stringify([
               {
+                context: 'Sample.Clock',
+                location: 'Outlet',
                 measurand: 'Energy.Active.Import.Register',
-                phase: null,
                 unitOfMeasure: {
-                  unit: 'kWh',
-                  multiplier: 1,
+                  unit: 'Wh',
                 },
-                value: 20.5,
+                value: 21.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 7.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 7.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 7.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L1-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 225.00149536132813,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L2-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 225.00149536132813,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L3-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 225.00149536132813,
               },
             ]),
-            timestamp: new Date(Date.now() - 3600000).toISOString(),
-            createdAt: new Date(Date.now() - 3600000),
-            updatedAt: new Date(Date.now() - 3600000),
+            timestamp: new Date('2024-04-03T13:55:59.015Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:55:59.015Z'),
+            updatedAt: new Date('2024-04-03T13:55:59.015Z'),
           },
           {
-            transactionEventId: DUMMY_IDS.UPDATE_TRANSACTION_EVENT_2,
             transactionDatabaseId: transactionDatabaseId,
             sampledValue: JSON.stringify([
               {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
                 measurand: 'Energy.Active.Import.Register',
-                phase: null,
                 unitOfMeasure: {
-                  unit: 'kWh',
-                  multiplier: 1,
+                  unit: 'Wh',
                 },
-                value: 35.0,
+                value: 171.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 57.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 57.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 57.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.107704162597656,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.107704162597656,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.107704162597656,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0.201346293091774,
               },
             ]),
-            timestamp: new Date(Date.now() - 1800000).toISOString(),
-            createdAt: new Date(Date.now() - 1800000),
-            updatedAt: new Date(Date.now() - 1800000),
+            timestamp: new Date('2024-04-03T13:56:49.541Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:56:49.541Z'),
+            updatedAt: new Date('2024-04-03T13:56:49.541Z'),
           },
           {
-            transactionEventId: DUMMY_IDS.END_TRANSACTION_EVENT,
             transactionDatabaseId: transactionDatabaseId,
             sampledValue: JSON.stringify([
               {
+                context: 'Sample.Clock',
+                location: 'Outlet',
                 measurand: 'Energy.Active.Import.Register',
-                phase: null,
                 unitOfMeasure: {
-                  unit: 'kWh',
-                  multiplier: 1,
+                  unit: 'Wh',
                 },
-                value: 40.5,
+                value: 200.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 67.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 67.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 67.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L1-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.95834350585938,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L2-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.95834350585938,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L3-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.95834350585938,
               },
             ]),
-            timestamp: new Date().toISOString(),
-            createdAt: new Date(0),
-            updatedAt: new Date(),
+            timestamp: new Date('2024-04-03T13:56:59.615Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:56:59.615Z'),
+            updatedAt: new Date('2024-04-03T13:56:59.615Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 347.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 116.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 116.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 116.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.045677185058594,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.045677185058594,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.045677185058594,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0.2005709707736969,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T13:57:49.049Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:57:49.049Z'),
+            updatedAt: new Date('2024-04-03T13:57:49.049Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 377.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 126.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 126.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 126.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L1-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 222.17013549804688,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L2-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 222.17013549804688,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L3-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 222.17013549804688,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T13:57:59.112Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:57:59.112Z'),
+            updatedAt: new Date('2024-04-03T13:57:59.112Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 523.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 174.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 174.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 174.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 15.886229515075684,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 15.886229515075684,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 15.886229515075684,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0.1985778659582138,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T13:58:48.549Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:58:48.549Z'),
+            updatedAt: new Date('2024-04-03T13:58:48.549Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 556.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 185.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 185.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 185.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L1-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.9342041015625,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L2-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.9342041015625,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L3-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.9342041015625,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T13:58:59.632Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:58:59.632Z'),
+            updatedAt: new Date('2024-04-03T13:58:59.632Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 702.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 234.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 234.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 234.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.126832962036133,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.126832962036133,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.126832962036133,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0.20158541202545166,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T13:59:49.077Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:59:49.077Z'),
+            updatedAt: new Date('2024-04-03T13:59:49.077Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 732.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 244.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 244.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 244.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L1-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 222.07337951660156,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L2-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 222.07337951660156,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L3-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 222.07337951660156,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T13:59:59.175Z').toISOString(),
+            createdAt: new Date('2024-04-03T13:59:59.175Z'),
+            updatedAt: new Date('2024-04-03T13:59:59.175Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 879.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 293.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 293.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 293.0,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.023082733154297,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.023082733154297,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 16.023082733154297,
+              },
+              {
+                context: 'Sample.Periodic',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0.2002885341644287,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T14:00:48.657Z').toISOString(),
+            createdAt: new Date('2024-04-03T14:00:48.657Z'),
+            updatedAt: new Date('2024-04-03T14:00:48.657Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 911.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 304.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 304.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 304.0,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L1-N',
+                unitOfMeasure: {
+                  unit: 'V',
+                },
+                value: 221.85638427734375,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L2-N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 221.85638427734375,
+              },
+              {
+                context: 'Sample.Clock',
+                location: 'Outlet',
+                measurand: 'Voltage',
+                phase: 'L3-N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 221.85638427734375,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T14:00:59.730Z').toISOString(),
+            createdAt: new Date('2024-04-03T14:00:59.730Z'),
+            updatedAt: new Date('2024-04-03T14:00:59.730Z'),
+          },
+          {
+            transactionDatabaseId: transactionDatabaseId,
+            sampledValue: JSON.stringify([
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 980.0,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 327.0,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 327.0,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Energy.Active.Import.Register',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'Wh',
+                },
+                value: 327.0,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L1',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 15.879820823669434,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L2',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 15.879820823669434,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'L3',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 15.879820823669434,
+              },
+              {
+                context: 'Transaction.End',
+                location: 'Outlet',
+                measurand: 'Current.Import',
+                phase: 'N',
+                unitOfMeasure: {
+                  unit: 'A',
+                },
+                value: 0.19849777221679688,
+              },
+            ]),
+            timestamp: new Date('2024-04-03T14:01:22.936Z').toISOString(),
+            createdAt: new Date('2024-04-03T14:01:22.936Z'),
+            updatedAt: new Date('2024-04-03T14:01:22.936Z'),
           },
         ],
         {},
@@ -221,9 +1198,8 @@ export = {
 
     try {
       const transaction = await createTransaction();
-      const transactionDatabaseId = (transaction as any).id;
-      await createTransactionEvents(transactionDatabaseId);
-      await createMeterValues(transactionDatabaseId);
+      await createTransactionEvents(transaction[0].id);
+      await createMeterValues(transaction[0].id);
 
       console.log('Transaction Data seeded successfully');
     } catch (error) {
@@ -270,52 +1246,6 @@ export = {
         },
         {},
       );
-
-      // Delete IdToken
-      await queryInterface.bulkDelete(
-        'IdTokens',
-        {
-          createdAt: new Date(0),
-        },
-        {},
-      );
-
-      // Delete EVSE
-      await queryInterface.bulkDelete(
-        'Evses',
-        {
-          createdAt: new Date(0),
-        },
-        {},
-      );
-
-      // Delete ChargingStation
-      await queryInterface.bulkDelete(
-        'ChargingStations',
-        {
-          createdAt: new Date(0),
-        },
-        {},
-      );
-
-      // Delete Location
-      await queryInterface.bulkDelete(
-        'Locations',
-        {
-          createdAt: new Date(0),
-        },
-        {},
-      );
-
-      // Delete OCPILocations
-      await queryInterface.bulkDelete(
-        'OcpiLocations',
-        {
-          createdAt: new Date(0),
-        },
-        {},
-      );
-
       console.log('Transaction data reverted successfully');
     } catch (error) {
       console.error('Error reverting Transactions data:', error);
