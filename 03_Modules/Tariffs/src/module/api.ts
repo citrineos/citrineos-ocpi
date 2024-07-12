@@ -55,6 +55,7 @@ export class TariffsModuleApi
     },
   })
   async getTariffs(
+    @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedTariffResponse> {
