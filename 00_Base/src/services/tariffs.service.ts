@@ -8,6 +8,7 @@ import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { TariffMapper } from './tariff.mapper';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/paginated.params';
+import core from 'ajv/dist/vocabularies/core';
 
 @Service()
 export class TariffsService {
@@ -83,5 +84,17 @@ export class TariffsService {
       return { data: [], count: 0 };
     }
     return { data: await this.extendOcpiTariffs(rows), count };
+  }
+
+  async createTariff(
+    tariffDto: TariffDTO
+  ): Promise<void> {
+    // map ocpi/core tariff
+    const [ocpiTariff, coreTariff] = this.tariffMapper.mapDtoToEntities(tariffDto);
+
+    const savedCoreTariff = await this.coreTariffRepository.create(coreTariff);
+
+    ocpiTariff.coreTariffId = savedCoreTariff.id;
+    await this.ocpiTariffRepository.create(ocpiTariff);
   }
 }

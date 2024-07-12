@@ -39,13 +39,17 @@ export class TariffMapper {
     ocpiTariff.partyId = tariffDto.party_id;
     ocpiTariff.tariffAltText = tariffDto.tariff_alt_text ?? undefined;
 
-    const ocppTariff = new Tariff();
-    ocppTariff.currency = tariffDto.currency;
-    ocppTariff.updatedAt = tariffDto.last_updated ?? new Date();
+    const coreTariffInformation = this.mapTariffElementToCoreTariff(tariffDto.elements);
 
-    // TODO fill in elements
+    const coreTariff = new Tariff();
+    coreTariff.currency = tariffDto.currency;
+    coreTariff.updatedAt = tariffDto.last_updated ?? new Date();
+    coreTariff.pricePerKwh = coreTariffInformation.pricePerKwh!;
+    coreTariff.pricePerMin = coreTariffInformation.pricePerMin!;
+    coreTariff.pricePerSession = coreTariffInformation.pricePerSession!;
+    coreTariff.taxRate = coreTariffInformation.taxRate!;
 
-    return [ocpiTariff, ocppTariff];
+    return [ocpiTariff, coreTariff];
   }
 
   private getTariffElement(coreTariff: Tariff): TariffElement {
@@ -80,5 +84,31 @@ export class TariffMapper {
       ],
       restrictions: undefined,
     };
+  }
+
+  // TODO make flexible for more complicated tariffs
+  mapTariffElementToCoreTariff(tariffElements: TariffElement[]): Partial<Tariff> {
+    if (tariffElements.length === 0) {
+      return {
+        pricePerKwh: 0,
+        pricePerMin: 0,
+        pricePerSession: 0,
+        taxRate: 0
+      }
+    }
+
+    const tariffElement = tariffElements[0];
+    const priceComponents = tariffElement.price_components ?? [];
+    const pricePerKwh = priceComponents.find(pc => pc.type === TariffDimensionType.ENERGY)?.price ?? 0;
+    const pricePerMin = priceComponents.find(pc => pc.type === TariffDimensionType.TIME)?.price ?? 0;
+    const pricePerSession = priceComponents.find(pc => pc.type === TariffDimensionType.TIME)?.price ?? 0;
+    const taxRate = priceComponents.find(pc => pc.vat)?.vat ?? 0;
+
+    return {
+      pricePerKwh,
+      pricePerMin,
+      pricePerSession,
+      taxRate
+    }
   }
 }

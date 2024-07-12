@@ -101,12 +101,11 @@ export class TariffsModuleApi
   /**
    * Admin Endpoints
    */
-  
+
   @Post('/')
   async createTariff(
     @Body() tariffDto: TariffDTO
   ): Promise<void> {
-    // TODO invoke regular or admin tariff service
-    // this.tariffService.
+    await this.tariffService.createTariff(tariffDto);
   }
 }
