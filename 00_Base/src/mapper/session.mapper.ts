@@ -5,7 +5,6 @@ import { Transaction, TransactionEvent } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
@@ -23,7 +22,8 @@ export class SessionMapper {
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
     readonly tokensRepository: TokensRepository,
-  ) {}
+  ) {
+  }
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -135,9 +135,12 @@ export class SessionMapper {
     return `${transaction.stationId}-${transaction.evse?.id}`;
   }
 
-  private getCurrency(_location: OcpiLocation): string {
-    // TODO: Implement currency determination logic based on location or configuration
-    return 'USD';
+  private getCurrency(location: OcpiLocation): string {
+    switch (location[OcpiLocationProps.countryCode]) {
+      case 'US':
+      default:
+        return 'USD';
+    }
   }
 
   private getChargingPeriods(
@@ -292,7 +295,7 @@ export class SessionMapper {
         transaction.transactionEvents.length > 0
       ) {
         const idToken = transaction.transactionEvents
-          .find(transaction => transaction.idToken)?.idToken;
+          .find(event => event.idToken)?.idToken;
 
         if (idToken?.idToken) {
           const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(

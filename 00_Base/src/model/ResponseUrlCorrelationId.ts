@@ -11,4 +11,7 @@ export class ResponseUrlCorrelationId extends Model {
 
   @Column(DataType.STRING)
   responseUrl!: string;
+
+  @Column(DataType.STRING)
+  sessionId?: string;
 }

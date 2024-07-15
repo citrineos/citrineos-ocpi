@@ -41,8 +41,7 @@ const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
 @Service()
 export class SessionsModuleApi
   extends BaseController
-  implements ISessionsModuleApi
-{
+  implements ISessionsModuleApi {
   constructor(readonly sessionsService: SessionsService) {
     super();
   }
@@ -66,7 +65,7 @@ export class SessionsModuleApi
       ocpiHeaders!.fromPartyId,
       ocpiHeaders!.toCountryCode,
       ocpiHeaders!.toPartyId,
-      paginatedParams!.dateFrom!,
+      paginatedParams?.dateFrom,
       paginatedParams?.dateTo,
       paginatedParams?.offset,
       paginatedParams?.limit,

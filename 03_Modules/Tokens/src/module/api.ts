@@ -43,7 +43,6 @@ import {
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './interface';
-import { plainToInstance } from 'class-transformer';
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
 @Service()

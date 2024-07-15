@@ -2,8 +2,6 @@
 
 import { QueryInterface, QueryOptions } from 'sequelize';
 import {
-  OcpiSequelizeInstance,
-  OcpiServerConfig,
   OcpiTokensMapper,
   TokenDTO,
 } from '@citrineos/ocpi-base';
@@ -11,11 +9,7 @@ import {
   AdditionalInfo,
   Authorization,
   IdToken,
-  IdTokenInfo,
 } from '../../citrineos-core/01_Data';
-import { AdditionalGeoLocation } from '@citrineos/ocpi-base/dist/model/AdditionalGeoLocation';
-
-const _sequelize = new OcpiSequelizeInstance(new OcpiServerConfig()); // needed to init models
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -146,7 +140,7 @@ module.exports = {
       )?.dataValues;
     }
 
-    const idTokenAdditionalInfosRecord: any = await _queryInterface.bulkInsert(
+    await _queryInterface.bulkInsert(
       'IdTokenAdditionalInfos',
       [
         {
@@ -189,7 +183,7 @@ module.exports = {
       )?.dataValues;
     }
 
-    const ocpiTokenRecord: any = await _queryInterface.bulkInsert(
+    await _queryInterface.bulkInsert(
       'OcpiTokens',
       [
         {
