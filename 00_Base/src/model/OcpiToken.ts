@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsBoolean,
   IsDate,
   IsNotEmpty,
   IsObject,

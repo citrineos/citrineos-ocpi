@@ -296,7 +296,7 @@ export class LocationsService {
    * Helper Methods
    */
 
-  private async createChargingStationVariableAttributesMap(
+  public async createChargingStationVariableAttributesMap(
     stationIds: string[],
     evseId?: number,
     connectorId?: number,
@@ -336,7 +336,6 @@ export class LocationsService {
     return chargingStationVariableAttributesMap;
   }
 
-  // TODO also map Evse OCPI information
   private async createEvsesVariableAttributesMap(
     stationId: string,
     evseIds: number[],
@@ -373,7 +372,6 @@ export class LocationsService {
     return evseAttributesMap;
   }
 
-  // TODO also map Connector OCPI information
   private async createConnectorVariableAttributesMap(
     stationId: string,
     evseId: number,

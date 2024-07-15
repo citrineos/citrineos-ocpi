@@ -43,7 +43,7 @@ export const connectorVariableAttributesQuery = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = 'CHARGER02' and e."id" = ${evseComponentId} and e."connectorId" = ${connectorId} and c."name" = 'Connector' and v."name" = 'AvailabilityState'
+        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and e."connectorId" = ${connectorId} and c."name" = 'Connector' and v."name" = 'AvailabilityState'
       ), 'Unavailable'
     ) as connector_availability_state;
 `;

@@ -9,15 +9,16 @@ export class CdrsService {
   constructor(
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly cdrMapper: CdrMapper,
-  ) {}
+  ) {
+  }
 
   public async getCdrs(
     fromCountryCode: string,
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    dateFrom: Date,
-    dateTo: Date = new Date(),
+    dateFrom?: Date,
+    dateTo?: Date,
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedCdrResponse> {
