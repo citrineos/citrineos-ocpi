@@ -117,12 +117,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       ? this.mapOcppScheduleToOcpi(ocppSchedule)
       : undefined;
     try {
-      await this.asyncResponder.sendChargingProfileResult(
+      await this.asyncResponder.send(
         message.context.correlationId,
         {
-          result: this.getResult(response.status),
+          result: this.getResult(message.payload.status),
           profile: ocpiSchedule,
-        } as ActiveChargingProfileResult,
+        } as ActiveChargingProfileResult
       );
     } catch (e) {
       if (e instanceof NotFoundError) {
@@ -148,12 +148,9 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const status = message.payload.status;
 
     try {
-      await this.asyncResponder.sendChargingProfileResult(
-        message.context.correlationId,
-        {
-          result: this.getResult(status),
-        } as ClearChargingProfileResult,
-      );
+      await this.asyncResponder.send(message.context.correlationId, {
+        result: this.getResult(status),
+      } as ClearChargingProfileResult);
     } catch (e) {
       console.error(e);
       // If no response URL is present, i.e., the request is sent by CPO for other reasons
@@ -202,12 +199,9 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const status = message.payload.status;
 
     try {
-      await this.asyncResponder.sendChargingProfileResult(
-        message.context.correlationId,
-        {
-          result: this.getResult(status),
-        } as ChargingProfileResult,
-      );
+      await this.asyncResponder.send(message.context.correlationId, {
+        result: this.getResult(status),
+      } as ChargingProfileResult);
     } catch (e) {
       console.error(e);
       // If no response URL is present, i.e., the request is sent by CPO for other reasons
