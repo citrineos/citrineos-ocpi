@@ -3,7 +3,6 @@ import {
   DataType,
   Index,
   Model,
-  PrimaryKey,
   Table,
 } from '@citrineos/data';
 import { CreationOptional } from 'sequelize';

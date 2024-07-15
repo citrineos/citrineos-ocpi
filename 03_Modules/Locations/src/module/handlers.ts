@@ -31,9 +31,6 @@ import {
  * Component that handles provisioning related messages.
  */
 export class LocationsHandlers extends AbstractModule {
-  private locationsBroadcaster: LocationsBroadcaster;
-  private locationsService: LocationsService;
-
   /**
    * Fields
    */
@@ -42,6 +39,9 @@ export class LocationsHandlers extends AbstractModule {
     CallAction.StatusNotification,
   ];
   protected _responses: CallAction[] = [];
+
+  private locationsBroadcaster: LocationsBroadcaster;
+  private locationsService: LocationsService;
 
   /**
    * This is the constructor function that initializes the {@link LocationsHandlers}.
@@ -203,11 +203,11 @@ export class LocationsHandlers extends AbstractModule {
     const connectorAvailabilityStates = evseAttributes
       ? Object.entries(evseAttributes.connectors)
           .filter(
-            ([connectorIdKey, connectorAttributes]) =>
+            ([connectorIdKey, _connectorAttributes]) =>
               Number(connectorIdKey) !== connectorId,
           )
           .map(
-            ([connectorIdKey, connectorAttributes]) =>
+            ([_connectorIdKey, connectorAttributes]) =>
               connectorAttributes.connector_availability_state,
           )
       : [];

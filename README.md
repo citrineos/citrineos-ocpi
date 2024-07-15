@@ -16,11 +16,11 @@ The modules in CitrineOS OCPI integrate with modules in CitrineOS Core and Citri
 
 ## Release Information
 
-### Version 0.1.0 (Pre-release)
+### Version 0.1.1 (Pre-release)
 
 #### Included Functionality
 
-This initial release, version 0.1.0, provides partial OCPI 2.2.1 functionality. The features included are:
+This initial release, version 0.1.1, provides partial OCPI 2.2.1 functionality. The features included are:
 
 - **Registration**: Register with new eMSP partners via `CREDENTIALS_TOKEN_A` as the sender through an Admin endpoint.
 - **Sender Interface Endpoints**: Sessions, CDRs, Tariffs, and Locations.
@@ -31,7 +31,7 @@ This initial release, version 0.1.0, provides partial OCPI 2.2.1 functionality. 
 
 #### Missing Functionality
 
-The following features are not included in version 0.1.0 but will be released in upcoming patch versions:
+The following features are not included in version 0.1.X but will be released in upcoming minor versions:
 
 - Admin endpoints for:
   - Triggering the receiver side of registration (generating `CREDENTIALS_TOKEN_A`).

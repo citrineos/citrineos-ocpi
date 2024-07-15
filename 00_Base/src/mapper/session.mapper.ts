@@ -203,12 +203,12 @@ export class SessionMapper {
               type: CdrDimensionType.ENERGY_IMPORT,
               volume: sampledValue.value,
             });
-            const previousEnergy =
+            const previousEnergyImport =
               this.getEnergyImportForMeterValue(previousMeterValue);
-            if (previousEnergy) {
+            if (previousEnergyImport !== undefined) {
               cdrDimensions.push({
                 type: CdrDimensionType.ENERGY,
-                volume: sampledValue.value - previousEnergy,
+                volume: sampledValue.value - previousEnergyImport,
               });
             }
           }
@@ -303,9 +303,8 @@ export class SessionMapper {
         transaction.transactionEvents &&
         transaction.transactionEvents.length > 0
       ) {
-        const idToken = transaction.transactionEvents.find(
-          (transactionEvent) => transactionEvent.idToken,
-        )?.idToken;
+        const idToken = transaction.transactionEvents
+          .find(event => event.idToken)?.idToken;
 
         if (idToken?.idToken) {
           const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
