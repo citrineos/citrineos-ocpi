@@ -40,12 +40,10 @@ import {
   ChargingProfileResultType,
   ChargingProfilesClientApi,
   ClearChargingProfileResult,
-  ClientInformationProps,
   ClientInformationRepository,
   EndpointRepository,
-  InterfaceRole,
-  ModuleId,
   SessionChargingProfileRepository,
+  SessionMapper,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { Evse, SequelizeTransactionEventRepository } from '@citrineos/data';
@@ -80,6 +78,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     readonly endpointRepository: EndpointRepository,
     readonly clientInformationRepository: ClientInformationRepository,
     readonly sessionChargingProfileRepository: SessionChargingProfileRepository,
+    readonly sessionMapper: SessionMapper,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -112,7 +111,8 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
-    const ocppSchedule = message.payload.schedule;
+    const response = message.payload as GetCompositeScheduleResponse;
+    const ocppSchedule = response.schedule;
     const ocpiSchedule = ocppSchedule
       ? this.mapOcppScheduleToOcpi(ocppSchedule)
       : undefined;
@@ -120,14 +120,21 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       await this.asyncResponder.sendChargingProfileResult(
         message.context.correlationId,
         {
-          result: this.getResult(message.payload.status),
+          result: this.getResult(response.status),
           profile: ocpiSchedule,
         } as ActiveChargingProfileResult,
       );
     } catch (e) {
-      console.error(e);
-      if (ocppSchedule && ocpiSchedule) {
-        await this.pushChargingProfile(ocppSchedule.evseId, ocpiSchedule);
+      if (e instanceof NotFoundError) {
+        if (ocppSchedule && ocpiSchedule) {
+          await this.pushChargingProfile(
+            message.context.stationId,
+            ocppSchedule.evseId,
+            ocpiSchedule,
+          );
+        }
+      } else {
+        this._logger.error(e);
       }
     }
   }
@@ -393,48 +400,45 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   }
 
   private async pushChargingProfile(
+    stationId: string,
     evseId: number,
     profileResult: ActiveChargingProfile,
   ) {
-    // TODO: after Session Module is implemented
-    //  (1) find the active session by evseId
-    //  (2) find the session object by session id
-    //  (3) get the country code and party id from the session and its cdr_token
-    const sessionId = '12345';
-    const toCountryCode = 'NL';
-    const toPartyId = 'EXA';
-    const fromCountryCode = 'NL';
-    const fromPartyId = 'CPO';
-    const url = await this.endpointRepository.readEndpoint(
-      toCountryCode,
-      toPartyId,
-      ModuleId.ChargingProfiles,
-      InterfaceRole.RECEIVER,
-    );
-    console.log(`Found endpointURL: ${url}`);
-    const clientInfo = await this.clientInformationRepository.getClientInformation(
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-    );
-    if (url && clientInfo) {
+    const activeTransaction =
+      await this.transactionEventRepository.getActiveTransactionByStationIdAndEvseId(
+        stationId,
+        evseId,
+      );
+    if (!activeTransaction) {
+      throw new NotFoundError(
+        `No active transaction found for station ${stationId} and evse ${evseId}`,
+      );
+    }
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([activeTransaction])
+    )[0];
+    if (!session) {
+      throw new NotFoundError(
+        `Mapping session failed for transaction ${activeTransaction.transactionId}`,
+      );
+    }
+
+    try {
       const params = buildPutChargingProfileParams(
-        `${url}/${sessionId}`,
+        session.id,
         profileResult,
-        clientInfo[ClientInformationProps.clientToken],
-        fromCountryCode,
-        fromPartyId,
-        toCountryCode,
-        toPartyId,
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
       );
       const response = await this.client.putChargingProfile(params);
-      console.log(
+      this._logger.info(
         `Pushed charging profile with response: ${JSON.stringify(response)}`,
       );
-    } else {
-      console.error(
-        `No URL or token found for charging profile with country code ${toCountryCode} and party id ${toPartyId}`,
+    } catch (e) {
+      this._logger.error(
+        `Push charging profile failed for station ${stationId} and evse ${evseId}: ${JSON.stringify(e)}`,
       );
     }
   }
@@ -472,12 +476,10 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
 
     if (activeTransactionId) {
-      // TODO: map transactionId to sessionId after session module is implemented
-      const sessionId = activeTransactionId;
       const existingSchedule =
         await this.sessionChargingProfileRepository.existByQuery({
           where: {
-            sessionId: sessionId,
+            sessionId: activeTransactionId,
           },
         });
       return existingSchedule > 0;

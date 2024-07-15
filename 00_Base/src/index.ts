@@ -126,6 +126,7 @@ export {
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
 export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
+export { SessionMapper } from './mapper/session.mapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
