@@ -202,12 +202,12 @@ export class SessionMapper {
               type: CdrDimensionType.ENERGY_IMPORT,
               volume: sampledValue.value,
             });
-            const previousEnergy =
+            const previousEnergyImport =
               this.getEnergyImportForMeterValue(previousMeterValue);
-            if (previousEnergy) {
+            if (previousEnergyImport !== undefined) {
               cdrDimensions.push({
                 type: CdrDimensionType.ENERGY,
-                volume: sampledValue.value - previousEnergy,
+                volume: sampledValue.value - previousEnergyImport,
               });
             }
           }
