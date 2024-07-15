@@ -2,29 +2,50 @@ import { BaseClientApi } from './BaseClientApi';
 import { PutChargingProfileParams } from './param/charging.profiles/put.charging.profile.params';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { Service } from 'typedi';
-import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { IRestResponse } from 'typed-rest-client';
-import { OcpiStringResponse } from '../model/OcpiStringResponse';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 
 @Service()
 export class ChargingProfilesClientApi extends BaseClientApi {
+  CONTROLLER_PATH = ModuleId.ChargingProfiles;
+
   async putChargingProfile(
     params: PutChargingProfileParams,
-  ): Promise<OcpiStringResponse> {
-    let response: IRestResponse<OcpiStringResponse>;
-    try {
-      this.validateRequiredParam(params, 'url', 'activeChargingProfile');
-      const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+  ): Promise<OcpiEmptyResponse> {
+    this.validateRequiredParam(params, 'sessionId', 'activeChargingProfile');
 
-      response = await this.replaceRaw<OcpiStringResponse>(
-        params.url,
-        params.activeChargingProfile,
-        { additionalHeaders },
-      );
-      return this.handleResponse(OcpiStringResponse, response);
-    } catch (e) {
-      console.error(`Could not put charging profile: ${e}`);
-      throw new UnsuccessfulRequestException('Could not put charging profile.');
-    }
+    params.authorization = await this.getAuthToken(
+      params.fromCountryCode,
+      params.fromPartyId,
+      params.toCountryCode,
+      params.toPartyId,
+    );
+
+    const endpoint = await this.getEndpointWithVersion(
+      params.fromCountryCode,
+      params.fromPartyId,
+      params.toCountryCode,
+      params.toPartyId,
+      ModuleId.ChargingProfiles,
+      InterfaceRole.RECEIVER,
+    );
+    params.version = endpoint.clientVersion.version;
+
+    this.baseUrl = endpoint.url;
+    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+
+    return await this.replace(
+      OcpiEmptyResponse,
+      {
+        version: params.version,
+        path: '{sessionId}'.replace(
+          '{sessionId}',
+          encodeURIComponent(params.sessionId),
+        ),
+        additionalHeaders,
+      },
+      params.activeChargingProfile,
+    );
   }
 }
