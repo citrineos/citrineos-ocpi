@@ -32,7 +32,7 @@ export class TokensController extends BaseController {
     },
   })
   async getTokens(
-    @Paginated() paginationParams?: PaginatedParams,
+    @Paginated() _paginationParams?: PaginatedParams,
   ): Promise<PaginatedTokenResponse> {
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,

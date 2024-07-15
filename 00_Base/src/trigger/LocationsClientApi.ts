@@ -14,9 +14,12 @@ import { LocationResponse } from '../model/DTO/LocationDTO';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 import { EvseResponse } from '../model/DTO/EvseDTO';
 import { Service } from 'typedi';
+import { ModuleId } from '../model/ModuleId';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
+  CONTROLLER_PATH = ModuleId.Locations;
+
   async getConnector(params: GetConnectorParams): Promise<ConnectorResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'locationId', 'evseUid', 'connectorId');
