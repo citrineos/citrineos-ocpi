@@ -303,7 +303,7 @@ export class SessionMapper {
         transaction.transactionEvents.length > 0
       ) {
         const idToken = transaction.transactionEvents
-          .find(transaction => transaction.idToken)?.idToken;
+          .find(event => event.idToken)?.idToken;
 
         if (idToken?.idToken) {
           const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
