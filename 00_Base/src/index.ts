@@ -198,6 +198,11 @@ export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
+export { AdminLocationDTO, AdminEVSEDTO, AdminConnectorDTO } from './model/DTO/admin/AdminLocationDTO';
+export { ChargingStationVariableAttributes, CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY } from './model/variableattributes/ChargingStationVariableAttributes';
+export { EvseVariableAttributes, CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY } from './model/variableattributes/EvseVariableAttributes';
+export { ConnectorVariableAttributes, CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY } from './model/variableattributes/ConnectorVariableAttributes';
+export { VariableAttributesUtil } from './util/VariableAttributesUtil';
 
 useContainer(Container);
 

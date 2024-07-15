@@ -1,4 +1,3 @@
-import { IOcpiLocationMapper } from './IOcpiLocationMapper';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
@@ -11,16 +10,14 @@ import { Capability } from '../model/Capability';
 import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
 import { PowerType } from '../model/PowerType';
-import { ChargingStationVariableAttributes } from '../model/variable-attributes/ChargingStationVariableAttributes';
-import { EvseVariableAttributes } from '../model/variable-attributes/EvseVariableAttributes';
+import { ChargingStationVariableAttributes } from '../model/variableattributes/ChargingStationVariableAttributes';
+import { EvseVariableAttributes } from '../model/variableattributes/EvseVariableAttributes';
 import { OcpiEvse } from '../model/OcpiEvse';
-import { ConnectorVariableAttributes } from '../model/variable-attributes/ConnectorVariableAttributes';
+import { ConnectorVariableAttributes } from '../model/variableattributes/ConnectorVariableAttributes';
 import { OcpiConnector } from '../model/OcpiConnector';
-import { Service } from 'typedi';
 import { NOT_APPLICABLE } from '../util/consts';
 
-@Service()
-export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
+export class CitrineOcpiLocationMapper {
   static mapConnectorAvailabilityStatesToEvseStatus(
     availabilityStates: string[],
     parkingBayOccupancy?: string,
@@ -45,7 +42,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  mapToOcpiLocation(
+  static mapToOcpiLocation(
     citrineLocation: Location,
     chargingStationVariableAttributesMap: Record<
       string,
@@ -113,7 +110,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return ocpiLocation;
   }
 
-  mapToOcpiEvse(
+  static mapToOcpiEvse(
     citrineLocation: Location,
     chargingStationAttributes: ChargingStationVariableAttributes,
     evseAttributes: EvseVariableAttributes,
@@ -164,7 +161,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return evse;
   }
 
-  mapToOcpiConnector(
+  static mapToOcpiConnector(
     id: number,
     evseAttributes: EvseVariableAttributes,
     connectorAttributes: ConnectorVariableAttributes,
@@ -193,14 +190,14 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     Helpers
   */
 
-  private mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
+  private static mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
     geoLocation.latitude = String(ocppCoordinates['coordinates'][0]);
     geoLocation.longitude = String(ocppCoordinates['coordinates'][1]);
     return geoLocation;
   }
 
-  private getCapabilities(
+  private static getCapabilities(
     authorizeRemoteStart: string,
     tokenReaderEnabled: string,
   ): Capability[] {
@@ -217,7 +214,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     return capabilities;
   }
 
-  private getConnectorStandard(
+  private static getConnectorStandard(
     connectorType: string | undefined,
   ): ConnectorType {
     // TODO determine if mappings are possible for:
@@ -258,28 +255,7 @@ export class CitrineOcpiLocationMapper implements IOcpiLocationMapper {
     }
   }
 
-  mapLocationDtoToEntities(
-    locationDto: LocationDTO
-  ): [OcpiLocation, Location] {
-    const ocpiLocation = new OcpiLocation();
-    ocpiLocation[OcpiLocationProps.countryCode] = locationDto.country_code;
-    ocpiLocation[OcpiLocationProps.partyId] = locationDto.party_id;
-    ocpiLocation[OcpiLocationProps.publish] = locationDto.publish;
-    ocpiLocation[OcpiLocationProps.lastUpdated] = locationDto.last_updated ?? new Date();
-
-    const citrineLocation = new Location();
-    citrineLocation.name = locationDto.name ?? NOT_APPLICABLE;
-    citrineLocation.address = locationDto.address;
-    citrineLocation.city = locationDto.city;
-    citrineLocation.postalCode = locationDto.postal_code ?? NOT_APPLICABLE;
-    citrineLocation.state = locationDto.state ?? NOT_APPLICABLE;
-    citrineLocation.country = locationDto.country ?? NOT_APPLICABLE;
-    citrineLocation.coordinates = [Number(locationDto.coordinates.latitude), Number(locationDto.coordinates.longitude)];
-
-    return [ocpiLocation, citrineLocation];
-  }
-
-  private getConnectorPowerType(connectorType: string | undefined): PowerType {
+  private static getConnectorPowerType(connectorType: string | undefined): PowerType {
     // TODO include more cases
     switch (connectorType) {
       case ConnectorEnumType.cType1:

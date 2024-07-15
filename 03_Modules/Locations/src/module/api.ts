@@ -34,8 +34,11 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
-import { FunctionalEndpointParams } from '@citrineos/ocpi-base';
-import { OcpiHeaders } from '@citrineos/ocpi-base';
+import {
+  FunctionalEndpointParams,
+  OcpiHeaders,
+  AdminLocationDTO
+} from '@citrineos/ocpi-base';
 import { AdminLocationsService } from './admin';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
@@ -154,7 +157,7 @@ export class LocationsModuleApi
    * Admin Endpoints
    **/
 
-  @Put('/')
+  @Put('/admin')
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -164,9 +167,9 @@ export class LocationsModuleApi
   })
   async createLocation(
     @QueryParam('push') push: boolean = true,
-    @Body() location: LocationDTO
+    @Body() adminLocation: AdminLocationDTO
   ) {
-    await this.adminLocationsService.createLocation(location, push);
+    await this.adminLocationsService.createLocation(adminLocation, push);
   }
 
 }
