@@ -20,6 +20,7 @@ import {
   AsOcpiFunctionalEndpoint,
   AsyncJobStatusDTO,
   BaseController,
+  BodyWithExample,
   EnumQueryParam,
   FunctionalEndpointParams,
   generateMockOcpiResponse,
@@ -40,9 +41,30 @@ import {
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
+  WhitelistType,
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './interface';
+
+const MockPutTokenBody = {
+  country_code: 'MSP',
+  party_id: 'US',
+  uid: 'SOMEUID',
+  type: 'RFID',
+  contract_id: 'contract_id',
+  issuer: 'issuer',
+  valid: true,
+  whitelist: WhitelistType.ALLOWED,
+  last_updated: '2024-07-10T18:00:40.087Z',
+  visual_number: 'visual_number',
+  group_id: 'group_id',
+  language: 'language',
+  default_profile_type: 'default_profile_type',
+  energy_contract: {
+    supplier_name: 'supplier_name',
+    contract_id: 'contract_id',
+  },
+};
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Tokens}`)
 @Service()
@@ -114,7 +136,7 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @Body() tokenDTO: TokenDTO,
+    @BodyWithExample(MockPutTokenBody) tokenDTO: TokenDTO,
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('putToken', countryCode, partyId, tokenId, tokenDTO, type);
