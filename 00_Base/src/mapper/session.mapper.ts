@@ -80,7 +80,6 @@ export class SessionMapper {
       currency: this.getCurrency(location),
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
-        new Date(startEvent.timestamp),
       ),
       status: this.getTransactionStatus(endEvent),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
@@ -146,7 +145,6 @@ export class SessionMapper {
 
   private getChargingPeriods(
     meterValues: MeterValueType[] = [],
-    transactionStart: Date,
   ): ChargingPeriod[] {
     return meterValues
       .sort(
@@ -158,7 +156,6 @@ export class SessionMapper {
           index > 0 ? sortedMeterValues[index - 1] : undefined;
         return this.mapMeterValueToChargingPeriod(
           meterValue,
-          transactionStart,
           previousMeterValue,
         );
       });
@@ -166,14 +163,12 @@ export class SessionMapper {
 
   private mapMeterValueToChargingPeriod(
     meterValue: MeterValueType,
-    transactionStart: Date,
     previousMeterValue?: MeterValueType,
   ): ChargingPeriod {
     return {
       start_date_time: new Date(meterValue.timestamp),
       dimensions: this.getCdrDimensions(
         meterValue,
-        transactionStart,
         previousMeterValue,
       ),
       tariff_id: null, // TODO: Fill in tariff_id value
@@ -182,7 +177,6 @@ export class SessionMapper {
 
   private getCdrDimensions(
     meterValue: MeterValueType,
-    transactionStart: Date,
     previousMeterValue?: MeterValueType,
   ): CdrDimension[] {
     const cdrDimensions: CdrDimension[] = [];
@@ -224,7 +218,6 @@ export class SessionMapper {
       type: CdrDimensionType.TIME,
       volume: this.getTimeElapsedForMeterValue(
         meterValue,
-        transactionStart,
         previousMeterValue,
       ),
     });
@@ -244,13 +237,12 @@ export class SessionMapper {
 
   private getTimeElapsedForMeterValue(
     meterValue: MeterValueType,
-    transactionStart: Date,
     previousMeterValue?: MeterValueType,
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
       new Date(previousMeterValue.timestamp).getTime()
-      : new Date(meterValue.timestamp).getTime() - transactionStart.getTime();
+      : 0;
 
     // Convert milliseconds to hours
     return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
