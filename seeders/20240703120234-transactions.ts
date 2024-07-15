@@ -6,7 +6,7 @@ import {
   ReasonEnumType,
   TransactionEventEnumType,
   TriggerReasonEnumType,
-} from '../../citrineos-core/00_Base';
+} from '@citrineos/base';
 
 const START_ID = 1;
 
