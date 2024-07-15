@@ -1,4 +1,5 @@
 import { Column, DataType, Index, Model, Table } from 'sequelize-typescript';
+import { OcpiParams } from '../trigger/util/ocpi.params';
 
 @Table
 export class ResponseUrlCorrelationId extends Model {
@@ -12,6 +13,6 @@ export class ResponseUrlCorrelationId extends Model {
   @Column(DataType.STRING)
   responseUrl!: string;
 
-  @Column(DataType.STRING)
-  sessionId?: string;
+  @Column(DataType.JSON)
+  params?: OcpiParams;
 }
