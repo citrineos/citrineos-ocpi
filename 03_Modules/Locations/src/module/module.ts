@@ -12,7 +12,7 @@ import {
 import { ILogObj, Logger } from 'tslog';
 import { useContainer } from 'routing-controllers';
 import { Container, Service } from 'typedi';
-import { OcpiModule, LocationsBroadcaster, LocationsService } from '@citrineos/ocpi-base';
+import { OcpiModule, LocationsBroadcaster, VariableAttributesUtil } from '@citrineos/ocpi-base';
 import { LocationsHandlers } from './handlers';
 import { LocationsModuleApi } from './api';
 
@@ -37,7 +37,7 @@ export class LocationsModule implements OcpiModule {
       this.config as SystemConfig,
       this.cache,
       Container.get(LocationsBroadcaster),
-      Container.get(LocationsService),
+      Container.get(VariableAttributesUtil),
       this.handler,
       this.sender,
       this.logger,
