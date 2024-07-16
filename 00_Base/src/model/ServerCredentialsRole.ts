@@ -1,11 +1,23 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from '@citrineos/data';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from '@citrineos/data';
 import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { CpoTenant } from './CpoTenant';
-import { BusinessDetails } from './BusinessDetails';
+import {
+  BusinessDetails,
+  toBusinessDetailsDTO,
+} from './BusinessDetails';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
 
 export enum ServerCredentialsRoleProps {
   role = 'role',
@@ -20,7 +32,10 @@ export enum ServerCredentialsRoleProps {
   indexes: [
     {
       unique: true,
-      fields: [ServerCredentialsRoleProps.countryCode, ServerCredentialsRoleProps.partyId],
+      fields: [
+        ServerCredentialsRoleProps.countryCode,
+        ServerCredentialsRoleProps.partyId,
+      ],
     },
   ],
 })
@@ -67,3 +82,18 @@ export class ServerCredentialsRole extends Model implements ICredentialsRole {
     return serverCredentialsRole;
   }
 }
+
+export const toCredentialsRoleDTOFromServerCredentialsRole = (
+  serverCredentialsRole: ServerCredentialsRole,
+): CredentialsRoleDTO => {
+  const credentialsRoleDTO = new CredentialsRoleDTO();
+  credentialsRoleDTO.role = serverCredentialsRole.role;
+  credentialsRoleDTO.party_id = serverCredentialsRole.party_id;
+  credentialsRoleDTO.country_code = serverCredentialsRole.country_code;
+  if (serverCredentialsRole.business_details) {
+    credentialsRoleDTO.business_details = toBusinessDetailsDTO(
+      serverCredentialsRole.business_details,
+    );
+  }
+  return credentialsRoleDTO;
+};

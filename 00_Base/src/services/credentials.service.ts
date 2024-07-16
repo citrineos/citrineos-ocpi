@@ -33,7 +33,10 @@ import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
 import { VersionRepository } from '../repository/VersionRepository';
 import { VersionEndpoint } from '../model/VersionEndpoint';
 import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
+import {
+  ServerCredentialsRole,
+  toCredentialsRoleDTOFromServerCredentialsRole,
+} from '../model/ServerCredentialsRole';
 import { ServerVersion } from '../model/ServerVersion';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
@@ -42,6 +45,7 @@ import { buildPostCredentialsParams } from '../trigger/param/credentials/post.cr
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
+import { CredentialsRequestDTO } from '../model/DTO/CredentialsRequestDTO';
 
 const clientInformationInclude = [
   {
@@ -235,7 +239,6 @@ export class CredentialsService {
   ): Promise<ClientInformation> {
     const clientInformation =
       await this.getClientInformationByServerToken(token);
-    await this.getClientInformationByServerToken(token);
     if (clientInformation.registered) {
       throw new AlreadyRegisteredException();
     }
@@ -474,6 +477,118 @@ export class CredentialsService {
     return updatedClientInformation;
   }
 
+  async generateCredentialsTokenA(
+    credentialsRequest: CredentialsRequestDTO,
+    versionNumber: VersionNumber,
+  ): Promise<CredentialsDTO> {
+    const serverCredentialsRoleDTOs = credentialsRequest.roles;
+
+    for (const role of serverCredentialsRoleDTOs) {
+      try {
+        const storedRole =
+          await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+            role.country_code,
+            role.party_id,
+          );
+        if (storedRole) {
+          throw new InternalServerError(
+            `ServerCredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} already exists.`,
+          );
+        }
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          this.logger.debug(
+            `ServerCredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} not found and can be created.`,
+          );
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    // Make sure we stored the necessary version and version endpoints
+    // so that MSP can retrieve them later for registration process
+    const storedVersion = await this.versionRepository.readOnlyOneByQuery(
+      {
+        where: {
+          version: versionNumber,
+        },
+        include: [VersionEndpoint],
+      },
+      OcpiNamespace.Version,
+    );
+    if (!storedVersion) {
+      throw new NotFoundError(`Version not found for version ${versionNumber}`);
+    }
+    const credentialsUrl = storedVersion.endpoints.find(
+      (endpoint: any) => endpoint.identifier === ModuleId.Credentials,
+    );
+    if (!credentialsUrl) {
+      throw new NotFoundError(
+        `Endpoint URL for ${ModuleId.Credentials} not found for version ${versionNumber}`,
+      );
+    }
+
+    const cpoTenant = await CpoTenant.create(
+      {
+        serverCredentialsRoles: serverCredentialsRoleDTOs,
+      },
+      {
+        include: [
+          {
+            model: ServerCredentialsRole,
+            include: [
+              {
+                model: BusinessDetails,
+                include: [Image],
+              },
+            ],
+          },
+        ],
+      },
+    );
+    this.logger.info(`Created CpoTenant: ${JSON.stringify(cpoTenant)}`);
+
+    const credentialsTokenA = uuidv4();
+    // clientToken, clientCredentialsRoles and clientVersionDetails
+    // are added in the following post credentials requests based on the registration process
+    const clientInfo = await ClientInformation.create(
+      {
+        cpoTenantId: cpoTenant.id,
+        registered: false,
+        serverToken: credentialsTokenA,
+        serverVersionDetails: [
+          {
+            version: versionNumber,
+            url: credentialsRequest.url,
+            endpoints: storedVersion.endpoints.map((endpoint) => ({
+              identifier: endpoint.identifier,
+              role: endpoint.role,
+              url: endpoint.url,
+            })),
+          },
+        ],
+      },
+      {
+        include: [
+          {
+            model: ServerVersion,
+          },
+        ],
+      },
+    );
+
+    const storedServerCredentialsRoleDTOs =
+      cpoTenant.serverCredentialsRoles.map((storedRole) =>
+        toCredentialsRoleDTOFromServerCredentialsRole(storedRole),
+      );
+    return CredentialsDTO.build(
+      clientInfo.serverToken,
+      clientInfo.serverVersionDetails[0].url,
+      storedServerCredentialsRoleDTOs,
+    );
+  }
+
   private async getPostCredentialsResponse(
     clientCredentialsUrl: string,
     versionNumber: VersionNumber,
@@ -546,15 +661,9 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails.find(
-      (v: ClientVersion) => v.version === versionNumber,
-    );
-    if (!existingVersionDetails) {
-      throw new NotFoundError('Version details not found');
-    }
     const clientVersion = await this.getVersionDetails(
       versionNumber,
-      existingVersionDetails.url,
+      credentials.url,
       credentials.token,
     );
     clientVersion.setDataValue('clientInformationId', clientInformation.id);
