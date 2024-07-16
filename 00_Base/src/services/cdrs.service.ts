@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { CdrMapper } from '../mapper/cdr.mapper';
-import { PaginatedCdrResponse } from '../model/Cdr';
+import { Cdr, PaginatedCdrResponse } from '../model/Cdr';
 
 @Service()
 export class CdrsService {
@@ -31,12 +31,12 @@ export class CdrsService {
       this.transactionRepository.getTransactionsCount(dateFrom, dateTo),
     ]);
 
-    const cdrs = await this.cdrMapper.mapTransactionsToCdrs(
-      transactions,
+    const cdrs = this.filterBasedOnCountryCodePartyId(
+      await this.cdrMapper.mapTransactionsToCdrs(transactions),
       fromCountryCode,
       fromPartyId,
       toCountryCode,
-      toPartyId,
+      toPartyId
     );
 
     const response = new PaginatedCdrResponse();
@@ -46,5 +46,24 @@ export class CdrsService {
     response.limit = limit;
 
     return response;
+  }
+
+  private filterBasedOnCountryCodePartyId(
+    cdrs: Cdr[],
+    fromCountryCode?: string,
+    fromPartyId?: string,
+    toCountryCode?: string,
+    toPartyId?: string
+  ): Cdr[] {
+    let filteredCdrs = cdrs;
+    if (fromCountryCode && fromPartyId) {
+      filteredCdrs = filteredCdrs.filter(cdr => cdr.cdr_token?.country_code === fromCountryCode && cdr.cdr_token?.party_id === fromPartyId);
+    }
+
+    if (toCountryCode && toPartyId) {
+      filteredCdrs = filteredCdrs.filter(cdr => cdr.country_code === toCountryCode && cdr.party_id === toPartyId);
+    }
+
+    return filteredCdrs;
   }
 }
