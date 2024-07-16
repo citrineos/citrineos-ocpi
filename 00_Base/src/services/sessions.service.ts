@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { PaginatedSessionResponse } from '../model/Session';
+import { PaginatedSessionResponse, Session } from '../model/Session';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
 import {
   buildOcpiPaginatedResponse,
@@ -36,8 +36,8 @@ export class SessionsService {
       this.transactionRepository.getTransactionsCount(dateFrom, dateTo),
     ]);
 
-    const sessions = await this.sessionMapper.mapTransactionsToSessions(
-      transactions,
+    const sessions = this.filterBasedOnCountryCodePartyId(
+      await this.sessionMapper.mapTransactionsToSessions(transactions),
       fromCountryCode,
       fromPartyId,
       toCountryCode,
@@ -53,5 +53,23 @@ export class SessionsService {
     );
 
     return response as PaginatedSessionResponse;
+  }
+
+  private filterBasedOnCountryCodePartyId(
+    sessions: Session[],
+    fromCountryCode?: string,
+    fromPartyId?: string,
+    toCountryCode?: string,
+    toPartyId?: string
+  ): Session[] {
+    let filteredSessions = sessions;
+    if (fromCountryCode && fromPartyId) {
+      filteredSessions = filteredSessions.filter(session => session.cdr_token?.country_code === fromCountryCode && session.cdr_token?.party_id === fromPartyId);
+    }
+
+    if (toCountryCode && toPartyId) {
+      filteredSessions = filteredSessions.filter(session => session.country_code === toCountryCode && session.party_id === toPartyId);
+    }
+    return filteredSessions;
   }
 }
