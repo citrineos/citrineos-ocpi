@@ -50,7 +50,7 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
     });
   }
 
-  async createOrUpdateOcpiEvse(evse: OcpiEvse): Promise<void> {
+  async createOrUpdateOcpiEvse(evse: OcpiEvse): Promise<OcpiEvse> {
     const [savedOcpiEvse, ocpiEvseCreated] = await this._readOrCreateByQuery({
       where: {
         evseId: evse.evseId,
@@ -60,16 +60,21 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
         evseId: evse.evseId,
         stationId: evse.stationId,
         lastUpdated: evse.lastUpdated,
+        ...(evse.physicalReference ? { physicalReference: evse.physicalReference } : {}),
+        ...(evse.removed ? { removed: evse.removed } : {}),
       },
     });
     if (!ocpiEvseCreated) {
       await this._updateByKey(
         {
-          physicalReference: evse.physicalReference,
-          lastUpdated: evse.lastUpdated,
+          ...(evse.physicalReference ? { physicalReference: evse.physicalReference } : {}),
+          ...(evse.removed ? { removed: evse.removed } : {}),
+          ...(evse.lastUpdated ? { lastUpdated: evse.lastUpdated } : {}),
         },
         savedOcpiEvse.id,
       );
     }
+
+    return savedOcpiEvse;
   }
 }
