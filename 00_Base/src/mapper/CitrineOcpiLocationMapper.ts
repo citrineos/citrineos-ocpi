@@ -21,9 +21,12 @@ export class CitrineOcpiLocationMapper {
   static mapConnectorAvailabilityStatesToEvseStatus(
     availabilityStates: string[],
     parkingBayOccupancy?: string,
+    evseRemoved?: boolean,
   ): EvseStatus {
     if (parkingBayOccupancy === 'true') {
       return EvseStatus.BLOCKED;
+    } else if (evseRemoved) {
+      return EvseStatus.REMOVED;
     }
 
     const uniqueStates = [... new Set(availabilityStates)];

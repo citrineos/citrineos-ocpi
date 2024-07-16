@@ -3,50 +3,47 @@ import { GeoLocation } from '../../GeoLocation';
 // TODO add remaining OCPI-specific properties
 
 export class AdminLocationDTO {
-  declare id: number;
+  citrine_location_id?: number;
 
-  declare citrine_location_id: number;
+  country_code!: string;
 
-  declare country_code: string;
+  party_id!: string;
 
-  declare party_id: string;
+  name?: string;
 
-  declare name: string;
+  address?: string;
 
-  declare address: string;
+  city?: string;
 
-  declare city: string;
+  state?: string;
 
-  declare state: string;
+  postal_code?: string;
 
-  declare postal_code: string;
+  country?: string;
 
-  declare country: string;
+  coordinates?: GeoLocation;
 
-  declare coordinates: GeoLocation;
+  time_zone?: String;
 
-  declare time_zone: String;
+  publish?: boolean;
 
-  declare publish: boolean;
+  push_to_msps?: boolean;
 
-  declare push_to_msps: boolean;
-
-  declare evses: AdminEVSEDTO[];
+  evses?: AdminEVSEDTO[];
 }
 
 export class AdminEVSEDTO {
-  declare station_id: string;
+  station_id!: string;
 
-  declare id: number;
+  id!: number;
 
-  declare physical_reference: string;
+  physical_reference?: string;
 
-  declare removed: true;
+  removed?: boolean;
 
-  declare connectors: AdminConnectorDTO[];
+  connectors?: AdminConnectorDTO[];
 }
 
 export class AdminConnectorDTO {
-  declare id: number;
-
+  id!: number;
 }
