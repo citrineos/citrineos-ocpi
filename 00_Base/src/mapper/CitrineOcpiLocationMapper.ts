@@ -1,7 +1,10 @@
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
+import {
+  ConnectorDTO,
+  TEMPORARY_CONNECTOR_ID,
+} from '../model/DTO/ConnectorDTO';
 import { GeoLocation } from '../model/GeoLocation';
 import { Location } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
@@ -16,8 +19,12 @@ import { OcpiEvse } from '../model/OcpiEvse';
 import { ConnectorVariableAttributes } from '../model/variableattributes/ConnectorVariableAttributes';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { NOT_APPLICABLE } from '../util/consts';
+import { NotFoundException } from '../exception/NotFoundException';
 
 export class CitrineOcpiLocationMapper {
+  private coordinatesProperty = 'coordinates'
+  private trueAttributeValue = 'TRUE';
+
   static mapConnectorAvailabilityStatesToEvseStatus(
     availabilityStates: string[],
     parkingBayOccupancy?: string,
@@ -29,7 +36,7 @@ export class CitrineOcpiLocationMapper {
       return EvseStatus.REMOVED;
     }
 
-    const uniqueStates = [... new Set(availabilityStates)];
+    const uniqueStates = [...new Set(availabilityStates)];
 
     // TODO handle RESERVED
     if (uniqueStates.find(state => state === ConnectorStatusEnumType.Occupied)) {
@@ -51,22 +58,18 @@ export class CitrineOcpiLocationMapper {
       string,
       ChargingStationVariableAttributes
     >,
-    ocpiLocationInfo?: OcpiLocation,
+    ocpiLocationInfo: OcpiLocation,
   ): LocationDTO {
     const ocpiLocation = new LocationDTO();
 
     ocpiLocation.id = citrineLocation.id;
 
-    ocpiLocation.country_code = ocpiLocationInfo
-      ? ocpiLocationInfo[OcpiLocationProps.countryCode]
-      : 'US';
-    ocpiLocation.party_id = ocpiLocationInfo
-      ? ocpiLocationInfo[OcpiLocationProps.partyId]
-      : 'CPO';
+    ocpiLocation.country_code = ocpiLocationInfo[OcpiLocationProps.countryCode];
+    ocpiLocation.party_id = ocpiLocationInfo[OcpiLocationProps.partyId];
+    ocpiLocation.last_updated = ocpiLocationInfo.lastUpdated;
+    ocpiLocation.publish = ocpiLocationInfo.publish;
 
     // TODO update with dynamic data
-    ocpiLocation.last_updated = ocpiLocationInfo?.lastUpdated ?? new Date(); // TODO better fallback
-    ocpiLocation.publish = ocpiLocationInfo?.publish ?? true;
     // ocpiLocation.publish_allowed_to
 
     ocpiLocation.name = citrineLocation.name ?? NOT_APPLICABLE;
@@ -85,11 +88,23 @@ export class CitrineOcpiLocationMapper {
       for (const evseAttributes of Object.values(
         chargingStationAttributes.evses,
       )) {
+        const ocpiEvseInfo =
+          ocpiLocationInfo.ocpiEvses[
+            `${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)}`
+          ];
+
+        if (!ocpiEvseInfo) {
+          throw new NotFoundException(
+            `OCPI EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`,
+          );
+        }
+
         evses.push(
           this.mapToOcpiEvse(
             citrineLocation,
             chargingStationAttributes,
             evseAttributes,
+            ocpiEvseInfo,
           ),
         );
       }
@@ -117,10 +132,13 @@ export class CitrineOcpiLocationMapper {
     citrineLocation: Location,
     chargingStationAttributes: ChargingStationVariableAttributes,
     evseAttributes: EvseVariableAttributes,
-    ocpiEvseInformation?: OcpiEvse,
+    ocpiEvseInfo: OcpiEvse,
   ): EvseDTO {
-    const connectorAvailabilityStates = Object.values(evseAttributes.connectors)
-      .map(connectorAttributes => connectorAttributes.connector_availability_state);
+    const connectorAvailabilityStates = Object.values(
+      evseAttributes.connectors,
+    ).map(
+      (connectorAttributes) => connectorAttributes.connector_availability_state,
+    );
 
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id);
@@ -135,19 +153,31 @@ export class CitrineOcpiLocationMapper {
       chargingStationAttributes.token_reader_enabled,
     );
     evse.coordinates = this.mapOcppCoordinatesToGeoLocation(citrineLocation.coordinates);
-    evse.physical_reference = ocpiEvseInformation?.physicalReference;
-    evse.last_updated = ocpiEvseInformation?.lastUpdated ?? new Date(); // TODO better fallback
+    evse.physical_reference = ocpiEvseInfo?.physicalReference;
+    evse.last_updated = ocpiEvseInfo?.lastUpdated ?? new Date(); // TODO better fallback
 
     const connectors = [];
 
-    for (const [connectorId, connectorAttributes] of Object.entries(
+    for (const connectorAttributes of Object.values(
       evseAttributes.connectors,
     )) {
+      const ocpiConnectorInfo =
+        ocpiEvseInfo.ocpiConnectors[
+          `${TEMPORARY_CONNECTOR_ID(connectorAttributes.station_id, connectorAttributes.evse_id, Number(connectorAttributes.id))}`
+        ];
+
+      if (!ocpiConnectorInfo) {
+        throw new NotFoundException(
+          `OCPI Connector ${connectorAttributes.id} on EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`,
+        );
+      }
+
       connectors.push(
         this.mapToOcpiConnector(
-          Number(connectorId),
+          connectorAttributes.id,
           evseAttributes,
           connectorAttributes,
+          ocpiConnectorInfo,
         ),
       );
     }
@@ -168,13 +198,13 @@ export class CitrineOcpiLocationMapper {
     id: number,
     evseAttributes: EvseVariableAttributes,
     connectorAttributes: ConnectorVariableAttributes,
-    ocpiConnectorInfo?: OcpiConnector,
+    ocpiConnectorInfo: OcpiConnector,
   ): ConnectorDTO {
     const ocppConnectorType = connectorAttributes.connector_type;
 
     const connector = new ConnectorDTO();
     connector.id = String(id);
-    connector.last_updated = ocpiConnectorInfo?.lastUpdated ?? new Date(); // TODO better fallback
+    connector.last_updated = ocpiConnectorInfo.lastUpdated;
     connector.standard = this.getConnectorStandard(ocppConnectorType);
     connector.format = ConnectorFormat.CABLE; // TODO dynamically determine if CABLE Or SOCKET
     connector.power_type = this.getConnectorPowerType(ocppConnectorType);
@@ -195,8 +225,10 @@ export class CitrineOcpiLocationMapper {
 
   private static mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
-    geoLocation.latitude = String(ocppCoordinates['coordinates'][0]);
-    geoLocation.longitude = String(ocppCoordinates['coordinates'][1]);
+    geoLocation.latitude = String(ocppCoordinates[this.coordinatesProperty][0]);
+    geoLocation.longitude = String(
+      ocppCoordinates[this.coordinatesProperty][1],
+    );
     return geoLocation;
   }
 
@@ -207,10 +239,10 @@ export class CitrineOcpiLocationMapper {
     // TODO add remaining capabilities
     const capabilities: Capability[] = [];
 
-    if (authorizeRemoteStart === 'TRUE') {
+    if (authorizeRemoteStart === this.trueAttributeValue) {
       capabilities.push(Capability.REMOTE_START_STOP_CAPABLE);
     }
-    if (tokenReaderEnabled === 'TRUE') {
+    if (tokenReaderEnabled === this.trueAttributeValue) {
       capabilities.push(Capability.RFID_READER);
     }
 

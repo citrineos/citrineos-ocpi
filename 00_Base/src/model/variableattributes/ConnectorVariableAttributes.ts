@@ -16,7 +16,12 @@ export class ConnectorVariableAttributes {
   @IsNotEmpty()
   connector_availability_state!: string;
 
+  /* Helper properties */
   id!: number;
+
+  evse_id!: number;
+
+  station_id!: string;
 }
 
 export const CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY = (

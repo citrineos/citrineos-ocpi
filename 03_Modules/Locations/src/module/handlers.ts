@@ -192,15 +192,34 @@ export class LocationsHandlers extends AbstractModule {
     const evseId = message.payload.evseId;
     const connectorId = message.payload.connectorId;
 
-    const chargingStationAttributes = (await this.variableAttributesUtil.createChargingStationVariableAttributesMap([stationId], evseId))[stationId];
-    const evseAttributes = chargingStationAttributes ? chargingStationAttributes.evses[evseId] : null;
-    const connectorAvailabilityStates = evseAttributes ? Object.entries(evseAttributes.connectors)
-      .filter(([connectorIdKey, _connectorAttributes]) => Number(connectorIdKey) !== connectorId)
-      .map(([_connectorIdKey, connectorAttributes]) => connectorAttributes.connector_availability_state) : [];
+    const chargingStationAttributes = (
+      await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
+        [stationId],
+        evseId,
+      )
+    )[stationId];
+    const evseAttributes = chargingStationAttributes
+      ? chargingStationAttributes.evses[evseId]
+      : null;
+    const connectorAvailabilityStates = evseAttributes
+      ? Object.entries(evseAttributes.connectors)
+          .filter(
+            ([connectorIdKey, _connectorAttributes]) =>
+              Number(connectorIdKey) !== connectorId,
+          )
+          .map(
+            ([_connectorIdKey, connectorAttributes]) =>
+              connectorAttributes.connector_availability_state,
+          )
+      : [];
     connectorAvailabilityStates.push(message.payload.connectorStatus);
 
     const partialEvse: Partial<EvseDTO> = {};
-    partialEvse.status = CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(connectorAvailabilityStates, chargingStationAttributes?.bay_occupancy_sensor_active);
+    partialEvse.status =
+      CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+        connectorAvailabilityStates,
+        chargingStationAttributes?.bay_occupancy_sensor_active,
+      );
     partialEvse.last_updated = new Date(message.payload.timestamp);
 
     await this.locationsBroadcaster.broadcastOnEvseUpdate(

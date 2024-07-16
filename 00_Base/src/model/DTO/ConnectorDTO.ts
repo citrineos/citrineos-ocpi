@@ -16,6 +16,14 @@ import { Type } from 'class-transformer';
 import { Optional } from '../../util/decorators/optional';
 import { Enum } from '../../util/decorators/enum';
 import { OcpiResponse } from '../ocpi.response';
+import { uidDelimiter } from './EvseDTO';
+
+export const TEMPORARY_CONNECTOR_ID = (
+  stationId: string,
+  evseId: number,
+  connectorId: number,
+): string =>
+  `${stationId}${uidDelimiter}${evseId}${uidDelimiter}${connectorId}`;
 
 export class ConnectorDTO {
   @MaxLength(36)

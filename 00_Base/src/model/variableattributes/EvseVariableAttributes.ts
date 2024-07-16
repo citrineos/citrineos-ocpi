@@ -33,9 +33,11 @@ export class EvseVariableAttributes {
   @IsNotEmpty()
   connector_ids_string!: string;
 
+  /* Helper properties */
   id!: number;
 
-  // not a database-derived field
+  station_id!: string;
+
   connectors: Record<number, ConnectorVariableAttributes> = {};
 }
 

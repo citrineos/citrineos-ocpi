@@ -15,7 +15,10 @@ import {
   PaginatedLocationResponse,
 } from '../model/DTO/LocationDTO';
 import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
+import {
+  ConnectorResponse,
+  TEMPORARY_CONNECTOR_ID,
+} from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import {
   buildOcpiPaginatedResponse,
@@ -31,12 +34,16 @@ import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
 import { OcpiHeaders } from '../model/OcpiHeaders';
-import { OcpiLocationProps } from '../model/OcpiLocation';
+import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
+import { OcpiEvse } from '../model/OcpiEvse';
+import { OcpiConnector } from '../model/OcpiConnector';
+import { NotFoundException } from '../exception/NotFoundException';
 import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
 
 @Service()
 export class LocationsService {
   constructor(
+    private _logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,
@@ -50,6 +57,12 @@ export class LocationsService {
     `EVSE ${evseUid} does not exist.`;
   CONNECTOR_NOT_FOUND_MESSAGE = (connectorId: number): string =>
     `Connector ${connectorId} does not exist.`;
+  GENERAL_ERROR_MESSAGE = (
+    locationId: number,
+    evseUid?: string,
+    connectorId?: number,
+  ) =>
+    `Could not map Location ${locationId}${evseUid ? ` with EVSE ${evseUid}` : ''}${connectorId ? ` and Connector ${connectorId}` : ''}`;
 
   /**
    * Sender Methods
@@ -59,6 +72,10 @@ export class LocationsService {
     ocpiHeaders: OcpiHeaders,
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
+    this._logger.debug(
+      `Getting all locations with headers ${ocpiHeaders} and parameters ${paginatedParams}`,
+    );
+
     // TODO add Link header
     const dateFrom = paginatedParams?.dateFrom;
     const dateTo = paginatedParams?.dateTo;
@@ -74,9 +91,10 @@ export class LocationsService {
         ocpiHeaders.toCountryCode,
         ocpiHeaders.toPartyId,
       )
-    ).reduce((acc: any, cur) => {
-      acc[cur[OcpiLocationProps.citrineLocationId]] = cur;
-      return acc;
+    ).reduce((locationsMap: Record<string, OcpiLocation>, curLocation) => {
+      locationsMap[curLocation[OcpiLocationProps.citrineLocationId]] =
+        curLocation;
+      return locationsMap;
     }, {});
 
     const locationsTotal = await this.ocpiLocationRepository.getLocationsCount(
@@ -94,13 +112,12 @@ export class LocationsService {
       ) as PaginatedLocationResponse;
     }
 
+    const relevantCitrineLocationIds = Object.keys(ocpiLocationInfosMap).map(
+      (citrineLocationId) => Number(citrineLocationId),
+    );
     const citrineLocations = await this.locationRepository.readAllByQuery({
       where: {
-        id: [
-          ...Object.keys(ocpiLocationInfosMap).map((citrineLocationId) =>
-            Number(citrineLocationId),
-          ),
-        ],
+        id: [...relevantCitrineLocationIds],
       },
       include: [ChargingStation],
     });
@@ -113,11 +130,17 @@ export class LocationsService {
       );
       const chargingStationVariableAttributesMap =
         await this.variableAttributesUtil.createChargingStationVariableAttributesMap(stationIds);
+
+      const ocpiLocationInfos = ocpiLocationInfosMap[citrineLocation.id];
+      ocpiLocationInfos.ocpiEvses = await this.createOcpiEvsesInfoMap(
+        chargingStationVariableAttributesMap,
+      );
+
       ocpiLocations.push(
         CitrineOcpiLocationMapper.mapToOcpiLocation(
           citrineLocation,
           chargingStationVariableAttributesMap,
-          ocpiLocationInfosMap[citrineLocation.id],
+          ocpiLocationInfos,
         ),
       );
     }
@@ -132,6 +155,8 @@ export class LocationsService {
   }
 
   async getLocationById(locationId: number): Promise<LocationResponse> {
+    this._logger.debug(`Getting location ${locationId}`);
+
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
 
@@ -142,11 +167,6 @@ export class LocationsService {
       ) as LocationResponse;
     }
 
-    const ocpiLocationInfo =
-      await this.ocpiLocationRepository.getLocationByCitrineLocationId(
-        citrineLocation.id,
-      );
-
     const stationIds = citrineLocation.chargingPool.map(
       (chargingStation: ChargingStation) => chargingStation.id,
     );
@@ -154,16 +174,46 @@ export class LocationsService {
     const chargingStationVariableAttributesMap =
       await this.variableAttributesUtil.createChargingStationVariableAttributesMap(stationIds);
 
-    const mappedLocation = CitrineOcpiLocationMapper.mapToOcpiLocation(
-      citrineLocation,
+    const ocpiLocationInfo =
+      await this.ocpiLocationRepository.getLocationByCitrineLocationId(
+        citrineLocation.id,
+      );
+
+    if (!ocpiLocationInfo) {
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.LOCATION_NOT_FOUND_MESSAGE(locationId),
+      ) as LocationResponse;
+    }
+
+    ocpiLocationInfo.ocpiEvses = await this.createOcpiEvsesInfoMap(
       chargingStationVariableAttributesMap,
-      ocpiLocationInfo,
     );
 
-    return buildOcpiResponse(
-      OcpiResponseStatusCode.GenericSuccessCode,
-      mappedLocation,
-    ) as LocationResponse;
+    try {
+      const mappedLocation = CitrineOcpiLocationMapper.mapToOcpiLocation(
+        citrineLocation,
+        chargingStationVariableAttributesMap,
+        ocpiLocationInfo,
+      );
+
+      return buildOcpiResponse(
+        OcpiResponseStatusCode.GenericSuccessCode,
+        mappedLocation,
+      ) as LocationResponse;
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientUnknownLocation,
+          this.LOCATION_NOT_FOUND_MESSAGE(locationId),
+        ) as LocationResponse;
+      } else {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientGenericError,
+          this.GENERAL_ERROR_MESSAGE(locationId),
+        ) as LocationResponse;
+      }
+    }
   }
 
   async getEvseById(
@@ -171,6 +221,10 @@ export class LocationsService {
     stationId: string,
     evseId: number,
   ): Promise<EvseResponse> {
+    this._logger.debug(
+      `Getting EVSE ${evseId} from Charging Station ${stationId} in Location ${locationId}`,
+    );
+
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
 
@@ -198,22 +252,42 @@ export class LocationsService {
         Number(evseId),
       );
 
-    const ocpiEvseInfo = await this.ocpiEvseRepository.getEvseByEvseId(
-      evseId,
-      stationId,
-    );
+    const ocpiEvseInfo = (
+      await this.createOcpiEvsesInfoMap(chargingStationVariableAttributesMap)
+    )[`${UID_FORMAT(stationId, evseId)}`];
 
-    const mappedEvse = CitrineOcpiLocationMapper.mapToOcpiEvse(
-      citrineLocation,
-      chargingStationVariableAttributesMap[stationId],
-      chargingStationVariableAttributesMap[stationId].evses[Number(evseId)],
-      ocpiEvseInfo,
-    );
+    if (!ocpiEvseInfo) {
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId)),
+      ) as EvseResponse;
+    }
 
-    return buildOcpiResponse(
-      OcpiResponseStatusCode.GenericSuccessCode,
-      mappedEvse,
-    );
+    try {
+      const mappedEvse = CitrineOcpiLocationMapper.mapToOcpiEvse(
+        citrineLocation,
+        chargingStationVariableAttributesMap[stationId],
+        chargingStationVariableAttributesMap[stationId].evses[Number(evseId)],
+        ocpiEvseInfo,
+      );
+
+      return buildOcpiResponse(
+        OcpiResponseStatusCode.GenericSuccessCode,
+        mappedEvse,
+      );
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientUnknownLocation,
+          this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId)),
+        ) as EvseResponse;
+      } else {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientGenericError,
+          this.GENERAL_ERROR_MESSAGE(locationId, UID_FORMAT(stationId, evseId)),
+        ) as EvseResponse;
+      }
+    }
   }
 
   async getConnectorById(
@@ -222,6 +296,10 @@ export class LocationsService {
     evseId: number,
     connectorId: number,
   ): Promise<ConnectorResponse> {
+    this._logger.debug(
+      `Getting Connector ${connectorId} from EVSE ${evseId} in Charging Station ${stationId} in Location ${locationId}`,
+    );
+
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
 
@@ -264,16 +342,208 @@ export class LocationsService {
         connectorId,
       );
 
-    const mappedConnector = CitrineOcpiLocationMapper.mapToOcpiConnector(
-      Number(connectorId),
-      evseVariableAttributesMap[evseId],
-      evseVariableAttributesMap[evseId].connectors[connectorId],
-      ocpiConnectorInfo,
-    );
+    if (!ocpiConnectorInfo) {
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientUnknownLocation,
+        this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId),
+      ) as ConnectorResponse;
+    }
 
-    return buildOcpiResponse(
-      OcpiResponseStatusCode.GenericSuccessCode,
-      mappedConnector,
-    );
+    try {
+      const mappedConnector = CitrineOcpiLocationMapper.mapToOcpiConnector(
+        Number(connectorId),
+        evseVariableAttributesMap[evseId],
+        evseVariableAttributesMap[evseId].connectors[connectorId],
+        ocpiConnectorInfo,
+      );
+
+      return buildOcpiResponse(
+        OcpiResponseStatusCode.GenericSuccessCode,
+        mappedConnector,
+      );
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientUnknownLocation,
+          this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId),
+        ) as ConnectorResponse;
+      } else {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientGenericError,
+          this.GENERAL_ERROR_MESSAGE(
+            locationId,
+            UID_FORMAT(stationId, evseId),
+            connectorId,
+          ),
+        ) as ConnectorResponse;
+      }
+    }
+  }
+
+  /**
+   * Helper Methods
+   */
+
+  public async createChargingStationVariableAttributesMap(
+    stationIds: string[],
+    evseId?: number,
+    connectorId?: number,
+  ): Promise<Record<string, ChargingStationVariableAttributes>> {
+    const chargingStationVariableAttributesMap: Record<
+      string,
+      ChargingStationVariableAttributes
+    > = {};
+
+    for (const stationId of stationIds) {
+      const matchingAttributes =
+        (await this.deviceModelRepository.readAllBySqlString(
+          chargingStationVariableAttributesQuery(stationId),
+        )) as ChargingStationVariableAttributes[];
+
+      if (matchingAttributes.length === 0) {
+        continue;
+      }
+
+      const chargingStationAttributes = matchingAttributes[0];
+      chargingStationAttributes.id = stationId;
+
+      chargingStationAttributes.evses =
+        await this.createEvsesVariableAttributesMap(
+          stationId,
+          this.getRelevantIdsList(
+            chargingStationAttributes.evse_ids_string,
+            evseId,
+          ),
+          connectorId,
+        );
+
+      chargingStationVariableAttributesMap[stationId] =
+        chargingStationAttributes;
+    }
+
+    return chargingStationVariableAttributesMap;
+  }
+
+  private async createEvsesVariableAttributesMap(
+    stationId: string,
+    evseIds: number[],
+    connectorId?: number,
+  ): Promise<Record<number, EvseVariableAttributes>> {
+    const evseAttributesMap: Record<number, EvseVariableAttributes> = {};
+
+    for (const evseId of evseIds) {
+      const matchingAttributes =
+        (await this.deviceModelRepository.readAllBySqlString(
+          evseVariableAttributesQuery(stationId, evseId),
+        )) as EvseVariableAttributes[];
+
+      if (matchingAttributes.length === 0) {
+        continue;
+      }
+
+      const evseAttributes = matchingAttributes[0];
+      evseAttributes.id = evseId;
+      evseAttributes.station_id = stationId;
+      evseAttributes.connectors =
+        await this.createConnectorVariableAttributesMap(
+          stationId,
+          evseId,
+          this.getRelevantIdsList(
+            evseAttributes.connector_ids_string,
+            connectorId,
+          ),
+        );
+
+      evseAttributesMap[evseId] = evseAttributes;
+    }
+
+    return evseAttributesMap;
+  }
+
+  private async createConnectorVariableAttributesMap(
+    stationId: string,
+    evseId: number,
+    connectorIds: number[],
+  ): Promise<Record<number, ConnectorVariableAttributes>> {
+    const connectorAttributesMap: Record<number, ConnectorVariableAttributes> =
+      {};
+
+    for (const connectorId of connectorIds) {
+      const matchingAttributes =
+        (await this.deviceModelRepository.readAllBySqlString(
+          connectorVariableAttributesQuery(stationId, evseId, connectorId),
+        )) as ConnectorVariableAttributes[];
+
+      if (matchingAttributes.length === 0) {
+        continue;
+      }
+
+      const connectorAttributes = matchingAttributes[0];
+      connectorAttributes.id = connectorId;
+      connectorAttributes.evse_id = evseId;
+      connectorAttributes.station_id = stationId;
+
+      connectorAttributesMap[connectorId] = connectorAttributes;
+    }
+
+    return connectorAttributesMap;
+  }
+
+  private async createOcpiEvsesInfoMap(
+    chargingStationAttributesMap: Record<
+      string,
+      ChargingStationVariableAttributes
+    >,
+  ): Promise<Record<string, OcpiEvse>> {
+    const ocpiEvseMap: Record<string, OcpiEvse> = {};
+
+    for (const [stationId, chargingStationAttributes] of Object.entries(
+      chargingStationAttributesMap,
+    )) {
+      for (const [evseIdKey, evseAttributes] of Object.entries(
+        chargingStationAttributes.evses,
+      )) {
+        const ocpiConnectorsMap: Record<string, OcpiConnector> = {};
+        const evseId = Number(evseIdKey);
+
+        for (const connectorIdKey of Object.keys(evseAttributes.connectors)) {
+          const connectorId = Number(connectorIdKey);
+
+          const ocpiConnectorInfo =
+            await this.ocpiConnectorRepository.getConnectorByConnectorId(
+              stationId,
+              evseId,
+              connectorId,
+            );
+
+          if (ocpiConnectorInfo) {
+            ocpiConnectorsMap[
+              `${TEMPORARY_CONNECTOR_ID(stationId, evseId, connectorId)}`
+            ] = ocpiConnectorInfo;
+          }
+        }
+
+        const ocpiEvseInfo = await this.ocpiEvseRepository.getEvseByEvseId(
+          evseId,
+          stationId,
+        );
+
+        if (ocpiEvseInfo) {
+          ocpiEvseInfo.ocpiConnectors = ocpiConnectorsMap;
+          ocpiEvseMap[`${UID_FORMAT(stationId, evseId)}`] = ocpiEvseInfo;
+        }
+      }
+    }
+
+    return ocpiEvseMap;
+  }
+
+  private getRelevantIdsList(idString: string, idToCompare?: number): number[] {
+    return idString
+      ? idString
+          .split(',')
+          .map((id) => Number(id))
+          .filter((id) => !idToCompare || id === idToCompare)
+      : [];
   }
 }
