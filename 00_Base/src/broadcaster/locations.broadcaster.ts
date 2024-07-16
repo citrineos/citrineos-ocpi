@@ -32,7 +32,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     super();
   }
 
-  async broadcastOnLocationCreate(locationDto: LocationDTO): Promise<void> {
+  async broadcastOnLocationCreateOrUpdate(locationDto: LocationDTO): Promise<void> {
     this.logger.debug(`Broadcasting Location ${locationDto.id}`);
 
     const params = PutLocationParams.build(
@@ -46,15 +46,6 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       ModuleId.Locations,
       params,
       this.locationsClientApi.putLocation.bind(this.locationsClientApi),
-    );
-  }
-
-  async broadcastOnLocationUpdate(
-    partialLocation: Partial<Location>,
-  ): Promise<void> {
-    this.logger.info(
-      "broadcastOnLocationUpdate not yet implemented. Received Location 'updated' event:",
-      JSON.stringify(partialLocation),
     );
   }
 

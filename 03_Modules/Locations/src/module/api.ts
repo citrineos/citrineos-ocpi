@@ -169,7 +169,7 @@ export class LocationsModuleApi
     @QueryParam('push') push: boolean = true,
     @Body() adminLocation: AdminLocationDTO
   ) {
-    await this.adminLocationsService.createLocation(adminLocation, push);
+    await this.adminLocationsService.createOrUpdateLocation(adminLocation, push);
   }
 
 }
