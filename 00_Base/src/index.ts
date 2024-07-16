@@ -127,7 +127,7 @@ export {
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
 } from './model/DTO/EvseDTO';
-export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
+export { ConnectorDTO, ConnectorResponse, TEMPORARY_CONNECTOR_ID } from './model/DTO/ConnectorDTO';
 export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
 export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
 export { SessionMapper } from './mapper/session.mapper';
@@ -186,6 +186,9 @@ export { TariffsService } from './services/tariffs.service';
 export { TariffsBroadcaster } from './services/tariffs.broadcaster';
 export { TariffMapper } from './services/tariff.mapper';
 export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
+export { OcpiLocationRepository } from './repository/OcpiLocationRepository';
+export { OcpiEvseRepository } from './repository/OcpiEvseRepository';
+export { OcpiConnectorRepository } from './repository/OcpiConnectorRepository';
 
 export { OcpiHttpHeader } from './util/ocpi.http.header';
 
@@ -197,6 +200,8 @@ export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
+export { OcpiEvse } from './model/OcpiEvse';
+export { OcpiConnector } from './model/OcpiConnector';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
 export { AdminLocationDTO, AdminEVSEDTO, AdminConnectorDTO } from './model/DTO/admin/AdminLocationDTO';
 export { ChargingStationVariableAttributes, CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY } from './model/variableattributes/ChargingStationVariableAttributes';

@@ -22,8 +22,7 @@ import { NOT_APPLICABLE } from '../util/consts';
 import { NotFoundException } from '../exception/NotFoundException';
 
 export class CitrineOcpiLocationMapper {
-  private coordinatesProperty = 'coordinates'
-  private trueAttributeValue = 'TRUE';
+  private static trueAttributeValue = 'TRUE';
 
   static mapConnectorAvailabilityStatesToEvseStatus(
     availabilityStates: string[],
@@ -225,10 +224,8 @@ export class CitrineOcpiLocationMapper {
 
   private static mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
-    geoLocation.latitude = String(ocppCoordinates[this.coordinatesProperty][0]);
-    geoLocation.longitude = String(
-      ocppCoordinates[this.coordinatesProperty][1],
-    );
+    geoLocation.longitude = String(ocppCoordinates.coordinates[0]);
+    geoLocation.latitude = String(ocppCoordinates.coordinates[1]);
     return geoLocation;
   }
 

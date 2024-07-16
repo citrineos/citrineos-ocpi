@@ -8,6 +8,7 @@ export enum OcpiLocationProps {
   lastUpdated = 'lastUpdated',
   partyId = 'party_id',
   countryCode = 'country_code',
+  timeZone = 'time_zone'
 }
 
 /**
@@ -46,6 +47,9 @@ export class OcpiLocation extends Model {
 
   /* Helper properties */
   ocpiEvses!: Record<string, OcpiEvse>;
+
+  @Column(DataType.STRING)
+  [OcpiLocationProps.timeZone]!: string;
 
   static buildWithLastUpdated(
     citrineLocationId: number,

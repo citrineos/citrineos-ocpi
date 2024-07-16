@@ -40,13 +40,17 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       locationDto,
     );
 
-    this.locationsClientApi.broadcastToClients(
-      locationDto.country_code,
-      locationDto.party_id,
-      ModuleId.Locations,
-      params,
-      this.locationsClientApi.putLocation.bind(this.locationsClientApi),
-    );
+    try {
+      await this.locationsClientApi.broadcastToClients(
+        locationDto.country_code,
+        locationDto.party_id,
+        ModuleId.Locations,
+        params,
+        this.locationsClientApi.putLocation.bind(this.locationsClientApi),
+      );
+    } catch (e) {
+      this.logger.debug(`Broadcast Location ${locationDto.id} due to error`, e);
+    }
   }
 
   async broadcastOnEvseUpdate(

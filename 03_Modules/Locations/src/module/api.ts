@@ -161,15 +161,12 @@ export class LocationsModuleApi
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(OcpiEmptyResponse),
-    },
   })
   async createLocation(
     @QueryParam('push') push: boolean = true,
     @Body() adminLocation: AdminLocationDTO
-  ) {
-    await this.adminLocationsService.createOrUpdateLocation(adminLocation, push);
+  ): Promise<LocationDTO> {
+    return await this.adminLocationsService.createOrUpdateLocation(adminLocation, push);
   }
 
 }

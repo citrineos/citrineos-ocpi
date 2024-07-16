@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
+import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
 import {
   ChargingStation,
@@ -39,11 +40,12 @@ import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { NotFoundException } from '../exception/NotFoundException';
 import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
+import { ChargingStationVariableAttributes } from '../model/variableattributes/ChargingStationVariableAttributes';
 
 @Service()
 export class LocationsService {
   constructor(
-    private _logger: Logger<ILogObj>,
+    private logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,
@@ -72,7 +74,7 @@ export class LocationsService {
     ocpiHeaders: OcpiHeaders,
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    this._logger.debug(
+    this.logger.debug(
       `Getting all locations with headers ${ocpiHeaders} and parameters ${paginatedParams}`,
     );
 
@@ -155,7 +157,7 @@ export class LocationsService {
   }
 
   async getLocationById(locationId: number): Promise<LocationResponse> {
-    this._logger.debug(`Getting location ${locationId}`);
+    this.logger.debug(`Getting location ${locationId}`);
 
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
@@ -221,7 +223,7 @@ export class LocationsService {
     stationId: string,
     evseId: number,
   ): Promise<EvseResponse> {
-    this._logger.debug(
+    this.logger.debug(
       `Getting EVSE ${evseId} from Charging Station ${stationId} in Location ${locationId}`,
     );
 
@@ -296,7 +298,7 @@ export class LocationsService {
     evseId: number,
     connectorId: number,
   ): Promise<ConnectorResponse> {
-    this._logger.debug(
+    this.logger.debug(
       `Getting Connector ${connectorId} from EVSE ${evseId} in Charging Station ${stationId} in Location ${locationId}`,
     );
 
@@ -384,111 +386,6 @@ export class LocationsService {
    * Helper Methods
    */
 
-  public async createChargingStationVariableAttributesMap(
-    stationIds: string[],
-    evseId?: number,
-    connectorId?: number,
-  ): Promise<Record<string, ChargingStationVariableAttributes>> {
-    const chargingStationVariableAttributesMap: Record<
-      string,
-      ChargingStationVariableAttributes
-    > = {};
-
-    for (const stationId of stationIds) {
-      const matchingAttributes =
-        (await this.deviceModelRepository.readAllBySqlString(
-          chargingStationVariableAttributesQuery(stationId),
-        )) as ChargingStationVariableAttributes[];
-
-      if (matchingAttributes.length === 0) {
-        continue;
-      }
-
-      const chargingStationAttributes = matchingAttributes[0];
-      chargingStationAttributes.id = stationId;
-
-      chargingStationAttributes.evses =
-        await this.createEvsesVariableAttributesMap(
-          stationId,
-          this.getRelevantIdsList(
-            chargingStationAttributes.evse_ids_string,
-            evseId,
-          ),
-          connectorId,
-        );
-
-      chargingStationVariableAttributesMap[stationId] =
-        chargingStationAttributes;
-    }
-
-    return chargingStationVariableAttributesMap;
-  }
-
-  private async createEvsesVariableAttributesMap(
-    stationId: string,
-    evseIds: number[],
-    connectorId?: number,
-  ): Promise<Record<number, EvseVariableAttributes>> {
-    const evseAttributesMap: Record<number, EvseVariableAttributes> = {};
-
-    for (const evseId of evseIds) {
-      const matchingAttributes =
-        (await this.deviceModelRepository.readAllBySqlString(
-          evseVariableAttributesQuery(stationId, evseId),
-        )) as EvseVariableAttributes[];
-
-      if (matchingAttributes.length === 0) {
-        continue;
-      }
-
-      const evseAttributes = matchingAttributes[0];
-      evseAttributes.id = evseId;
-      evseAttributes.station_id = stationId;
-      evseAttributes.connectors =
-        await this.createConnectorVariableAttributesMap(
-          stationId,
-          evseId,
-          this.getRelevantIdsList(
-            evseAttributes.connector_ids_string,
-            connectorId,
-          ),
-        );
-
-      evseAttributesMap[evseId] = evseAttributes;
-    }
-
-    return evseAttributesMap;
-  }
-
-  private async createConnectorVariableAttributesMap(
-    stationId: string,
-    evseId: number,
-    connectorIds: number[],
-  ): Promise<Record<number, ConnectorVariableAttributes>> {
-    const connectorAttributesMap: Record<number, ConnectorVariableAttributes> =
-      {};
-
-    for (const connectorId of connectorIds) {
-      const matchingAttributes =
-        (await this.deviceModelRepository.readAllBySqlString(
-          connectorVariableAttributesQuery(stationId, evseId, connectorId),
-        )) as ConnectorVariableAttributes[];
-
-      if (matchingAttributes.length === 0) {
-        continue;
-      }
-
-      const connectorAttributes = matchingAttributes[0];
-      connectorAttributes.id = connectorId;
-      connectorAttributes.evse_id = evseId;
-      connectorAttributes.station_id = stationId;
-
-      connectorAttributesMap[connectorId] = connectorAttributes;
-    }
-
-    return connectorAttributesMap;
-  }
-
   private async createOcpiEvsesInfoMap(
     chargingStationAttributesMap: Record<
       string,
@@ -536,14 +433,5 @@ export class LocationsService {
     }
 
     return ocpiEvseMap;
-  }
-
-  private getRelevantIdsList(idString: string, idToCompare?: number): number[] {
-    return idString
-      ? idString
-          .split(',')
-          .map((id) => Number(id))
-          .filter((id) => !idToCompare || id === idToCompare)
-      : [];
   }
 }
