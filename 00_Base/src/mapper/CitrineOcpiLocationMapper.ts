@@ -19,10 +19,17 @@ import { OcpiEvse } from '../model/OcpiEvse';
 import { ConnectorVariableAttributes } from '../model/variableattributes/ConnectorVariableAttributes';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { NOT_APPLICABLE } from '../util/consts';
-import { NotFoundException } from '../exception/NotFoundException';
+import { Service } from 'typedi';
+import { ILogObj, Logger } from 'tslog';
 
+@Service()
 export class CitrineOcpiLocationMapper {
-  private static trueAttributeValue = 'TRUE';
+
+  constructor(
+    private logger: Logger<ILogObj>,
+  ) { }
+
+  private trueAttributeValue = 'TRUE';
 
   static mapConnectorAvailabilityStatesToEvseStatus(
     availabilityStates: string[],
@@ -51,7 +58,7 @@ export class CitrineOcpiLocationMapper {
     }
   }
 
-  static mapToOcpiLocation(
+  mapToOcpiLocation(
     citrineLocation: Location,
     chargingStationVariableAttributesMap: Record<
       string,
@@ -93,9 +100,10 @@ export class CitrineOcpiLocationMapper {
           ];
 
         if (!ocpiEvseInfo) {
-          throw new NotFoundException(
-            `OCPI EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`,
+          this.logger.warn(
+            `OCPI EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist - will skip.`,
           );
+          continue;
         }
 
         evses.push(
@@ -127,7 +135,7 @@ export class CitrineOcpiLocationMapper {
     return ocpiLocation;
   }
 
-  static mapToOcpiEvse(
+  mapToOcpiEvse(
     citrineLocation: Location,
     chargingStationAttributes: ChargingStationVariableAttributes,
     evseAttributes: EvseVariableAttributes,
@@ -145,6 +153,7 @@ export class CitrineOcpiLocationMapper {
       CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
         connectorAvailabilityStates,
         chargingStationAttributes.bay_occupancy_sensor_active,
+        ocpiEvseInfo.removed,
       );
     evse.evse_id = evseAttributes.evse_id;
     evse.capabilities = this.getCapabilities(
@@ -166,9 +175,10 @@ export class CitrineOcpiLocationMapper {
         ];
 
       if (!ocpiConnectorInfo) {
-        throw new NotFoundException(
-          `OCPI Connector ${connectorAttributes.id} on EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist.`,
+        this.logger.warn(
+          `OCPI Connector ${connectorAttributes.id} on EVSE ${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)} does not exist - will skip.`,
         );
+        continue;
       }
 
       connectors.push(
@@ -193,7 +203,7 @@ export class CitrineOcpiLocationMapper {
     return evse;
   }
 
-  static mapToOcpiConnector(
+  mapToOcpiConnector(
     id: number,
     evseAttributes: EvseVariableAttributes,
     connectorAttributes: ConnectorVariableAttributes,
@@ -222,14 +232,14 @@ export class CitrineOcpiLocationMapper {
     Helpers
   */
 
-  private static mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
+  private mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
     const geoLocation = new GeoLocation();
     geoLocation.longitude = String(ocppCoordinates.coordinates[0]);
     geoLocation.latitude = String(ocppCoordinates.coordinates[1]);
     return geoLocation;
   }
 
-  private static getCapabilities(
+  private getCapabilities(
     authorizeRemoteStart: string,
     tokenReaderEnabled: string,
   ): Capability[] {
@@ -246,7 +256,7 @@ export class CitrineOcpiLocationMapper {
     return capabilities;
   }
 
-  private static getConnectorStandard(
+  private getConnectorStandard(
     connectorType: string | undefined,
   ): ConnectorType {
     // TODO determine if mappings are possible for:
@@ -287,7 +297,7 @@ export class CitrineOcpiLocationMapper {
     }
   }
 
-  private static getConnectorPowerType(connectorType: string | undefined): PowerType {
+  private getConnectorPowerType(connectorType: string | undefined): PowerType {
     // TODO include more cases
     switch (connectorType) {
       case ConnectorEnumType.cType1:

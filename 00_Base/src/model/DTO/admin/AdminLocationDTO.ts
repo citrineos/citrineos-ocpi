@@ -12,8 +12,11 @@ import {
 import { Optional } from '../../../util/decorators/optional';
 import { Type } from 'class-transformer';
 
-// TODO add remaining OCPI-specific properties
+const locationInvalidMessage = 'New locations must have party_id, country_code, name, address, city, state, postal_code, and country.';
+const evseInvalidMessage = 'EVSEs must have id and station_id.';
+const connectorInvalidMessage = 'Connectors must have an id.';
 
+// TODO add remaining OCPI-specific properties
 export class AdminLocationDTO {
   // id is the Citrine Location database id, not the OcpiLocation's database id
   @IsNumber()
@@ -74,7 +77,7 @@ export class AdminLocationDTO {
 
   @IsArray()
   @Optional()
-  evses: AdminEVSEDTO[] | undefined;
+  evses?: AdminEVSEDTO[];
 }
 
 export class AdminEVSEDTO {
@@ -96,11 +99,38 @@ export class AdminEVSEDTO {
 
   @IsArray()
   @Optional()
-  connectors: AdminConnectorDTO[] | undefined;
+  connectors?: AdminConnectorDTO[];
 }
 
 export class AdminConnectorDTO {
   @IsNumber()
   @IsNotEmpty()
   id!: number;
+}
+
+export const isLocationInvalid = (adminLocationDto: AdminLocationDTO): [boolean, string] => {
+  const locationInvalid = !adminLocationDto.id &&
+    (!adminLocationDto.party_id ||
+    !adminLocationDto.country_code ||
+    !adminLocationDto.name ||
+    !adminLocationDto.address ||
+    !adminLocationDto.city ||
+    !adminLocationDto.state ||
+    !adminLocationDto.postal_code ||
+    !adminLocationDto.country);
+
+  const evseInvalid = !!adminLocationDto.evses &&
+    adminLocationDto.evses.reduce((invalid, evse) => invalid || !evse.id || !evse.station_id, false);
+
+  const connectorInvalid = !!adminLocationDto.evses && adminLocationDto.evses
+    .reduce((connectors: AdminConnectorDTO[], evse) => [...connectors, ...(evse.connectors ?? [])], [])
+    .reduce((invalid, connector) => invalid || !connector.id , false);
+
+  const invalid = locationInvalid || evseInvalid || connectorInvalid;
+
+  const finalMessage = locationInvalid ? locationInvalidMessage :
+    evseInvalid ? evseInvalidMessage :
+      connectorInvalid ? connectorInvalidMessage : '';
+
+  return [invalid, finalMessage];
 }

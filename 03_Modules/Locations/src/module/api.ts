@@ -163,10 +163,10 @@ export class LocationsModuleApi
     description: 'Successful response',
   })
   async createLocation(
-    @QueryParam('push') push: boolean = true,
+    @QueryParam('broadcast') broadcast: boolean = true,
     @Body() adminLocation: AdminLocationDTO
   ): Promise<LocationDTO> {
-    return await this.adminLocationsService.createOrUpdateLocation(adminLocation, push);
+    return await this.adminLocationsService.createOrUpdateLocation(adminLocation, broadcast);
   }
 
 }

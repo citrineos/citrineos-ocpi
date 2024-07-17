@@ -61,14 +61,14 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
         stationId: evse.stationId,
         lastUpdated: evse.lastUpdated,
         ...(evse.physicalReference ? { physicalReference: evse.physicalReference } : {}),
-        ...(evse.removed ? { removed: evse.removed } : {}),
+        ...(evse.removed !== undefined ? { removed: evse.removed } : {}),
       },
     });
     if (!ocpiEvseCreated) {
       await this._updateByKey(
         {
           ...(evse.physicalReference ? { physicalReference: evse.physicalReference } : {}),
-          ...(evse.removed ? { removed: evse.removed } : {}),
+          ...(evse.removed !== undefined ? { removed: evse.removed } : {}),
           ...(evse.lastUpdated ? { lastUpdated: evse.lastUpdated } : {}),
         },
         savedOcpiEvse.id,

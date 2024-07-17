@@ -85,7 +85,7 @@ export class VariableAttributesUtil {
 
       const evseAttributes = matchingAttributes[0];
       evseAttributes.id = evseId;
-
+      evseAttributes.station_id = stationId;
       evseAttributes.connectors =
         await this.createConnectorVariableAttributesMap(
           stationId,
@@ -120,7 +120,12 @@ export class VariableAttributesUtil {
         continue;
       }
 
-      connectorAttributesMap[connectorId] = matchingAttributes[0];
+      const connectorAttributes = matchingAttributes[0];
+      connectorAttributes.id = connectorId;
+      connectorAttributes.evse_id = evseId;
+      connectorAttributes.station_id = stationId;
+
+      connectorAttributesMap[connectorId] = connectorAttributes;
     }
 
     return connectorAttributesMap;
