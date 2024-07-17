@@ -573,6 +573,7 @@ export class CredentialsService {
         include: [
           {
             model: ServerVersion,
+            include: [Endpoint],
           },
         ],
       },
