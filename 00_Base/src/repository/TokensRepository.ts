@@ -51,7 +51,9 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       const ocppAuths = await this.authorizationRepository.readAllByQuerystring(
         {
           idToken: tokenRequest.uid,
-          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenRequest?.type ?? TokenType.RFID)
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+            tokenRequest?.type ?? TokenType.RFID,
+          ),
         },
       );
 
@@ -86,12 +88,13 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
 
   async getTokenDtoByIdToken(
     idToken: string,
-    type: IdTokenEnumType
+    type: IdTokenEnumType,
   ): Promise<TokenDTO | undefined> {
-    const ocppAuth = await this.authorizationRepository.readOnlyOneByQuerystring({
-      idToken,
-      type
-    });
+    const ocppAuth =
+      await this.authorizationRepository.readOnlyOneByQuerystring({
+        idToken,
+        type,
+      });
 
     if (!ocppAuth) {
       // TODO better error
@@ -100,8 +103,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
 
     const ocpiToken = await this.readOnlyOneByQuery({
       where: {
-        authorization_id: ocppAuth.id
-      }
+        authorization_id: ocppAuth.id,
+      },
     });
 
     if (!ocpiToken) {
@@ -119,22 +122,30 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
    * @return {Promise<TokenDTO>} The saved token.
    */
   async saveToken(tokenDto: TokenDTO): Promise<TokenDTO> {
-    const mappedOcppAuth = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(tokenDto);
+    const mappedOcppAuth =
+      OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(tokenDto);
     const savedOcppAuth =
       await this.authorizationRepository.createOrUpdateByQuerystring(
         mappedOcppAuth,
         {
           idToken: tokenDto.uid,
-          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+            tokenDto.type,
+          ),
         },
       );
 
     if (!savedOcppAuth) {
-      throw new UnknownTokenException('Authorization could not be created upon saving token');
+      throw new UnknownTokenException(
+        'Authorization could not be created upon saving token',
+      );
     }
 
     try {
-      const ocpiToken = await this.createOrUpdateOcpiToken(savedOcppAuth?.id, tokenDto);
+      const ocpiToken = await this.createOrUpdateOcpiToken(
+        savedOcppAuth?.id,
+        tokenDto,
+      );
       return OcpiTokensMapper.toDto(savedOcppAuth!, ocpiToken);
     } catch (error) {
       this.logger.error('Error saving token', error);
@@ -234,10 +245,13 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
   }
 
-  async createOrUpdateOcpiToken(authorizationId: number, tokenDto: TokenDTO): Promise<OcpiToken> {
+  async createOrUpdateOcpiToken(
+    authorizationId: number,
+    tokenDto: TokenDTO,
+  ): Promise<OcpiToken> {
     const [savedOcpiToken, ocpiTokenCreated] = await this._readOrCreateByQuery({
       where: {
-        authorization_id: authorizationId
+        authorization_id: authorizationId,
       },
       defaults: {
         party_id: tokenDto.party_id,
@@ -249,7 +263,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
         energy_contract: tokenDto.energy_contract,
         last_updated: tokenDto.last_updated,
         authorization_id: authorizationId,
-        type: tokenDto.type
+        type: tokenDto.type,
       },
     });
     // TODO confirm all updatable properties
@@ -262,7 +276,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
           default_profile_type: tokenDto.default_profile_type,
           energy_contract: tokenDto.energy_contract,
           last_updated: tokenDto.last_updated,
-          type: tokenDto.type
+          type: tokenDto.type,
         },
         savedOcpiToken.id,
       );
