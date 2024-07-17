@@ -1,6 +1,11 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { Transaction, TransactionEvent } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -22,8 +27,7 @@ export class SessionMapper {
     readonly credentialsService: CredentialsService,
     readonly ocpiLocationsRepository: OcpiLocationRepository,
     readonly tokensRepository: TokensRepository,
-  ) {
-  }
+  ) {}
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -39,14 +43,11 @@ export class SessionMapper {
           toCountryCode,
           toPartyId,
         ),
-        this.getTokensForTransactions(
-          transactions,
-        ),
+        this.getTokensForTransactions(transactions),
       ]);
     return transactions
       .filter(
-        (transaction) =>
-          transactionIdToLocationMap[transaction.id] // todo skipping check for token for now
+        (transaction) => transactionIdToLocationMap[transaction.id], // todo skipping check for token for now
       )
       .map((transaction) => {
         const location = transactionIdToLocationMap[transaction.id]!;
@@ -78,9 +79,7 @@ export class SessionMapper {
       evse_uid: this.getEvseUid(transaction),
       connector_id: String(transaction.evse?.connectorId),
       currency: this.getCurrency(location),
-      charging_periods: this.getChargingPeriods(
-        transaction.meterValues,
-      ),
+      charging_periods: this.getChargingPeriods(transaction.meterValues),
       status: this.getTransactionStatus(endEvent),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
       // TODO: Fill in optional values
@@ -167,10 +166,7 @@ export class SessionMapper {
   ): ChargingPeriod {
     return {
       start_date_time: new Date(meterValue.timestamp),
-      dimensions: this.getCdrDimensions(
-        meterValue,
-        previousMeterValue,
-      ),
+      dimensions: this.getCdrDimensions(meterValue, previousMeterValue),
       tariff_id: null, // TODO: Fill in tariff_id value
     };
   }
@@ -216,10 +212,7 @@ export class SessionMapper {
     }
     cdrDimensions.push({
       type: CdrDimensionType.TIME,
-      volume: this.getTimeElapsedForMeterValue(
-        meterValue,
-        previousMeterValue,
-      ),
+      volume: this.getTimeElapsedForMeterValue(meterValue, previousMeterValue),
     });
     return cdrDimensions;
   }
@@ -229,7 +222,7 @@ export class SessionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-          MeasurandEnumType.Energy_Active_Import_Register &&
+            MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
@@ -241,7 +234,7 @@ export class SessionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-      new Date(previousMeterValue.timestamp).getTime()
+        new Date(previousMeterValue.timestamp).getTime()
       : 0;
 
     // Convert milliseconds to hours
@@ -294,13 +287,14 @@ export class SessionMapper {
         transaction.transactionEvents &&
         transaction.transactionEvents.length > 0
       ) {
-        const idToken = transaction.transactionEvents
-          .find(event => event.idToken)?.idToken;
+        const idToken = transaction.transactionEvents.find(
+          (event) => event.idToken,
+        )?.idToken;
 
         if (idToken?.idToken) {
           const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
             idToken.idToken,
-            idToken.type
+            idToken.type,
           );
 
           if (tokenDto) {
