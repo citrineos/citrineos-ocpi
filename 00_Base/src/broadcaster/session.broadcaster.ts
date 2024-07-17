@@ -4,6 +4,7 @@ import { SessionsClientApi } from '../trigger/SessionsClientApi';
 import {
   SequelizeTransactionEventRepository,
   Transaction,
+  TransactionEvent,
 } from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 import { CredentialsService } from '../services/credentials.service';
@@ -13,6 +14,7 @@ import { ModuleId } from '../model/ModuleId';
 import { OcpiParams } from '../trigger/util/ocpi.params';
 import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
+import { TriggerReasonEnumType } from '@citrineos/base/dist/ocpp/model/enums';
 
 enum PutOrPatch {
   PUT = 'put',
@@ -38,15 +40,48 @@ export class SessionBroadcaster extends BaseBroadcaster {
         this.broadcast(transactions).then();
       }
     });
-    this.transactionRepository.transaction.on('updated', (transactions) => {
-      if (transactions && transactions.length > 0) {
-        this.logger.info(
-          'Attempting to broadcast updated transactions',
-          transactions.map((t) => t.id),
-        );
-        this.broadcast(transactions, PutOrPatch.PATCH).then();
+    this.transactionRepository.on(
+      'created',
+      (transactionsEvents: TransactionEvent[]) => {
+        if (transactionsEvents && transactionsEvents.length > 0) {
+          this.logger.info(
+            'Attempting to broadcast updated transactions',
+            transactionsEvents.map((t) => t.id),
+          );
+          this.broadcastPatch(transactionsEvents).then();
+        }
+      },
+    );
+  }
+
+  private async broadcastPatch(
+    transactionsEvents: TransactionEvent[],
+  ): Promise<void> {
+    const transactions: Transaction[] = [];
+    for (let transactionsEvent of transactionsEvents) {
+      if (
+        transactionsEvent.meterValue &&
+        transactionsEvent.meterValue.length > 0 &&
+        transactionsEvent.triggerReason !== TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
+      ) {
+        // skip if there are no meter values in transaction event
+        const transaction: Transaction = (await transactionsEvent.$get(
+          'transaction',
+        )) as Transaction; // todo use Props
+        if (transaction) {
+          transaction.setDataValue('transactionEvents', [transactionsEvent]); // todo use Props
+          transaction.setDataValue('meterValues', transactionsEvent.meterValue); // todo use Props
+          transaction.transactionEvents = [transactionsEvent];
+          transaction.meterValues = transactionsEvent.meterValue;
+          transactions.push(transaction);
+        }
       }
-    });
+    }
+    if (transactions.length === 0) {
+      return Promise.resolve(); // skipping because no transaction not yet created for transaction event
+    } else {
+      return await this.broadcast(transactions, PutOrPatch.PATCH);
+    }
   }
 
   private async broadcast(
@@ -69,7 +104,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
     let params: any = PutSessionParams.build(session.id, session);
     let clientApiRequest: any = this.sessionsClientApi.putSession;
     if (putOrPatch === PutOrPatch.PATCH) {
-      params = PatchSessionParams.build(session.id, session);
+      params = PatchSessionParams.build(
+        session.id,
+        this.getSessionForPatch(session),
+      );
       clientApiRequest = this.sessionsClientApi.patchSession;
     }
     const cpoCountryCode = session.country_code;
@@ -81,5 +119,14 @@ export class SessionBroadcaster extends BaseBroadcaster {
       params,
       clientApiRequest.bind(this.sessionsClientApi),
     );
+  }
+
+  private getSessionForPatch(session: Session): Partial<Session> {
+    return {
+      kwh: session.kwh,
+      charging_periods: session.charging_periods,
+      total_cost: session.total_cost,
+      last_updated: session.last_updated,
+    };
   }
 }
