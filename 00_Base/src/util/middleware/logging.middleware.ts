@@ -10,7 +10,7 @@ export class LoggingMiddleware implements KoaMiddlewareInterface {
     context: Context,
     next: (err?: any) => Promise<any>,
   ): Promise<any> {
-    console.log(`Received request: ${context.request}`);
+    console.debug(`Received context: ${JSON.stringify(context)}`);
     return next()
       .then(() => {
         console.debug('do something after execution');
