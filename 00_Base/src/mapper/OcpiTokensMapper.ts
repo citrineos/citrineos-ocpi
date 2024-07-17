@@ -6,13 +6,16 @@ import {
   IdTokenInfoType,
   IdTokenType,
 } from '@citrineos/base';
-import {OcpiToken} from '../model/OcpiToken';
-import {TokenType} from '../model/TokenType';
-import {Authorization, IdToken} from '@citrineos/data';
-import {TokenDTO} from '../model/DTO/TokenDTO';
+import { OcpiToken } from '../model/OcpiToken';
+import { TokenType } from '../model/TokenType';
+import { Authorization, IdToken } from '@citrineos/data';
+import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
-  public static toEntity(authorizationId: number, tokenDto: TokenDTO): OcpiToken {
+  public static toEntity(
+    authorizationId: number,
+    tokenDto: TokenDTO,
+  ): OcpiToken {
     return OcpiToken.build({
       authorization_id: authorizationId,
       country_code: tokenDto.country_code,
@@ -101,7 +104,9 @@ export class OcpiTokensMapper {
     return { idToken, idTokenInfo };
   }
 
-  public static async getContractId(authorization: Authorization): Promise<string> {
+  public static async getContractId(
+    authorization: Authorization,
+  ): Promise<string> {
     const idToken = await authorization.$get('idToken');
     const additionalInfo = await (idToken! as IdToken).$get('additionalInfo');
 

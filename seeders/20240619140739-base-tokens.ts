@@ -1,10 +1,7 @@
 'use strict';
 
 import { QueryInterface, QueryOptions } from 'sequelize';
-import {
-  OcpiTokensMapper,
-  TokenDTO,
-} from '@citrineos/ocpi-base';
+import { OcpiTokensMapper, TokenDTO } from '@citrineos/ocpi-base';
 import {
   AdditionalInfo,
   Authorization,
