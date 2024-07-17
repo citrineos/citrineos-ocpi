@@ -9,7 +9,7 @@ import { HttpExceptionHandler } from '../middleware/http.exception.handler';
 /**
  * Decorator to add necessary auth and exception handling for "admin" OCPI endpoints
  */
-export const AsOcpiAdminEndpoint = function () {
+export const AsAdminEndpoint = function () {
   // TODO add auth as required
 
   return function (object: any, methodName: string) {

@@ -148,7 +148,7 @@ export { WrongClientAccessException } from './exception/wrong.client.access.exce
 export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
-export { AsOcpiAdminEndpoint } from './util/decorators/as.ocpi.admin.endpoint';
+export { AsAdminEndpoint } from './util/decorators/as.admin.endpoint';
 
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
