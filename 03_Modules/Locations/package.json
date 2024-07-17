@@ -29,6 +29,7 @@
     "@citrineos/base": "1.3.0",
     "@citrineos/util": "1.3.0",
     "deasync-promise": "^1.0.1",
-    "tslog": "^4.9.2"
+    "tslog": "^4.9.2",
+    "@types/geojson": "7946.0.14"
   }
 }
