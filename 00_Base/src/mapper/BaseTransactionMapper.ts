@@ -71,16 +71,25 @@ export abstract class BaseTransactionMapper {
     transactions: Transaction[]
   ): Promise<Map<string, Tariff>> {
     const transactionIdToTariffMap = new Map<string, Tariff>();
+    const uniqueStationIds = [...new Set(transactions.map(t => t.stationId))];
+
+    const stationIdToTariffMap = new Map<string, Tariff>();
     await Promise.all(
-      transactions.map(async (transaction) => {
-        const tariff = await this.tariffRepository.findByStationId(
-          transaction.stationId
-        );
+      uniqueStationIds.map(async (stationId) => {
+        const tariff = await this.tariffRepository.findByStationId(stationId);
         if (tariff) {
-          transactionIdToTariffMap.set(transaction.transactionId, tariff);
+          stationIdToTariffMap.set(stationId, tariff);
         }
       })
     );
+
+    for (const transaction of transactions) {
+      const tariff = stationIdToTariffMap.get(transaction.stationId);
+      if (tariff) {
+        transactionIdToTariffMap.set(transaction.transactionId, tariff);
+      }
+    }
+
     return transactionIdToTariffMap;
   }
 
