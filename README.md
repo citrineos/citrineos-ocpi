@@ -26,8 +26,8 @@ This initial release, version 0.1.1, provides partial OCPI 2.2.1 functionality. 
 - **Sender Interface Endpoints**: Sessions, CDRs, Tariffs, and Locations.
 - **Receiver Interface Endpoints**: Charging Profiles, Commands, and Tokens.
 - **Push Logic**:
-  - Fully implemented for Sessions and CDRs.
-  - Partially implemented for Locations (updating EVSE and Connector objects via PATCH).
+  - Fully implemented for Sessions, Charging Profiles, and CDRs.
+  - Partially implemented for Locations (updating EVSE status via PATCH).
 
 #### Missing Functionality
 
@@ -39,9 +39,7 @@ The following features are not included in version 0.1.X but will be released in
   - Un-registering credentials.
   - Creating and updating Tariffs and Locations (completing Push logic for Tariffs and Locations).
   - Refreshing Tokens cache from eMSP.
-- Push logic for Charging Profiles.
 - Real-time authorization logic for Sessions via Tokens.
-- `next` header in paginated endpoint responses.
 
 ## Future Updates
 
