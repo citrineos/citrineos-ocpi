@@ -5,14 +5,17 @@ import {
   buildOcpiPaginatedResponse,
   generateMockOcpiResponse,
   ModuleId,
+  OcpiResponse,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
   PaginatedTokenResponse,
   ResponseSchema,
   TokenDTO,
+  TokenType,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
+import { buildGenericServerErrorResponse } from '@citrineos/ocpi-base/dist/util/ResponseGenerator';
 
 const TOKENS_LIST_MOCK = generateMockOcpiResponse(PaginatedTokenResponse); // todo create real mocks for tests
 
@@ -33,14 +36,32 @@ export class TokensController extends BaseController {
   })
   async getTokens(
     @Paginated() _paginationParams?: PaginatedParams,
-  ): Promise<PaginatedTokenResponse> {
+  ): Promise<OcpiResponse<TokenDTO>> {
+    console.log(_paginationParams);
+
+    const fail = false;
+
+    if (fail) {
+      return buildGenericServerErrorResponse();
+    }
+
+    const token = generateMockOcpiResponse(TokenDTO);
+
+    token.uid = (2 + (_paginationParams?.offset ?? 0)).toString();
+    token.country_code = 'US';
+    token.party_id = 'MSP';
+    token.type = TokenType.APP_USER;
+
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
       10,
       1,
-      0,
-      [generateMockOcpiResponse(TokenDTO)],
-    ) as PaginatedTokenResponse;
+      _paginationParams?.offset ?? 0,
+      [token],
+    ) as OcpiResponse<TokenDTO>;
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     return response;
   }
 }
