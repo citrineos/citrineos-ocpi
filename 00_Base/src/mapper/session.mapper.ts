@@ -1,8 +1,6 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType,
-  TransactionEventRequest,
-} from '@citrineos/base';
+import { MeasurandEnumType, MeterValueType, TransactionEventRequest, } from '@citrineos/base';
 import { SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -31,7 +29,8 @@ export class SessionMapper extends BaseTransactionMapper {
     protected tariffsService: TariffsService,
     readonly credentialsService: CredentialsService,
   ) {
-    super(logger, locationsService, ocpiLocationsRepository, tokensRepository, tariffRepository, tariffsService);}
+    super(logger, locationsService, ocpiLocationsRepository, tokensRepository, tariffRepository, tariffsService);
+  }
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
@@ -154,7 +153,7 @@ export class SessionMapper extends BaseTransactionMapper {
     switch (location.country_code) {
       case 'US':
       default:
-        return 'USD';
+        return '';
     }
   }
 
@@ -186,7 +185,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return {
       start_date_time: new Date(meterValue.timestamp),
       dimensions: this.getCdrDimensions(meterValue, previousMeterValue),
-      tariff_id: tariffId, // TODO: Fill in tariff_id value
+      tariff_id: tariffId,
     };
   }
 
@@ -241,7 +240,7 @@ export class SessionMapper extends BaseTransactionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-            MeasurandEnumType.Energy_Active_Import_Register &&
+          MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
