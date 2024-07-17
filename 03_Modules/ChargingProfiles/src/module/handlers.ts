@@ -117,13 +117,10 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       ? this.mapOcppScheduleToOcpi(ocppSchedule)
       : undefined;
     try {
-      await this.asyncResponder.send(
-        message.context.correlationId,
-        {
-          result: this.getResult(message.payload.status),
-          profile: ocpiSchedule,
-        } as ActiveChargingProfileResult
-      );
+      await this.asyncResponder.send(message.context.correlationId, {
+        result: this.getResult(message.payload.status),
+        profile: ocpiSchedule,
+      } as ActiveChargingProfileResult);
     } catch (e) {
       if (e instanceof NotFoundError) {
         if (ocppSchedule && ocpiSchedule) {

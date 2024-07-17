@@ -1,10 +1,4 @@
-import {
-  Column,
-  DataType,
-  Index,
-  Model,
-  Table,
-} from '@citrineos/data';
+import { Column, DataType, Index, Model, Table } from '@citrineos/data';
 import { CreationOptional } from 'sequelize';
 import { DisplayText } from './DisplayText';
 
