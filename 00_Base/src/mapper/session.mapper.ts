@@ -153,7 +153,7 @@ export class SessionMapper extends BaseTransactionMapper {
     switch (location.country_code) {
       case 'US':
       default:
-        return 'USD';
+        return '';
     }
   }
 
@@ -185,7 +185,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return {
       start_date_time: new Date(meterValue.timestamp),
       dimensions: this.getCdrDimensions(meterValue, previousMeterValue),
-      tariff_id: tariffId, // TODO: Fill in tariff_id value
+      tariff_id: tariffId,
     };
   }
 
