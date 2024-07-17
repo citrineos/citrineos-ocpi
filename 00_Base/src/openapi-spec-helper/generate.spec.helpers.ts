@@ -15,6 +15,7 @@ import { HttpHeader } from '@citrineos/base';
 import { ENUM_QUERY_PARAM } from '../util/decorators/enum.query.param';
 import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
 import { Constructable } from 'typedi';
+import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -233,14 +234,26 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     //   'items' in bodySchema && bodySchema.items ? bodySchema.items : bodySchema;
     // const $ref = { $ref: ref };
 
-    return {
-      content: {
-        'application/json': {
-          schema: bodyParamsSchema
-            ? { allOf: [bodySchema, bodyParamsSchema] }
-            : bodySchema,
-        },
+    const content: any = {
+      'application/json': {
+        schema: bodyParamsSchema
+          ? { allOf: [bodySchema, bodyParamsSchema] }
+          : bodySchema,
       },
+    };
+
+    const example = Reflect.getMetadata(
+      BODY_WITH_EXAMPLE_PARAM,
+      bodyMeta.object,
+      bodyMeta.method,
+    );
+
+    if (example) {
+      content['application/json']['example'] = example;
+    }
+
+    return {
+      content,
       required: isRequired(bodyMeta, route),
     };
   } else if (bodyParamsSchema) {

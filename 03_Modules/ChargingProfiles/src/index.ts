@@ -12,6 +12,7 @@ import {
   OcpiModule,
   OcpiServerConfig,
   SessionChargingProfileRepository,
+  SessionMapper,
 } from '@citrineos/ocpi-base';
 import {
   AbstractModule,
@@ -62,6 +63,7 @@ export class ChargingProfilesModule implements OcpiModule {
         Container.get(EndpointRepository),
         Container.get(ClientInformationRepository),
         Container.get(SessionChargingProfileRepository),
+        Container.get(SessionMapper),
         handler,
         sender,
         this.logger,
