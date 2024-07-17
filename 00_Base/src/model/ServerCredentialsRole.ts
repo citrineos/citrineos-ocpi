@@ -11,10 +11,7 @@ import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { CpoTenant } from './CpoTenant';
-import {
-  BusinessDetails,
-  toBusinessDetailsDTO,
-} from './BusinessDetails';
+import { BusinessDetails, toBusinessDetailsDTO } from './BusinessDetails';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
@@ -86,7 +83,8 @@ export class ServerCredentialsRole extends Model implements ICredentialsRole {
     const credentialsRoleDTO = new CredentialsRoleDTO();
     credentialsRoleDTO.role = this[ServerCredentialsRoleProps.role];
     credentialsRoleDTO.party_id = this[ServerCredentialsRoleProps.partyId];
-    credentialsRoleDTO.country_code = this[ServerCredentialsRoleProps.countryCode];
+    credentialsRoleDTO.country_code =
+      this[ServerCredentialsRoleProps.countryCode];
     if (this[ServerCredentialsRoleProps.businessDetails]) {
       credentialsRoleDTO.business_details = toBusinessDetailsDTO(
         this[ServerCredentialsRoleProps.businessDetails],

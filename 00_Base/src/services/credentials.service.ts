@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
-import {BadRequestError, InternalServerError, NotFoundError} from 'routing-controllers';
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+} from 'routing-controllers';
 import {
   ClientCredentialsRole,
   ClientCredentialsRoleProps,
@@ -503,31 +507,38 @@ export class CredentialsService {
       );
     }
 
-    const cpoTenantId = await this.getCpoTenantIdForServerRolesForRegistration(serverCredentialsRoleDTOs);
+    const cpoTenantId = await this.getCpoTenantIdForServerRolesForRegistration(
+      serverCredentialsRoleDTOs,
+    );
     const storedServerCredentialsRoles: ServerCredentialsRole[] = [];
     if (!cpoTenantId) {
       const cpoTenant = await CpoTenant.create(
-          {
-            serverCredentialsRoles: serverCredentialsRoleDTOs,
-          },
-          {
-            include: [
-              {
-                model: ServerCredentialsRole,
-                include: [
-                  {
-                    model: BusinessDetails,
-                    include: [Image],
-                  },
-                ],
-              },
-            ],
-          },
+        {
+          serverCredentialsRoles: serverCredentialsRoleDTOs,
+        },
+        {
+          include: [
+            {
+              model: ServerCredentialsRole,
+              include: [
+                {
+                  model: BusinessDetails,
+                  include: [Image],
+                },
+              ],
+            },
+          ],
+        },
       );
       this.logger.info(`Created CpoTenant: ${JSON.stringify(cpoTenant)}`);
       storedServerCredentialsRoles.push(...cpoTenant.serverCredentialsRoles);
     } else {
-      storedServerCredentialsRoles.push(...(await this.serverCredentialsRoleRepository.createOrUpdateServerCredentialsRoles(serverCredentialsRoleDTOs, cpoTenantId)));
+      storedServerCredentialsRoles.push(
+        ...(await this.serverCredentialsRoleRepository.createOrUpdateServerCredentialsRoles(
+          serverCredentialsRoleDTOs,
+          cpoTenantId,
+        )),
+      );
     }
 
     const credentialsTokenA = uuidv4();
@@ -560,10 +571,9 @@ export class CredentialsService {
       },
     );
 
-    const storedServerCredentialsRoleDTOs =
-      storedServerCredentialsRoles.map((storedRole) =>
-        storedRole.toCredentialsRoleDTO(),
-      );
+    const storedServerCredentialsRoleDTOs = storedServerCredentialsRoles.map(
+      (storedRole) => storedRole.toCredentialsRoleDTO(),
+    );
     return CredentialsDTO.build(
       clientInfo.serverToken,
       clientInfo.serverVersionDetails[0].url,
@@ -748,29 +758,33 @@ export class CredentialsService {
     return await clientInformation.save();
   }
 
-  private async getCpoTenantIdForServerRolesForRegistration(serverCredentialsRoleDTOs: CredentialsRoleDTO[]): Promise<number | undefined> {
+  private async getCpoTenantIdForServerRolesForRegistration(
+    serverCredentialsRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<number | undefined> {
     let cpoTenantId: number | undefined;
     for (const role of serverCredentialsRoleDTOs) {
       try {
         if (role.role !== Role.CPO) {
-            throw new BadRequestError(`The CredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} is not a CPO role`);
+          throw new BadRequestError(
+            `The CredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} is not a CPO role`,
+          );
         }
         const storedRole =
-            await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
-                role.country_code,
-                role.party_id,
-            );
+          await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+            role.country_code,
+            role.party_id,
+          );
         if (!cpoTenantId) {
           cpoTenantId = storedRole.cpoTenantId;
         } else if (cpoTenantId !== storedRole.cpoTenantId) {
           throw new BadRequestError(
-              `ServerCredentialsRoles belongs to different CPO tenants`,
+            `ServerCredentialsRoles belongs to different CPO tenants`,
           );
         }
       } catch (e) {
         if (e instanceof NotFoundError) {
           this.logger.debug(
-              `ServerCredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} not found and can be created.`,
+            `ServerCredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} not found and can be created.`,
           );
         } else {
           throw e;
