@@ -32,11 +32,12 @@ import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
+export { OcpiParams } from './trigger/util/ocpi.params';
 export { ChargingPreferences } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/paginated.params';
 export { Paginated } from './util/decorators/paginated';
 export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
-export { PaginatedSessionResponse } from './model/Session';
+export { PaginatedSessionResponse, Session } from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
@@ -57,7 +58,10 @@ export { ClientInformationRepository } from './repository/ClientInformationRepos
 export { EndpointRepository } from './repository/EndpointRepository';
 export { SessionChargingProfileRepository } from './repository/SessionChargingProfileRepository';
 
-export { ClientInformation, ClientInformationProps } from './model/ClientInformation';
+export {
+  ClientInformation,
+  ClientInformationProps,
+} from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
 export { OcpiServerConfig } from './config/ocpi.server.config';
@@ -126,6 +130,7 @@ export {
 export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
 export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
 export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
+export { SessionMapper } from './mapper/session.mapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
 export { MultipleTypes } from './util/decorators/multiple.types';
 export { OcpiNamespace } from './util/ocpi.namespace';
@@ -192,6 +197,7 @@ export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
+export { BodyWithExample } from './util/decorators/BodyWithExample';
 
 useContainer(Container);
 

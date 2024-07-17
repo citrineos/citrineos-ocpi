@@ -27,6 +27,8 @@ import { ChargingProfile } from '../model/ChargingProfile';
 import { SessionChargingProfileRepository } from '../repository/SessionChargingProfileRepository';
 import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
+import { SessionMapper } from '../mapper/session.mapper';
+import { OcpiParams } from '../trigger/util/ocpi.params';
 
 @Service()
 export class CommandExecutor {
@@ -37,6 +39,7 @@ export class CommandExecutor {
     readonly ocpiEvseEntityRepo: OcpiEvseRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
+    readonly sessionMapper: SessionMapper,
   ) {}
 
   public async executeStartSession(startSession: StartSession): Promise<void> {
@@ -59,7 +62,9 @@ export class CommandExecutor {
       remoteStartId: responseUrlEntity.id,
       idToken: {
         idToken: startSession.token.uid,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(startSession.token.type),
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+          startSession.token.type,
+        ),
       },
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;
@@ -79,8 +84,14 @@ export class CommandExecutor {
     const transaction = await this.transactionRepo.findByTransactionId(
       stopSession.session_id,
     );
-
     if (!transaction) {
+      throw new NotFoundError('Transaction not found');
+    }
+
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
+    if (!session) {
       throw new NotFoundError('Session not found');
     }
 
@@ -89,6 +100,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       stopSession.response_url,
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const request = {
@@ -115,8 +132,14 @@ export class CommandExecutor {
     // If this map assumption changes, this needs to be changed
     const transaction =
       await this.transactionRepo.findByTransactionId(sessionId);
-
     if (!transaction) {
+      throw new NotFoundError('Transaction not found');
+    }
+
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
+    if (!session) {
       throw new NotFoundError('Session not found');
     }
 
@@ -125,7 +148,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       responseUrl,
-      transaction.transactionId,
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const request = {
@@ -152,8 +180,14 @@ export class CommandExecutor {
     // If this map assumption changes, this needs to be changed
     const transaction =
       await this.transactionRepo.findByTransactionId(sessionId);
-
     if (!transaction) {
+      throw new NotFoundError('Transaction not found');
+    }
+
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
+    if (!session) {
       throw new NotFoundError('Session not found');
     }
 
@@ -172,7 +206,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       responseUrl,
-      sessionId,
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const request = {
@@ -199,6 +238,13 @@ export class CommandExecutor {
     const transaction =
       await this.transactionRepo.findByTransactionId(sessionId);
     if (!transaction) {
+      throw new NotFoundError('Transaction not found');
+    }
+
+    const session = (
+      await this.sessionMapper.mapTransactionsToSessions([transaction])
+    )[0];
+    if (!session) {
       throw new NotFoundError('Session not found');
     }
 
@@ -211,7 +257,12 @@ export class CommandExecutor {
     await this.responseUrlRepo.saveResponseUrl(
       correlationId,
       setChargingProfile.response_url,
-      transaction.transactionId,
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
     );
 
     const stationId = transaction.stationId;

@@ -31,9 +31,6 @@ import {
  * Component that handles provisioning related messages.
  */
 export class LocationsHandlers extends AbstractModule {
-  private locationsBroadcaster: LocationsBroadcaster;
-  private locationsService: LocationsService;
-
   /**
    * Fields
    */
@@ -42,6 +39,9 @@ export class LocationsHandlers extends AbstractModule {
     CallAction.StatusNotification,
   ];
   protected _responses: CallAction[] = [];
+
+  private locationsBroadcaster: LocationsBroadcaster;
+  private locationsService: LocationsService;
 
   /**
    * This is the constructor function that initializes the {@link LocationsHandlers}.
@@ -136,9 +136,9 @@ export class LocationsHandlers extends AbstractModule {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialEvse: Partial<EvseDTO> = {};
         partialEvse.status =
-          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
-            [event.actualValue],
-          );
+          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus([
+            event.actualValue,
+          ]);
         partialEvse.last_updated = new Date(message.context.timestamp);
         evseUpdateMap[evseId] = partialEvse;
       } else if (
@@ -191,15 +191,34 @@ export class LocationsHandlers extends AbstractModule {
     const evseId = message.payload.evseId;
     const connectorId = message.payload.connectorId;
 
-    const chargingStationAttributes = (await this.locationsService.createChargingStationVariableAttributesMap([stationId], evseId))[stationId];
-    const evseAttributes = chargingStationAttributes ? chargingStationAttributes.evses[evseId] : null;
-    const connectorAvailabilityStates = evseAttributes ? Object.entries(evseAttributes.connectors)
-      .filter(([connectorIdKey, connectorAttributes]) => Number(connectorIdKey) !== connectorId)
-      .map(([connectorIdKey, connectorAttributes]) => connectorAttributes.connector_availability_state) : [];
+    const chargingStationAttributes = (
+      await this.locationsService.createChargingStationVariableAttributesMap(
+        [stationId],
+        evseId,
+      )
+    )[stationId];
+    const evseAttributes = chargingStationAttributes
+      ? chargingStationAttributes.evses[evseId]
+      : null;
+    const connectorAvailabilityStates = evseAttributes
+      ? Object.entries(evseAttributes.connectors)
+          .filter(
+            ([connectorIdKey, _connectorAttributes]) =>
+              Number(connectorIdKey) !== connectorId,
+          )
+          .map(
+            ([_connectorIdKey, connectorAttributes]) =>
+              connectorAttributes.connector_availability_state,
+          )
+      : [];
     connectorAvailabilityStates.push(message.payload.connectorStatus);
 
     const partialEvse: Partial<EvseDTO> = {};
-    partialEvse.status = CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(connectorAvailabilityStates, chargingStationAttributes?.bay_occupancy_sensor_active);
+    partialEvse.status =
+      CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+        connectorAvailabilityStates,
+        chargingStationAttributes?.bay_occupancy_sensor_active,
+      );
     partialEvse.last_updated = new Date(message.payload.timestamp);
 
     await this.locationsBroadcaster.broadcastOnEvseUpdate(

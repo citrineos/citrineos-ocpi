@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsBoolean,
   IsDate,
   IsNotEmpty,
   IsObject,
@@ -17,12 +16,7 @@ import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
 import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
 import { PaginatedResponse } from './PaginatedResponse';
-import {
-  Column,
-  DataType,
-  Model,
-  Table,
-} from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { TokenType } from './TokenType';
 import { TokenDTO } from './DTO/TokenDTO';
 
@@ -30,9 +24,9 @@ import { TokenDTO } from './DTO/TokenDTO';
 export class OcpiToken extends Model {
   @Column({
     type: DataType.INTEGER,
-    unique: true
+    unique: true,
   })
-  authorization_id!: number
+  authorization_id!: number;
 
   @Column(DataType.STRING)
   @MaxLength(2)

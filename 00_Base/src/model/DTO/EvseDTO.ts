@@ -21,7 +21,7 @@ import { ParkingRestriction } from '../ParkingRestriction';
 import { OcpiResponse } from '../ocpi.response';
 
 // TODO make dynamic
-const uidDelimiter = '::';
+export const uidDelimiter = '::';
 export const UID_FORMAT = (stationId: string, evseId: number): string =>
   `${stationId}${uidDelimiter}${evseId}`;
 
