@@ -4,7 +4,7 @@ import {
   BaseController,
   ClientInformation,
   CredentialsDTO,
-  CredentialsRequestDTO,
+  AdminCredentialsRequestDTO,
   CredentialsResponse,
   CredentialsService,
   generateMockOcpiResponse,
@@ -189,7 +189,7 @@ export class CredentialsModuleApi
    * Based on the registration process, this token A will be replaced by the formal credentials token C later.
    *
    * @param versionNumber VersionNumber enum
-   * @param credentialsRequest CredentialsRequestDTO including version url and server credentials roles
+   * @param credentialsRequest AdminCredentialsRequestDTO including version url and server credentials roles
    */
   @Post('/generate-credentials-token-a')
   @ResponseSchema(CredentialsResponse, {
@@ -204,7 +204,7 @@ export class CredentialsModuleApi
   })
   async generateCredentialsTokenA(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body() credentialsRequest: CredentialsRequestDTO,
+    @Body() credentialsRequest: AdminCredentialsRequestDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('generateCredentialsTokenA', credentialsRequest);
 

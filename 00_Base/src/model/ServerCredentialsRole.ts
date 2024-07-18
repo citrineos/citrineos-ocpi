@@ -79,15 +79,19 @@ export class ServerCredentialsRole extends Model implements ICredentialsRole {
     return serverCredentialsRole;
   }
 
-  public toCredentialsRoleDTO(): CredentialsRoleDTO {
+  static toCredentialsRoleDTO(
+    serverCredentialsRole: ServerCredentialsRole,
+  ): CredentialsRoleDTO {
     const credentialsRoleDTO = new CredentialsRoleDTO();
-    credentialsRoleDTO.role = this[ServerCredentialsRoleProps.role];
-    credentialsRoleDTO.party_id = this[ServerCredentialsRoleProps.partyId];
+    credentialsRoleDTO.role =
+      serverCredentialsRole[ServerCredentialsRoleProps.role];
+    credentialsRoleDTO.party_id =
+      serverCredentialsRole[ServerCredentialsRoleProps.partyId];
     credentialsRoleDTO.country_code =
-      this[ServerCredentialsRoleProps.countryCode];
-    if (this[ServerCredentialsRoleProps.businessDetails]) {
+      serverCredentialsRole[ServerCredentialsRoleProps.countryCode];
+    if (serverCredentialsRole[ServerCredentialsRoleProps.businessDetails]) {
       credentialsRoleDTO.business_details = toBusinessDetailsDTO(
-        this[ServerCredentialsRoleProps.businessDetails],
+        serverCredentialsRole[ServerCredentialsRoleProps.businessDetails],
       );
     }
     return credentialsRoleDTO;

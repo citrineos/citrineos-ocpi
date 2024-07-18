@@ -46,7 +46,9 @@ import { buildPostCredentialsParams } from '../trigger/param/credentials/post.cr
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
-import { CredentialsRequestDTO } from '../model/DTO/CredentialsRequestDTO';
+import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
+import { validateVersionEndpointByModuleId } from '../util/validators/VersionsValidators';
+import { validateRole } from '../util/validators/CredentialsValidators';
 
 const clientInformationInclude = [
   {
@@ -479,81 +481,40 @@ export class CredentialsService {
   }
 
   async generateCredentialsTokenA(
-    credentialsRequest: CredentialsRequestDTO,
+    credentialsRequest: AdminCredentialsRequestDTO,
     versionNumber: VersionNumber,
   ): Promise<CredentialsDTO> {
-    const serverCredentialsRoleDTOs = credentialsRequest.roles;
+    // The input roles must be CPO
+    const receivedRoles = credentialsRequest.roles;
+    validateRole(receivedRoles, Role.CPO);
 
     // Make sure we stored the necessary version and version endpoints
     // so that MSP can retrieve them later in the registration process
-    const storedVersion = await this.versionRepository.readOnlyOneByQuery(
-      {
-        where: {
-          version: versionNumber,
-        },
-        include: [VersionEndpoint],
-      },
-      OcpiNamespace.Version,
-    );
-    if (!storedVersion) {
-      throw new NotFoundError(`Version not found for version ${versionNumber}`);
-    }
-    const credentialsUrl = storedVersion.endpoints.find(
-      (endpoint: any) => endpoint.identifier === ModuleId.Credentials,
-    );
-    if (!credentialsUrl) {
-      throw new NotFoundError(
-        `Endpoint URL for ${ModuleId.Credentials} not found for version ${versionNumber}`,
+    const storedVersionEndpoints =
+      await this.versionRepository.findVersionEndpointsByVersionNumber(
+        versionNumber,
       );
-    }
+    validateVersionEndpointByModuleId(
+      storedVersionEndpoints,
+      ModuleId.Credentials,
+    );
 
-    const cpoTenantId = await this.getCpoTenantIdForServerRolesForRegistration(
-      serverCredentialsRoleDTOs,
-    );
-    const storedServerCredentialsRoles: ServerCredentialsRole[] = [];
-    if (!cpoTenantId) {
-      const cpoTenant = await CpoTenant.create(
-        {
-          serverCredentialsRoles: serverCredentialsRoleDTOs,
-        },
-        {
-          include: [
-            {
-              model: ServerCredentialsRole,
-              include: [
-                {
-                  model: BusinessDetails,
-                  include: [Image],
-                },
-              ],
-            },
-          ],
-        },
-      );
-      this.logger.info(`Created CpoTenant: ${JSON.stringify(cpoTenant)}`);
-      storedServerCredentialsRoles.push(...cpoTenant.serverCredentialsRoles);
-    } else {
-      storedServerCredentialsRoles.push(
-        ...(await this.serverCredentialsRoleRepository.createOrUpdateServerCredentialsRoles(
-          serverCredentialsRoleDTOs,
-          cpoTenantId,
-        )),
-      );
-    }
+    const storedServerCredentialsRoles: ServerCredentialsRole[] =
+      await this.storeServerCredentialsRoles(receivedRoles);
 
     const credentialsTokenA = uuidv4();
     // clientToken, clientCredentialsRoles and clientVersionDetails
     // are added in the following post credentials requests based on the registration process
     const clientInfo = await ClientInformation.create(
       {
-        cpoTenantId: cpoTenantId,
+        cpoTenantId: storedServerCredentialsRoles[0].cpoTenantId,
         registered: false,
         serverToken: credentialsTokenA,
         serverVersionDetails: [
           {
             version: versionNumber,
             url: credentialsRequest.url,
-            endpoints: storedVersion.endpoints.map((endpoint) => ({
+            endpoints: storedVersionEndpoints.map((endpoint) => ({
               identifier: endpoint.identifier,
               role: endpoint.role,
               url: endpoint.url,
@@ -572,7 +533,7 @@ export class CredentialsService {
     );
 
     const storedServerCredentialsRoleDTOs = storedServerCredentialsRoles.map(
-      (storedRole) => storedRole.toCredentialsRoleDTO(),
+      (storedRole) => ServerCredentialsRole.toCredentialsRoleDTO(storedRole),
     );
     return CredentialsDTO.build(
       clientInfo.serverToken,
@@ -764,11 +725,6 @@ export class CredentialsService {
     let cpoTenantId: number | undefined;
     for (const role of serverCredentialsRoleDTOs) {
       try {
-        if (role.role !== Role.CPO) {
-          throw new BadRequestError(
-            `The CredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} is not a CPO role`,
-          );
-        }
         const storedRole =
           await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
             role.country_code,
@@ -793,5 +749,47 @@ export class CredentialsService {
     }
 
     return cpoTenantId;
+  }
+
+  private async storeServerCredentialsRoles(
+    credentialsRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<ServerCredentialsRole[]> {
+    const storedServerCredentialsRoles: ServerCredentialsRole[] = [];
+
+    const cpoTenantId =
+      await this.getCpoTenantIdForServerRolesForRegistration(
+        credentialsRoleDTOs,
+      );
+    if (!cpoTenantId) {
+      const cpoTenant = await CpoTenant.create(
+        {
+          serverCredentialsRoles: credentialsRoleDTOs,
+        },
+        {
+          include: [
+            {
+              model: ServerCredentialsRole,
+              include: [
+                {
+                  model: BusinessDetails,
+                  include: [Image],
+                },
+              ],
+            },
+          ],
+        },
+      );
+      this.logger.info(`Created CpoTenant: ${JSON.stringify(cpoTenant)}`);
+      storedServerCredentialsRoles.push(...cpoTenant.serverCredentialsRoles);
+    } else {
+      storedServerCredentialsRoles.push(
+        ...(await this.serverCredentialsRoleRepository.createOrUpdateServerCredentialsRoles(
+          credentialsRoleDTOs,
+          cpoTenantId,
+        )),
+      );
+    }
+
+    return storedServerCredentialsRoles;
   }
 }

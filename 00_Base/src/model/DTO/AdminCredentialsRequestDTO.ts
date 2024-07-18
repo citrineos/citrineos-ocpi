@@ -9,7 +9,7 @@ import {
 import { Type } from 'class-transformer';
 import { CredentialsRoleDTO } from './CredentialsRoleDTO';
 
-export class CredentialsRequestDTO {
+export class AdminCredentialsRequestDTO {
   @IsString()
   @IsUrl({ require_tld: false })
   @IsNotEmpty()
@@ -26,8 +26,8 @@ export class CredentialsRequestDTO {
     token: string,
     url: string,
     roles: CredentialsRoleDTO[],
-  ): CredentialsRequestDTO {
-    const credentials = new CredentialsRequestDTO();
+  ): AdminCredentialsRequestDTO {
+    const credentials = new AdminCredentialsRequestDTO();
     credentials.url = url;
     credentials.roles = roles;
     return credentials;
