@@ -159,6 +159,7 @@ export class LocationsModuleApi
    * Admin Endpoints
    **/
 
+  // TODO add "admin endpoint" annotation for "regular" error handling when available
   @Put('/admin')
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
