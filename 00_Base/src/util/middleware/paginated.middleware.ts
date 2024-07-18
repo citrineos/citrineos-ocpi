@@ -46,6 +46,7 @@ export class PaginatedMiddleware
     const total = paginatedResponse.total || 0;
     if (currentOffset + limit < total) {
       const newOffset = currentOffset + limit;
+      url.searchParams.set('limit', limit.toString());
       url.searchParams.set('offset', newOffset.toString());
       return url.href;
     }
