@@ -1,4 +1,11 @@
-import { SequelizeTariffRepository, Tariff, Transaction, TransactionEvent } from '@citrineos/data';
+import {
+  Authorization,
+  ChargingStation,
+  SequelizeTariffRepository,
+  Tariff,
+  Transaction,
+  TransactionEvent
+} from '@citrineos/data';
 import { TransactionEventRequest } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
@@ -11,6 +18,8 @@ import { TariffKey } from '../model/OcpiTariff';
 import { TariffsService } from '../services/tariffs.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
+import { OcpiToken } from '../model/OcpiToken';
+import { OcpiTokensMapper } from './OcpiTokensMapper';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -28,7 +37,11 @@ export abstract class BaseTransactionMapper {
   ): Promise<Map<string, LocationDTO>> {
     const transactionIdToLocationMap: Map<string, LocationDTO> = new Map();
     for (const transaction of transactions) {
-      const chargingStation = await transaction.$get('station');
+      let chargingStation: ChargingStation | null = transaction.station;
+      if (!chargingStation) {
+        chargingStation = await transaction.$get('station');
+      }
+
       if (!chargingStation || !chargingStation.locationId) {
         continue;
       }
@@ -46,20 +59,29 @@ export abstract class BaseTransactionMapper {
 
   protected async getTokensForTransactions(
     transactions: Transaction[]
-  ): Promise<{ [key: string]: TokenDTO }> {
-    const transactionIdToTokenMap: { [transactionId: string]: TokenDTO } = {};
+  ): Promise<Map<string, TokenDTO>> {
+    const transactionIdToTokenMap: Map<string, TokenDTO> = new Map();
 
     for (const transaction of transactions) {
       const startEvent = transaction.transactionEvents?.find(
         (event) => event.eventType === 'Started'
       );
-      if (startEvent?.idToken) {
-        const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
-          startEvent.idToken.idToken,
-          startEvent.idToken.type
-        );
+      const idToken = startEvent?.idToken;
+      if (idToken) {
+        const ocppAuth: Authorization = (idToken as any)?.authorization;
+        const ocpiToken: OcpiToken = (ocppAuth as any)?.OcpiToken;
+        let tokenDto: TokenDTO | undefined;
+        if (ocppAuth && ocpiToken) {
+          tokenDto = await OcpiTokensMapper.toDto(ocppAuth, ocpiToken);
+        } else {
+          tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
+            idToken.idToken,
+            idToken.type
+          );
+        }
+
         if (tokenDto) {
-          transactionIdToTokenMap[transaction.transactionId] = tokenDto;
+          transactionIdToTokenMap.set(transaction.transactionId, tokenDto);
         }
       }
     }
@@ -74,14 +96,8 @@ export abstract class BaseTransactionMapper {
     const uniqueStationIds = [...new Set(transactions.map(t => t.stationId))];
 
     const stationIdToTariffMap = new Map<string, Tariff>();
-    await Promise.all(
-      uniqueStationIds.map(async (stationId) => {
-        const tariff = await this.tariffRepository.findByStationId(stationId);
-        if (tariff) {
-          stationIdToTariffMap.set(stationId, tariff);
-        }
-      })
-    );
+    const tariffs = await this.tariffRepository.findByStationIds(uniqueStationIds);
+    tariffs?.forEach(tariff => stationIdToTariffMap.set(tariff.stationId, tariff));
 
     for (const transaction of transactions) {
       const tariff = stationIdToTariffMap.get(transaction.stationId);
