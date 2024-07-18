@@ -177,7 +177,7 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { TokensService } from './services/TokensService';
-export { TokensFetchService } from './services/TokensFetchService';
+export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { AsyncJobStatusDTO } from './model/AsyncJobStatus';

@@ -23,7 +23,7 @@ import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { AsyncJobRequest } from '../model/AsyncJobRequest';
 
 @Service()
-export class TokensFetchService {
+export class TokensAdminService {
   constructor(
     private readonly logger: OcpiLogger,
     private readonly tokenRepository: TokensRepository,
@@ -93,7 +93,7 @@ export class TokensFetchService {
         asyncJobStatus.mspCountryCode,
         asyncJobStatus.mspPartyId,
         asyncJobStatus.cpoCountryCode,
-        Role.CPO,
+        asyncJobStatus.cpoPartyId,
         asyncJobStatus.paginationParams.offset,
         asyncJobStatus.paginationParams.limit,
         asyncJobStatus.paginationParams.dateFrom,

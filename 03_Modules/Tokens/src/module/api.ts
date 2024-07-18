@@ -38,7 +38,7 @@ import {
   TokenDTO,
   TokenResponse,
   TokensService,
-  TokensFetchService,
+  TokensAdminService,
   TokenType,
   UnknownTokenException,
   versionIdParam,
@@ -78,7 +78,7 @@ export class TokensModuleApi
 {
   constructor(
     readonly tokensService: TokensService,
-    readonly tokensFetchService: TokensFetchService,
+    readonly tokensFetchService: TokensAdminService,
   ) {
     super();
   }
@@ -250,7 +250,7 @@ export class TokensModuleApi
       success: generateMockOcpiResponse(AsyncJobStatusDTO),
     },
   })
-  async fetchTokensContinue(
+  async fetchTokensAction(
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
     @Param('action') action: AsyncJobAction,
