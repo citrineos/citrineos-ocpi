@@ -10,6 +10,15 @@ import { ResponseValidationMiddleware } from '../middleware/ResponseValidationMi
 
 export const validatedResponseParam = 'validatedResponseParam';
 
+/**
+ * ValidatedResponseSchema decorator wraps {@link ResponseSchema} and adds the input
+ * responseClass into Reflect.metadata and enables the {@link ResponseValidationMiddleware}
+ * which will get the responseClass via Reflect and perform class-validator validation
+ * on the response body prior to sending it back to the client.
+ * @param responseClass - response class
+ * @param options - {@link ResponseSchema} options
+ * @constructor
+ */
 export const ValidatedResponseSchema = (
   responseClass: Constructable<any>,
   options: {
