@@ -16,6 +16,11 @@ import {
 } from '../../index';
 import { ResponseValidationError } from '../../exception/ResponseValidationError';
 
+/**
+ * ResponseValidationMiddleware will perform class-validator validation on response body
+ * using the class that was passed into the {@link ValidatedResponseSchema} decorator
+ * which in turn enables the middleware on the endpoint
+ */
 @Middleware({ type: 'before' })
 @Service()
 export class ResponseValidationMiddleware implements KoaMiddlewareInterface {
