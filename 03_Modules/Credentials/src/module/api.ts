@@ -25,6 +25,7 @@ import {
   Delete,
   Get,
   JsonController,
+  Param,
   Post,
   Put,
 } from 'routing-controllers';
@@ -171,5 +172,25 @@ export class CredentialsModuleApi
       ? clientInformation.get({ plain: true })
       : clientInformation;
     return CredentialsResponse.build(toCredentialsDTO(clientInformation));
+  }
+
+  @Delete('/delete-tenant/:tenantId')
+  @ResponseSchema(OcpiEmptyResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async deleteTenant(
+    @VersionNumberParam() _versionNumber: VersionNumber,
+    @Param('tenantId') tenantId: string,
+  ): Promise<OcpiEmptyResponse> {
+    this.logger.info('deleteTenant', tenantId);
+    await this.credentialsService?.deleteTenant(tenantId);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 }

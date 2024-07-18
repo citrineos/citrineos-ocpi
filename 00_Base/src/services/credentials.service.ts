@@ -42,6 +42,7 @@ import { buildPostCredentialsParams } from '../trigger/param/credentials/post.cr
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
+import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 
 const clientInformationInclude = [
   {
@@ -90,6 +91,7 @@ export class CredentialsService {
     readonly versionRepository: VersionRepository,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
     readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
+    readonly cpoTenantRepository: CpoTenantRepository,
   ) {}
 
   async getClientCredentialsRoleByCountryCodeAndPartyId(
@@ -472,6 +474,35 @@ export class CredentialsService {
       );
     console.debug('updatedClientInformation', updatedClientInformation);
     return updatedClientInformation;
+  }
+
+  async deleteTenant(tenantId: string): Promise<void> {
+    const cpoTenant = await this.cpoTenantRepository.readOnlyOneByQuery({
+      where: {
+        id: tenantId,
+      },
+    });
+    if (!cpoTenant) {
+      throw new NotFoundError('CpoTenant not found');
+    }
+    try {
+      await this.clientInformationRepository.deleteAllByQuery({
+        where: {
+          [ClientInformationProps.cpoTenantId]: cpoTenant.id,
+        },
+      });
+      await this.cpoTenantRepository.deleteAllByQuery(
+        {
+          where: {
+            id: tenantId,
+          },
+        },
+        OcpiNamespace.Credentials,
+      );
+      return;
+    } catch (e: any) {
+      throw new InternalServerError(`Could not delete tenant, ${e.message}`);
+    }
   }
 
   private async getPostCredentialsResponse(
