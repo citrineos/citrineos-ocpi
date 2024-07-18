@@ -54,7 +54,7 @@ export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
       ocpiHeaders!.fromPartyId,
       ocpiHeaders!.toCountryCode,
       ocpiHeaders!.toPartyId,
-      paginationParams?.dateFrom as Date, // todo handle both dates optional
+      paginationParams?.dateFrom,
       paginationParams?.dateTo,
       paginationParams?.offset,
       paginationParams?.limit,
