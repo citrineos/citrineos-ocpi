@@ -395,7 +395,6 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     evseId: number,
     profileResult: ActiveChargingProfile,
   ) {
-<<<<<<< Updated upstream
     const activeTransaction =
       await this.transactionEventRepository.getActiveTransactionByStationIdAndEvseId(
         stationId,
@@ -416,32 +415,6 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
 
     try {
-=======
-    // TODO: after Session Module is implemented
-    //  (1) find the active session by evseId
-    //  (2) find the session object by session id
-    //  (3) get the country code and party id from the session and its cdr_token
-    const sessionId = '12345';
-    const toCountryCode = 'NL';
-    const toPartyId = 'EXA';
-    const fromCountryCode = 'NL';
-    const fromPartyId = 'CPO';
-    const url = await this.endpointRepository.readEndpoint(
-      toCountryCode,
-      toPartyId,
-      ModuleId.ChargingProfiles,
-      InterfaceRole.RECEIVER,
-    );
-    console.log(`Found endpointURL: ${url}`);
-    const clientInfo =
-      await this.clientInformationRepository.getClientInformation(
-        fromCountryCode,
-        fromPartyId,
-        toCountryCode,
-        toPartyId,
-      );
-    if (url && clientInfo) {
->>>>>>> Stashed changes
       const params = buildPutChargingProfileParams(
         session.id,
         profileResult,
