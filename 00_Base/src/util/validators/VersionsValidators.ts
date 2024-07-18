@@ -9,9 +9,7 @@ export function validateVersionEndpointByModuleId(
   const versionEndpoint = endpoints.find(
     (endpoint) => endpoint.identifier === moduleId,
   );
-  if (!versionEndpoint) {
-    throw new NotFoundError(
-      `VersionEndpoint for ${ModuleId.Credentials} not found`,
-    );
+  if (!versionEndpoint || !versionEndpoint.url) {
+    throw new NotFoundError(`VersionEndpoint for ${moduleId} not found.`);
   }
 }

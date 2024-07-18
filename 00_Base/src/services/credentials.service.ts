@@ -652,6 +652,7 @@ export class CredentialsService {
     if (!versionDetails) {
       throw new NotFoundError('Matching version details not found');
     }
+    // TODO: add validation to check expected endpoints based on OCPP 2.2.1, 7.1.6
     return ClientVersion.build(
       {
         version: versionNumber,
