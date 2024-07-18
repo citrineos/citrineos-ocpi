@@ -47,11 +47,13 @@ export class SessionMapper extends BaseTransactionMapper {
 
     return transactions
       .filter((transaction) =>
-        transactionIdToLocationMap.has(transaction.transactionId)
+        transactionIdToLocationMap.has(transaction.transactionId) &&
+        transactionIdToTokenMap.has(transaction.transactionId) &&
+        transactionIdToTariffMap.has(transaction.transactionId)
       )
       .map((transaction) => {
         const location = transactionIdToLocationMap.get(transaction.transactionId)!;
-        const token = transactionIdToTokenMap[transaction.transactionId]!;
+        const token = transactionIdToTokenMap.get(transaction.transactionId)!;
         const tariff = transactionIdToTariffMap.get(transaction.transactionId)!;
         return this.mapTransactionToSession(transaction, location, token, tariff);
       });
@@ -252,7 +254,7 @@ export class SessionMapper extends BaseTransactionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-        new Date(previousMeterValue.timestamp).getTime()
+      new Date(previousMeterValue.timestamp).getTime()
       : 0;
 
     // Convert milliseconds to hours
