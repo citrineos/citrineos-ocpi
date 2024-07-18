@@ -53,6 +53,7 @@ export class TariffsService {
     }, {});
     const coreTariffs = await this.coreTariffRepository.readAllByQuery({
       where: { id: { [Op.in]: Object.keys(coreTariffIdToOcpiTariff) } },
+      order: [['createdAt', 'ASC']],
     });
 
     return coreTariffs.map((ocppTariff) =>
