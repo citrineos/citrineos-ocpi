@@ -60,9 +60,7 @@ export class AdminLocationsService {
       await this.locationRepository.createOrUpdateLocationWithChargingStations(
         citrineLocation,
       );
-    const citrineLocationId = savedCitrineLocation.id;
-
-    ocpiLocation[OcpiLocationProps.citrineLocationId] = citrineLocationId;
+    ocpiLocation[OcpiLocationProps.citrineLocationId] = savedCitrineLocation.id;
     const savedOcpiLocation =
       await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
         ocpiLocation,
@@ -98,7 +96,7 @@ export class AdminLocationsService {
       savedOcpiLocation,
     );
 
-    if (adminLocationDto.push_to_msps && broadcast) {
+    if (broadcast) {
       await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(
         locationDto,
       );

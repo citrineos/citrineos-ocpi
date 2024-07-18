@@ -72,10 +72,6 @@ export class AdminLocationDTO {
   @Optional()
   publish?: boolean;
 
-  @IsBoolean()
-  @Optional()
-  push_to_msps?: boolean;
-
   @IsArray()
   @Optional()
   evses?: AdminEVSEDTO[];
