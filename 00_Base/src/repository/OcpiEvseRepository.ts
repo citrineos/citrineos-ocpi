@@ -50,7 +50,7 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
     });
   }
 
-  async createOrUpdateOcpiEvse(evse: OcpiEvse): Promise<OcpiEvse> {
+  async createOrUpdateOcpiEvse(evse: OcpiEvse): Promise<void> {
     const [savedOcpiEvse, ocpiEvseCreated] = await this._readOrCreateByQuery({
       where: {
         evseId: evse.evseId,
@@ -60,25 +60,17 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
         evseId: evse.evseId,
         stationId: evse.stationId,
         lastUpdated: evse.lastUpdated,
-        ...(evse.physicalReference
-          ? { physicalReference: evse.physicalReference }
-          : {}),
-        ...(evse.removed !== undefined ? { removed: evse.removed } : {}),
+        physicalReference: evse.physicalReference,
+        removed: evse.removed,
       },
     });
     if (!ocpiEvseCreated) {
-      await this._updateByKey(
-        {
-          ...(evse.physicalReference
-            ? { physicalReference: evse.physicalReference }
-            : {}),
-          ...(evse.removed !== undefined ? { removed: evse.removed } : {}),
-          ...(evse.lastUpdated ? { lastUpdated: evse.lastUpdated } : {}),
-        },
-        savedOcpiEvse.id,
-      );
-    }
+      const values: Partial<OcpiEvse> = {};
+      values.physicalReference = evse.physicalReference ?? undefined;
+      values.removed = evse.removed !== undefined ? evse.removed : undefined;
+      values.lastUpdated = evse.lastUpdated ?? undefined;
 
-    return savedOcpiEvse;
+      await this._updateByKey({ ...values }, savedOcpiEvse.id);
+    }
   }
 }

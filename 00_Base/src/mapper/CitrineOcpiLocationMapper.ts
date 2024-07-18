@@ -21,6 +21,7 @@ import { OcpiConnector } from '../model/OcpiConnector';
 import { NOT_APPLICABLE } from '../util/consts';
 import { Service } from 'typedi';
 import { ILogObj, Logger } from 'tslog';
+import { Point } from 'geojson';
 
 @Service()
 export class CitrineOcpiLocationMapper {
@@ -95,6 +96,7 @@ export class CitrineOcpiLocationMapper {
     ocpiLocation.coordinates = this.mapOcppCoordinatesToGeoLocation(
       citrineLocation.coordinates,
     );
+    ocpiLocation.time_zone = ocpiLocationInfo.time_zone;
 
     const evses: EvseDTO[] = [];
 
@@ -130,7 +132,6 @@ export class CitrineOcpiLocationMapper {
     ocpiLocation.evses = [...evses];
 
     // TODO make dynamic mappings for the remaining optional fields
-    // ocpiLocation.time_zone
     // ocpiLocation.related_locations
     // ocpiLocation.parking_type
     // ocpiLocation.directions
@@ -173,8 +174,8 @@ export class CitrineOcpiLocationMapper {
     evse.coordinates = this.mapOcppCoordinatesToGeoLocation(
       citrineLocation.coordinates,
     );
-    evse.physical_reference = ocpiEvseInfo?.physicalReference;
-    evse.last_updated = ocpiEvseInfo?.lastUpdated ?? new Date(); // TODO better fallback
+    evse.physical_reference = ocpiEvseInfo.physicalReference;
+    evse.last_updated = ocpiEvseInfo.lastUpdated;
 
     const connectors = [];
 
@@ -244,7 +245,7 @@ export class CitrineOcpiLocationMapper {
     Helpers
   */
 
-  private mapOcppCoordinatesToGeoLocation(ocppCoordinates: any): GeoLocation {
+  private mapOcppCoordinatesToGeoLocation(ocppCoordinates: Point): GeoLocation {
     const geoLocation = new GeoLocation();
     geoLocation.longitude = String(ocppCoordinates.coordinates[0]);
     geoLocation.latitude = String(ocppCoordinates.coordinates[1]);
