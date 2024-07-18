@@ -211,7 +211,6 @@ export {
   AdminLocationDTO,
   AdminEVSEDTO,
   AdminConnectorDTO,
-  isLocationInvalid,
 } from './model/DTO/admin/AdminLocationDTO';
 export {
   ChargingStationVariableAttributes,

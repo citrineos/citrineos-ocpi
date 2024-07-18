@@ -22,7 +22,6 @@ import {
   VariableAttributesUtil,
   OcpiLocationsUtil,
   InvalidParamException,
-  isLocationInvalid,
 } from '@citrineos/ocpi-base';
 
 @Service()
@@ -49,7 +48,7 @@ export class AdminLocationsService {
         : `Creating Location ${adminLocationDto.name}`,
     );
 
-    const [invalidLocation, message] = isLocationInvalid(adminLocationDto);
+    const [invalidLocation, message] = AdminLocationDTO.IS_LOCATION_INVALID(adminLocationDto);
     if (invalidLocation) {
       throw new InvalidParamException(message ?? 'Invalid location request.');
     }

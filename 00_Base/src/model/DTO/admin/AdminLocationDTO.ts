@@ -75,6 +75,52 @@ export class AdminLocationDTO {
   @IsArray()
   @Optional()
   evses?: AdminEVSEDTO[];
+
+  static IS_LOCATION_INVALID = (
+    adminLocationDto: AdminLocationDTO,
+  ): [boolean, string] => {
+    const locationInvalid =
+      !adminLocationDto.id &&
+      (!adminLocationDto.party_id ||
+        !adminLocationDto.country_code ||
+        !adminLocationDto.name ||
+        !adminLocationDto.address ||
+        !adminLocationDto.city ||
+        !adminLocationDto.state ||
+        !adminLocationDto.postal_code ||
+        !adminLocationDto.country);
+
+    const evseInvalid =
+      !!adminLocationDto.evses &&
+      adminLocationDto.evses.reduce(
+        (eInvalid, evse) => eInvalid || !evse.id || !evse.station_id,
+        false,
+      );
+
+    const connectorInvalid =
+      !!adminLocationDto.evses &&
+      adminLocationDto.evses
+        .reduce(
+          (connectors: AdminConnectorDTO[], evse) => [
+            ...connectors,
+            ...(evse.connectors ?? []),
+          ],
+          [],
+        )
+        .reduce((cInvalid, connector) => cInvalid || !connector.id, false);
+
+    const invalid = locationInvalid || evseInvalid || connectorInvalid;
+
+    const finalMessage = locationInvalid
+      ? LOCATION_INVALID_MSG
+      : evseInvalid
+        ? EVSE_INVALID_MSG
+        : connectorInvalid
+          ? CONNECTOR_INVALID_MSG
+          : '';
+
+    return [invalid, finalMessage];
+  };
 }
 
 export class AdminEVSEDTO {
@@ -105,48 +151,3 @@ export class AdminConnectorDTO {
   id!: number;
 }
 
-export const isLocationInvalid = (
-  adminLocationDto: AdminLocationDTO,
-): [boolean, string] => {
-  const locationInvalid =
-    !adminLocationDto.id &&
-    (!adminLocationDto.party_id ||
-      !adminLocationDto.country_code ||
-      !adminLocationDto.name ||
-      !adminLocationDto.address ||
-      !adminLocationDto.city ||
-      !adminLocationDto.state ||
-      !adminLocationDto.postal_code ||
-      !adminLocationDto.country);
-
-  const evseInvalid =
-    !!adminLocationDto.evses &&
-    adminLocationDto.evses.reduce(
-      (eInvalid, evse) => eInvalid || !evse.id || !evse.station_id,
-      false,
-    );
-
-  const connectorInvalid =
-    !!adminLocationDto.evses &&
-    adminLocationDto.evses
-      .reduce(
-        (connectors: AdminConnectorDTO[], evse) => [
-          ...connectors,
-          ...(evse.connectors ?? []),
-        ],
-        [],
-      )
-      .reduce((cInvalid, connector) => cInvalid || !connector.id, false);
-
-  const invalid = locationInvalid || evseInvalid || connectorInvalid;
-
-  const finalMessage = locationInvalid
-    ? LOCATION_INVALID_MSG
-    : evseInvalid
-      ? EVSE_INVALID_MSG
-      : connectorInvalid
-        ? CONNECTOR_INVALID_MSG
-        : '';
-
-  return [invalid, finalMessage];
-};
