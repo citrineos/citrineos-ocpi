@@ -119,7 +119,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
         await this._updateByKey({ ...values }, savedOcpiLocation.id);
       }
 
-      return savedOcpiLocation;
+      return savedOcpiLocation.reload();
     } else {
       return await this.create(OcpiLocation.build({ ...location }));
     }
