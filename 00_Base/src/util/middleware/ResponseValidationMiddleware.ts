@@ -59,7 +59,7 @@ export class ResponseValidationMiddleware implements KoaMiddlewareInterface {
       }
     } else {
       throw new InternalServerError(
-        'Could not find matching route? This should not happen',
+        'Could not find matching route. This should not happen.',
       );
     }
   }
