@@ -10,6 +10,7 @@ import {
   CacheWrapper,
   OcpiModule,
   OcpiServerConfig,
+  SessionMapper,
 } from '@citrineos/ocpi-base';
 import {
   AbstractModule,
@@ -34,6 +35,8 @@ export class CommandsModule implements OcpiModule {
         this.config as SystemConfig,
         this.cacheWrapper.cache,
         Container.get(AsyncResponder),
+        Container.get(SequelizeTransactionEventRepository),
+        Container.get(SessionMapper),
         sender,
         handler,
         this.logger,

@@ -1,4 +1,12 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from '@citrineos/data';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from '@citrineos/data';
 import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
@@ -20,7 +28,10 @@ export enum ServerCredentialsRoleProps {
   indexes: [
     {
       unique: true,
-      fields: [ServerCredentialsRoleProps.countryCode, ServerCredentialsRoleProps.partyId],
+      fields: [
+        ServerCredentialsRoleProps.countryCode,
+        ServerCredentialsRoleProps.partyId,
+      ],
     },
   ],
 })

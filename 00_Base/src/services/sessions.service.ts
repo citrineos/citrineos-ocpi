@@ -1,7 +1,11 @@
 import { Service } from 'typedi';
 import { PaginatedSessionResponse } from '../model/Session';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
-import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET, } from '../model/PaginatedResponse';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
 import { SessionMapper } from '../mapper/session.mapper';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 
@@ -10,8 +14,7 @@ export class SessionsService {
   constructor(
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly sessionMapper: SessionMapper,
-  ) {
-  }
+  ) {}
 
   public async getSessions(
     fromCountryCode: string,

@@ -21,9 +21,16 @@ import {
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
-import { AsyncResponder } from '@citrineos/ocpi-base';
-import { CommandResult, CommandResultType } from '@citrineos/ocpi-base';
+import {
+  AsyncResponder,
+  CommandResult,
+  CommandResultType,
+  OcpiParams,
+  Session,
+  SessionMapper,
+} from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
+import { SequelizeTransactionEventRepository } from '@citrineos/data';
 
 /**
  * Component that handles provisioning related messages.
@@ -43,6 +50,8 @@ export class CommandsOcppHandlers extends AbstractModule {
     config: SystemConfig,
     cache: ICache,
     readonly asyncResponder: AsyncResponder,
+    readonly transactionEventRepository: SequelizeTransactionEventRepository,
+    readonly sessionMapper: SessionMapper,
     sender?: IMessageSender,
     handler?: IMessageHandler,
     logger?: Logger<ILogObj>,
@@ -69,15 +78,40 @@ export class CommandsOcppHandlers extends AbstractModule {
   }
 
   @AsHandler(CallAction.RequestStartTransaction)
-  protected _handleRequestStartTransactionResponse(
+  protected async _handleRequestStartTransactionResponse(
     message: IMessage<RequestStartTransactionResponse>,
     props?: HandlerProperties,
-  ): void {
+  ): Promise<void> {
     this._logger.debug('Handling RequestStartTransaction:', message, props);
 
     const result = this.getResult(message.payload.status);
 
-    this.sendCommandResult(message.context.correlationId, result);
+    let session: Session | undefined;
+    if (message.payload.transactionId) {
+      const transaction =
+        await this.transactionEventRepository.findByTransactionId(
+          message.payload.transactionId,
+        );
+      if (transaction) {
+        session = (
+          await this.sessionMapper.mapTransactionsToSessions([transaction])
+        )[0];
+      }
+    }
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    this.sendCommandResult(
+      message.context.correlationId,
+      result,
+      new OcpiParams(
+        session.country_code,
+        session.party_id,
+        session.cdr_token.country_code,
+        session.cdr_token.party_id,
+      ),
+    );
   }
 
   @AsHandler(CallAction.RequestStopTransaction)
@@ -110,11 +144,16 @@ export class CommandsOcppHandlers extends AbstractModule {
   private async sendCommandResult(
     correlationId: string,
     result: CommandResultType,
+    params?: OcpiParams,
   ) {
     try {
-      const response = await this.asyncResponder.send(correlationId, {
-        result: result,
-      } as CommandResult);
+      const response = await this.asyncResponder.send(
+        correlationId,
+        {
+          result: result,
+        } as CommandResult,
+        params,
+      );
       console.log('Async response: ', response);
     } catch (e) {
       console.error(e);
