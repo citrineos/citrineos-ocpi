@@ -5,7 +5,6 @@ import {
   CacheWrapper,
   GlobalExceptionHandler,
   KoaServer,
-  LoggingMiddleware,
   OcpiSequelizeInstance,
   OcpiServerConfig,
 } from '@citrineos/ocpi-base';
@@ -31,7 +30,7 @@ export class EmspServer extends KoaServer {
       this.initApp({
         controllers: [VersionsController, SessionsController, TokensController],
         routePrefix: '/ocpi',
-        middlewares: [GlobalExceptionHandler, LoggingMiddleware],
+        middlewares: [GlobalExceptionHandler],
         defaultErrorHandler: false,
       });
       this.initKoaSwagger(
