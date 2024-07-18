@@ -6,6 +6,7 @@
 import { Service } from 'typedi';
 import {
   ChargingStation,
+  Location,
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
 } from '@citrineos/data';
@@ -56,7 +57,7 @@ import { NotFoundException } from '../exception/NotFoundException';
 @Service()
 export class LocationsService {
   constructor(
-    private _logger: Logger<ILogObj>,
+    private logger: Logger<ILogObj>,
     private locationRepository: SequelizeLocationRepository,
     private deviceModelRepository: SequelizeDeviceModelRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
@@ -86,17 +87,18 @@ export class LocationsService {
     ocpiHeaders: OcpiHeaders,
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    this._logger.debug(
+    this.logger.debug(
       `Getting all locations with headers ${ocpiHeaders} and parameters ${paginatedParams}`,
     );
 
-    // TODO add Link header
     const dateFrom = paginatedParams?.dateFrom;
     const dateTo = paginatedParams?.dateTo;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
-    const ocpiLocationInfosMap = (
+    const ocpiLocationInfosMap = new Map<number, OcpiLocation>();
+
+    (
       await this.ocpiLocationRepository.getLocations(
         limit,
         offset,
@@ -105,11 +107,12 @@ export class LocationsService {
         ocpiHeaders.toCountryCode,
         ocpiHeaders.toPartyId,
       )
-    ).reduce((locationsMap: Record<string, OcpiLocation>, curLocation) => {
-      locationsMap[curLocation[OcpiLocationProps.citrineLocationId]] =
-        curLocation;
-      return locationsMap;
-    }, {});
+    ).forEach((ocpiLocation) => {
+      ocpiLocationInfosMap.set(
+        ocpiLocation[OcpiLocationProps.citrineLocationId],
+        ocpiLocation,
+      );
+    });
 
     const locationsTotal = await this.ocpiLocationRepository.getLocationsCount(
       dateFrom,
@@ -126,35 +129,37 @@ export class LocationsService {
       ) as PaginatedLocationResponse;
     }
 
-    const relevantCitrineLocationIds = Object.keys(ocpiLocationInfosMap).map(
-      (citrineLocationId) => Number(citrineLocationId),
-    );
-    const citrineLocations = await this.locationRepository.readAllByQuery({
-      where: {
-        id: [...relevantCitrineLocationIds],
-      },
-      include: [ChargingStation],
-    });
+    const citrineLocationsMap = (
+      await this.locationRepository.readAllByQuery({
+        where: {
+          id: [...ocpiLocationInfosMap.keys()],
+        },
+        include: [ChargingStation],
+      })
+    ).reduce((locationsMap: Record<number, Location>, curLocation) => {
+      locationsMap[curLocation.id] = curLocation;
+      return locationsMap;
+    }, {});
 
-    const ocpiLocations: LocationDTO[] = [];
+    const mappedOcpiLocations: LocationDTO[] = [];
 
-    for (const citrineLocation of citrineLocations) {
+    for (const [citrineLocationId, ocpiLocationInfo] of ocpiLocationInfosMap) {
+      const citrineLocation = citrineLocationsMap[citrineLocationId];
       const stationIds = citrineLocation.chargingPool.map(
         (chargingStation) => chargingStation.id,
       );
       const chargingStationVariableAttributesMap =
         await this.createChargingStationVariableAttributesMap(stationIds);
 
-      const ocpiLocationInfos = ocpiLocationInfosMap[citrineLocation.id];
-      ocpiLocationInfos.ocpiEvses = await this.createOcpiEvsesInfoMap(
+      ocpiLocationInfo.ocpiEvses = await this.createOcpiEvsesInfoMap(
         chargingStationVariableAttributesMap,
       );
 
-      ocpiLocations.push(
+      mappedOcpiLocations.push(
         this.locationMapper.mapToOcpiLocation(
           citrineLocation,
           chargingStationVariableAttributesMap,
-          ocpiLocationInfos,
+          ocpiLocationInfo,
         ),
       );
     }
@@ -164,12 +169,12 @@ export class LocationsService {
       locationsTotal,
       limit,
       offset,
-      [...ocpiLocations],
+      [...mappedOcpiLocations],
     ) as PaginatedLocationResponse;
   }
 
   async getLocationById(locationId: number): Promise<LocationResponse> {
-    this._logger.debug(`Getting location ${locationId}`);
+    this.logger.debug(`Getting location ${locationId}`);
 
     const citrineLocation =
       await this.locationRepository.readLocationById(locationId);
@@ -235,7 +240,7 @@ export class LocationsService {
     stationId: string,
     evseId: number,
   ): Promise<EvseResponse> {
-    this._logger.debug(
+    this.logger.debug(
       `Getting EVSE ${evseId} from Charging Station ${stationId} in Location ${locationId}`,
     );
 
@@ -310,7 +315,7 @@ export class LocationsService {
     evseId: number,
     connectorId: number,
   ): Promise<ConnectorResponse> {
-    this._logger.debug(
+    this.logger.debug(
       `Getting Connector ${connectorId} from EVSE ${evseId} in Charging Station ${stationId} in Location ${locationId}`,
     );
 
