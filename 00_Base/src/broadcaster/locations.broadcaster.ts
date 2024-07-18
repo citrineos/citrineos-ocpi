@@ -1,6 +1,6 @@
 import { BaseBroadcaster } from './BaseBroadcaster';
 import { Service } from 'typedi';
-import { Location, SequelizeLocationRepository } from '@citrineos/data';
+import { SequelizeLocationRepository } from '@citrineos/data';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
@@ -32,13 +32,12 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     super();
   }
 
-  async broadcastOnLocationCreateOrUpdate(locationDto: LocationDTO): Promise<void> {
+  async broadcastOnLocationCreateOrUpdate(
+    locationDto: LocationDTO,
+  ): Promise<void> {
     this.logger.debug(`Broadcasting Location ${locationDto.id}`);
 
-    const params = PutLocationParams.build(
-      Number(locationDto.id),
-      locationDto,
-    );
+    const params = PutLocationParams.build(Number(locationDto.id), locationDto);
 
     try {
       await this.locationsClientApi.broadcastToClients(

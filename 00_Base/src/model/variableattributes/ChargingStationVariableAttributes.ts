@@ -33,7 +33,9 @@ export class ChargingStationVariableAttributes {
   evses: Record<number, EvseVariableAttributes> = {};
 }
 
-export const CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY = (stationId: string) => `
+export const CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY = (
+  stationId: string,
+) => `
   select * 
   from 
     coalesce(

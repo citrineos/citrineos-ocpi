@@ -8,7 +8,7 @@ export enum OcpiLocationProps {
   lastUpdated = 'lastUpdated',
   partyId = 'party_id',
   countryCode = 'country_code',
-  timeZone = 'time_zone'
+  timeZone = 'time_zone',
 }
 
 /**
@@ -45,11 +45,11 @@ export class OcpiLocation extends Model {
   @Length(2, 2)
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
 
-  /* Helper properties */
-  ocpiEvses!: Record<string, OcpiEvse>;
-
   @Column(DataType.STRING)
   [OcpiLocationProps.timeZone]!: string;
+
+  /* Helper properties */
+  ocpiEvses!: Record<string, OcpiEvse>;
 
   static buildWithLastUpdated(
     citrineLocationId: number,

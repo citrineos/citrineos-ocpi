@@ -24,12 +24,9 @@ import { ILogObj, Logger } from 'tslog';
 
 @Service()
 export class CitrineOcpiLocationMapper {
+  private TRUE_ATTRIBUTE_VALUE = 'TRUE';
 
-  constructor(
-    private logger: Logger<ILogObj>,
-  ) { }
-
-  private trueAttributeValue = 'TRUE';
+  constructor(private logger: Logger<ILogObj>) {}
 
   static mapConnectorAvailabilityStatesToEvseStatus(
     availabilityStates: string[],
@@ -95,7 +92,9 @@ export class CitrineOcpiLocationMapper {
     ocpiLocation.postal_code = citrineLocation.postalCode ?? NOT_APPLICABLE;
     ocpiLocation.state = citrineLocation.state ?? NOT_APPLICABLE;
     ocpiLocation.country = citrineLocation.country ?? NOT_APPLICABLE;
-    ocpiLocation.coordinates = this.mapOcppCoordinatesToGeoLocation(citrineLocation.coordinates);
+    ocpiLocation.coordinates = this.mapOcppCoordinatesToGeoLocation(
+      citrineLocation.coordinates,
+    );
 
     const evses: EvseDTO[] = [];
 
@@ -171,7 +170,9 @@ export class CitrineOcpiLocationMapper {
       chargingStationAttributes.authorize_remote_start,
       chargingStationAttributes.token_reader_enabled,
     );
-    evse.coordinates = this.mapOcppCoordinatesToGeoLocation(citrineLocation.coordinates);
+    evse.coordinates = this.mapOcppCoordinatesToGeoLocation(
+      citrineLocation.coordinates,
+    );
     evse.physical_reference = ocpiEvseInfo?.physicalReference;
     evse.last_updated = ocpiEvseInfo?.lastUpdated ?? new Date(); // TODO better fallback
 
@@ -257,10 +258,10 @@ export class CitrineOcpiLocationMapper {
     // TODO add remaining capabilities
     const capabilities: Capability[] = [];
 
-    if (authorizeRemoteStart === this.trueAttributeValue) {
+    if (authorizeRemoteStart === this.TRUE_ATTRIBUTE_VALUE) {
       capabilities.push(Capability.REMOTE_START_STOP_CAPABLE);
     }
-    if (tokenReaderEnabled === this.trueAttributeValue) {
+    if (tokenReaderEnabled === this.TRUE_ATTRIBUTE_VALUE) {
       capabilities.push(Capability.RFID_READER);
     }
 

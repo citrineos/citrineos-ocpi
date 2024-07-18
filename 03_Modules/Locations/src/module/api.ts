@@ -9,7 +9,7 @@ import {
   Param,
   Put,
   Body,
-  QueryParam
+  QueryParam,
 } from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
 import {
@@ -30,14 +30,16 @@ import {
   EXTRACT_EVSE_ID,
   VersionNumber,
   VersionNumberParam,
-  versionIdParam, LocationDTO, OcpiEmptyResponse,
+  versionIdParam,
+  LocationDTO,
+  OcpiEmptyResponse,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
 import {
   FunctionalEndpointParams,
   OcpiHeaders,
-  AdminLocationDTO
+  AdminLocationDTO,
 } from '@citrineos/ocpi-base';
 import { AdminLocationsService } from './admin';
 
@@ -65,7 +67,7 @@ export class LocationsModuleApi
    */
   constructor(
     readonly locationsService: LocationsService,
-    readonly adminLocationsService: AdminLocationsService
+    readonly adminLocationsService: AdminLocationsService,
   ) {
     super();
   }
@@ -164,9 +166,11 @@ export class LocationsModuleApi
   })
   async createLocation(
     @QueryParam('broadcast') broadcast: boolean = true,
-    @Body() adminLocation: AdminLocationDTO
+    @Body() adminLocation: AdminLocationDTO,
   ): Promise<LocationDTO> {
-    return await this.adminLocationsService.createOrUpdateLocation(adminLocation, broadcast);
+    return await this.adminLocationsService.createOrUpdateLocation(
+      adminLocation,
+      broadcast,
+    );
   }
-
 }

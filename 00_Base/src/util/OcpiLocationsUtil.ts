@@ -11,8 +11,8 @@ import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 export class OcpiLocationsUtil {
   constructor(
     private ocpiEvseRepository: OcpiEvseRepository,
-    private ocpiConnectorRepository: OcpiConnectorRepository
-  ) { }
+    private ocpiConnectorRepository: OcpiConnectorRepository,
+  ) {}
 
   public async createOcpiEvsesInfoMap(
     chargingStationAttributesMap: Record<
@@ -44,7 +44,7 @@ export class OcpiLocationsUtil {
           if (ocpiConnectorInfo) {
             ocpiConnectorsMap[
               `${TEMPORARY_CONNECTOR_ID(stationId, evseId, connectorId)}`
-              ] = ocpiConnectorInfo;
+            ] = ocpiConnectorInfo;
           }
         }
 

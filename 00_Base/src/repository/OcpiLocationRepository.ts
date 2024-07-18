@@ -78,37 +78,50 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   }
 
   async createOrUpdateOcpiLocation(
-    location: Partial<OcpiLocation>
+    location: Partial<OcpiLocation>,
   ): Promise<OcpiLocation> {
     if (location[OcpiLocationProps.citrineLocationId]) {
-      const [savedOcpiLocation, ocpiLocationCreated] = await this._readOrCreateByQuery({
-        where: {
-          [OcpiLocationProps.citrineLocationId]: location[OcpiLocationProps.citrineLocationId],
-        },
-        defaults: {
-          [OcpiLocationProps.citrineLocationId]: location[OcpiLocationProps.citrineLocationId],
-          [OcpiLocationProps.partyId]: location[OcpiLocationProps.partyId],
-          [OcpiLocationProps.countryCode]: location[OcpiLocationProps.countryCode],
-          [OcpiLocationProps.publish]: location[OcpiLocationProps.publish],
-          [OcpiLocationProps.lastUpdated]: location[OcpiLocationProps.lastUpdated],
-          [OcpiLocationProps.timeZone]: location[OcpiLocationProps.timeZone],
-        },
-      });
+      const [savedOcpiLocation, ocpiLocationCreated] =
+        await this._readOrCreateByQuery({
+          where: {
+            [OcpiLocationProps.citrineLocationId]:
+              location[OcpiLocationProps.citrineLocationId],
+          },
+          defaults: {
+            [OcpiLocationProps.citrineLocationId]:
+              location[OcpiLocationProps.citrineLocationId],
+            [OcpiLocationProps.partyId]: location[OcpiLocationProps.partyId],
+            [OcpiLocationProps.countryCode]:
+              location[OcpiLocationProps.countryCode],
+            [OcpiLocationProps.publish]: location[OcpiLocationProps.publish],
+            [OcpiLocationProps.lastUpdated]:
+              location[OcpiLocationProps.lastUpdated],
+            [OcpiLocationProps.timeZone]: location[OcpiLocationProps.timeZone],
+          },
+        });
       if (!ocpiLocationCreated) {
         const values: Partial<OcpiLocation> = {};
-        values[OcpiLocationProps.citrineLocationId] = location[OcpiLocationProps.citrineLocationId] ?? undefined;
-        values[OcpiLocationProps.partyId] = location[OcpiLocationProps.partyId] ?? undefined;
-        values[OcpiLocationProps.countryCode] = location[OcpiLocationProps.countryCode] ?? undefined;
-        values[OcpiLocationProps.publish] = location[OcpiLocationProps.publish] !== undefined ? location[OcpiLocationProps.publish] : undefined;
-        values[OcpiLocationProps.lastUpdated] = location[OcpiLocationProps.lastUpdated] ?? undefined;
-        values[OcpiLocationProps.timeZone] = location[OcpiLocationProps.timeZone] ?? undefined;
+        values[OcpiLocationProps.citrineLocationId] =
+          location[OcpiLocationProps.citrineLocationId] ?? undefined;
+        values[OcpiLocationProps.partyId] =
+          location[OcpiLocationProps.partyId] ?? undefined;
+        values[OcpiLocationProps.countryCode] =
+          location[OcpiLocationProps.countryCode] ?? undefined;
+        values[OcpiLocationProps.publish] =
+          location[OcpiLocationProps.publish] !== undefined
+            ? location[OcpiLocationProps.publish]
+            : undefined;
+        values[OcpiLocationProps.lastUpdated] =
+          location[OcpiLocationProps.lastUpdated] ?? undefined;
+        values[OcpiLocationProps.timeZone] =
+          location[OcpiLocationProps.timeZone] ?? undefined;
 
-        await this._updateByKey({ ...values }, savedOcpiLocation.id,);
+        await this._updateByKey({ ...values }, savedOcpiLocation.id);
       }
 
       return savedOcpiLocation;
     } else {
-      return await this.create(OcpiLocation.build({ ...location}));
+      return await this.create(OcpiLocation.build({ ...location }));
     }
   }
 

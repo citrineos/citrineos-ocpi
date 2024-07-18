@@ -5,10 +5,7 @@
 
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import {
-  ChargingStation,
-  SequelizeLocationRepository,
-} from '@citrineos/data';
+import { ChargingStation, SequelizeLocationRepository } from '@citrineos/data';
 import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
 import {
   LocationDTO,
@@ -16,9 +13,7 @@ import {
   PaginatedLocationResponse,
 } from '../model/DTO/LocationDTO';
 import { EvseResponse, UID_FORMAT } from '../model/DTO/EvseDTO';
-import {
-  ConnectorResponse,
-} from '../model/DTO/ConnectorDTO';
+import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 import {
   buildOcpiPaginatedResponse,
@@ -128,12 +123,15 @@ export class LocationsService {
         (chargingStation) => chargingStation.id,
       );
       const chargingStationVariableAttributesMap =
-        await this.variableAttributesUtil.createChargingStationVariableAttributesMap(stationIds);
+        await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
+          stationIds,
+        );
 
       const ocpiLocationInfos = ocpiLocationInfosMap[citrineLocation.id];
-      ocpiLocationInfos.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
-        chargingStationVariableAttributesMap,
-      );
+      ocpiLocationInfos.ocpiEvses =
+        await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
+          chargingStationVariableAttributesMap,
+        );
 
       ocpiLocations.push(
         this.locationMapper.mapToOcpiLocation(
@@ -171,7 +169,9 @@ export class LocationsService {
     );
 
     const chargingStationVariableAttributesMap =
-      await this.variableAttributesUtil.createChargingStationVariableAttributesMap(stationIds);
+      await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
+        stationIds,
+      );
 
     const ocpiLocationInfo =
       await this.ocpiLocationRepository.getLocationByCitrineLocationId(
@@ -185,9 +185,10 @@ export class LocationsService {
       ) as LocationResponse;
     }
 
-    ocpiLocationInfo.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
-      chargingStationVariableAttributesMap,
-    );
+    ocpiLocationInfo.ocpiEvses =
+      await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
+        chargingStationVariableAttributesMap,
+      );
 
     try {
       const mappedLocation = this.locationMapper.mapToOcpiLocation(
@@ -252,7 +253,9 @@ export class LocationsService {
       );
 
     const ocpiEvseInfo = (
-      await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(chargingStationVariableAttributesMap)
+      await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
+        chargingStationVariableAttributesMap,
+      )
     )[`${UID_FORMAT(stationId, evseId)}`];
 
     if (!ocpiEvseInfo) {

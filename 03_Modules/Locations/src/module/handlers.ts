@@ -137,9 +137,9 @@ export class LocationsHandlers extends AbstractModule {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialEvse: Partial<EvseDTO> = {};
         partialEvse.status =
-          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
-            [event.actualValue],
-          );
+          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus([
+            event.actualValue,
+          ]);
         partialEvse.last_updated = new Date(message.context.timestamp);
         evseUpdateMap[evseId] = partialEvse;
       } else if (

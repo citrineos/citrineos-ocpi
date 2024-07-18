@@ -20,9 +20,7 @@ import { SequelizeDeviceModelRepository } from '@citrineos/data';
 
 @Service()
 export class VariableAttributesUtil {
-  constructor(
-    private deviceModelRepository: SequelizeDeviceModelRepository,
-  ) { }
+  constructor(private deviceModelRepository: SequelizeDeviceModelRepository) {}
 
   // TODO add more error handling (like if no attributes are found, flag it...?)
 
@@ -113,7 +111,11 @@ export class VariableAttributesUtil {
     for (const connectorId of connectorIds) {
       const matchingAttributes =
         (await this.deviceModelRepository.readAllBySqlString(
-          CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY(stationId, evseId, connectorId),
+          CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY(
+            stationId,
+            evseId,
+            connectorId,
+          ),
         )) as ConnectorVariableAttributes[];
 
       if (matchingAttributes.length === 0) {
@@ -138,9 +140,9 @@ export class VariableAttributesUtil {
   private getRelevantIdsList(idString: string, idToCompare?: number): number[] {
     return idString
       ? idString
-        .split(',')
-        .map((id) => Number(id))
-        .filter((id) => !idToCompare || id === idToCompare)
+          .split(',')
+          .map((id) => Number(id))
+          .filter((id) => !idToCompare || id === idToCompare)
       : [];
   }
 }

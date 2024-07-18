@@ -1,11 +1,16 @@
 import { Service } from 'typedi';
 import { type ILogObj, Logger } from 'tslog';
-import { ChargingStation, Location, SequelizeLocationRepository } from '@citrineos/data';
+import {
+  ChargingStation,
+  Location,
+  SequelizeLocationRepository,
+} from '@citrineos/data';
 import {
   AdminConnectorDTO,
   AdminEVSEDTO,
   AdminLocationDTO,
-  CitrineOcpiLocationMapper, LocationDTO,
+  CitrineOcpiLocationMapper,
+  LocationDTO,
   LocationsBroadcaster,
   OcpiLocation,
   OcpiLocationProps,
@@ -17,7 +22,7 @@ import {
   VariableAttributesUtil,
   OcpiLocationsUtil,
   InvalidParamException,
-  isLocationInvalid
+  isLocationInvalid,
 } from '@citrineos/ocpi-base';
 
 @Service()
@@ -31,64 +36,88 @@ export class AdminLocationsService {
     private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationsBroadcaster: LocationsBroadcaster,
     private variableAttributesUtil: VariableAttributesUtil,
-    private ocpiLocationsUtil: OcpiLocationsUtil
-  ) { }
+    private ocpiLocationsUtil: OcpiLocationsUtil,
+  ) {}
 
   public async createOrUpdateLocation(
     adminLocationDto: AdminLocationDTO,
-    broadcast: boolean
+    broadcast: boolean,
   ): Promise<LocationDTO> {
-    this.logger.debug(adminLocationDto.id ? `Updating Location ${adminLocationDto.id}` : `Creating Location ${adminLocationDto.name}`);
+    this.logger.debug(
+      adminLocationDto.id
+        ? `Updating Location ${adminLocationDto.id}`
+        : `Creating Location ${adminLocationDto.name}`,
+    );
 
     const [invalidLocation, message] = isLocationInvalid(adminLocationDto);
     if (invalidLocation) {
       throw new InvalidParamException(message ?? 'Invalid location request.');
     }
 
-    const [ocpiLocation, citrineLocation] = this.mapAdminLocationDtoToEntities(adminLocationDto);
-    const savedCitrineLocation = await this.locationRepository.createOrUpdateLocationWithChargingStations(citrineLocation);
+    const [ocpiLocation, citrineLocation] =
+      this.mapAdminLocationDtoToEntities(adminLocationDto);
+    const savedCitrineLocation =
+      await this.locationRepository.createOrUpdateLocationWithChargingStations(
+        citrineLocation,
+      );
     const citrineLocationId = savedCitrineLocation.id;
 
     ocpiLocation[OcpiLocationProps.citrineLocationId] = citrineLocationId;
-    const savedOcpiLocation = await this.ocpiLocationRepository.createOrUpdateOcpiLocation(ocpiLocation);
+    const savedOcpiLocation =
+      await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
+        ocpiLocation,
+      );
 
-    for (let adminEvse of adminLocationDto.evses ?? []) {
-      await this.ocpiEvseRepository.createOrUpdateOcpiEvse(this.mapAdminEvseDtoToOcpiEvse(adminEvse));
-      for (let adminConnector of adminEvse.connectors ?? []) {
-        await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(this.mapAdminConnectorToOcpiConnector(adminConnector, adminEvse));
+    for (const adminEvse of adminLocationDto.evses ?? []) {
+      await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
+        this.mapAdminEvseDtoToOcpiEvse(adminEvse),
+      );
+      for (const adminConnector of adminEvse.connectors ?? []) {
+        await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
+          this.mapAdminConnectorToOcpiConnector(adminConnector, adminEvse),
+        );
       }
     }
 
     let chargingStationVariableAttributesMap = {};
 
     if (savedCitrineLocation.chargingPool) {
-      chargingStationVariableAttributesMap = await this.variableAttributesUtil
-        .createChargingStationVariableAttributesMap(savedCitrineLocation.chargingPool.map(station => station.id));
-      savedOcpiLocation.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
-        chargingStationVariableAttributesMap,
-      );
+      chargingStationVariableAttributesMap =
+        await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
+          savedCitrineLocation.chargingPool.map((station) => station.id),
+        );
+      savedOcpiLocation.ocpiEvses =
+        await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
+          chargingStationVariableAttributesMap,
+        );
     }
 
-    const locationDto = this.locationMapper.mapToOcpiLocation(savedCitrineLocation, chargingStationVariableAttributesMap, savedOcpiLocation);
+    const locationDto = this.locationMapper.mapToOcpiLocation(
+      savedCitrineLocation,
+      chargingStationVariableAttributesMap,
+      savedOcpiLocation,
+    );
 
     if (adminLocationDto.push_to_msps && broadcast) {
-      await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(locationDto);
+      await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(
+        locationDto,
+      );
     }
 
     return locationDto;
   }
 
   mapAdminLocationDtoToEntities(
-    adminLocationDto: AdminLocationDTO
+    adminLocationDto: AdminLocationDTO,
   ): [Partial<OcpiLocation>, Partial<Location>] {
-    const ocpiLocation: Partial<OcpiLocation> = { };
+    const ocpiLocation: Partial<OcpiLocation> = {};
     ocpiLocation[OcpiLocationProps.countryCode] = adminLocationDto.country_code;
     ocpiLocation[OcpiLocationProps.partyId] = adminLocationDto.party_id;
     ocpiLocation[OcpiLocationProps.publish] = adminLocationDto.publish;
     ocpiLocation[OcpiLocationProps.lastUpdated] = new Date();
     ocpiLocation[OcpiLocationProps.timeZone] = adminLocationDto.time_zone;
 
-    const citrineLocation: Partial<Location> = { };
+    const citrineLocation: Partial<Location> = {};
     citrineLocation.id = adminLocationDto.id;
     citrineLocation.name = adminLocationDto.name;
     citrineLocation.address = adminLocationDto.address;
@@ -98,23 +127,31 @@ export class AdminLocationsService {
     citrineLocation.country = adminLocationDto.country;
 
     if (adminLocationDto.coordinates) {
-      citrineLocation.coordinates = { type: "Point", coordinates: [Number(adminLocationDto.coordinates.longitude), Number(adminLocationDto.coordinates.latitude)] };
+      citrineLocation.coordinates = {
+        type: 'Point',
+        coordinates: [
+          Number(adminLocationDto.coordinates.longitude),
+          Number(adminLocationDto.coordinates.latitude),
+        ],
+      };
     }
 
     if (adminLocationDto.evses) {
-      const newStationIds = [...new Set(adminLocationDto.evses.map(evse => evse.station_id))];
-      for (let stationId of newStationIds) {
+      const newStationIds = [
+        ...new Set(adminLocationDto.evses.map((evse) => evse.station_id)),
+      ];
+      for (const stationId of newStationIds) {
         const chargingStation = ChargingStation.build({ id: stationId });
-        citrineLocation.chargingPool = citrineLocation.chargingPool ? [...citrineLocation.chargingPool, chargingStation] : [chargingStation];
+        citrineLocation.chargingPool = citrineLocation.chargingPool
+          ? [...citrineLocation.chargingPool, chargingStation]
+          : [chargingStation];
       }
     }
 
     return [ocpiLocation, citrineLocation];
   }
 
-  mapAdminEvseDtoToOcpiEvse(
-    adminEvseDto: AdminEVSEDTO
-  ): OcpiEvse {
+  mapAdminEvseDtoToOcpiEvse(adminEvseDto: AdminEVSEDTO): OcpiEvse {
     const ocpiEvse = new OcpiEvse();
     ocpiEvse.evseId = adminEvseDto.id;
     ocpiEvse.stationId = adminEvseDto.station_id;
@@ -126,7 +163,7 @@ export class AdminLocationsService {
 
   mapAdminConnectorToOcpiConnector(
     adminConnectorDto: AdminConnectorDTO,
-    adminEvseDto: AdminEVSEDTO
+    adminEvseDto: AdminEVSEDTO,
   ): OcpiConnector {
     const ocpiConnector = new OcpiConnector();
     ocpiConnector.connectorId = adminConnectorDto.id;
