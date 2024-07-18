@@ -6,8 +6,10 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   PaginatedResponse,
+  PaginatedResponseProps,
 } from '../../model/PaginatedResponse';
 import { OcpiHttpHeader } from '../ocpi.http.header';
+import { deleteProperty } from '../util';
 
 /**
  * PaginatedMiddleware will handle pulling limit, offset and total out of the {@link PaginatedResponse} and ensuring
@@ -29,9 +31,9 @@ export class PaginatedMiddleware
     }
     context.response.set(OcpiHttpHeader.XTotalCount, paginatedResponse.total);
     context.response.set(OcpiHttpHeader.XLimit, paginatedResponse.limit);
-    delete paginatedResponse.limit;
-    delete paginatedResponse.offset;
-    delete paginatedResponse.total;
+    deleteProperty(paginatedResponse, PaginatedResponseProps.limit);
+    deleteProperty(paginatedResponse, PaginatedResponseProps.offset);
+    deleteProperty(paginatedResponse, PaginatedResponseProps.total);
   }
 
   private createLink(
