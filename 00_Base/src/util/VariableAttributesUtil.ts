@@ -17,12 +17,14 @@ import {
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from '../model/variableattributes/ConnectorVariableAttributes';
 import { SequelizeDeviceModelRepository } from '@citrineos/data';
+import { type ILogObj, Logger } from 'tslog';
 
 @Service()
 export class VariableAttributesUtil {
-  constructor(private deviceModelRepository: SequelizeDeviceModelRepository) {}
-
-  // TODO add more error handling (like if no attributes are found, flag it...?)
+  constructor(
+    private logger: Logger<ILogObj>,
+    private deviceModelRepository: SequelizeDeviceModelRepository
+  ) {}
 
   public async createChargingStationVariableAttributesMap(
     stationIds: string[],
@@ -41,6 +43,7 @@ export class VariableAttributesUtil {
         )) as ChargingStationVariableAttributes[];
 
       if (matchingAttributes.length === 0) {
+        this.logger.debug(`No variable attributes found for Charging Station ${stationId}, will skip.`)
         continue;
       }
 
@@ -78,6 +81,7 @@ export class VariableAttributesUtil {
         )) as EvseVariableAttributes[];
 
       if (matchingAttributes.length === 0) {
+        this.logger.debug(`No variable attributes found for EVSE ${evseId} at Charging Station ${stationId}, will skip.`)
         continue;
       }
 
@@ -119,6 +123,7 @@ export class VariableAttributesUtil {
         )) as ConnectorVariableAttributes[];
 
       if (matchingAttributes.length === 0) {
+        this.logger.debug(`No variable attributes found for Connector ${connectorId} at EVSE ${evseId} in Charging Station ${stationId}, will skip.`)
         continue;
       }
 
