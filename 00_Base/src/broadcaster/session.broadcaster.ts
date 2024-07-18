@@ -16,11 +16,6 @@ import { PatchSessionParams } from '../trigger/param/sessions/patch.session.para
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
 import { TriggerReasonEnumType } from '@citrineos/base/dist/ocpp/model/enums';
 
-enum PutOrPatch {
-  PUT = 'put',
-  PATCH = 'patch',
-}
-
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
   constructor(
@@ -80,30 +75,27 @@ export class SessionBroadcaster extends BaseBroadcaster {
     if (transactions.length === 0) {
       return Promise.resolve(); // skipping because no transaction not yet created for transaction event
     } else {
-      return await this.broadcast(transactions, PutOrPatch.PATCH);
+      return await this.broadcast(transactions, true);
     }
   }
 
-  private async broadcast(
-    transactions: Transaction[],
-    putOrPatch: PutOrPatch = PutOrPatch.PUT,
-  ) {
+  private async broadcast(transactions: Transaction[], isPatch = false) {
     // todo do we know if we can do put vs patch here, is there a way to have a delta?
     const sessions: Session[] =
       await this.sessionMapper.mapTransactionsToSessions(transactions);
 
     for (const session of sessions) {
-      await this.sendSessionToClients(session, putOrPatch);
+      await this.sendSessionToClients(session, isPatch);
     }
   }
 
   private async sendSessionToClients<T extends OcpiParams>(
     session: Session,
-    putOrPatch: PutOrPatch = PutOrPatch.PUT,
+    isPatch = false,
   ): Promise<void> {
     let params: any = PutSessionParams.build(session.id, session);
     let clientApiRequest: any = this.sessionsClientApi.putSession;
-    if (putOrPatch === PutOrPatch.PATCH) {
+    if (isPatch) {
       params = PatchSessionParams.build(
         session.id,
         this.getSessionForPatch(session),
