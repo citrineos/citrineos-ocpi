@@ -82,7 +82,7 @@ export class CitrineOcpiLocationMapper {
     ocpiLocation.country_code = ocpiLocationInfo[OcpiLocationProps.countryCode];
     ocpiLocation.party_id = ocpiLocationInfo[OcpiLocationProps.partyId];
     ocpiLocation.last_updated = ocpiLocationInfo.lastUpdated;
-    ocpiLocation.publish = ocpiLocationInfo.publish;
+    ocpiLocation.publish = ocpiLocationInfo.publish ?? false;
 
     // TODO update with dynamic data
     // ocpiLocation.publish_allowed_to
