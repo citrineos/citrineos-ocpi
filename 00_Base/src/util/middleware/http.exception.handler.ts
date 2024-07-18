@@ -34,8 +34,6 @@ export class HttpExceptionHandler implements KoaMiddlewareInterface {
     try {
       await next();
     } catch (err) {
-      // TODO return a "custom" http object
-
       console.error('HttpExceptionHandler error', err);
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
