@@ -11,7 +11,6 @@ import { CredentialsService } from '../services/credentials.service';
 import { ILogObj, Logger } from 'tslog';
 import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
-import { OcpiParams } from '../trigger/util/ocpi.params';
 import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
 import { TriggerReasonEnumType } from '@citrineos/base/dist/ocpp/model/enums';
@@ -53,7 +52,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     transactionsEvents: TransactionEvent[],
   ): Promise<void> {
     const transactions: Transaction[] = [];
-    for (let transactionsEvent of transactionsEvents) {
+    for (const transactionsEvent of transactionsEvents) {
       if (
         transactionsEvent.meterValue &&
         transactionsEvent.meterValue.length > 0 &&
@@ -89,7 +88,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     }
   }
 
-  private async sendSessionToClients<T extends OcpiParams>(
+  private async sendSessionToClients(
     session: Session,
     isPatch = false,
   ): Promise<void> {
