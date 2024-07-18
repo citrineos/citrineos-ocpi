@@ -24,11 +24,7 @@ import { ResponseValidationError } from '../../exception/ResponseValidationError
 @Middleware({ type: 'before' })
 @Service()
 export class ResponseValidationMiddleware implements KoaMiddlewareInterface {
-  async use(
-    context: Context,
-    next: (err?: any) => Promise<any>,
-    ...args: any[]
-  ): Promise<any> {
+  async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
     await next();
 
     const route = this.findRoute(context);
@@ -67,14 +63,20 @@ export class ResponseValidationMiddleware implements KoaMiddlewareInterface {
   private findRoute = (ctx: Context) => {
     const storage = getMetadataArgsStorage();
     const matchedRoute = ctx._matchedRoute;
-    if (!matchedRoute) return null;
+    if (!matchedRoute) {
+      return null;
+    }
     const method = ctx.request?.req?.method?.toLowerCase();
-    if (!method) return null;
-    const controllerMetadata = storage.controllers.find((controller) => {
-      return matchedRoute.startsWith(`${OcpiRoutePrefix}${controller.route}`);
-    });
+    if (!method) {
+      return null;
+    }
+    const controllerMetadata = storage.controllers.find((controller) =>
+      matchedRoute.startsWith(`${OcpiRoutePrefix}${controller.route}`),
+    );
 
-    if (!controllerMetadata) return null;
+    if (!controllerMetadata) {
+      return null;
+    }
 
     const actionMetadata = storage.actions.find((action) => {
       if (

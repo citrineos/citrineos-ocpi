@@ -70,8 +70,8 @@ export class TariffsModuleApi
     return buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
       count,
-      paginationParams?.limit!,
-      paginationParams?.offset!,
+      paginationParams!.limit!,
+      paginationParams!.offset!,
       data,
     ) as PaginatedTariffResponse;
   }

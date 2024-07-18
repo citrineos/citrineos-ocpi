@@ -28,8 +28,8 @@ export const ValidatedResponseSchema = (
     isArray?: boolean;
     examples?: any;
   } = {},
-) => {
-  return function (object: any, methodName: string) {
+) =>
+  function (object: any, methodName: string) {
     // reuse original
     ResponseSchema(responseClass, options)(
       object as any,
@@ -48,4 +48,3 @@ export const ValidatedResponseSchema = (
     // apply middleware
     UseAfter(ResponseValidationMiddleware)(object, methodName);
   };
-};

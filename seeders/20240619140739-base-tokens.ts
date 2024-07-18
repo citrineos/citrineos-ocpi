@@ -50,10 +50,10 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const ocppAuth1 = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(
+    const _ocppAuth1 = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(
       token1 as TokenDTO,
     );
-    const ocppAuth2 = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(
+    const _ocppAuth2 = OcpiTokensMapper.mapOcpiTokenToOcppAuthorization(
       token2 as TokenDTO,
     );
 

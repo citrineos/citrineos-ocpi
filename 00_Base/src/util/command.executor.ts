@@ -59,7 +59,9 @@ export class CommandExecutor {
       remoteStartId: responseUrlEntity.id,
       idToken: {
         idToken: startSession.token.uid,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(startSession.token.type),
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+          startSession.token.type,
+        ),
       },
       evseId: evse.evseId,
     } as RequestStartTransactionRequest;

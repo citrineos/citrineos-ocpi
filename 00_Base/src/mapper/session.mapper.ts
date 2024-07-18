@@ -1,11 +1,15 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { Transaction, TransactionEvent } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
@@ -39,14 +43,11 @@ export class SessionMapper {
           toCountryCode,
           toPartyId,
         ),
-        this.getTokensForTransactions(
-          transactions,
-        ),
+        this.getTokensForTransactions(transactions),
       ]);
     return transactions
       .filter(
-        (transaction) =>
-          transactionIdToLocationMap[transaction.id] // todo skipping check for token for now
+        (transaction) => transactionIdToLocationMap[transaction.id], // todo skipping check for token for now
       )
       .map((transaction) => {
         const location = transactionIdToLocationMap[transaction.id]!;
@@ -233,7 +234,7 @@ export class SessionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-          MeasurandEnumType.Energy_Active_Import_Register &&
+            MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
@@ -246,7 +247,7 @@ export class SessionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-      new Date(previousMeterValue.timestamp).getTime()
+        new Date(previousMeterValue.timestamp).getTime()
       : new Date(meterValue.timestamp).getTime() - transactionStart.getTime();
 
     // Convert milliseconds to hours
@@ -299,13 +300,14 @@ export class SessionMapper {
         transaction.transactionEvents &&
         transaction.transactionEvents.length > 0
       ) {
-        const idToken = transaction.transactionEvents
-          .find(transaction => transaction.idToken)?.idToken;
+        const idToken = transaction.transactionEvents.find(
+          (t) => t.idToken,
+        )?.idToken;
 
         if (idToken?.idToken) {
           const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
             idToken.idToken,
-            idToken.type
+            idToken.type,
           );
 
           if (tokenDto) {
