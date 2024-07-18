@@ -60,6 +60,25 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
     });
   }
 
+  async upsertTariff(tariff: OcpiTariff): Promise<OcpiTariff> {
+    const existingTariff = await this.findByTariffKey(tariff.key);
+
+    if (existingTariff) {
+      const updatedTariff = await this._updateAllByQuery(tariff, {
+        where: { id: tariff.id },
+      });
+      // const updatedTariff = await this._updateByKey(tariff, tariff.id);
+
+      if (updatedTariff && updatedTariff.length > 0) {
+        return updatedTariff[0];
+      }
+
+      throw new Error('Failed to update tariff with ID ' + tariff.id);
+    } else {
+      return this._create(tariff);
+    }
+  }
+
   private lastUpdated(from?: Date, to?: Date): any {
     if (!from && !to) {
       return {};

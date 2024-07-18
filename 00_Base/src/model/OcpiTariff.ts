@@ -18,8 +18,7 @@ export class OcpiTariff extends Model {
   declare coreTariffId: number;
 
   @Column(DataType.JSON)
-  declare tariffAltText?: DisplayText[];
-
+  declare tariffAltText?: DisplayText[] | null;
 
   declare updatedAt: CreationOptional<Date>;
 

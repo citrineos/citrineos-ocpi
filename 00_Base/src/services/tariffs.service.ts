@@ -8,8 +8,7 @@ import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { TariffMapper } from './tariff.mapper';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/paginated.params';
-import core from 'ajv/dist/vocabularies/core';
-import { AdminTariffDTO } from '../model/DTO/AdminTariffDTO';
+import { PutTariffRequest } from '../model/DTO/PutTariffRequest';
 
 @Service()
 export class TariffsService {
@@ -87,36 +86,54 @@ export class TariffsService {
     return { data: await this.extendOcpiTariffs(rows), count };
   }
 
-  async createTariff(
-    adminTariffDto: AdminTariffDTO
-  ): Promise<void> {
-    const [ocpiTariff, coreTariff] = this.tariffMapper.mapDtoToEntities(adminTariffDto);
-    const savedCoreTariff = await this.coreTariffRepository.create(coreTariff);
-    ocpiTariff.coreTariffId = savedCoreTariff.id;
-    await this.ocpiTariffRepository.create(ocpiTariff);
+  async createOrUpdateTariff(
+    tariffRequest: PutTariffRequest,
+  ): Promise<TariffDTO> {
+    const [ocpiTariff, coreTariff] =
+      this.tariffMapper.mapPutTariffRequestToEntities(tariffRequest);
+
+    const existingOcpiTariff = await this.ocpiTariffRepository.findByTariffKey(
+      ocpiTariff.key,
+    );
+
+    let savedCoreTariff;
+    let savedOcpiTariff;
+
+    if (existingOcpiTariff) {
+      coreTariff.id = existingOcpiTariff.coreTariffId;
+
+      savedCoreTariff = await this.coreTariffRepository.updateByKey(
+        coreTariff.dataValues,
+        String(existingOcpiTariff.coreTariffId),
+      );
+      savedOcpiTariff = await this.ocpiTariffRepository.updateByKey(
+        ocpiTariff.dataValues,
+        existingOcpiTariff.id,
+      );
+    } else {
+      savedCoreTariff = await this.coreTariffRepository.create(coreTariff);
+
+      ocpiTariff.coreTariffId = savedCoreTariff.id;
+
+      savedOcpiTariff = await this.ocpiTariffRepository.create(ocpiTariff);
+    }
+
+    return this.tariffMapper.map(savedCoreTariff!, savedOcpiTariff!);
   }
 
-  async updateTariff(
-    tariffDto: AdminTariffDTO
-  ): Promise<void> {
-    // TODO find corresponding ocpi and core tariffs and update appropriate
-  }
-
-  async deleteTariff(
-    tariffId: number
-  ): Promise<void> {
+  async deleteTariff(tariffId: number): Promise<void> {
     const savedOcpiTariff = await this.ocpiTariffRepository.readByKey(tariffId);
 
     if (!savedOcpiTariff) {
       return;
     }
 
-    await this.ocpiTariffRepository.deleteByKey(String(tariffId));
-
     if (savedOcpiTariff.coreTariffId) {
-      await this.coreTariffRepository.deleteByKey(String(savedOcpiTariff.coreTariffId))
+      await this.coreTariffRepository.deleteByKey(
+        String(savedOcpiTariff.coreTariffId),
+      );
     }
 
-    // TODO push to MSP
+    await this.ocpiTariffRepository.deleteByKey(String(tariffId));
   }
 }

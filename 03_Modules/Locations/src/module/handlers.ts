@@ -203,11 +203,19 @@ export class LocationsHandlers extends AbstractModule {
     const connectorAvailabilityStates = evseAttributes
       ? Object.entries(evseAttributes.connectors)
           .filter(
+<<<<<<< Updated upstream
             ([connectorIdKey, _connectorAttributes]) =>
               Number(connectorIdKey) !== connectorId,
           )
           .map(
             ([_connectorIdKey, connectorAttributes]) =>
+=======
+            ([connectorIdKey, connectorAttributes]) =>
+              Number(connectorIdKey) !== connectorId,
+          )
+          .map(
+            ([connectorIdKey, connectorAttributes]) =>
+>>>>>>> Stashed changes
               connectorAttributes.connector_availability_state,
           )
       : [];

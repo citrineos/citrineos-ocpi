@@ -235,7 +235,11 @@ export class SessionMapper {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
         new Date(previousMeterValue.timestamp).getTime()
+<<<<<<< Updated upstream
       : 0;
+=======
+      : new Date(meterValue.timestamp).getTime() - transactionStart.getTime();
+>>>>>>> Stashed changes
 
     // Convert milliseconds to hours
     return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
@@ -288,7 +292,11 @@ export class SessionMapper {
         transaction.transactionEvents.length > 0
       ) {
         const idToken = transaction.transactionEvents.find(
+<<<<<<< Updated upstream
           (event) => event.idToken,
+=======
+          (transaction) => transaction.idToken,
+>>>>>>> Stashed changes
         )?.idToken;
 
         if (idToken?.idToken) {
