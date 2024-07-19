@@ -32,7 +32,7 @@ export abstract class BaseTransactionMapper {
     protected tariffsService: TariffsService,
   ) {}
 
-  protected async getLocationDTOsForTransactions(
+  public async getLocationDTOsForTransactions(
     transactions: Transaction[],
   ): Promise<Map<string, LocationDTO>> {
     const transactionIdToLocationMap: Map<string, LocationDTO> = new Map();
@@ -100,7 +100,7 @@ export abstract class BaseTransactionMapper {
     const stationIdToTariffMap = new Map<string, Tariff>();
     const tariffs =
       await this.tariffRepository.findByStationIds(uniqueStationIds);
-    tariffs?.forEach((tariff) =>
+    tariffs?.forEach((tariff: any) =>
       stationIdToTariffMap.set(tariff.stationId, tariff),
     );
 

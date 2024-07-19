@@ -1,15 +1,7 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import {
-  MeasurandEnumType,
-  MeterValueType,
-  TransactionEventRequest,
-} from '@citrineos/base';
-import {
-  SequelizeTariffRepository,
-  Tariff,
-  Transaction,
-} from '@citrineos/data';
+import { MeasurandEnumType, MeterValueType, TransactionEventRequest } from '@citrineos/base';
+import { SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
@@ -47,6 +39,18 @@ export class SessionMapper extends BaseTransactionMapper {
     );
   }
 
+  public async getLocationsTokensAndTariffsMapsForTransactions(
+    transactions: Transaction[],
+  ): Promise<
+    [Map<string, LocationDTO>, Map<string, TokenDTO>, Map<string, Tariff>]
+  > {
+    return await Promise.all([
+      this.getLocationDTOsForTransactions(transactions),
+      this.getTokensForTransactions(transactions),
+      this.getTariffsForTransactions(transactions),
+    ]);
+  }
+
   public async mapTransactionsToSessions(
     transactions: Transaction[],
   ): Promise<Session[]> {
@@ -54,32 +58,38 @@ export class SessionMapper extends BaseTransactionMapper {
       transactionIdToLocationMap,
       transactionIdToTokenMap,
       transactionIdToTariffMap,
-    ] = await Promise.all([
-      this.getLocationDTOsForTransactions(transactions),
-      this.getTokensForTransactions(transactions),
-      this.getTariffsForTransactions(transactions),
-    ]);
+    ] =
+      await this.getLocationsTokensAndTariffsMapsForTransactions(transactions);
+    return await this.mapTransactionsToSessionsHelper(
+      transactions,
+      transactionIdToLocationMap,
+      transactionIdToTokenMap,
+      transactionIdToTariffMap,
+    );
 
-    return transactions
-      .filter(
-        (transaction) =>
-          transactionIdToLocationMap.has(transaction.transactionId) &&
-          transactionIdToTokenMap.has(transaction.transactionId) &&
-          transactionIdToTariffMap.has(transaction.transactionId),
-      )
-      .map((transaction) => {
-        const location = transactionIdToLocationMap.get(
-          transaction.transactionId,
-        )!;
-        const token = transactionIdToTokenMap.get(transaction.transactionId)!;
-        const tariff = transactionIdToTariffMap.get(transaction.transactionId)!;
-        return this.mapTransactionToSession(
-          transaction,
-          location,
-          token,
-          tariff,
+  }
+
+  public async mapTransactionsToSessionsHelper(
+    transactions: Transaction[],
+    transactionIdToLocationMap: Map<string, LocationDTO>,
+    transactionIdToTokenMap: Map<string, TokenDTO>,
+    transactionIdToTariffMap: Map<string, Tariff>,
+  ): Promise<Session[]> {
+    const result: Session[] = [];
+    for (const transaction of transactions) {
+      const location = transactionIdToLocationMap.get(
+        transaction.transactionId,
+      );
+      const token = transactionIdToTokenMap.get(transaction.transactionId);
+      const tariff = transactionIdToTariffMap.get(transaction.transactionId);
+
+      if (location && token && tariff) {
+        result.push(
+          this.mapTransactionToSession(transaction, location, token, tariff),
         );
-      });
+      }
+    }
+    return result;
   }
 
   private mapTransactionToSession(
