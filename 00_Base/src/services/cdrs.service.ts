@@ -27,8 +27,9 @@ export class CdrsService {
         dateTo,
         offset,
         limit,
+        true
       ),
-      this.transactionRepository.getTransactionsCount(dateFrom, dateTo),
+      this.transactionRepository.getTransactionsCount(dateFrom, dateTo, true),
     ]);
 
     const cdrs = await this.cdrMapper.mapTransactionsToCdrs(
