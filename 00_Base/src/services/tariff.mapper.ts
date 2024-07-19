@@ -102,7 +102,7 @@ export class TariffMapper {
       (priceComponents.find((pc) => pc.type === TariffDimensionType.TIME)
         ?.price ?? 0) / MINUTES_IN_HOUR;
     const pricePerSession =
-      priceComponents.find((pc) => pc.type === TariffDimensionType.TIME)
+      priceComponents.find((pc) => pc.type === TariffDimensionType.FLAT)
         ?.price ?? 0;
     const taxRate = priceComponents.find((pc) => pc.vat)?.vat ?? 0;
 

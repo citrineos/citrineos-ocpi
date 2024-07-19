@@ -64,13 +64,10 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
     const existingTariff = await this.findByTariffKey(tariff.key);
 
     if (existingTariff) {
-      const updatedTariff = await this._updateAllByQuery(tariff, {
-        where: { id: tariff.id },
-      });
-      // const updatedTariff = await this._updateByKey(tariff, tariff.id);
+      const updatedTariff = await this._updateByKey(tariff, tariff.id);
 
-      if (updatedTariff && updatedTariff.length > 0) {
-        return updatedTariff[0];
+      if (updatedTariff) {
+        return updatedTariff;
       }
 
       throw new Error('Failed to update tariff with ID ' + tariff.id);
