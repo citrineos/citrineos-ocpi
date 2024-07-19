@@ -5,23 +5,19 @@ import {
   Location,
   SequelizeLocationRepository,
 } from '@citrineos/data';
-import {
-  AdminConnectorDTO,
-  AdminEvseDTO,
-  AdminLocationDTO,
-  LocationMapper,
-  LocationDTO,
-  LocationsBroadcaster,
-  OcpiLocation,
-  OcpiLocationRepository,
-  OcpiEvse,
-  OcpiEvseRepository,
-  OcpiConnector,
-  OcpiConnectorRepository,
-  VariableAttributesUtil,
-  OcpiLocationsUtil,
-  InvalidParamException,
-} from '@citrineos/ocpi-base';
+import { LocationMapper } from '../mapper/LocationMapper';
+import { OcpiLocation } from '../model/OcpiLocation';
+import { OcpiEvse } from '../model/OcpiEvse';
+import { OcpiConnector } from '../model/OcpiConnector';
+import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
+import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
+import { LocationsBroadcaster } from '../broadcaster/locations.broadcaster';
+import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
+import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
+import { AdminConnectorDTO, AdminEvseDTO, AdminLocationDTO } from '../model/DTO/admin/AdminLocationDTO';
+import { LocationDTO } from '../model/DTO/LocationDTO';
+import { InvalidParamException } from '../exception/invalid.param.exception';
 
 @Service()
 export class AdminLocationsService {

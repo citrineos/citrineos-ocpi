@@ -185,6 +185,7 @@ export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
 export { SessionsService } from './services/sessions.service';
+export { AdminLocationsService } from './services/AdminLocationsService';
 
 export { TariffsService } from './services/tariffs.service';
 export { TariffsBroadcaster } from './services/tariffs.broadcaster';

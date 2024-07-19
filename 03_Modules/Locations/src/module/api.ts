@@ -33,15 +33,13 @@ import {
   versionIdParam,
   LocationDTO,
   OcpiEmptyResponse,
-} from '@citrineos/ocpi-base';
-import { Service } from 'typedi';
-import { HttpStatus } from '@citrineos/base';
-import {
   FunctionalEndpointParams,
   OcpiHeaders,
   AdminLocationDTO,
+  AdminLocationsService,
 } from '@citrineos/ocpi-base';
-import { AdminLocationsService } from './admin';
+import { Service } from 'typedi';
+import { HttpStatus } from '@citrineos/base';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -64,6 +62,7 @@ export class LocationsModuleApi
    * Constructs a new instance of the class.
    *
    * @param {LocationsService} locationsService - The Locations service.
+   * @param {AdminLocationsService} adminLocationsService - The Admin Locations service.
    */
   constructor(
     readonly locationsService: LocationsService,
