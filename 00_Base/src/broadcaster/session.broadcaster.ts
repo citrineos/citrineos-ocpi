@@ -19,13 +19,18 @@ import { TriggerReasonEnumType } from '@citrineos/base/dist/ocpp/model/enums';
 export class SessionBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
-    readonly transactionRepository: SequelizeTransactionEventRepository,
+    readonly transactionEventRepository: SequelizeTransactionEventRepository,
     readonly sessionMapper: SessionMapper,
     readonly sessionsClientApi: SessionsClientApi,
     readonly credentialsService: CredentialsService,
   ) {
     super();
-    this.transactionRepository.transaction.on(
+    this.subscribeToTransactionCreated();
+    this.subscribeToTransactionEventCreated();
+  }
+
+  private subscribeToTransactionCreated() {
+    this.transactionEventRepository.transaction.on(
       'created',
       async (transactions) => {
         if (transactions && transactions.length > 0) {
@@ -37,7 +42,9 @@ export class SessionBroadcaster extends BaseBroadcaster {
         }
       },
     );
-    this.transactionRepository.on(
+  }
+  private subscribeToTransactionEventCreated() {
+    this.transactionEventRepository.on(
       'created',
       async (transactionsEvents: TransactionEvent[]) => {
         if (transactionsEvents && transactionsEvents.length > 0) {
