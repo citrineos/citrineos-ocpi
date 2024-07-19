@@ -15,7 +15,11 @@ import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { LocationsBroadcaster } from '../broadcaster/locations.broadcaster';
 import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
 import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
-import { AdminConnectorDTO, AdminEvseDTO, AdminLocationDTO } from '../model/DTO/admin/AdminLocationDTO';
+import {
+  AdminConnectorDTO,
+  AdminEvseDTO,
+  AdminLocationDTO,
+} from '../model/DTO/admin/AdminLocationDTO';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { InvalidParamException } from '../exception/invalid.param.exception';
 import { validate } from 'class-validator';
@@ -45,11 +49,15 @@ export class AdminLocationsService {
         : `Creating Location ${adminLocationDto.name}`,
     );
 
-    const validationErrors = await validate(adminLocationDto,
-      { groups: [adminLocationDto.id ? UPDATE : CREATE], validationError: { target: false } });
+    const validationErrors = await validate(adminLocationDto, {
+      groups: [adminLocationDto.id ? UPDATE : CREATE],
+      validationError: { target: false },
+    });
 
     if (validationErrors.length > 0) {
-      throw new InvalidParamException(`The following properties cannot be empty: ${validationErrors.map(ve => ve.property).join(', ')}`);
+      throw new InvalidParamException(
+        `The following properties cannot be empty: ${validationErrors.map((ve) => ve.property).join(', ')}`,
+      );
     }
 
     const [ocpiLocation, coreLocation] =

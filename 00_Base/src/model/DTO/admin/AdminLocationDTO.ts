@@ -15,6 +15,36 @@ import { Type } from 'class-transformer';
 import { CREATE, UPDATE } from '../../../util/consts';
 
 // TODO add remaining OCPI-specific properties
+export class AdminConnectorDTO {
+  @IsNumber()
+  @IsNotEmpty()
+  id!: number;
+}
+
+export class AdminEvseDTO {
+  @IsString()
+  @IsNotEmpty()
+  station_id!: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  id!: number;
+
+  @IsString()
+  @Optional()
+  physical_reference?: string;
+
+  @IsString()
+  @Optional()
+  removed?: boolean;
+
+  @IsArray()
+  @Optional()
+  @ValidateNested({ each: true })
+  @Type(() => AdminConnectorDTO)
+  connectors?: AdminConnectorDTO[];
+}
+
 export class AdminLocationDTO {
   // id is the Citrine Core Location database id, not the OcpiLocation's database id
   @IsNumber()
@@ -126,34 +156,4 @@ export class AdminLocationDTO {
   @Type(() => AdminEvseDTO)
   @ValidateNested({ each: true })
   declare evses?: AdminEvseDTO[];
-}
-
-export class AdminEvseDTO {
-  @IsString()
-  @IsNotEmpty()
-  station_id!: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  id!: number;
-
-  @IsString()
-  @Optional()
-  physical_reference?: string;
-
-  @IsString()
-  @Optional()
-  removed?: boolean;
-
-  @IsArray()
-  @Optional()
-  @ValidateNested({ each: true })
-  @Type(() => AdminConnectorDTO)
-  connectors?: AdminConnectorDTO[];
-}
-
-export class AdminConnectorDTO {
-  @IsNumber()
-  @IsNotEmpty()
-  id!: number;
 }
