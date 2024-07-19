@@ -5,122 +5,127 @@ import {
   IsNotEmpty,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { Optional } from '../../../util/decorators/optional';
 import { Type } from 'class-transformer';
-
-const LOCATION_INVALID_MSG =
-  'New locations must have party_id, country_code, name, address, city, state, postal_code, and country.';
-const EVSE_INVALID_MSG = 'EVSEs must have id and station_id.';
-const CONNECTOR_INVALID_MSG = 'Connectors must have an id.';
+import { CREATE, UPDATE } from '../../../util/consts';
 
 // TODO add remaining OCPI-specific properties
 export class AdminLocationDTO {
-  // id is the Citrine Location database id, not the OcpiLocation's database id
+  // id is the Citrine Core Location database id, not the OcpiLocation's database id
   @IsNumber()
-  @Optional()
-  id?: number;
+  @IsOptional({
+    groups: [CREATE, UPDATE],
+  })
+  declare id: number;
 
   @IsString()
   @MaxLength(2)
-  @Optional()
-  country_code!: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare country_code: string;
 
   @IsString()
   @MaxLength(3)
-  @Optional()
-  party_id!: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare party_id: string;
 
   @IsString()
-  @Optional()
-  name?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare name: string;
 
   @IsString()
-  @Optional()
-  address?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare address: string;
 
   @IsString()
-  @Optional()
-  city?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare city: string;
 
   @IsString()
-  @Optional()
-  state?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare state: string;
 
   @IsString()
-  @Optional()
-  postal_code?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare postal_code: string;
 
   @IsString()
-  @Optional()
-  country?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare country: string;
 
   @IsObject()
-  @Optional()
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
   @Type(() => GeoLocation)
   @ValidateNested()
-  coordinates?: GeoLocation;
+  declare coordinates: GeoLocation;
 
   @IsString()
-  @Optional()
-  time_zone?: string;
+  @IsNotEmpty({
+    groups: [CREATE],
+  })
+  @IsOptional({
+    groups: [UPDATE],
+  })
+  declare time_zone: string;
 
   @IsBoolean()
   @Optional()
-  publish?: boolean;
+  declare publish?: boolean;
 
   @IsArray()
   @Optional()
-  evses?: AdminEvseDTO[];
-
-  static IS_LOCATION_INVALID = (
-    adminLocationDto: AdminLocationDTO,
-  ): [boolean, string] => {
-    const locationInvalid =
-      !adminLocationDto.id &&
-      (!adminLocationDto.party_id ||
-        !adminLocationDto.country_code ||
-        !adminLocationDto.name ||
-        !adminLocationDto.address ||
-        !adminLocationDto.city ||
-        !adminLocationDto.state ||
-        !adminLocationDto.postal_code ||
-        !adminLocationDto.country);
-
-    const evseInvalid =
-      !!adminLocationDto.evses &&
-      adminLocationDto.evses.reduce(
-        (eInvalid, evse) => eInvalid || !evse.id || !evse.station_id,
-        false,
-      );
-
-    const connectorInvalid =
-      !!adminLocationDto.evses &&
-      adminLocationDto.evses
-        .reduce(
-          (connectors: AdminConnectorDTO[], evse) => [
-            ...connectors,
-            ...(evse.connectors ?? []),
-          ],
-          [],
-        )
-        .reduce((cInvalid, connector) => cInvalid || !connector.id, false);
-
-    const invalid = locationInvalid || evseInvalid || connectorInvalid;
-
-    const finalMessage = locationInvalid
-      ? LOCATION_INVALID_MSG
-      : evseInvalid
-        ? EVSE_INVALID_MSG
-        : connectorInvalid
-          ? CONNECTOR_INVALID_MSG
-          : '';
-
-    return [invalid, finalMessage];
-  };
+  @Type(() => AdminEvseDTO)
+  @ValidateNested({ each: true })
+  declare evses?: AdminEvseDTO[];
 }
 
 export class AdminEvseDTO {
@@ -142,6 +147,8 @@ export class AdminEvseDTO {
 
   @IsArray()
   @Optional()
+  @ValidateNested({ each: true })
+  @Type(() => AdminConnectorDTO)
   connectors?: AdminConnectorDTO[];
 }
 

@@ -172,6 +172,8 @@ export {
   AVAILABILITY_STATE_VARIABLE,
   UNKNOWN_ID,
   NOT_APPLICABLE,
+  CREATE,
+  UPDATE,
 } from './util/consts';
 
 export { ResponseSchema } from './openapi-spec-helper/decorators';
