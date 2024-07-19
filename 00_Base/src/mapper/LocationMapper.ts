@@ -96,7 +96,7 @@ export class LocationMapper {
     ocpiLocation.coordinates = this.mapOcppCoordinatesToGeoLocation(
       citrineLocation.coordinates,
     );
-    ocpiLocation.time_zone = ocpiLocationInfo.time_zone;
+    ocpiLocation.time_zone = ocpiLocationInfo.timeZone;
 
     const evses: EvseDTO[] = [];
 

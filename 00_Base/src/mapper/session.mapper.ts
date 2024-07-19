@@ -66,8 +66,8 @@ export class SessionMapper {
     );
 
     return {
-      country_code: location.country_code,
-      party_id: location.party_id,
+      country_code: location.countryCode,
+      party_id: location.partyId,
       id: transaction.transactionId,
       start_date_time: new Date(startEvent?.timestamp),
       end_date_time: endEvent ? new Date(endEvent?.timestamp) : null,

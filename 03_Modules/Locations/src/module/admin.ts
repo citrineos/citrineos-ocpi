@@ -13,7 +13,6 @@ import {
   LocationDTO,
   LocationsBroadcaster,
   OcpiLocation,
-  OcpiLocationProps,
   OcpiLocationRepository,
   OcpiEvse,
   OcpiEvseRepository,
@@ -112,11 +111,11 @@ export class AdminLocationsService {
     adminLocationDto: AdminLocationDTO,
   ): [Partial<OcpiLocation>, Partial<Location>] {
     const ocpiLocation: Partial<OcpiLocation> = {};
-    ocpiLocation[OcpiLocationProps.countryCode] = adminLocationDto.country_code;
-    ocpiLocation[OcpiLocationProps.partyId] = adminLocationDto.party_id;
-    ocpiLocation[OcpiLocationProps.publish] = adminLocationDto.publish;
-    ocpiLocation[OcpiLocationProps.lastUpdated] = new Date();
-    ocpiLocation[OcpiLocationProps.timeZone] = adminLocationDto.time_zone;
+    ocpiLocation.countryCode = adminLocationDto.country_code;
+    ocpiLocation.partyId = adminLocationDto.party_id;
+    ocpiLocation.publish = adminLocationDto.publish;
+    ocpiLocation.lastUpdated = new Date();
+    ocpiLocation.timeZone = adminLocationDto.time_zone;
 
     const citrineLocation: Partial<Location> = {};
     citrineLocation.id = adminLocationDto.id;
