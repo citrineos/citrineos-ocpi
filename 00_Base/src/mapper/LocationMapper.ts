@@ -25,8 +25,6 @@ import { Point } from 'geojson';
 
 @Service()
 export class LocationMapper {
-  private TRUE_ATTRIBUTE_VALUE = 'TRUE';
-
   constructor(private logger: Logger<ILogObj>) {}
 
   static mapConnectorAvailabilityStatesToEvseStatus(
@@ -258,10 +256,10 @@ export class LocationMapper {
     // TODO add remaining capabilities
     const capabilities: Capability[] = [];
 
-    if (authorizeRemoteStart === this.TRUE_ATTRIBUTE_VALUE) {
+    if (authorizeRemoteStart?.toLowerCase() === 'true') {
       capabilities.push(Capability.REMOTE_START_STOP_CAPABLE);
     }
-    if (tokenReaderEnabled === this.TRUE_ATTRIBUTE_VALUE) {
+    if (tokenReaderEnabled?.toLowerCase() === 'true') {
       capabilities.push(Capability.RFID_READER);
     }
 
