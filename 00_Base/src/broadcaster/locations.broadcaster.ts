@@ -48,7 +48,10 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         this.locationsClientApi.putLocation.bind(this.locationsClientApi),
       );
     } catch (e) {
-      this.logger.debug(`Broadcast failed for Location ${locationDto.id} due to error`, e);
+      this.logger.debug(
+        `Broadcast failed for Location ${locationDto.id} due to error`,
+        e,
+      );
     }
   }
 

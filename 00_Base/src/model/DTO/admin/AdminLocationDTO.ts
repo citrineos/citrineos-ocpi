@@ -150,4 +150,3 @@ export class AdminConnectorDTO {
   @IsNotEmpty()
   id!: number;
 }
-
