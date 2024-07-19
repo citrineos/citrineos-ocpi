@@ -1,20 +1,17 @@
-import { Service } from 'typedi';
-import { PaginatedSessionResponse, Session } from '../model/Session';
-import { SequelizeTransactionEventRepository } from '@citrineos/data';
-import {
-  buildOcpiPaginatedResponse,
-  DEFAULT_LIMIT,
-  DEFAULT_OFFSET,
-} from '../model/PaginatedResponse';
-import { SessionMapper } from '../mapper/session.mapper';
+import { Inject, Service } from 'typedi';
+import { PaginatedSessionResponse } from '../model/Session';
+import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET, } from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { ISessionsDatasource } from '../datasources/ISessionsDatasource';
+import { SESSION_DATASOURCE_SERVICE_TOKEN } from '../datasources/SessionsDatasource';
 
 @Service()
 export class SessionsService {
   constructor(
-    private readonly transactionRepository: SequelizeTransactionEventRepository,
-    private readonly sessionMapper: SessionMapper,
-  ) {}
+    @Inject(SESSION_DATASOURCE_SERVICE_TOKEN)
+    private readonly sessionsDatasource: ISessionsDatasource
+  ) {
+  }
 
   public async getSessions(
     fromCountryCode: string,
@@ -26,50 +23,16 @@ export class SessionsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedSessionResponse> {
-    const [transactions, total] = await Promise.all([
-      this.transactionRepository.getTransactions(
-        dateFrom,
-        dateTo,
-        offset,
-        limit,
-      ),
-      this.transactionRepository.getTransactionsCount(dateFrom, dateTo),
-    ]);
-
-    const sessions = this.filterBasedOnCountryCodePartyId(
-      await this.sessionMapper.mapTransactionsToSessions(transactions),
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-    );
+    const result = await this.sessionsDatasource.getSessions(toCountryCode, toPartyId, fromCountryCode, fromPartyId, dateFrom, dateTo, offset, limit);
 
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
-      total,
+      result.total,
       limit,
       offset,
-      sessions,
+      result.data,
     );
 
     return response as PaginatedSessionResponse;
-  }
-
-  private filterBasedOnCountryCodePartyId(
-    sessions: Session[],
-    fromCountryCode?: string,
-    fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string
-  ): Session[] {
-    let filteredSessions = sessions;
-    if (fromCountryCode && fromPartyId) {
-      filteredSessions = filteredSessions.filter(session => session.cdr_token?.country_code === fromCountryCode && session.cdr_token?.party_id === fromPartyId);
-    }
-
-    if (toCountryCode && toPartyId) {
-      filteredSessions = filteredSessions.filter(session => session.country_code === toCountryCode && session.party_id === toPartyId);
-    }
-    return filteredSessions;
   }
 }
