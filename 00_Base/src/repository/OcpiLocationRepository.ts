@@ -119,13 +119,17 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     cpoCountryCode?: string,
     cpoPartyId?: string,
   ) {
-    if (!dateFrom && !dateTo && !cpoCountryCode && !cpoPartyId) {
-      return {};
-    }
-
     const query: any = {
-      where: { [OcpiLocationProps.coreLocationId]: { [Op.not]: null } },
+      where: {
+        [OcpiLocationProps.coreLocationId]: {
+          [Op.not]: null,
+        },
+      },
     };
+
+    if (!dateFrom && !dateTo && !cpoCountryCode && !cpoPartyId) {
+      return query;
+    }
 
     if (dateFrom) {
       query.where[OcpiLocationProps.lastUpdated] =
