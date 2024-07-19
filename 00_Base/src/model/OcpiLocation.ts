@@ -7,7 +7,7 @@ export enum OcpiLocationProps {
   publish = 'publish',
   lastUpdated = 'lastUpdated',
   partyId = 'partyId',
-  countryCode = 'country_code',
+  countryCode = 'countryCode',
   timeZone = 'timeZone',
 }
 

@@ -61,7 +61,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     location: OcpiLocation,
   ): Promise<OcpiLocation | undefined> {
     const existingOcpiLocation = await this.getLocationByCoreLocationId(
-      location[OcpiLocationProps.coreLocationId],
+      location.coreLocationId,
     );
 
     if (!existingOcpiLocation) {
@@ -71,7 +71,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     return await this._updateByKey(
       {
         [OcpiLocationProps.lastUpdated]:
-          location[OcpiLocationProps.lastUpdated],
+          location.lastUpdated,
       },
       String(existingOcpiLocation.id),
     );
@@ -80,41 +80,29 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   async createOrUpdateOcpiLocation(
     location: Partial<OcpiLocation>,
   ): Promise<OcpiLocation | undefined> {
-    if (location[OcpiLocationProps.coreLocationId]) {
+    if (location.coreLocationId) {
       const [savedOcpiLocation, ocpiLocationCreated] =
         await this._readOrCreateByQuery({
           where: {
-            [OcpiLocationProps.coreLocationId]:
-              location[OcpiLocationProps.coreLocationId],
+            [OcpiLocationProps.coreLocationId]: location.coreLocationId,
           },
           defaults: {
-            [OcpiLocationProps.coreLocationId]:
-              location[OcpiLocationProps.coreLocationId],
-            [OcpiLocationProps.partyId]: location[OcpiLocationProps.partyId],
-            [OcpiLocationProps.countryCode]:
-              location[OcpiLocationProps.countryCode],
-            [OcpiLocationProps.publish]: location[OcpiLocationProps.publish],
-            [OcpiLocationProps.lastUpdated]:
-              location[OcpiLocationProps.lastUpdated],
-            [OcpiLocationProps.timeZone]: location[OcpiLocationProps.timeZone],
+            [OcpiLocationProps.coreLocationId]: location.coreLocationId,
+            [OcpiLocationProps.partyId]: location.partyId,
+            [OcpiLocationProps.countryCode]: location.countryCode,
+            [OcpiLocationProps.publish]: location.publish,
+            [OcpiLocationProps.lastUpdated]: location.lastUpdated,
+            [OcpiLocationProps.timeZone]: location.timeZone,
           },
         });
       if (!ocpiLocationCreated) {
         const values: Partial<OcpiLocation> = {};
-        values[OcpiLocationProps.coreLocationId] =
-          location[OcpiLocationProps.coreLocationId] ?? undefined;
-        values[OcpiLocationProps.partyId] =
-          location[OcpiLocationProps.partyId] ?? undefined;
-        values[OcpiLocationProps.countryCode] =
-          location[OcpiLocationProps.countryCode] ?? undefined;
-        values[OcpiLocationProps.publish] =
-          location[OcpiLocationProps.publish] !== undefined
-            ? location[OcpiLocationProps.publish]
-            : undefined;
-        values[OcpiLocationProps.lastUpdated] =
-          location[OcpiLocationProps.lastUpdated] ?? undefined;
-        values[OcpiLocationProps.timeZone] =
-          location[OcpiLocationProps.timeZone] ?? undefined;
+        values.coreLocationId = location.coreLocationId ?? undefined;
+        values.partyId = location.partyId ?? undefined;
+        values.countryCode = location.countryCode ?? undefined;
+        values.publish = location.publish !== undefined ? location.publish : undefined;
+        values.lastUpdated = location.lastUpdated ?? undefined;
+        values.timeZone = location.timeZone ?? undefined;
 
         return await this._updateByKey({ ...values }, savedOcpiLocation.id);
       } else {
