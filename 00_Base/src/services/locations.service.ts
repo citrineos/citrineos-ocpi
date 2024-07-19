@@ -86,7 +86,7 @@ export class LocationsService {
         ocpiHeaders.toPartyId,
       )
     ).reduce((locationsMap: Record<string, OcpiLocation>, curLocation) => {
-      locationsMap[curLocation[OcpiLocationProps.citrineLocationId]] =
+      locationsMap[curLocation[OcpiLocationProps.coreLocationId]] =
         curLocation;
       return locationsMap;
     }, {});
@@ -106,20 +106,20 @@ export class LocationsService {
       ) as PaginatedLocationResponse;
     }
 
-    const relevantCitrineLocationIds = Object.keys(ocpiLocationInfosMap).map(
-      (citrineLocationId) => Number(citrineLocationId),
+    const relevantCoreLocationIds = Object.keys(ocpiLocationInfosMap).map(
+      (coreLocationId) => Number(coreLocationId),
     );
-    const citrineLocations = await this.locationRepository.readAllByQuery({
+    const coreLocations = await this.locationRepository.readAllByQuery({
       where: {
-        id: [...relevantCitrineLocationIds],
+        id: [...relevantCoreLocationIds],
       },
       include: [ChargingStation],
     });
 
     const ocpiLocations: LocationDTO[] = [];
 
-    for (const citrineLocation of citrineLocations) {
-      const stationIds = citrineLocation.chargingPool.map(
+    for (const coreLocation of coreLocations) {
+      const stationIds = coreLocation.chargingPool.map(
         (chargingStation) => chargingStation.id,
       );
       const chargingStationVariableAttributesMap =
@@ -127,7 +127,7 @@ export class LocationsService {
           stationIds,
         );
 
-      const ocpiLocationInfos = ocpiLocationInfosMap[citrineLocation.id];
+      const ocpiLocationInfos = ocpiLocationInfosMap[coreLocation.id];
       ocpiLocationInfos.ocpiEvses =
         await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
           chargingStationVariableAttributesMap,
@@ -135,7 +135,7 @@ export class LocationsService {
 
       ocpiLocations.push(
         this.locationMapper.mapToOcpiLocation(
-          citrineLocation,
+          coreLocation,
           chargingStationVariableAttributesMap,
           ocpiLocationInfos,
         ),
@@ -174,7 +174,7 @@ export class LocationsService {
       );
 
     const ocpiLocationInfo =
-      await this.ocpiLocationRepository.getLocationByCitrineLocationId(
+      await this.ocpiLocationRepository.getLocationByCoreLocationId(
         citrineLocation.id,
       );
 

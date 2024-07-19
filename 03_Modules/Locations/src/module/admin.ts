@@ -59,11 +59,15 @@ export class AdminLocationsService {
       await this.locationRepository.createOrUpdateLocationWithChargingStations(
         citrineLocation,
       );
-    ocpiLocation[OcpiLocationProps.citrineLocationId] = savedCitrineLocation.id;
+    ocpiLocation.coreLocationId = savedCitrineLocation.id;
     const savedOcpiLocation =
       await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
         ocpiLocation,
       );
+
+    if (!savedOcpiLocation) {
+      throw new Error('Location could not be saved due to database error.');
+    }
 
     for (const adminEvse of adminLocationDto.evses ?? []) {
       await this.ocpiEvseRepository.createOrUpdateOcpiEvse(

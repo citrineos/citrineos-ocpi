@@ -259,7 +259,7 @@ export class SessionMapper {
       const ocpiLocation =
         await this.ocpiLocationsRepository.readOnlyOneByQuery({
           where: {
-            [OcpiLocationProps.citrineLocationId]: locationId,
+            [OcpiLocationProps.coreLocationId]: locationId,
           },
         });
       if (!ocpiLocation) {

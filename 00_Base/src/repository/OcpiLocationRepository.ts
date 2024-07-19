@@ -47,12 +47,12 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     });
   }
 
-  async getLocationByCitrineLocationId(
+  async getLocationByCoreLocationId(
     id: number,
   ): Promise<OcpiLocation | undefined> {
     return await this.readOnlyOneByQuery({
       where: {
-        [OcpiLocationProps.citrineLocationId]: id,
+        [OcpiLocationProps.coreLocationId]: id,
       },
     });
   }
@@ -60,8 +60,8 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   async updateOcpiLocation(
     location: OcpiLocation,
   ): Promise<OcpiLocation | undefined> {
-    const existingOcpiLocation = await this.getLocationByCitrineLocationId(
-      location[OcpiLocationProps.citrineLocationId],
+    const existingOcpiLocation = await this.getLocationByCoreLocationId(
+      location[OcpiLocationProps.coreLocationId],
     );
 
     if (!existingOcpiLocation) {
@@ -79,17 +79,17 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
 
   async createOrUpdateOcpiLocation(
     location: Partial<OcpiLocation>,
-  ): Promise<OcpiLocation> {
-    if (location[OcpiLocationProps.citrineLocationId]) {
+  ): Promise<OcpiLocation | undefined> {
+    if (location[OcpiLocationProps.coreLocationId]) {
       const [savedOcpiLocation, ocpiLocationCreated] =
         await this._readOrCreateByQuery({
           where: {
-            [OcpiLocationProps.citrineLocationId]:
-              location[OcpiLocationProps.citrineLocationId],
+            [OcpiLocationProps.coreLocationId]:
+              location[OcpiLocationProps.coreLocationId],
           },
           defaults: {
-            [OcpiLocationProps.citrineLocationId]:
-              location[OcpiLocationProps.citrineLocationId],
+            [OcpiLocationProps.coreLocationId]:
+              location[OcpiLocationProps.coreLocationId],
             [OcpiLocationProps.partyId]: location[OcpiLocationProps.partyId],
             [OcpiLocationProps.countryCode]:
               location[OcpiLocationProps.countryCode],
@@ -101,8 +101,8 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
         });
       if (!ocpiLocationCreated) {
         const values: Partial<OcpiLocation> = {};
-        values[OcpiLocationProps.citrineLocationId] =
-          location[OcpiLocationProps.citrineLocationId] ?? undefined;
+        values[OcpiLocationProps.coreLocationId] =
+          location[OcpiLocationProps.coreLocationId] ?? undefined;
         values[OcpiLocationProps.partyId] =
           location[OcpiLocationProps.partyId] ?? undefined;
         values[OcpiLocationProps.countryCode] =
@@ -116,10 +116,10 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
         values[OcpiLocationProps.timeZone] =
           location[OcpiLocationProps.timeZone] ?? undefined;
 
-        await this._updateByKey({ ...values }, savedOcpiLocation.id);
+        return await this._updateByKey({ ...values }, savedOcpiLocation.id);
+      } else {
+        return savedOcpiLocation;
       }
-
-      return savedOcpiLocation.reload();
     } else {
       return await this.create(OcpiLocation.build({ ...location }));
     }
