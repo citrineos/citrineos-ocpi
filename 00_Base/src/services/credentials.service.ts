@@ -485,9 +485,11 @@ export class CredentialsService {
     if (!cpoTenant) {
       throw new NotFoundError('CpoTenant not found');
     }
+
+    const transaction =
+      await this.ocpiSequelizeInstance.sequelize.transaction();
+
     try {
-      const transaction =
-        await this.ocpiSequelizeInstance.sequelize.transaction();
       await this.clientInformationRepository.deleteAllByQuery({
         where: {
           [ClientInformationProps.cpoTenantId]: cpoTenant.id,
@@ -504,6 +506,7 @@ export class CredentialsService {
       await transaction.commit();
       return;
     } catch (e: any) {
+      await transaction.rollback();
       throw new InternalServerError(`Could not delete tenant, ${e.message}`);
     }
   }
