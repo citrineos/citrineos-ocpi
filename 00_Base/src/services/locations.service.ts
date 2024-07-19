@@ -28,7 +28,7 @@ import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
 import { OcpiHeaders } from '../model/OcpiHeaders';
-import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
+import { OcpiLocation } from '../model/OcpiLocation';
 import { NotFoundException } from '../exception/NotFoundException';
 import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
 import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
@@ -86,7 +86,7 @@ export class LocationsService {
         ocpiHeaders.toPartyId,
       )
     ).reduce((locationsMap: Record<string, OcpiLocation>, curLocation) => {
-      locationsMap[curLocation[OcpiLocationProps.coreLocationId]] =
+      locationsMap[curLocation.coreLocationId] =
         curLocation;
       return locationsMap;
     }, {});
@@ -154,17 +154,17 @@ export class LocationsService {
   async getLocationById(locationId: number): Promise<LocationResponse> {
     this.logger.debug(`Getting location ${locationId}`);
 
-    const citrineLocation =
+    const coreLocation =
       await this.locationRepository.readLocationById(locationId);
 
-    if (!citrineLocation) {
+    if (!coreLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as LocationResponse;
     }
 
-    const stationIds = citrineLocation.chargingPool.map(
+    const stationIds = coreLocation.chargingPool.map(
       (chargingStation: ChargingStation) => chargingStation.id,
     );
 
@@ -175,7 +175,7 @@ export class LocationsService {
 
     const ocpiLocationInfo =
       await this.ocpiLocationRepository.getLocationByCoreLocationId(
-        citrineLocation.id,
+        coreLocation.id,
       );
 
     if (!ocpiLocationInfo) {
@@ -192,7 +192,7 @@ export class LocationsService {
 
     try {
       const mappedLocation = this.locationMapper.mapToOcpiLocation(
-        citrineLocation,
+        coreLocation,
         chargingStationVariableAttributesMap,
         ocpiLocationInfo,
       );
@@ -225,17 +225,17 @@ export class LocationsService {
       `Getting EVSE ${evseId} from Charging Station ${stationId} in Location ${locationId}`,
     );
 
-    const citrineLocation =
+    const coreLocation =
       await this.locationRepository.readLocationById(locationId);
 
-    if (!citrineLocation) {
+    if (!coreLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as EvseResponse;
     }
 
-    const matchingChargingStation = citrineLocation.chargingPool.filter(
+    const matchingChargingStation = coreLocation.chargingPool.filter(
       (chargingStation: ChargingStation) => chargingStation.id === stationId,
     );
 
@@ -267,7 +267,7 @@ export class LocationsService {
 
     try {
       const mappedEvse = this.locationMapper.mapToOcpiEvse(
-        citrineLocation,
+        coreLocation,
         chargingStationVariableAttributesMap[stationId],
         chargingStationVariableAttributesMap[stationId].evses[Number(evseId)],
         ocpiEvseInfo,
@@ -302,17 +302,17 @@ export class LocationsService {
       `Getting Connector ${connectorId} from EVSE ${evseId} in Charging Station ${stationId} in Location ${locationId}`,
     );
 
-    const citrineLocation =
+    const coreLocation =
       await this.locationRepository.readLocationById(locationId);
 
-    if (!citrineLocation) {
+    if (!coreLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as ConnectorResponse;
     }
 
-    const matchingChargingStation = citrineLocation.chargingPool.filter(
+    const matchingChargingStation = coreLocation.chargingPool.filter(
       (chargingStation) => chargingStation.id === stationId,
     );
 
