@@ -67,7 +67,7 @@ export class LocationsService {
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     this.logger.debug(
-      `Getting all locations with headers ${ocpiHeaders} and parameters ${paginatedParams}`,
+      `Getting all locations with headers ${JSON.stringify(ocpiHeaders)} and parameters ${JSON.stringify(paginatedParams)}`,
     );
 
     // TODO add Link header
@@ -76,7 +76,7 @@ export class LocationsService {
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
-    const ocpiLocationInfosMap = (
+    const ocpiLocationsMap = (
       await this.ocpiLocationRepository.getLocations(
         limit,
         offset,
@@ -86,8 +86,7 @@ export class LocationsService {
         ocpiHeaders.toPartyId,
       )
     ).reduce((locationsMap: Record<string, OcpiLocation>, curLocation) => {
-      locationsMap[curLocation.coreLocationId] =
-        curLocation;
+      locationsMap[curLocation.coreLocationId] = curLocation;
       return locationsMap;
     }, {});
 
@@ -106,7 +105,7 @@ export class LocationsService {
       ) as PaginatedLocationResponse;
     }
 
-    const relevantCoreLocationIds = Object.keys(ocpiLocationInfosMap).map(
+    const relevantCoreLocationIds = Object.keys(ocpiLocationsMap).map(
       (coreLocationId) => Number(coreLocationId),
     );
     const coreLocations = await this.locationRepository.readAllByQuery({
@@ -116,7 +115,7 @@ export class LocationsService {
       include: [ChargingStation],
     });
 
-    const ocpiLocations: LocationDTO[] = [];
+    const mappedLocations: LocationDTO[] = [];
 
     for (const coreLocation of coreLocations) {
       const stationIds = coreLocation.chargingPool.map(
@@ -127,17 +126,16 @@ export class LocationsService {
           stationIds,
         );
 
-      const ocpiLocationInfos = ocpiLocationInfosMap[coreLocation.id];
-      ocpiLocationInfos.ocpiEvses =
-        await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
-          chargingStationVariableAttributesMap,
-        );
+      const ocpiLocation = ocpiLocationsMap[coreLocation.id];
+      ocpiLocation.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesMap(
+        chargingStationVariableAttributesMap,
+      );
 
-      ocpiLocations.push(
+      mappedLocations.push(
         this.locationMapper.mapToOcpiLocation(
           coreLocation,
           chargingStationVariableAttributesMap,
-          ocpiLocationInfos,
+          ocpiLocation,
         ),
       );
     }
@@ -147,7 +145,7 @@ export class LocationsService {
       locationsTotal,
       limit,
       offset,
-      [...ocpiLocations],
+      [...mappedLocations],
     ) as PaginatedLocationResponse;
   }
 
@@ -173,28 +171,27 @@ export class LocationsService {
         stationIds,
       );
 
-    const ocpiLocationInfo =
+    const ocpiLocation =
       await this.ocpiLocationRepository.getLocationByCoreLocationId(
         coreLocation.id,
       );
 
-    if (!ocpiLocationInfo) {
+    if (!ocpiLocation) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         this.LOCATION_NOT_FOUND_MESSAGE(locationId),
       ) as LocationResponse;
     }
 
-    ocpiLocationInfo.ocpiEvses =
-      await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
-        chargingStationVariableAttributesMap,
-      );
+    ocpiLocation.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesMap(
+      chargingStationVariableAttributesMap,
+    );
 
     try {
       const mappedLocation = this.locationMapper.mapToOcpiLocation(
         coreLocation,
         chargingStationVariableAttributesMap,
-        ocpiLocationInfo,
+        ocpiLocation,
       );
 
       return buildOcpiResponse(
@@ -252,13 +249,13 @@ export class LocationsService {
         Number(evseId),
       );
 
-    const ocpiEvseInfo = (
-      await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
+    const ocpiEvse = (
+      await this.ocpiLocationsUtil.createOcpiEvsesMap(
         chargingStationVariableAttributesMap,
       )
     )[`${UID_FORMAT(stationId, evseId)}`];
 
-    if (!ocpiEvseInfo) {
+    if (!ocpiEvse) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         this.EVSE_NOT_FOUND_MESSAGE(UID_FORMAT(stationId, evseId)),
@@ -266,11 +263,11 @@ export class LocationsService {
     }
 
     try {
-      const mappedEvse = this.locationMapper.mapToOcpiEvse(
+      const mappedEvse = this.locationMapper.mapToEvseDTO(
         coreLocation,
         chargingStationVariableAttributesMap[stationId],
         chargingStationVariableAttributesMap[stationId].evses[Number(evseId)],
-        ocpiEvseInfo,
+        ocpiEvse,
       );
 
       return buildOcpiResponse(
@@ -337,14 +334,14 @@ export class LocationsService {
       ) as ConnectorResponse;
     }
 
-    const ocpiConnectorInfo =
+    const ocpiConnector =
       await this.ocpiConnectorRepository.getConnectorByConnectorId(
         stationId,
         evseId,
         connectorId,
       );
 
-    if (!ocpiConnectorInfo) {
+    if (!ocpiConnector) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         this.CONNECTOR_NOT_FOUND_MESSAGE(connectorId),
@@ -356,7 +353,7 @@ export class LocationsService {
         Number(connectorId),
         evseVariableAttributesMap[evseId],
         evseVariableAttributesMap[evseId].connectors[connectorId],
-        ocpiConnectorInfo,
+        ocpiConnector,
       );
 
       return buildOcpiResponse(

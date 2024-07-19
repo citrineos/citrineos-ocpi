@@ -14,7 +14,7 @@ export class OcpiLocationsUtil {
     private ocpiConnectorRepository: OcpiConnectorRepository,
   ) {}
 
-  public async createOcpiEvsesInfoMap(
+  public async createOcpiEvsesMap(
     chargingStationAttributesMap: Record<
       string,
       ChargingStationVariableAttributes
@@ -34,28 +34,28 @@ export class OcpiLocationsUtil {
         for (const connectorIdKey of Object.keys(evseAttributes.connectors)) {
           const connectorId = Number(connectorIdKey);
 
-          const ocpiConnectorInfo =
+          const ocpiConnector =
             await this.ocpiConnectorRepository.getConnectorByConnectorId(
               stationId,
               evseId,
               connectorId,
             );
 
-          if (ocpiConnectorInfo) {
+          if (ocpiConnector) {
             ocpiConnectorsMap[
               `${TEMPORARY_CONNECTOR_ID(stationId, evseId, connectorId)}`
-            ] = ocpiConnectorInfo;
+            ] = ocpiConnector;
           }
         }
 
-        const ocpiEvseInfo = await this.ocpiEvseRepository.getEvseByEvseId(
+        const ocpiEvse = await this.ocpiEvseRepository.getEvseByEvseId(
           evseId,
           stationId,
         );
 
-        if (ocpiEvseInfo) {
-          ocpiEvseInfo.ocpiConnectors = ocpiConnectorsMap;
-          ocpiEvseMap[`${UID_FORMAT(stationId, evseId)}`] = ocpiEvseInfo;
+        if (ocpiEvse) {
+          ocpiEvse.ocpiConnectors = ocpiConnectorsMap;
+          ocpiEvseMap[`${UID_FORMAT(stationId, evseId)}`] = ocpiEvse;
         }
       }
     }

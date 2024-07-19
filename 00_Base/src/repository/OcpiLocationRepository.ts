@@ -70,8 +70,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
 
     return await this._updateByKey(
       {
-        [OcpiLocationProps.lastUpdated]:
-          location.lastUpdated,
+        [OcpiLocationProps.lastUpdated]: location.lastUpdated,
       },
       String(existingOcpiLocation.id),
     );
@@ -100,7 +99,8 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
         values.coreLocationId = location.coreLocationId ?? undefined;
         values.partyId = location.partyId ?? undefined;
         values.countryCode = location.countryCode ?? undefined;
-        values.publish = location.publish !== undefined ? location.publish : undefined;
+        values.publish =
+          location.publish !== undefined ? location.publish : undefined;
         values.lastUpdated = location.lastUpdated ?? undefined;
         values.timeZone = location.timeZone ?? undefined;
 
@@ -123,7 +123,9 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
       return {};
     }
 
-    const query: any = { where: {} };
+    const query: any = {
+      where: { [OcpiLocationProps.coreLocationId]: { [Op.not]: null } },
+    };
 
     if (dateFrom) {
       query.where[OcpiLocationProps.lastUpdated] =

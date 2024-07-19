@@ -47,7 +47,8 @@ export class AdminLocationsService {
         : `Creating Location ${adminLocationDto.name}`,
     );
 
-    const [invalidLocation, message] = AdminLocationDTO.IS_LOCATION_INVALID(adminLocationDto);
+    const [invalidLocation, message] =
+      AdminLocationDTO.IS_LOCATION_INVALID(adminLocationDto);
     if (invalidLocation) {
       throw new InvalidParamException(message ?? 'Invalid location request.');
     }
@@ -87,7 +88,7 @@ export class AdminLocationsService {
           savedCoreLocation.chargingPool.map((station) => station.id),
         );
       savedOcpiLocation.ocpiEvses =
-        await this.ocpiLocationsUtil.createOcpiEvsesInfoMap(
+        await this.ocpiLocationsUtil.createOcpiEvsesMap(
           chargingStationVariableAttributesMap,
         );
     }
