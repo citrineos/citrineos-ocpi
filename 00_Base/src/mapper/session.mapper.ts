@@ -1,16 +1,10 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import {
-  MeasurandEnumType,
-  MeterValueType,
-  TransactionEventEnumType,
-  TransactionEventRequest,
-} from '@citrineos/base';
-import { Transaction, TransactionEvent } from '@citrineos/data';
+import { MeasurandEnumType, MeterValueType, TransactionEventRequest, } from '@citrineos/base';
+import { SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
-import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
 import { CredentialsService } from '../services/credentials.service';
@@ -19,50 +13,60 @@ import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokensRepository } from '../repository/TokensRepository';
+import { BaseTransactionMapper } from './BaseTransactionMapper';
+import { TariffsService } from '../services/tariffs.service';
+import { LocationsService } from '../services/locations.service';
+import { LocationDTO } from '../model/DTO/LocationDTO';
 
 @Service()
-export class SessionMapper {
+export class SessionMapper extends BaseTransactionMapper {
   constructor(
-    readonly logger: Logger<ILogObj>,
+    protected logger: Logger<ILogObj>,
+    protected locationsService: LocationsService,
+    protected ocpiLocationsRepository: OcpiLocationRepository,
+    protected tokensRepository: TokensRepository,
+    protected tariffRepository: SequelizeTariffRepository,
+    protected tariffsService: TariffsService,
     readonly credentialsService: CredentialsService,
-    readonly ocpiLocationsRepository: OcpiLocationRepository,
-    readonly tokensRepository: TokensRepository,
-  ) {}
+  ) {
+    super(logger, locationsService, ocpiLocationsRepository, tokensRepository, tariffRepository, tariffsService);
+  }
 
   public async mapTransactionsToSessions(
     transactions: Transaction[],
-    _fromCountryCode?: string,
-    _fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string,
   ): Promise<Session[]> {
-    const [transactionIdToLocationMap, transactionIdToTokenMap] =
-      await Promise.all([
-        this.getLocationsForTransactions(
-          transactions,
-          toCountryCode,
-          toPartyId,
-        ),
-        this.getTokensForTransactions(transactions),
-      ]);
+    const [
+      transactionIdToLocationMap,
+      transactionIdToTokenMap,
+      transactionIdToTariffMap
+    ] = await Promise.all([
+      this.getLocationDTOsForTransactions(transactions),
+      this.getTokensForTransactions(transactions),
+      this.getTariffsForTransactions(transactions)
+    ]);
+
     return transactions
-      .filter(
-        (transaction) => transactionIdToLocationMap[transaction.id], // todo skipping check for token for now
+      .filter((transaction) =>
+        transactionIdToLocationMap.has(transaction.transactionId) &&
+        transactionIdToTokenMap.has(transaction.transactionId) &&
+        transactionIdToTariffMap.has(transaction.transactionId)
       )
       .map((transaction) => {
-        const location = transactionIdToLocationMap[transaction.id]!;
-        const token = transactionIdToTokenMap[transaction.id]!;
-        return this.mapTransactionToSession(transaction, location, token);
+        const location = transactionIdToLocationMap.get(transaction.transactionId)!;
+        const token = transactionIdToTokenMap.get(transaction.transactionId)!;
+        const tariff = transactionIdToTariffMap.get(transaction.transactionId)!;
+        return this.mapTransactionToSession(transaction, location, token, tariff);
       });
   }
 
   private mapTransactionToSession(
     transaction: Transaction,
-    location: OcpiLocation,
+    location: LocationDTO,
     token: TokenDTO,
+    tariff: Tariff,
   ): Session {
     const [startEvent, endEvent] = this.getStartAndEndEvents(
-      transaction.transactionEvents,
+      transaction,
     );
 
     return {
@@ -75,37 +79,24 @@ export class SessionMapper {
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
       auth_method: AuthMethod.WHITELIST,
-      location_id: String(location.id),
-      evse_uid: this.getEvseUid(transaction),
-      connector_id: String(transaction.evse?.connectorId),
+      location_id: this.getLocationId(location),
+      evse_uid: this.getEvseUid(transaction, location),
+      connector_id: this.getConnectorId(transaction, location),
       currency: this.getCurrency(location),
-      charging_periods: this.getChargingPeriods(transaction.meterValues),
+      charging_periods: this.getChargingPeriods(
+        transaction.meterValues,
+        String(tariff?.id)
+      ),
       status: this.getTransactionStatus(endEvent),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
       // TODO: Fill in optional values
       authorization_reference: null,
-      total_cost: null,
+      total_cost: endEvent ? this.calculateTotalCost(
+        transaction.totalKwh || 0,
+        tariff.pricePerKwh,
+      ) : null,
       meter_id: null,
     };
-  }
-
-  private getStartAndEndEvents(
-    transactionEvents: TransactionEventRequest[] = [],
-  ): [TransactionEventRequest, TransactionEventRequest | undefined] {
-    let startEvent = transactionEvents.find(
-      (event) => event.eventType === TransactionEventEnumType.Started,
-    );
-    if (!startEvent) {
-      this.logger.error("No 'Started' event found in transaction events");
-      startEvent = TransactionEvent.build();
-    }
-
-    return [
-      startEvent!,
-      transactionEvents.find(
-        (event) => event.eventType === TransactionEventEnumType.Ended,
-      ),
-    ];
   }
 
   private getLatestEvent(transactionEvents: TransactionEventRequest[]): Date {
@@ -128,22 +119,49 @@ export class SessionMapper {
     };
   }
 
-  private getEvseUid(transaction: Transaction): string {
-    // TODO: Can be mapped using UID_FORMAT method in EvseDTO from Location Module
-    // Leaving it as a concat of stationId and evseID for now
-    return `${transaction.stationId}-${transaction.evse?.id}`;
+  private getLocationId(location: LocationDTO) {
+    if (!location.id) {
+      this.logger.warn(`Location missing for location ${location.id}`);
+    }
+
+    return location.id ?? '';
   }
 
-  private getCurrency(location: OcpiLocation): string {
-    switch (location[OcpiLocationProps.countryCode]) {
+  private getEvseUid(transaction: Transaction, location: LocationDTO): string {
+    const evseUid = location.evses?.find(evse => evse.evse_id === transaction.evse?.id)?.uid;
+
+    if (!evseUid) {
+      this.logger.warn(`Evse missing for ${transaction.transactionId} on location ${location.id}`);
+    }
+
+    return evseUid ?? '';
+  }
+
+  private getConnectorId(transaction: Transaction, location: LocationDTO): string {
+    const connectorId = location.evses?.find(
+      evse => evse.evse_id === transaction.evse?.id
+    )?.connectors?.find(
+      connector => connector.id === String(transaction.evse?.connectorId)
+    )?.id;
+
+    if (!connectorId) {
+      this.logger.warn(`Connector missing for ${transaction.transactionId} on location ${location.id}`);
+    }
+
+    return connectorId ?? '';
+  }
+
+  private getCurrency(location: LocationDTO): string {
+    switch (location.country_code) {
       case 'US':
       default:
-        return 'USD';
+        return '';
     }
   }
 
   private getChargingPeriods(
     meterValues: MeterValueType[] = [],
+    tariffId: string
   ): ChargingPeriod[] {
     return meterValues
       .sort(
@@ -155,19 +173,21 @@ export class SessionMapper {
           index > 0 ? sortedMeterValues[index - 1] : undefined;
         return this.mapMeterValueToChargingPeriod(
           meterValue,
-          previousMeterValue,
+          tariffId,
+          previousMeterValue
         );
       });
   }
 
   private mapMeterValueToChargingPeriod(
     meterValue: MeterValueType,
+    tariffId: string,
     previousMeterValue?: MeterValueType,
   ): ChargingPeriod {
     return {
       start_date_time: new Date(meterValue.timestamp),
       dimensions: this.getCdrDimensions(meterValue, previousMeterValue),
-      tariff_id: null, // TODO: Fill in tariff_id value
+      tariff_id: tariffId,
     };
   }
 
@@ -222,7 +242,7 @@ export class SessionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-            MeasurandEnumType.Energy_Active_Import_Register &&
+          MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
@@ -234,77 +254,11 @@ export class SessionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-        new Date(previousMeterValue.timestamp).getTime()
+      new Date(previousMeterValue.timestamp).getTime()
       : 0;
 
     // Convert milliseconds to hours
     return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
-  }
-
-  private getLocationsForTransactions = async (
-    transactions: Transaction[],
-    cpoCountryCode?: string,
-    cpoPartyId?: string,
-  ): Promise<{ [key: string]: OcpiLocation }> => {
-    const transactionIdToLocationMap: { [key: string]: OcpiLocation } = {};
-    for (const transaction of transactions) {
-      const chargingStation = await transaction.$get('station');
-      if (!chargingStation) {
-        continue; // todo
-      }
-      const locationId = chargingStation.locationId;
-      if (!locationId) {
-        continue; // todo
-      }
-      const ocpiLocation =
-        await this.ocpiLocationsRepository.readOnlyOneByQuery({
-          where: {
-            [OcpiLocationProps.citrineLocationId]: locationId,
-          },
-        });
-      if (!ocpiLocation) {
-        continue; // todo
-      }
-      if (
-        (ocpiLocation[OcpiLocationProps.countryCode] === cpoCountryCode &&
-          ocpiLocation[OcpiLocationProps.partyId] === cpoPartyId) ||
-        (!cpoCountryCode && !cpoPartyId)
-      ) {
-        transactionIdToLocationMap[transaction.id] = ocpiLocation;
-      }
-    }
-
-    return transactionIdToLocationMap;
-  };
-
-  private async getTokensForTransactions(
-    transactions: Transaction[],
-  ): Promise<{ [key: string]: TokenDTO }> {
-    const transactionIdToTokenMap: { [transactionId: string]: TokenDTO } = {};
-
-    for (const transaction of transactions) {
-      if (
-        transaction.transactionEvents &&
-        transaction.transactionEvents.length > 0
-      ) {
-        const idToken = transaction.transactionEvents.find(
-          (event) => event.idToken,
-        )?.idToken;
-
-        if (idToken?.idToken) {
-          const tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
-            idToken.idToken,
-            idToken.type,
-          );
-
-          if (tokenDto) {
-            transactionIdToTokenMap[transaction.id] = tokenDto;
-          }
-        }
-      }
-    }
-
-    return transactionIdToTokenMap;
   }
 
   private getTransactionStatus(

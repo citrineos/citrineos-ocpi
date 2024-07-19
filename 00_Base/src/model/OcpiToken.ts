@@ -16,17 +16,21 @@ import { Optional } from '../util/decorators/optional';
 import { Enum } from '../util/decorators/enum';
 import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
 import { PaginatedResponse } from './PaginatedResponse';
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { TokenType } from './TokenType';
 import { TokenDTO } from './DTO/TokenDTO';
+import { Authorization, BelongsTo, Column, DataType, ForeignKey, Model, Table } from '@citrineos/data'
 
 @Table
 export class OcpiToken extends Model {
+  @ForeignKey(() => Authorization)
   @Column({
     type: DataType.INTEGER,
     unique: true,
   })
   authorization_id!: number;
+
+  @BelongsTo(() => Authorization)
+  declare authorization: Authorization;
 
   @Column(DataType.STRING)
   @MaxLength(2)
@@ -103,7 +107,7 @@ export class TokenResponse extends OcpiResponse<TokenDTO> {
 
 export class PaginatedTokenResponse extends PaginatedResponse<TokenDTO> {
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   @IsNotEmpty()
   @Optional(false)
   @Type(() => TokenDTO)

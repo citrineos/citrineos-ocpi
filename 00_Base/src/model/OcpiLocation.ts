@@ -1,4 +1,4 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from '@citrineos/data';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { OcpiEvse } from './OcpiEvse';
 
