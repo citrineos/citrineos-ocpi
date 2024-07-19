@@ -209,7 +209,7 @@ export { OcpiConnector } from './model/OcpiConnector';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
 export {
   AdminLocationDTO,
-  AdminEVSEDTO,
+  AdminEvseDTO,
   AdminConnectorDTO,
 } from './model/DTO/admin/AdminLocationDTO';
 export {

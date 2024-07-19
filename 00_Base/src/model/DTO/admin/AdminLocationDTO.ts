@@ -74,7 +74,7 @@ export class AdminLocationDTO {
 
   @IsArray()
   @Optional()
-  evses?: AdminEVSEDTO[];
+  evses?: AdminEvseDTO[];
 
   static IS_LOCATION_INVALID = (
     adminLocationDto: AdminLocationDTO,
@@ -123,7 +123,7 @@ export class AdminLocationDTO {
   };
 }
 
-export class AdminEVSEDTO {
+export class AdminEvseDTO {
   @IsString()
   @IsNotEmpty()
   station_id!: string;

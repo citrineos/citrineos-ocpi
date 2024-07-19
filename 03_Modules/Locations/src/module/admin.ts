@@ -7,7 +7,7 @@ import {
 } from '@citrineos/data';
 import {
   AdminConnectorDTO,
-  AdminEVSEDTO,
+  AdminEvseDTO,
   AdminLocationDTO,
   CitrineOcpiLocationMapper,
   LocationDTO,
@@ -148,7 +148,7 @@ export class AdminLocationsService {
     return [ocpiLocation, citrineLocation];
   }
 
-  mapAdminEvseDtoToOcpiEvse(adminEvseDto: AdminEVSEDTO): OcpiEvse {
+  mapAdminEvseDtoToOcpiEvse(adminEvseDto: AdminEvseDTO): OcpiEvse {
     const ocpiEvse = new OcpiEvse();
     ocpiEvse.evseId = adminEvseDto.id;
     ocpiEvse.stationId = adminEvseDto.station_id;
@@ -160,7 +160,7 @@ export class AdminLocationsService {
 
   mapAdminConnectorToOcpiConnector(
     adminConnectorDto: AdminConnectorDTO,
-    adminEvseDto: AdminEVSEDTO,
+    adminEvseDto: AdminEvseDTO,
   ): OcpiConnector {
     const ocpiConnector = new OcpiConnector();
     ocpiConnector.connectorId = adminConnectorDto.id;
