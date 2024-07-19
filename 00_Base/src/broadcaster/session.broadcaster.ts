@@ -25,32 +25,40 @@ export class SessionBroadcaster extends BaseBroadcaster {
     readonly credentialsService: CredentialsService,
   ) {
     super();
-    this.transactionRepository.transaction.on('created', (transactions) => {
-      if (transactions && transactions.length > 0) {
-        this.logger.info(
-          'Attempting to broadcast created transactions',
-          transactions.map((t) => t.id),
-        );
-        this.broadcast(transactions).then();
-      }
-    });
+    this.transactionRepository.transaction.on(
+      'created',
+      async (transactions) => {
+        if (transactions && transactions.length > 0) {
+          this.logger.info(
+            'Attempting to broadcast created transactions',
+            transactions.map((t) => t.id),
+          );
+          await this.broadcastTransactions(transactions);
+        }
+      },
+    );
     this.transactionRepository.on(
       'created',
-      (transactionsEvents: TransactionEvent[]) => {
+      async (transactionsEvents: TransactionEvent[]) => {
         if (transactionsEvents && transactionsEvents.length > 0) {
           this.logger.info(
             'Attempting to broadcast updated transactions',
             transactionsEvents.map((t) => t.id),
           );
-          this.broadcastPatch(transactionsEvents).then();
+          const transactions = await this.buildTransactions(transactionsEvents);
+          if (transactions.length === 0) {
+            return Promise.resolve(); // skipping because no transaction not yet created for transaction event
+          } else {
+            return await this.broadcastTransactions(transactions, true);
+          }
         }
       },
     );
   }
 
-  private async broadcastPatch(
+  private async buildTransactions(
     transactionsEvents: TransactionEvent[],
-  ): Promise<void> {
+  ): Promise<Transaction[]> {
     const transactions: Transaction[] = [];
     for (const transactionsEvent of transactionsEvents) {
       if (
@@ -71,14 +79,13 @@ export class SessionBroadcaster extends BaseBroadcaster {
         }
       }
     }
-    if (transactions.length === 0) {
-      return Promise.resolve(); // skipping because no transaction not yet created for transaction event
-    } else {
-      return await this.broadcast(transactions, true);
-    }
+    return transactions;
   }
 
-  private async broadcast(transactions: Transaction[], isPatch = false) {
+  private async broadcastTransactions(
+    transactions: Transaction[],
+    isPatch = false,
+  ) {
     // todo do we know if we can do put vs patch here, is there a way to have a delta?
     const sessions: Session[] =
       await this.sessionMapper.mapTransactionsToSessions(transactions);
@@ -97,7 +104,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     if (isPatch) {
       params = PatchSessionParams.build(
         session.id,
-        this.getSessionForPatch(session),
+        this.buildSessionForPatch(session),
       );
       clientApiRequest = this.sessionsClientApi.patchSession;
     }
@@ -112,7 +119,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     );
   }
 
-  private getSessionForPatch(session: Session): Partial<Session> {
+  private buildSessionForPatch(session: Session): Partial<Session> {
     return {
       kwh: session.kwh,
       charging_periods: session.charging_periods,
