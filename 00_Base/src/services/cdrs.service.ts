@@ -1,15 +1,16 @@
-import { Service } from 'typedi';
-import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import { Inject, Service } from 'typedi';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { CdrMapper } from '../mapper/cdr.mapper';
 import { Cdr, PaginatedCdrResponse } from '../model/Cdr';
+import { ICdrsDatasource } from '../datasources/ICdrsDatasource';
+import { CDR_DATASOURCE_SERVICE_TOKEN } from '../datasources/CdrsDatasource';
 
 @Service()
 export class CdrsService {
   constructor(
-    private readonly transactionRepository: SequelizeTransactionEventRepository,
-    private readonly cdrMapper: CdrMapper,
-  ) {}
+    @Inject(CDR_DATASOURCE_SERVICE_TOKEN)
+    private readonly cdrsDatasource: ICdrsDatasource
+  ) {
+  }
 
   public async getCdrs(
     fromCountryCode: string,
@@ -21,27 +22,11 @@ export class CdrsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedCdrResponse> {
-    const [transactions, total] = await Promise.all([
-      this.transactionRepository.getTransactions(
-        dateFrom,
-        dateTo,
-        offset,
-        limit,
-      ),
-      this.transactionRepository.getTransactionsCount(dateFrom, dateTo),
-    ]);
-
-    const cdrs = this.filterBasedOnCountryCodePartyId(
-      await this.cdrMapper.mapTransactionsToCdrs(transactions),
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId
-    );
+    const result = await this.cdrsDatasource.getCdrs(toCountryCode, toPartyId, fromCountryCode, fromPartyId, dateFrom, dateTo, offset, limit);
 
     const response = new PaginatedCdrResponse();
-    response.data = cdrs;
-    response.total = total;
+    response.data = result.data;
+    response.total = result.total;
     response.offset = offset;
     response.limit = limit;
 
