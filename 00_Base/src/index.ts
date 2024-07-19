@@ -132,7 +132,7 @@ export {
   ConnectorResponse,
   TEMPORARY_CONNECTOR_ID,
 } from './model/DTO/ConnectorDTO';
-export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
+export { LocationMapper } from './mapper/LocationMapper';
 export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
 export { SessionMapper } from './mapper/session.mapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';

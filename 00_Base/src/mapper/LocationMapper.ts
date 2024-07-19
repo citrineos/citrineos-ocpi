@@ -24,7 +24,7 @@ import { ILogObj, Logger } from 'tslog';
 import { Point } from 'geojson';
 
 @Service()
-export class CitrineOcpiLocationMapper {
+export class LocationMapper {
   private TRUE_ATTRIBUTE_VALUE = 'TRUE';
 
   constructor(private logger: Logger<ILogObj>) {}
@@ -161,7 +161,7 @@ export class CitrineOcpiLocationMapper {
     const evse = new EvseDTO();
     evse.uid = UID_FORMAT(chargingStationAttributes.id, evseAttributes.id);
     evse.status =
-      CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+      LocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
         connectorAvailabilityStates,
         chargingStationAttributes.bay_occupancy_sensor_active,
         ocpiEvseInfo.removed,

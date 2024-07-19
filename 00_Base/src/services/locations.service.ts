@@ -6,7 +6,7 @@
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
 import { ChargingStation, SequelizeLocationRepository } from '@citrineos/data';
-import { CitrineOcpiLocationMapper } from '../mapper/CitrineOcpiLocationMapper';
+import { LocationMapper } from '../mapper/LocationMapper';
 import {
   LocationDTO,
   LocationResponse,
@@ -37,7 +37,7 @@ import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
 export class LocationsService {
   constructor(
     private logger: Logger<ILogObj>,
-    private locationMapper: CitrineOcpiLocationMapper,
+    private locationMapper: LocationMapper,
     private locationRepository: SequelizeLocationRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiConnectorRepository: OcpiConnectorRepository,

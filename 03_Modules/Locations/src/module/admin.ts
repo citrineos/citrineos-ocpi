@@ -9,7 +9,7 @@ import {
   AdminConnectorDTO,
   AdminEvseDTO,
   AdminLocationDTO,
-  CitrineOcpiLocationMapper,
+  LocationMapper,
   LocationDTO,
   LocationsBroadcaster,
   OcpiLocation,
@@ -28,7 +28,7 @@ import {
 export class AdminLocationsService {
   constructor(
     private logger: Logger<ILogObj>,
-    private locationMapper: CitrineOcpiLocationMapper,
+    private locationMapper: LocationMapper,
     private locationRepository: SequelizeLocationRepository,
     private ocpiLocationRepository: OcpiLocationRepository,
     private ocpiEvseRepository: OcpiEvseRepository,

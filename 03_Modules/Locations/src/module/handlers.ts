@@ -18,7 +18,7 @@ import { ILogObj, Logger } from 'tslog';
 import deasyncPromise from 'deasync-promise';
 import {
   AVAILABILITY_STATE_VARIABLE,
-  CitrineOcpiLocationMapper,
+  LocationMapper,
   CONNECTOR_COMPONENT,
   ConnectorDTO,
   EVSE_COMPONENT,
@@ -137,7 +137,7 @@ export class LocationsHandlers extends AbstractModule {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialEvse: Partial<EvseDTO> = {};
         partialEvse.status =
-          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus([
+          LocationMapper.mapConnectorAvailabilityStatesToEvseStatus([
             event.actualValue,
           ]);
         partialEvse.last_updated = new Date(message.context.timestamp);
@@ -216,7 +216,7 @@ export class LocationsHandlers extends AbstractModule {
 
     const partialEvse: Partial<EvseDTO> = {};
     partialEvse.status =
-      CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+      LocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
         connectorAvailabilityStates,
         chargingStationAttributes?.bay_occupancy_sensor_active,
       );
