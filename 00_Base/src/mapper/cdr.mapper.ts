@@ -352,8 +352,17 @@ export class CdrMapper {
   private getCompletedTransactions(transactions: Transaction[]): Transaction[] {
     return transactions.filter(
       (transaction) =>
+        this.isTransactionComplete(transaction) &&
         this.hasValidEnergy(transaction) &&
         this.hasValidDuration(transaction),
+    );
+  }
+
+  private isTransactionComplete(transaction: Transaction): boolean {
+    return (
+      transaction.transactionEvents?.some(
+        (event) => event.eventType === 'Ended',
+      ) ?? false
     );
   }
 
