@@ -1,10 +1,16 @@
 import {
   AdditionalInfo,
   Authorization,
+  ChargingStation,
+  Evse,
   IdToken,
   IdTokenAdditionalInfo,
   IdTokenInfo,
+  Location,
+  MeterValue,
   Sequelize,
+  Transaction,
+  TransactionEvent,
 } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
@@ -29,6 +35,12 @@ import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
 import { AsyncJobStatus } from '../model/AsyncJobStatus';
+import {
+  createViewTransactionsWithPartyIdAndCountryCodeSql,
+  dropViewTransactionsWithPartyIdAndCountryCodeSql,
+} from '../sql/ViewTransactionsWithPartyIdAndCountryCode';
+import { StatusNotification } from '@citrineos/data/dist/layers/sequelize/model/Location/StatusNotification';
+import { ViewTransactionsWithPartyIdAndCountryCode } from '../model/view/ViewTransactionsWithPartyIdAndCountryCode';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -78,21 +90,52 @@ export class OcpiSequelizeInstance {
         IdTokenInfo, // todo make IdTokenInfo be directly exported from data
         IdTokenAdditionalInfo,
         AdditionalInfo,
+        TransactionEvent,
+        Location,
+        ChargingStation,
+        StatusNotification,
+        Evse,
+        MeterValue,
+        Transaction,
+        ViewTransactionsWithPartyIdAndCountryCode
       ],
       logging: (_sql: string, _timing?: number) => {
         // TODO: Look into fixing that
         // sequelizeLogger.debug(timing, sql);
       },
     });
-
-    if (config.data.sequelize.alter) {
-      this.sequelize.sync({ alter: true }).then(() => {
-        sequelizeLogger.info('Database altered');
-      });
-    } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({ force: true }).then(() => {
-        sequelizeLogger.info('Database synchronized');
-      });
-    }
+    handleSequelizeSync(this.sequelize, config, sequelizeLogger).then();
   }
+}
+
+const dropViews = async (sequelize: Sequelize): Promise<void> => {
+  await sequelize.query(dropViewTransactionsWithPartyIdAndCountryCodeSql);
+}
+
+const createViews = async (sequelize: Sequelize): Promise<void> => {
+  await sequelize.query(createViewTransactionsWithPartyIdAndCountryCodeSql);
+}
+
+export const handleSequelizeSync = async (
+  sequelize: Sequelize,
+  config: OcpiServerConfig,
+  logger: Logger<ILogObj>
+): Promise<void> => {
+
+  let syncOpts = undefined;
+  if (config.data.sequelize.alter) {
+    syncOpts = { alter: true };
+  } else if (config.data.sequelize.sync) {
+    syncOpts = { force: true };
+  }
+  if (syncOpts) {
+    // drop views to prevent conflicts
+    await dropViews(sequelize);
+    await sequelize.sync(syncOpts).then(() => {
+      logger.info('Database altered');
+    });
+    // recreate views
+    await createViews(sequelize);
+  }
+
 }

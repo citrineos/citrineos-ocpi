@@ -29,6 +29,7 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
+export { createViewTransactionsWithPartyIdAndCountryCodeSql, dropViewTransactionsWithPartyIdAndCountryCodeSql } from './sql/ViewTransactionsWithPartyIdAndCountryCode';
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';

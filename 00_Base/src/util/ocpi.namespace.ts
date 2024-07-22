@@ -1,3 +1,5 @@
+import { Views } from '../sql/views';
+
 export enum OcpiNamespace {
   Credentials = 'Credentials',
   Version = 'Version',
@@ -16,4 +18,5 @@ export enum OcpiNamespace {
   OcpiEvse = 'OcpiEvse',
   OcpiConnector = 'OcpiConnector',
   ResponseUrlCorrelationId = 'ResponseUrlCorrelationId',
+  TransactionsWithPartyIdAndCountryCode = Views.ViewTransactionsWithPartyIdAndCountryCodes,
 }
