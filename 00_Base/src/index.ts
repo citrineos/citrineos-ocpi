@@ -53,6 +53,7 @@ export { VersionsClientApi } from './trigger/VersionsClientApi';
 export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { AdminCredentialsRequestDTO } from './model/DTO/AdminCredentialsRequestDTO';
+export { AdminUpdateCredentialsRequestDTO } from './model/DTO/AdminUpdateCredentialsRequestDTO';
 export { TokenDTO } from './model/DTO/TokenDTO';
 export { ClientVersion } from './model/ClientVersion';
 export { ClientInformationRepository } from './repository/ClientInformationRepository';

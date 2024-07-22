@@ -17,6 +17,7 @@ import {
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
+  AdminUpdateCredentialsRequestDTO,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
@@ -210,6 +211,32 @@ export class CredentialsModuleApi
 
     const createdCredentials: CredentialsDTO =
       await this.credentialsService?.generateCredentialsTokenA(
+        credentialsRequest,
+        versionNumber,
+      );
+
+    return CredentialsResponse.build(createdCredentials);
+  }
+
+  @Put('/regenerate-credentials-token')
+  @ResponseSchema(CredentialsResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async regenerateCredentialsToken(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() credentialsRequest: AdminUpdateCredentialsRequestDTO,
+  ): Promise<CredentialsResponse> {
+    this.logger.info('regenerateCredentialsToken', credentialsRequest);
+
+    const createdCredentials: CredentialsDTO =
+      await this.credentialsService?.regenerateCredentialsToken(
         credentialsRequest,
         versionNumber,
       );
