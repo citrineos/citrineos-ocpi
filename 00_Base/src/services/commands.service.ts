@@ -10,6 +10,8 @@ import { CommandExecutor } from '../util/command.executor';
 import { OcpiResponse } from '../model/ocpi.response';
 import { NotFoundError } from 'routing-controllers';
 import { ResponseGenerator } from '../util/response.generator';
+import { OcpiHeaders } from '../model/OcpiHeaders';
+import { VersionNumber } from '../model/VersionNumber';
 
 @Service()
 export class CommandsService {
@@ -25,6 +27,8 @@ export class CommandsService {
       | StartSession
       | StopSession
       | UnlockConnector,
+    ocpiHeaders: OcpiHeaders,
+    versionNumber: VersionNumber,
   ): Promise<OcpiResponse<CommandResponse>> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
@@ -32,7 +36,7 @@ export class CommandsService {
       case CommandType.RESERVE_NOW:
         return this.handleReserveNow(payload as ReserveNow);
       case CommandType.START_SESSION:
-        return this.handleStartSession(payload as StartSession);
+        return this.handleStartSession(payload as StartSession, ocpiHeaders, versionNumber);
       case CommandType.STOP_SESSION:
         return this.handleStopSession(payload as StopSession);
       case CommandType.UNLOCK_CONNECTOR:
@@ -69,9 +73,11 @@ export class CommandsService {
 
   private async handleStartSession(
     startSession: StartSession,
+    ocpiHeaders: OcpiHeaders,
+    versionNumber: VersionNumber,
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
-      await this.commandExecutor.executeStartSession(startSession);
+      await this.commandExecutor.executeStartSession(startSession, ocpiHeaders, versionNumber);
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,

@@ -19,6 +19,11 @@ import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestEx
 import { CredentialsService } from './credentials.service';
 import { ClientInformationProps } from '../model/ClientInformation';
 import { TokenDTO } from '../model/DTO/TokenDTO';
+import { OcpiHeaders } from '../model/OcpiHeaders';
+import { PostTokenParams } from '../trigger/param/tokens/postTokenParams';
+import { VersionNumber } from '../model/VersionNumber';
+import { AuthorizationInfoAllowed } from '../model/AuthorizationInfoAllowed';
+import { BadRequestError } from 'routing-controllers';
 
 @Service()
 export class TokensService {
@@ -26,8 +31,9 @@ export class TokensService {
     private readonly logger: OcpiLogger,
     private readonly tokenRepository: TokensRepository,
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
-    private readonly client: TokensClientApi,
+    private readonly tokensClientApi: TokensClientApi,
     private readonly credentialsService: CredentialsService,
+
   ) {}
 
   async getSingleToken(
@@ -102,7 +108,7 @@ export class TokensService {
         ClientInformationProps.clientVersionDetails,
       );
 
-      this.client.baseUrl = clientVersions[0].url;
+      this.tokensClientApi.baseUrl = clientVersions[0].url;
 
       let done = false;
       do {
@@ -120,7 +126,7 @@ export class TokensService {
         params.version = clientVersions[0].version;
 
         // TODO use actually next link
-        const response = await this.client.getTokens(params);
+        const response = await this.tokensClientApi.getTokens(params);
         if (
           response.status_code !== OcpiResponseStatusCode.GenericSuccessCode
         ) {
@@ -177,5 +183,55 @@ export class TokensService {
 
   async getFetchTokensJob(jobId: string): Promise<AsyncJobStatus | undefined> {
     return await this.asyncJobStatusRepository.readByKey(jobId);
+  }
+
+  async performRealtimeAuthorization(token: TokenDTO, ocpiHeaders: OcpiHeaders, versionNumber: VersionNumber): Promise<void> {
+    const authorizationToken = await this.credentialsService.getClientTokenByClientCountryCodeAndPartyId(
+      ocpiHeaders.fromCountryCode,
+      ocpiHeaders.fromPartyId,
+    );
+    if (!authorizationToken) {
+      return Promise.reject(new UnsuccessfulRequestException(
+        `Could not get client authorization token for provided country code ${ocpiHeaders.fromCountryCode} and party id ${ocpiHeaders.fromPartyId}.`,
+      ));
+    }
+    const params = PostTokenParams.build(
+      ocpiHeaders.fromCountryCode,
+      ocpiHeaders.fromPartyId,
+      ocpiHeaders.toCountryCode,
+      ocpiHeaders.toPartyId,
+      authorizationToken,
+      'xRequestId', // todo
+      'xCorrelationId', // todo
+      versionNumber,
+      token.uid,
+      token.type,
+      {
+        location_id: 'todo',
+        evse_uids: ['todo']
+      }, // todo
+    )
+    try {
+      this.logger.info('Performing Realtime Authorization with params:', {
+        ...params,
+        authorization: '***',
+      });
+      const response = await this.tokensClientApi.postToken(params);
+      this.logger.info('Realtime Authorization response from MSP:', response);
+      const authorizationInfo = response.data;
+      if (!authorizationInfo) {
+        const msg = `Could not authorization info from client for token id: ${token.uid}.`
+        this.logger.error(msg);
+        return Promise.reject(new BadRequestError(msg));
+      }
+      if (authorizationInfo.allowed !== AuthorizationInfoAllowed.Allowed) {
+        return Promise.reject(new BadRequestError(`Client did not allow authorization for token id: ${token.uid}.`));
+      }
+      return Promise.resolve();
+    } catch (e: any) {
+      const msg = `Could not perform Realtime Authorization for token ${token.uid}. Error ${e.message}`
+      this.logger.error(msg);
+      return Promise.reject(new BadRequestError(msg));
+    }
   }
 }

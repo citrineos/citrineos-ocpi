@@ -6,10 +6,7 @@ import {
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -113,6 +110,22 @@ export class CredentialsService {
       throw new NotFoundError(msg);
     }
     return clientCredentialsRole;
+  }
+
+  async getClientTokenByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<string> {
+    const clientInformation = await this.getClientInformationByClientCountryCodeAndPartyId(
+      countryCode,
+      partyId,
+    );
+    if (!clientInformation || !clientInformation[ClientInformationProps.clientToken]) {
+      const msg = `Client information and token not found for provided country code: ${countryCode}  and party id: ${partyId}`;
+      this.logger.error(msg);
+      throw new NotFoundError();
+    }
+    return clientInformation[ClientInformationProps.clientToken];
   }
 
   async getServerCredentialsRoleByCountryCodeAndPartyId(

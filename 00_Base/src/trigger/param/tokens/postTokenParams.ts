@@ -5,6 +5,7 @@ import { Type } from 'class-transformer';
 import { LocationReferences } from '../../../model/LocationReferences';
 import { Enum } from '../../../util/decorators/enum';
 import { Optional } from '../../../util/decorators/optional';
+import { VersionNumber } from '../../../model/VersionNumber';
 
 export class PostTokenParams extends OcpiParams {
   @IsString()
@@ -20,4 +21,32 @@ export class PostTokenParams extends OcpiParams {
   @Type(() => LocationReferences)
   @ValidateNested()
   locationReferences?: LocationReferences;
+
+  static build(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    authorization: string,
+    xRequestId: string,
+    xCorrelationId: string,
+    version: VersionNumber,
+    tokenId: string,
+    type: TokenType,
+    locationReferences?: LocationReferences,
+  ): PostTokenParams {
+    const params = new PostTokenParams();
+    params.tokenId = tokenId;
+    params.type = type;
+    params.locationReferences = locationReferences;
+    params.fromCountryCode = fromCountryCode;
+    params.fromPartyId = fromPartyId;
+    params.toCountryCode = toCountryCode;
+    params.toPartyId = toPartyId;
+    params.authorization = authorization;
+    params.xRequestId = xRequestId;
+    params.xCorrelationId = xCorrelationId;
+    params.version = version;
+    return params;
+  }
 }

@@ -17,10 +17,7 @@ import { Service } from 'typedi';
 import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { StopSession } from '../model/StopSession';
-import {
-  SequelizeChargingProfileRepository,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
+import { SequelizeChargingProfileRepository, SequelizeTransactionEventRepository } from '@citrineos/data';
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
@@ -29,10 +26,17 @@ import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 import { SessionMapper } from '../mapper/session.mapper';
 import { OcpiParams } from '../trigger/util/ocpi.params';
+import { WhitelistType } from '../model/WhitelistType';
+import { TokenDTO } from '../model/DTO/TokenDTO';
+import { TokensService } from '../services/TokensService';
+import { OcpiHeaders } from '../model/OcpiHeaders';
+import { VersionNumber } from '../model/VersionNumber';
+import { ILogObj, Logger } from 'tslog';
 
 @Service()
 export class CommandExecutor {
   constructor(
+    readonly logger: Logger<ILogObj>,
     readonly abstractModule: AbstractModule,
     readonly responseUrlRepo: ResponseUrlRepository,
     readonly sessionChargingProfileRepo: SessionChargingProfileRepository,
@@ -40,9 +44,14 @@ export class CommandExecutor {
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
     readonly sessionMapper: SessionMapper,
+    readonly tokensService: TokensService
   ) {}
 
-  public async executeStartSession(startSession: StartSession): Promise<void> {
+  public async executeStartSession(
+    startSession: StartSession,
+    ocpiHeaders: OcpiHeaders,
+    versionNumber: VersionNumber,
+  ): Promise<void> {
     // TODO: update to handle optional evse uid.
     const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
       startSession.evse_uid!,
@@ -50,6 +59,20 @@ export class CommandExecutor {
 
     if (!evse) {
       throw new NotFoundError('EVSE not found');
+    }
+
+    if (!startSession.token) {
+      throw new BadRequestError('Missing token');
+    }
+
+    if (startSession.token.whitelist === WhitelistType.NEVER) { // perform real time auth
+      try {
+        await this.performRealtimeAuthorization(startSession.token, ocpiHeaders, versionNumber);
+      } catch (e: any) {
+        const msg = `Real-time authorization failed: ${e.message}`;
+        this.logger.error(msg);
+        throw new BadRequestError(msg);
+      }
     }
 
     const correlationId = uuidv4();
@@ -355,5 +378,9 @@ export class CommandExecutor {
       `Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`,
     );
     return setChargingProfileRequest;
+  }
+
+  private async performRealtimeAuthorization(token: TokenDTO, ocpiHeaders: OcpiHeaders, versionNumber: VersionNumber) {
+    return this.tokensService.performRealtimeAuthorization(token, ocpiHeaders, versionNumber);
   }
 }
