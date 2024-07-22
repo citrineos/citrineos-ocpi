@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { Cdr, PaginatedCdrResponse } from '../model/Cdr';
+import { PaginatedCdrResponse } from '../model/Cdr';
 import { ICdrsDatasource } from '../datasources/ICdrsDatasource';
 import { CDR_DATASOURCE_SERVICE_TOKEN } from '../datasources/CdrsDatasource';
 
@@ -31,24 +31,5 @@ export class CdrsService {
     response.limit = limit;
 
     return response;
-  }
-
-  private filterBasedOnCountryCodePartyId(
-    cdrs: Cdr[],
-    fromCountryCode?: string,
-    fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string
-  ): Cdr[] {
-    let filteredCdrs = cdrs;
-    if (fromCountryCode && fromPartyId) {
-      filteredCdrs = filteredCdrs.filter(cdr => cdr.cdr_token?.country_code === fromCountryCode && cdr.cdr_token?.party_id === fromPartyId);
-    }
-
-    if (toCountryCode && toPartyId) {
-      filteredCdrs = filteredCdrs.filter(cdr => cdr.country_code === toCountryCode && cdr.party_id === toPartyId);
-    }
-
-    return filteredCdrs;
   }
 }
