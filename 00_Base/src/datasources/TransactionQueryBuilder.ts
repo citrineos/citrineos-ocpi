@@ -29,6 +29,7 @@ export class TransactionQueryBuilder {
     const queryOptions: any = {
       where: {},
       include: this.getIncludeOptions(),
+      order: [['createdAt', 'ASC']]
     };
 
     this.addDateFilters(queryOptions, params.dateFrom, params.dateTo);
