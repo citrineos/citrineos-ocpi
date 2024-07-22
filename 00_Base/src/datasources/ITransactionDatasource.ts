@@ -10,6 +10,7 @@ export interface ITransactionDatasource {
     dateFrom?: Date,
     dateTo?: Date,
     offset?: number,
-    limit?: number
+    limit?: number,
+    endedOnly?: boolean,
   ): Promise<PaginatedResult<Transaction>>;
 }

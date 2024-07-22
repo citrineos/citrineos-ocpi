@@ -8,9 +8,8 @@ import { CDR_DATASOURCE_SERVICE_TOKEN } from '../datasources/CdrsDatasource';
 export class CdrsService {
   constructor(
     @Inject(CDR_DATASOURCE_SERVICE_TOKEN)
-    private readonly cdrsDatasource: ICdrsDatasource
-  ) {
-  }
+    private readonly cdrsDatasource: ICdrsDatasource,
+  ) {}
 
   public async getCdrs(
     fromCountryCode: string,
@@ -22,7 +21,16 @@ export class CdrsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedCdrResponse> {
-    const result = await this.cdrsDatasource.getCdrs(toCountryCode, toPartyId, fromCountryCode, fromPartyId, dateFrom, dateTo, offset, limit);
+    const result = await this.cdrsDatasource.getCdrs(
+      toCountryCode,
+      toPartyId,
+      fromCountryCode,
+      fromPartyId,
+      dateFrom,
+      dateTo,
+      offset,
+      limit,
+    );
 
     const response = new PaginatedCdrResponse();
     response.data = result.data;

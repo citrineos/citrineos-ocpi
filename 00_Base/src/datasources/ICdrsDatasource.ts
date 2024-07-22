@@ -10,6 +10,6 @@ export interface ICdrsDatasource {
     dateFrom?: Date,
     dateTo?: Date,
     offset?: number,
-    limit?: number
+    limit?: number,
   ): Promise<PaginatedResult<Cdr>>;
 }

@@ -1,7 +1,15 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventRequest, } from '@citrineos/base';
-import { SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventRequest,
+} from '@citrineos/base';
+import {
+  SequelizeTariffRepository,
+  Tariff,
+  Transaction,
+} from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
@@ -29,7 +37,14 @@ export class SessionMapper extends BaseTransactionMapper {
     protected tariffsService: TariffsService,
     readonly credentialsService: CredentialsService,
   ) {
-    super(logger, locationsService, ocpiLocationsRepository, tokensRepository, tariffRepository, tariffsService);
+    super(
+      logger,
+      locationsService,
+      ocpiLocationsRepository,
+      tokensRepository,
+      tariffRepository,
+      tariffsService,
+    );
   }
 
   public async mapTransactionsToSessions(
@@ -38,24 +53,32 @@ export class SessionMapper extends BaseTransactionMapper {
     const [
       transactionIdToLocationMap,
       transactionIdToTokenMap,
-      transactionIdToTariffMap
+      transactionIdToTariffMap,
     ] = await Promise.all([
       this.getLocationDTOsForTransactions(transactions),
       this.getTokensForTransactions(transactions),
-      this.getTariffsForTransactions(transactions)
+      this.getTariffsForTransactions(transactions),
     ]);
 
     return transactions
-      .filter((transaction) =>
-        transactionIdToLocationMap.has(transaction.transactionId) &&
-        transactionIdToTokenMap.has(transaction.transactionId) &&
-        transactionIdToTariffMap.has(transaction.transactionId)
+      .filter(
+        (transaction) =>
+          transactionIdToLocationMap.has(transaction.transactionId) &&
+          transactionIdToTokenMap.has(transaction.transactionId) &&
+          transactionIdToTariffMap.has(transaction.transactionId),
       )
       .map((transaction) => {
-        const location = transactionIdToLocationMap.get(transaction.transactionId)!;
+        const location = transactionIdToLocationMap.get(
+          transaction.transactionId,
+        )!;
         const token = transactionIdToTokenMap.get(transaction.transactionId)!;
         const tariff = transactionIdToTariffMap.get(transaction.transactionId)!;
-        return this.mapTransactionToSession(transaction, location, token, tariff);
+        return this.mapTransactionToSession(
+          transaction,
+          location,
+          token,
+          tariff,
+        );
       });
   }
 
@@ -65,9 +88,7 @@ export class SessionMapper extends BaseTransactionMapper {
     token: TokenDTO,
     tariff: Tariff,
   ): Session {
-    const [startEvent, endEvent] = this.getStartAndEndEvents(
-      transaction,
-    );
+    const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
 
     return {
       country_code: location.country_code,
@@ -85,16 +106,15 @@ export class SessionMapper extends BaseTransactionMapper {
       currency: this.getCurrency(location),
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
-        String(tariff?.id)
+        String(tariff?.id),
       ),
       status: this.getTransactionStatus(endEvent),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
       // TODO: Fill in optional values
       authorization_reference: null,
-      total_cost: endEvent ? this.calculateTotalCost(
-        transaction.totalKwh || 0,
-        tariff.pricePerKwh,
-      ) : null,
+      total_cost: endEvent
+        ? this.calculateTotalCost(transaction.totalKwh || 0, tariff.pricePerKwh)
+        : null,
       meter_id: null,
     };
   }
@@ -128,24 +148,33 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getEvseUid(transaction: Transaction, location: LocationDTO): string {
-    const evseUid = location.evses?.find(evse => evse.evse_id === transaction.evse?.id)?.uid;
+    const evseUid = location.evses?.find(
+      (evse) => evse.evse_id === transaction.evse?.id,
+    )?.uid;
 
     if (!evseUid) {
-      this.logger.warn(`Evse missing for ${transaction.transactionId} on location ${location.id}`);
+      this.logger.warn(
+        `Evse missing for ${transaction.transactionId} on location ${location.id}`,
+      );
     }
 
     return evseUid ?? '';
   }
 
-  private getConnectorId(transaction: Transaction, location: LocationDTO): string {
-    const connectorId = location.evses?.find(
-      evse => evse.evse_id === transaction.evse?.id
-    )?.connectors?.find(
-      connector => connector.id === String(transaction.evse?.connectorId)
-    )?.id;
+  private getConnectorId(
+    transaction: Transaction,
+    location: LocationDTO,
+  ): string {
+    const connectorId = location.evses
+      ?.find((evse) => evse.evse_id === transaction.evse?.id)
+      ?.connectors?.find(
+        (connector) => connector.id === String(transaction.evse?.connectorId),
+      )?.id;
 
     if (!connectorId) {
-      this.logger.warn(`Connector missing for ${transaction.transactionId} on location ${location.id}`);
+      this.logger.warn(
+        `Connector missing for ${transaction.transactionId} on location ${location.id}`,
+      );
     }
 
     return connectorId ?? '';
@@ -161,7 +190,7 @@ export class SessionMapper extends BaseTransactionMapper {
 
   private getChargingPeriods(
     meterValues: MeterValueType[] = [],
-    tariffId: string
+    tariffId: string,
   ): ChargingPeriod[] {
     return meterValues
       .sort(
@@ -174,7 +203,7 @@ export class SessionMapper extends BaseTransactionMapper {
         return this.mapMeterValueToChargingPeriod(
           meterValue,
           tariffId,
-          previousMeterValue
+          previousMeterValue,
         );
       });
   }
@@ -242,7 +271,7 @@ export class SessionMapper extends BaseTransactionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-          MeasurandEnumType.Energy_Active_Import_Register &&
+            MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
@@ -254,7 +283,7 @@ export class SessionMapper extends BaseTransactionMapper {
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
-      new Date(previousMeterValue.timestamp).getTime()
+        new Date(previousMeterValue.timestamp).getTime()
       : 0;
 
     // Convert milliseconds to hours

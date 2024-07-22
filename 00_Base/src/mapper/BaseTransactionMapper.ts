@@ -4,7 +4,7 @@ import {
   SequelizeTariffRepository,
   Tariff,
   Transaction,
-  TransactionEvent
+  TransactionEvent,
 } from '@citrineos/data';
 import { TransactionEventRequest } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
@@ -20,6 +20,7 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
+import { TransactionEventEnumType } from '../../../../citrineos-core/00_Base/src';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -29,8 +30,7 @@ export abstract class BaseTransactionMapper {
     protected tokensRepository: TokensRepository,
     protected tariffRepository: SequelizeTariffRepository,
     protected tariffsService: TariffsService,
-  ) {
-  }
+  ) {}
 
   protected async getLocationDTOsForTransactions(
     transactions: Transaction[],
@@ -46,7 +46,9 @@ export abstract class BaseTransactionMapper {
         continue;
       }
 
-      const location = await this.locationsService.getLocationById(chargingStation.locationId);
+      const location = await this.locationsService.getLocationById(
+        chargingStation.locationId,
+      );
 
       if (!location || !location.data) {
         continue;
@@ -58,13 +60,13 @@ export abstract class BaseTransactionMapper {
   }
 
   protected async getTokensForTransactions(
-    transactions: Transaction[]
+    transactions: Transaction[],
   ): Promise<Map<string, TokenDTO>> {
     const transactionIdToTokenMap: Map<string, TokenDTO> = new Map();
 
     for (const transaction of transactions) {
       const startEvent = transaction.transactionEvents?.find(
-        (event) => event.eventType === 'Started'
+        (event) => event.eventType === 'Started',
       );
       const idToken = startEvent?.idToken;
       if (idToken) {
@@ -76,7 +78,7 @@ export abstract class BaseTransactionMapper {
         } else {
           tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
             idToken.idToken,
-            idToken.type
+            idToken.type,
           );
         }
 
@@ -90,14 +92,17 @@ export abstract class BaseTransactionMapper {
   }
 
   protected async getTariffsForTransactions(
-    transactions: Transaction[]
+    transactions: Transaction[],
   ): Promise<Map<string, Tariff>> {
     const transactionIdToTariffMap = new Map<string, Tariff>();
-    const uniqueStationIds = [...new Set(transactions.map(t => t.stationId))];
+    const uniqueStationIds = [...new Set(transactions.map((t) => t.stationId))];
 
     const stationIdToTariffMap = new Map<string, Tariff>();
-    const tariffs = await this.tariffRepository.findByStationIds(uniqueStationIds);
-    tariffs?.forEach(tariff => stationIdToTariffMap.set(tariff.stationId, tariff));
+    const tariffs =
+      await this.tariffRepository.findByStationIds(uniqueStationIds);
+    tariffs?.forEach((tariff) =>
+      stationIdToTariffMap.set(tariff.stationId, tariff),
+    );
 
     for (const transaction of transactions) {
       const tariff = stationIdToTariffMap.get(transaction.stationId);
@@ -115,34 +120,36 @@ export abstract class BaseTransactionMapper {
   ): Promise<Map<string, OcpiTariff>> {
     const transactionIdToOcpiTariffMap = new Map<string, OcpiTariff>();
     await Promise.all(
-      sessions.filter(session => transactionIdToTariffMap.get(session.id)).map(async (session) => {
-        const tariffKey = {
-          id: String(transactionIdToTariffMap.get(session.id)?.id),
-          // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
-          countryCode: session.country_code,
-          partyId: session.party_id
-        } as TariffKey;
-        const tariff = await this.tariffsService.getTariffByCoreKey(tariffKey);
-        if (tariff) {
-          transactionIdToOcpiTariffMap.set(session.id, tariff);
-        }
-      }),
+      sessions
+        .filter((session) => transactionIdToTariffMap.get(session.id))
+        .map(async (session) => {
+          const tariffKey = {
+            id: String(transactionIdToTariffMap.get(session.id)?.id),
+            // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
+            countryCode: session.country_code,
+            partyId: session.party_id,
+          } as TariffKey;
+          const tariff =
+            await this.tariffsService.getTariffByCoreKey(tariffKey);
+          if (tariff) {
+            transactionIdToOcpiTariffMap.set(session.id, tariff);
+          }
+        }),
     );
     return transactionIdToOcpiTariffMap;
   }
 
-  protected calculateTotalCost(
-    totalKwh: number,
-    tariffCost: number,
-  ): Price {
+  protected calculateTotalCost(totalKwh: number, tariffCost: number): Price {
     return {
       excl_vat: Math.floor(totalKwh * tariffCost * 100) / 100,
     };
   }
 
-  protected getStartAndEndEvents(transaction: Transaction): [TransactionEventRequest, TransactionEventRequest | undefined] {
+  protected getStartAndEndEvents(
+    transaction: Transaction,
+  ): [TransactionEventRequest, TransactionEventRequest | undefined] {
     let startEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === 'Started'
+      (event) => event.eventType === TransactionEventEnumType.Started,
     );
     if (!startEvent) {
       this.logger.error("No 'Started' event found in transaction events");
@@ -150,7 +157,7 @@ export abstract class BaseTransactionMapper {
     }
 
     const endEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === 'Ended'
+      (event) => event.eventType === TransactionEventEnumType.Ended,
     );
     return [startEvent, endEvent];
   }

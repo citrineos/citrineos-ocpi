@@ -9,9 +9,10 @@ import {
   IdToken,
   Location,
   MeterValue,
-  Model,
-  TransactionEvent
+  TransactionEvent,
+  Transaction,
 } from '@citrineos/data';
+import { TransactionEventEnumType } from '@citrineos/base';
 
 @Service()
 export class TransactionQueryBuilder {
@@ -22,71 +23,48 @@ export class TransactionQueryBuilder {
     TRANSACTION_EVENT: 'TransactionEvent',
     ID_TOKEN: 'IdToken',
     AUTHORIZATION: 'Authorization',
-    OCPI_TOKEN: 'OcpiToken'
+    OCPI_TOKEN: 'OcpiToken',
   };
 
-  buildQuery(params: QueryParams): any {
+  buildQuery(params: QueryParams, endedOnly?: boolean): any {
+    const modelsToInclude: any[] = [
+      this.createMspFilters(params.mspCountryCode, params.mspPartyId),
+      this.createCpoFilters(params.cpoCountryCode, params.cpoPartyId),
+      MeterValue,
+      Evse,
+      ...(endedOnly
+        ? [
+            {
+              model: TransactionEvent,
+              as: Transaction.TRANSACTION_EVENTS_FILTER_ALIAS,
+              attributes: ['eventType'],
+              where: {
+                eventType: TransactionEventEnumType.Ended,
+              },
+            },
+          ]
+        : []),
+    ];
+
     const queryOptions: any = {
-      where: {},
-      include: this.getIncludeOptions(),
-      order: [['createdAt', 'ASC']]
+      ...(endedOnly ? { where: { totalKwh: { [Op.gt]: 0 } } } : {}),
+      include: [...modelsToInclude],
+      order: [['createdAt', 'ASC']],
     };
 
     this.addDateFilters(queryOptions, params.dateFrom, params.dateTo);
-    this.addMspFilters(queryOptions, params.mspCountryCode, params.mspPartyId);
-    this.addCpoFilters(queryOptions, params.cpoCountryCode, params.cpoPartyId);
     this.addPagination(queryOptions, params.offset, params.limit);
 
     return queryOptions;
   }
 
-  private getIncludeOptions(): any[] {
-    return [
-      {
-        model: ChargingStation,
-        required: true,
-        duplicating: false,
-        include: [{
-          model: Location,
-          required: true,
-          duplicating: false,
-          include: [{
-            model: OcpiLocation,
-            required: true,
-            duplicating: false,
-            where: {}
-          }]
-        }]
-      },
-      {
-        model: TransactionEvent,
-        required: true,
-        duplicating: false,
-        include: [{
-          model: IdToken,
-          required: true,
-          duplicating: false,
-          include: [{
-            model: Authorization,
-            required: true,
-            duplicating: false,
-            include: [{
-              model: OcpiToken,
-              required: true,
-              duplicating: false,
-              where: {}
-            }]
-          }]
-        }]
-      },
-      MeterValue,
-      Evse
-    ];
-  }
-
-  private addDateFilters(queryOptions: any, dateFrom?: Date, dateTo?: Date): void {
+  private addDateFilters(
+    queryOptions: any,
+    dateFrom?: Date,
+    dateTo?: Date,
+  ): void {
     if (dateFrom || dateTo) {
-      queryOptions.where.updatedAt = {};
+      queryOptions.where = queryOptions.where ?? { updatedAt: {} };
       if (dateFrom) {
         queryOptions.where.updatedAt[Op.gte] = dateFrom;
       }
@@ -96,17 +74,15 @@ export class TransactionQueryBuilder {
     }
   }
 
-  private addMspFilters(queryOptions: any, mspCountryCode?: string, mspPartyId?: string): void {
-    const ocpiTokenInclude = this.getNestedInclude(
-      queryOptions,
-      TransactionEvent,
-      IdToken,
-      Authorization,
-      OcpiToken
-    );
+  private createMspFilters(mspCountryCode?: string, mspPartyId?: string): any {
+    const ocpiTokenInclude: any = {
+      model: OcpiToken,
+      required: true,
+      duplicating: false,
+    };
 
-    if (ocpiTokenInclude) {
-      ocpiTokenInclude.where = ocpiTokenInclude.where || {};
+    if (mspCountryCode || mspPartyId) {
+      ocpiTokenInclude.where = ocpiTokenInclude.where ?? {};
       if (mspCountryCode) {
         ocpiTokenInclude.where.country_code = mspCountryCode;
       }
@@ -114,50 +90,67 @@ export class TransactionQueryBuilder {
         ocpiTokenInclude.where.party_id = mspPartyId;
       }
     }
+
+    return {
+      model: TransactionEvent,
+      as: Transaction.TRANSACTION_EVENTS_ALIAS,
+      required: true,
+      include: [
+        {
+          model: IdToken,
+          include: [
+            {
+              model: Authorization,
+              include: [ocpiTokenInclude],
+            },
+          ],
+        },
+      ],
+    };
   }
 
-  private addCpoFilters(queryOptions: any, cpoCountryCode?: string, cpoPartyId?: string): void {
-    const ocpiLocationInclude = this.getNestedInclude(
-      queryOptions,
-      ChargingStation,
-      Location,
-      OcpiLocation
-    );
+  private createCpoFilters(cpoCountryCode?: string, cpoPartyId?: string): any {
+    const ocpiLocationInclude: any = {
+      model: OcpiLocation,
+      required: true,
+      duplicating: false,
+    };
 
-    if (ocpiLocationInclude) {
-      ocpiLocationInclude.where = ocpiLocationInclude.where || {};
+    if (cpoCountryCode || cpoPartyId) {
+      ocpiLocationInclude.where = ocpiLocationInclude.where ?? {};
       if (cpoCountryCode) {
-        ocpiLocationInclude.where[OcpiLocationProps.countryCode] = cpoCountryCode;
+        ocpiLocationInclude.where[OcpiLocationProps.countryCode] =
+          cpoCountryCode;
       }
       if (cpoPartyId) {
         ocpiLocationInclude.where[OcpiLocationProps.partyId] = cpoPartyId;
       }
     }
+
+    return {
+      model: ChargingStation,
+      required: true,
+      include: [
+        {
+          model: Location,
+          required: true,
+          include: [ocpiLocationInclude],
+        },
+      ],
+    };
   }
 
-  private addPagination(queryOptions: any, offset?: number, limit?: number): void {
+  private addPagination(
+    queryOptions: any,
+    offset?: number,
+    limit?: number,
+  ): void {
     if (offset) {
       queryOptions.offset = offset;
     }
     if (limit) {
       queryOptions.limit = limit;
     }
-  }
-
-  private findInclude(includes: any[], ModelClass: typeof Model): any {
-    return includes.find(include => include.model === ModelClass);
-  }
-
-  private getNestedInclude(queryOptions: any, ...ModelClasses: Array<typeof Model>): any {
-    let currentInclude = queryOptions.include;
-    for (const ModelClass of ModelClasses) {
-      const include = this.findInclude(currentInclude, ModelClass);
-      if (!include) {
-        return null;
-      }
-      currentInclude = include.include;
-    }
-    return currentInclude;
   }
 }
 

@@ -1,7 +1,11 @@
 import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
-import { SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
+import {
+  SequelizeTariffRepository,
+  Tariff,
+  Transaction,
+} from '@citrineos/data';
 import { SessionMapper } from './session.mapper';
 import { CdrLocation } from '../model/CdrLocation';
 import { Price } from '../model/Price';
@@ -26,24 +30,33 @@ export class CdrMapper extends BaseTransactionMapper {
     protected tariffsService: TariffsService,
     readonly sessionMapper: SessionMapper,
   ) {
-    super(logger, locationsService, ocpiLocationsRepository, tokensRepository, tariffRepository, tariffsService);}
+    super(
+      logger,
+      locationsService,
+      ocpiLocationsRepository,
+      tokensRepository,
+      tariffRepository,
+      tariffsService,
+    );
+  }
 
   public async mapTransactionsToCdrs(
-    transactions: Transaction[]
+    transactions: Transaction[],
   ): Promise<Cdr[]> {
     try {
       const validTransactions = this.getCompletedTransactions(transactions);
 
-      const sessions = await this.mapTransactionsToSessions(
-        validTransactions,
-      );
+      const sessions = await this.mapTransactionsToSessions(validTransactions);
 
-      const [transactionIdToTariffMap, transactionIdToLocationMap] = await
-        Promise.all([this.getTariffsForTransactions(validTransactions), this.getLocationDTOsForTransactions(transactions)]);
+      const [transactionIdToTariffMap, transactionIdToLocationMap] =
+        await Promise.all([
+          this.getTariffsForTransactions(validTransactions),
+          this.getLocationDTOsForTransactions(transactions),
+        ]);
       const transactionIdToOcpiTariffMap: Map<string, OcpiTariff> =
         await this.getOcpiTariffsForTransactions(
           sessions,
-          transactionIdToTariffMap
+          transactionIdToTariffMap,
         );
       return await this.mapSessionsToCDRs(
         sessions,
@@ -58,11 +71,9 @@ export class CdrMapper extends BaseTransactionMapper {
   }
 
   private async mapTransactionsToSessions(
-    transactions: Transaction[]
+    transactions: Transaction[],
   ): Promise<Session[]> {
-    return this.sessionMapper.mapTransactionsToSessions(
-      transactions
-    );
+    return this.sessionMapper.mapTransactionsToSessions(transactions);
   }
 
   private async mapSessionsToCDRs(
@@ -108,10 +119,7 @@ export class CdrMapper extends BaseTransactionMapper {
       charging_periods: session.charging_periods || [],
       signed_data: await this.getSignedData(session),
       // TODO: Map based on OCPI Tariff
-      total_cost: this.calculateTotalCost(
-        session.kwh,
-        tariff.pricePerKwh,
-      ),
+      total_cost: this.calculateTotalCost(session.kwh, tariff.pricePerKwh),
       total_fixed_cost: await this.calculateTotalFixedCost(tariff),
       total_energy: session.kwh,
       total_energy_cost: await this.calculateTotalEnergyCost(session, tariff),
@@ -281,26 +289,12 @@ export class CdrMapper extends BaseTransactionMapper {
   }
 
   private getCompletedTransactions(transactions: Transaction[]): Transaction[] {
-    return transactions.filter(
-      (transaction) =>
-        this.isTransactionComplete(transaction) &&
-        this.hasValidEnergy(transaction) &&
-        this.hasValidDuration(transaction),
+    return transactions.filter((transaction) =>
+      this.hasValidDuration(transaction),
     );
   }
 
-  private isTransactionComplete(transaction: Transaction): boolean {
-    return (
-      transaction.transactionEvents?.some(
-        (event) => event.eventType === 'Ended',
-      ) ?? false
-    );
-  }
-
-  private hasValidEnergy(transaction: Transaction): boolean {
-    return (transaction.totalKwh ?? 0) > 0;
-  }
-
+  // TODO try to move this into SQL if possible
   private hasValidDuration(transaction: Transaction): boolean {
     const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
     if (startEvent && endEvent) {

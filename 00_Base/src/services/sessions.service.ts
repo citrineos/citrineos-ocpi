@@ -1,6 +1,10 @@
 import { Inject, Service } from 'typedi';
 import { PaginatedSessionResponse } from '../model/Session';
-import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET, } from '../model/PaginatedResponse';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ISessionsDatasource } from '../datasources/ISessionsDatasource';
 import { SESSION_DATASOURCE_SERVICE_TOKEN } from '../datasources/SessionsDatasource';
@@ -9,9 +13,8 @@ import { SESSION_DATASOURCE_SERVICE_TOKEN } from '../datasources/SessionsDatasou
 export class SessionsService {
   constructor(
     @Inject(SESSION_DATASOURCE_SERVICE_TOKEN)
-    private readonly sessionsDatasource: ISessionsDatasource
-  ) {
-  }
+    private readonly sessionsDatasource: ISessionsDatasource,
+  ) {}
 
   public async getSessions(
     fromCountryCode: string,
@@ -23,7 +26,16 @@ export class SessionsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedSessionResponse> {
-    const result = await this.sessionsDatasource.getSessions(toCountryCode, toPartyId, fromCountryCode, fromPartyId, dateFrom, dateTo, offset, limit);
+    const result = await this.sessionsDatasource.getSessions(
+      toCountryCode,
+      toPartyId,
+      fromCountryCode,
+      fromPartyId,
+      dateFrom,
+      dateTo,
+      offset,
+      limit,
+    );
 
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
