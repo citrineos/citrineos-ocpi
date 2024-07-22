@@ -45,6 +45,11 @@ export class ViewTransactionsWithPartyIdAndCountryCode extends Model {
   @Length(2, 2)
   [ViewTransactionsWithPartyIdAndCountryCodeProps.countryCode]!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @Column(DataType.STRING)
+  [ViewTransactionsWithPartyIdAndCountryCodeProps.transactionId]!: string;
+
   // disables sync so that a new table is not created since we want to use the view.
   static async sync(options: SyncOptions): Promise<any> {
     if (options.force) {
