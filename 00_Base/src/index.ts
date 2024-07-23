@@ -29,6 +29,12 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
+export { CpoTenant, CpoTenantProps } from './model/CpoTenant';
+export { ServerCredentialsRoleProps } from './model/ServerCredentialsRole';
+export { TokensClientApi } from './trigger/TokensClientApi';
+export { AuthorizationInfoAllowed } from './model/AuthorizationInfoAllowed';
+export { PostTokenParams } from './trigger/param/tokens/postTokenParams';
+export { UnsuccessfulRequestException } from './exception/UnsuccessfulRequestException';
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';

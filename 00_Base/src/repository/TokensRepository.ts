@@ -6,11 +6,7 @@
 import { Service } from 'typedi';
 import { OcpiToken, SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
-import {
-  Authorization,
-  SequelizeAuthorizationRepository,
-  SequelizeRepository,
-} from '@citrineos/data';
+import { Authorization, SequelizeAuthorizationRepository, SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
@@ -101,11 +97,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       return undefined;
     }
 
-    const ocpiToken = await this.readOnlyOneByQuery({
-      where: {
-        authorization_id: ocppAuth.id,
-      },
-    });
+    const ocpiToken = await this.getOcpiTokenByAuthorizationId(ocppAuth.id);
 
     if (!ocpiToken) {
       // TODO better error
@@ -113,6 +105,21 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
 
     return OcpiTokensMapper.toDto(ocppAuth, ocpiToken);
+  }
+
+  async getOcpiTokenByAuthorizationId(
+    authorizationId: string,
+  ): Promise<OcpiToken | undefined> {
+    const ocpiToken = await this.readOnlyOneByQuery({
+      where: {
+        authorization_id: authorizationId,
+      },
+    });
+    if (!ocpiToken) {
+      // TODO better error
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(ocpiToken);
   }
 
   /**
