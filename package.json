@@ -28,7 +28,6 @@
     "start": "cd ./Server && npm run start",
     "start-docker": "cd ./Server && npm run start-docker",
     "start-docker-cloud": "cd ./Server && npm run start-docker-cloud",
-    "start-windows": "cd ./Server && npm run start-windows",
     "lint": "npx eslint --ext .ts ./",
     "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
     "prettier": "npx prettier --write .",
