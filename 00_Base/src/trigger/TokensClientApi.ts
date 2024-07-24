@@ -44,10 +44,7 @@ export class TokensClientApi extends BaseClientApi {
       options.queryParameters = queryParameters;
     }
 
-    return await this.get(PaginatedTokenResponse, {
-      version: params.version,
-      additionalHeaders,
-    });
+    return await this.get(PaginatedTokenResponse, options);
   }
 
   async postToken(params: PostTokenParams): Promise<AuthorizationInfoResponse> {
