@@ -1,7 +1,6 @@
 import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
-import { LoggingMiddleware } from './util/middleware/logging.middleware';
 import { OcpiServerConfig } from './config/ocpi.server.config';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
@@ -143,7 +142,6 @@ export { InvalidParamException } from './exception/invalid.param.exception';
 export { MissingParamException } from './exception/missing.param.exception';
 export { UnknownTokenException } from './exception/unknown.token.exception';
 export { WrongClientAccessException } from './exception/wrong.client.access.exception';
-export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
 export { AsAdminEndpoint } from './util/decorators/as.admin.endpoint';
@@ -252,7 +250,7 @@ export class OcpiServer extends KoaServer {
       const options: RoutingControllersOptions = {
         controllers: [...controllers],
         routePrefix: '/ocpi',
-        middlewares: [LoggingMiddleware],
+        middlewares: [],
         defaultErrorHandler: false,
       } as RoutingControllersOptions;
       this.initApp(options);
