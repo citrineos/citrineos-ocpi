@@ -15,7 +15,7 @@ import { Container, Service } from 'typedi';
 import {
   OcpiModule,
   LocationsBroadcaster,
-  LocationsService,
+  VariableAttributesUtil,
 } from '@citrineos/ocpi-base';
 import { LocationsHandlers } from './handlers';
 import { LocationsModuleApi } from './api';
@@ -41,7 +41,7 @@ export class LocationsModule implements OcpiModule {
       this.config as SystemConfig,
       this.cache,
       Container.get(LocationsBroadcaster),
-      Container.get(LocationsService),
+      Container.get(VariableAttributesUtil),
       this.handler,
       this.sender,
       this.logger,

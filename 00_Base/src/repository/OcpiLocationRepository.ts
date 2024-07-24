@@ -53,12 +53,12 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     });
   }
 
-  async getLocationByCitrineLocationId(
+  async getLocationByCoreLocationId(
     id: number,
   ): Promise<OcpiLocation | undefined> {
     return await this.readOnlyOneByQuery({
       where: {
-        [OcpiLocationProps.citrineLocationId]: id,
+        [OcpiLocationProps.coreLocationId]: id,
       },
     });
   }
@@ -66,8 +66,8 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   async updateOcpiLocation(
     location: OcpiLocation,
   ): Promise<OcpiLocation | undefined> {
-    const existingOcpiLocation = await this.getLocationByCitrineLocationId(
-      location[OcpiLocationProps.citrineLocationId],
+    const existingOcpiLocation = await this.getLocationByCoreLocationId(
+      location.coreLocationId,
     );
 
     if (!existingOcpiLocation) {
@@ -76,11 +76,47 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
 
     return await this._updateByKey(
       {
-        [OcpiLocationProps.lastUpdated]:
-          location[OcpiLocationProps.lastUpdated],
+        [OcpiLocationProps.lastUpdated]: location.lastUpdated,
       },
       String(existingOcpiLocation.id),
     );
+  }
+
+  async createOrUpdateOcpiLocation(
+    location: Partial<OcpiLocation>,
+  ): Promise<OcpiLocation | undefined> {
+    if (location.coreLocationId) {
+      const [savedOcpiLocation, ocpiLocationCreated] =
+        await this._readOrCreateByQuery({
+          where: {
+            [OcpiLocationProps.coreLocationId]: location.coreLocationId,
+          },
+          defaults: {
+            [OcpiLocationProps.coreLocationId]: location.coreLocationId,
+            [OcpiLocationProps.partyId]: location.partyId,
+            [OcpiLocationProps.countryCode]: location.countryCode,
+            [OcpiLocationProps.publish]: location.publish,
+            [OcpiLocationProps.lastUpdated]: location.lastUpdated,
+            [OcpiLocationProps.timeZone]: location.timeZone,
+          },
+        });
+      if (!ocpiLocationCreated) {
+        const values: Partial<OcpiLocation> = {};
+        values.coreLocationId = location.coreLocationId ?? undefined;
+        values.partyId = location.partyId ?? undefined;
+        values.countryCode = location.countryCode ?? undefined;
+        values.publish =
+          location.publish !== undefined ? location.publish : undefined;
+        values.lastUpdated = location.lastUpdated ?? undefined;
+        values.timeZone = location.timeZone ?? undefined;
+
+        return await this._updateByKey({ ...values }, savedOcpiLocation.id);
+      } else {
+        return savedOcpiLocation;
+      }
+    } else {
+      return await this.create(OcpiLocation.build({ ...location }));
+    }
   }
 
   private createQuery(
@@ -91,7 +127,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   ) {
     const query: any = {
       where: {
-        [OcpiLocationProps.citrineLocationId]: {
+        [OcpiLocationProps.coreLocationId]: {
           [Op.not]: null,
         },
       },

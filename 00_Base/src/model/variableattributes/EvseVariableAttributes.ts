@@ -41,7 +41,7 @@ export class EvseVariableAttributes {
   connectors: Record<number, ConnectorVariableAttributes> = {};
 }
 
-export const evseVariableAttributesQuery = (
+export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
   stationId: string,
   evseComponentId: number,
 ) => `

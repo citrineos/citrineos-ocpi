@@ -9,7 +9,6 @@ import { TokensRepository } from '../repository/TokensRepository';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
 import { TokensClientApi } from '../trigger/TokensClientApi';
 import { buildPaginatedOcpiParams } from '../trigger/param/paginated.ocpi.params';
-import { Role } from '../model/Role';
 import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';

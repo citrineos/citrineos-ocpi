@@ -57,7 +57,7 @@ export = {
     const createOcpiLocations = async (location: any) => {
       await queryInterface.bulkInsert('OcpiLocations', [
         {
-          [OcpiLocationProps.citrineLocationId]: location.id,
+          [OcpiLocationProps.coreLocationId]: location.id,
           [OcpiLocationProps.publish]: true,
           [OcpiLocationProps.lastUpdated]: new Date(),
           [OcpiLocationProps.partyId]: 'CPO',
