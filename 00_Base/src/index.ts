@@ -1,7 +1,6 @@
 import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
-import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
 import { OcpiServerConfig } from './config/ocpi.server.config';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
@@ -9,8 +8,6 @@ import Koa from 'koa';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
-import { CdrsController } from './controllers/cdrs.controller';
-import { ChargingProfilesController } from './controllers/charging.profiles.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -140,13 +137,14 @@ export { OcpiHeaders } from './model/OcpiHeaders';
 export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
-export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+export { OcpiExceptionHandler } from './util/middleware/ocpi.exception.handler';
 export { InvalidParamException } from './exception/invalid.param.exception';
 export { MissingParamException } from './exception/missing.param.exception';
 export { UnknownTokenException } from './exception/unknown.token.exception';
 export { WrongClientAccessException } from './exception/wrong.client.access.exception';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
+export { AsAdminEndpoint } from './util/decorators/as.admin.endpoint';
 
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
@@ -175,9 +173,12 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { TokensService } from './services/TokensService';
+export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
+export { AsyncJobAction } from './model/AsyncJobAction';
+export { AsyncJobRequest } from './model/AsyncJobRequest';
 export { SessionsService } from './services/sessions.service';
 
 export { TariffsService } from './services/tariffs.service';
@@ -247,13 +248,9 @@ export class OcpiServer extends KoaServer {
       this.koa = new Koa();
       const controllers = this.modules.map((module) => module.getController());
       const options: RoutingControllersOptions = {
-        controllers: [
-          ...controllers,
-          CdrsController,
-          ChargingProfilesController,
-        ],
+        controllers: [...controllers],
         routePrefix: '/ocpi',
-        middlewares: [GlobalExceptionHandler],
+        middlewares: [],
         defaultErrorHandler: false,
       } as RoutingControllersOptions;
       this.initApp(options);
