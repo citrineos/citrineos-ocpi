@@ -36,7 +36,7 @@ import {
   FunctionalEndpointParams,
   OcpiHeaders,
   AdminLocationDTO,
-  AdminLocationsService,
+  AdminLocationsService, AsAdminEndpoint,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
@@ -158,8 +158,8 @@ export class LocationsModuleApi
    * Admin Endpoints
    **/
 
-  // TODO add "admin endpoint" annotation for "regular" error handling when available
   @Put('/admin')
+  @AsAdminEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
