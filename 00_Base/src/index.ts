@@ -197,6 +197,7 @@ export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
+export { PutTariffRequest } from './model/DTO/PutTariffRequest';
 
 useContainer(Container);
 
