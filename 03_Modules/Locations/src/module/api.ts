@@ -36,7 +36,8 @@ import {
   FunctionalEndpointParams,
   OcpiHeaders,
   AdminLocationDTO,
-  AdminLocationsService, AsAdminEndpoint,
+  AdminLocationsService,
+  AsAdminEndpoint,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';

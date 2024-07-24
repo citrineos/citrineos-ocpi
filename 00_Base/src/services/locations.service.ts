@@ -8,7 +8,6 @@ import { Service } from 'typedi';
 import {
   ChargingStation,
   Location,
-  SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
 } from '@citrineos/data';
 import { LocationMapper } from '../mapper/LocationMapper';
@@ -92,10 +91,7 @@ export class LocationsService {
         ocpiHeaders.toPartyId,
       )
     ).forEach((ocpiLocation) => {
-      ocpiLocationsMap.set(
-        ocpiLocation.coreLocationId,
-        ocpiLocation,
-      );
+      ocpiLocationsMap.set(ocpiLocation.coreLocationId, ocpiLocation);
     });
 
     const locationsTotal = await this.ocpiLocationRepository.getLocationsCount(
@@ -113,18 +109,22 @@ export class LocationsService {
       ) as PaginatedLocationResponse;
     }
 
-    const coreLocations = (
+    const coreLocationsMap = (
       await this.locationRepository.readAllByQuery({
         where: {
           id: [...ocpiLocationsMap.keys()],
         },
         include: [ChargingStation],
       })
-    )
+    ).reduce((locationsMap: Record<number, Location>, curLocation) => {
+      locationsMap[curLocation.id] = curLocation;
+      return locationsMap;
+    }, {});
 
     const mappedLocations: LocationDTO[] = [];
 
-    for (const coreLocation of coreLocations) {
+    for (const [coreLocationId, ocpiLocation] of ocpiLocationsMap) {
+      const coreLocation = coreLocationsMap[coreLocationId];
       const stationIds = coreLocation.chargingPool.map(
         (chargingStation) => chargingStation.id,
       );
@@ -133,7 +133,6 @@ export class LocationsService {
           stationIds,
         );
 
-      const ocpiLocation = ocpiLocationsMap[coreLocation.id];
       ocpiLocation.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesMap(
         chargingStationVariableAttributesMap,
       );
