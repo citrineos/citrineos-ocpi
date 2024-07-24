@@ -36,14 +36,20 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   ): Promise<OcpiLocation[]> {
     return await this.readAllByQuery({
       ...this.createQuery(dateFrom, dateTo, cpoCountryCode, cpoPartyId),
+      order: [['createdAt', 'ASC']],
       limit,
       offset,
     });
   }
 
-  async getLocationsCount(dateFrom?: Date, dateTo?: Date): Promise<number> {
+  async getLocationsCount(
+    dateFrom?: Date,
+    dateTo?: Date,
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
+  ): Promise<number> {
     return await this.existByQuery({
-      ...this.createQuery(dateFrom, dateTo),
+      ...this.createQuery(dateFrom, dateTo, cpoCountryCode, cpoPartyId),
     });
   }
 
@@ -83,11 +89,17 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     cpoCountryCode?: string,
     cpoPartyId?: string,
   ) {
-    if (!dateFrom && !dateTo && !cpoCountryCode && !cpoPartyId) {
-      return {};
-    }
+    const query: any = {
+      where: {
+        [OcpiLocationProps.citrineLocationId]: {
+          [Op.not]: null,
+        },
+      },
+    };
 
-    const query: any = { where: {} };
+    if (!dateFrom && !dateTo && !cpoCountryCode && !cpoPartyId) {
+      return query;
+    }
 
     if (dateFrom) {
       query.where[OcpiLocationProps.lastUpdated] =
