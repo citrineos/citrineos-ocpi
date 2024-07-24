@@ -10,8 +10,6 @@ import Koa from 'koa';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
-import { CdrsController } from './controllers/cdrs.controller';
-import { ChargingProfilesController } from './controllers/charging.profiles.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -249,11 +247,7 @@ export class OcpiServer extends KoaServer {
       this.koa = new Koa();
       const controllers = this.modules.map((module) => module.getController());
       const options: RoutingControllersOptions = {
-        controllers: [
-          ...controllers,
-          CdrsController,
-          ChargingProfilesController,
-        ],
+        controllers: [...controllers],
         routePrefix: '/ocpi',
         middlewares: [GlobalExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
