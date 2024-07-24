@@ -5,7 +5,12 @@
 
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { ChargingStation, SequelizeLocationRepository } from '@citrineos/data';
+import {
+  ChargingStation,
+  Location,
+  SequelizeDeviceModelRepository,
+  SequelizeLocationRepository,
+} from '@citrineos/data';
 import { LocationMapper } from '../mapper/LocationMapper';
 import {
   LocationDTO,
@@ -70,13 +75,14 @@ export class LocationsService {
       `Getting all locations with headers ${JSON.stringify(ocpiHeaders)} and parameters ${JSON.stringify(paginatedParams)}`,
     );
 
-    // TODO add Link header
     const dateFrom = paginatedParams?.dateFrom;
     const dateTo = paginatedParams?.dateTo;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
-    const ocpiLocationsMap = (
+    const ocpiLocationsMap = new Map<number, OcpiLocation>();
+
+    (
       await this.ocpiLocationRepository.getLocations(
         limit,
         offset,
@@ -85,10 +91,12 @@ export class LocationsService {
         ocpiHeaders.toCountryCode,
         ocpiHeaders.toPartyId,
       )
-    ).reduce((locationsMap: Record<string, OcpiLocation>, curLocation) => {
-      locationsMap[curLocation.coreLocationId] = curLocation;
-      return locationsMap;
-    }, {});
+    ).forEach((ocpiLocation) => {
+      ocpiLocationsMap.set(
+        ocpiLocation.coreLocationId,
+        ocpiLocation,
+      );
+    });
 
     const locationsTotal = await this.ocpiLocationRepository.getLocationsCount(
       dateFrom,
@@ -105,15 +113,14 @@ export class LocationsService {
       ) as PaginatedLocationResponse;
     }
 
-    const relevantCoreLocationIds = Object.keys(ocpiLocationsMap).map(
-      (coreLocationId) => Number(coreLocationId),
-    );
-    const coreLocations = await this.locationRepository.readAllByQuery({
-      where: {
-        id: [...relevantCoreLocationIds],
-      },
-      include: [ChargingStation],
-    });
+    const coreLocations = (
+      await this.locationRepository.readAllByQuery({
+        where: {
+          id: [...ocpiLocationsMap.keys()],
+        },
+        include: [ChargingStation],
+      })
+    )
 
     const mappedLocations: LocationDTO[] = [];
 

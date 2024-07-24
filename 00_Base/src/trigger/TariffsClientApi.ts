@@ -12,6 +12,10 @@ import { Service } from 'typedi';
 export class TariffsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tariffs;
 
+  constructor() {
+    super();
+  }
+
   async getTariff(params: GetTariffParams): Promise<TariffResponse> {
     this.validateOcpiParams(params);
     this.validateRequiredParam(params, 'tariffId');

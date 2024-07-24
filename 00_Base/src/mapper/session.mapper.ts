@@ -19,6 +19,7 @@ import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokensRepository } from '../repository/TokensRepository';
+import { UID_FORMAT } from '../model/DTO/EvseDTO';
 
 @Service()
 export class SessionMapper {
@@ -76,7 +77,7 @@ export class SessionMapper {
       // TODO: Implement other auth methods
       auth_method: AuthMethod.WHITELIST,
       location_id: String(location.id),
-      evse_uid: this.getEvseUid(transaction),
+      evse_uid: UID_FORMAT(transaction.stationId, transaction.evse?.id ?? 1),
       connector_id: String(transaction.evse?.connectorId),
       currency: this.getCurrency(location),
       charging_periods: this.getChargingPeriods(transaction.meterValues),
@@ -126,12 +127,6 @@ export class SessionMapper {
       country_code: token?.country_code,
       party_id: token?.party_id,
     };
-  }
-
-  private getEvseUid(transaction: Transaction): string {
-    // TODO: Can be mapped using UID_FORMAT method in EvseDTO from Location Module
-    // Leaving it as a concat of stationId and evseID for now
-    return `${transaction.stationId}-${transaction.evse?.id}`;
   }
 
   private getCurrency(location: OcpiLocation): string {
