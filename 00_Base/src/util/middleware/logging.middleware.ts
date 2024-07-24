@@ -10,10 +10,10 @@ export class LoggingMiddleware implements KoaMiddlewareInterface {
     context: Context,
     next: (err?: any) => Promise<any>,
   ): Promise<any> {
-    console.log('do something before execution...');
+    console.debug(`Received context: ${JSON.stringify(context)}`);
     return next()
       .then(() => {
-        console.log('do something after execution');
+        console.debug('do something after execution');
       })
       .catch((error) => {
         console.log('Error intercepted by Koa:', error.message);

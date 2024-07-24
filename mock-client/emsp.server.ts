@@ -3,7 +3,7 @@ import Koa from 'koa';
 import { VersionsController } from './versions';
 import {
   CacheWrapper,
-  GlobalExceptionHandler,
+  OcpiExceptionHandler,
   KoaServer,
   LoggingMiddleware,
   OcpiSequelizeInstance,
@@ -31,7 +31,7 @@ export class EmspServer extends KoaServer {
       this.initApp({
         controllers: [VersionsController, SessionsController, TokensController],
         routePrefix: '/ocpi',
-        middlewares: [GlobalExceptionHandler, LoggingMiddleware],
+        middlewares: [OcpiExceptionHandler, LoggingMiddleware],
         defaultErrorHandler: false,
       });
       this.initKoaSwagger(

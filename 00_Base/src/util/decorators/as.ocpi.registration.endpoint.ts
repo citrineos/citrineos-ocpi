@@ -9,6 +9,7 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
 import { UniqueMessageIdsMiddleware } from '../middleware/unique.message.ids.middleware';
 import { HttpHeader } from '@citrineos/base';
 import { uniqueMessageIdHeaders } from './as.ocpi.functional.endpoint';
+import { OcpiExceptionHandler } from '../middleware/ocpi.exception.handler';
 
 function applyHeaders(headers: { [key: string]: ParamOptions }) {
   return function (object: any, methodName: string) {
@@ -17,6 +18,7 @@ function applyHeaders(headers: { [key: string]: ParamOptions }) {
     }
     UseBefore(AuthMiddleware)(object, methodName);
     UseBefore(UniqueMessageIdsMiddleware)(object, methodName);
+    UseBefore(OcpiExceptionHandler)(object, methodName);
   };
 }
 
