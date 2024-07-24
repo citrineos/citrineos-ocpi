@@ -4,7 +4,7 @@ import { Inject, Service, Token } from 'typedi';
 import { SessionMapper } from '../mapper/session.mapper';
 import { PaginatedResult } from '../model/PaginatedResult';
 import { ITransactionDatasource } from './ITransactionDatasource';
-import { TRANSACTION_DATASOURCE_SERVICE_TOKEN } from './TransactionDatasource';
+import { TRANSACTION_DATASOURCE_SERVICE_TOKEN } from '../services/TransactionFilterService';
 
 export const SESSION_DATASOURCE_SERVICE_TOKEN = new Token(
   'SESSION_DATASOURCE_SERVICE_TOKEN',
@@ -16,7 +16,8 @@ export class SessionsDatasource implements ISessionsDatasource {
     @Inject(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
     private readonly transactionDatasource: ITransactionDatasource,
     private readonly sessionMapper: SessionMapper,
-  ) {}
+  ) {
+  }
 
   async getSessions(
     cpoCountryCode: string,

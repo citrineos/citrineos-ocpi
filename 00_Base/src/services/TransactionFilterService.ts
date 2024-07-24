@@ -1,21 +1,21 @@
-import { ITransactionDatasource } from './ITransactionDatasource';
+import { ITransactionDatasource } from '../datasources/ITransactionDatasource';
 import { PaginatedResult } from '../model/PaginatedResult';
-import { Transaction } from '@citrineos/data/dist/layers/sequelize/model/TransactionEvent/Transaction';
+import { SequelizeTransactionEventRepository, Transaction } from '@citrineos/data';
 import { Attributes, CountOptions } from 'sequelize/types/model';
 import { TransactionQueryBuilder } from './TransactionQueryBuilder';
 import { Service, Token } from 'typedi';
-import { SequelizeTransactionEventRepository } from '@citrineos/data/dist/layers/sequelize/repository/TransactionEvent';
 
 export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
   'TRANSACTION_DATASOURCE_SERVICE_TOKEN',
 );
 
 @Service(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
-export class TransactionDatasource implements ITransactionDatasource {
+export class TransactionFilterService implements ITransactionDatasource {
   constructor(
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly transactionQueryBuilder: TransactionQueryBuilder,
-  ) {}
+  ) {
+  }
 
   async getTransactions(
     cpoCountryCode: string,

@@ -1,7 +1,7 @@
 import { Inject, Service, Token } from 'typedi';
 import { PaginatedResult } from '../model/PaginatedResult';
 import { ITransactionDatasource } from './ITransactionDatasource';
-import { TRANSACTION_DATASOURCE_SERVICE_TOKEN } from './TransactionDatasource';
+import { TRANSACTION_DATASOURCE_SERVICE_TOKEN } from '../services/TransactionFilterService';
 import { ICdrsDatasource } from './ICdrsDatasource';
 import { CdrMapper } from '../mapper/cdr.mapper';
 import { Cdr } from '../model/Cdr';
@@ -16,7 +16,8 @@ export class CdrsDatasource implements ICdrsDatasource {
     @Inject(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
     private readonly transactionDatasource: ITransactionDatasource,
     private readonly cdrMapper: CdrMapper,
-  ) {}
+  ) {
+  }
 
   async getCdrs(
     cpoCountryCode: string,
