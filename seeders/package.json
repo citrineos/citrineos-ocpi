@@ -1,7 +1,7 @@
 {
   "name": "@citrineos/ocpi-seeders",
   "version": "0.2.0",
-  "description": "The Commands module for OCPI v2.2.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
+  "description": "Package to handle seeders",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -26,8 +26,8 @@
   },
   "dependencies": {
     "@citrineos/ocpi-base": "0.2.0",
-    "@citrineos/base": "1.3.1",
-    "@citrineos/data": "1.3.1"
+    "@citrineos/base": "1.3.2",
+    "@citrineos/data": "1.3.2"
   },
   "workspaces": [
     "../00_Base",
