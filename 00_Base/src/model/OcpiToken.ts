@@ -103,7 +103,7 @@ export class TokenResponse extends OcpiResponse<TokenDTO> {
 
 export class PaginatedTokenResponse extends PaginatedResponse<TokenDTO> {
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested({each: true})
   @IsNotEmpty()
   @Optional(false)
   @Type(() => TokenDTO)
@@ -130,7 +130,7 @@ export class SingleTokenRequest {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  type?: TokenType;
+  type!: TokenType;
 
   static build(
     country_code: string,
