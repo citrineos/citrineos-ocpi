@@ -20,11 +20,9 @@ import {
   CommandsService,
   CommandType,
   EnumParam,
-  FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
   MultipleTypes,
-  OcpiHeaders,
   OcpiResponse,
   ReserveNow,
   ResponseGenerator,
@@ -33,8 +31,6 @@ import {
   StopSession,
   UnlockConnector,
   versionIdParam,
-  VersionNumber,
-  VersionNumberParam,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
@@ -64,8 +60,6 @@ export class CommandsModuleApi
   async postCommand(
     @EnumParam('commandType', CommandType, 'CommandType')
     commandType: CommandType,
-    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
-    @VersionNumberParam() versionNumber: VersionNumber,
     @Body()
     @MultipleTypes(
       CancelReservation,
@@ -115,7 +109,7 @@ export class CommandsModuleApi
           undefined,
         );
       } else {
-        return await this.commandsService.postCommand(commandType, payload, ocpiHeaders, versionNumber);
+        return await this.commandsService.postCommand(commandType, payload);
       }
     });
   }

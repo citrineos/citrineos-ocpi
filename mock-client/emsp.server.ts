@@ -46,7 +46,7 @@ export class EmspServer extends KoaServer {
         ],
       );
       this.initLogger();
-      this.run('localhost', 8086);
+      this.run('0.0.0.0', 8086);
     } catch (error) {
       console.error(error);
       process.exit(1);

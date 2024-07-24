@@ -7,6 +7,7 @@ import {
   CpoTenant,
   CpoTenantProps,
   CredentialsService,
+  ModuleId,
   OcpiToken,
   PostTokenParams,
   ServerCredentialsRoleProps,
@@ -36,7 +37,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
       const ocpiToken = await this.getOcpiToken(authorization, context);
       const cpoTenant = await this.getCpoTenant(ocpiToken, context);
       const params = this.buildPostTokenParams(authorization, ocpiToken, cpoTenant);
-      const authorizationInfo = await this.getPostTokenResponse(params);
+      const authorizationInfo = await this.getPostTokenResponse(params, cpoTenant);
       if (authorizationInfo.allowed === AuthorizationInfoAllowed.Allowed) {
         result.status = AuthorizationStatusEnumType.Accepted;
       }
@@ -71,11 +72,21 @@ export class RealTimeAuthorizer implements IAuthorizer {
     }
   }
 
-  private async getPostTokenResponse(params: PostTokenParams): Promise<AuthorizationInfo> {
+  private async getPostTokenResponse(
+    params: PostTokenParams,
+    cpoTenant: CpoTenant
+  ): Promise<AuthorizationInfo> {
     this.logger.info('Performing Realtime Authorization with params:', {
       ...params,
       authorization: '***',
     });
+    const clientInformations = cpoTenant[CpoTenantProps.clientInformation];
+    const clientInformation = clientInformations[0]; // todo how to handle multiple?
+    const clientVersionDetails = clientInformation[ClientInformationProps.clientVersionDetails];
+    const clientVersion = clientVersionDetails[0]; // todo how to handle multiple?
+    const endpoints = clientVersion.endpoints;
+    const tokensEndpoint = endpoints.find((endpoint) => endpoint.identifier === ModuleId.Tokens);
+    this.tokensClientApi.baseUrl = tokensEndpoint!.url;
     const response = await this.tokensClientApi.postToken(params);
     this.logger.info('Realtime Authorization response from MSP:', response);
     const authorizationInfo = response.data;

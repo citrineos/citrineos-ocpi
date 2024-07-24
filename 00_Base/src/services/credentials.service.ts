@@ -157,15 +157,16 @@ export class CredentialsService {
     const cpoTenant =
       await this.cpoTenantRepository.readOnlyOneByQuery(
         {
-          where: {
-            [ClientCredentialsRoleProps.partyId]: partyId,
-            [ClientCredentialsRoleProps.countryCode]: countryCode,
-          },
+          where: {},
           include: [
             ServerCredentialsRole,
             {
               model: ClientInformation,
               include: [
+                {
+                  model: ClientVersion,
+                  include: [Endpoint],
+                },
                 {
                   model: ClientCredentialsRole,
                   where: {
