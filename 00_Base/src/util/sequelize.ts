@@ -1,10 +1,14 @@
 import {
   AdditionalInfo,
   Authorization,
+  ChargingStation,
   IdToken,
   IdTokenAdditionalInfo,
   IdTokenInfo,
+  Location,
+  ModelCtor,
   Sequelize,
+  StatusNotification,
 } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
@@ -22,7 +26,7 @@ import { ServerVersion } from '../model/ServerVersion';
 import { Version } from '../model/Version';
 import { VersionEndpoint } from '../model/VersionEndpoint';
 import { OcpiToken } from '../model/OcpiToken';
-import { OcpiLocation } from '../model/OcpiLocation';
+import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
@@ -39,12 +43,14 @@ export const ON_DELETE_SET_NULL = 'SET NULL';
 @Service()
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
+  private logger: Logger<ILogObj>;
 
   constructor(config: OcpiServerConfig) {
-    const sequelizeLogger = new Logger<ILogObj>({
+    this.logger = this.logger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
-    sequelizeLogger.info('Creating default Sequelize instance');
+    this.logger.info('Creating default Sequelize instance');
+
     this.sequelize = new Sequelize({
       host: config.data.sequelize.host,
       port: config.data.sequelize.port,
@@ -53,45 +59,72 @@ export class OcpiSequelizeInstance {
       username: config.data.sequelize.username,
       password: config.data.sequelize.password,
       storage: config.data.sequelize.storage,
-      models: [
-        ClientInformation,
-        CpoTenant,
-        ClientCredentialsRole,
-        ServerCredentialsRole,
-        BusinessDetails,
-        Image,
-        ClientVersion,
-        ServerVersion,
-        Endpoint,
-        Version,
-        VersionEndpoint,
-        OcpiLocation,
-        OcpiEvse,
-        OcpiConnector,
-        ResponseUrlCorrelationId,
-        OcpiTariff,
-        SessionChargingProfile,
-        OcpiToken,
-        AsyncJobStatus,
-        Authorization,
-        IdToken, // todo make IdToken be directly exported from data
-        IdTokenInfo, // todo make IdTokenInfo be directly exported from data
-        IdTokenAdditionalInfo,
-        AdditionalInfo,
-      ],
-      logging: (_sql: string, _timing?: number) => {
-        // TODO: Look into fixing that
-        // sequelizeLogger.debug(timing, sql);
-      },
+      models: this.getModels(),
+      logging: this.loggingCallback.bind(this),
     });
 
+    this.setupModelAssociations();
+    this.syncDatabase(config);
+  }
+
+  private getModels(): ModelCtor[] {
+    return [
+      ClientInformation,
+      CpoTenant,
+      ClientCredentialsRole,
+      ServerCredentialsRole,
+      BusinessDetails,
+      Image,
+      ClientVersion,
+      ServerVersion,
+      Endpoint,
+      Version,
+      VersionEndpoint,
+      OcpiLocation,
+      OcpiEvse,
+      OcpiConnector,
+      ResponseUrlCorrelationId,
+      OcpiTariff,
+      SessionChargingProfile,
+      OcpiToken,
+      AsyncJobStatus,
+      Authorization,
+      IdToken, // todo make IdToken be directly exported from data
+      IdTokenInfo, // todo make IdTokenInfo be directly exported from data
+      IdTokenAdditionalInfo,
+      AdditionalInfo,
+      ChargingStation,
+      StatusNotification,
+      Location,
+    ];
+  }
+
+  private setupModelAssociations(): void {
+    Authorization.hasOne(OcpiToken, {
+      foreignKey: 'authorization_id',
+    });
+    OcpiLocation.belongsTo(Location, {
+      foreignKey: OcpiLocationProps.citrineLocationId,
+    });
+    Location.hasOne(OcpiLocation, {
+      foreignKey: OcpiLocationProps.citrineLocationId,
+      sourceKey: 'id',
+    });
+  }
+
+  private loggingCallback(_sql: string, _timing?: number): void {
+    // TODO: Look into fixing that
+    // this.logger.debug(timing, sql);
+  }
+
+  private syncDatabase(config: OcpiServerConfig): void {
     if (config.data.sequelize.alter) {
       this.sequelize.sync({ alter: true }).then(() => {
-        sequelizeLogger.info('Database altered');
+        this.logger.info('Database altered');
       });
     } else if (config.data.sequelize.sync) {
       this.sequelize.sync({ force: true }).then(() => {
-        sequelizeLogger.info('Database synchronized');
+        this.logger.info('Database synchronized');
       });
     }
   }
