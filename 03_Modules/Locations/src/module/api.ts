@@ -3,7 +3,14 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { JsonController, Get, Param } from 'routing-controllers';
+import {
+  JsonController,
+  Get,
+  Param,
+  Put,
+  Body,
+  QueryParam,
+} from 'routing-controllers';
 import { ILocationsModuleApi } from './interface';
 import {
   AsOcpiFunctionalEndpoint,
@@ -24,11 +31,16 @@ import {
   VersionNumber,
   VersionNumberParam,
   versionIdParam,
+  LocationDTO,
+  OcpiEmptyResponse,
+  FunctionalEndpointParams,
+  OcpiHeaders,
+  AdminLocationDTO,
+  AdminLocationsService,
+  AsAdminEndpoint,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
-import { FunctionalEndpointParams } from '@citrineos/ocpi-base';
-import { OcpiHeaders } from '@citrineos/ocpi-base';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponse,
@@ -51,8 +63,12 @@ export class LocationsModuleApi
    * Constructs a new instance of the class.
    *
    * @param {LocationsService} locationsService - The Locations service.
+   * @param {AdminLocationsService} adminLocationsService - The Admin Locations service.
    */
-  constructor(readonly locationsService: LocationsService) {
+  constructor(
+    readonly locationsService: LocationsService,
+    readonly adminLocationsService: AdminLocationsService,
+  ) {
     super();
   }
 
@@ -136,6 +152,26 @@ export class LocationsModuleApi
       stationId,
       Number(evseId),
       Number(connectorId),
+    );
+  }
+
+  /**
+   * Admin Endpoints
+   **/
+
+  @Put('/admin')
+  @AsAdminEndpoint()
+  @ResponseSchema(OcpiEmptyResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+  })
+  async createLocation(
+    @QueryParam('broadcast') broadcast: boolean,
+    @Body() adminLocation: AdminLocationDTO,
+  ): Promise<LocationDTO> {
+    return await this.adminLocationsService.createOrUpdateLocation(
+      adminLocation,
+      broadcast,
     );
   }
 }

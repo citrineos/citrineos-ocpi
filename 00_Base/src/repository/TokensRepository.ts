@@ -101,11 +101,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       return undefined;
     }
 
-    const ocpiToken = await this.readOnlyOneByQuery({
-      where: {
-        authorization_id: ocppAuth.id,
-      },
-    });
+    const ocpiToken = await this.getOcpiTokenByAuthorizationId(ocppAuth.id);
 
     if (!ocpiToken) {
       // TODO better error
@@ -113,6 +109,21 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
 
     return OcpiTokensMapper.toDto(ocppAuth, ocpiToken);
+  }
+
+  async getOcpiTokenByAuthorizationId(
+    authorizationId: string,
+  ): Promise<OcpiToken | undefined> {
+    const ocpiToken = await this.readOnlyOneByQuery({
+      where: {
+        authorization_id: authorizationId,
+      },
+    });
+    if (!ocpiToken) {
+      // TODO better error
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(ocpiToken);
   }
 
   /**

@@ -8,6 +8,7 @@ import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { TariffMapper } from './tariff.mapper';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/paginated.params';
+import { PutTariffRequest } from '../model/DTO/PutTariffRequest';
 
 @Service()
 export class TariffsService {
@@ -53,6 +54,7 @@ export class TariffsService {
     }, {});
     const coreTariffs = await this.coreTariffRepository.readAllByQuery({
       where: { id: { [Op.in]: Object.keys(coreTariffIdToOcpiTariff) } },
+      order: [['createdAt', 'ASC']],
     });
 
     return coreTariffs.map((ocppTariff) =>
@@ -83,5 +85,56 @@ export class TariffsService {
       return { data: [], count: 0 };
     }
     return { data: await this.extendOcpiTariffs(rows), count };
+  }
+
+  async createOrUpdateTariff(
+    tariffRequest: PutTariffRequest,
+  ): Promise<TariffDTO> {
+    const [ocpiTariff, coreTariff] =
+      this.tariffMapper.mapPutTariffRequestToEntities(tariffRequest);
+
+    const existingOcpiTariff = await this.ocpiTariffRepository.findByTariffKey(
+      ocpiTariff.key,
+    );
+
+    let savedCoreTariff;
+    let savedOcpiTariff;
+
+    if (existingOcpiTariff) {
+      coreTariff.id = existingOcpiTariff.coreTariffId;
+
+      savedCoreTariff = await this.coreTariffRepository.updateByKey(
+        coreTariff.dataValues,
+        String(existingOcpiTariff.coreTariffId),
+      );
+      savedOcpiTariff = await this.ocpiTariffRepository.updateByKey(
+        ocpiTariff.dataValues,
+        existingOcpiTariff.id,
+      );
+    } else {
+      savedCoreTariff = await this.coreTariffRepository.create(coreTariff);
+
+      ocpiTariff.coreTariffId = savedCoreTariff.id;
+
+      savedOcpiTariff = await this.ocpiTariffRepository.create(ocpiTariff);
+    }
+
+    return this.tariffMapper.map(savedCoreTariff!, savedOcpiTariff!);
+  }
+
+  async deleteTariff(tariffId: number): Promise<void> {
+    const savedOcpiTariff = await this.ocpiTariffRepository.readByKey(tariffId);
+
+    if (!savedOcpiTariff) {
+      return;
+    }
+
+    if (savedOcpiTariff.coreTariffId) {
+      await this.coreTariffRepository.deleteByKey(
+        String(savedOcpiTariff.coreTariffId),
+      );
+    }
+
+    await this.ocpiTariffRepository.deleteByKey(String(tariffId));
   }
 }

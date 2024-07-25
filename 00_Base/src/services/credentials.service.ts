@@ -51,6 +51,7 @@ import { validateVersionEndpointByModuleId } from '../util/validators/VersionsVa
 import { validateRole } from '../util/validators/CredentialsValidators';
 import { buildPutCredentialsParams } from '../trigger/param/credentials/put.credentials.params';
 import { AdminUpdateCredentialsRequestDTO } from '../model/DTO/AdminUpdateCredentialsRequestDTO';
+import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 
 const clientInformationInclude = [
   {
@@ -99,6 +100,7 @@ export class CredentialsService {
     readonly versionRepository: VersionRepository,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
     readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
+    readonly cpoTenantRepository: CpoTenantRepository,
   ) {}
 
   async getClientCredentialsRoleByCountryCodeAndPartyId(
@@ -122,6 +124,26 @@ export class CredentialsService {
       throw new NotFoundError(msg);
     }
     return clientCredentialsRole;
+  }
+
+  async getClientTokenByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<string> {
+    const clientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    if (
+      !clientInformation ||
+      !clientInformation[ClientInformationProps.clientToken]
+    ) {
+      const msg = `Client information and token not found for provided country code: ${countryCode}  and party id: ${partyId}`;
+      this.logger.error(msg);
+      throw new NotFoundError();
+    }
+    return clientInformation[ClientInformationProps.clientToken];
   }
 
   async getServerCredentialsRoleByCountryCodeAndPartyId(
@@ -148,17 +170,33 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<CpoTenant> {
-    const clientInformation: ClientInformation =
-      await this.getClientInformationByClientCountryCodeAndPartyId(
-        countryCode,
-        partyId,
-      );
-
-    const cpoTenant: CpoTenant | null = await clientInformation.$get(
-      ClientInformationProps.cpoTenant,
+    const cpoTenant = await this.cpoTenantRepository.readOnlyOneByQuery(
+      {
+        where: {},
+        include: [
+          ServerCredentialsRole,
+          {
+            model: ClientInformation,
+            include: [
+              {
+                model: ClientVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ClientCredentialsRole,
+                where: {
+                  [ClientCredentialsRoleProps.partyId]: partyId,
+                  [ClientCredentialsRoleProps.countryCode]: countryCode,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      OcpiNamespace.Credentials,
     );
     if (!cpoTenant) {
-      const msg = 'CpoTenant not found for client country code and party id';
+      const msg = 'Cpo Tenant not found for client country code and party id';
       this.logger.debug(msg, countryCode, partyId);
       throw new NotFoundError(msg);
     }
@@ -747,6 +785,7 @@ export class CredentialsService {
     if (!versionDetails) {
       throw new NotFoundError('Matching version details not found');
     }
+    // TODO: add validation to check expected endpoints based on OCPP 2.2.1, 7.1.6
     return ClientVersion.build(
       {
         version: versionNumber,
