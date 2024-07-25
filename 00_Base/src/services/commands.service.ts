@@ -24,7 +24,7 @@ export class CommandsService {
       | ReserveNow
       | StartSession
       | StopSession
-      | UnlockConnector
+      | UnlockConnector,
   ): Promise<OcpiResponse<CommandResponse>> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
@@ -68,7 +68,7 @@ export class CommandsService {
   }
 
   private async handleStartSession(
-    startSession: StartSession
+    startSession: StartSession,
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
       await this.commandExecutor.executeStartSession(startSession);

@@ -20,7 +20,10 @@ import {
   WhitelistType,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
-import { AuthorizationInfo, AuthorizationInfoResponse } from '@citrineos/ocpi-base/dist/model/AuthorizationInfo';
+import {
+  AuthorizationInfo,
+  AuthorizationInfoResponse,
+} from '@citrineos/ocpi-base/dist/model/AuthorizationInfo';
 
 const TOKENS_LIST_MOCK = generateMockOcpiResponse(PaginatedTokenResponse); // todo create real mocks for tests
 
@@ -95,7 +98,8 @@ export class TokensController extends BaseController {
     authorizationInfo.authorizationReference = 'authorizationReference';
     const authorizationInfoResponse = new AuthorizationInfoResponse();
     authorizationInfoResponse.data = authorizationInfo;
-    authorizationInfoResponse.status_code = OcpiResponseStatusCode.GenericSuccessCode;
+    authorizationInfoResponse.status_code =
+      OcpiResponseStatusCode.GenericSuccessCode;
     authorizationInfoResponse.timestamp = new Date();
     return authorizationInfoResponse;
   }

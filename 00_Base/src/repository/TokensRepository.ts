@@ -6,7 +6,11 @@
 import { Service } from 'typedi';
 import { OcpiToken, SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
-import { Authorization, SequelizeAuthorizationRepository, SequelizeRepository } from '@citrineos/data';
+import {
+  Authorization,
+  SequelizeAuthorizationRepository,
+  SequelizeRepository,
+} from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { IdTokenEnumType, SystemConfig } from '@citrineos/base';

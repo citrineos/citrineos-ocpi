@@ -6,7 +6,10 @@ import {
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -118,11 +121,15 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<string> {
-    const clientInformation = await this.getClientInformationByClientCountryCodeAndPartyId(
-      countryCode,
-      partyId,
-    );
-    if (!clientInformation || !clientInformation[ClientInformationProps.clientToken]) {
+    const clientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    if (
+      !clientInformation ||
+      !clientInformation[ClientInformationProps.clientToken]
+    ) {
       const msg = `Client information and token not found for provided country code: ${countryCode}  and party id: ${partyId}`;
       this.logger.error(msg);
       throw new NotFoundError();
@@ -154,35 +161,33 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<CpoTenant> {
-    const cpoTenant =
-      await this.cpoTenantRepository.readOnlyOneByQuery(
-        {
-          where: {},
-          include: [
-            ServerCredentialsRole,
-            {
-              model: ClientInformation,
-              include: [
-                {
-                  model: ClientVersion,
-                  include: [Endpoint],
+    const cpoTenant = await this.cpoTenantRepository.readOnlyOneByQuery(
+      {
+        where: {},
+        include: [
+          ServerCredentialsRole,
+          {
+            model: ClientInformation,
+            include: [
+              {
+                model: ClientVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ClientCredentialsRole,
+                where: {
+                  [ClientCredentialsRoleProps.partyId]: partyId,
+                  [ClientCredentialsRoleProps.countryCode]: countryCode,
                 },
-                {
-                  model: ClientCredentialsRole,
-                  where: {
-                    [ClientCredentialsRoleProps.partyId]: partyId,
-                    [ClientCredentialsRoleProps.countryCode]: countryCode,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        OcpiNamespace.Credentials,
-      );
+              },
+            ],
+          },
+        ],
+      },
+      OcpiNamespace.Credentials,
+    );
     if (!cpoTenant) {
-      const msg =
-        'Cpo Tenant not found for client country code and party id';
+      const msg = 'Cpo Tenant not found for client country code and party id';
       this.logger.debug(msg, countryCode, partyId);
       throw new NotFoundError(msg);
     }

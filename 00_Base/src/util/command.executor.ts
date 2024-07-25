@@ -17,7 +17,10 @@ import { Service } from 'typedi';
 import { ResponseUrlRepository } from '../repository/response.url.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { StopSession } from '../model/StopSession';
-import { SequelizeChargingProfileRepository, SequelizeTransactionEventRepository } from '@citrineos/data';
+import {
+  SequelizeChargingProfileRepository,
+  SequelizeTransactionEventRepository,
+} from '@citrineos/data';
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ChargingProfile } from '../model/ChargingProfile';
@@ -36,12 +39,10 @@ export class CommandExecutor {
     readonly ocpiEvseEntityRepo: OcpiEvseRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
-    readonly sessionMapper: SessionMapper
+    readonly sessionMapper: SessionMapper,
   ) {}
 
-  public async executeStartSession(
-    startSession: StartSession
-  ): Promise<void> {
+  public async executeStartSession(startSession: StartSession): Promise<void> {
     // TODO: update to handle optional evse uid.
     const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
       startSession.evse_uid!,

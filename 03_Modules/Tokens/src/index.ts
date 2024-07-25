@@ -4,7 +4,12 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { TokensModuleApi } from './module/api';
-import { CacheWrapper, OcpiModule, OcpiServerConfig, TokensService } from '@citrineos/ocpi-base';
+import {
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+  TokensService,
+} from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { TokensHandlers } from './module/module';
