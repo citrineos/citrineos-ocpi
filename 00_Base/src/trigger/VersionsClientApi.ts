@@ -20,7 +20,7 @@ export class VersionsClientApi extends BaseClientApi {
       this.validateRequiredParam(params, 'authorization');
       const additionalHeaders: IHeaders =
         this.getOcpiRegistrationHeaders(params);
-      response = await this.getRaw<VersionListResponseDTO>('/ocpi/versions', {
+      response = await this.getRaw<VersionListResponseDTO>('', {
         additionalHeaders,
       });
       return this.handleResponse(VersionListResponseDTO, response);
