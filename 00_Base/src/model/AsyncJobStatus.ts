@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 
 export enum AsyncJobName {
-  FETCH_OCPI_TOKENS = 'fetch OCPI tokens',
+  FETCH_OCPI_TOKENS = 'FETCH_OCPI_TOKENS',
 }
 
 @Table
@@ -23,55 +23,67 @@ export class AsyncJobStatus extends Model {
   @Column(DataType.ENUM(...Object.values(AsyncJobName)))
   jobName!: AsyncJobName;
 
-  @Default(false)
+  @Column(DataType.STRING)
+  mspCountryCode!: string;
+
+  @Column(DataType.STRING)
+  mspPartyId!: string;
+
+  @Column(DataType.STRING)
+  cpoCountryCode!: string;
+
+  @Column(DataType.STRING)
+  cpoPartyId!: string;
+
+  @Column(DataType.DATE)
+  finishedAt?: Date;
+
+  @Column(DataType.DATE)
+  stoppedAt?: Date | null;
+
   @Column(DataType.BOOLEAN)
-  isFinished!: boolean;
+  stopScheduled!: boolean;
 
-  @Column(DataType.STRING)
-  countryCode!: string;
-
-  @Column(DataType.STRING)
-  partyId!: string;
-
-  @Column(DataType.DATE) // Start Time is automatically set with the created at field
-  stopTime?: Date;
-
-  @Column(DataType.INTEGER) // Updated after first request is done and the response shows the pagination information
-  totalObjects?: number;
-
-  @Column(DataType.INTEGER) // Use to keep track of how far we are
-  currentOffset?: number;
+  @Column(DataType.BOOLEAN)
+  isFailed!: boolean;
 
   @Column(DataType.JSON)
-  paginatedParams?: PaginatedParams;
+  paginationParams!: PaginatedParams;
 
-  @Column(DataType.STRING)
-  failureMessage?: string; // Used to keep track of the errors. If this is set, it means something went wrong
+  @Column(DataType.INTEGER) // Total number of objects in the client's system
+  totalObjects?: number;
 
   toDTO(): AsyncJobStatusDTO {
     return {
       jobId: this.jobId,
+      jobName: this.jobName,
+      mspCountryCode: this.mspCountryCode,
+      mspPartyId: this.mspPartyId,
+      cpoCountryCode: this.cpoCountryCode,
+      cpoPartyId: this.cpoPartyId,
       createdAt: this.createdAt,
-      isFinished: this.isFinished,
-      stopTime: this.stopTime,
+      finishedAt: this.finishedAt,
+      stoppedAt: this.stoppedAt,
+      stopScheduled: this.stopScheduled,
+      isFailed: this.isFailed,
+      paginatedParams: this.paginationParams,
       totalObjects: this.totalObjects,
-      currentOffset: this.currentOffset,
-      paginatedParams: this.paginatedParams,
-      countryCode: this.countryCode,
-      partyId: this.partyId,
     };
   }
 }
 
 export class AsyncJobStatusDTO {
   jobId!: string;
+  jobName!: AsyncJobName;
+  mspCountryCode!: string;
+  mspPartyId!: string;
+  cpoCountryCode!: string;
+  cpoPartyId!: string;
   createdAt!: Date;
-  isFinished!: boolean;
-  stopTime?: Date;
+  finishedAt?: Date;
+  stoppedAt?: Date | null;
+  stopScheduled!: boolean;
+  isFailed?: boolean;
+  paginatedParams!: PaginatedParams;
   totalObjects?: number;
-  currentOffset?: number;
-  currentLimit?: number;
-  paginatedParams?: PaginatedParams;
-  countryCode!: string;
-  partyId!: string;
 }

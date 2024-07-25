@@ -24,7 +24,7 @@ export class ConnectorVariableAttributes {
   station_id!: string;
 }
 
-export const connectorVariableAttributesQuery = (
+export const CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY = (
   stationId: string,
   evseComponentId: number,
   connectorId: number,
