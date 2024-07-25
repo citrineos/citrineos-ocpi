@@ -20,6 +20,7 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
+import { TransactionEventEnumType } from '../../../../citrineos-core/00_Base/src';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -31,7 +32,7 @@ export abstract class BaseTransactionMapper {
     protected tariffsService: TariffsService,
   ) {}
 
-  public async getLocationDTOsForTransactions(
+  protected async getLocationDTOsForTransactions(
     transactions: Transaction[],
   ): Promise<Map<string, LocationDTO>> {
     const transactionIdToLocationMap: Map<string, LocationDTO> = new Map();
@@ -58,7 +59,7 @@ export abstract class BaseTransactionMapper {
     return transactionIdToLocationMap;
   }
 
-  public async getTokensForTransactions(
+  protected async getTokensForTransactions(
     transactions: Transaction[],
   ): Promise<Map<string, TokenDTO>> {
     const transactionIdToTokenMap: Map<string, TokenDTO> = new Map();
@@ -90,7 +91,7 @@ export abstract class BaseTransactionMapper {
     return transactionIdToTokenMap;
   }
 
-  public async getTariffsForTransactions(
+  protected async getTariffsForTransactions(
     transactions: Transaction[],
   ): Promise<Map<string, Tariff>> {
     const transactionIdToTariffMap = new Map<string, Tariff>();
@@ -99,7 +100,7 @@ export abstract class BaseTransactionMapper {
     const stationIdToTariffMap = new Map<string, Tariff>();
     const tariffs =
       await this.tariffRepository.findByStationIds(uniqueStationIds);
-    tariffs?.forEach((tariff: any) =>
+    tariffs?.forEach((tariff) =>
       stationIdToTariffMap.set(tariff.stationId, tariff),
     );
 
@@ -148,7 +149,7 @@ export abstract class BaseTransactionMapper {
     transaction: Transaction,
   ): [TransactionEventRequest, TransactionEventRequest | undefined] {
     let startEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === 'Started',
+      (event) => event.eventType === TransactionEventEnumType.Started,
     );
     if (!startEvent) {
       this.logger.error("No 'Started' event found in transaction events");
@@ -156,7 +157,7 @@ export abstract class BaseTransactionMapper {
     }
 
     const endEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === 'Ended',
+      (event) => event.eventType === TransactionEventEnumType.Ended,
     );
     return [startEvent, endEvent];
   }

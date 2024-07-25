@@ -11,9 +11,10 @@ import { Role } from './Role';
 import { ICredentialsRole } from './BaseCredentialsRole';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { CpoTenant } from './CpoTenant';
-import { BusinessDetails } from './BusinessDetails';
+import { BusinessDetails, toBusinessDetailsDTO } from './BusinessDetails';
 import { Exclude } from 'class-transformer';
 import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
 
 export enum ServerCredentialsRoleProps {
   role = 'role',
@@ -76,5 +77,23 @@ export class ServerCredentialsRole extends Model implements ICredentialsRole {
     serverCredentialsRole.party_id = partyId;
     serverCredentialsRole.business_details = businessDetails;
     return serverCredentialsRole;
+  }
+
+  static toCredentialsRoleDTO(
+    serverCredentialsRole: ServerCredentialsRole,
+  ): CredentialsRoleDTO {
+    const credentialsRoleDTO = new CredentialsRoleDTO();
+    credentialsRoleDTO.role =
+      serverCredentialsRole[ServerCredentialsRoleProps.role];
+    credentialsRoleDTO.party_id =
+      serverCredentialsRole[ServerCredentialsRoleProps.partyId];
+    credentialsRoleDTO.country_code =
+      serverCredentialsRole[ServerCredentialsRoleProps.countryCode];
+    if (serverCredentialsRole[ServerCredentialsRoleProps.businessDetails]) {
+      credentialsRoleDTO.business_details = toBusinessDetailsDTO(
+        serverCredentialsRole[ServerCredentialsRoleProps.businessDetails],
+      );
+    }
+    return credentialsRoleDTO;
   }
 }

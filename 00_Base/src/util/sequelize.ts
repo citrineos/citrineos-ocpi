@@ -8,7 +8,7 @@ import {
   Location,
   ModelCtor,
   Sequelize,
-  StatusNotification
+  StatusNotification,
 } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
@@ -46,7 +46,9 @@ export class OcpiSequelizeInstance {
   private logger: Logger<ILogObj>;
 
   constructor(config: OcpiServerConfig) {
-    this.logger = this.logger = new Logger<ILogObj>({name: OcpiSequelizeInstance.name});
+    this.logger = this.logger = new Logger<ILogObj>({
+      name: OcpiSequelizeInstance.name,
+    });
     this.logger.info('Creating default Sequelize instance');
 
     this.sequelize = new Sequelize({
@@ -93,20 +95,20 @@ export class OcpiSequelizeInstance {
       AdditionalInfo,
       ChargingStation,
       StatusNotification,
-      Location
+      Location,
     ];
   }
 
   private setupModelAssociations(): void {
     Authorization.hasOne(OcpiToken, {
-      foreignKey: 'authorization_id'
+      foreignKey: 'authorization_id',
     });
     OcpiLocation.belongsTo(Location, {
-      foreignKey: OcpiLocationProps.citrineLocationId
+      foreignKey: OcpiLocationProps.citrineLocationId,
     });
     Location.hasOne(OcpiLocation, {
       foreignKey: OcpiLocationProps.citrineLocationId,
-      sourceKey: 'id'
+      sourceKey: 'id',
     });
   }
 
@@ -117,11 +119,11 @@ export class OcpiSequelizeInstance {
 
   private syncDatabase(config: OcpiServerConfig): void {
     if (config.data.sequelize.alter) {
-      this.sequelize.sync({alter: true}).then(() => {
+      this.sequelize.sync({ alter: true }).then(() => {
         this.logger.info('Database altered');
       });
     } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({force: true}).then(() => {
+      this.sequelize.sync({ force: true }).then(() => {
         this.logger.info('Database synchronized');
       });
     }

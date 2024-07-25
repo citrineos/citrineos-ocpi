@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
-import { InternalServerError, NotFoundError } from 'routing-controllers';
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+} from 'routing-controllers';
 import {
   ClientCredentialsRole,
   ClientCredentialsRoleProps,
@@ -42,6 +46,10 @@ import { buildPostCredentialsParams } from '../trigger/param/credentials/post.cr
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
+import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
+import { validateVersionEndpointByModuleId } from '../util/validators/VersionsValidators';
+import { validateRole } from '../util/validators/CredentialsValidators';
+import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 
 const clientInformationInclude = [
   {
@@ -90,6 +98,7 @@ export class CredentialsService {
     readonly versionRepository: VersionRepository,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
     readonly clientCredentialsRoleRepository: ClientCredentialsRoleRepository,
+    readonly cpoTenantRepository: CpoTenantRepository,
   ) {}
 
   async getClientCredentialsRoleByCountryCodeAndPartyId(
@@ -113,6 +122,26 @@ export class CredentialsService {
       throw new NotFoundError(msg);
     }
     return clientCredentialsRole;
+  }
+
+  async getClientTokenByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<string> {
+    const clientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    if (
+      !clientInformation ||
+      !clientInformation[ClientInformationProps.clientToken]
+    ) {
+      const msg = `Client information and token not found for provided country code: ${countryCode}  and party id: ${partyId}`;
+      this.logger.error(msg);
+      throw new NotFoundError();
+    }
+    return clientInformation[ClientInformationProps.clientToken];
   }
 
   async getServerCredentialsRoleByCountryCodeAndPartyId(
@@ -139,17 +168,33 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<CpoTenant> {
-    const clientInformation: ClientInformation =
-      await this.getClientInformationByClientCountryCodeAndPartyId(
-        countryCode,
-        partyId,
-      );
-
-    const cpoTenant: CpoTenant | null = await clientInformation.$get(
-      ClientInformationProps.cpoTenant,
+    const cpoTenant = await this.cpoTenantRepository.readOnlyOneByQuery(
+      {
+        where: {},
+        include: [
+          ServerCredentialsRole,
+          {
+            model: ClientInformation,
+            include: [
+              {
+                model: ClientVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ClientCredentialsRole,
+                where: {
+                  [ClientCredentialsRoleProps.partyId]: partyId,
+                  [ClientCredentialsRoleProps.countryCode]: countryCode,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      OcpiNamespace.Credentials,
     );
     if (!cpoTenant) {
-      const msg = 'CpoTenant not found for client country code and party id';
+      const msg = 'Cpo Tenant not found for client country code and party id';
       this.logger.debug(msg, countryCode, partyId);
       throw new NotFoundError(msg);
     }
@@ -235,7 +280,6 @@ export class CredentialsService {
   ): Promise<ClientInformation> {
     const clientInformation =
       await this.getClientInformationByServerToken(token);
-    await this.getClientInformationByServerToken(token);
     if (clientInformation.registered) {
       throw new AlreadyRegisteredException();
     }
@@ -474,6 +518,68 @@ export class CredentialsService {
     return updatedClientInformation;
   }
 
+  async generateCredentialsTokenA(
+    credentialsRequest: AdminCredentialsRequestDTO,
+    versionNumber: VersionNumber,
+  ): Promise<CredentialsDTO> {
+    // The input roles must be CPO
+    const receivedRoles = credentialsRequest.roles;
+    validateRole(receivedRoles, Role.CPO);
+
+    // Make sure we stored the necessary version and version endpoints
+    // so that MSP can retrieve them later in the registration process
+    const storedVersionEndpoints =
+      await this.versionRepository.findVersionEndpointsByVersionNumber(
+        versionNumber,
+      );
+    validateVersionEndpointByModuleId(
+      storedVersionEndpoints,
+      ModuleId.Credentials,
+    );
+
+    const storedServerCredentialsRoles: ServerCredentialsRole[] =
+      await this.storeServerCredentialsRoles(receivedRoles);
+
+    const credentialsTokenA = uuidv4();
+    // clientToken, clientCredentialsRoles and clientVersionDetails
+    // are added in the following post credentials requests based on the registration process
+    const clientInfo = await ClientInformation.create(
+      {
+        cpoTenantId: storedServerCredentialsRoles[0].cpoTenantId,
+        registered: false,
+        serverToken: credentialsTokenA,
+        serverVersionDetails: [
+          {
+            version: versionNumber,
+            url: credentialsRequest.url,
+            endpoints: storedVersionEndpoints.map((endpoint) => ({
+              identifier: endpoint.identifier,
+              role: endpoint.role,
+              url: endpoint.url,
+            })),
+          },
+        ],
+      },
+      {
+        include: [
+          {
+            model: ServerVersion,
+            include: [Endpoint],
+          },
+        ],
+      },
+    );
+
+    const storedServerCredentialsRoleDTOs = storedServerCredentialsRoles.map(
+      (storedRole) => ServerCredentialsRole.toCredentialsRoleDTO(storedRole),
+    );
+    return CredentialsDTO.build(
+      clientInfo.serverToken,
+      clientInfo.serverVersionDetails[0].url,
+      storedServerCredentialsRoleDTOs,
+    );
+  }
+
   private async getPostCredentialsResponse(
     clientCredentialsUrl: string,
     versionNumber: VersionNumber,
@@ -546,15 +652,9 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails.find(
-      (v: ClientVersion) => v.version === versionNumber,
-    );
-    if (!existingVersionDetails) {
-      throw new NotFoundError('Version details not found');
-    }
     const clientVersion = await this.getVersionDetails(
       versionNumber,
-      existingVersionDetails.url,
+      credentials.url,
       credentials.token,
     );
     clientVersion.setDataValue('clientInformationId', clientInformation.id);
@@ -590,6 +690,7 @@ export class CredentialsService {
     if (!versionDetails) {
       throw new NotFoundError('Matching version details not found');
     }
+    // TODO: add validation to check expected endpoints based on OCPP 2.2.1, 7.1.6
     return ClientVersion.build(
       {
         version: versionNumber,
@@ -655,5 +756,79 @@ export class CredentialsService {
       newClientCredentialsRoles,
     );
     return await clientInformation.save();
+  }
+
+  private async getCpoTenantIdForServerRolesForRegistration(
+    serverCredentialsRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<number | undefined> {
+    let cpoTenantId: number | undefined;
+    for (const role of serverCredentialsRoleDTOs) {
+      try {
+        const storedRole =
+          await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+            role.country_code,
+            role.party_id,
+          );
+        if (!cpoTenantId) {
+          cpoTenantId = storedRole.cpoTenantId;
+        } else if (cpoTenantId !== storedRole.cpoTenantId) {
+          throw new BadRequestError(
+            `ServerCredentialsRoles belongs to different CPO tenants`,
+          );
+        }
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          this.logger.debug(
+            `ServerCredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} not found and can be created.`,
+          );
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    return cpoTenantId;
+  }
+
+  private async storeServerCredentialsRoles(
+    credentialsRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<ServerCredentialsRole[]> {
+    const storedServerCredentialsRoles: ServerCredentialsRole[] = [];
+
+    const cpoTenantId =
+      await this.getCpoTenantIdForServerRolesForRegistration(
+        credentialsRoleDTOs,
+      );
+    if (!cpoTenantId) {
+      const cpoTenant = await CpoTenant.create(
+        {
+          serverCredentialsRoles: credentialsRoleDTOs,
+        },
+        {
+          include: [
+            {
+              model: ServerCredentialsRole,
+              include: [
+                {
+                  model: BusinessDetails,
+                  include: [Image],
+                },
+              ],
+            },
+          ],
+        },
+      );
+      this.logger.info(`Created CpoTenant: ${JSON.stringify(cpoTenant)}`);
+      storedServerCredentialsRoles.push(...cpoTenant.serverCredentialsRoles);
+    } else {
+      storedServerCredentialsRoles.push(
+        ...(await this.serverCredentialsRoleRepository.createOrUpdateServerCredentialsRoles(
+          credentialsRoleDTOs,
+          cpoTenantId,
+        )),
+      );
+    }
+
+    return storedServerCredentialsRoles;
   }
 }

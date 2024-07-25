@@ -44,15 +44,12 @@ export class TokensClientApi extends BaseClientApi {
       options.queryParameters = queryParameters;
     }
 
-    return await this.get(PaginatedTokenResponse, {
-      version: params.version,
-      additionalHeaders,
-    });
+    return await this.get(PaginatedTokenResponse, options);
   }
 
   async postToken(params: PostTokenParams): Promise<AuthorizationInfoResponse> {
     this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'tokenId', 'token');
+    this.validateRequiredParam(params, 'tokenId');
     const queryParameters: IRequestQueryParams = this.newQueryParams();
     queryParameters.params['type'] = params.type as string;
     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
