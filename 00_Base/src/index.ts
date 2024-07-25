@@ -229,6 +229,7 @@ export {
 } from './model/variableattributes/ConnectorVariableAttributes';
 export { VariableAttributesUtil } from './util/VariableAttributesUtil';
 export { OcpiLocationsUtil } from './util/OcpiLocationsUtil';
+export { UnregisterClientRequestDTO } from './model/UnregisterClientRequestDTO';
 
 useContainer(Container);
 

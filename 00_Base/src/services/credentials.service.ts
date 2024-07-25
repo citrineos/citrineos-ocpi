@@ -6,10 +6,7 @@ import {
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -43,6 +40,7 @@ import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
 import { CpoTenantRepository } from '../repository/CpoTenantRepository';
+import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
 
 const clientInformationInclude = [
   {
@@ -508,6 +506,50 @@ export class CredentialsService {
     } catch (e: any) {
       await transaction.rollback();
       throw new InternalServerError(`Could not delete tenant, ${e.message}`);
+    }
+  }
+
+  async unregisterClient(request: UnregisterClientRequestDTO): Promise<void> {
+    const serverPartyId = request.serverPartyId;
+    const serverCountryCode = request.serverCountryCode;
+    const clientPartyId = request.clientPartyId;
+    const clientCountryCode = request.clientCountryCode;
+    const clientInformations =
+      await this.getClientInformationByServerCountryCodeAndPartyId(
+        serverCountryCode,
+        serverPartyId,
+      );
+    if (!clientInformations) {
+      throw new NotFoundError(
+        `Client information not found for server party id ${serverPartyId} and server country code ${serverCountryCode}`,
+      );
+    }
+    const clientInformationMatches = clientInformations.filter(
+      (clientInformation) => {
+        const clientCredntialsRoles =
+          clientInformation[ClientInformationProps.clientCredentialsRoles];
+        return clientCredntialsRoles.some((clientCredntialsRole) => {
+          return (
+            clientCredntialsRole.country_code === clientCountryCode &&
+            clientCredntialsRole.party_id === clientPartyId
+          );
+        });
+      },
+    );
+    if (!clientInformationMatches || clientInformationMatches.length === 0) {
+      throw new NotFoundError(
+        `Client credentials roles not found for client party id ${clientPartyId} and client country code ${clientCountryCode}`,
+      );
+    }
+
+    for (const clientInformation of clientInformationMatches) {
+      const credentialsRoleMatches = clientInformation[ClientInformationProps.clientCredentialsRoles]
+        .filter((clientInformations) => {
+          return clientInformations.country_code === clientCountryCode && clientInformations.party_id === clientPartyId;
+        });
+      for (let credentialsRoleMatch of credentialsRoleMatches) {
+        await credentialsRoleMatch.destroy();
+      }
     }
   }
 

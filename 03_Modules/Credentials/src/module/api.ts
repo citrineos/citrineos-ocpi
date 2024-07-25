@@ -1,4 +1,5 @@
 import {
+  AsAdminEndpoint,
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
@@ -13,6 +14,7 @@ import {
   OcpiResponseStatusCode,
   ResponseSchema,
   toCredentialsDTO,
+  UnregisterClientRequestDTO,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
@@ -20,15 +22,7 @@ import {
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
 import { ICredentialsModuleApi } from './interface';
-import {
-  Body,
-  Delete,
-  Get,
-  JsonController,
-  Param,
-  Post,
-  Put,
-} from 'routing-controllers';
+import { Body, Delete, Get, JsonController, OnUndefined, Param, Post, Put } from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
 const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
@@ -175,6 +169,7 @@ export class CredentialsModuleApi
   }
 
   @Delete('/delete-tenant/:tenantId')
+  @AsAdminEndpoint()
   @ResponseSchema(OcpiEmptyResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -192,5 +187,16 @@ export class CredentialsModuleApi
     this.logger.info('deleteTenant', tenantId);
     await this.credentialsService?.deleteTenant(tenantId);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Delete('/unregister-client')
+  @OnUndefined(HttpStatus.NO_CONTENT)
+  @AsAdminEndpoint()
+  async unregisterClient(
+    @VersionNumberParam() _versionNumber: VersionNumber,
+    @Body() request: UnregisterClientRequestDTO,
+  ): Promise<void> {
+    this.logger.info('unregisterClient', request);
+    return this.credentialsService?.unregisterClient(request);
   }
 }

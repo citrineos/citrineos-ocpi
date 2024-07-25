@@ -1,4 +1,4 @@
-import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
+import { KoaMiddlewareInterface } from 'routing-controllers';
 import { HttpHeader, HttpStatus } from '@citrineos/base';
 import { Context } from 'vm';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
@@ -18,7 +18,6 @@ const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
  * If authentication fails, {@link OcpiErrorResponse} will be thrown with HttpStatus.UNAUTHORIZED which should be handled
  * by global exception handler.
  */
-@Middleware({ type: 'before' })
 @Service()
 export class AuthMiddleware
   extends BaseMiddleware
@@ -42,6 +41,7 @@ export class AuthMiddleware
   }
 
   async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
+    console.debug(`AuthMiddleware executed for ${context.request.method} ${context.request.url}`);
     const authHeader =
       context.request.headers[HttpHeader.Authorization.toLowerCase()];
     if (!permittedRoutes.includes(context.request.originalUrl)) {

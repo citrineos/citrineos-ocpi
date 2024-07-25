@@ -1,9 +1,4 @@
-import {
-  KoaMiddlewareInterface,
-  Middleware,
-  NotFoundError,
-  UnauthorizedError,
-} from 'routing-controllers';
+import { KoaMiddlewareInterface, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Context } from 'vm';
 import { Service } from 'typedi';
 import { HttpStatus, UnauthorizedException } from '@citrineos/base';
@@ -24,7 +19,6 @@ class HttpExceptionBody {
   }
 }
 
-@Middleware({ type: 'before', priority: 10 })
 @Service()
 export class HttpExceptionHandler implements KoaMiddlewareInterface {
   public async use(

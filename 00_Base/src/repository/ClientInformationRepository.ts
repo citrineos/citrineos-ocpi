@@ -7,7 +7,7 @@ import { ClientInformation } from '../model/ClientInformation';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { ILogObj, Logger } from 'tslog';
 import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
-import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
+import { CpoTenant } from '../model/CpoTenant';
 import {
   ServerCredentialsRole,
   ServerCredentialsRoleProps,
@@ -109,13 +109,21 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     countryCode: string,
     partyId: string,
   ): Promise<ClientInformation[]> {
-    const cpoTenant = await this.getCpoTenantByServerCountryCodeAndPartyId(
-      countryCode,
-      partyId,
-    );
-    const clientInformation: ClientInformation[] | null = await cpoTenant.$get(
-      CpoTenantProps.clientInformation,
-    );
+    const clientInformation = await this.readAllByQuery({
+      where: {},
+      include: [
+        {
+          model: CpoTenant,
+          include: [
+            {
+              model: ServerCredentialsRole,
+              where: { country_code: countryCode, party_id: partyId },
+            },
+          ],
+        },
+        ClientCredentialsRole,
+      ],
+    });
     if (!clientInformation || clientInformation.length === 0) {
       const msg =
         'Client information not found for server country code and party id';
