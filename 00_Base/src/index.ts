@@ -1,8 +1,6 @@
 import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
-import { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
-import { LoggingMiddleware } from './util/middleware/logging.middleware';
 import { OcpiServerConfig } from './config/ocpi.server.config';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
@@ -10,8 +8,6 @@ import Koa from 'koa';
 import { ICache, IMessageHandler, IMessageSender } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
-import { CdrsController } from './controllers/cdrs.controller';
-import { ChargingProfilesController } from './controllers/charging.profiles.controller';
 import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
@@ -29,6 +25,12 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
+export { CpoTenant, CpoTenantProps } from './model/CpoTenant';
+export { ServerCredentialsRoleProps } from './model/ServerCredentialsRole';
+export { TokensClientApi } from './trigger/TokensClientApi';
+export { AuthorizationInfoAllowed } from './model/AuthorizationInfoAllowed';
+export { PostTokenParams } from './trigger/param/tokens/postTokenParams';
+export { UnsuccessfulRequestException } from './exception/UnsuccessfulRequestException';
 export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/paginated.ocpi.params';
@@ -128,8 +130,12 @@ export {
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
 } from './model/DTO/EvseDTO';
-export { ConnectorDTO, ConnectorResponse } from './model/DTO/ConnectorDTO';
-export { CitrineOcpiLocationMapper } from './mapper/CitrineOcpiLocationMapper';
+export {
+  ConnectorDTO,
+  ConnectorResponse,
+  TEMPORARY_CONNECTOR_ID,
+} from './model/DTO/ConnectorDTO';
+export { LocationMapper } from './mapper/LocationMapper';
 export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
 export { SessionMapper } from './mapper/session.mapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/as.ocpi.functional.endpoint';
@@ -142,14 +148,14 @@ export { OcpiHeaders } from './model/OcpiHeaders';
 export { AuthToken } from './util/decorators//auth.token';
 export { VersionNumberParam } from './util/decorators/version.number.param';
 export { EnumParam } from './util/decorators/enum.param';
-export { GlobalExceptionHandler } from './util/middleware/global.exception.handler';
+export { OcpiExceptionHandler } from './util/middleware/ocpi.exception.handler';
 export { InvalidParamException } from './exception/invalid.param.exception';
 export { MissingParamException } from './exception/missing.param.exception';
 export { UnknownTokenException } from './exception/unknown.token.exception';
 export { WrongClientAccessException } from './exception/wrong.client.access.exception';
-export { LoggingMiddleware } from './util/middleware/logging.middleware';
 export { ChargingProfilesService } from './services/charging.profiles.service';
 export { AsyncResponder } from './util/AsyncResponder';
+export { AsAdminEndpoint } from './util/decorators/as.admin.endpoint';
 
 export { MessageSenderWrapper } from './util/MessageSenderWrapper';
 export { MessageHandlerWrapper } from './util/MessageHandlerWrapper';
@@ -169,6 +175,8 @@ export {
   AVAILABILITY_STATE_VARIABLE,
   UNKNOWN_ID,
   NOT_APPLICABLE,
+  CREATE,
+  UPDATE,
 } from './util/consts';
 
 export { ResponseSchema } from './openapi-spec-helper/decorators';
@@ -178,15 +186,22 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 export { CommandsService } from './services/commands.service';
 export { CredentialsService } from './services/credentials.service';
 export { TokensService } from './services/TokensService';
+export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/locations.service';
 export { VersionService } from './services/version.service';
 export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
+export { AsyncJobAction } from './model/AsyncJobAction';
+export { AsyncJobRequest } from './model/AsyncJobRequest';
 export { SessionsService } from './services/sessions.service';
+export { AdminLocationsService } from './services/AdminLocationsService';
 
 export { TariffsService } from './services/tariffs.service';
 export { TariffsBroadcaster } from './services/tariffs.broadcaster';
 export { TariffMapper } from './services/tariff.mapper';
 export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
+export { OcpiLocationRepository } from './repository/OcpiLocationRepository';
+export { OcpiEvseRepository } from './repository/OcpiEvseRepository';
+export { OcpiConnectorRepository } from './repository/OcpiConnectorRepository';
 
 export { OcpiHttpHeader } from './util/ocpi.http.header';
 
@@ -198,7 +213,29 @@ export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
+export { OcpiEvse } from './model/OcpiEvse';
+export { OcpiConnector } from './model/OcpiConnector';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
+export { PutTariffRequest } from './model/DTO/PutTariffRequest';
+export {
+  AdminLocationDTO,
+  AdminEvseDTO,
+  AdminConnectorDTO,
+} from './model/DTO/admin/AdminLocationDTO';
+export {
+  ChargingStationVariableAttributes,
+  CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY,
+} from './model/variableattributes/ChargingStationVariableAttributes';
+export {
+  EvseVariableAttributes,
+  CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY,
+} from './model/variableattributes/EvseVariableAttributes';
+export {
+  ConnectorVariableAttributes,
+  CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
+} from './model/variableattributes/ConnectorVariableAttributes';
+export { VariableAttributesUtil } from './util/VariableAttributesUtil';
+export { OcpiLocationsUtil } from './util/OcpiLocationsUtil';
 
 useContainer(Container);
 
@@ -250,13 +287,9 @@ export class OcpiServer extends KoaServer {
       this.koa = new Koa();
       const controllers = this.modules.map((module) => module.getController());
       const options: RoutingControllersOptions = {
-        controllers: [
-          ...controllers,
-          CdrsController,
-          ChargingProfilesController,
-        ],
+        controllers: [...controllers],
         routePrefix: '/ocpi',
-        middlewares: [GlobalExceptionHandler, LoggingMiddleware],
+        middlewares: [],
         defaultErrorHandler: false,
       } as RoutingControllersOptions;
       this.initApp(options);

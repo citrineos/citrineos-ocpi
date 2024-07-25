@@ -3,18 +3,19 @@ import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { OcpiEvse } from './OcpiEvse';
 
 export enum OcpiLocationProps {
-  citrineLocationId = 'citrineLocationId',
+  coreLocationId = 'coreLocationId',
   publish = 'publish',
   lastUpdated = 'lastUpdated',
-  partyId = 'party_id',
-  countryCode = 'country_code',
+  partyId = 'partyId',
+  countryCode = 'countryCode',
+  timeZone = 'timeZone',
 }
 
 /**
  * OCPI representation of a Location -- not named 'Location' to avoid collisions
  * with Citrine's version of a Location.
  *
- * Note that "citrineLocationId" in OcpiLocation should match Citrine's Location id.
+ * Note that "coreLocationId" in OcpiLocation should match Citrine Core's Location id.
  *
  * TODO add link to credentials for the correct tenant
  */
@@ -24,7 +25,7 @@ export class OcpiLocation extends Model {
     type: DataType.INTEGER,
     unique: true,
   })
-  [OcpiLocationProps.citrineLocationId]!: number;
+  [OcpiLocationProps.coreLocationId]!: number;
 
   @Column(DataType.BOOLEAN)
   [OcpiLocationProps.publish]!: boolean;
@@ -44,15 +45,18 @@ export class OcpiLocation extends Model {
   @Length(2, 2)
   [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
 
+  @Column(DataType.STRING)
+  [OcpiLocationProps.timeZone]!: string;
+
   /* Helper properties */
   ocpiEvses!: Record<string, OcpiEvse>;
 
   static buildWithLastUpdated(
-    citrineLocationId: number,
+    coreLocationId: number,
     lastUpdated: Date,
   ): OcpiLocation {
     const location = new OcpiLocation();
-    location.citrineLocationId = citrineLocationId;
+    location.coreLocationId = coreLocationId;
     location.lastUpdated = lastUpdated;
     return location;
   }
