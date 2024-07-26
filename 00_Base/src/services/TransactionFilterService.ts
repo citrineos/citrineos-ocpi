@@ -1,6 +1,9 @@
 import { ITransactionDatasource } from '../datasources/ITransactionDatasource';
 import { PaginatedResult } from '../model/PaginatedResult';
-import { SequelizeTransactionEventRepository, Transaction } from '@citrineos/data';
+import {
+  SequelizeTransactionEventRepository,
+  Transaction,
+} from '@citrineos/data';
 import { Attributes, CountOptions } from 'sequelize/types/model';
 import { TransactionQueryBuilder } from './TransactionQueryBuilder';
 import { Service, Token } from 'typedi';
@@ -14,8 +17,7 @@ export class TransactionFilterService implements ITransactionDatasource {
   constructor(
     private readonly transactionRepository: SequelizeTransactionEventRepository,
     private readonly transactionQueryBuilder: TransactionQueryBuilder,
-  ) {
-  }
+  ) {}
 
   async getTransactions(
     cpoCountryCode: string,

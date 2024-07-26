@@ -16,8 +16,7 @@ export class CdrsDatasource implements ICdrsDatasource {
     @Inject(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
     private readonly transactionDatasource: ITransactionDatasource,
     private readonly cdrMapper: CdrMapper,
-  ) {
-  }
+  ) {}
 
   async getCdrs(
     cpoCountryCode: string,

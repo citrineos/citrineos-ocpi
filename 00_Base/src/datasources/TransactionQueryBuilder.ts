@@ -10,7 +10,7 @@ import {
   Location,
   MeterValue,
   Model,
-  TransactionEvent
+  TransactionEvent,
 } from '@citrineos/data';
 
 @Service()
@@ -22,7 +22,7 @@ export class TransactionQueryBuilder {
     TRANSACTION_EVENT: 'TransactionEvent',
     ID_TOKEN: 'IdToken',
     AUTHORIZATION: 'Authorization',
-    OCPI_TOKEN: 'OcpiToken'
+    OCPI_TOKEN: 'OcpiToken',
   };
 
   buildQuery(params: QueryParams): any {
@@ -45,45 +45,59 @@ export class TransactionQueryBuilder {
         model: ChargingStation,
         required: true,
         duplicating: false,
-        include: [{
-          model: Location,
-          required: true,
-          duplicating: false,
-          include: [{
-            model: OcpiLocation,
+        include: [
+          {
+            model: Location,
             required: true,
             duplicating: false,
-            where: {}
-          }]
-        }]
+            include: [
+              {
+                model: OcpiLocation,
+                required: true,
+                duplicating: false,
+                where: {},
+              },
+            ],
+          },
+        ],
       },
       {
         model: TransactionEvent,
         required: true,
         duplicating: false,
-        include: [{
-          model: IdToken,
-          required: true,
-          duplicating: false,
-          include: [{
-            model: Authorization,
+        include: [
+          {
+            model: IdToken,
             required: true,
             duplicating: false,
-            include: [{
-              model: OcpiToken,
-              required: true,
-              duplicating: false,
-              where: {}
-            }]
-          }]
-        }]
+            include: [
+              {
+                model: Authorization,
+                required: true,
+                duplicating: false,
+                include: [
+                  {
+                    model: OcpiToken,
+                    required: true,
+                    duplicating: false,
+                    where: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
       MeterValue,
-      Evse
+      Evse,
     ];
   }
 
-  private addDateFilters(queryOptions: any, dateFrom?: Date, dateTo?: Date): void {
+  private addDateFilters(
+    queryOptions: any,
+    dateFrom?: Date,
+    dateTo?: Date,
+  ): void {
     if (dateFrom || dateTo) {
       queryOptions.where.updatedAt = {};
       if (dateFrom) {
@@ -95,13 +109,17 @@ export class TransactionQueryBuilder {
     }
   }
 
-  private addMspFilters(queryOptions: any, mspCountryCode?: string, mspPartyId?: string): void {
+  private addMspFilters(
+    queryOptions: any,
+    mspCountryCode?: string,
+    mspPartyId?: string,
+  ): void {
     const ocpiTokenInclude = this.getNestedInclude(
       queryOptions,
       TransactionEvent,
       IdToken,
       Authorization,
-      OcpiToken
+      OcpiToken,
     );
 
     if (ocpiTokenInclude) {
@@ -115,18 +133,23 @@ export class TransactionQueryBuilder {
     }
   }
 
-  private addCpoFilters(queryOptions: any, cpoCountryCode?: string, cpoPartyId?: string): void {
+  private addCpoFilters(
+    queryOptions: any,
+    cpoCountryCode?: string,
+    cpoPartyId?: string,
+  ): void {
     const ocpiLocationInclude = this.getNestedInclude(
       queryOptions,
       ChargingStation,
       Location,
-      OcpiLocation
+      OcpiLocation,
     );
 
     if (ocpiLocationInclude) {
       ocpiLocationInclude.where = ocpiLocationInclude.where || {};
       if (cpoCountryCode) {
-        ocpiLocationInclude.where[OcpiLocationProps.countryCode] = cpoCountryCode;
+        ocpiLocationInclude.where[OcpiLocationProps.countryCode] =
+          cpoCountryCode;
       }
       if (cpoPartyId) {
         ocpiLocationInclude.where[OcpiLocationProps.partyId] = cpoPartyId;
@@ -134,7 +157,11 @@ export class TransactionQueryBuilder {
     }
   }
 
-  private addPagination(queryOptions: any, offset?: number, limit?: number): void {
+  private addPagination(
+    queryOptions: any,
+    offset?: number,
+    limit?: number,
+  ): void {
     if (offset) {
       queryOptions.offset = offset;
     }
@@ -144,10 +171,13 @@ export class TransactionQueryBuilder {
   }
 
   private findInclude(includes: any[], ModelClass: typeof Model): any {
-    return includes.find(include => include.model === ModelClass);
+    return includes.find((include) => include.model === ModelClass);
   }
 
-  private getNestedInclude(queryOptions: any, ...ModelClasses: Array<typeof Model>): any {
+  private getNestedInclude(
+    queryOptions: any,
+    ...ModelClasses: Array<typeof Model>
+  ): any {
     let currentInclude = queryOptions.include;
     for (const ModelClass of ModelClasses) {
       const include = this.findInclude(currentInclude, ModelClass);
