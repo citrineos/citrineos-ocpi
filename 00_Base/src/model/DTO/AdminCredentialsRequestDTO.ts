@@ -13,7 +13,7 @@ export class AdminCredentialsRequestDTO {
   @IsString()
   @IsUrl({ require_tld: false })
   @IsNotEmpty()
-  url!: string;
+  url!: string; // version url of OCPI
 
   @IsArray()
   @ArrayMinSize(1)
@@ -22,14 +22,8 @@ export class AdminCredentialsRequestDTO {
   @Type(() => CredentialsRoleDTO)
   roles!: CredentialsRoleDTO[];
 
-  static build(
-    token: string,
-    url: string,
-    roles: CredentialsRoleDTO[],
-  ): AdminCredentialsRequestDTO {
-    const credentials = new AdminCredentialsRequestDTO();
-    credentials.url = url;
-    credentials.roles = roles;
-    return credentials;
+  constructor(url: string, roles: CredentialsRoleDTO[]) {
+    this.url = url;
+    this.roles = roles;
   }
 }
