@@ -1,7 +1,15 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventRequest } from '@citrineos/base';
-import { SequelizeTariffRepository, Tariff, Transaction } from '@citrineos/data';
+import {
+  MeasurandEnumType,
+  MeterValueType,
+  TransactionEventRequest,
+} from '@citrineos/base';
+import {
+  SequelizeTariffRepository,
+  Tariff,
+  Transaction,
+} from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
@@ -66,7 +74,6 @@ export class SessionMapper extends BaseTransactionMapper {
       transactionIdToTokenMap,
       transactionIdToTariffMap,
     );
-
   }
 
   public async mapTransactionsToSessionsHelper(

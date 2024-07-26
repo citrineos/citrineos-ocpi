@@ -67,7 +67,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
       async (transactionsEvents: TransactionEvent[]) => {
         if (transactionsEvents && transactionsEvents.length > 0) {
           const transactionEventMap: { [key: string]: TransactionEvent } = {};
-          for (let transactionsEvent of transactionsEvents) {
+          for (const transactionsEvent of transactionsEvents) {
             transactionEventMap[transactionsEvent.id] = transactionsEvent;
           }
           this.logger.info(
@@ -75,7 +75,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
             transactionsEvents.map((t) => t.id),
           );
           const transactionsMap: { [key: string]: Transaction } = {};
-          for (let transactionsEvent of transactionsEvents) {
+          for (const transactionsEvent of transactionsEvents) {
             const transaction = (await transactionsEvent.$get('transaction', {
               include: [
                 {
@@ -126,7 +126,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     transactionsMap: { [key: string]: Transaction },
     transactionEventMap: { [key: string]: TransactionEvent },
   ) {
-    for (let transactionEvent of Object.values(transactionEventMap)) {
+    for (const transactionEvent of Object.values(transactionEventMap)) {
       if (
         transactionEvent.meterValue &&
         transactionEvent.meterValue.length > 0 &&
