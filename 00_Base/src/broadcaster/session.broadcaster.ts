@@ -2,7 +2,6 @@ import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
 import {
-  IdToken,
   SequelizeTransactionEventRepository,
   Transaction,
   TransactionEvent,
@@ -39,24 +38,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
             'Attempting to broadcast created transactions',
             transactions.map((t) => t.id),
           );
-          const [
-            transactionIdToLocationMap,
-            transactionIdToTokenMap,
-            transactionIdToTariffMap,
-          ] =
-            await this.sessionMapper.getLocationsTokensAndTariffsMapsForTransactions(
-              transactions,
-            );
-          const sessions: Session[] =
-            await this.sessionMapper.mapTransactionsToSessionsHelper(
-              transactions,
-              transactionIdToLocationMap,
-              transactionIdToTokenMap,
-              transactionIdToTariffMap,
-            );
-          for (const session of sessions) {
-            await this.sendSessionToClients(session);
-          }
+          await this.broadcastTransactions(transactions);
         }
       },
     );
@@ -66,88 +48,57 @@ export class SessionBroadcaster extends BaseBroadcaster {
       'created',
       async (transactionsEvents: TransactionEvent[]) => {
         if (transactionsEvents && transactionsEvents.length > 0) {
-          const transactionEventMap: { [key: string]: TransactionEvent } = {};
-          for (let transactionsEvent of transactionsEvents) {
-            transactionEventMap[transactionsEvent.id] = transactionsEvent;
-          }
           this.logger.info(
             'Attempting to broadcast updated transactions',
             transactionsEvents.map((t) => t.id),
           );
-          const transactionsMap: { [key: string]: Transaction } = {};
-          for (let transactionsEvent of transactionsEvents) {
-            const transaction = (await transactionsEvent.$get('transaction', {
-              include: [
-                {
-                  model: TransactionEvent,
-                  include: [IdToken],
-                },
-              ],
-            })) as Transaction;
-            if (transaction) {
-              transactionsMap[transaction.id] = transaction;
-            }
-          }
-          if (Object.entries(transactionsMap).length === 0) {
+          const transactions = await this.buildTransactions(transactionsEvents);
+          if (transactions.length === 0) {
             return Promise.resolve(); // skipping because no transaction not yet created for transaction event
           } else {
-            const [
-              transactionIdToLocationMap,
-              transactionIdToTokenMap,
-              transactionIdToTariffMap,
-            ] =
-              await this.sessionMapper.getLocationsTokensAndTariffsMapsForTransactions(
-                Object.values(transactionsMap),
-              );
-
-            this.prepareTransactionsForPatch(
-              transactionsMap,
-              transactionEventMap,
-            );
-
-            const sessions: Session[] =
-              await this.sessionMapper.mapTransactionsToSessionsHelper(
-                Object.values(transactionsMap),
-                transactionIdToLocationMap,
-                transactionIdToTokenMap,
-                transactionIdToTariffMap,
-              );
-
-            for (const session of sessions) {
-              await this.sendSessionToClients(session, true);
-            }
+            return await this.broadcastTransactions(transactions, true);
           }
         }
       },
     );
   }
 
-  private prepareTransactionsForPatch(
-    transactionsMap: { [key: string]: Transaction },
-    transactionEventMap: { [key: string]: TransactionEvent },
-  ) {
-    for (let transactionEvent of Object.values(transactionEventMap)) {
+  private async buildTransactions(
+    transactionsEvents: TransactionEvent[],
+  ): Promise<Transaction[]> {
+    const transactions: Transaction[] = [];
+    for (const transactionsEvent of transactionsEvents) {
       if (
-        transactionEvent.meterValue &&
-        transactionEvent.meterValue.length > 0 &&
-        transactionEvent.triggerReason !== TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
+        transactionsEvent.meterValue &&
+        transactionsEvent.meterValue.length > 0 &&
+        transactionsEvent.triggerReason !== TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
       ) {
-        const transactionId = transactionEvent.transactionDatabaseId;
-        if (transactionId) {
-          const transaction = transactionsMap[transactionId];
-          if (transaction) {
-            transaction.setDataValue('transactionEvents', [transactionEvent]); // todo use Props
-            transaction.setDataValue(
-              'meterValues',
-              transactionEvent.meterValue,
-            ); // todo use Props
-            transaction.transactionEvents = [transactionEvent];
-            transaction.meterValues = transactionEvent.meterValue;
-          }
+        // skip if there are no meter values in transaction event
+        const transaction: Transaction = (await transactionsEvent.$get(
+          'transaction',
+        )) as Transaction; // todo use Props
+        if (transaction) {
+          transaction.setDataValue('transactionEvents', [transactionsEvent]); // todo use Props
+          transaction.setDataValue('meterValues', transactionsEvent.meterValue); // todo use Props
+          transaction.transactionEvents = [transactionsEvent];
+          transaction.meterValues = transactionsEvent.meterValue;
+          transactions.push(transaction);
         }
-      } else {
-        delete transactionsMap[transactionEvent.transactionDatabaseId!]; // will ensure that the transaction will not be sent
       }
+    }
+    return transactions;
+  }
+
+  private async broadcastTransactions(
+    transactions: Transaction[],
+    isPatch = false,
+  ) {
+    // todo do we know if we can do put vs patch here, is there a way to have a delta?
+    const sessions: Session[] =
+      await this.sessionMapper.mapTransactionsToSessions(transactions);
+
+    for (const session of sessions) {
+      await this.sendSessionToClients(session, isPatch);
     }
   }
 
