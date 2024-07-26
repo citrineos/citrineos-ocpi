@@ -1,7 +1,9 @@
 import { Get, JsonController, Post } from 'routing-controllers';
 import { Service } from 'typedi';
 import {
+  AuthorizationInfo,
   AuthorizationInfoAllowed,
+  AuthorizationInfoResponse,
   BaseController,
   buildOcpiPaginatedResponse,
   generateMockOcpiResponse,
@@ -20,10 +22,6 @@ import {
   WhitelistType,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
-import {
-  AuthorizationInfo,
-  AuthorizationInfoResponse,
-} from '@citrineos/ocpi-base/dist/model/AuthorizationInfo';
 
 const TOKENS_LIST_MOCK = generateMockOcpiResponse(PaginatedTokenResponse); // todo create real mocks for tests
 

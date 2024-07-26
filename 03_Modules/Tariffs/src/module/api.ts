@@ -5,46 +5,36 @@
 
 import { ITariffsModuleApi } from './interface';
 
-import {
-  JsonController,
-  Body,
-  Param,
-  Get,
-  Post,
-  Put,
-  Delete,
-} from 'routing-controllers';
+import { Body, Delete, Get, JsonController, Param, Post, Put } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  buildOcpiErrorResponse,
   FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
   OcpiEmptyResponse,
+  OcpiErrorResponse,
   OcpiHeaders,
   OcpiResponse,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
   PaginatedTariffResponse,
+  PutTariffRequest,
   ResponseSchema,
+  TariffDTO,
   TariffKey,
   TariffsBroadcaster,
   TariffsService,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
-  PutTariffRequest,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
-import {
-  buildOcpiErrorResponse,
-  OcpiErrorResponse,
-} from '@citrineos/ocpi-base/dist/model/ocpi.error.response';
-import { TariffDTO } from '@citrineos/ocpi-base/dist/model/DTO/TariffDTO';
 
 @Service()
 @JsonController(`/:${versionIdParam}/${ModuleId.Tariffs}`)
