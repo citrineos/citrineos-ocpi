@@ -16,8 +16,7 @@ export class SessionsDatasource implements ISessionsDatasource {
     @Inject(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
     private readonly transactionDatasource: ITransactionDatasource,
     private readonly sessionMapper: SessionMapper,
-  ) {
-  }
+  ) {}
 
   async getSessions(
     cpoCountryCode: string,
