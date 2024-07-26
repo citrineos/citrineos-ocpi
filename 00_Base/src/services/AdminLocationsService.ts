@@ -9,12 +9,8 @@ import { LocationMapper } from '../mapper/LocationMapper';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
-import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
-import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { LocationsBroadcaster } from '../broadcaster/locations.broadcaster';
 import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
-import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
 import {
   AdminConnectorDTO,
   AdminEvseDTO,
@@ -24,6 +20,7 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { InvalidParamException } from '../exception/invalid.param.exception';
 import { validate } from 'class-validator';
 import { CREATE, UPDATE } from '../util/consts';
+import { LocationsDatasource } from '../datasources/LocationsDatasource';
 
 @Service()
 export class AdminLocationsService {
@@ -31,12 +28,9 @@ export class AdminLocationsService {
     private logger: Logger<ILogObj>,
     private locationMapper: LocationMapper,
     private locationRepository: SequelizeLocationRepository,
-    private ocpiLocationRepository: OcpiLocationRepository,
-    private ocpiEvseRepository: OcpiEvseRepository,
-    private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationsBroadcaster: LocationsBroadcaster,
+    private locationsDatasource: LocationsDatasource,
     private variableAttributesUtil: VariableAttributesUtil,
-    private ocpiLocationsUtil: OcpiLocationsUtil,
   ) {}
 
   public async createOrUpdateLocation(
@@ -68,7 +62,7 @@ export class AdminLocationsService {
       );
     ocpiLocation.coreLocationId = savedCoreLocation.id;
     const savedOcpiLocation =
-      await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
+      await this.locationsDatasource.createOrUpdateOcpiLocation(
         ocpiLocation,
       );
 
@@ -77,11 +71,11 @@ export class AdminLocationsService {
     }
 
     for (const adminEvse of adminLocationDto.evses ?? []) {
-      await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
+      await this.locationsDatasource.createOrUpdateOcpiEvse(
         this.mapAdminEvseDtoToOcpiEvse(adminEvse),
       );
       for (const adminConnector of adminEvse.connectors ?? []) {
-        await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
+        await this.locationsDatasource.createOrUpdateOcpiConnector(
           this.mapAdminConnectorToOcpiConnector(adminConnector, adminEvse),
         );
       }
@@ -95,7 +89,7 @@ export class AdminLocationsService {
           savedCoreLocation.chargingPool.map((station) => station.id),
         );
       savedOcpiLocation.ocpiEvses =
-        await this.ocpiLocationsUtil.createOcpiEvsesMap(
+        await this.locationsDatasource.createOcpiEvsesMap(
           chargingStationVariableAttributesMap,
         );
     }

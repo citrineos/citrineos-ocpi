@@ -236,7 +236,6 @@ export {
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
 export { VariableAttributesUtil } from './util/VariableAttributesUtil';
-export { OcpiLocationsUtil } from './util/OcpiLocationsUtil';
 
 useContainer(Container);
 

@@ -83,7 +83,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   }
 
   async createOrUpdateOcpiLocation(
-    location: Partial<OcpiLocation>,
+    location: OcpiLocation | Partial<OcpiLocation>,
   ): Promise<OcpiLocation | undefined> {
     if (location.coreLocationId) {
       const [savedOcpiLocation, ocpiLocationCreated] =

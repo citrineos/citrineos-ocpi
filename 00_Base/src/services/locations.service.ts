@@ -28,14 +28,12 @@ import {
   buildOcpiResponse,
   OcpiResponseStatusCode,
 } from '../model/ocpi.response';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
-import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { buildOcpiErrorResponse } from '../model/ocpi.error.response';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { NotFoundException } from '../exception/NotFoundException';
 import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
-import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
+import { LocationsDatasource } from '../datasources/LocationsDatasource';
 
 @Service()
 export class LocationsService {
@@ -43,10 +41,8 @@ export class LocationsService {
     private logger: Logger<ILogObj>,
     private locationMapper: LocationMapper,
     private locationRepository: SequelizeLocationRepository,
-    private ocpiLocationRepository: OcpiLocationRepository,
-    private ocpiConnectorRepository: OcpiConnectorRepository,
+    private locationsDatasource: LocationsDatasource,
     private variableAttributesUtil: VariableAttributesUtil,
-    private ocpiLocationsUtil: OcpiLocationsUtil,
   ) {}
 
   LOCATION_NOT_FOUND_MESSAGE = (locationId: number): string =>
@@ -79,25 +75,14 @@ export class LocationsService {
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
-    const ocpiLocationsMap = new Map<number, OcpiLocation>();
-
-    (
-      await this.ocpiLocationRepository.getLocations(
+    const [ocpiLocations, locationsTotal] = await this.locationsDatasource.getOcpiLocations(
         limit,
         offset,
-        dateFrom,
-        dateTo,
         ocpiHeaders.toCountryCode,
         ocpiHeaders.toPartyId,
-      )
-    ).forEach((ocpiLocation) => {
-      ocpiLocationsMap.set(ocpiLocation.coreLocationId, ocpiLocation);
-    });
-
-    const locationsTotal = await this.ocpiLocationRepository.getLocationsCount(
-      dateFrom,
-      dateTo,
-    );
+        dateFrom,
+        dateTo
+      );
 
     if (locationsTotal === 0) {
       return buildOcpiPaginatedResponse(
@@ -108,6 +93,11 @@ export class LocationsService {
         [],
       ) as PaginatedLocationResponse;
     }
+
+    const ocpiLocationsMap = new Map<number, OcpiLocation>();
+    ocpiLocations.forEach((ocpiLocation) => {
+      ocpiLocationsMap.set(ocpiLocation.coreLocationId, ocpiLocation);
+    });
 
     const coreLocationsMap = (
       await this.locationRepository.readAllByQuery({
@@ -133,7 +123,7 @@ export class LocationsService {
           stationIds,
         );
 
-      ocpiLocation.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesMap(
+      ocpiLocation.ocpiEvses = await this.locationsDatasource.createOcpiEvsesMap(
         chargingStationVariableAttributesMap,
       );
 
@@ -177,10 +167,7 @@ export class LocationsService {
         stationIds,
       );
 
-    const ocpiLocation =
-      await this.ocpiLocationRepository.getLocationByCoreLocationId(
-        coreLocation.id,
-      );
+    const ocpiLocation = await this.locationsDatasource.getOcpiLocation(coreLocation.id);
 
     if (!ocpiLocation) {
       return buildOcpiErrorResponse(
@@ -189,7 +176,7 @@ export class LocationsService {
       ) as LocationResponse;
     }
 
-    ocpiLocation.ocpiEvses = await this.ocpiLocationsUtil.createOcpiEvsesMap(
+    ocpiLocation.ocpiEvses = await this.locationsDatasource.createOcpiEvsesMap(
       chargingStationVariableAttributesMap,
     );
 
@@ -256,7 +243,7 @@ export class LocationsService {
       );
 
     const ocpiEvse = (
-      await this.ocpiLocationsUtil.createOcpiEvsesMap(
+      await this.locationsDatasource.createOcpiEvsesMap(
         chargingStationVariableAttributesMap,
       )
     )[`${UID_FORMAT(stationId, evseId)}`];
@@ -340,8 +327,7 @@ export class LocationsService {
       ) as ConnectorResponse;
     }
 
-    const ocpiConnector =
-      await this.ocpiConnectorRepository.getConnectorByConnectorId(
+    const ocpiConnector = await this.locationsDatasource.getOcpiConnector(
         stationId,
         evseId,
         connectorId,
