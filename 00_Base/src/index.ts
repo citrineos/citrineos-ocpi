@@ -24,6 +24,8 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
+// @ts-ignore
+import * as packageJson from '../package.json';
 
 export { OcpiErrorResponse, buildOcpiErrorResponse } from './model/ocpi.error.response';
 export { AuthorizationInfo, AuthorizationInfoResponse } from './model/AuthorizationInfo';
@@ -299,7 +301,7 @@ export class OcpiServer extends KoaServer {
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
-          version: '1.0.0',
+          version: packageJson.version,
         },
         [
           {
