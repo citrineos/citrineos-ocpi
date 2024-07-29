@@ -25,8 +25,14 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
-export { OcpiErrorResponse, buildOcpiErrorResponse } from './model/ocpi.error.response';
-export { AuthorizationInfo, AuthorizationInfoResponse } from './model/AuthorizationInfo';
+export {
+  OcpiErrorResponse,
+  buildOcpiErrorResponse,
+} from './model/ocpi.error.response';
+export {
+  AuthorizationInfo,
+  AuthorizationInfoResponse,
+} from './model/AuthorizationInfo';
 export { CpoTenant, CpoTenantProps } from './model/CpoTenant';
 export { ServerCredentialsRoleProps } from './model/ServerCredentialsRole';
 export { TokensClientApi } from './trigger/TokensClientApi';
@@ -237,8 +243,7 @@ export {
   ConnectorVariableAttributes,
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
-export { VariableAttributesUtil } from './util/VariableAttributesUtil';
-export { OcpiLocationsUtil } from './util/OcpiLocationsUtil';
+export { LocationsDatasource } from './datasources/LocationsDatasource';
 
 useContainer(Container);
 
