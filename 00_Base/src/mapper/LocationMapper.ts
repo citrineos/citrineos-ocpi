@@ -98,9 +98,7 @@ export class LocationMapper {
 
     const evses: EvseDTO[] = [];
 
-    for (const chargingStationAttributes of Object.values(
-      chargingStationVariableAttributesMap,
-    )) {
+    for (const chargingStationAttributes of chargingStationVariableAttributesMap.values()) {
       for (const evseAttributes of chargingStationAttributes.evses.values()) {
         const ocpiEvse = ocpiLocation.ocpiEvses.get(
           `${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)}`,
@@ -147,9 +145,9 @@ export class LocationMapper {
     evseAttributes: EvseVariableAttributes,
     ocpiEvse: OcpiEvse,
   ): EvseDTO {
-    const connectorAvailabilityStates = Object.values(
-      evseAttributes.connectors,
-    ).map(
+    const connectorAvailabilityStates = [
+      ...evseAttributes.connectors.values(),
+    ].map(
       (connectorAttributes) => connectorAttributes.connector_availability_state,
     );
 

@@ -279,6 +279,51 @@ export class LocationsDatasource {
     );
   }
 
+  public async createChargingStationVariableAttributesMap(
+    stationIds: string[],
+    evseId?: number,
+    connectorId?: number,
+  ): Promise<Map<string, ChargingStationVariableAttributes>> {
+    const chargingStationVariableAttributesMap = new Map<
+      string,
+      ChargingStationVariableAttributes
+    >();
+
+    for (const stationId of stationIds) {
+      const matchingAttributes =
+        (await this.deviceModelRepository.readAllBySqlString(
+          CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY(stationId),
+        )) as ChargingStationVariableAttributes[];
+
+      if (matchingAttributes.length === 0) {
+        this.logger.debug(
+          `No variable attributes found for Charging Station ${stationId}, will skip.`,
+        );
+        continue;
+      }
+
+      const chargingStationAttributes = matchingAttributes[0];
+      chargingStationAttributes.id = stationId;
+
+      chargingStationAttributes.evses =
+        await this.createEvsesVariableAttributesMap(
+          stationId,
+          this.getRelevantIdsList(
+            chargingStationAttributes.evse_ids_string,
+            evseId,
+          ),
+          connectorId,
+        );
+
+      chargingStationVariableAttributesMap.set(
+        stationId,
+        chargingStationAttributes,
+      );
+    }
+
+    return chargingStationVariableAttributesMap;
+  }
+
   /**
    * Admin Methods
    */
@@ -331,51 +376,6 @@ export class LocationsDatasource {
       chargingStationVariableAttributesMap,
       savedOcpiLocation,
     );
-  }
-
-  public async createChargingStationVariableAttributesMap(
-    stationIds: string[],
-    evseId?: number,
-    connectorId?: number,
-  ): Promise<Map<string, ChargingStationVariableAttributes>> {
-    const chargingStationVariableAttributesMap = new Map<
-      string,
-      ChargingStationVariableAttributes
-    >();
-
-    for (const stationId of stationIds) {
-      const matchingAttributes =
-        (await this.deviceModelRepository.readAllBySqlString(
-          CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY(stationId),
-        )) as ChargingStationVariableAttributes[];
-
-      if (matchingAttributes.length === 0) {
-        this.logger.debug(
-          `No variable attributes found for Charging Station ${stationId}, will skip.`,
-        );
-        continue;
-      }
-
-      const chargingStationAttributes = matchingAttributes[0];
-      chargingStationAttributes.id = stationId;
-
-      chargingStationAttributes.evses =
-        await this.createEvsesVariableAttributesMap(
-          stationId,
-          this.getRelevantIdsList(
-            chargingStationAttributes.evse_ids_string,
-            evseId,
-          ),
-          connectorId,
-        );
-
-      chargingStationVariableAttributesMap.set(
-        stationId,
-        chargingStationAttributes,
-      );
-    }
-
-    return chargingStationVariableAttributesMap;
   }
 
   /**

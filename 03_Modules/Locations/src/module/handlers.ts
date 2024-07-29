@@ -201,7 +201,7 @@ export class LocationsHandlers extends AbstractModule {
       ? chargingStationAttributes!.evses.get(evseId)
       : null;
     const connectorAvailabilityStates = evseAttributes
-      ? Object.entries(evseAttributes.connectors)
+      ? [...evseAttributes.connectors]
           .filter(
             ([connectorIdKey, _connectorAttributes]) =>
               Number(connectorIdKey) !== connectorId,
