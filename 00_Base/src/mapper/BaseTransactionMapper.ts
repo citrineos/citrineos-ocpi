@@ -6,7 +6,10 @@ import {
   Transaction,
   TransactionEvent,
 } from '@citrineos/data';
-import { TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
+import {
+  TransactionEventEnumType,
+  TransactionEventRequest,
+} from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { TokensRepository } from '../repository/TokensRepository';

@@ -1,20 +1,10 @@
 import { Service } from 'typedi';
 import { type ILogObj, Logger } from 'tslog';
-import {
-  ChargingStation,
-  Location,
-  SequelizeLocationRepository,
-} from '@citrineos/data';
-import { LocationMapper } from '../mapper/LocationMapper';
+import { ChargingStation, Location } from '@citrineos/data';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
-import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
-import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 import { LocationsBroadcaster } from '../broadcaster/locations.broadcaster';
-import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
-import { OcpiLocationsUtil } from '../util/OcpiLocationsUtil';
 import {
   AdminConnectorDTO,
   AdminEvseDTO,
@@ -24,19 +14,14 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { InvalidParamException } from '../exception/invalid.param.exception';
 import { validate } from 'class-validator';
 import { CREATE, UPDATE } from '../util/consts';
+import { LocationsDatasource } from '../datasources/LocationsDatasource';
 
 @Service()
 export class AdminLocationsService {
   constructor(
     private logger: Logger<ILogObj>,
-    private locationMapper: LocationMapper,
-    private locationRepository: SequelizeLocationRepository,
-    private ocpiLocationRepository: OcpiLocationRepository,
-    private ocpiEvseRepository: OcpiEvseRepository,
-    private ocpiConnectorRepository: OcpiConnectorRepository,
     private locationsBroadcaster: LocationsBroadcaster,
-    private variableAttributesUtil: VariableAttributesUtil,
-    private ocpiLocationsUtil: OcpiLocationsUtil,
+    private locationsDatasource: LocationsDatasource,
   ) {}
 
   public async createOrUpdateLocation(
@@ -60,51 +45,28 @@ export class AdminLocationsService {
       );
     }
 
-    const [ocpiLocation, coreLocation] =
+    const [coreLocation, ocpiLocation] =
       this.mapAdminLocationDtoToEntities(adminLocationDto);
-    const savedCoreLocation =
-      await this.locationRepository.createOrUpdateLocationWithChargingStations(
-        coreLocation,
-      );
-    ocpiLocation.coreLocationId = savedCoreLocation.id;
-    const savedOcpiLocation =
-      await this.ocpiLocationRepository.createOrUpdateOcpiLocation(
-        ocpiLocation,
-      );
 
-    if (!savedOcpiLocation) {
-      throw new Error('Location could not be saved due to database error.');
-    }
+    const evses = [];
+    const connectors = [];
 
     for (const adminEvse of adminLocationDto.evses ?? []) {
-      await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-        this.mapAdminEvseDtoToOcpiEvse(adminEvse),
-      );
+      evses.push(this.mapAdminEvseDtoToOcpiEvse(adminEvse));
       for (const adminConnector of adminEvse.connectors ?? []) {
-        await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
+        connectors.push(
           this.mapAdminConnectorToOcpiConnector(adminConnector, adminEvse),
         );
       }
     }
 
-    let chargingStationVariableAttributesMap = {};
-
-    if (savedCoreLocation.chargingPool) {
-      chargingStationVariableAttributesMap =
-        await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
-          savedCoreLocation.chargingPool.map((station) => station.id),
-        );
-      savedOcpiLocation.ocpiEvses =
-        await this.ocpiLocationsUtil.createOcpiEvsesMap(
-          chargingStationVariableAttributesMap,
-        );
-    }
-
-    const locationDto = this.locationMapper.mapToOcpiLocation(
-      savedCoreLocation,
-      chargingStationVariableAttributesMap,
-      savedOcpiLocation,
-    );
+    const locationDto =
+      await this.locationsDatasource.adminCreateOrUpdateLocation(
+        coreLocation,
+        ocpiLocation,
+        evses,
+        connectors,
+      );
 
     if (broadcast) {
       await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(
@@ -117,7 +79,7 @@ export class AdminLocationsService {
 
   mapAdminLocationDtoToEntities(
     adminLocationDto: AdminLocationDTO,
-  ): [Partial<OcpiLocation>, Partial<Location>] {
+  ): [Partial<Location>, Partial<OcpiLocation>] {
     const ocpiLocation: Partial<OcpiLocation> = {};
     ocpiLocation.countryCode = adminLocationDto.country_code;
     ocpiLocation.partyId = adminLocationDto.party_id;
@@ -156,7 +118,7 @@ export class AdminLocationsService {
       }
     }
 
-    return [ocpiLocation, coreLocation];
+    return [coreLocation, ocpiLocation];
   }
 
   mapAdminEvseDtoToOcpiEvse(adminEvseDto: AdminEvseDTO): OcpiEvse {

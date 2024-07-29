@@ -31,7 +31,7 @@ export class OcpiEvse extends Model {
   declare lastUpdated: Date;
 
   /* Helper properties */
-  ocpiConnectors!: Record<string, OcpiConnector>;
+  ocpiConnectors!: Map<string, OcpiConnector>;
 
   static buildWithLastUpdated(
     evseId: number,
