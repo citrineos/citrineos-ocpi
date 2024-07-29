@@ -6,7 +6,7 @@ import {
   Transaction,
   TransactionEvent,
 } from '@citrineos/data';
-import { TransactionEventRequest } from '@citrineos/base';
+import { TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { TokensRepository } from '../repository/TokensRepository';
@@ -20,7 +20,6 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
-import { TransactionEventEnumType } from '../../../../citrineos-core/00_Base/src';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -32,7 +31,7 @@ export abstract class BaseTransactionMapper {
     protected tariffsService: TariffsService,
   ) {}
 
-  protected async getLocationDTOsForTransactions(
+  public async getLocationDTOsForTransactions(
     transactions: Transaction[],
   ): Promise<Map<string, LocationDTO>> {
     const transactionIdToLocationMap: Map<string, LocationDTO> = new Map();
@@ -100,7 +99,7 @@ export abstract class BaseTransactionMapper {
     const stationIdToTariffMap = new Map<string, Tariff>();
     const tariffs =
       await this.tariffRepository.findByStationIds(uniqueStationIds);
-    tariffs?.forEach((tariff) =>
+    tariffs?.forEach((tariff: any) =>
       stationIdToTariffMap.set(tariff.stationId, tariff),
     );
 

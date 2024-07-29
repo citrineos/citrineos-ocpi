@@ -25,6 +25,8 @@ import {
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 
+export { OcpiErrorResponse, buildOcpiErrorResponse } from './model/ocpi.error.response';
+export { AuthorizationInfo, AuthorizationInfoResponse } from './model/AuthorizationInfo';
 export { CpoTenant, CpoTenantProps } from './model/CpoTenant';
 export { ServerCredentialsRoleProps } from './model/ServerCredentialsRole';
 export { TokensClientApi } from './trigger/TokensClientApi';
@@ -212,7 +214,7 @@ export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
-export { PaginatedTariffResponse } from './model/DTO/TariffDTO';
+export { PaginatedTariffResponse, TariffDTO } from './model/DTO/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 export { OcpiEvse } from './model/OcpiEvse';
 export { OcpiConnector } from './model/OcpiConnector';
