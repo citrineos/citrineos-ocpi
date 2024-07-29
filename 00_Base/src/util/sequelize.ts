@@ -44,11 +44,13 @@ export const ON_DELETE_SET_NULL = 'SET NULL';
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
   private logger: Logger<ILogObj>;
+  private config: OcpiServerConfig;
 
   constructor(config: OcpiServerConfig) {
     this.logger = this.logger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
+    this.config = config;
     this.logger.info('Creating default Sequelize instance');
 
     this.sequelize = new Sequelize({
@@ -62,9 +64,32 @@ export class OcpiSequelizeInstance {
       models: this.getModels(),
       logging: this.loggingCallback.bind(this),
     });
+  }
 
-    this.setupModelAssociations();
-    this.syncDatabase(config);
+  public async initializeSequelize(): Promise<void> {
+    let retryCount = 0;
+    const maxRetries = this.config.data.sequelize.maxRetries ?? 5;
+    const retryDelay = this.config.data.sequelize.retryDelay ?? 5000;
+    while (retryCount < maxRetries) {
+      try {
+        await this.sequelize!.authenticate();
+        this.logger.info("Database connection has been established successfully");
+
+        this.setupModelAssociations();
+        this.syncDatabase();
+
+        break;
+      } catch (error) {
+        retryCount++;
+        this.logger.error(`Failed to connect to the database (attempt ${retryCount}/${maxRetries}):`, error);
+        if (retryCount < maxRetries) {
+          this.logger.info(`Retrying in ${retryDelay / 1000} seconds...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        } else {
+          this.logger.error("Max retries reached. Unable to establish database connection.");
+        }
+      }
+    }
   }
 
   private getModels(): ModelCtor[] {
@@ -104,10 +129,10 @@ export class OcpiSequelizeInstance {
       foreignKey: 'authorization_id',
     });
     OcpiLocation.belongsTo(Location, {
-      foreignKey: OcpiLocationProps.citrineLocationId,
+      foreignKey: OcpiLocationProps.coreLocationId,
     });
     Location.hasOne(OcpiLocation, {
-      foreignKey: OcpiLocationProps.citrineLocationId,
+      foreignKey: OcpiLocationProps.coreLocationId,
       sourceKey: 'id',
     });
   }
@@ -117,13 +142,13 @@ export class OcpiSequelizeInstance {
     // this.logger.debug(timing, sql);
   }
 
-  private syncDatabase(config: OcpiServerConfig): void {
-    if (config.data.sequelize.alter) {
-      this.sequelize.sync({ alter: true }).then(() => {
+  private syncDatabase(): void {
+    if (this.config.data.sequelize.alter) {
+      this.sequelize.sync({alter: true}).then(() => {
         this.logger.info('Database altered');
       });
-    } else if (config.data.sequelize.sync) {
-      this.sequelize.sync({ force: true }).then(() => {
+    } else if (this.config.data.sequelize.sync) {
+      this.sequelize.sync({force: true}).then(() => {
         this.logger.info('Database synchronized');
       });
     }
