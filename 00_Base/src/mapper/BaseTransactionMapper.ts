@@ -6,7 +6,7 @@ import {
   Transaction,
   TransactionEvent,
 } from '@citrineos/data';
-import { TransactionEventRequest } from '@citrineos/base';
+import { TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { TokensRepository } from '../repository/TokensRepository';
@@ -20,7 +20,6 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
-import { TransactionEventEnumType } from '../../../../citrineos-core/00_Base/src';
 
 export abstract class BaseTransactionMapper {
   protected constructor(

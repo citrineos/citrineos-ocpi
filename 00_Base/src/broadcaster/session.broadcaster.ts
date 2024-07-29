@@ -1,12 +1,7 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import {
-  IdToken,
-  SequelizeTransactionEventRepository,
-  Transaction,
-  TransactionEvent,
-} from '@citrineos/data';
+import { IdToken, SequelizeTransactionEventRepository, Transaction, TransactionEvent } from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 import { CredentialsService } from '../services/credentials.service';
 import { ILogObj, Logger } from 'tslog';
@@ -14,7 +9,7 @@ import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
 import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
-import { TriggerReasonEnumType } from '@citrineos/base/dist/ocpp/model/enums';
+import { TriggerReasonEnumType } from '@citrineos/base';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {

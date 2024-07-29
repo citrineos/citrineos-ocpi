@@ -104,10 +104,10 @@ export class OcpiSequelizeInstance {
       foreignKey: 'authorization_id',
     });
     OcpiLocation.belongsTo(Location, {
-      foreignKey: OcpiLocationProps.citrineLocationId,
+      foreignKey: OcpiLocationProps.coreLocationId,
     });
     Location.hasOne(OcpiLocation, {
-      foreignKey: OcpiLocationProps.citrineLocationId,
+      foreignKey: OcpiLocationProps.coreLocationId,
       sourceKey: 'id',
     });
   }
