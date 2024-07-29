@@ -16,21 +16,21 @@ import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   CancelReservation,
+  CommandResponse,
   CommandsService,
   CommandType,
   EnumParam,
   generateMockOcpiResponse,
   ModuleId,
   MultipleTypes,
+  OcpiResponse,
   ReserveNow,
+  ResponseGenerator,
   ResponseSchema,
   StartSession,
   StopSession,
   UnlockConnector,
-  OcpiResponse,
-  CommandResponse,
   versionIdParam,
-  ResponseGenerator,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
@@ -59,7 +59,7 @@ export class CommandsModuleApi
   })
   async postCommand(
     @EnumParam('commandType', CommandType, 'CommandType')
-    _commandType: CommandType,
+    commandType: CommandType,
     @Body()
     @MultipleTypes(
       CancelReservation,
@@ -68,39 +68,39 @@ export class CommandsModuleApi
       StopSession,
       UnlockConnector,
     )
-    _payload:
+    payload:
       | CancelReservation
       | ReserveNow
       | StartSession
       | StopSession
       | UnlockConnector,
   ): Promise<OcpiResponse<CommandResponse | undefined>> {
-    console.log('postCommand', _commandType, _payload);
-    switch (_commandType) {
+    console.log('postCommand', commandType, payload);
+    switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
-        _payload = plainToInstance(CancelReservation, _payload);
+        payload = plainToInstance(CancelReservation, payload);
         break;
       case CommandType.RESERVE_NOW:
-        _payload = plainToInstance(ReserveNow, _payload);
+        payload = plainToInstance(ReserveNow, payload);
         break;
       case CommandType.START_SESSION:
-        _payload = plainToInstance(StartSession, _payload);
+        payload = plainToInstance(StartSession, payload);
         break;
       case CommandType.STOP_SESSION:
-        _payload = plainToInstance(StopSession, _payload);
+        payload = plainToInstance(StopSession, payload);
         break;
       case CommandType.UNLOCK_CONNECTOR:
-        _payload = plainToInstance(UnlockConnector, _payload);
+        payload = plainToInstance(UnlockConnector, payload);
         break;
       default:
         return ResponseGenerator.buildGenericClientErrorResponse(
           undefined,
-          'Unknown command type: ' + _commandType,
+          'Unknown command type: ' + commandType,
           undefined,
         );
     }
 
-    return await validate(_payload).then(async (errors) => {
+    return await validate(payload).then(async (errors) => {
       if (errors.length > 0) {
         const errorString = errors.map((error) => error.toString()).join(', ');
         return ResponseGenerator.buildGenericClientErrorResponse(
@@ -109,7 +109,7 @@ export class CommandsModuleApi
           undefined,
         );
       } else {
-        return await this.commandsService.postCommand(_commandType, _payload);
+        return await this.commandsService.postCommand(commandType, payload);
       }
     });
   }

@@ -79,6 +79,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
           {
             model: ClientCredentialsRole,
             where: { country_code: toCountryCode, party_id: toPartyId },
+            required: true, // ensure the inner join
           },
         ],
       })

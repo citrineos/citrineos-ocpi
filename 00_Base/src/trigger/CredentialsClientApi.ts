@@ -6,6 +6,7 @@ import { IHeaders } from 'typed-rest-client/Interfaces';
 import { PostCredentialsParams } from './param/credentials/post.credentials.params';
 import { PutCredentialsParams } from './param/credentials/put.credentials.params';
 import { Service } from 'typedi';
+import { VersionNumber } from '../model/VersionNumber';
 
 @Service()
 export class CredentialsClientApi extends BaseClientApi {
@@ -39,12 +40,15 @@ export class CredentialsClientApi extends BaseClientApi {
   async putCredentials(
     params: PutCredentialsParams,
   ): Promise<CredentialsResponse> {
+    params.version = params.version ?? VersionNumber.TWO_DOT_TWO_DOT_ONE;
     this.validateOcpiRegistrationParams(params);
     this.validateRequiredParam(params, 'credentials');
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
     return await this.replace(
       CredentialsResponse,
       {
+        version: params.version,
+        path: '',
         additionalHeaders,
       },
       params.credentials,

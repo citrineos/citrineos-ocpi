@@ -52,6 +52,10 @@ export class CommandExecutor {
       throw new NotFoundError('EVSE not found');
     }
 
+    if (!startSession.token) {
+      throw new BadRequestError('Missing token');
+    }
+
     const correlationId = uuidv4();
     const responseUrlEntity = await this.responseUrlRepo.saveResponseUrl(
       correlationId,

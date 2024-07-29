@@ -1,12 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
-import { InternalServerError, NotFoundError } from 'routing-controllers';
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+} from 'routing-controllers';
 import {
   ClientCredentialsRole,
   ClientCredentialsRoleProps,
   fromCredentialsRoleDTO,
 } from '../model/ClientCredentialsRole';
-import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
 import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
@@ -39,8 +46,13 @@ import { buildPostCredentialsParams } from '../trigger/param/credentials/post.cr
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
-import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
+import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
+import { validateVersionEndpointByModuleId } from '../util/validators/VersionsValidators';
+import { validateRole } from '../util/validators/CredentialsValidators';
+import { buildPutCredentialsParams } from '../trigger/param/credentials/put.credentials.params';
+import { AdminUpdateCredentialsRequestDTO } from '../model/DTO/AdminUpdateCredentialsRequestDTO';
+import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 
 const clientInformationInclude = [
   {
@@ -115,6 +127,26 @@ export class CredentialsService {
     return clientCredentialsRole;
   }
 
+  async getClientTokenByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<string> {
+    const clientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    if (
+      !clientInformation ||
+      !clientInformation[ClientInformationProps.clientToken]
+    ) {
+      const msg = `Client information and token not found for provided country code: ${countryCode}  and party id: ${partyId}`;
+      this.logger.error(msg);
+      throw new NotFoundError();
+    }
+    return clientInformation[ClientInformationProps.clientToken];
+  }
+
   async getServerCredentialsRoleByCountryCodeAndPartyId(
     countryCode: string,
     partyId: string,
@@ -139,17 +171,33 @@ export class CredentialsService {
     countryCode: string,
     partyId: string,
   ): Promise<CpoTenant> {
-    const clientInformation: ClientInformation =
-      await this.getClientInformationByClientCountryCodeAndPartyId(
-        countryCode,
-        partyId,
-      );
-
-    const cpoTenant: CpoTenant | null = await clientInformation.$get(
-      ClientInformationProps.cpoTenant,
+    const cpoTenant = await this.cpoTenantRepository.readOnlyOneByQuery(
+      {
+        where: {},
+        include: [
+          ServerCredentialsRole,
+          {
+            model: ClientInformation,
+            include: [
+              {
+                model: ClientVersion,
+                include: [Endpoint],
+              },
+              {
+                model: ClientCredentialsRole,
+                where: {
+                  [ClientCredentialsRoleProps.partyId]: partyId,
+                  [ClientCredentialsRoleProps.countryCode]: countryCode,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      OcpiNamespace.Credentials,
     );
     if (!cpoTenant) {
-      const msg = 'CpoTenant not found for client country code and party id';
+      const msg = 'Cpo Tenant not found for client country code and party id';
       this.logger.debug(msg, countryCode, partyId);
       throw new NotFoundError(msg);
     }
@@ -235,7 +283,6 @@ export class CredentialsService {
   ): Promise<ClientInformation> {
     const clientInformation =
       await this.getClientInformationByServerToken(token);
-    await this.getClientInformationByServerToken(token);
     if (clientInformation.registered) {
       throw new AlreadyRegisteredException();
     }
@@ -448,19 +495,7 @@ export class CredentialsService {
     // await clientInformation.save(); // todo
     await clientCpoTenant.save();
 
-    const clientCredentialsEndpoint = clientVersion.endpoints.find(
-      (endpoint) =>
-        endpoint.identifier === ModuleId.Credentials &&
-        endpoint.role === InterfaceRole.RECEIVER,
-    );
-
-    if (!clientCredentialsEndpoint || !clientCredentialsEndpoint.url) {
-      throw new NotFoundError(
-        'Did not successfully retrieve client credentials from version details',
-      );
-    }
-
-    const clientCredentialsUrl = clientCredentialsEndpoint.url;
+    const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
     const updatedClientInformation =
       await this.performPostAndReturnSavedClientCredentials(
         clientInformation,
@@ -543,13 +578,143 @@ export class CredentialsService {
     }
 
     for (const clientInformation of clientInformationMatches) {
-      const credentialsRoleMatches = clientInformation[ClientInformationProps.clientCredentialsRoles]
-        .filter((clientInformations) => {
-          return clientInformations.country_code === clientCountryCode && clientInformations.party_id === clientPartyId;
-        });
+      const credentialsRoleMatches = clientInformation[
+        ClientInformationProps.clientCredentialsRoles
+      ].filter((clientInformations) => {
+        return (
+          clientInformations.country_code === clientCountryCode &&
+          clientInformations.party_id === clientPartyId
+        );
+      });
       for (let credentialsRoleMatch of credentialsRoleMatches) {
         await credentialsRoleMatch.destroy();
       }
+    }
+  }
+
+  async generateCredentialsTokenA(
+    credentialsRequest: AdminCredentialsRequestDTO,
+    versionNumber: VersionNumber,
+  ): Promise<CredentialsDTO> {
+    // The input roles must be CPO
+    const receivedRoles = credentialsRequest.roles;
+    validateRole(receivedRoles, Role.CPO);
+
+    // Make sure we stored the necessary version and version endpoints
+    // so that MSP can retrieve them later in the registration process
+    const storedVersionEndpoints =
+      await this.versionRepository.findVersionEndpointsByVersionNumber(
+        versionNumber,
+      );
+    validateVersionEndpointByModuleId(
+      storedVersionEndpoints,
+      ModuleId.Credentials,
+    );
+
+    const storedServerCredentialsRoles: ServerCredentialsRole[] =
+      await this.storeServerCredentialsRoles(receivedRoles);
+
+    const credentialsTokenA = uuidv4();
+    // clientToken, clientCredentialsRoles and clientVersionDetails
+    // are added in the following post credentials requests based on the registration process
+    const clientInfo = await ClientInformation.create(
+      {
+        cpoTenantId: storedServerCredentialsRoles[0].cpoTenantId,
+        registered: false,
+        serverToken: credentialsTokenA,
+        serverVersionDetails: [
+          {
+            version: versionNumber,
+            url: credentialsRequest.url,
+            endpoints: storedVersionEndpoints.map((endpoint) => ({
+              identifier: endpoint.identifier,
+              role: endpoint.role,
+              url: endpoint.url,
+            })),
+          },
+        ],
+      },
+      {
+        include: [
+          {
+            model: ServerVersion,
+            include: [Endpoint],
+          },
+        ],
+      },
+    );
+
+    const storedServerCredentialsRoleDTOs = storedServerCredentialsRoles.map(
+      (storedRole) => ServerCredentialsRole.toCredentialsRoleDTO(storedRole),
+    );
+    return CredentialsDTO.build(
+      clientInfo.serverToken,
+      clientInfo.serverVersionDetails[0].url,
+      storedServerCredentialsRoleDTOs,
+    );
+  }
+
+  async regenerateCredentialsToken(
+    credentialsRequest: AdminUpdateCredentialsRequestDTO,
+    versionNumber: VersionNumber,
+  ): Promise<CredentialsDTO> {
+    try {
+      // 1. validation
+      // expected received roles to be CPO
+      const receivedRoles = credentialsRequest.roles;
+      validateRole(receivedRoles, Role.CPO);
+      // expected registered ClientInformation to be found in the database
+      const existingClientInformation =
+        await this.getRegisteredClientInformation(credentialsRequest);
+      // expected clientCredentialsUrl to be found in the database
+      const clientVersion =
+        await this.getClientVersionByClientInformationAndVersionNumber(
+          existingClientInformation,
+          versionNumber,
+        );
+      const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
+
+      // 2. generate new server token and update db data
+      const serverCredentialsDTO: CredentialsDTO = CredentialsDTO.build(
+        uuidv4(), // new server token
+        credentialsRequest.url,
+        receivedRoles,
+      );
+      const storedServerCredentialsRoles: ServerCredentialsRole[] =
+        await this.updateServerCredentials(
+          existingClientInformation,
+          serverCredentialsDTO,
+          versionNumber,
+          receivedRoles,
+        );
+
+      // 3. send putCredentials request to MSP and update db data
+      const clientCredentialsDTO = await this.putCredentialsToMSP(
+        versionNumber,
+        serverCredentialsDTO,
+        existingClientInformation.clientToken,
+        clientCredentialsUrl,
+      );
+      await this.updateClientCredentials(
+        existingClientInformation,
+        clientCredentialsDTO,
+        versionNumber,
+      );
+
+      // 4. return credentialsDTO result
+      const serverCredentialsRoleDTOs = storedServerCredentialsRoles.map(
+        (role) => ServerCredentialsRole.toCredentialsRoleDTO(role),
+      );
+      return CredentialsDTO.build(
+        serverCredentialsDTO.token,
+        serverCredentialsDTO.url,
+        serverCredentialsRoleDTOs,
+      );
+    } catch (error) {
+      this.logger.error('Regenerate credentials token failed, ', error);
+      throw new InternalServerError(
+        `Regenerate credentials token failed, ${JSON.stringify(error)}`,
+      );
     }
   }
 
@@ -625,15 +790,9 @@ export class CredentialsService {
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientVersion> {
-    const existingVersionDetails = clientInformation.clientVersionDetails.find(
-      (v: ClientVersion) => v.version === versionNumber,
-    );
-    if (!existingVersionDetails) {
-      throw new NotFoundError('Version details not found');
-    }
     const clientVersion = await this.getVersionDetails(
       versionNumber,
-      existingVersionDetails.url,
+      credentials.url,
       credentials.token,
     );
     clientVersion.setDataValue('clientInformationId', clientInformation.id);
@@ -669,6 +828,7 @@ export class CredentialsService {
     if (!versionDetails) {
       throw new NotFoundError('Matching version details not found');
     }
+    // TODO: add validation to check expected endpoints based on OCPP 2.2.1, 7.1.6
     return ClientVersion.build(
       {
         version: versionNumber,
@@ -697,20 +857,133 @@ export class CredentialsService {
       serverVersionUrl,
     );
     const postCredentials: CredentialsDTO = postCredentialsResponse.data;
-    const credentialsTokenC = postCredentials.token;
-    clientInformation.clientToken = credentialsTokenC;
 
-    const clientCredentialsRoles = postCredentials.roles;
-    // remove old roles that were passed in via endpoint // todo maybe dont set roles in endpoint then?
-    for (const clientCredentialsRole of clientInformation.clientCredentialsRoles) {
-      // todo can this be done in one query??
-      await clientInformation.$remove(
-        ClientInformationProps.clientCredentialsRoles,
-        clientCredentialsRole,
-      );
-      await clientCredentialsRole.destroy();
+    return await this.updateClientInformationByClientCredentialsDTO(
+      clientInformation,
+      postCredentials,
+    );
+  }
+
+  private async getCpoTenantIdForServerRolesForRegistration(
+    serverCredentialsRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<number | undefined> {
+    let cpoTenantId: number | undefined;
+    for (const role of serverCredentialsRoleDTOs) {
+      try {
+        const storedRole =
+          await this.serverCredentialsRoleRepository.getServerCredentialsRoleByCountryCodeAndPartyId(
+            role.country_code,
+            role.party_id,
+          );
+        if (!cpoTenantId) {
+          cpoTenantId = storedRole.cpoTenantId;
+        } else if (cpoTenantId !== storedRole.cpoTenantId) {
+          throw new BadRequestError(
+            `ServerCredentialsRoles belongs to different CPO tenants`,
+          );
+        }
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          this.logger.debug(
+            `ServerCredentialsRole with country_code ${role.country_code} and party_id ${role.party_id} not found and can be created.`,
+          );
+        } else {
+          throw e;
+        }
+      }
     }
-    // add new
+
+    return cpoTenantId;
+  }
+
+  private async storeServerCredentialsRoles(
+    credentialsRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<ServerCredentialsRole[]> {
+    const storedServerCredentialsRoles: ServerCredentialsRole[] = [];
+
+    const cpoTenantId =
+      await this.getCpoTenantIdForServerRolesForRegistration(
+        credentialsRoleDTOs,
+      );
+    if (!cpoTenantId) {
+      const cpoTenant = await CpoTenant.create(
+        {
+          serverCredentialsRoles: credentialsRoleDTOs,
+        },
+        {
+          include: [
+            {
+              model: ServerCredentialsRole,
+              include: [
+                {
+                  model: BusinessDetails,
+                  include: [Image],
+                },
+              ],
+            },
+          ],
+        },
+      );
+      this.logger.info(`Created CpoTenant: ${JSON.stringify(cpoTenant)}`);
+      storedServerCredentialsRoles.push(...cpoTenant.serverCredentialsRoles);
+    } else {
+      storedServerCredentialsRoles.push(
+        ...(await this.serverCredentialsRoleRepository.createOrUpdateServerCredentialsRoles(
+          credentialsRoleDTOs,
+          cpoTenantId,
+        )),
+      );
+    }
+
+    return storedServerCredentialsRoles;
+  }
+
+  private async putCredentialsToMSP(
+    versionNumber: VersionNumber,
+    credentialsDTO: CredentialsDTO,
+    clientToken: string,
+    clientCredentialsUrl: string,
+  ): Promise<CredentialsDTO> {
+    this.credentialsClientApi.baseUrl = clientCredentialsUrl;
+
+    try {
+      const putCredentialsResponse =
+        await this.credentialsClientApi.putCredentials(
+          buildPutCredentialsParams(versionNumber, clientToken, credentialsDTO),
+        );
+      if (
+        !putCredentialsResponse ||
+        putCredentialsResponse.status_code !==
+          OcpiResponseStatusCode.GenericSuccessCode ||
+        !putCredentialsResponse.data
+      ) {
+        throw new Error(
+          `Get unexpected response ${JSON.stringify(putCredentialsResponse)}`,
+        );
+      }
+      return putCredentialsResponse.data;
+    } catch (error) {
+      this.logger.error('Put credentials To MSP failed, ', error);
+      throw new InternalServerError(
+        `Put credentials To MSP failed with error: ${JSON.stringify(error)}`,
+      );
+    }
+  }
+
+  private async updateClientInformationByClientCredentialsDTO(
+    clientInformation: ClientInformation,
+    clientCredentialsDTO: CredentialsDTO,
+  ): Promise<ClientInformation> {
+    clientInformation.clientToken = clientCredentialsDTO.token;
+
+    const clientCredentialsRoles = clientCredentialsDTO.roles;
+    // remove old client roles
+    await ClientCredentialsRole.destroy({
+      where: {
+        clientInformationId: clientInformation.id,
+      },
+    });
+    // add new client roles
     const newClientCredentialsRoles = clientCredentialsRoles.map(
       (credentialsRoleDTO) =>
         ClientCredentialsRole.create(
@@ -718,6 +991,8 @@ export class CredentialsService {
             ...(credentialsRoleDTO as Partial<ClientCredentialsRole>),
             [ClientCredentialsRoleProps.clientInformationId]:
               clientInformation.id,
+            [ClientCredentialsRoleProps.cpoTenantId]:
+              clientInformation.cpoTenantId,
           },
           {
             include: [
@@ -733,6 +1008,119 @@ export class CredentialsService {
       ClientInformationProps.clientCredentialsRoles,
       newClientCredentialsRoles,
     );
+
     return await clientInformation.save();
+  }
+
+  private findClientCredentialsUrl(clientVersion: ClientVersion): string {
+    if (!clientVersion.endpoints || !clientVersion.endpoints.length) {
+      throw new NotFoundError('Did not successfully retrieve version details');
+    }
+
+    const clientCredentialsEndpoint = clientVersion.endpoints.find(
+      (endpoint) =>
+        endpoint.identifier === ModuleId.Credentials &&
+        endpoint.role === InterfaceRole.RECEIVER,
+    );
+
+    if (!clientCredentialsEndpoint || !clientCredentialsEndpoint.url) {
+      throw new NotFoundError(
+        'Did not successfully retrieve client credentials from version details',
+      );
+    }
+
+    return clientCredentialsEndpoint.url;
+  }
+
+  private async getRegisteredClientInformation(
+    credentialsRequest: AdminUpdateCredentialsRequestDTO,
+  ): Promise<ClientInformation> {
+    const existingClientInformation =
+      await this.clientInformationRepository.getClientInformation(
+        credentialsRequest.cpoCountryCode,
+        credentialsRequest.cpoPartyId,
+        credentialsRequest.mspCountryCode,
+        credentialsRequest.mspPartyId,
+      );
+    if (!existingClientInformation) {
+      throw new NotFoundError(
+        `Client information not found by ${credentialsRequest.cpoCountryCode} ${credentialsRequest.cpoPartyId} ${credentialsRequest.mspCountryCode} ${credentialsRequest.mspPartyId}`,
+      );
+    }
+    if (!existingClientInformation.registered) {
+      throw new InternalServerError(
+        `The registration of the client information ${existingClientInformation.id} is not completed yet.`,
+      );
+    }
+    return existingClientInformation;
+  }
+
+  private async getClientVersionByClientInformationAndVersionNumber(
+    clientInformation: ClientInformation,
+    versionNumber: VersionNumber,
+  ): Promise<ClientVersion> {
+    const clientVersionDetails: ClientVersion[] = await clientInformation.$get(
+      ClientInformationProps.clientVersionDetails,
+      {
+        include: [Endpoint],
+      },
+    );
+    const clientVersion = clientVersionDetails.find(
+      (version) => version.version === versionNumber,
+    );
+    if (!clientVersion) {
+      throw new NotFoundError(
+        `ClientVersion ${versionNumber} not found in ClientInformation ${clientInformation.id}`,
+      );
+    }
+    return clientVersion;
+  }
+
+  private async updateServerCredentials(
+    clientInformation: ClientInformation,
+    serverCredentialsDTO: CredentialsDTO,
+    versionNumber: VersionNumber,
+    ServerRoleDTOs: CredentialsRoleDTO[],
+  ): Promise<ServerCredentialsRole[]> {
+    await clientInformation.update({
+      serverToken: serverCredentialsDTO.token,
+    });
+    const storedServerCredentialsRoles: ServerCredentialsRole[] =
+      await this.storeServerCredentialsRoles(ServerRoleDTOs);
+    await ServerVersion.update(
+      {
+        url: serverCredentialsDTO.url,
+      },
+      {
+        where: {
+          clientInformationId: clientInformation.id,
+          version: versionNumber,
+        },
+      },
+    );
+
+    return storedServerCredentialsRoles;
+  }
+
+  private async updateClientCredentials(
+    clientInformation: ClientInformation,
+    clientCredentialsDTO: CredentialsDTO,
+    versionNumber: VersionNumber,
+  ): Promise<void> {
+    await this.updateClientInformationByClientCredentialsDTO(
+      clientInformation,
+      clientCredentialsDTO,
+    );
+    await ClientVersion.update(
+      {
+        url: clientCredentialsDTO.url,
+      },
+      {
+        where: {
+          clientInformationId: clientInformation.id,
+          version: versionNumber,
+        },
+      },
+    );
   }
 }

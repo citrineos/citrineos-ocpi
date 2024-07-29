@@ -2,11 +2,7 @@
 
 import { QueryInterface, QueryOptions } from 'sequelize';
 import { OcpiTokensMapper, TokenDTO } from '@citrineos/ocpi-base';
-import {
-  AdditionalInfo,
-  Authorization,
-  IdToken,
-} from '../../citrineos-core/01_Data';
+import { AdditionalInfo, Authorization, IdToken } from '@citrineos/data';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
