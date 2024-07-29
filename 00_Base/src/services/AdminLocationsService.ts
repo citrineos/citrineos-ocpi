@@ -1,16 +1,10 @@
 import { Service } from 'typedi';
 import { type ILogObj, Logger } from 'tslog';
-import {
-  ChargingStation,
-  Location,
-  SequelizeLocationRepository,
-} from '@citrineos/data';
-import { LocationMapper } from '../mapper/LocationMapper';
+import { ChargingStation, Location } from '@citrineos/data';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { LocationsBroadcaster } from '../broadcaster/locations.broadcaster';
-import { VariableAttributesUtil } from '../util/VariableAttributesUtil';
 import {
   AdminConnectorDTO,
   AdminEvseDTO,
@@ -26,11 +20,8 @@ import { LocationsDatasource } from '../datasources/LocationsDatasource';
 export class AdminLocationsService {
   constructor(
     private logger: Logger<ILogObj>,
-    private locationMapper: LocationMapper,
-    private locationRepository: SequelizeLocationRepository,
     private locationsBroadcaster: LocationsBroadcaster,
     private locationsDatasource: LocationsDatasource,
-    private variableAttributesUtil: VariableAttributesUtil,
   ) {}
 
   public async createOrUpdateLocation(
@@ -54,51 +45,28 @@ export class AdminLocationsService {
       );
     }
 
-    const [ocpiLocation, coreLocation] =
+    const [coreLocation, ocpiLocation] =
       this.mapAdminLocationDtoToEntities(adminLocationDto);
-    const savedCoreLocation =
-      await this.locationRepository.createOrUpdateLocationWithChargingStations(
-        coreLocation,
-      );
-    ocpiLocation.coreLocationId = savedCoreLocation.id;
-    const savedOcpiLocation =
-      await this.locationsDatasource.createOrUpdateOcpiLocation(
-        ocpiLocation,
-      );
 
-    if (!savedOcpiLocation) {
-      throw new Error('Location could not be saved due to database error.');
-    }
+    const evses = [];
+    const connectors = [];
 
     for (const adminEvse of adminLocationDto.evses ?? []) {
-      await this.locationsDatasource.createOrUpdateOcpiEvse(
-        this.mapAdminEvseDtoToOcpiEvse(adminEvse),
-      );
+      evses.push(this.mapAdminEvseDtoToOcpiEvse(adminEvse));
       for (const adminConnector of adminEvse.connectors ?? []) {
-        await this.locationsDatasource.createOrUpdateOcpiConnector(
+        connectors.push(
           this.mapAdminConnectorToOcpiConnector(adminConnector, adminEvse),
         );
       }
     }
 
-    let chargingStationVariableAttributesMap = {};
-
-    if (savedCoreLocation.chargingPool) {
-      chargingStationVariableAttributesMap =
-        await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
-          savedCoreLocation.chargingPool.map((station) => station.id),
-        );
-      savedOcpiLocation.ocpiEvses =
-        await this.locationsDatasource.createOcpiEvsesMap(
-          chargingStationVariableAttributesMap,
-        );
-    }
-
-    const locationDto = this.locationMapper.mapToOcpiLocation(
-      savedCoreLocation,
-      chargingStationVariableAttributesMap,
-      savedOcpiLocation,
-    );
+    const locationDto =
+      await this.locationsDatasource.adminCreateOrUpdateLocation(
+        coreLocation,
+        ocpiLocation,
+        evses,
+        connectors,
+      );
 
     if (broadcast) {
       await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(
@@ -111,7 +79,7 @@ export class AdminLocationsService {
 
   mapAdminLocationDtoToEntities(
     adminLocationDto: AdminLocationDTO,
-  ): [Partial<OcpiLocation>, Partial<Location>] {
+  ): [Partial<Location>, Partial<OcpiLocation>] {
     const ocpiLocation: Partial<OcpiLocation> = {};
     ocpiLocation.countryCode = adminLocationDto.country_code;
     ocpiLocation.partyId = adminLocationDto.party_id;
@@ -150,7 +118,7 @@ export class AdminLocationsService {
       }
     }
 
-    return [ocpiLocation, coreLocation];
+    return [coreLocation, ocpiLocation];
   }
 
   mapAdminEvseDtoToOcpiEvse(adminEvseDto: AdminEvseDTO): OcpiEvse {

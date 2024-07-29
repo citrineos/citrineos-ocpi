@@ -24,8 +24,8 @@ import {
   EVSE_COMPONENT,
   EvseDTO,
   LocationsBroadcaster,
-  VariableAttributesUtil,
 } from '@citrineos/ocpi-base';
+import { LocationsDatasource } from '@citrineos/ocpi-base/dist/datasources/LocationsDatasource';
 
 /**
  * Component that handles provisioning related messages.
@@ -41,7 +41,7 @@ export class LocationsHandlers extends AbstractModule {
   protected _responses: CallAction[] = [];
 
   private locationsBroadcaster: LocationsBroadcaster;
-  private variableAttributesUtil: VariableAttributesUtil;
+  private locationsDatasource: LocationsDatasource;
 
   /**
    * This is the constructor function that initializes the {@link LocationsHandlers}.
@@ -52,8 +52,7 @@ export class LocationsHandlers extends AbstractModule {
    *
    * @param {LocationsBroadcaster} [locationsBroadcaster] - The LocationsBroadcaster holds the business logic necessary to push incoming requests to the relevant MSPs.
    *
-   * @param {VariableAttributesUtil} [variableAttributesUtil] - The VariableAttributesUtil provides logic to retrieve and construct an internal representation of a
-   * charging station's variable attributes.
+   * @param {LocationsDatasource} [locationsDatasource] - The LocationsDatasource provides data access to anything Locations-related (Locations, EVSEs, Connectors)
    *
    * @param {IMessageSender} [sender] - The `sender` parameter is an optional parameter that represents an instance of the {@link IMessageSender} interface.
    * It is used to send messages from the central system to external systems or devices. If no `sender` is provided, a default {@link RabbitMqSender} instance is created and used.
@@ -69,7 +68,7 @@ export class LocationsHandlers extends AbstractModule {
     config: SystemConfig,
     cache: ICache,
     locationsBroadcaster: LocationsBroadcaster,
-    variableAttributesUtil: VariableAttributesUtil,
+    locationsDatasource: LocationsDatasource,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -84,7 +83,7 @@ export class LocationsHandlers extends AbstractModule {
     );
 
     this.locationsBroadcaster = locationsBroadcaster;
-    this.variableAttributesUtil = variableAttributesUtil;
+    this.locationsDatasource = locationsDatasource;
 
     const timer = new Timer();
     this._logger.info('Initializing...');
@@ -193,13 +192,13 @@ export class LocationsHandlers extends AbstractModule {
     const connectorId = message.payload.connectorId;
 
     const chargingStationAttributes = (
-      await this.variableAttributesUtil.createChargingStationVariableAttributesMap(
+      await this.locationsDatasource.createChargingStationVariableAttributesMap(
         [stationId],
         evseId,
       )
-    )[stationId];
+    ).get(stationId);
     const evseAttributes = chargingStationAttributes
-      ? chargingStationAttributes.evses[evseId]
+      ? chargingStationAttributes!.evses.get(evseId)
       : null;
     const connectorAvailabilityStates = evseAttributes
       ? Object.entries(evseAttributes.connectors)

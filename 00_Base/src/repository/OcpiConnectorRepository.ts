@@ -39,7 +39,9 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
     });
   }
 
-  async createOrUpdateOcpiConnector(connector: OcpiConnector | Partial<OcpiConnector>): Promise<void> {
+  async createOrUpdateOcpiConnector(
+    connector: OcpiConnector | Partial<OcpiConnector>,
+  ): Promise<void> {
     const [savedOcpiConnector, ocpiConnectorCreated] =
       await this._readOrCreateByQuery({
         where: {

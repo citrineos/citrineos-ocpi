@@ -66,8 +66,8 @@ export class LocationMapper {
   }
 
   mapToOcpiLocation(
-    citrineLocation: Location,
-    chargingStationVariableAttributesMap: Record<
+    coreLocation: Location,
+    chargingStationVariableAttributesMap: Map<
       string,
       ChargingStationVariableAttributes
     >,
@@ -75,7 +75,7 @@ export class LocationMapper {
   ): LocationDTO {
     const location = new LocationDTO();
 
-    location.id = citrineLocation.id;
+    location.id = coreLocation.id;
 
     location.country_code = ocpiLocation[OcpiLocationProps.countryCode];
     location.party_id = ocpiLocation[OcpiLocationProps.partyId];
@@ -85,14 +85,14 @@ export class LocationMapper {
     // TODO update with dynamic data
     // ocpiLocation.publish_allowed_to
 
-    location.name = citrineLocation.name ?? NOT_APPLICABLE;
-    location.address = citrineLocation.address ?? NOT_APPLICABLE;
-    location.city = citrineLocation.city ?? NOT_APPLICABLE;
-    location.postal_code = citrineLocation.postalCode ?? NOT_APPLICABLE;
-    location.state = citrineLocation.state ?? NOT_APPLICABLE;
-    location.country = citrineLocation.country ?? NOT_APPLICABLE;
+    location.name = coreLocation.name ?? NOT_APPLICABLE;
+    location.address = coreLocation.address ?? NOT_APPLICABLE;
+    location.city = coreLocation.city ?? NOT_APPLICABLE;
+    location.postal_code = coreLocation.postalCode ?? NOT_APPLICABLE;
+    location.state = coreLocation.state ?? NOT_APPLICABLE;
+    location.country = coreLocation.country ?? NOT_APPLICABLE;
     location.coordinates = this.mapOcppCoordinatesToGeoLocation(
-      citrineLocation.coordinates,
+      coreLocation.coordinates,
     );
     location.time_zone = ocpiLocation.timeZone;
 
@@ -101,13 +101,10 @@ export class LocationMapper {
     for (const chargingStationAttributes of Object.values(
       chargingStationVariableAttributesMap,
     )) {
-      for (const evseAttributes of Object.values(
-        chargingStationAttributes.evses,
-      )) {
-        const ocpiEvse =
-          ocpiLocation.ocpiEvses[
-            `${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)}`
-          ];
+      for (const evseAttributes of chargingStationAttributes.evses.values()) {
+        const ocpiEvse = ocpiLocation.ocpiEvses.get(
+          `${UID_FORMAT(evseAttributes.station_id, evseAttributes.id)}`,
+        );
 
         if (!ocpiEvse) {
           this.logger.warn(
@@ -118,7 +115,7 @@ export class LocationMapper {
 
         evses.push(
           this.mapToEvseDTO(
-            citrineLocation,
+            coreLocation,
             chargingStationAttributes,
             evseAttributes,
             ocpiEvse,
@@ -176,13 +173,10 @@ export class LocationMapper {
 
     const connectors = [];
 
-    for (const connectorAttributes of Object.values(
-      evseAttributes.connectors,
-    )) {
-      const ocpiConnector =
-        ocpiEvse.ocpiConnectors[
-          `${TEMPORARY_CONNECTOR_ID(connectorAttributes.station_id, connectorAttributes.evse_id, Number(connectorAttributes.id))}`
-        ];
+    for (const connectorAttributes of evseAttributes.connectors.values()) {
+      const ocpiConnector = ocpiEvse.ocpiConnectors.get(
+        `${TEMPORARY_CONNECTOR_ID(connectorAttributes.station_id, connectorAttributes.evse_id, Number(connectorAttributes.id))}`,
+      );
 
       if (!ocpiConnector) {
         this.logger.warn(
