@@ -523,19 +523,27 @@ export class CredentialsService {
       await this.ocpiSequelizeInstance.sequelize.transaction();
 
     try {
-      await this.clientInformationRepository.deleteAllByQuery({
+      const clientInformations =
+        await this.clientInformationRepository.readAllByQuery({
+          where: {
+            [ClientInformationProps.cpoTenantId]: cpoTenant.id,
+          },
+        });
+      if (clientInformations && clientInformations.length > 0) {
+        for (let clientInformation of clientInformations) {
+          await clientInformation.destroy();
+        }
+      }
+      const cpoTenants = await this.cpoTenantRepository.readAllByQuery({
         where: {
-          [ClientInformationProps.cpoTenantId]: cpoTenant.id,
+          id: tenantId,
         },
       });
-      await this.cpoTenantRepository.deleteAllByQuery(
-        {
-          where: {
-            id: tenantId,
-          },
-        },
-        OcpiNamespace.Credentials,
-      );
+      if (cpoTenants && cpoTenants.length > 0) {
+        for (let cpoTenant of cpoTenants) {
+          await cpoTenant.destroy();
+        }
+      }
       await transaction.commit();
       return;
     } catch (e: any) {
