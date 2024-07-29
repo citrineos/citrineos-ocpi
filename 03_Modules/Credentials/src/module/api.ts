@@ -200,11 +200,11 @@ export class CredentialsModuleApi
     },
   })
   async deleteTenant(
-    @VersionNumberParam() _versionNumber: VersionNumber,
+    @VersionNumberParam() versionNumber: VersionNumber,
     @Param('tenantId') tenantId: string,
   ): Promise<OcpiEmptyResponse> {
     this.logger.info('deleteTenant', tenantId);
-    await this.credentialsService?.deleteTenant(tenantId);
+    await this.credentialsService?.deleteTenant(tenantId, versionNumber);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
@@ -212,11 +212,11 @@ export class CredentialsModuleApi
   @OnUndefined(HttpStatus.NO_CONTENT)
   @AsAdminEndpoint()
   async unregisterClient(
-    @VersionNumberParam() _versionNumber: VersionNumber,
+    @VersionNumberParam() versionNumber: VersionNumber,
     @Body() request: UnregisterClientRequestDTO,
   ): Promise<void> {
     this.logger.info('unregisterClient', request);
-    return this.credentialsService?.unregisterClient(request);
+    return this.credentialsService?.unregisterClient(request, versionNumber);
   }
 
   /**

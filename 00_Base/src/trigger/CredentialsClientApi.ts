@@ -7,6 +7,8 @@ import { PostCredentialsParams } from './param/credentials/post.credentials.para
 import { PutCredentialsParams } from './param/credentials/put.credentials.params';
 import { Service } from 'typedi';
 import { VersionNumber } from '../model/VersionNumber';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { OcpiParams } from './util/ocpi.params';
 
 @Service()
 export class CredentialsClientApi extends BaseClientApi {
@@ -55,12 +57,10 @@ export class CredentialsClientApi extends BaseClientApi {
     );
   }
 
-  async deleteCredentials(
-    params: PutCredentialsParams,
-  ): Promise<CredentialsResponse> {
+  async deleteCredentials(params: OcpiParams): Promise<OcpiEmptyResponse> {
     this.validateOcpiRegistrationParams(params);
     const additionalHeaders: IHeaders = this.getOcpiRegistrationHeaders(params);
-    return await this.del(CredentialsResponse, {
+    return await this.del(OcpiEmptyResponse, {
       additionalHeaders,
     });
   }

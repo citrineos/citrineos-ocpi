@@ -37,7 +37,10 @@ import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
 import { VersionRepository } from '../repository/VersionRepository';
 import { VersionEndpoint } from '../model/VersionEndpoint';
 import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
 import { ServerVersion } from '../model/ServerVersion';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
@@ -53,6 +56,9 @@ import { validateRole } from '../util/validators/CredentialsValidators';
 import { buildPutCredentialsParams } from '../trigger/param/credentials/put.credentials.params';
 import { AdminUpdateCredentialsRequestDTO } from '../model/DTO/AdminUpdateCredentialsRequestDTO';
 import { CpoTenantRepository } from '../repository/CpoTenantRepository';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
+import { OcpiParams } from '../trigger/util/ocpi.params';
+import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 
 const clientInformationInclude = [
   {
@@ -509,15 +515,22 @@ export class CredentialsService {
     return updatedClientInformation;
   }
 
-  async deleteTenant(tenantId: string): Promise<void> {
+  async deleteTenant(
+    tenantId: string,
+    versionNumber = VersionNumber.TWO_DOT_TWO_DOT_ONE,
+  ): Promise<void> {
     const cpoTenant = await this.cpoTenantRepository.readOnlyOneByQuery({
       where: {
         id: tenantId,
       },
+      include: [ServerCredentialsRole],
     });
     if (!cpoTenant) {
       throw new NotFoundError('CpoTenant not found');
     }
+
+    const serverCredentialsRoles = cpoTenant.serverCredentialsRoles;
+    const serverCredentialsRole = serverCredentialsRoles[0];
 
     const transaction =
       await this.ocpiSequelizeInstance.sequelize.transaction();
@@ -528,9 +541,22 @@ export class CredentialsService {
           where: {
             [ClientInformationProps.cpoTenantId]: cpoTenant.id,
           },
+          include: [ClientCredentialsRole],
         });
       if (clientInformations && clientInformations.length > 0) {
         for (let clientInformation of clientInformations) {
+          const clientCredentialsRoles =
+            clientInformation[ClientInformationProps.clientCredentialsRoles];
+          for (let clientCredentialsRole of clientCredentialsRoles) {
+            await this.unregisterClientInformation(
+              clientInformation,
+              versionNumber,
+              clientCredentialsRole[ClientCredentialsRoleProps.countryCode],
+              clientCredentialsRole[ClientCredentialsRoleProps.partyId],
+              serverCredentialsRole[ServerCredentialsRoleProps.countryCode],
+              serverCredentialsRole[ServerCredentialsRoleProps.partyId],
+            );
+          }
           await clientInformation.destroy();
         }
       }
@@ -552,7 +578,10 @@ export class CredentialsService {
     }
   }
 
-  async unregisterClient(request: UnregisterClientRequestDTO): Promise<void> {
+  async unregisterClient(
+    request: UnregisterClientRequestDTO,
+    versionNumber = VersionNumber.TWO_DOT_TWO_DOT_ONE,
+  ): Promise<void> {
     const serverPartyId = request.serverPartyId;
     const serverCountryCode = request.serverCountryCode;
     const clientPartyId = request.clientPartyId;
@@ -567,17 +596,10 @@ export class CredentialsService {
         `Client information not found for server party id ${serverPartyId} and server country code ${serverCountryCode}`,
       );
     }
-    const clientInformationMatches = clientInformations.filter(
-      (clientInformation) => {
-        const clientCredntialsRoles =
-          clientInformation[ClientInformationProps.clientCredentialsRoles];
-        return clientCredntialsRoles.some((clientCredntialsRole) => {
-          return (
-            clientCredntialsRole.country_code === clientCountryCode &&
-            clientCredntialsRole.party_id === clientPartyId
-          );
-        });
-      },
+    const clientInformationMatches = this.getClientInformationMatches(
+      clientInformations,
+      clientCountryCode,
+      clientPartyId,
     );
     if (!clientInformationMatches || clientInformationMatches.length === 0) {
       throw new NotFoundError(
@@ -586,17 +608,85 @@ export class CredentialsService {
     }
 
     for (const clientInformation of clientInformationMatches) {
-      const credentialsRoleMatches = clientInformation[
-        ClientInformationProps.clientCredentialsRoles
-      ].filter((clientInformations) => {
-        return (
-          clientInformations.country_code === clientCountryCode &&
-          clientInformations.party_id === clientPartyId
-        );
-      });
-      for (let credentialsRoleMatch of credentialsRoleMatches) {
-        await credentialsRoleMatch.destroy();
-      }
+      await this.unregisterClientInformation(
+        clientInformation,
+        versionNumber,
+        clientCountryCode,
+        clientPartyId,
+        serverCountryCode,
+        serverPartyId,
+      );
+    }
+  }
+
+  private async unregisterClientInformation(
+    clientInformation: ClientInformation,
+    versionNumber: VersionNumber,
+    clientCountryCode: string,
+    clientPartyId: string,
+    serverCountryCode: string,
+    serverPartyId: string,
+  ) {
+    const clientVersionDetails =
+      clientInformation[ClientInformationProps.clientVersionDetails];
+    const clientVersion = clientVersionDetails.find(
+      (clientVersion) => clientVersion.version === versionNumber,
+    );
+    if (!clientVersion) {
+      throw new NotFoundError(
+        `Client version not found for client party id ${clientPartyId} and client country code ${clientCountryCode} and matching version ${versionNumber}`,
+      );
+    }
+    const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
+    const authorizationToken =
+      clientInformation[ClientInformationProps.clientToken];
+    const credentialsRoleMatch = clientInformation[
+      ClientInformationProps.clientCredentialsRoles
+    ].find((clientInformations) => {
+      return (
+        clientInformations.country_code === clientCountryCode &&
+        clientInformations.party_id === clientPartyId
+      );
+    });
+    const deleteCredentialsResponse = await this.getDeleteCredentialsResponse(
+      clientCredentialsUrl,
+      versionNumber,
+      authorizationToken,
+      credentialsRoleMatch![ClientCredentialsRoleProps.countryCode],
+      credentialsRoleMatch![ClientCredentialsRoleProps.partyId],
+      serverCountryCode,
+      serverPartyId,
+    );
+    if (deleteCredentialsResponse) {
+      await credentialsRoleMatch!.destroy();
+    }
+  }
+
+  private async getDeleteCredentialsResponse(
+    url: string,
+    versionNumber: VersionNumber,
+    authorizationToken: string,
+    clientCountryCode: string,
+    clientPartyId: string,
+    serverCountryCode: string,
+    serverPartyId: string,
+  ): Promise<OcpiEmptyResponse> {
+    try {
+      const params = new OcpiParams();
+      params.version = versionNumber;
+      params.authorization = authorizationToken;
+      params.toCountryCode = clientCountryCode;
+      params.toPartyId = clientPartyId;
+      params.fromCountryCode = serverCountryCode;
+      params.fromPartyId = serverPartyId;
+      params.xRequestId = uuidv4();
+      params.xCorrelationId = uuidv4();
+      this.credentialsClientApi.baseUrl = url;
+      return await this.credentialsClientApi.deleteCredentials(params);
+    } catch (e: any) {
+      const msg = `Could not delete credentials. Request to client failed with message: ${e.message}`;
+      this.logger.error(msg);
+      throw new UnsuccessfulRequestException(msg);
     }
   }
 
@@ -1130,5 +1220,22 @@ export class CredentialsService {
         },
       },
     );
+  }
+
+  private getClientInformationMatches(
+    clientInformations: ClientInformation[],
+    clientCountryCode: string,
+    clientPartyId: string,
+  ) {
+    return clientInformations.filter((clientInformation) => {
+      const clientCredentialsRoles =
+        clientInformation[ClientInformationProps.clientCredentialsRoles];
+      return clientCredentialsRoles.some((clientCredntialsRole) => {
+        return (
+          clientCredntialsRole.country_code === clientCountryCode &&
+          clientCredntialsRole.party_id === clientPartyId
+        );
+      });
+    });
   }
 }

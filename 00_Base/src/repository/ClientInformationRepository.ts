@@ -14,6 +14,8 @@ import {
 } from '../model/ServerCredentialsRole';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
+import { ClientVersion } from '../model/ClientVersion';
+import { Endpoint } from '../model/Endpoint';
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
@@ -121,6 +123,10 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
               where: { country_code: countryCode, party_id: partyId },
             },
           ],
+        },
+        {
+          model: ClientVersion,
+          include: [Endpoint],
         },
         ClientCredentialsRole,
       ],
