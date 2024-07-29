@@ -5,7 +5,15 @@
 
 import { ITariffsModuleApi } from './interface';
 
-import { Body, Delete, Get, JsonController, Param, Post, Put } from 'routing-controllers';
+import {
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Post,
+  Put,
+} from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {

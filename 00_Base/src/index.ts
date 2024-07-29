@@ -24,11 +24,17 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
-// @ts-ignore
+
 import * as packageJson from '../package.json';
 
-export { OcpiErrorResponse, buildOcpiErrorResponse } from './model/ocpi.error.response';
-export { AuthorizationInfo, AuthorizationInfoResponse } from './model/AuthorizationInfo';
+export {
+  OcpiErrorResponse,
+  buildOcpiErrorResponse,
+} from './model/ocpi.error.response';
+export {
+  AuthorizationInfo,
+  AuthorizationInfoResponse,
+} from './model/AuthorizationInfo';
 export { CpoTenant, CpoTenantProps } from './model/CpoTenant';
 export { ServerCredentialsRoleProps } from './model/ServerCredentialsRole';
 export { TokensClientApi } from './trigger/TokensClientApi';

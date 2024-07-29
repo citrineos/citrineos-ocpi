@@ -1,7 +1,12 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import { IdToken, SequelizeTransactionEventRepository, Transaction, TransactionEvent } from '@citrineos/data';
+import {
+  IdToken,
+  SequelizeTransactionEventRepository,
+  Transaction,
+  TransactionEvent,
+} from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 import { CredentialsService } from '../services/credentials.service';
 import { ILogObj, Logger } from 'tslog';
