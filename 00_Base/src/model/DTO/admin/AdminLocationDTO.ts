@@ -34,7 +34,7 @@ export class AdminEvseDTO {
   @Optional()
   physical_reference?: string;
 
-  @IsString()
+  @IsBoolean()
   @Optional()
   removed?: boolean;
 
