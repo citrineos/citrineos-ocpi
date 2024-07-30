@@ -25,6 +25,7 @@ import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { TariffsService } from '../services/tariffs.service';
 import { LocationsService } from '../services/locations.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
+import {EXTRACT_EVSE_ID} from "../model/DTO/EvseDTO";
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -120,7 +121,7 @@ export class SessionMapper extends BaseTransactionMapper {
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction, location),
       connector_id: this.getConnectorId(transaction, location),
-      currency: this.getCurrency(location),
+      currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
         String(tariff?.id),
@@ -166,7 +167,7 @@ export class SessionMapper extends BaseTransactionMapper {
 
   private getEvseUid(transaction: Transaction, location: LocationDTO): string {
     const evseUid = location.evses?.find(
-      (evse) => evse.evse_id === transaction.evse?.id,
+        (evse) =>  EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id),
     )?.uid;
 
     if (!evseUid) {
@@ -183,8 +184,8 @@ export class SessionMapper extends BaseTransactionMapper {
     location: LocationDTO,
   ): string {
     const connectorId = location.evses
-      ?.find((evse) => evse.evse_id === transaction.evse?.id)
-      ?.connectors?.find(
+        ?.find((evse) => EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id))
+        ?.connectors?.find(
         (connector) => connector.id === String(transaction.evse?.connectorId),
       )?.id;
 
