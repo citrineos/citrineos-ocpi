@@ -202,6 +202,9 @@ module.exports = {
   },
 
   down: async (queryInterface: QueryInterface) => {
+    await queryInterface.bulkDelete('OcpiTokens', {}, {
+      cascade: true,
+    } as QueryOptions);
     await queryInterface.bulkDelete('Authorizations', {}, {
       cascade: true,
     } as QueryOptions);
@@ -215,9 +218,6 @@ module.exports = {
       cascade: true,
     } as QueryOptions);
     await queryInterface.bulkDelete('AdditionalInfos', {}, {
-      cascade: true,
-    } as QueryOptions);
-    await queryInterface.bulkDelete('OcpiTokens', {}, {
       cascade: true,
     } as QueryOptions);
   },
