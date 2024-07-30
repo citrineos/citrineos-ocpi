@@ -103,7 +103,7 @@ export class TokenResponse extends OcpiResponse<TokenDTO> {
 
 export class PaginatedTokenResponse extends PaginatedResponse<TokenDTO> {
   @IsArray()
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   @IsNotEmpty()
   @Optional(false)
   @Type(() => TokenDTO)

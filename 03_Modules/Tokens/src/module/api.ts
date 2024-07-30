@@ -3,7 +3,16 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Body, Get, JsonController, NotFoundError, Param, Patch, Post, Put, } from 'routing-controllers';
+import {
+  Body,
+  Get,
+  JsonController,
+  NotFoundError,
+  Param,
+  Patch,
+  Post,
+  Put,
+} from 'routing-controllers';
 import { Service } from 'typedi';
 
 import { HttpStatus } from '@citrineos/base';
@@ -61,7 +70,8 @@ const MockPutTokenBody = {
 @Service()
 export class TokensModuleApi
   extends BaseController
-  implements ITokensModuleApi {
+  implements ITokensModuleApi
+{
   constructor(readonly tokensService: TokensService) {
     super();
   }
