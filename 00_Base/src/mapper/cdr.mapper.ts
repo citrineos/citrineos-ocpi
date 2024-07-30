@@ -164,10 +164,8 @@ export class CdrMapper extends BaseTransactionMapper {
     };
   }
 
-  private getEvseId(evseUid: string,location: LocationDTO): string {
-    return location.evses?.find(
-        (evse) => evse.uid === evseUid,
-    )?.evse_id ?? '';
+  private getEvseId(evseUid: string, location: LocationDTO): string {
+    return location.evses?.find((evse) => evse.uid === evseUid)?.evse_id ?? '';
   }
 
   private getConnectorStandard(
