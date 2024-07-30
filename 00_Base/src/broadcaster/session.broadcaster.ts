@@ -1,7 +1,12 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import { IdToken, SequelizeTransactionEventRepository, Transaction, TransactionEvent } from '@citrineos/data';
+import {
+  IdToken,
+  SequelizeTransactionEventRepository,
+  Transaction,
+  TransactionEvent,
+} from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 import { CredentialsService } from '../services/credentials.service';
 import { ILogObj, Logger } from 'tslog';
@@ -10,6 +15,7 @@ import { ModuleId } from '../model/ModuleId';
 import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
 import { TriggerReasonEnumType } from '@citrineos/base';
+import { InternalServerError } from 'routing-controllers';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -71,14 +77,25 @@ export class SessionBroadcaster extends BaseBroadcaster {
           );
           const transactionsMap: { [key: string]: Transaction } = {};
           for (const transactionsEvent of transactionsEvents) {
-            const transaction = (await transactionsEvent.$get('transaction', {
-              include: [
+            const transactionId = transactionsEvent.transactionDatabaseId;
+            if (!transactionId) {
+              throw new InternalServerError(
+                'No transaction id found for transaction event',
+              );
+            }
+            const transaction =
+              await this.transactionEventRepository.transaction.readOnlyOneByQuery(
                 {
-                  model: TransactionEvent,
-                  include: [IdToken],
+                  where: { id: transactionId },
+                  include: [
+                    {
+                      model: TransactionEvent,
+                      as: Transaction.TRANSACTION_EVENTS_ALIAS,
+                      include: [IdToken],
+                    },
+                  ],
                 },
-              ],
-            })) as Transaction;
+              );
             if (transaction) {
               transactionsMap[transaction.id] = transaction;
             }

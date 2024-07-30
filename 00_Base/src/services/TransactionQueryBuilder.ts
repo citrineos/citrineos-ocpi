@@ -64,7 +64,7 @@ export class TransactionQueryBuilder {
     dateTo?: Date,
   ): void {
     if (dateFrom || dateTo) {
-      queryOptions.where = queryOptions.where ?? { updatedAt: {} };
+      queryOptions.where =  { ...(queryOptions.where ?? {}), updatedAt: {} };
       if (dateFrom) {
         queryOptions.where.updatedAt[Op.gte] = dateFrom;
       }

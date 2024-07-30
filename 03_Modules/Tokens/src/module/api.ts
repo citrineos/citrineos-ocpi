@@ -113,7 +113,7 @@ export class TokensModuleApi
       countryCode,
       partyId,
       tokenId,
-      type,
+      type ?? TokenType.RFID,
     );
 
     const token = await this.tokensService.getSingleToken(tokenRequest);
