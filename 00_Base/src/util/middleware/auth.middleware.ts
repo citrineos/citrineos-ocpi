@@ -41,7 +41,9 @@ export class AuthMiddleware
   }
 
   async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
-    console.debug(`AuthMiddleware executed for ${context.request.method} ${context.request.url}`);
+    console.debug(
+      `AuthMiddleware executed for ${context.request.method} ${context.request.url}`,
+    );
     const authHeader =
       context.request.headers[HttpHeader.Authorization.toLowerCase()];
     if (!permittedRoutes.includes(context.request.originalUrl)) {

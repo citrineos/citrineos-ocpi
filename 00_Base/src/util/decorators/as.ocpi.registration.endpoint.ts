@@ -10,7 +10,6 @@ import { HttpHeader } from '@citrineos/base';
 import { uniqueMessageIdHeaders } from './as.ocpi.functional.endpoint';
 import { OcpiExceptionHandler } from '../middleware/ocpi.exception.handler';
 
-
 /**
  * Decorator for to inject OCPI headers and apply {@link AuthMiddleware} and {@link UniqueMessageIdsMiddleware}
  * on the endpoint

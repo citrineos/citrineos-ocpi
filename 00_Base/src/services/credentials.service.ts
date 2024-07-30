@@ -544,10 +544,10 @@ export class CredentialsService {
           include: [ClientCredentialsRole],
         });
       if (clientInformations && clientInformations.length > 0) {
-        for (let clientInformation of clientInformations) {
+        for (const clientInformation of clientInformations) {
           const clientCredentialsRoles =
             clientInformation[ClientInformationProps.clientCredentialsRoles];
-          for (let clientCredentialsRole of clientCredentialsRoles) {
+          for (const clientCredentialsRole of clientCredentialsRoles) {
             await this.unregisterClientInformation(
               clientInformation,
               versionNumber,
@@ -566,8 +566,8 @@ export class CredentialsService {
         },
       });
       if (cpoTenants && cpoTenants.length > 0) {
-        for (let cpoTenant of cpoTenants) {
-          await cpoTenant.destroy();
+        for (const tenant of cpoTenants) {
+          await tenant.destroy();
         }
       }
       await transaction.commit();
@@ -616,77 +616,6 @@ export class CredentialsService {
         serverCountryCode,
         serverPartyId,
       );
-    }
-  }
-
-  private async unregisterClientInformation(
-    clientInformation: ClientInformation,
-    versionNumber: VersionNumber,
-    clientCountryCode: string,
-    clientPartyId: string,
-    serverCountryCode: string,
-    serverPartyId: string,
-  ) {
-    const clientVersionDetails =
-      clientInformation[ClientInformationProps.clientVersionDetails];
-    const clientVersion = clientVersionDetails.find(
-      (clientVersion) => clientVersion.version === versionNumber,
-    );
-    if (!clientVersion) {
-      throw new NotFoundError(
-        `Client version not found for client party id ${clientPartyId} and client country code ${clientCountryCode} and matching version ${versionNumber}`,
-      );
-    }
-    const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
-    const authorizationToken =
-      clientInformation[ClientInformationProps.clientToken];
-    const credentialsRoleMatch = clientInformation[
-      ClientInformationProps.clientCredentialsRoles
-    ].find((clientInformations) => {
-      return (
-        clientInformations.country_code === clientCountryCode &&
-        clientInformations.party_id === clientPartyId
-      );
-    });
-    const deleteCredentialsResponse = await this.getDeleteCredentialsResponse(
-      clientCredentialsUrl,
-      versionNumber,
-      authorizationToken,
-      credentialsRoleMatch![ClientCredentialsRoleProps.countryCode],
-      credentialsRoleMatch![ClientCredentialsRoleProps.partyId],
-      serverCountryCode,
-      serverPartyId,
-    );
-    if (deleteCredentialsResponse) {
-      await credentialsRoleMatch!.destroy();
-    }
-  }
-
-  private async getDeleteCredentialsResponse(
-    url: string,
-    versionNumber: VersionNumber,
-    authorizationToken: string,
-    clientCountryCode: string,
-    clientPartyId: string,
-    serverCountryCode: string,
-    serverPartyId: string,
-  ): Promise<OcpiEmptyResponse> {
-    try {
-      const params = new OcpiParams();
-      params.version = versionNumber;
-      params.authorization = authorizationToken;
-      params.toCountryCode = clientCountryCode;
-      params.toPartyId = clientPartyId;
-      params.fromCountryCode = serverCountryCode;
-      params.fromPartyId = serverPartyId;
-      params.xRequestId = uuidv4();
-      params.xCorrelationId = uuidv4();
-      this.credentialsClientApi.baseUrl = url;
-      return await this.credentialsClientApi.deleteCredentials(params);
-    } catch (e: any) {
-      const msg = `Could not delete credentials. Request to client failed with message: ${e.message}`;
-      this.logger.error(msg);
-      throw new UnsuccessfulRequestException(msg);
     }
   }
 
@@ -813,6 +742,76 @@ export class CredentialsService {
       throw new InternalServerError(
         `Regenerate credentials token failed, ${JSON.stringify(error)}`,
       );
+    }
+  }
+
+  private async unregisterClientInformation(
+    clientInformation: ClientInformation,
+    versionNumber: VersionNumber,
+    clientCountryCode: string,
+    clientPartyId: string,
+    serverCountryCode: string,
+    serverPartyId: string,
+  ) {
+    const clientVersionDetails =
+      clientInformation[ClientInformationProps.clientVersionDetails];
+    const clientVersion = clientVersionDetails.find(
+      (cv) => cv.version === versionNumber,
+    );
+    if (!clientVersion) {
+      throw new NotFoundError(
+        `Client version not found for client party id ${clientPartyId} and client country code ${clientCountryCode} and matching version ${versionNumber}`,
+      );
+    }
+    const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
+    const authorizationToken =
+      clientInformation[ClientInformationProps.clientToken];
+    const credentialsRoleMatch = clientInformation[
+      ClientInformationProps.clientCredentialsRoles
+    ].find(
+      (clientInformations) =>
+        clientInformations.country_code === clientCountryCode &&
+        clientInformations.party_id === clientPartyId,
+    );
+    const deleteCredentialsResponse = await this.getDeleteCredentialsResponse(
+      clientCredentialsUrl,
+      versionNumber,
+      authorizationToken,
+      credentialsRoleMatch![ClientCredentialsRoleProps.countryCode],
+      credentialsRoleMatch![ClientCredentialsRoleProps.partyId],
+      serverCountryCode,
+      serverPartyId,
+    );
+    if (deleteCredentialsResponse) {
+      await credentialsRoleMatch!.destroy();
+    }
+  }
+
+  private async getDeleteCredentialsResponse(
+    url: string,
+    versionNumber: VersionNumber,
+    authorizationToken: string,
+    clientCountryCode: string,
+    clientPartyId: string,
+    serverCountryCode: string,
+    serverPartyId: string,
+  ): Promise<OcpiEmptyResponse> {
+    try {
+      const params = new OcpiParams();
+      params.version = versionNumber;
+      params.authorization = authorizationToken;
+      params.toCountryCode = clientCountryCode;
+      params.toPartyId = clientPartyId;
+      params.fromCountryCode = serverCountryCode;
+      params.fromPartyId = serverPartyId;
+      params.xRequestId = uuidv4();
+      params.xCorrelationId = uuidv4();
+      this.credentialsClientApi.baseUrl = url;
+      return await this.credentialsClientApi.deleteCredentials(params);
+    } catch (e: any) {
+      const msg = `Could not delete credentials. Request to client failed with message: ${e.message}`;
+      this.logger.error(msg);
+      throw new UnsuccessfulRequestException(msg);
     }
   }
 
@@ -1230,12 +1229,11 @@ export class CredentialsService {
     return clientInformations.filter((clientInformation) => {
       const clientCredentialsRoles =
         clientInformation[ClientInformationProps.clientCredentialsRoles];
-      return clientCredentialsRoles.some((clientCredntialsRole) => {
-        return (
+      return clientCredentialsRoles.some(
+        (clientCredntialsRole) =>
           clientCredntialsRole.country_code === clientCountryCode &&
-          clientCredntialsRole.party_id === clientPartyId
-        );
-      });
+          clientCredntialsRole.party_id === clientPartyId,
+      );
     });
   }
 }

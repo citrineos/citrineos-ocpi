@@ -2,7 +2,11 @@ import { KoaMiddlewareInterface } from 'routing-controllers';
 import { Context } from 'vm';
 import { Service } from 'typedi';
 import { BaseMiddleware } from './base.middleware';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET, PaginatedResponse } from '../../model/PaginatedResponse';
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+  PaginatedResponse,
+} from '../../model/PaginatedResponse';
 import { OcpiHttpHeader } from '../ocpi.http.header';
 
 /**

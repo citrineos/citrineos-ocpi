@@ -1,4 +1,8 @@
-import { KoaMiddlewareInterface, NotFoundError, UnauthorizedError } from 'routing-controllers';
+import {
+  KoaMiddlewareInterface,
+  NotFoundError,
+  UnauthorizedError,
+} from 'routing-controllers';
 import { Context } from 'vm';
 import { HttpStatus } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
