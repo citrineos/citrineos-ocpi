@@ -230,20 +230,22 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   private async updateOcpiToken(existingOcpiToken: OcpiToken, partialToken: Partial<OcpiToken>, transaction: SequelizeTransaction): Promise<OcpiToken> {
-    const [updatedCount, [updatedToken]] = await OcpiToken.update(partialToken, {
+    const [updatedCount, updatedTokens] = await OcpiToken.update(partialToken, {
       where: {id: existingOcpiToken.id},
       returning: true,
       transaction
     });
 
-    if (updatedCount > 1) {
-      this.logger.warn(`More than one token updated for primary ID ${existingOcpiToken.id}`);
-    }
-
-    if (!updatedToken) {
+    if (updatedCount === 0) {
       throw new UnknownTokenException('Token not found in the database');
     }
 
+    const updatedToken = updatedTokens?.[0];
+
+    if (updatedCount > 1) {
+      this.logger.warn(`More than one token updated for primary ID ${existingOcpiToken.id}`);
+    }
+    
     return updatedToken;
   }
 
