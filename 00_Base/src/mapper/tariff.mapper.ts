@@ -1,16 +1,17 @@
 import { Service } from 'typedi';
 import { Tariff } from '@citrineos/data';
 import { OcpiTariff } from '../model/OcpiTariff';
-import { TariffDTO } from '../model/DTO/TariffDTO';
+import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { TariffDimensionType } from '../model/TariffDimensionType';
 import { TariffElement } from '../model/TariffElement';
 import { TariffType } from '../model/TariffType';
 import { MINUTES_IN_HOUR } from '../util/consts';
-import { PutTariffRequest } from '../model/DTO/PutTariffRequest';
+import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 
 @Service()
 export class TariffMapper {
-  constructor() {}
+  constructor() {
+  }
 
   public map(coreTariff: Tariff, ocpiTariff: OcpiTariff): TariffDTO {
     return {
@@ -66,23 +67,23 @@ export class TariffMapper {
         },
         ...(coreTariff.pricePerMin
           ? [
-              {
-                type: TariffDimensionType.TIME,
-                price: coreTariff.pricePerMin * MINUTES_IN_HOUR,
-                vat: coreTariff.taxRate,
-                step_size: 1,
-              },
-            ]
+            {
+              type: TariffDimensionType.TIME,
+              price: coreTariff.pricePerMin * MINUTES_IN_HOUR,
+              vat: coreTariff.taxRate,
+              step_size: 1,
+            },
+          ]
           : []),
         ...(coreTariff.pricePerSession
           ? [
-              {
-                type: TariffDimensionType.FLAT,
-                price: coreTariff.pricePerSession,
-                vat: coreTariff.taxRate,
-                step_size: 1,
-              },
-            ]
+            {
+              type: TariffDimensionType.FLAT,
+              price: coreTariff.pricePerSession,
+              vat: coreTariff.taxRate,
+              step_size: 1,
+            },
+          ]
           : []),
       ],
       restrictions: undefined,

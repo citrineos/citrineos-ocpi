@@ -7,6 +7,7 @@ import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { Op } from 'sequelize';
+import { GetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 
 @Service()
 export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
@@ -24,39 +25,34 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
   }
 
   async findByTariffKey({
-    id,
-    countryCode,
-    partyId,
-  }: TariffKey): Promise<OcpiTariff | undefined> {
-    return this.readOnlyOneByQuery({ where: { id, countryCode, partyId } });
+                          id,
+                          countryCode,
+                          partyId,
+                        }: TariffKey): Promise<OcpiTariff | undefined> {
+    return this.readOnlyOneByQuery({where: {id, countryCode, partyId}});
   }
 
   async findByCoreTariffKey({
-    id: coreTariffId,
-    countryCode,
-    partyId,
-  }: TariffKey): Promise<OcpiTariff | undefined> {
+                              id: coreTariffId,
+                              countryCode,
+                              partyId,
+                            }: TariffKey): Promise<OcpiTariff | undefined> {
     return this.readOnlyOneByQuery({
-      where: { coreTariffId, countryCode, partyId },
+      where: {coreTariffId, countryCode, partyId},
     });
   }
 
   async getTariffs(
-    limit: number,
-    offset: number,
-    dateFrom?: Date,
-    dateTo?: Date,
-    cpoCountryCode?: string,
-    cpoPartyId?: string,
+    params: GetTariffsParams
   ): Promise<{ rows: OcpiTariff[]; count: number }> {
     return this.findAndCount({
       where: {
-        ...this.lastUpdated(dateFrom, dateTo),
-        ...(cpoCountryCode && { countryCode: cpoCountryCode }),
-        ...(cpoPartyId && { partyId: cpoPartyId }),
+        ...this.lastUpdated(params.dateFrom, params.dateTo),
+        ...(params.cpoCountryCode && {countryCode: params.cpoCountryCode}),
+        ...(params.cpoPartyId && {partyId: params.cpoPartyId}),
       },
-      offset,
-      limit,
+      offset: params.offset,
+      limit: params.limit,
     });
   }
 
@@ -81,11 +77,11 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
       return {};
     }
     if (!from && to) {
-      return { updatedAt: { [Op.lte]: to } };
+      return {updatedAt: {[Op.lte]: to}};
     }
     if (from && !to) {
-      return { updatedAt: { [Op.gte]: from } };
+      return {updatedAt: {[Op.gte]: from}};
     }
-    return { updatedAt: { [Op.between]: [from, to] } };
+    return {updatedAt: {[Op.between]: [from, to]}};
   }
 }
