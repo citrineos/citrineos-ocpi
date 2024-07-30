@@ -142,7 +142,7 @@ export class SingleTokenRequest {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  type?: TokenType;
+  type!: TokenType;
 
   static build(
     country_code: string,
