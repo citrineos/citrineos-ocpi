@@ -25,6 +25,7 @@ import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { TariffsService } from '../services/tariffs.service';
 import { LocationsService } from '../services/locations.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
+import {TariffsDatasource} from "../datasources/TariffsDatasource";
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -33,8 +34,7 @@ export class SessionMapper extends BaseTransactionMapper {
     protected locationsService: LocationsService,
     protected ocpiLocationsRepository: OcpiLocationRepository,
     protected tokensRepository: TokensRepository,
-    protected tariffRepository: SequelizeTariffRepository,
-    protected tariffsService: TariffsService,
+    protected tariffsDatasource: TariffsDatasource,
     readonly credentialsService: CredentialsService,
   ) {
     super(
@@ -42,8 +42,7 @@ export class SessionMapper extends BaseTransactionMapper {
       locationsService,
       ocpiLocationsRepository,
       tokensRepository,
-      tariffRepository,
-      tariffsService,
+      tariffsDatasource,
     );
   }
 

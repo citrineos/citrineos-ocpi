@@ -18,6 +18,7 @@ import { ILogObj, Logger } from 'tslog';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { TokensRepository } from '../repository/TokensRepository';
 import { LocationsService } from '../services/locations.service';
+import {TariffsDatasource} from "../datasources/TariffsDatasource";
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {
@@ -26,8 +27,7 @@ export class CdrMapper extends BaseTransactionMapper {
     protected locationsService: LocationsService,
     protected ocpiLocationsRepository: OcpiLocationRepository,
     protected tokensRepository: TokensRepository,
-    protected tariffRepository: SequelizeTariffRepository,
-    protected tariffsService: TariffsService,
+    protected tariffsDatasource: TariffsDatasource,
     readonly sessionMapper: SessionMapper,
   ) {
     super(
@@ -35,8 +35,7 @@ export class CdrMapper extends BaseTransactionMapper {
       locationsService,
       ocpiLocationsRepository,
       tokensRepository,
-      tariffRepository,
-      tariffsService,
+      tariffsDatasource,
     );
   }
 

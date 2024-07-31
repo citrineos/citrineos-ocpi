@@ -10,12 +10,9 @@ import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { GetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 import { ITariffsDatasource } from './ITariffsDatasource';
-import { ICitrineTariffsDatasource } from './ICitrineTariffsDatasource';
 
 @Service()
-export class TariffsDatasource
-  implements ITariffsDatasource, ICitrineTariffsDatasource
-{
+export class TariffsDatasource implements ITariffsDatasource {
   constructor(
     private ocpiTariffRepository: OcpiTariffRepository,
     private coreTariffRepository: SequelizeTariffRepository,
@@ -126,6 +123,10 @@ export class TariffsDatasource
       });
       throw error;
     }
+  }
+
+  async getCoreTariffsByStationIds(stationIds: string[]): Promise<Tariff[] | undefined> {
+    return this.coreTariffRepository.findByStationIds(stationIds);
   }
 
   private async getTariff(

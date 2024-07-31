@@ -1,7 +1,6 @@
 import {
   Authorization,
   ChargingStation,
-  SequelizeTariffRepository,
   Tariff,
   Transaction,
   TransactionEvent,
@@ -18,11 +17,11 @@ import { Price } from '../model/Price';
 import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
 import { TariffKey } from '../model/OcpiTariff';
-import { TariffsService } from '../services/tariffs.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
+import {TariffsDatasource} from "../datasources/TariffsDatasource";
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -30,8 +29,7 @@ export abstract class BaseTransactionMapper {
     protected locationsService: LocationsService,
     protected ocpiLocationsRepository: OcpiLocationRepository,
     protected tokensRepository: TokensRepository,
-    protected tariffRepository: SequelizeTariffRepository,
-    protected tariffsService: TariffsService,
+    protected tariffsDatasource: TariffsDatasource,
   ) {}
 
   public async getLocationDTOsForTransactions(
@@ -101,7 +99,7 @@ export abstract class BaseTransactionMapper {
 
     const stationIdToTariffMap = new Map<string, Tariff>();
     const tariffs =
-      await this.tariffRepository.findByStationIds(uniqueStationIds);
+      await this.tariffsDatasource.getCoreTariffsByStationIds(uniqueStationIds);
     tariffs?.forEach((tariff: any) =>
       stationIdToTariffMap.set(tariff.stationId, tariff),
     );
@@ -132,7 +130,7 @@ export abstract class BaseTransactionMapper {
             partyId: session.party_id,
           } as TariffKey;
           const tariff =
-            await this.tariffsService.getTariffByCoreKey(tariffKey);
+            await this.tariffsDatasource.getTariffByCoreKey(tariffKey);
           if (tariff) {
             transactionIdToOcpiTariffMap.set(session.id, tariff);
           }
