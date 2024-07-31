@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {
+  BadRequestError,
   Body,
+  Delete,
   Get,
   JsonController,
   NotFoundError,
@@ -13,8 +15,6 @@ import {
   Post,
   Put,
   QueryParam,
-  BadRequestError,
-  Delete,
 } from 'routing-controllers';
 import { Service } from 'typedi';
 
@@ -22,6 +22,7 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   AsyncJobAction,
+  AsyncJobRequest,
   AsyncJobStatusDTO,
   BaseController,
   BodyWithExample,
@@ -37,8 +38,8 @@ import {
   SingleTokenRequest,
   TokenDTO,
   TokenResponse,
-  TokensService,
   TokensAdminService,
+  TokensService,
   TokenType,
   UnknownTokenException,
   versionIdParam,
@@ -46,7 +47,6 @@ import {
   VersionNumberParam,
   WhitelistType,
   WrongClientAccessException,
-  AsyncJobRequest,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './interface';
 
@@ -180,7 +180,7 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @Body() token: TokenDTO,
+    @Body() token: Partial<TokenDTO>,
     @EnumQueryParam('type', TokenType, 'TokenType') type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('patchToken', countryCode, partyId, tokenId, token, type);
@@ -242,6 +242,7 @@ export class TokensModuleApi
       await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
     return jobStatus.toDTO();
   }
+
   @Post('/fetch/:jobId/:action')
   @ResponseSchema(AsyncJobStatusDTO, {
     statusCode: HttpStatus.OK,
@@ -264,6 +265,7 @@ export class TokensModuleApi
         throw new BadRequestError('Action not found');
     }
   }
+
   @Get('/fetch/:jobId')
   @ResponseSchema(AsyncJobStatusDTO, {
     statusCode: HttpStatus.OK,

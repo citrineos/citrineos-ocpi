@@ -26,7 +26,7 @@ export class TokensService {
     return this.tokenRepository.saveToken(token);
   }
 
-  async updateToken(token: TokenDTO): Promise<TokenDTO> {
+  async updateToken(token: Partial<TokenDTO>): Promise<TokenDTO> {
     return this.tokenRepository.updateToken(token);
   }
 }
