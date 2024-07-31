@@ -20,8 +20,8 @@ enum VersionsTableName {
 /** @type {import('sequelize-cli').Migration} */
 export = {
   up: async (queryInterface: QueryInterface) => {
-    const baseServerUrl = 'http://localhost:8085';
-    const baseClientUrl = 'http://localhost:8086';
+    const baseServerUrl = 'http://127.0.0.1:8085';
+    const baseClientUrl = 'http://127.0.0.1:8086';
     const moduleList: ModuleId[] = [
       ModuleId.Credentials,
       ModuleId.Versions,

@@ -3,7 +3,7 @@ import { TokenDTO } from '../../model/DTO/TokenDTO';
 
 export class TokensValidators {
   public static validatePartialTokenForUniquenessRequiredFields(
-    partialToken: TokenDTO,
+    partialToken: Partial<TokenDTO>,
   ) {
     if (partialToken.uid === undefined) {
       throw new InvalidParamException('uid is required');
