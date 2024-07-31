@@ -8,13 +8,15 @@ import { OcpiToken, SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import {
   Authorization,
+  IdToken,
+  IdTokenInfo,
   SequelizeAuthorizationRepository,
   SequelizeRepository,
   SequelizeTransaction,
 } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
-import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
+import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenInfoType, SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
@@ -137,7 +139,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
    * @return {Promise<OcpiToken>} The updated token.
    * @throws {UnknownTokenException} If the token is not found.
    */
-  async updateToken(partialToken: TokenDTO): Promise<TokenDTO> {
+  async updateToken(partialToken: Partial<TokenDTO>): Promise<TokenDTO> {
     TokensValidators.validatePartialTokenForUniquenessRequiredFields(
       partialToken,
     );
@@ -167,11 +169,20 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
         partialToken,
         transaction,
       );
-      const newTokenDto = await this.createNewTokenDto(updatedToken, ocppAuths);
+      const updatedAuthorization = await this.updateAuthorization(
+        this.getMatchingAuth(updatedToken.authorization_id, ocppAuths)!,
+        partialToken,
+        transaction
+      )
+      const newTokenDto = await OcpiTokensMapper.toDto(
+        updatedAuthorization,
+        updatedToken,
+      );
       const savedOCPPAuth = await this.createOrUpdateOcppAuth(
         newTokenDto,
         transaction,
       );
+
       return OcpiTokensMapper.toDto(savedOCPPAuth!, updatedToken);
     });
   }
@@ -244,18 +255,26 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   private async getOcppAuths(
-    partialToken: TokenDTO | SingleTokenRequest,
+    partialToken: Partial<TokenDTO | SingleTokenRequest>,
   ): Promise<Authorization[]> {
-    return await this.authorizationRepository.readAllByQuerystring({
-      idToken: partialToken.uid!,
-      type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-        partialToken.type,
-      ),
+    return await Authorization.findAll({
+      include: [{
+        model: IdToken,
+        where: {
+          idToken: partialToken.uid!,
+          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+            partialToken.type!,
+          )
+        }
+      }, {
+        model: IdTokenInfo,
+        include: [IdToken]
+      }]
     });
   }
 
   private async getOcpiTokenFromAuths(
-    queryParams: SingleTokenRequest | TokenDTO,
+    queryParams: Partial<SingleTokenRequest | TokenDTO>,
     ocppAuths: Authorization[],
   ): Promise<OcpiToken | undefined> {
     return await this.readOnlyOneByQuery({
@@ -276,7 +295,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     transaction: SequelizeTransaction,
   ): Promise<OcpiToken> {
     const [updatedCount, updatedTokens] = await OcpiToken.update(partialToken, {
-      where: { id: existingOcpiToken.id },
+      where: {id: existingOcpiToken.id},
       returning: true,
       transaction,
     });
@@ -285,15 +304,61 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       throw new UnknownTokenException('Token not found in the database');
     }
 
-    const updatedToken = updatedTokens?.[0];
+    return updatedTokens[0];
+  }
 
-    if (updatedCount > 1) {
-      this.logger.warn(
-        `More than one token updated for primary ID ${existingOcpiToken.id}`,
-      );
+  private async updateAuthorization(
+    existingAuth: Authorization,
+    partialToken: Partial<TokenDTO>,
+    transaction: SequelizeTransaction
+  ): Promise<Authorization> {
+    const partialIdTokenInfo = this.mapTokenDTOToPartialAuthorization(existingAuth, partialToken);
+
+    if (!partialIdTokenInfo) {
+      return existingAuth;
     }
 
-    return updatedToken;
+    const [updateCount, updatedIdTokenInfo] = await IdTokenInfo.update(partialIdTokenInfo, {
+      where: {id: existingAuth.idTokenInfoId},
+      returning: true,
+      transaction
+    });
+
+    if (updateCount === 0) {
+      this.logger.warn(`No updatable idTokenInfo found for auth ${existingAuth.id}`);
+      return existingAuth;
+    }
+
+    if (partialIdTokenInfo.groupIdToken) {
+      await IdToken.update(partialIdTokenInfo.groupIdToken, {where: {id: updatedIdTokenInfo[0].groupIdTokenId}});
+    }
+
+    return await existingAuth.reload({include: [{model: IdTokenInfo}], transaction});
+  }
+
+  private mapTokenDTOToPartialAuthorization(existingAuth: Authorization, tokenDTO: Partial<TokenDTO>): Partial<IdTokenInfoType> {
+    const idTokenInfo: IdTokenInfoType = {
+      status: existingAuth.idTokenInfo?.status!
+    };
+
+    if (tokenDTO.valid !== undefined) {
+      idTokenInfo.status = tokenDTO.valid
+        ? AuthorizationStatusEnumType.Accepted
+        : AuthorizationStatusEnumType.Invalid;
+    }
+
+    if (tokenDTO.group_id) {
+      idTokenInfo.groupIdToken = {
+        idToken: tokenDTO.group_id,
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDTO.type!)
+      };
+    }
+
+    if (tokenDTO.language) {
+      idTokenInfo.language1 = tokenDTO.language;
+    }
+
+    return idTokenInfo;
   }
 
   private async createNewTokenDto(
@@ -329,6 +394,6 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       );
     }
 
-    return savedAuth;
+    return await savedAuth.reload({include: [IdToken, IdTokenInfo], transaction});
   }
 }

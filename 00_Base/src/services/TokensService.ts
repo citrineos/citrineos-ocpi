@@ -14,7 +14,8 @@ export class TokensService {
   constructor(
     private readonly logger: OcpiLogger,
     private readonly tokenRepository: TokensRepository,
-  ) {}
+  ) {
+  }
 
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
@@ -26,7 +27,7 @@ export class TokensService {
     return this.tokenRepository.saveToken(token);
   }
 
-  async updateToken(token: TokenDTO): Promise<TokenDTO> {
+  async updateToken(token: Partial<TokenDTO>): Promise<TokenDTO> {
     return this.tokenRepository.updateToken(token);
   }
 }
