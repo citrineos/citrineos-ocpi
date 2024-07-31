@@ -26,6 +26,7 @@ import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 import * as packageJson from '../package.json';
 
+export { plainToClass } from './util/util';
 export {
   OcpiErrorResponse,
   buildOcpiErrorResponse,

@@ -37,12 +37,12 @@ export function createLocalConfig() {
       smartcharging: {
         endpointPrefix: '/smartcharging',
       },
+      tenant: {
+        endpointPrefix: '/tenant',
+      },
       transactions: {
         endpointPrefix: '/transactions',
         costUpdatedInterval: 60,
-      },
-      tenant: {
-        endpointPrefix: '/tenant',
       },
     },
     data: {
@@ -55,6 +55,7 @@ export function createLocalConfig() {
         password: 'citrine',
         storage: '',
         sync: false,
+        alter: true,
       },
     },
     util: {
@@ -124,8 +125,8 @@ export function createLocalConfig() {
       },
     },
     logLevel: 2, // debug
-    maxCallLengthSeconds: 5,
-    maxCachingSeconds: 10,
+    maxCallLengthSeconds: 30,
+    maxCachingSeconds: 30,
     ocpiServer: {
       host: '0.0.0.0',
       port: 8085,
