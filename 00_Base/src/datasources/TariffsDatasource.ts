@@ -75,8 +75,11 @@ export class TariffsDatasource implements ITariffsDatasource {
       const coreTariffIdToOcpiTariffMap = new Map(
         ocpiTariffs.map((tariff) => [tariff.coreTariffId, tariff]),
       );
+
       const coreTariffs = await this.coreTariffRepository.readAllByQuery({
-        where: { id: { [Op.in]: Object.keys(coreTariffIdToOcpiTariffMap) } },
+        where: {
+          id: { [Op.in]: Array.from(coreTariffIdToOcpiTariffMap.keys()) },
+        },
         order: [['createdAt', 'ASC']],
       });
 
