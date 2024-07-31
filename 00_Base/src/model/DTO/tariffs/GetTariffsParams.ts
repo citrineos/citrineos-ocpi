@@ -18,9 +18,9 @@ export function buildGetTariffsParams(
   return {
     limit,
     offset,
-    ...dateFrom && {dateFrom},
-    ...dateTo && {dateTo},
-    ...cpoCountryCode && {cpoCountryCode},
-    ...cpoPartyId && {cpoPartyId},
+    ...(dateFrom && { dateFrom }),
+    ...(dateTo && { dateTo }),
+    ...(cpoCountryCode && { cpoCountryCode }),
+    ...(cpoPartyId && { cpoPartyId }),
   };
 }

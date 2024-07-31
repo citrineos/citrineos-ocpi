@@ -10,8 +10,7 @@ import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 
 @Service()
 export class TariffMapper {
-  constructor() {
-  }
+  constructor() {}
 
   public map(coreTariff: Tariff, ocpiTariff: OcpiTariff): TariffDTO {
     return {
@@ -67,23 +66,23 @@ export class TariffMapper {
         },
         ...(coreTariff.pricePerMin
           ? [
-            {
-              type: TariffDimensionType.TIME,
-              price: coreTariff.pricePerMin * MINUTES_IN_HOUR,
-              vat: coreTariff.taxRate,
-              step_size: 1,
-            },
-          ]
+              {
+                type: TariffDimensionType.TIME,
+                price: coreTariff.pricePerMin * MINUTES_IN_HOUR,
+                vat: coreTariff.taxRate,
+                step_size: 1,
+              },
+            ]
           : []),
         ...(coreTariff.pricePerSession
           ? [
-            {
-              type: TariffDimensionType.FLAT,
-              price: coreTariff.pricePerSession,
-              vat: coreTariff.taxRate,
-              step_size: 1,
-            },
-          ]
+              {
+                type: TariffDimensionType.FLAT,
+                price: coreTariff.pricePerSession,
+                vat: coreTariff.taxRate,
+                step_size: 1,
+              },
+            ]
           : []),
       ],
       restrictions: undefined,

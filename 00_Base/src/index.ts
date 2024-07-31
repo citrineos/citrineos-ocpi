@@ -220,7 +220,10 @@ export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
-export { PaginatedTariffResponse, TariffDTO } from './model/DTO/tariffs/TariffDTO';
+export {
+  PaginatedTariffResponse,
+  TariffDTO,
+} from './model/DTO/tariffs/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 export { OcpiEvse } from './model/OcpiEvse';
 export { OcpiConnector } from './model/OcpiConnector';

@@ -19,96 +19,125 @@ export class TariffsDatasource implements ITariffsDatasource {
     private tariffMapper: TariffMapper,
     private ocpiSequelizeInstance: OcpiSequelizeInstance,
     private readonly logger: Logger<ILogObj>,
-  ) {
-  }
+  ) {}
 
-  async getTariffByKey(key: TariffKey, isCoreTariffKey: boolean = false): Promise<TariffDTO | undefined> {
+  async getTariffByKey(
+    key: TariffKey,
+    isCoreTariffKey: boolean = false,
+  ): Promise<TariffDTO | undefined> {
     try {
       const ocpiTariff = isCoreTariffKey
         ? await this.ocpiTariffRepository.findByCoreTariffKey(key)
         : await this.ocpiTariffRepository.findByTariffKey(key);
 
-      if (!ocpiTariff) return undefined;
+      if (!ocpiTariff) {
+        return undefined;
+      }
 
-      const coreTariff = await this.coreTariffRepository.readByKey(ocpiTariff.coreTariffId);
-      if (!coreTariff) throw new Error(`Core tariff for OCPI tariff ${ocpiTariff.id} not found`);
+      const coreTariff = await this.coreTariffRepository.readByKey(
+        ocpiTariff.coreTariffId,
+      );
+      if (!coreTariff) {
+        throw new Error(
+          `Core tariff for OCPI tariff ${ocpiTariff.id} not found`,
+        );
+      }
 
       return this.tariffMapper.map(coreTariff, ocpiTariff);
     } catch (error) {
-      this.logger.error(`Error in getTariffByKey: ${error}`, {key, isCoreTariffKey});
+      this.logger.error(`Error in getTariffByKey: ${error}`, {
+        key,
+        isCoreTariffKey,
+      });
       throw error;
     }
   }
 
-  async getTariffs(params: GetTariffsParams): Promise<{ data: TariffDTO[]; count: number }> {
+  async getTariffs(
+    params: GetTariffsParams,
+  ): Promise<{ data: TariffDTO[]; count: number }> {
     try {
-      const {rows: ocpiTariffs, count: ocpiTariffsCount} = await this.ocpiTariffRepository.getTariffs(params);
+      const { rows: ocpiTariffs, count: ocpiTariffsCount } =
+        await this.ocpiTariffRepository.getTariffs(params);
 
-      if (ocpiTariffsCount === 0) return {data: [], count: 0};
+      if (ocpiTariffsCount === 0) return { data: [], count: 0 };
 
       const tariffs = await this.getTariffsForOcpiTariffs(ocpiTariffs);
-      return {data: tariffs, count: ocpiTariffsCount};
+      return { data: tariffs, count: ocpiTariffsCount };
     } catch (error) {
-      this.logger.error(`Error in getTariffs: ${error}`, {params});
+      this.logger.error(`Error in getTariffs: ${error}`, { params });
       throw error;
     }
-
   }
 
   async getTariffsForOcpiTariffs(ocpiTariffs: OcpiTariff[]) {
     try {
-      const coreTariffIdToOcpiTariffMap = new Map(ocpiTariffs.map(tariff => [tariff.coreTariffId, tariff]));
+      const coreTariffIdToOcpiTariffMap = new Map(
+        ocpiTariffs.map((tariff) => [tariff.coreTariffId, tariff]),
+      );
       const coreTariffs = await this.coreTariffRepository.readAllByQuery({
-        where: {id: {[Op.in]: Object.keys(coreTariffIdToOcpiTariffMap)}},
+        where: { id: { [Op.in]: Object.keys(coreTariffIdToOcpiTariffMap) } },
         order: [['createdAt', 'ASC']],
       });
 
-      return coreTariffs.map(coreTariff =>
-        this.tariffMapper.map(coreTariff, coreTariffIdToOcpiTariffMap.get(coreTariff.id)!)
+      return coreTariffs.map((coreTariff) =>
+        this.tariffMapper.map(
+          coreTariff,
+          coreTariffIdToOcpiTariffMap.get(coreTariff.id)!,
+        ),
       );
     } catch (error) {
       this.logger.error(`Error in getTariffsForOcpiTariffs: ${error}`);
       throw error;
     }
-
   }
 
   async saveTariff(tariffRequest: PutTariffRequest): Promise<TariffDTO> {
     try {
-      const [ocpiTariff, coreTariff] = this.tariffMapper.mapPutTariffRequestToEntities(tariffRequest);
+      const [ocpiTariff, coreTariff] =
+        this.tariffMapper.mapPutTariffRequestToEntities(tariffRequest);
 
-      const [savedCoreTariff, savedOcpiTariff] = await this.ocpiSequelizeInstance.sequelize.transaction(async (t) => {
-        const [savedCoreTariff] = await Tariff.upsert(coreTariff.toJSON(), {transaction: t});
+      const [newCoreTariff, newOcpiTariff] =
+        await this.ocpiSequelizeInstance.sequelize.transaction(async (t) => {
+          const [savedCoreTariff] = await Tariff.upsert(coreTariff.toJSON(), {
+            transaction: t,
+          });
 
-        ocpiTariff.coreTariffId = savedCoreTariff.id;
-        const [savedOcpiTariff] = await OcpiTariff.upsert(ocpiTariff.toJSON(), {transaction: t});
+          ocpiTariff.coreTariffId = savedCoreTariff.id;
+          const [savedOcpiTariff] = await OcpiTariff.upsert(
+            ocpiTariff.toJSON(),
+            { transaction: t },
+          );
 
-        return [savedCoreTariff, savedOcpiTariff];
-      });
+          return [savedCoreTariff, savedOcpiTariff];
+        });
 
-      return this.tariffMapper.map(savedCoreTariff, savedOcpiTariff);
+      return this.tariffMapper.map(newCoreTariff, newOcpiTariff);
     } catch (error) {
-      this.logger.error(`Error in saveTariff: ${error}`, {tariffRequest});
+      this.logger.error(`Error in saveTariff: ${error}`, { tariffRequest });
       throw error;
     }
   }
 
   async deleteTariffByTariffId(tariffId: number): Promise<void> {
     try {
-      const savedOcpiTariff = await this.ocpiTariffRepository.readByKey(tariffId);
+      const savedOcpiTariff =
+        await this.ocpiTariffRepository.readByKey(tariffId);
       if (!savedOcpiTariff) return;
 
       await this.ocpiSequelizeInstance.sequelize.transaction(async (t) => {
         if (savedOcpiTariff.coreTariffId) {
           await Tariff.destroy({
-            where: {id: savedOcpiTariff.coreTariffId},
-            transaction: t
+            where: { id: savedOcpiTariff.coreTariffId },
+            transaction: t,
           });
         }
-        await savedOcpiTariff.destroy({transaction: t});
+        await savedOcpiTariff.destroy({ transaction: t });
       });
     } catch (error) {
-      this.logger.error(`Error in deleteTariffByTariffId: ${error}`, {tariffId});
+      this.logger.error(`Error in deleteTariffByTariffId: ${error}`, {
+        tariffId,
+      });
       throw error;
     }
   }

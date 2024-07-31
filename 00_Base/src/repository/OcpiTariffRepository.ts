@@ -25,31 +25,31 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
   }
 
   async findByTariffKey({
-                          id,
-                          countryCode,
-                          partyId,
-                        }: TariffKey): Promise<OcpiTariff | undefined> {
-    return this.readOnlyOneByQuery({where: {id, countryCode, partyId}});
+    id,
+    countryCode,
+    partyId,
+  }: TariffKey): Promise<OcpiTariff | undefined> {
+    return this.readOnlyOneByQuery({ where: { id, countryCode, partyId } });
   }
 
   async findByCoreTariffKey({
-                              id: coreTariffId,
-                              countryCode,
-                              partyId,
-                            }: TariffKey): Promise<OcpiTariff | undefined> {
+    id: coreTariffId,
+    countryCode,
+    partyId,
+  }: TariffKey): Promise<OcpiTariff | undefined> {
     return this.readOnlyOneByQuery({
-      where: {coreTariffId, countryCode, partyId},
+      where: { coreTariffId, countryCode, partyId },
     });
   }
 
   async getTariffs(
-    params: GetTariffsParams
+    params: GetTariffsParams,
   ): Promise<{ rows: OcpiTariff[]; count: number }> {
     return this.findAndCount({
       where: {
         ...this.lastUpdated(params.dateFrom, params.dateTo),
-        ...(params.cpoCountryCode && {countryCode: params.cpoCountryCode}),
-        ...(params.cpoPartyId && {partyId: params.cpoPartyId}),
+        ...(params.cpoCountryCode && { countryCode: params.cpoCountryCode }),
+        ...(params.cpoPartyId && { partyId: params.cpoPartyId }),
       },
       offset: params.offset,
       limit: params.limit,
@@ -77,11 +77,11 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
       return {};
     }
     if (!from && to) {
-      return {updatedAt: {[Op.lte]: to}};
+      return { updatedAt: { [Op.lte]: to } };
     }
     if (from && !to) {
-      return {updatedAt: {[Op.gte]: from}};
+      return { updatedAt: { [Op.gte]: from } };
     }
-    return {updatedAt: {[Op.between]: [from, to]}};
+    return { updatedAt: { [Op.between]: [from, to] } };
   }
 }

@@ -47,11 +47,11 @@ export class PutTariffRequest {
   @IsArray()
   @Optional()
   @Type(() => DisplayText)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   tariff_alt_text?: DisplayText[] | null;
 
   @IsString()
-  @IsUrl({require_tld: false})
+  @IsUrl({ require_tld: false })
   @Optional()
   tariff_alt_url?: string | null;
 
@@ -69,7 +69,7 @@ export class PutTariffRequest {
   @IsArray()
   @IsNotEmpty()
   @Type(() => TariffElement)
-  @ValidateNested({each: true})
+  @ValidateNested({ each: true })
   elements!: TariffElement[];
 
   @Optional()

@@ -4,9 +4,14 @@ import { GetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 
 export interface ITariffsDatasource {
-  getTariffByKey(key: TariffKey, isCoreTariffKey?: boolean): Promise<TariffDTO | undefined>;
+  getTariffByKey(
+    key: TariffKey,
+    isCoreTariffKey?: boolean,
+  ): Promise<TariffDTO | undefined>;
 
-  getTariffs(params: GetTariffsParams): Promise<{ data: TariffDTO[]; count: number }>;
+  getTariffs(
+    params: GetTariffsParams,
+  ): Promise<{ data: TariffDTO[]; count: number }>;
 
   getTariffsForOcpiTariffs(ocpiTariffs: OcpiTariff[]): Promise<TariffDTO[]>;
 

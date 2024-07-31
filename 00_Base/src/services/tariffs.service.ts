@@ -12,9 +12,9 @@ import { ITariffsDatasource } from '../datasources/ITariffsDatasource';
 @Service()
 export class TariffsService {
   constructor(
-    @Inject(() => TariffsDatasource) private readonly tariffsDatasource: ITariffsDatasource
-  ) {
-  }
+    @Inject(() => TariffsDatasource)
+    private readonly tariffsDatasource: ITariffsDatasource,
+  ) {}
 
   async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
     return this.tariffsDatasource.getTariffByKey(key);
@@ -42,8 +42,8 @@ export class TariffsService {
         paginationParams?.dateFrom,
         paginationParams?.dateTo,
         ocpiHeaders.toCountryCode,
-        ocpiHeaders.toPartyId
-      )
+        ocpiHeaders.toPartyId,
+      ),
     );
   }
 

@@ -22,8 +22,8 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   public async broadcastOcpiUpdate(ocpiTariffs: OcpiTariff[]) {
-    (await this.tariffService.getTariffsForOcpiTariffs(ocpiTariffs)).forEach((tariff) =>
-      this.broadcastTariff(tariff),
+    (await this.tariffService.getTariffsForOcpiTariffs(ocpiTariffs)).forEach(
+      (tariff) => this.broadcastTariff(tariff),
     );
   }
 
@@ -67,10 +67,10 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastTariffDeletion({
-                                          id,
-                                          countryCode,
-                                          partyId,
-                                        }: TariffKey): Promise<void> {
+    id,
+    countryCode,
+    partyId,
+  }: TariffKey): Promise<void> {
     try {
       const params = DeleteTariffParams.build(id);
       await this.tariffsClientApi.broadcastToClients(
