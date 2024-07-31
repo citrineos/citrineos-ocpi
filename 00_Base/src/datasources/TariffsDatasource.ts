@@ -60,7 +60,9 @@ export class TariffsDatasource implements ITariffsDatasource {
       const { rows: ocpiTariffs, count: ocpiTariffsCount } =
         await this.ocpiTariffRepository.getTariffs(params);
 
-      if (ocpiTariffsCount === 0) return { data: [], count: 0 };
+      if (ocpiTariffsCount === 0) {
+        return { data: [], count: 0 };
+      }
 
       const tariffs = await this.getTariffsForOcpiTariffs(ocpiTariffs);
       return { data: tariffs, count: ocpiTariffsCount };
@@ -126,7 +128,9 @@ export class TariffsDatasource implements ITariffsDatasource {
     try {
       const savedOcpiTariff =
         await this.ocpiTariffRepository.readByKey(tariffId);
-      if (!savedOcpiTariff) return;
+      if (!savedOcpiTariff) {
+        return;
+      }
 
       await this.ocpiSequelizeInstance.sequelize.transaction(async (t) => {
         if (savedOcpiTariff.coreTariffId) {
