@@ -16,7 +16,12 @@ import {
 } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
-import { AuthorizationStatusEnumType, IdTokenEnumType, IdTokenInfoType, SystemConfig } from '@citrineos/base';
+import {
+  AuthorizationStatusEnumType,
+  IdTokenEnumType,
+  IdTokenInfoType,
+  SystemConfig,
+} from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
@@ -172,8 +177,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       const updatedAuthorization = await this.updateAuthorization(
         this.getMatchingAuth(updatedToken.authorization_id, ocppAuths)!,
         partialToken,
-        transaction
-      )
+        transaction,
+      );
       const newTokenDto = await OcpiTokensMapper.toDto(
         updatedAuthorization,
         updatedToken,
@@ -258,18 +263,21 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     partialToken: Partial<TokenDTO | SingleTokenRequest>,
   ): Promise<Authorization[]> {
     return await Authorization.findAll({
-      include: [{
-        model: IdToken,
-        where: {
-          idToken: partialToken.uid!,
-          type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-            partialToken.type!,
-          )
-        }
-      }, {
-        model: IdTokenInfo,
-        include: [IdToken]
-      }]
+      include: [
+        {
+          model: IdToken,
+          where: {
+            idToken: partialToken.uid!,
+            type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+              partialToken.type!,
+            ),
+          },
+        },
+        {
+          model: IdTokenInfo,
+          include: [IdToken],
+        },
+      ],
     });
   }
 
@@ -295,7 +303,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     transaction: SequelizeTransaction,
   ): Promise<OcpiToken> {
     const [updatedCount, updatedTokens] = await OcpiToken.update(partialToken, {
-      where: {id: existingOcpiToken.id},
+      where: { id: existingOcpiToken.id },
       returning: true,
       transaction,
     });
@@ -310,35 +318,51 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   private async updateAuthorization(
     existingAuth: Authorization,
     partialToken: Partial<TokenDTO>,
-    transaction: SequelizeTransaction
+    transaction: SequelizeTransaction,
   ): Promise<Authorization> {
-    const partialIdTokenInfo = this.mapTokenDTOToPartialAuthorization(existingAuth, partialToken);
+    const partialIdTokenInfo = this.mapTokenDTOToPartialAuthorization(
+      existingAuth,
+      partialToken,
+    );
 
     if (!partialIdTokenInfo) {
       return existingAuth;
     }
 
-    const [updateCount, updatedIdTokenInfo] = await IdTokenInfo.update(partialIdTokenInfo, {
-      where: {id: existingAuth.idTokenInfoId},
-      returning: true,
-      transaction
-    });
+    const [updateCount, updatedIdTokenInfo] = await IdTokenInfo.update(
+      partialIdTokenInfo,
+      {
+        where: { id: existingAuth.idTokenInfoId },
+        returning: true,
+        transaction,
+      },
+    );
 
     if (updateCount === 0) {
-      this.logger.warn(`No updatable idTokenInfo found for auth ${existingAuth.id}`);
+      this.logger.warn(
+        `No updatable idTokenInfo found for auth ${existingAuth.id}`,
+      );
       return existingAuth;
     }
 
     if (partialIdTokenInfo.groupIdToken) {
-      await IdToken.update(partialIdTokenInfo.groupIdToken, {where: {id: updatedIdTokenInfo[0].groupIdTokenId}});
+      await IdToken.update(partialIdTokenInfo.groupIdToken, {
+        where: { id: updatedIdTokenInfo[0].groupIdTokenId },
+      });
     }
 
-    return await existingAuth.reload({include: [{model: IdTokenInfo}], transaction});
+    return await existingAuth.reload({
+      include: [{ model: IdTokenInfo }],
+      transaction,
+    });
   }
 
-  private mapTokenDTOToPartialAuthorization(existingAuth: Authorization, tokenDTO: Partial<TokenDTO>): Partial<IdTokenInfoType> {
+  private mapTokenDTOToPartialAuthorization(
+    existingAuth: Authorization,
+    tokenDTO: Partial<TokenDTO>,
+  ): Partial<IdTokenInfoType> {
     const idTokenInfo: IdTokenInfoType = {
-      status: existingAuth.idTokenInfo?.status!
+      status: existingAuth.idTokenInfo?.status!,
     };
 
     if (tokenDTO.valid !== undefined) {
@@ -350,7 +374,9 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     if (tokenDTO.group_id) {
       idTokenInfo.groupIdToken = {
         idToken: tokenDTO.group_id,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDTO.type!)
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+          tokenDTO.type!,
+        ),
       };
     }
 
@@ -394,6 +420,9 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       );
     }
 
-    return await savedAuth.reload({include: [IdToken, IdTokenInfo], transaction});
+    return await savedAuth.reload({
+      include: [IdToken, IdTokenInfo],
+      transaction,
+    });
   }
 }

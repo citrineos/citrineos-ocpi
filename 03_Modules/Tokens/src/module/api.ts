@@ -74,7 +74,8 @@ const MockPutTokenBody = {
 @Service()
 export class TokensModuleApi
   extends BaseController
-  implements ITokensModuleApi {
+  implements ITokensModuleApi
+{
   constructor(
     readonly tokensService: TokensService,
     readonly tokensFetchService: TokensAdminService,
@@ -298,7 +299,7 @@ export class TokensModuleApi
     @QueryParam('mspPartyId') mspPartyId: string,
     @QueryParam('cpoCountryCode') cpoCountryCode: string,
     @QueryParam('cpoPartyId') cpoPartyId: string,
-    @QueryParam('active', {required: false}) active: boolean,
+    @QueryParam('active', { required: false }) active: boolean,
   ): Promise<AsyncJobStatusDTO[]> {
     return (
       await this.tokensFetchService.getFetchTokensJobs(

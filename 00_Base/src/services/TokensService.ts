@@ -14,8 +14,7 @@ export class TokensService {
   constructor(
     private readonly logger: OcpiLogger,
     private readonly tokenRepository: TokensRepository,
-  ) {
-  }
+  ) {}
 
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
