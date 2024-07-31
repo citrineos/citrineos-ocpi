@@ -1,6 +1,5 @@
 import {
   KoaMiddlewareInterface,
-  Middleware,
   NotFoundError,
   UnauthorizedError,
 } from 'routing-controllers';
@@ -24,7 +23,6 @@ class HttpExceptionBody {
   }
 }
 
-@Middleware({ type: 'before', priority: 10 })
 @Service()
 export class HttpExceptionHandler implements KoaMiddlewareInterface {
   public async use(

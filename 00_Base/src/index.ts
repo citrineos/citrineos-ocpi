@@ -24,6 +24,7 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
+import * as packageJson from '../package.json';
 
 export {
   OcpiErrorResponse,
@@ -246,6 +247,7 @@ export {
   ConnectorVariableAttributes,
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
+export { UnregisterClientRequestDTO } from './model/UnregisterClientRequestDTO';
 export { LocationsDatasource } from './datasources/LocationsDatasource';
 
 useContainer(Container);
@@ -307,7 +309,7 @@ export class OcpiServer extends KoaServer {
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
-          version: '1.0.0',
+          version: packageJson.version,
         },
         [
           {

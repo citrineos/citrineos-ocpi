@@ -47,8 +47,7 @@ export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerC
       OcpiNamespace.Credentials,
     );
     if (!serverCredentialsRole) {
-      const msg =
-        'Server credentials role not found for country code and party id';
+      const msg = `Server credentials role not found for country code ${countryCode} and party id ${partyId}`;
       this.logger.debug(msg, countryCode, partyId);
       throw new NotFoundError('Server credentials not found');
     }

@@ -1,6 +1,5 @@
 import {
   KoaMiddlewareInterface,
-  Middleware,
   NotFoundError,
   UnauthorizedError,
 } from 'routing-controllers';
@@ -20,7 +19,6 @@ import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulReques
 /**
  * GlobalExceptionHandler handles all exceptions
  */
-@Middleware({ type: 'before', priority: 10 })
 @Service()
 export class OcpiExceptionHandler implements KoaMiddlewareInterface {
   public async use(
