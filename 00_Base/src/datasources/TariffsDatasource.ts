@@ -10,9 +10,12 @@ import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { GetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 import { ITariffsDatasource } from './ITariffsDatasource';
+import { ICitrineTariffsDatasource } from './ICitrineTariffsDatasource';
 
 @Service()
-export class TariffsDatasource implements ITariffsDatasource {
+export class TariffsDatasource
+  implements ITariffsDatasource, ICitrineTariffsDatasource
+{
   constructor(
     private ocpiTariffRepository: OcpiTariffRepository,
     private coreTariffRepository: SequelizeTariffRepository,
@@ -21,36 +24,12 @@ export class TariffsDatasource implements ITariffsDatasource {
     private readonly logger: Logger<ILogObj>,
   ) {}
 
-  async getTariffByKey(
-    key: TariffKey,
-    isCoreTariffKey: boolean = false,
-  ): Promise<TariffDTO | undefined> {
-    try {
-      const ocpiTariff = isCoreTariffKey
-        ? await this.ocpiTariffRepository.findByCoreTariffKey(key)
-        : await this.ocpiTariffRepository.findByTariffKey(key);
+  async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
+    return this.getTariff(key, 'findByTariffKey');
+  }
 
-      if (!ocpiTariff) {
-        return undefined;
-      }
-
-      const coreTariff = await this.coreTariffRepository.readByKey(
-        ocpiTariff.coreTariffId,
-      );
-      if (!coreTariff) {
-        throw new Error(
-          `Core tariff for OCPI tariff ${ocpiTariff.id} not found`,
-        );
-      }
-
-      return this.tariffMapper.map(coreTariff, ocpiTariff);
-    } catch (error) {
-      this.logger.error(`Error in getTariffByKey: ${error}`, {
-        key,
-        isCoreTariffKey,
-      });
-      throw error;
-    }
+  async getTariffByCoreKey(key: TariffKey): Promise<TariffDTO | undefined> {
+    return this.getTariff(key, 'findByCoreTariffKey');
   }
 
   async getTariffs(
@@ -145,6 +124,32 @@ export class TariffsDatasource implements ITariffsDatasource {
       this.logger.error(`Error in deleteTariffByTariffId: ${error}`, {
         tariffId,
       });
+      throw error;
+    }
+  }
+
+  private async getTariff(
+    key: TariffKey,
+    findMethod: 'findByTariffKey' | 'findByCoreTariffKey',
+  ): Promise<TariffDTO | undefined> {
+    try {
+      const ocpiTariff = await this.ocpiTariffRepository[findMethod](key);
+      if (!ocpiTariff) {
+        return undefined;
+      }
+
+      const coreTariff = await this.coreTariffRepository.readByKey(
+        ocpiTariff.coreTariffId,
+      );
+      if (!coreTariff) {
+        throw new Error(
+          `Core tariff for OCPI tariff ${ocpiTariff.id} not found`,
+        );
+      }
+
+      return this.tariffMapper.map(coreTariff, ocpiTariff);
+    } catch (error) {
+      this.logger.error(`Error in getTariff: ${error}`, { key });
       throw error;
     }
   }

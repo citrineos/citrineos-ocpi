@@ -8,12 +8,15 @@ import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 import { TariffsDatasource } from '../datasources/TariffsDatasource';
 import { buildGetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 import { ITariffsDatasource } from '../datasources/ITariffsDatasource';
+import { ICitrineTariffsDatasource } from '../datasources/ICitrineTariffsDatasource';
 
 @Service()
 export class TariffsService {
   constructor(
     @Inject(() => TariffsDatasource)
     private readonly tariffsDatasource: ITariffsDatasource,
+    @Inject(() => TariffsDatasource)
+    private readonly citrineTariffsDatasource: ICitrineTariffsDatasource,
   ) {}
 
   async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
@@ -21,7 +24,7 @@ export class TariffsService {
   }
 
   async getTariffByCoreKey(coreKey: TariffKey): Promise<TariffDTO | undefined> {
-    return this.tariffsDatasource.getTariffByKey(coreKey, true);
+    return this.citrineTariffsDatasource.getTariffByCoreKey(coreKey);
   }
 
   async getTariffsForOcpiTariffs(ocpiTariffs: OcpiTariff[]) {
