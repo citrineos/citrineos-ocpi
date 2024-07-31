@@ -361,8 +361,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     existingAuth: Authorization,
     tokenDTO: Partial<TokenDTO>,
   ): Partial<IdTokenInfoType> {
-    const idTokenInfo: IdTokenInfoType = {
-      status: existingAuth.idTokenInfo?.status!,
+    const idTokenInfo: Partial<IdTokenInfoType> = {
+      status: existingAuth.idTokenInfo?.status,
     };
 
     if (tokenDTO.valid !== undefined) {
