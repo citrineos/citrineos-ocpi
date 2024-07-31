@@ -6,7 +6,6 @@ import {
   TransactionEventRequest,
 } from '@citrineos/base';
 import {
-  SequelizeTariffRepository,
   Tariff,
   Transaction,
 } from '@citrineos/data';
@@ -22,9 +21,9 @@ import { CdrDimension } from '../model/CdrDimension';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokensRepository } from '../repository/TokensRepository';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
-import { TariffsService } from '../services/tariffs.service';
 import { LocationsService } from '../services/locations.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
+import {TariffsDatasource} from "../datasources/TariffsDatasource";
 import { EXTRACT_EVSE_ID } from '../model/DTO/EvseDTO';
 
 @Service()
@@ -34,8 +33,7 @@ export class SessionMapper extends BaseTransactionMapper {
     protected locationsService: LocationsService,
     protected ocpiLocationsRepository: OcpiLocationRepository,
     protected tokensRepository: TokensRepository,
-    protected tariffRepository: SequelizeTariffRepository,
-    protected tariffsService: TariffsService,
+    protected tariffsDatasource: TariffsDatasource,
     readonly credentialsService: CredentialsService,
   ) {
     super(
@@ -43,8 +41,7 @@ export class SessionMapper extends BaseTransactionMapper {
       locationsService,
       ocpiLocationsRepository,
       tokensRepository,
-      tariffRepository,
-      tariffsService,
+      tariffsDatasource,
     );
   }
 

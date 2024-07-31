@@ -20,9 +20,9 @@ import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
-import { TokensValidators } from '../util/validators/TokensValidators';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ServerConfig } from '../config/ServerConfig';
+import { TokenType } from '../model/TokenType';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<OcpiToken> {
@@ -50,13 +50,15 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     tokenRequest: SingleTokenRequest,
   ): Promise<TokenDTO | undefined> {
     try {
-      const ocppAuths = await this.getOcppAuths(tokenRequest);
+      const ocppAuths = await this.getOcppAuths(tokenRequest.uid, tokenRequest.type);
       if (ocppAuths.length === 0) {
         return undefined;
       }
 
       const ocpiToken = await this.getOcpiTokenFromAuths(
-        tokenRequest,
+        tokenRequest.country_code,
+        tokenRequest.party_id,
+        tokenRequest.type,
         ocppAuths,
       );
       if (!ocpiToken) {
@@ -118,7 +120,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
    * @param {TokenDTO} tokenDto - The token to save.
    * @return {Promise<TokenDTO>} The saved token.
    */
-  async saveToken(tokenDto: TokenDTO): Promise<TokenDTO> {
+  async updateToken(tokenDto: TokenDTO): Promise<TokenDTO> {
     const savedOcppAuth = await this.createOrUpdateOcppAuth(tokenDto);
     try {
       const ocpiToken = await this.createOrUpdateOcpiToken(
@@ -132,28 +134,19 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
   }
 
-  /**
-   * Updates an existing token.
-   *
-   * @param {Partial<OcpiToken>} partialToken - The partial token to update.
-   * @return {Promise<OcpiToken>} The updated token.
-   * @throws {UnknownTokenException} If the token is not found.
-   */
-  async updateToken(partialToken: Partial<TokenDTO>): Promise<TokenDTO> {
-    TokensValidators.validatePartialTokenForUniquenessRequiredFields(
-      partialToken,
-    );
-
-    const ocppAuths = await this.getOcppAuths(partialToken);
+  async patchToken(countryCode: string, partyId: string, tokenUid: string, type: TokenType, partialToken: Partial<TokenDTO>): Promise<TokenDTO> {
+    const ocppAuths = await this.getOcppAuths(tokenUid, type);
 
     if (ocppAuths.length === 0) {
       throw new UnknownTokenException(
-        `OCPP Auths not found in the database for token ${partialToken.uid}`,
+        `OCPP Auths not found in the database for token ${tokenUid}`,
       );
     }
 
     const existingOcpiToken = await this.getOcpiTokenFromAuths(
-      partialToken,
+      countryCode,
+      partyId,
+      type,
       ocppAuths,
     );
 
@@ -164,11 +157,11 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
 
     return await this.s.transaction(async (transaction) => {
-      const updatedToken = await this.updateOcpiToken(
-        existingOcpiToken,
-        partialToken,
+      const updatedToken = await existingOcpiToken.update(partialToken, {
+        where: { id: existingOcpiToken.id },
+        returning: true,
         transaction,
-      );
+      });
       const updatedAuthorization = await this.updateAuthorization(
         this.getMatchingAuth(updatedToken.authorization_id, ocppAuths)!,
         partialToken,
@@ -199,7 +192,7 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     // TODO: do an actual bulk update
     for (const token of tokens) {
       try {
-        await this.saveToken(token);
+        await this.updateToken(token);
       } catch (e) {
         this.logger.error(e);
         batchFailedTokens.push(token);
@@ -255,17 +248,15 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   private async getOcppAuths(
-    partialToken: Partial<TokenDTO | SingleTokenRequest>,
+    uid: string, type: TokenType
   ): Promise<Authorization[]> {
     return await Authorization.findAll({
       include: [
         {
           model: IdToken,
           where: {
-            idToken: partialToken.uid!,
-            type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-              partialToken.type!,
-            ),
+            idToken: uid,
+            type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(type),
           },
         },
         {
@@ -277,7 +268,9 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   private async getOcpiTokenFromAuths(
-    queryParams: Partial<SingleTokenRequest | TokenDTO>,
+    countryCode: string,
+    partyId: string,
+    type: TokenType,
     ocppAuths: Authorization[],
   ): Promise<OcpiToken | undefined> {
     return await this.readOnlyOneByQuery({
@@ -285,29 +278,11 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
         authorization_id: {
           [Op.in]: ocppAuths.map((ocppAuth) => ocppAuth.id),
         },
-        country_code: queryParams.country_code,
-        party_id: queryParams.party_id,
-        type: queryParams.type,
+        country_code: countryCode,
+        party_id: partyId,
+        type: type,
       },
     });
-  }
-
-  private async updateOcpiToken(
-    existingOcpiToken: OcpiToken,
-    partialToken: Partial<OcpiToken>,
-    transaction: SequelizeTransaction,
-  ): Promise<OcpiToken> {
-    const [updatedCount, updatedTokens] = await OcpiToken.update(partialToken, {
-      where: { id: existingOcpiToken.id },
-      returning: true,
-      transaction,
-    });
-
-    if (updatedCount === 0) {
-      throw new UnknownTokenException('Token not found in the database');
-    }
-
-    return updatedTokens[0];
   }
 
   private async updateAuthorization(
