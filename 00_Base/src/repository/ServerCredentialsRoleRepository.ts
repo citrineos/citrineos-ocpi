@@ -3,7 +3,10 @@ import { SequelizeRepository } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
-import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { ILogObj, Logger } from 'tslog';
 import { NotFoundError } from 'routing-controllers';
@@ -44,8 +47,7 @@ export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerC
       OcpiNamespace.Credentials,
     );
     if (!serverCredentialsRole) {
-      const msg =
-        `Server credentials role not found for country code ${countryCode} and party id ${partyId}`;
+      const msg = `Server credentials role not found for country code ${countryCode} and party id ${partyId}`;
       this.logger.debug(msg, countryCode, partyId);
       throw new NotFoundError('Server credentials not found');
     }
