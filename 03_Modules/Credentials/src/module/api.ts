@@ -1,10 +1,12 @@
 import {
+  AdminCredentialsRequestDTO,
+  AdminUpdateCredentialsRequestDTO,
+  AsAdminEndpoint,
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
   ClientInformation,
   CredentialsDTO,
-  AdminCredentialsRequestDTO,
   CredentialsResponse,
   CredentialsService,
   generateMockOcpiResponse,
@@ -14,10 +16,10 @@ import {
   OcpiResponseStatusCode,
   ResponseSchema,
   toCredentialsDTO,
+  UnregisterClientRequestDTO,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
-  AdminUpdateCredentialsRequestDTO,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
@@ -27,6 +29,8 @@ import {
   Delete,
   Get,
   JsonController,
+  OnUndefined,
+  Param,
   Post,
   Put,
 } from 'routing-controllers';
@@ -182,6 +186,37 @@ export class CredentialsModuleApi
       ? clientInformation.get({ plain: true })
       : clientInformation;
     return CredentialsResponse.build(toCredentialsDTO(clientInformation));
+  }
+
+  @Delete('/delete-tenant/:tenantId')
+  @AsAdminEndpoint()
+  @ResponseSchema(OcpiEmptyResponse, {
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async deleteTenant(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Param('tenantId') tenantId: string,
+  ): Promise<OcpiEmptyResponse> {
+    this.logger.info('deleteTenant', tenantId);
+    await this.credentialsService?.deleteTenant(tenantId, versionNumber);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Delete('/unregister-client')
+  @OnUndefined(HttpStatus.NO_CONTENT)
+  @AsAdminEndpoint()
+  async unregisterClient(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() request: UnregisterClientRequestDTO,
+  ): Promise<void> {
+    this.logger.info('unregisterClient', request);
+    return this.credentialsService?.unregisterClient(request, versionNumber);
   }
 
   /**

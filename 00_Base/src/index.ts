@@ -244,6 +244,7 @@ export {
   ConnectorVariableAttributes,
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
+export { UnregisterClientRequestDTO } from './model/UnregisterClientRequestDTO';
 export { LocationsDatasource } from './datasources/LocationsDatasource';
 
 useContainer(Container);
