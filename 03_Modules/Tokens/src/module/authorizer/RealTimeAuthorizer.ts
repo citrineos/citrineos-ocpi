@@ -33,7 +33,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
     authorization: Authorization,
     _context: IMessageContext,
   ): Promise<Partial<IdTokenInfoType>> {
-    const result = new IdTokenInfo();
+    const result = {} as Partial<IdTokenInfo>;
     result.status = AuthorizationStatusEnumType.Invalid;
     try {
       const ocpiToken = await this.getOcpiToken(authorization);
@@ -55,7 +55,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
     return result;
   }
 
-  private async performAndRealTimeAuthUpdateResult(result: IdTokenInfo, ocpiToken: OcpiToken, authorization: Authorization) {
+  private async performAndRealTimeAuthUpdateResult(result: Partial<IdTokenInfo>, ocpiToken: OcpiToken, authorization: Authorization) {
     const cpoTenant = await this.getCpoTenant(ocpiToken);
     const params = this.buildPostTokenParams(
       authorization,
