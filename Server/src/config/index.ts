@@ -3,22 +3,23 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { createLocalConfig } from './envs/local';
-import { createDockerConfig } from './envs/docker';
-import { OcpiServerConfig, plainToClass } from '@citrineos/ocpi-base';
-import { SystemConfig } from '@citrineos/base';
+import { localConfig } from './envs/local';
+import { dockerConfig } from './envs/docker';
+import { plainToClass, ServerConfig } from '@citrineos/ocpi-base';
 
-function getConfig(): OcpiServerConfig {
-  let systemConfig: SystemConfig;
+function getConfig(): ServerConfig {
+  let systemConfigPlain: any;
   switch (process.env.APP_ENV) {
     case 'local':
-      systemConfig = createLocalConfig();
+      systemConfigPlain = localConfig;
+      break;
     case 'docker':
-      systemConfig = createDockerConfig();
+      systemConfigPlain = dockerConfig;
+      break;
     default:
       throw new Error('Invalid APP_ENV "${process.env.APP_ENV}"');
   }
-  return plainToClass(OcpiServerConfig, systemConfig);
+  return plainToClass(ServerConfig, systemConfigPlain, false);;
 }
 
-export const systemConfig: OcpiServerConfig = getConfig();
+export const systemConfig: ServerConfig = getConfig();
