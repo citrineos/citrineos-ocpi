@@ -1,8 +1,4 @@
-import {
-  AuthorizationStatusEnumType,
-  IdTokenInfoType,
-  IMessageContext,
-} from '@citrineos/base';
+import { AuthorizationStatusEnumType, IdTokenInfoType, IMessageContext } from '@citrineos/base';
 import { Authorization, IdToken, IdTokenInfo } from '@citrineos/data';
 import { IAuthorizer } from '@citrineos/util';
 import {
@@ -41,27 +37,38 @@ export class RealTimeAuthorizer implements IAuthorizer {
     result.status = AuthorizationStatusEnumType.Invalid;
     try {
       const ocpiToken = await this.getOcpiToken(authorization);
-      if (ocpiToken.whitelist === WhitelistType.NEVER) {
-        const cpoTenant = await this.getCpoTenant(ocpiToken);
-        const params = this.buildPostTokenParams(
-          authorization,
-          ocpiToken,
-          cpoTenant,
-        );
-        const authorizationInfo = await this.getPostTokenResponse(
-          params,
-          cpoTenant,
-        );
-        if (authorizationInfo.allowed === AuthorizationInfoAllowed.Allowed) {
+      if (ocpiToken.whitelist === WhitelistType.ALWAYS || ocpiToken.whitelist === WhitelistType.ALLOWED) {
+        result.status = AuthorizationStatusEnumType.Accepted;
+      } else if (ocpiToken.whitelist === WhitelistType.ALLOWED_OFFLINE) {
+        try {
+          await this.performAndRealTimeAuthUpdateResult(result, ocpiToken, authorization);
+        } catch (e: any) {
+          this.logger.error('Issue performing real-time authorization - permitting because whitelist type is ALLOWED_OFFLINE. Error:' + e.message);
           result.status = AuthorizationStatusEnumType.Accepted;
         }
-      } else {
-        result.status = AuthorizationStatusEnumType.Accepted;
+      } else { // NEVER
+        await this.performAndRealTimeAuthUpdateResult(result, ocpiToken, authorization);
       }
     } catch (e: any) {
       this.logger.error('Error: could not authorize token -' + e.message);
     }
     return result;
+  }
+
+  private async performAndRealTimeAuthUpdateResult(result: IdTokenInfo, ocpiToken: OcpiToken, authorization: Authorization) {
+    const cpoTenant = await this.getCpoTenant(ocpiToken);
+    const params = this.buildPostTokenParams(
+      authorization,
+      ocpiToken,
+      cpoTenant,
+    );
+    const authorizationInfo = await this.getPostTokenResponse(
+      params,
+      cpoTenant,
+    );
+    if (authorizationInfo.allowed === AuthorizationInfoAllowed.Allowed) {
+      result.status = AuthorizationStatusEnumType.Accepted;
+    }
   }
 
   private async getOcpiToken(authorization: Authorization): Promise<OcpiToken> {
@@ -115,13 +122,12 @@ export class RealTimeAuthorizer implements IAuthorizer {
     this.tokensClientApi.baseUrl = tokensEndpoint!.url;
     const response = await this.tokensClientApi.postToken(params);
     this.logger.info('Realtime Authorization response from MSP:', response);
-    const authorizationInfo = response.data;
-    if (!authorizationInfo) {
+    if (!response || !response.data) {
       const msg = `Could not authorization info from client for token id: ${params.tokenId}.`;
       this.logger.error(msg);
       throw new BadRequestError(msg);
     }
-    return authorizationInfo;
+    return response.data;
   }
 
   private buildPostTokenParams(
