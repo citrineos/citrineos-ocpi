@@ -16,12 +16,7 @@ import {
 } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
-import {
-  AuthorizationStatusEnumType,
-  IdTokenEnumType,
-  IdTokenInfoType,
-  SystemConfig,
-} from '@citrineos/base';
+import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
@@ -320,10 +315,11 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     partialToken: Partial<TokenDTO>,
     transaction: SequelizeTransaction,
   ): Promise<Authorization> {
-    const partialIdTokenInfo = this.mapTokenDTOToPartialAuthorization(
-      existingAuth,
-      partialToken,
-    );
+    const partialIdTokenInfo =
+      OcpiTokensMapper.mapTokenDTOToPartialAuthorization(
+        existingAuth,
+        partialToken,
+      );
 
     if (!partialIdTokenInfo) {
       return existingAuth;
@@ -355,36 +351,6 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       include: [{ model: IdTokenInfo }],
       transaction,
     });
-  }
-
-  private mapTokenDTOToPartialAuthorization(
-    existingAuth: Authorization,
-    tokenDTO: Partial<TokenDTO>,
-  ): Partial<IdTokenInfoType> {
-    const idTokenInfo: Partial<IdTokenInfoType> = {
-      status: existingAuth.idTokenInfo?.status,
-    };
-
-    if (tokenDTO.valid !== undefined) {
-      idTokenInfo.status = tokenDTO.valid
-        ? AuthorizationStatusEnumType.Accepted
-        : AuthorizationStatusEnumType.Invalid;
-    }
-
-    if (tokenDTO.group_id) {
-      idTokenInfo.groupIdToken = {
-        idToken: tokenDTO.group_id,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-          tokenDTO.type!,
-        ),
-      };
-    }
-
-    if (tokenDTO.language) {
-      idTokenInfo.language1 = tokenDTO.language;
-    }
-
-    return idTokenInfo;
   }
 
   private async createNewTokenDto(
