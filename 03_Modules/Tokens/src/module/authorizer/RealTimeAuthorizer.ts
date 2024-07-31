@@ -18,6 +18,7 @@ import {
   TokensClientApi,
   TokensRepository,
   UnsuccessfulRequestException,
+  WhitelistType,
 } from '@citrineos/ocpi-base';
 import { BadRequestError } from 'routing-controllers';
 import { ILogObj, Logger } from 'tslog';
@@ -40,17 +41,21 @@ export class RealTimeAuthorizer implements IAuthorizer {
     result.status = AuthorizationStatusEnumType.Invalid;
     try {
       const ocpiToken = await this.getOcpiToken(authorization);
-      const cpoTenant = await this.getCpoTenant(ocpiToken);
-      const params = this.buildPostTokenParams(
-        authorization,
-        ocpiToken,
-        cpoTenant,
-      );
-      const authorizationInfo = await this.getPostTokenResponse(
-        params,
-        cpoTenant,
-      );
-      if (authorizationInfo.allowed === AuthorizationInfoAllowed.Allowed) {
+      if (ocpiToken.whitelist === WhitelistType.NEVER) {
+        const cpoTenant = await this.getCpoTenant(ocpiToken);
+        const params = this.buildPostTokenParams(
+          authorization,
+          ocpiToken,
+          cpoTenant,
+        );
+        const authorizationInfo = await this.getPostTokenResponse(
+          params,
+          cpoTenant,
+        );
+        if (authorizationInfo.allowed === AuthorizationInfoAllowed.Allowed) {
+          result.status = AuthorizationStatusEnumType.Accepted;
+        }
+      } else {
         result.status = AuthorizationStatusEnumType.Accepted;
       }
     } catch (e: any) {

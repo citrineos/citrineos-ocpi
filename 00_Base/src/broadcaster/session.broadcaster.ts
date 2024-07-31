@@ -1,12 +1,7 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import {
-  IdToken,
-  SequelizeTransactionEventRepository,
-  Transaction,
-  TransactionEvent,
-} from '@citrineos/data';
+import { Evse, IdToken, SequelizeTransactionEventRepository, Transaction, TransactionEvent } from '@citrineos/data';
 import { SessionMapper } from '../mapper/session.mapper';
 import { CredentialsService } from '../services/credentials.service';
 import { ILogObj, Logger } from 'tslog';
@@ -14,10 +9,15 @@ import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
 import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
-import { TriggerReasonEnumType } from '@citrineos/base';
+import { TransactionEventEnumType, TriggerReasonEnumType } from '@citrineos/base';
+import { InternalServerError } from 'routing-controllers';
+import { SessionStatus } from '../model/SessionStatus';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
+  private TRANSACTION_EVENTS_DATA_VALUES = 'transactionEvents';
+  private METER_VALUES_DATA_VALUES = 'meterValues';
+
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly transactionEventRepository: SequelizeTransactionEventRepository,
@@ -76,14 +76,26 @@ export class SessionBroadcaster extends BaseBroadcaster {
           );
           const transactionsMap: { [key: string]: Transaction } = {};
           for (const transactionsEvent of transactionsEvents) {
-            const transaction = (await transactionsEvent.$get('transaction', {
-              include: [
+            const transactionId = transactionsEvent.transactionDatabaseId;
+            if (!transactionId) {
+              throw new InternalServerError(
+                'No transaction id found for transaction event',
+              );
+            }
+            const transaction =
+              await this.transactionEventRepository.transaction.readOnlyOneByQuery(
                 {
-                  model: TransactionEvent,
-                  include: [IdToken],
+                  where: { id: transactionId },
+                  include: [
+                    {
+                      model: TransactionEvent,
+                      as: Transaction.TRANSACTION_EVENTS_ALIAS,
+                      include: [IdToken],
+                    },
+                    Evse,
+                  ],
                 },
-              ],
-            })) as Transaction;
+              );
             if (transaction) {
               transactionsMap[transaction.id] = transaction;
             }
@@ -114,7 +126,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
               );
 
             for (const session of sessions) {
-              await this.sendSessionToClients(session, true);
+              await this.sendSessionToClients(
+                session,
+                session.status !== SessionStatus.COMPLETED,
+              );
             }
           }
         }
@@ -136,13 +151,32 @@ export class SessionBroadcaster extends BaseBroadcaster {
         if (transactionId) {
           const transaction = transactionsMap[transactionId];
           if (transaction) {
-            transaction.setDataValue('transactionEvents', [transactionEvent]); // todo use Props
+            let finalTransactionEvents = [];
+            let finalMeterValues = [];
+            if (transactionEvent.eventType === TransactionEventEnumType.Ended) {
+              finalTransactionEvents = [
+                ...(transaction.transactionEvents ?? []),
+                transactionEvent,
+              ];
+              finalMeterValues = [
+                ...(transaction.meterValues ?? []),
+                ...transactionEvent.meterValue,
+              ];
+            } else {
+              finalTransactionEvents = [transactionEvent];
+              finalMeterValues = transactionEvent.meterValue;
+            }
+
             transaction.setDataValue(
-              'meterValues',
-              transactionEvent.meterValue,
+              this.TRANSACTION_EVENTS_DATA_VALUES,
+              finalTransactionEvents,
             ); // todo use Props
-            transaction.transactionEvents = [transactionEvent];
-            transaction.meterValues = transactionEvent.meterValue;
+            transaction.setDataValue(
+              this.METER_VALUES_DATA_VALUES,
+              finalMeterValues,
+            ); // todo use Props
+            transaction.transactionEvents = finalTransactionEvents;
+            transaction.meterValues = finalMeterValues;
           }
         }
       } else {

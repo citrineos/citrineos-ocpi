@@ -147,7 +147,6 @@ export class CdrMapper extends BaseTransactionMapper {
     location: LocationDTO,
     session: Session,
   ): Promise<CdrLocation> {
-    // TODO: Implement proper mapping from location and session to CdrLocation
     return {
       id: location.id,
       name: location.name,
@@ -157,13 +156,16 @@ export class CdrMapper extends BaseTransactionMapper {
       country: location.country,
       coordinates: location.coordinates,
       evse_uid: session.evse_uid,
-      // TODO: EMI3 compliant ID?
-      evse_id: session.evse_uid,
+      evse_id: this.getEvseId(session.evse_uid, location),
       connector_id: session.connector_id,
       connector_standard: this.getConnectorStandard(location, session),
       connector_format: this.getConnectorFormat(location, session),
       connector_power_type: this.getConnectorPowerType(location, session),
     };
+  }
+
+  private getEvseId(evseUid: string, location: LocationDTO): string {
+    return location.evses?.find((evse) => evse.uid === evseUid)?.evse_id ?? '';
   }
 
   private getConnectorStandard(

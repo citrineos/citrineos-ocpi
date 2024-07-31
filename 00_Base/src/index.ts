@@ -24,7 +24,6 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
-
 import * as packageJson from '../package.json';
 
 export {
@@ -245,8 +244,7 @@ export {
   ConnectorVariableAttributes,
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
-export { VariableAttributesUtil } from './util/VariableAttributesUtil';
-export { OcpiLocationsUtil } from './util/OcpiLocationsUtil';
+export { LocationsDatasource } from './datasources/LocationsDatasource';
 
 useContainer(Container);
 

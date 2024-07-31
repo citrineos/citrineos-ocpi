@@ -49,7 +49,7 @@ export class OcpiLocation extends Model {
   [OcpiLocationProps.timeZone]!: string;
 
   /* Helper properties */
-  ocpiEvses!: Record<string, OcpiEvse>;
+  ocpiEvses!: Map<string, OcpiEvse>;
 
   static buildWithLastUpdated(
     coreLocationId: number,
