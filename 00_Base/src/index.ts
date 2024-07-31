@@ -206,8 +206,8 @@ export { SessionsService } from './services/sessions.service';
 export { AdminLocationsService } from './services/AdminLocationsService';
 
 export { TariffsService } from './services/tariffs.service';
-export { TariffsBroadcaster } from './services/tariffs.broadcaster';
-export { TariffMapper } from './services/tariff.mapper';
+export { TariffsBroadcaster } from './broadcaster/tariffs.broadcaster';
+export { TariffMapper } from './mapper/tariff.mapper';
 export { OcpiTariffRepository } from './repository/OcpiTariffRepository';
 export { OcpiLocationRepository } from './repository/OcpiLocationRepository';
 export { OcpiEvseRepository } from './repository/OcpiEvseRepository';
@@ -221,12 +221,15 @@ export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export { SessionBroadcaster } from './broadcaster/session.broadcaster';
 export { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
-export { PaginatedTariffResponse, TariffDTO } from './model/DTO/TariffDTO';
+export {
+  PaginatedTariffResponse,
+  TariffDTO,
+} from './model/DTO/tariffs/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 export { OcpiEvse } from './model/OcpiEvse';
 export { OcpiConnector } from './model/OcpiConnector';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
-export { PutTariffRequest } from './model/DTO/PutTariffRequest';
+export { PutTariffRequest } from './model/DTO/tariffs/PutTariffRequest';
 export {
   AdminLocationDTO,
   AdminEvseDTO,

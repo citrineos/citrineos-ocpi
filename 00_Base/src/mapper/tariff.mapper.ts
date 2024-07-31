@@ -1,12 +1,12 @@
 import { Service } from 'typedi';
 import { Tariff } from '@citrineos/data';
 import { OcpiTariff } from '../model/OcpiTariff';
-import { TariffDTO } from '../model/DTO/TariffDTO';
+import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { TariffDimensionType } from '../model/TariffDimensionType';
 import { TariffElement } from '../model/TariffElement';
 import { TariffType } from '../model/TariffType';
 import { MINUTES_IN_HOUR } from '../util/consts';
-import { PutTariffRequest } from '../model/DTO/PutTariffRequest';
+import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 
 @Service()
 export class TariffMapper {

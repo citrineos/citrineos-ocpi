@@ -9,15 +9,16 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
-import { TariffType } from '../TariffType';
 import { Type } from 'class-transformer';
-import { DisplayText } from '../DisplayText';
-import { Price } from '../Price';
-import { TariffElement } from '../TariffElement';
-import { EnergyMix } from '../EnergyMix';
+import { PaginatedResponse } from '../../PaginatedResponse';
+import { Optional } from '../../../util/decorators/optional';
+import { Price } from '../../Price';
+import { TariffElement } from '../../TariffElement';
+import { EnergyMix } from '../../EnergyMix';
+import { DisplayText } from '../../DisplayText';
+import { TariffType } from '../../TariffType';
 
-export class PutTariffRequest {
+export class TariffDTO {
   @MaxLength(36)
   @IsString()
   @IsNotEmpty()
@@ -88,4 +89,19 @@ export class PutTariffRequest {
   @Optional()
   @Type(() => Date)
   end_date_time?: Date | null;
+
+  @IsString()
+  @IsDateString()
+  @IsNotEmpty()
+  @Type(() => Date)
+  last_updated!: Date;
+}
+
+export class PaginatedTariffResponse extends PaginatedResponse<TariffDTO> {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @IsNotEmpty()
+  @Optional(false)
+  @Type(() => TariffDTO)
+  data!: TariffDTO[];
 }

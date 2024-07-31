@@ -1,35 +1,29 @@
 import { Service } from 'typedi';
-import { SequelizeTariffRepository } from '@citrineos/data';
 import { DeleteTariffParams } from '../trigger/param/tariffs/delete.tariff.params';
-import { CredentialsService } from './credentials.service';
+import { CredentialsService } from '../services/credentials.service';
 import { ModuleId } from '../model/ModuleId';
 import { PutTariffParams } from '../trigger/param/tariffs/put.tariff.params';
 import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
-import { TariffDTO } from '../model/DTO/TariffDTO';
-import { TariffsService } from './tariffs.service';
-import { OcpiTariffRepository } from '../repository/OcpiTariffRepository';
+import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
+import { TariffsService } from '../services/tariffs.service';
 import { TariffsClientApi } from '../trigger/TariffsClientApi';
-import { BaseBroadcaster } from '../broadcaster/BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster';
 import { ILogObj, Logger } from 'tslog';
-import { ClientInformationRepository } from '../repository/ClientInformationRepository';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
-    private readonly tariffRepository: SequelizeTariffRepository,
-    private readonly ocpiTariffRepository: OcpiTariffRepository,
     private readonly tariffService: TariffsService,
-    private readonly clientInformationRepository: ClientInformationRepository,
     private readonly tariffsClientApi: TariffsClientApi,
   ) {
     super();
   }
 
-  public async broadcastOcpiUpdate(tariffs: OcpiTariff[]) {
-    (await this.tariffService.extendOcpiTariffs(tariffs)).forEach((tariff) =>
-      this.broadcastTariff(tariff),
+  public async broadcastOcpiUpdate(ocpiTariffs: OcpiTariff[]) {
+    (await this.tariffService.getTariffsForOcpiTariffs(ocpiTariffs)).forEach(
+      (tariff) => this.broadcastTariff(tariff),
     );
   }
 
