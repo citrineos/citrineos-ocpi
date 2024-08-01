@@ -10,6 +10,7 @@ import { OcpiHttpHeader } from '../ocpi.http.header';
 import { OcpiHeaderMiddleware } from '../middleware/ocpi.header.middleware';
 import { UniqueMessageIdsMiddleware } from '../middleware/unique.message.ids.middleware';
 import { HttpHeader } from '@citrineos/base';
+import { OcpiExceptionHandler } from '../middleware/ocpi.exception.handler';
 
 export const uniqueMessageIdHeaders = {
   [OcpiHttpHeader.XRequestId]: { required: true },
@@ -36,5 +37,6 @@ export const AsOcpiFunctionalEndpoint = function () {
     UseBefore(AuthMiddleware)(object, methodName);
     UseBefore(OcpiHeaderMiddleware)(object, methodName);
     UseBefore(UniqueMessageIdsMiddleware)(object, methodName);
+    UseBefore(OcpiExceptionHandler)(object, methodName);
   };
 };

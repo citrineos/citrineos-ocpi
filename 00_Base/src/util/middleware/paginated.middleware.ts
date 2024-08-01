@@ -1,4 +1,4 @@
-import { KoaMiddlewareInterface, Middleware } from 'routing-controllers';
+import { KoaMiddlewareInterface } from 'routing-controllers';
 import { Context } from 'vm';
 import { Service } from 'typedi';
 import { BaseMiddleware } from './base.middleware';
@@ -14,7 +14,6 @@ import { OcpiHttpHeader } from '../ocpi.http.header';
  * that the Link, X-Total-Count and X-Limit headers are set while preventing these values from being included in the
  * response body.
  */
-@Middleware({ type: 'before' })
 @Service()
 export class PaginatedMiddleware
   extends BaseMiddleware
@@ -46,6 +45,7 @@ export class PaginatedMiddleware
     const total = paginatedResponse.total || 0;
     if (currentOffset + limit < total) {
       const newOffset = currentOffset + limit;
+      url.searchParams.set('limit', limit.toString());
       url.searchParams.set('offset', newOffset.toString());
       return url.href;
     }

@@ -14,9 +14,11 @@ import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { TokensHandlers } from './module/module';
 import { Container, Service } from 'typedi';
+import { RealTimeAuthorizer } from './module/authorizer/RealTimeAuthorizer';
 
 export { TokensModuleApi } from './module/api';
 export { ITokensModuleApi } from './module/interface';
+export { RealTimeAuthorizer } from './module/authorizer/RealTimeAuthorizer';
 
 @Service()
 export class TokensModule implements OcpiModule {
@@ -38,6 +40,7 @@ export class TokensModule implements OcpiModule {
       this.handler,
       this.logger,
     );
+    Container.get(RealTimeAuthorizer);
   }
 
   getController(): any {

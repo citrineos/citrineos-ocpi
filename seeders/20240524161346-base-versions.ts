@@ -7,7 +7,7 @@ import 'reflect-metadata';
 /** @type {import('sequelize-cli').Migration} */
 export = {
   up: async (queryInterface: QueryInterface) => {
-    const baseClientUrl = 'http://localhost:8085';
+    const baseClientUrl = 'http://127.0.0.1:8085';
 
     const resetIndexes = async (tableName: string) => {
       // Reset the sequence

@@ -2,11 +2,7 @@
 
 import { QueryInterface, QueryOptions } from 'sequelize';
 import { OcpiTokensMapper, TokenDTO } from '@citrineos/ocpi-base';
-import {
-  AdditionalInfo,
-  Authorization,
-  IdToken,
-} from '../../citrineos-core/01_Data';
+import { AdditionalInfo, Authorization, IdToken } from '@citrineos/data';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -206,6 +202,9 @@ module.exports = {
   },
 
   down: async (queryInterface: QueryInterface) => {
+    await queryInterface.bulkDelete('OcpiTokens', {}, {
+      cascade: true,
+    } as QueryOptions);
     await queryInterface.bulkDelete('Authorizations', {}, {
       cascade: true,
     } as QueryOptions);
@@ -219,9 +218,6 @@ module.exports = {
       cascade: true,
     } as QueryOptions);
     await queryInterface.bulkDelete('AdditionalInfos', {}, {
-      cascade: true,
-    } as QueryOptions);
-    await queryInterface.bulkDelete('OcpiTokens', {}, {
       cascade: true,
     } as QueryOptions);
   },

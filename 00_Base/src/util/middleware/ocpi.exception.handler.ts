@@ -1,6 +1,5 @@
 import {
   KoaMiddlewareInterface,
-  Middleware,
   NotFoundError,
   UnauthorizedError,
 } from 'routing-controllers';
@@ -20,9 +19,8 @@ import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulReques
 /**
  * GlobalExceptionHandler handles all exceptions
  */
-@Middleware({ type: 'before', priority: 10 })
 @Service()
-export class GlobalExceptionHandler implements KoaMiddlewareInterface {
+export class OcpiExceptionHandler implements KoaMiddlewareInterface {
   public async use(
     context: Context,
     next: (err?: any) => Promise<any>,
@@ -30,8 +28,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
     try {
       await next();
     } catch (err) {
-      // todo implement other errors
-      console.error('GlobalExceptionHandler error', err);
+      console.error('OcpiExceptionHandler error', err);
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:
@@ -80,7 +77,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             );
             break;
           case UnknownTokenException.name:
-            context.status = HttpStatus.OK;
+            context.status = HttpStatus.NOT_FOUND;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientUnknownToken,
@@ -92,7 +89,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             context.status = HttpStatus.NOT_FOUND;
             break;
           case InvalidParamException.name:
-            context.status = HttpStatus.OK;
+            context.status = HttpStatus.BAD_REQUEST;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
@@ -101,7 +98,7 @@ export class GlobalExceptionHandler implements KoaMiddlewareInterface {
             );
             break;
           case UnsuccessfulRequestException.name:
-            context.status = HttpStatus.OK;
+            context.status = HttpStatus.BAD_REQUEST;
             context.body = JSON.stringify(
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ServerGenericError,

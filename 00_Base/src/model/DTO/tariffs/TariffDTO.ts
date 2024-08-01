@@ -10,13 +10,13 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PaginatedResponse } from '../PaginatedResponse';
-import { Optional } from '../../util/decorators/optional';
-import { Price } from '../Price';
-import { TariffElement } from '../TariffElement';
-import { EnergyMix } from '../EnergyMix';
-import { DisplayText } from '../DisplayText';
-import { TariffType } from '../TariffType';
+import { PaginatedResponse } from '../../PaginatedResponse';
+import { Optional } from '../../../util/decorators/optional';
+import { Price } from '../../Price';
+import { TariffElement } from '../../TariffElement';
+import { EnergyMix } from '../../EnergyMix';
+import { DisplayText } from '../../DisplayText';
+import { TariffType } from '../../TariffType';
 
 export class TariffDTO {
   @MaxLength(36)

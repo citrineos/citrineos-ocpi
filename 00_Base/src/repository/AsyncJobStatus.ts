@@ -21,26 +21,24 @@ export class AsyncJobStatusRepository extends SequelizeRepository<AsyncJobStatus
     );
   }
 
-  async createOrUpdateAsyncJobStatus(
+  async createAsyncJobStatus(
     jobStatus: AsyncJobStatus,
   ): Promise<AsyncJobStatus> {
-    if (
-      !jobStatus.jobId ||
-      (await this.readAllByQuery({ where: { jobId: jobStatus.jobId } }))
-        .length === 0
-    ) {
-      return await this._create(jobStatus);
-    } else {
-      const updatedJobStatus = await this.updateByKey(
-        jobStatus.dataValues,
-        jobStatus.jobId,
+    return await this._create(jobStatus);
+  }
+
+  async updateAsyncJobStatus(
+    jobStatus: Partial<AsyncJobStatus>,
+  ): Promise<AsyncJobStatus> {
+    const updatedJobStatus = await this.updateByKey(
+      jobStatus,
+      jobStatus.jobId!,
+    );
+    if (!updatedJobStatus) {
+      throw new Error(
+        `Failed to update job status: AsyncJobStatus ${jobStatus.jobId} not found`,
       );
-      if (!updatedJobStatus) {
-        throw new Error(
-          `Failed to update job status: AsyncJobStatus ${jobStatus.jobId} not found`,
-        );
-      }
-      return updatedJobStatus;
     }
+    return updatedJobStatus;
   }
 }

@@ -24,11 +24,14 @@ export class OcpiEvse extends Model {
   @Column(DataType.STRING)
   declare physicalReference?: string;
 
+  @Column(DataType.BOOLEAN)
+  declare removed?: boolean;
+
   @Column(DataType.DATE)
   declare lastUpdated: Date;
 
   /* Helper properties */
-  ocpiConnectors!: Record<string, OcpiConnector>;
+  ocpiConnectors!: Map<string, OcpiConnector>;
 
   static buildWithLastUpdated(
     evseId: number,

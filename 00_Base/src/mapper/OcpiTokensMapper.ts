@@ -31,6 +31,7 @@ export class OcpiTokensMapper {
       last_updated: tokenDto.last_updated,
     });
   }
+
   public static async toDto(
     authorization: Authorization,
     token: OcpiToken,
@@ -112,5 +113,35 @@ export class OcpiTokensMapper {
 
     // TODO: filter by type eMAID
     return additionalInfo![0].additionalIdToken;
+  }
+
+  public static mapTokenDTOToPartialAuthorization(
+    existingAuth: Authorization,
+    tokenDTO: Partial<TokenDTO>,
+  ): Partial<IdTokenInfoType> {
+    const idTokenInfo: Partial<IdTokenInfoType> = {
+      status: existingAuth.idTokenInfo?.status,
+    };
+
+    if (tokenDTO.valid !== undefined) {
+      idTokenInfo.status = tokenDTO.valid
+        ? AuthorizationStatusEnumType.Accepted
+        : AuthorizationStatusEnumType.Invalid;
+    }
+
+    if (tokenDTO.group_id) {
+      idTokenInfo.groupIdToken = {
+        idToken: tokenDTO.group_id,
+        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+          tokenDTO.type!,
+        ),
+      };
+    }
+
+    if (tokenDTO.language) {
+      idTokenInfo.language1 = tokenDTO.language;
+    }
+
+    return idTokenInfo;
   }
 }

@@ -6,3 +6,5 @@ export const AVAILABILITY_STATE_VARIABLE = 'AvailabilityState';
 export const UNKNOWN_ID = 'UNKNOWN';
 export const NOT_APPLICABLE = 'N/A';
 export const MINUTES_IN_HOUR = 60;
+export const CREATE = 'create';
+export const UPDATE = 'update';
