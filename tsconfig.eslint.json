@@ -37,8 +37,6 @@
     "seeders/**/*.json",
     "migrations/**/*.ts",
     "migrations/**/*.json",
-    "Server_OLD/**/**/*.ts",
-    "Server_OLD/**/**/*.json",
     "./db.sync.ts"
   ],
   "compilerOptions": {

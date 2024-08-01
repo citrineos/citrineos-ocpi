@@ -6,16 +6,47 @@
   },
   "exclude": [
     "./dist/**/*",
-    "**/node_modules/**",
-    "DirectusExtensions",
-    // todo for now
-    "Swarm",
-    // todo for now,
-    "Server_OLD"
+    "**/node_modules/**"
   ],
   "references": [
     {
-      "path": "Server"
+      "path": "../citrineos-core/00_Base"
+    },
+    {
+      "path": "../citrineos-core/01_Data"
+    },
+    {
+      "path": "../citrineos-core/02_Util"
+    },
+    {
+      "path": "./00_Base"
+    },
+    {
+      "path": "./03_Modules/Versions"
+    },
+    {
+      "path": "./03_Modules/Credentials"
+    },
+    {
+      "path": "./03_Modules/Commands"
+    },
+    {
+      "path": "./03_Modules/Locations"
+    },
+    {
+      "path": "./03_Modules/Sessions"
+    },
+    {
+      "path": "./03_Modules/ChargingProfiles"
+    },
+    {
+      "path": "./03_Modules/Tariffs"
+    },
+    {
+      "path": "./03_Modules/Tokens"
+    },
+    {
+      "path": "./03_Modules/Cdrs"
     }
   ]
 }
