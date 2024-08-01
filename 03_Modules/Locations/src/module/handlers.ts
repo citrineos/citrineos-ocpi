@@ -18,14 +18,14 @@ import { ILogObj, Logger } from 'tslog';
 import deasyncPromise from 'deasync-promise';
 import {
   AVAILABILITY_STATE_VARIABLE,
-  CitrineOcpiLocationMapper,
+  LocationMapper,
   CONNECTOR_COMPONENT,
   ConnectorDTO,
   EVSE_COMPONENT,
   EvseDTO,
   LocationsBroadcaster,
-  LocationsService,
 } from '@citrineos/ocpi-base';
+import { LocationsDatasource } from '@citrineos/ocpi-base/dist/datasources/LocationsDatasource';
 
 /**
  * Component that handles provisioning related messages.
@@ -41,7 +41,7 @@ export class LocationsHandlers extends AbstractModule {
   protected _responses: CallAction[] = [];
 
   private locationsBroadcaster: LocationsBroadcaster;
-  private locationsService: LocationsService;
+  private locationsDatasource: LocationsDatasource;
 
   /**
    * This is the constructor function that initializes the {@link LocationsHandlers}.
@@ -52,7 +52,7 @@ export class LocationsHandlers extends AbstractModule {
    *
    * @param {LocationsBroadcaster} [locationsBroadcaster] - The LocationsBroadcaster holds the business logic necessary to push incoming requests to the relevant MSPs.
    *
-   * @param {LocationsService} [locationsService] - The LocationsService holds logic necessary to process OCPI locations.
+   * @param {LocationsDatasource} [locationsDatasource] - The LocationsDatasource provides data access to anything Locations-related (Locations, EVSEs, Connectors)
    *
    * @param {IMessageSender} [sender] - The `sender` parameter is an optional parameter that represents an instance of the {@link IMessageSender} interface.
    * It is used to send messages from the central system to external systems or devices. If no `sender` is provided, a default {@link RabbitMqSender} instance is created and used.
@@ -68,7 +68,7 @@ export class LocationsHandlers extends AbstractModule {
     config: SystemConfig,
     cache: ICache,
     locationsBroadcaster: LocationsBroadcaster,
-    locationsService: LocationsService,
+    locationsDatasource: LocationsDatasource,
     handler?: IMessageHandler,
     sender?: IMessageSender,
     logger?: Logger<ILogObj>,
@@ -83,7 +83,7 @@ export class LocationsHandlers extends AbstractModule {
     );
 
     this.locationsBroadcaster = locationsBroadcaster;
-    this.locationsService = locationsService;
+    this.locationsDatasource = locationsDatasource;
 
     const timer = new Timer();
     this._logger.info('Initializing...');
@@ -136,7 +136,7 @@ export class LocationsHandlers extends AbstractModule {
         const evseId = component.evse?.id ?? 1; // TODO better fallback
         const partialEvse: Partial<EvseDTO> = {};
         partialEvse.status =
-          CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus([
+          LocationMapper.mapConnectorAvailabilityStatesToEvseStatus([
             event.actualValue,
           ]);
         partialEvse.last_updated = new Date(message.context.timestamp);
@@ -192,16 +192,16 @@ export class LocationsHandlers extends AbstractModule {
     const connectorId = message.payload.connectorId;
 
     const chargingStationAttributes = (
-      await this.locationsService.createChargingStationVariableAttributesMap(
+      await this.locationsDatasource.createChargingStationVariableAttributesMap(
         [stationId],
         evseId,
       )
-    )[stationId];
+    ).get(stationId);
     const evseAttributes = chargingStationAttributes
-      ? chargingStationAttributes.evses[evseId]
+      ? chargingStationAttributes!.evses.get(evseId)
       : null;
     const connectorAvailabilityStates = evseAttributes
-      ? Object.entries(evseAttributes.connectors)
+      ? [...evseAttributes.connectors]
           .filter(
             ([connectorIdKey, _connectorAttributes]) =>
               Number(connectorIdKey) !== connectorId,
@@ -215,7 +215,7 @@ export class LocationsHandlers extends AbstractModule {
 
     const partialEvse: Partial<EvseDTO> = {};
     partialEvse.status =
-      CitrineOcpiLocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
+      LocationMapper.mapConnectorAvailabilityStatesToEvseStatus(
         connectorAvailabilityStates,
         chargingStationAttributes?.bay_occupancy_sensor_active,
       );

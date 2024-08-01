@@ -1,4 +1,7 @@
 import {
+  AdminCredentialsRequestDTO,
+  AdminUpdateCredentialsRequestDTO,
+  AsAdminEndpoint,
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
@@ -13,6 +16,7 @@ import {
   OcpiResponseStatusCode,
   ResponseSchema,
   toCredentialsDTO,
+  UnregisterClientRequestDTO,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
@@ -25,6 +29,8 @@ import {
   Delete,
   Get,
   JsonController,
+  OnUndefined,
+  Param,
   Post,
   Put,
 } from 'routing-controllers';
@@ -146,6 +152,15 @@ export class CredentialsModuleApi
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
+  /**
+   * Admin Endpoints
+   */
+
+  /**
+   * This endpoint uses client side CredentialsTokenA to get version and endpoints from client
+   * then post server side CredentialsTokenB to client and get client side CredentialsTokenC in response
+   * and register token B and C.
+   */
   @Post('/register-credentials-token-a')
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
@@ -171,5 +186,96 @@ export class CredentialsModuleApi
       ? clientInformation.get({ plain: true })
       : clientInformation;
     return CredentialsResponse.build(toCredentialsDTO(clientInformation));
+  }
+
+  @Delete('/delete-tenant/:tenantId')
+  @AsAdminEndpoint()
+  @ResponseSchema(OcpiEmptyResponse, {
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async deleteTenant(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Param('tenantId') tenantId: string,
+  ): Promise<OcpiEmptyResponse> {
+    this.logger.info('deleteTenant', tenantId);
+    await this.credentialsService?.deleteTenant(tenantId, versionNumber);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Delete('/unregister-client')
+  @OnUndefined(HttpStatus.NO_CONTENT)
+  @AsAdminEndpoint()
+  async unregisterClient(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() request: UnregisterClientRequestDTO,
+  ): Promise<void> {
+    this.logger.info('unregisterClient', request);
+    return this.credentialsService?.unregisterClient(request, versionNumber);
+  }
+
+  /**
+   * This endpoint generate a temp server side credentials token A and store it in a new client information.
+   * This token A is used by client to get versions, endpoints and posting client side credentials token B.
+   * Based on the registration process, this token A will be replaced by the formal credentials token C later.
+   *
+   * @param versionNumber VersionNumber enum
+   * @param credentialsRequest AdminCredentialsRequestDTO including version url and server credentials roles
+   */
+  @Post('/generate-credentials-token-a')
+  @ResponseSchema(CredentialsResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async generateCredentialsTokenA(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() credentialsRequest: AdminCredentialsRequestDTO,
+  ): Promise<CredentialsResponse> {
+    this.logger.info('generateCredentialsTokenA', credentialsRequest);
+
+    const createdCredentials: CredentialsDTO =
+      await this.credentialsService?.generateCredentialsTokenA(
+        credentialsRequest,
+        versionNumber,
+      );
+
+    return CredentialsResponse.build(createdCredentials);
+  }
+
+  @Put('/regenerate-credentials-token')
+  @ResponseSchema(CredentialsResponse, {
+    statusCode: HttpStatus.OK,
+    description: 'Successful response',
+    examples: {
+      success: {
+        summary: 'A successful response',
+        value: MOCK_EMPTY,
+      },
+    },
+  })
+  async regenerateCredentialsToken(
+    @VersionNumberParam() versionNumber: VersionNumber,
+    @Body() credentialsRequest: AdminUpdateCredentialsRequestDTO,
+  ): Promise<CredentialsResponse> {
+    this.logger.info('regenerateCredentialsToken', credentialsRequest);
+
+    const createdCredentials: CredentialsDTO =
+      await this.credentialsService?.regenerateCredentialsToken(
+        credentialsRequest,
+        versionNumber,
+      );
+
+    return CredentialsResponse.build(createdCredentials);
   }
 }

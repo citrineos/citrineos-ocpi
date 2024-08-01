@@ -5,22 +5,35 @@
 
 import { ITariffsModuleApi } from './interface';
 
-import { Body, Get, JsonController, Post } from 'routing-controllers';
+import {
+  Body,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Post,
+  Put,
+} from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  buildOcpiErrorResponse,
   FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
+  OcpiEmptyResponse,
+  OcpiErrorResponse,
   OcpiHeaders,
   OcpiResponse,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
   PaginatedTariffResponse,
+  PutTariffRequest,
   ResponseSchema,
+  TariffDTO,
   TariffKey,
   TariffsBroadcaster,
   TariffsService,
@@ -96,5 +109,29 @@ export class TariffsModuleApi
       default:
         throw new Error(`Unsupported event type ${broadcastRequest.eventType}`);
     }
+  }
+
+  /**
+   * Admin Endpoints
+   */
+
+  @Put()
+  async updateTariff(@Body() tariffDto: PutTariffRequest): Promise<TariffDTO> {
+    return await this.tariffService.createOrUpdateTariff(tariffDto);
+  }
+
+  @Delete('/:tariffId')
+  async deleteTariff(
+    @Param('tariffId') tariffId: number,
+  ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
+    if (!tariffId) {
+      return buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+        'No tariff id provided',
+      );
+    }
+
+    await this.tariffService.deleteTariff(tariffId);
+    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 }

@@ -2,61 +2,64 @@ import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
 import {
-  SequelizeLocationRepository,
   SequelizeTariffRepository,
   Tariff,
   Transaction,
 } from '@citrineos/data';
-import { TariffKey } from '../model/OcpiTariff';
 import { SessionMapper } from './session.mapper';
-import { OcpiLogger } from '../util/logger';
 import { CdrLocation } from '../model/CdrLocation';
-import { TransactionEventRequest } from '@citrineos/base';
 import { Price } from '../model/Price';
 import { Tariff as OcpiTariff } from '../model/Tariff';
 import { SignedData } from '../model/SignedData';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { TariffsService } from '../services/tariffs.service';
+import { BaseTransactionMapper } from './BaseTransactionMapper';
+import { ILogObj, Logger } from 'tslog';
+import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { TokensRepository } from '../repository/TokensRepository';
+import { LocationsService } from '../services/locations.service';
+import {TariffsDatasource} from "../datasources/TariffsDatasource";
 
 @Service()
-export class CdrMapper {
+export class CdrMapper extends BaseTransactionMapper {
   constructor(
+    protected logger: Logger<ILogObj>,
+    protected locationsService: LocationsService,
+    protected ocpiLocationsRepository: OcpiLocationRepository,
+    protected tokensRepository: TokensRepository,
+    protected tariffsDatasource: TariffsDatasource,
     readonly sessionMapper: SessionMapper,
-    readonly logger: OcpiLogger,
-    readonly locationRepository: SequelizeLocationRepository,
-    readonly tariffRepository: SequelizeTariffRepository,
-    readonly tariffsService: TariffsService,
-  ) {}
+  ) {
+    super(
+      logger,
+      locationsService,
+      ocpiLocationsRepository,
+      tokensRepository,
+      tariffsDatasource,
+    );
+  }
 
   public async mapTransactionsToCdrs(
     transactions: Transaction[],
-    fromCountryCode?: string,
-    fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string,
   ): Promise<Cdr[]> {
     try {
       const validTransactions = this.getCompletedTransactions(transactions);
 
-      const sessions = await this.mapTransactionsToSessions(
-        validTransactions,
-        fromCountryCode,
-        fromPartyId,
-        toCountryCode,
-        toPartyId,
-      );
+      const sessions = await this.mapTransactionsToSessions(validTransactions);
 
-      const transactionIdToTariffMap: Map<string, Tariff> =
-        await this.getTariffsForTransactions(validTransactions);
+      const [transactionIdToTariffMap, transactionIdToLocationMap] =
+        await Promise.all([
+          this.getTariffsForTransactions(validTransactions),
+          this.getLocationDTOsForTransactions(transactions),
+        ]);
       const transactionIdToOcpiTariffMap: Map<string, OcpiTariff> =
         await this.getOcpiTariffsForTransactions(
           sessions,
           transactionIdToTariffMap,
-          toCountryCode,
-          toPartyId,
         );
       return await this.mapSessionsToCDRs(
         sessions,
+        transactionIdToLocationMap,
         transactionIdToTariffMap,
         transactionIdToOcpiTariffMap,
       );
@@ -66,68 +69,15 @@ export class CdrMapper {
     }
   }
 
-  private async getTariffsForTransactions(
-    transactions: Transaction[],
-  ): Promise<Map<string, Tariff>> {
-    const transactionIdToTariffMap = new Map<string, Tariff>();
-    await Promise.all(
-      transactions.map(async (transaction) => {
-        const tariff = await this.tariffRepository.findByStationId(
-          transaction.stationId,
-        );
-        if (tariff) {
-          transactionIdToTariffMap.set(transaction.transactionId, tariff);
-        }
-      }),
-    );
-    return transactionIdToTariffMap;
-  }
-
-  private async getOcpiTariffsForTransactions(
-    sessions: Session[],
-    transactionIdToTariffMap: Map<string, Tariff>,
-    cpoCountryCode?: string,
-    cpoPartyId?: string,
-  ): Promise<Map<string, OcpiTariff>> {
-    const transactionIdToOcpiTariffMap = new Map<string, OcpiTariff>();
-    await Promise.all(
-      sessions
-        .filter((session) => transactionIdToTariffMap.get(session.id))
-        .map(async (session) => {
-          const tariffKey = {
-            id: String(transactionIdToTariffMap.get(session.id)?.id),
-            // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
-            countryCode: cpoCountryCode || 'US',
-            partyId: cpoPartyId || 'CPO',
-          } as TariffKey;
-          const tariff =
-            await this.tariffsService.getTariffByCoreKey(tariffKey);
-          if (tariff) {
-            transactionIdToOcpiTariffMap.set(session.id, tariff);
-          }
-        }),
-    );
-    return transactionIdToOcpiTariffMap;
-  }
-
   private async mapTransactionsToSessions(
     transactions: Transaction[],
-    fromCountryCode?: string,
-    fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string,
   ): Promise<Session[]> {
-    return this.sessionMapper.mapTransactionsToSessions(
-      transactions,
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-    );
+    return this.sessionMapper.mapTransactionsToSessions(transactions);
   }
 
   private async mapSessionsToCDRs(
     sessions: Session[],
+    transactionIdToLocationMap: Map<string, LocationDTO>,
     transactionIdToTariffMap: Map<string, Tariff>,
     transactionIdToOcpiTariffMap: Map<string, OcpiTariff>,
   ): Promise<Cdr[]> {
@@ -137,6 +87,7 @@ export class CdrMapper {
         .map((session) =>
           this.mapSessionToCDR(
             session,
+            transactionIdToLocationMap.get(session.id)!,
             transactionIdToTariffMap.get(session.id)!,
             transactionIdToOcpiTariffMap.get(session.id)!,
           ),
@@ -146,12 +97,10 @@ export class CdrMapper {
 
   private async mapSessionToCDR(
     session: Session,
+    location: LocationDTO,
     tariff: Tariff,
     ocpiTariff: OcpiTariff,
   ): Promise<Cdr> {
-    // TODO: Get LocationDTO from location service
-    const location = new LocationDTO();
-
     return {
       country_code: session.country_code,
       party_id: session.party_id,
@@ -165,14 +114,11 @@ export class CdrMapper {
       cdr_location: await this.createCdrLocation(location, session),
       meter_id: session.meter_id,
       currency: session.currency,
-      // TODO: Map OCPP Tariff to OCPI Tariff
       tariffs: [ocpiTariff],
       charging_periods: session.charging_periods || [],
       signed_data: await this.getSignedData(session),
-      total_cost: await this.calculateTotalCost(
-        session.kwh,
-        tariff.pricePerKwh,
-      ),
+      // TODO: Map based on OCPI Tariff
+      total_cost: this.calculateTotalCost(session.kwh, tariff.pricePerKwh),
       total_fixed_cost: await this.calculateTotalFixedCost(tariff),
       total_energy: session.kwh,
       total_energy_cost: await this.calculateTotalEnergyCost(session, tariff),
@@ -193,14 +139,13 @@ export class CdrMapper {
   }
 
   private generateCdrId(session: Session): string {
-    return `CDR-${session.id}-${Date.now()}`;
+    return session.id;
   }
 
   private async createCdrLocation(
     location: LocationDTO,
     session: Session,
   ): Promise<CdrLocation> {
-    // TODO: Implement proper mapping from location and session to CdrLocation
     return {
       id: location.id,
       name: location.name,
@@ -210,12 +155,16 @@ export class CdrMapper {
       country: location.country,
       coordinates: location.coordinates,
       evse_uid: session.evse_uid,
-      evse_id: session.evse_uid,
+      evse_id: this.getEvseId(session.evse_uid, location),
       connector_id: session.connector_id,
       connector_standard: this.getConnectorStandard(location, session),
       connector_format: this.getConnectorFormat(location, session),
       connector_power_type: this.getConnectorPowerType(location, session),
     };
+  }
+
+  private getEvseId(evseUid: string, location: LocationDTO): string {
+    return location.evses?.find((evse) => evse.uid === evseUid)?.evse_id ?? '';
   }
 
   private getConnectorStandard(
@@ -259,15 +208,6 @@ export class CdrMapper {
   ): Promise<SignedData | undefined> {
     // TODO: Implement signed data logic if required
     return undefined;
-  }
-
-  private async calculateTotalCost(
-    totalKwh: number,
-    tariffCost: number,
-  ): Promise<Price> {
-    return {
-      excl_vat: Math.floor(totalKwh * tariffCost * 100) / 100,
-    };
   }
 
   private async calculateTotalFixedCost(
@@ -350,26 +290,12 @@ export class CdrMapper {
   }
 
   private getCompletedTransactions(transactions: Transaction[]): Transaction[] {
-    return transactions.filter(
-      (transaction) =>
-        this.isTransactionComplete(transaction) &&
-        this.hasValidEnergy(transaction) &&
-        this.hasValidDuration(transaction),
+    return transactions.filter((transaction) =>
+      this.hasValidDuration(transaction),
     );
   }
 
-  private isTransactionComplete(transaction: Transaction): boolean {
-    return (
-      transaction.transactionEvents?.some(
-        (event) => event.eventType === 'Ended',
-      ) ?? false
-    );
-  }
-
-  private hasValidEnergy(transaction: Transaction): boolean {
-    return (transaction.totalKwh ?? 0) > 0;
-  }
-
+  // TODO try to move this into SQL if possible
   private hasValidDuration(transaction: Transaction): boolean {
     const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
     if (startEvent && endEvent) {
@@ -379,20 +305,5 @@ export class CdrMapper {
       return duration > 0;
     }
     return false;
-  }
-
-  private getStartAndEndEvents(
-    transaction: Transaction,
-  ): [
-    TransactionEventRequest | undefined,
-    TransactionEventRequest | undefined,
-  ] {
-    const startEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === 'Started',
-    );
-    const endEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === 'Ended',
-    );
-    return [startEvent, endEvent];
   }
 }

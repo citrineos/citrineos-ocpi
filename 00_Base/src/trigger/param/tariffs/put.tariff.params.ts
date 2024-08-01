@@ -1,7 +1,7 @@
 import { OcpiParams } from '../../util/ocpi.params';
 import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TariffDTO } from '../../../model/DTO/TariffDTO';
+import { TariffDTO } from '../../../model/DTO/tariffs/TariffDTO';
 
 export class PutTariffParams extends OcpiParams {
   @IsString()

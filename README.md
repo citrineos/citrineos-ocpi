@@ -16,34 +16,17 @@ The modules in CitrineOS OCPI integrate with modules in CitrineOS Core and Citri
 
 ## Release Information
 
-### Version 0.1.1 (Pre-release)
+### Version 0.2.0 (Pre-release)
 
 #### Included Functionality
 
-This initial release, version 0.1.1, provides partial OCPI 2.2.1 functionality. The features included are:
+This initial release, version 0.2.0, provides partial OCPI 2.2.1 functionality. The features included are:
 
-- **Registration**: Register with new eMSP partners via `CREDENTIALS_TOKEN_A` as the sender through an Admin endpoint.
+- **Registration**: Full Credentials & Versions implementation. Register with new eMSP partners via `CREDENTIALS_TOKEN_A` as the sender through an Admin endpoint. Create a `CREDENTIALS_TOKEN_A` through Admin endpoint. Un-register or refresh client credentials through Admin endpoints.
 - **Sender Interface Endpoints**: Sessions, CDRs, Tariffs, and Locations.
 - **Receiver Interface Endpoints**: Charging Profiles, Commands, and Tokens.
-- **Push Logic**:
-  - Fully implemented for Sessions, Charging Profiles, and CDRs.
-  - Partially implemented for Locations (updating EVSE status via PATCH).
-
-#### Missing Functionality
-
-The following features are not included in version 0.1.X but will be released in upcoming minor versions:
-
-- Admin endpoints for:
-  - Triggering the receiver side of registration (generating `CREDENTIALS_TOKEN_A`).
-  - Refreshing credentials.
-  - Un-registering credentials.
-  - Creating and updating Tariffs and Locations (completing Push logic for Tariffs and Locations).
-  - Refreshing Tokens cache from eMSP.
-- Real-time authorization logic for Sessions via Tokens.
-
-## Future Updates
-
-The missing features listed above will be released in patch versions in the coming weeks. Stay tuned for updates and additional functionality as we continue to develop and improve CitrineOS OCPI.
+- **Pushes all data to MSPs**
+- **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs
 
 ## Getting Started
 
@@ -51,7 +34,7 @@ To get started with CitrineOS OCPI, you will need to:
 
 1. Clone and build the CitrineOS Core repository.
 2. Clone and build the CitrineOS OCPI repository. Must have the same parent directory as CitrineOS Core.
-3. Follow the instructions provided on the [Quickstart guide](https://citrineos.github.io/quickstart.html) to configure and run the combined modules with OCPI activated.
+3. Follow the instructions provided on the [Guide](https://citrineos.github.io/docs/getting-started.html) to configure and run the combined modules with OCPI activated.
 
 ## Contributing
 
