@@ -4,10 +4,7 @@
     "rootDir": "./",
     "outDir": "./dist"
   },
-  "exclude": [
-    "./dist/**/*",
-    "**/node_modules/**"
-  ],
+  "exclude": ["./dist/**/*", "**/node_modules/**"],
   "references": [
     {
       "path": "../citrineos-core/00_Base"

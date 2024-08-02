@@ -14,7 +14,11 @@ export enum CountryCode {
   MX = 'MX',
 }
 
-export const plainToClass = <T>(constructor: Constructable<T>, plain: T, excludeExtraneousValues = true): T =>
+export const plainToClass = <T>(
+  constructor: Constructable<T>,
+  plain: T,
+  excludeExtraneousValues = true,
+): T =>
   plainToInstance(constructor, plain as T, {
     excludeExtraneousValues,
   });

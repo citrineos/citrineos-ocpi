@@ -1,4 +1,13 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, Max, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import 'reflect-metadata';
 
 export class ServerUtilNetworkConnectionWebsocketServer {
