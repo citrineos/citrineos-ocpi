@@ -1,16 +1,17 @@
 import { Service } from 'typedi';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiEnv, OcpiServerConfig } from '../config/ocpi.server.config';
+import { ServerConfig } from '../config/ServerConfig';
+import { Env } from '../config/sub/Env';
 
 @Service()
 export class OcpiLogger extends Logger<ILogObj> {
-  constructor(ocpiServerConfig: OcpiServerConfig) {
+  constructor(serverConfig: ServerConfig) {
     super({
       name: 'CitrineOS Ocpi Logger',
-      minLevel: ocpiServerConfig.logLevel,
-      hideLogPositionForProduction: ocpiServerConfig.env === OcpiEnv.PRODUCTION,
+      minLevel: serverConfig.logLevel,
+      hideLogPositionForProduction: serverConfig.env === Env.PRODUCTION,
       // Disable colors for cloud deployment as some cloud logging environments such as cloudwatch can not interpret colors
-      stylePrettyLogs: ocpiServerConfig.env !== OcpiEnv.DEVELOPMENT,
+      stylePrettyLogs: serverConfig.env !== Env.DEVELOPMENT,
     });
   }
 }

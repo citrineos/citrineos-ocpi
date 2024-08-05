@@ -1,7 +1,7 @@
 import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
-import { OcpiServerConfig } from './config/ocpi.server.config';
+import { ServerConfig } from './config/ServerConfig';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
 import Koa from 'koa';
@@ -26,6 +26,7 @@ import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 import * as packageJson from '../package.json';
 
+export { plainToClass } from './util/util';
 export {
   OcpiErrorResponse,
   buildOcpiErrorResponse,
@@ -77,7 +78,9 @@ export {
 } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
-export { OcpiServerConfig } from './config/ocpi.server.config';
+export { ServerConfig } from './config/ServerConfig';
+export * from './config/sub';
+
 export { CommandResponse } from './model/CommandResponse';
 export { ActiveChargingProfile } from './model/ActiveChargingProfile';
 export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
@@ -262,7 +265,7 @@ export class OcpiModuleConfig {
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
-  readonly serverConfig: OcpiServerConfig;
+  readonly serverConfig: ServerConfig;
   readonly cache: ICache;
   readonly logger: Logger<ILogObj>;
   readonly ocpiSequelizeInstance: OcpiSequelizeInstance;
@@ -270,7 +273,7 @@ export class OcpiServer extends KoaServer {
   readonly repositoryStore: RepositoryStore;
 
   constructor(
-    serverConfig: OcpiServerConfig,
+    serverConfig: ServerConfig,
     cache: ICache,
     logger: Logger<ILogObj>,
     modulesConfig: OcpiModuleConfig[],
@@ -324,7 +327,7 @@ export class OcpiServer extends KoaServer {
   }
 
   private initContainer() {
-    Container.set(OcpiServerConfig, this.serverConfig);
+    Container.set(ServerConfig, this.serverConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
     Container.set(OcpiSequelizeInstance, this.ocpiSequelizeInstance);

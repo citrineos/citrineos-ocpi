@@ -1,20 +1,20 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
+import { ServerConfig } from '../config/ServerConfig';
 
 @Service()
 export class SessionChargingProfileRepository extends SequelizeRepository<SessionChargingProfile> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       'SessionChargingProfile',
       logger,
       ocpiSequelizeInstance.sequelize,
