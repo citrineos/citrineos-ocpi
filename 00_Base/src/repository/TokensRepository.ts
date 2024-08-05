@@ -14,7 +14,6 @@ import {
   SequelizeRepository,
   SequelizeTransaction,
 } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
@@ -22,18 +21,19 @@ import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 import { TokenDTO } from '../model/DTO/TokenDTO';
-import {TokenType} from "../model/TokenType";
+import { ServerConfig } from '../config/ServerConfig';
+import { TokenType } from '../model/TokenType';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<OcpiToken> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     private readonly logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
     private readonly authorizationRepository: SequelizeAuthorizationRepository,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.OcpiToken,
       logger,
       ocpiSequelizeInstance.sequelize,
