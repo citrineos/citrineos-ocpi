@@ -6,25 +6,25 @@
 import { SequelizeRepository } from '@citrineos/data';
 import { Version } from '../model/Version';
 import { Service } from 'typedi';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { VersionNumber } from '../model/VersionNumber';
 import { VersionEndpoint } from '../model/VersionEndpoint';
-import { ServerConfig } from '../config/ServerConfig';
 
 @Service()
 export class VersionRepository extends SequelizeRepository<Version> {
   logger: Logger<ILogObj>;
 
   constructor(
-    ystemConfig: ServerConfig,
+    ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ystemConfig as SystemConfig,
+      ocpiSystemConfig as SystemConfig,
       OcpiNamespace.Version,
       logger,
       ocpiSequelizeInstance.sequelize,

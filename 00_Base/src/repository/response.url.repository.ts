@@ -5,7 +5,7 @@
 
 import { SequelizeRepository } from '@citrineos/data';
 import { Service } from 'typedi';
-import { ServerConfig } from '../config/ServerConfig';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiSequelizeInstance } from '../util/sequelize';
@@ -16,12 +16,12 @@ import { OcpiParams } from '../trigger/util/ocpi.params';
 @Service()
 export class ResponseUrlRepository extends SequelizeRepository<ResponseUrlCorrelationId> {
   constructor(
-    systemConfig: ServerConfig,
+    ocpiSystemConfig: OcpiServerConfig,
     logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      ocpiSystemConfig as SystemConfig,
       OcpiNamespace.ResponseUrlCorrelationId,
       logger,
       ocpiSequelizeInstance.sequelize,

@@ -125,9 +125,7 @@ export class TariffsDatasource implements ITariffsDatasource {
     }
   }
 
-  async getCoreTariffsByStationIds(
-    stationIds: string[],
-  ): Promise<Tariff[] | undefined> {
+  async getCoreTariffsByStationIds(stationIds: string[]): Promise<Tariff[] | undefined> {
     return this.coreTariffRepository.findByStationIds(stationIds);
   }
 

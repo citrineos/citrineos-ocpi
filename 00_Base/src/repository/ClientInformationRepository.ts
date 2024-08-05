@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { ServerConfig } from '../config/ServerConfig';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig, UnauthorizedException } from '@citrineos/base';
 import { ClientInformation } from '../model/ClientInformation';
@@ -22,13 +22,13 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
   logger: Logger<ILogObj>;
 
   constructor(
-    systemConfig: ServerConfig,
+    ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
-      systemConfig as SystemConfig,
+      ocpiSystemConfig as SystemConfig,
       OcpiNamespace.ClientInformation,
       logger,
       ocpiSequelizeInstance.sequelize,

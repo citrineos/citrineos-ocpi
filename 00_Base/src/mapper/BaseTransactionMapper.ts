@@ -21,7 +21,7 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/locations.service';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
-import { TariffsDatasource } from '../datasources/TariffsDatasource';
+import {TariffsDatasource} from "../datasources/TariffsDatasource";
 
 export abstract class BaseTransactionMapper {
   protected constructor(

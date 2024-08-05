@@ -6,7 +6,7 @@ import {
   KoaServer,
   OcpiExceptionHandler,
   OcpiSequelizeInstance,
-  ServerConfig,
+  OcpiServerConfig,
 } from '@citrineos/ocpi-base';
 import { MemoryCache } from '@citrineos/util';
 import { ILogObj, Logger } from 'tslog';
@@ -18,7 +18,7 @@ export class EmspServer extends KoaServer {
   constructor(readonly ocpiSequelizeInstance: OcpiSequelizeInstance) {
     super();
     try {
-      Container.set(ServerConfig, {} as ServerConfig);
+      Container.set(OcpiServerConfig, {} as OcpiServerConfig);
       Container.set(CacheWrapper, new CacheWrapper(new MemoryCache()));
       Container.set(
         Logger,

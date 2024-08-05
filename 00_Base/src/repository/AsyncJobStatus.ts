@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { ServerConfig } from '../config/ServerConfig';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
@@ -9,12 +9,12 @@ import { AsyncJobStatus } from '../model/AsyncJobStatus';
 @Service()
 export class AsyncJobStatusRepository extends SequelizeRepository<AsyncJobStatus> {
   constructor(
-    systemConfig: ServerConfig,
+    ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      ocpiSystemConfig as SystemConfig,
       'AsyncJobStatus',
       logger,
       ocpiSequelizeInstance.sequelize,

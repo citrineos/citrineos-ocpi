@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { ServerConfig } from '../config/ServerConfig';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
 import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
@@ -10,12 +10,12 @@ import { ILogObj, Logger } from 'tslog';
 @Service()
 export class ClientCredentialsRoleRepository extends SequelizeRepository<ClientCredentialsRole> {
   constructor(
-    systemConfig: ServerConfig,
+    ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      ocpiSystemConfig as SystemConfig,
       OcpiNamespace.ClientCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,

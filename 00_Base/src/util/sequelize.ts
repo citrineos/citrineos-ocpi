@@ -12,6 +12,7 @@ import {
 } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { Service } from 'typedi';
 import { Endpoint } from '../model/Endpoint';
 import { ClientInformation } from '../model/ClientInformation';
@@ -32,7 +33,6 @@ import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
 import { AsyncJobStatus } from '../model/AsyncJobStatus';
-import { ServerConfig } from '../config/ServerConfig';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -45,7 +45,7 @@ export class OcpiSequelizeInstance {
   sequelize: Sequelize;
   private logger: Logger<ILogObj>;
 
-  constructor(config: ServerConfig) {
+  constructor(config: OcpiServerConfig) {
     this.logger = this.logger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
@@ -117,7 +117,7 @@ export class OcpiSequelizeInstance {
     // this.logger.debug(timing, sql);
   }
 
-  private syncDatabase(config: ServerConfig): void {
+  private syncDatabase(config: OcpiServerConfig): void {
     if (config.data.sequelize.alter) {
       this.sequelize.sync({ alter: true }).then(() => {
         this.logger.info('Database altered');

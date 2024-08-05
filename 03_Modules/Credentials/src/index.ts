@@ -1,4 +1,8 @@
-import { CacheWrapper, OcpiModule, ServerConfig } from '@citrineos/ocpi-base';
+import {
+  CacheWrapper,
+  OcpiModule,
+  OcpiServerConfig,
+} from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 
 import { CredentialsModuleApi } from './module/api';
@@ -16,7 +20,7 @@ export class CredentialsModule implements OcpiModule {
   sender!: IMessageSender;
 
   constructor(
-    readonly config: ServerConfig,
+    readonly config: OcpiServerConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}

@@ -193,13 +193,7 @@ export class TokensModuleApi
       );
     }
 
-    await this.tokensService.patchToken(
-      countryCode,
-      partyId,
-      tokenUid,
-      type ?? TokenType.RFID,
-      token,
-    );
+    await this.tokensService.patchToken(countryCode, partyId, tokenUid, type ?? TokenType.RFID, token);
 
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }

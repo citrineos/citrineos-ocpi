@@ -1,23 +1,23 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
+import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { Op } from 'sequelize';
-import { ServerConfig } from '../config/ServerConfig';
 import { GetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 
 @Service()
 export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
   constructor(
-    systemConfig: ServerConfig,
+    ocpiSystemConfig: OcpiServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      ocpiSystemConfig as SystemConfig,
       OcpiNamespace.OcpiTariff,
       logger,
       ocpiSequelizeInstance.sequelize,
