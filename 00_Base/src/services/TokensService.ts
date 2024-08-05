@@ -8,7 +8,7 @@ import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { TokenDTO } from '../model/DTO/TokenDTO';
-import {TokenType} from "../model/TokenType";
+import { TokenType } from '../model/TokenType';
 
 @Service()
 export class TokensService {
@@ -27,7 +27,19 @@ export class TokensService {
     return this.tokenRepository.updateToken(token);
   }
 
-  async patchToken(countryCode: string, partyId: string, tokenUid: string, type: TokenType, token: Partial<TokenDTO>): Promise<TokenDTO> {
-    return this.tokenRepository.patchToken(countryCode, partyId, tokenUid, type, token);
+  async patchToken(
+    countryCode: string,
+    partyId: string,
+    tokenUid: string,
+    type: TokenType,
+    token: Partial<TokenDTO>,
+  ): Promise<TokenDTO> {
+    return this.tokenRepository.patchToken(
+      countryCode,
+      partyId,
+      tokenUid,
+      type,
+      token,
+    );
   }
 }

@@ -14,7 +14,6 @@ import {
   SequelizeRepository,
   SequelizeTransaction,
 } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { IdTokenEnumType, SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
@@ -22,18 +21,19 @@ import { UnknownTokenException } from '../exception/unknown.token.exception';
 import { Op } from 'sequelize';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 import { TokenDTO } from '../model/DTO/TokenDTO';
-import {TokenType} from "../model/TokenType";
+import { ServerConfig } from '../config/ServerConfig';
+import { TokenType } from '../model/TokenType';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<OcpiToken> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     private readonly logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
     private readonly authorizationRepository: SequelizeAuthorizationRepository,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.OcpiToken,
       logger,
       ocpiSequelizeInstance.sequelize,
@@ -50,7 +50,10 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     tokenRequest: SingleTokenRequest,
   ): Promise<TokenDTO | undefined> {
     try {
-      const ocppAuths = await this.getOcppAuths(tokenRequest.uid, tokenRequest.type);
+      const ocppAuths = await this.getOcppAuths(
+        tokenRequest.uid,
+        tokenRequest.type,
+      );
       if (ocppAuths.length === 0) {
         return undefined;
       }
@@ -134,7 +137,13 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     }
   }
 
-  async patchToken(countryCode: string, partyId: string, tokenUid: string, type: TokenType, partialToken: Partial<TokenDTO>): Promise<TokenDTO> {
+  async patchToken(
+    countryCode: string,
+    partyId: string,
+    tokenUid: string,
+    type: TokenType,
+    partialToken: Partial<TokenDTO>,
+  ): Promise<TokenDTO> {
     const ocppAuths = await this.getOcppAuths(tokenUid, type);
 
     if (ocppAuths.length === 0) {
@@ -248,7 +257,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
   }
 
   private async getOcppAuths(
-    uid: string, type: TokenType
+    uid: string,
+    type: TokenType,
   ): Promise<Authorization[]> {
     return await Authorization.findAll({
       include: [
