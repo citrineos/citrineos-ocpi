@@ -1,6 +1,6 @@
 {
   "name": "@citrineos/ocpi-workspace",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": false,
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -34,23 +34,31 @@
     "prettier": "npx prettier --write .",
     "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
+  "dependencies": {
+    "@citrineos/ocpi-base": "0.2.0",
+    "@citrineos/ocpi-credentials": "0.2.0",
+    "@citrineos/ocpi-versions": "0.2.0",
+    "@citrineos/ocpi-commands": "0.2.0",
+    "@citrineos/ocpi-locations": "0.2.0",
+    "@citrineos/ocpi-sessions": "0.2.0",
+    "@citrineos/ocpi-tariffs": "0.2.0",
+    "@citrineos/ocpi-cdrs": "0.2.0",
+    "@citrineos/ocpi-charging-profiles": "0.2.0",
+    "@citrineos/ocpi-tokens": "0.2.0"
+  },
   "workspaces": [
-    "Server",
-    "00_Base",
-    "03_Modules/Commands",
-    "03_Modules/Credentials",
-    "03_Modules/Locations",
-    "03_Modules/Versions",
-    "03_Modules/ChargingProfiles",
-    "03_Modules/Sessions",
-    "03_Modules/Tariffs",
-    "03_Modules/Cdrs",
-    "03_Modules/Tokens",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
-    "../citrineos-core/02_Util"
-  ],
-  "dependencies": {
-    "all": "^0.0.0"
-  }
+    "../citrineos-core/02_Util",
+    "./00_Base",
+    "./03_Modules/Commands",
+    "./03_Modules/Credentials",
+    "./03_Modules/Locations",
+    "./03_Modules/Versions",
+    "./03_Modules/ChargingProfiles",
+    "./03_Modules/Sessions",
+    "./03_Modules/Tariffs",
+    "./03_Modules/Cdrs",
+    "./03_Modules/Tokens"
+  ]
 }

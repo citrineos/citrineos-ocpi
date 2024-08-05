@@ -29,16 +29,12 @@
     "03_Modules/Cdrs/**/*.json",
     "03_Modules/Tokens/**/*.ts",
     "03_Modules/Tokens/**/*.json",
-    "Server/**/*.ts",
-    "Server/**/*.json",
     "mock-client/**/*.ts",
     "mock-client/**/*.json",
     "seeders/**/*.ts",
     "seeders/**/*.json",
     "migrations/**/*.ts",
     "migrations/**/*.json",
-    "Server_OLD/**/**/*.ts",
-    "Server_OLD/**/**/*.json",
     "./db.sync.ts"
   ],
   "compilerOptions": {
