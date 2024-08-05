@@ -1,24 +1,19 @@
 import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
-import {
-  SequelizeTariffRepository,
-  Tariff,
-  Transaction,
-} from '@citrineos/data';
+import { Tariff, Transaction } from '@citrineos/data';
 import { SessionMapper } from './session.mapper';
 import { CdrLocation } from '../model/CdrLocation';
 import { Price } from '../model/Price';
 import { Tariff as OcpiTariff } from '../model/Tariff';
 import { SignedData } from '../model/SignedData';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { TariffsService } from '../services/tariffs.service';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { TokensRepository } from '../repository/TokensRepository';
 import { LocationsService } from '../services/locations.service';
-import {TariffsDatasource} from "../datasources/TariffsDatasource";
+import { TariffsDatasource } from '../datasources/TariffsDatasource';
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {
