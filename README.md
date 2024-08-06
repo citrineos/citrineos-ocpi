@@ -1,5 +1,17 @@
 # CitrineOS OCPI
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Module Integration](#module-integration)
+- [Release Information](#release-information)
+- [Getting Started](#getting-started)
+- [Running database seeders](#running-database-seeders)
+- [Running `clean` and `fresh`](#running-clean-and-fresh)
+- [Linting and Prettier](#linting-and-prettier)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Overview
 
 CitrineOS OCPI is a set of modules designed to integrate seamlessly with the CitrineOS Core repository. These modules are intended to work in conjunction with other modules that persist relevant data, rather than being spun up independently. Independent deployment of CitrineOS OCPI modules is achievable with mocks for testing purposes. Each group of combined ocpi + core/payment modules can be deployed as an independent microservice to facilitate horizontal scaling.
