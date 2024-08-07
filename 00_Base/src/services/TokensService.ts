@@ -3,28 +3,31 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Service } from 'typedi';
+import {Inject, Service} from 'typedi';
 import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLogger } from '../util/logger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokenType } from '../model/TokenType';
+import {ITokensDatasource} from "../datasources/ITokensDatasource";
+import {TokensDatasource} from "../datasources/TokensDatasource";
 
 @Service()
 export class TokensService {
   constructor(
     private readonly logger: OcpiLogger,
-    private readonly tokenRepository: TokensRepository,
+    @Inject(() => TokensDatasource)
+    private readonly tokensDatasource: ITokensDatasource,
   ) {}
 
   async getSingleToken(
     tokenRequest: SingleTokenRequest,
   ): Promise<TokenDTO | undefined> {
-    return await this.tokenRepository.getSingleToken(tokenRequest);
+    return await this.tokensDatasource.getToken(tokenRequest);
   }
 
   async updateToken(token: TokenDTO): Promise<TokenDTO> {
-    return this.tokenRepository.updateToken(token);
+    return this.tokensDatasource.updateToken(token);
   }
 
   async patchToken(
@@ -34,7 +37,7 @@ export class TokensService {
     type: TokenType,
     token: Partial<TokenDTO>,
   ): Promise<TokenDTO> {
-    return this.tokenRepository.patchToken(
+    return this.tokensDatasource.patchToken(
       countryCode,
       partyId,
       tokenUid,
