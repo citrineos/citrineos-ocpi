@@ -1,5 +1,17 @@
 # CitrineOS OCPI
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Module Integration](#module-integration)
+- [Release Information](#release-information)
+- [Getting Started](#getting-started)
+- [Running database seeders](#running-database-seeders)
+- [Running `clean` and `fresh`](#running-clean-and-fresh)
+- [Linting and Prettier](#linting-and-prettier)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Overview
 
 CitrineOS OCPI is a set of modules designed to integrate seamlessly with the CitrineOS Core repository. These modules are intended to work in conjunction with other modules that persist relevant data, rather than being spun up independently. Independent deployment of CitrineOS OCPI modules is achievable with mocks for testing purposes. Each group of combined ocpi + core/payment modules can be deployed as an independent microservice to facilitate horizontal scaling.
@@ -29,12 +41,39 @@ This release provides full OCPI 2.2.1 CPO functionality. The features included a
 - **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs
 
 ## Getting Started
+OCPI cannot be ran alone. To run OCPI, you must extend the `/Server` configuration included in
+[CORE](https://github.com/citrineos/citrineos-core) to also initialize OCPI components. For this purpose,
+we have created a [DEMO](https://github.com/citrineos/citrineos-demo) repo where we have an example `/Server`
+setup that runs `CORE` together with `OCPI`.
 
-To get started with CitrineOS OCPI, you will need to:
+You should still be able to `npm run lint/test/prettier` here.
 
-1. Clone and build the CitrineOS Core repository.
-2. Clone and build the CitrineOS OCPI repository. Must have the same parent directory as CitrineOS Core.
-3. Follow the instructions provided on the [Guide](https://citrineos.github.io/docs/getting-started.html) to configure and run the combined modules with OCPI activated.
+## Running database seeders:
+The following commands were created to initialize the DB tables:
+
+`npm run sync-db` - ORM creates / updates DB tables to align with the models defined in the code
+`npm run seed-db` - creates seed data
+
+## Running `clean` and `fresh`
+
+Our current module structure consists of multiple `npm` submodules that are loaded as dependencies
+running the application. This results in the need to rebuild modules that have any file changes. In
+some cases, in particular when switching between branches, especially when there are changes in the
+package.json, the already built `dist` as well as the already generated `package-lock.json` may
+become invalid.
+
+To alleviate the above, we created the `npm run fresh` and the `npm run clean` commands.
+
+`npm run fresh` - will delete all `node_modules`, `dist`, `tsbuildinfo`, `package-lock.json` and clear cache
+`npm run clean` - sub set of `npm run fresh` will only delete the build files `dist` and `tsbuildinfo`
+
+## Linting and Prettier
+
+Eslint and Prettier have been configured to help support syntactical consistency throughout the codebase.
+
+`npm run prettier` - will run prettier and format the files
+`npm run lint` - will run linter
+`npm run lint-fix` - will run prettier and linter -fix flag which will attempt to resolve any linting issues.
 
 ## Contributing
 
@@ -47,9 +86,3 @@ CitrineOS OCPI is licensed under the Apache License, Version 2.0. See [LICENSE](
 ---
 
 Thank you for using CitrineOS OCPI. If you have any questions or need assistance, please feel free to [open an issue](https://github.com/citrineos/citrineos/issues) or join our [Discord](https://discord.gg/FhkRJknV3N) and ask there!
-
-## Running database seeders:
-
-```
-npx sequelize-cli db:seed:all
-```
