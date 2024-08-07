@@ -13,7 +13,7 @@ import { ILogObj, Logger } from 'tslog';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { LocationsService } from '../services/locations.service';
 import { TariffsDatasource } from '../datasources/TariffsDatasource';
-import {TokensDatasource} from "../datasources/TokensDatasource";
+import { TokensDatasource } from '../datasources/TokensDatasource';
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {

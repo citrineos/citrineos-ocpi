@@ -3,14 +3,13 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {Inject, Service} from 'typedi';
+import { Inject, Service } from 'typedi';
 import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLogger } from '../util/logger';
-import { TokensRepository } from '../repository/TokensRepository';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokenType } from '../model/TokenType';
-import {ITokensDatasource} from "../datasources/ITokensDatasource";
-import {TokensDatasource} from "../datasources/TokensDatasource";
+import { ITokensDatasource } from '../datasources/ITokensDatasource';
+import { TokensDatasource } from '../datasources/TokensDatasource';
 
 @Service()
 export class TokensService {

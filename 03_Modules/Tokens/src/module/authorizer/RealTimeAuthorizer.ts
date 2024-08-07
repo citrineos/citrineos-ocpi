@@ -23,7 +23,7 @@ import { BadRequestError } from 'routing-controllers';
 import { ILogObj, Logger } from 'tslog';
 import { AuthorizationInfo } from '@citrineos/ocpi-base/dist/model/AuthorizationInfo';
 import { Service } from 'typedi';
-import {TokensDatasource} from "@citrineos/ocpi-base/dist/datasources/TokensDatasource";
+import { TokensDatasource } from '@citrineos/ocpi-base/dist/datasources/TokensDatasource';
 
 @Service()
 export class RealTimeAuthorizer implements IAuthorizer {

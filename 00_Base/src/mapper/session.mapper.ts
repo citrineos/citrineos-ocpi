@@ -21,7 +21,7 @@ import { LocationsService } from '../services/locations.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { TariffsDatasource } from '../datasources/TariffsDatasource';
 import { EXTRACT_EVSE_ID } from '../model/DTO/EvseDTO';
-import {TokensDatasource} from "../datasources/TokensDatasource";
+import { TokensDatasource } from '../datasources/TokensDatasource';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {

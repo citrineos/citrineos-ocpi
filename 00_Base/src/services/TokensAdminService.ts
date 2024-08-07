@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {Inject, Service} from 'typedi';
+import { Inject, Service } from 'typedi';
 import { OcpiLogger } from '../util/logger';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
 import { TokensClientApi } from '../trigger/TokensClientApi';
@@ -19,9 +19,9 @@ import {
 import { Op } from 'sequelize';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { AsyncJobRequest } from '../model/AsyncJobRequest';
-import {ITokensDatasource} from "../datasources/ITokensDatasource";
-import {TokensDatasource} from "../datasources/TokensDatasource";
-import {TokenDTO} from "../model/DTO/TokenDTO";
+import { ITokensDatasource } from '../datasources/ITokensDatasource';
+import { TokensDatasource } from '../datasources/TokensDatasource';
+import { TokenDTO } from '../model/DTO/TokenDTO';
 
 @Service()
 export class TokensAdminService {
@@ -111,7 +111,6 @@ export class TokensAdminService {
         if (
           response.status_code === OcpiResponseStatusCode.GenericSuccessCode
         ) {
-
           this.updateTokens(response.data);
 
           asyncJobStatus =

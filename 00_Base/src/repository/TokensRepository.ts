@@ -6,10 +6,7 @@
 import { Service } from 'typedi';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
-import {
-  SequelizeRepository,
-  SequelizeTransaction,
-} from '@citrineos/data';
+import { SequelizeRepository, SequelizeTransaction } from '@citrineos/data';
 import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
@@ -31,9 +28,11 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
     );
   }
 
-  async patch(transactionCallback: (transaction: SequelizeTransaction) => Promise<TokenDTO>): Promise<TokenDTO> {
-    return await this.s.transaction(async (transaction) => {
-      return await transactionCallback(transaction);
-    });
+  async patch(
+    transactionCallback: (
+      transaction: SequelizeTransaction,
+    ) => Promise<TokenDTO>,
+  ): Promise<TokenDTO> {
+    return await this.s.transaction(async (transaction) => await transactionCallback(transaction));
   }
 }
