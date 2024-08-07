@@ -19,7 +19,7 @@ export class TokensService {
     private readonly tokensDatasource: ITokensDatasource,
   ) {}
 
-  async getSingleToken(
+  async getToken(
     tokenRequest: SingleTokenRequest,
   ): Promise<TokenDTO | undefined> {
     return await this.tokensDatasource.getToken(tokenRequest);
