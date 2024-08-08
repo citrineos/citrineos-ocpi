@@ -8,5 +8,6 @@
   "prHourlyLimit": 2,
   "dependencyDashboard": true,
   "branchPrefix": "renovate/",
-  "commitMessagePrefix": "📦 chore(deps): "
+  "commitMessagePrefix": "📦 chore(deps): ",
+  "baseBranch": "rc-1.0.0"
 }
