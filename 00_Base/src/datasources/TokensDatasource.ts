@@ -194,7 +194,6 @@ export class TokensDatasource implements ITokensDatasource {
       },
     });
     if (!ocpiToken) {
-      // TODO better error
       return Promise.resolve(undefined);
     }
     return Promise.resolve(ocpiToken);
@@ -263,7 +262,6 @@ export class TokensDatasource implements ITokensDatasource {
         },
       });
 
-    // TODO confirm all updatable properties
     if (!ocpiTokenCreated) {
       await this.tokensRepository.updateByKey(baseTokenData, savedOcpiToken.id);
     }
