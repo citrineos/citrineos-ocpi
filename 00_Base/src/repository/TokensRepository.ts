@@ -33,6 +33,8 @@ export class TokensRepository extends SequelizeRepository<OcpiToken> {
       transaction: SequelizeTransaction,
     ) => Promise<TokenDTO>,
   ): Promise<TokenDTO> {
-    return await this.s.transaction(async (transaction) => await transactionCallback(transaction));
+    return await this.s.transaction(
+      async (transaction) => await transactionCallback(transaction),
+    );
   }
 }
