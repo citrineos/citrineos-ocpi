@@ -111,7 +111,7 @@ export class TokensAdminService {
         if (
           response.status_code === OcpiResponseStatusCode.GenericSuccessCode
         ) {
-          this.updateTokens(response.data);
+          await this.updateTokens(response.data);
 
           asyncJobStatus =
             await this.asyncJobStatusRepository.updateAsyncJobStatus({
