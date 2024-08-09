@@ -16,7 +16,6 @@ import {
   PostTokenParams,
   ServerCredentialsRoleProps,
   TokensClientApi,
-  TokensRepository,
   UnsuccessfulRequestException,
   WhitelistType,
 } from '@citrineos/ocpi-base';
@@ -24,12 +23,13 @@ import { BadRequestError } from 'routing-controllers';
 import { ILogObj, Logger } from 'tslog';
 import { AuthorizationInfo } from '@citrineos/ocpi-base/dist/model/AuthorizationInfo';
 import { Service } from 'typedi';
+import { TokensDatasource } from '@citrineos/ocpi-base/dist/datasources/TokensDatasource';
 
 @Service()
 export class RealTimeAuthorizer implements IAuthorizer {
   constructor(
     private readonly logger: Logger<ILogObj>,
-    private readonly tokensRepository: TokensRepository,
+    private readonly tokensDatasource: TokensDatasource,
     private readonly credentialsService: CredentialsService,
     private readonly tokensClientApi: TokensClientApi,
   ) {}
@@ -97,7 +97,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
   private async getOcpiToken(authorization: Authorization): Promise<OcpiToken> {
     const idToken = authorization.idToken as IdToken;
     const idTokenId = idToken.id;
-    const ocpiToken = await this.tokensRepository.getOcpiTokenByAuthorizationId(
+    const ocpiToken = await this.tokensDatasource.getOcpiTokenByAuthorizationId(
       authorization.id,
     );
     if (!ocpiToken) {
