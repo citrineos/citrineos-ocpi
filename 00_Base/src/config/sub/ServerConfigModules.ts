@@ -57,11 +57,10 @@ export class ServerConfigModules {
   @Type(() => ServerConfigModulesTransactions)
   @ValidateNested()
   @Validate(
-    (obj: ServerConfigModulesTransactions, args: ValidationArguments) => {
-      return (!(obj.costUpdatedInterval && obj.sendCostUpdatedOnMeterValue) &&
+    (obj: ServerConfigModulesTransactions, _args: ValidationArguments) =>
+      (!(obj.costUpdatedInterval && obj.sendCostUpdatedOnMeterValue) &&
         (obj.costUpdatedInterval ||
-          obj.sendCostUpdatedOnMeterValue)) as boolean;
-    },
+          obj.sendCostUpdatedOnMeterValue)) as boolean,
     {
       message:
         'Can only update cost based on the interval or in response to a transaction event /meter value' +

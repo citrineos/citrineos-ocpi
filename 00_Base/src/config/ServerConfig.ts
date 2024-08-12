@@ -2,14 +2,16 @@ import { Service } from 'typedi';
 import { Enum } from '../util/decorators/enum';
 import { IsInt, IsNotEmpty, IsPositive, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SequelizeConfig } from './sub/SequelizeConfig';
-import { Env } from './sub/Env';
-import { ServerConfigData } from './sub/ServerConfigData';
-import { ServerConfigCentralSystem } from './sub/ServerConfigCentralSystem';
-import { ServerConfigModules } from './sub/ServerConfigModules';
-import { ServerConfigUtil } from './sub/ServerConfigUtil';
-import { LogLevel } from './sub/LogLevel';
-import { ServerConfigHostPort } from './sub/ServerConfigHostPort';
+import {
+  Env,
+  LogLevel,
+  SequelizeConfig,
+  ServerConfigCentralSystem,
+  ServerConfigData,
+  ServerConfigHostPort,
+  ServerConfigModules,
+  ServerConfigUtil,
+} from './sub';
 
 @Service()
 export class ServerConfig {

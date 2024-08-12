@@ -19,12 +19,12 @@ export class VersionRepository extends SequelizeRepository<Version> {
   logger: Logger<ILogObj>;
 
   constructor(
-    ystemConfig: ServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.Version,
       logger,
       ocpiSequelizeInstance.sequelize,
