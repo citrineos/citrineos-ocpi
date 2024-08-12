@@ -911,15 +911,19 @@ export class CredentialsService {
         authorization: token,
       });
     } catch (e: any) {
-      this.logger.error('Could not get versions', e);
-    }
-    if (!versions || !versions.data) {
-      throw new NotFoundError('Versions not found');
+      const msg = `Could not get versions. Request to client failed with message: ${e.message}`;
+      this.logger.error(msg);
+      throw new NotFoundError(msg);
     }
 
-    const version = versions.data?.find(
-      (v: any) => v.version === versionNumber,
-    );
+    if (!versions || !versions.data) {
+      const msg =
+        'Versions list response was null or did not have expected data';
+      this.logger.error(msg);
+      throw new NotFoundError(msg);
+    }
+
+    const version = versions.data.find((v: any) => v.version === versionNumber);
     if (!version) {
       throw new NotFoundError('Matching version not found');
     }
