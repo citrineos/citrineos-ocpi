@@ -162,6 +162,7 @@ export class CredentialsModuleApi
    * and register token B and C.
    */
   @Post('/register-credentials-token-a')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

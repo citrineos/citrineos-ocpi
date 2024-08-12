@@ -411,7 +411,7 @@ export class CredentialsService {
     const serverVersion = serverVersionResponse[0];
     // TODO, should version url should be in DB?
     const serverVersionUrl =
-      'https://plugfest-dallas.demo.citrineos.app:445/ocpi/versions';
+      'https://plugfest.demo.citrineos.app:445/ocpi/versions';
 
     const clientVersion = await this.getVersionDetails(
       versionNumber,
@@ -499,21 +499,32 @@ export class CredentialsService {
 
     const clientInformation = clientCpoTenant.clientInformation[0];
 
-    // await clientInformation.save(); // todo
-    await clientCpoTenant.save();
+    try {
+      await clientCpoTenant.save();
+    } catch (e: any) {
+      throw new BadRequestError(
+        `Could not register credentials, ${e.name} ${e.message}`,
+      );
+    }
 
     const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
-    const updatedClientInformation =
-      await this.performPostAndReturnSavedClientCredentials(
-        clientInformation,
-        clientCredentialsUrl,
-        versionNumber,
-        credentialsTokenA,
-        credentialsTokenB,
-        serverVersionUrl,
-      );
-    console.debug('updatedClientInformation', updatedClientInformation);
-    return updatedClientInformation;
+    try {
+      const updatedClientInformation =
+        await this.performPostAndReturnSavedClientCredentials(
+          clientInformation,
+          clientCredentialsUrl,
+          versionNumber,
+          credentialsTokenA,
+          credentialsTokenB,
+          serverVersionUrl,
+        );
+      console.debug('updatedClientInformation', updatedClientInformation);
+      return updatedClientInformation;
+    } catch (e: any) {
+      const msg = `Failed to register credentials - ${e.name} ${e.message}`;
+      this.logger.error(msg, e);
+      throw new BadRequestError(msg);
+    }
   }
 
   async deleteTenant(
@@ -915,7 +926,6 @@ export class CredentialsService {
       this.logger.error(msg);
       throw new NotFoundError(msg);
     }
-
     if (!versions || !versions.data) {
       const msg =
         'Versions list response was null or did not have expected data';
