@@ -20,13 +20,14 @@ export class VersionsClientApi extends BaseClientApi {
       this.validateRequiredParam(params, 'authorization');
       const additionalHeaders: IHeaders =
         this.getOcpiRegistrationHeaders(params);
+
       response = await this.getRaw<VersionListResponseDTO>('', {
         additionalHeaders,
       });
       return this.handleResponse(VersionListResponseDTO, response);
-    } catch (e) {
+    } catch (e: any) {
       throw new UnsuccessfulRequestException(
-        'Could not get version list',
+        `Could not get version list. Error: ${e.message}`,
         response!,
       );
     }

@@ -59,6 +59,7 @@ import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { OcpiParams } from '../trigger/util/ocpi.params';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 
 const clientInformationInclude = [
   {
@@ -903,10 +904,15 @@ export class CredentialsService {
   ): Promise<ClientVersion> {
     this.versionsClientApi.baseUrl = url;
 
-    const versions = await this.versionsClientApi.getVersions({
-      version: versionNumber,
-      authorization: token,
-    });
+    let versions: VersionListResponseDTO | null = null;
+    try {
+      versions = await this.versionsClientApi.getVersions({
+        version: versionNumber,
+        authorization: token,
+      });
+    } catch (e: any) {
+      this.logger.error('Could not get versions', e);
+    }
     if (!versions || !versions.data) {
       throw new NotFoundError('Versions not found');
     }
