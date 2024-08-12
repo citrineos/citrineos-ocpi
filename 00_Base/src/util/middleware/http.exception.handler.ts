@@ -88,6 +88,12 @@ export class HttpExceptionHandler implements KoaMiddlewareInterface {
               new HttpExceptionBody((err as any).message),
             );
             break;
+          case 'SequelizeUniqueConstraintError':
+            context.status = HttpStatus.BAD_REQUEST;
+            context.body = JSON.stringify(
+              new HttpExceptionBody((err as any).message),
+            );
+            break;
           default:
             context.status = HttpStatus.INTERNAL_SERVER_ERROR;
             context.body = JSON.stringify(

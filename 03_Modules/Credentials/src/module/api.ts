@@ -178,14 +178,11 @@ export class CredentialsModuleApi
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('registerCredentialsTokenA', credentials);
-    let clientInformation: ClientInformation =
+    const clientInformation: ClientInformation =
       await this.credentialsService?.registerCredentialsTokenA(
         versionNumber,
         credentials,
       );
-    clientInformation = clientInformation.get
-      ? clientInformation.get({ plain: true })
-      : clientInformation;
     return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 
