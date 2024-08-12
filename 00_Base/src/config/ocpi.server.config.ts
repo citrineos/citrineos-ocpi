@@ -1,12 +1,4 @@
-import {
-  IsBoolean,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested, } from 'class-validator';
 import { Service } from 'typedi';
 import { Type } from 'class-transformer';
 import { Enum } from '../util/decorators/enum';
@@ -49,6 +41,14 @@ class SequelizeConfig {
   @IsBoolean()
   @IsOptional()
   alter?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  maxRetries?: number;
+
+  @IsNumber()
+  @IsOptional()
+  retryDelay?: number;
 
   constructor(
     host: string,
