@@ -265,12 +265,13 @@ export class OcpiModuleConfig {
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
-  readonly serverConfig: ServerConfig;
-  readonly cache: ICache;
-  readonly logger: Logger<ILogObj>;
-  readonly ocpiSequelizeInstance: OcpiSequelizeInstance;
-  readonly modules: OcpiModule[] = [];
-  readonly repositoryStore: RepositoryStore;
+  private readonly serverConfig: ServerConfig;
+  private readonly cache: ICache;
+  private readonly logger: Logger<ILogObj>;
+  private _ocpiSequelizeInstance!: OcpiSequelizeInstance;
+  private modules: OcpiModule[] = [];
+  private readonly repositoryStore: RepositoryStore;
+  private modulesConfig: OcpiModuleConfig[] = [];
 
   constructor(
     serverConfig: ServerConfig,
@@ -284,12 +285,21 @@ export class OcpiServer extends KoaServer {
     this.serverConfig = serverConfig;
     this.cache = cache;
     this.logger = logger;
-    this.ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
     this.repositoryStore = repositoryStore;
+    this.modulesConfig = modulesConfig;
+  }
+
+  public get ocpiSequelizeInstance(): OcpiSequelizeInstance {
+    return this._ocpiSequelizeInstance;
+  }
+
+  public async initialize() {
+    this._ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
+    await this._ocpiSequelizeInstance.initializeSequelize();
 
     this.initContainer();
 
-    this.modules = modulesConfig.map((moduleConfig) => {
+    this.modules = this.modulesConfig.map((moduleConfig) => {
       const module = Container.get(moduleConfig.module);
       module.init(moduleConfig.handler, moduleConfig.sender);
       return module;

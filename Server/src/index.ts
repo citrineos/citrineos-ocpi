@@ -37,7 +37,9 @@ class CitrineOSServer {
     this.logger = this.initLogger();
 
     Container.set(Logger, this.logger);
+  }
 
+  public async initialize() {
     const ocpiServer = new OcpiServer(
       this.config as OcpiServerConfig,
       this.cache,
@@ -50,6 +52,7 @@ class CitrineOSServer {
       ),
     );
 
+    await ocpiServer.initialize();
     ocpiServer.run(this.config.ocpiServer.host, this.config.ocpiServer.port);
   }
 
@@ -130,4 +133,12 @@ class CitrineOSServer {
   }
 }
 
-new CitrineOSServer();
+async function main() {
+  const server = new CitrineOSServer();
+  await server.initialize();
+}
+
+main().catch((error) => {
+  console.error('Failed to initialize server:', error);
+  process.exit(1);
+});
