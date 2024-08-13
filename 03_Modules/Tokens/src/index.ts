@@ -7,7 +7,7 @@ import { TokensModuleApi } from './module/api';
 import {
   CacheWrapper,
   OcpiModule,
-  OcpiServerConfig,
+  ServerConfig,
   TokensService,
 } from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
@@ -26,7 +26,7 @@ export class TokensModule implements OcpiModule {
   sender!: IMessageSender;
 
   constructor(
-    readonly config: OcpiServerConfig,
+    readonly config: ServerConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
