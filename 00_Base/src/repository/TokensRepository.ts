@@ -7,21 +7,21 @@ import { Service } from 'typedi';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SequelizeRepository, SequelizeTransaction } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { OcpiLogger } from '../util/logger';
 import { SystemConfig } from '@citrineos/base';
 import { OcpiNamespace } from '../util/ocpi.namespace';
 import { TokenDTO } from '../model/DTO/TokenDTO';
+import { ServerConfig } from '../config/ServerConfig';
 
 @Service()
 export class TokensRepository extends SequelizeRepository<OcpiToken> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     private readonly logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.OcpiToken,
       logger,
       ocpiSequelizeInstance.sequelize,

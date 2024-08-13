@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
+import { ServerConfig } from '../config/ServerConfig';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { SystemConfig } from '@citrineos/base';
 import { ClientInformation } from '../model/ClientInformation';
@@ -17,13 +17,13 @@ import { ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
 @Service()
 export class EndpointRepository extends SequelizeRepository<Endpoint> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.Endpoint,
       logger,
       ocpiSequelizeInstance.sequelize,

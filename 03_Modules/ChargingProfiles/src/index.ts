@@ -5,12 +5,13 @@
 
 import { ChargingProfilesModuleApi } from './module/api';
 import {
+  AsyncResponder,
   CacheWrapper,
   ChargingProfilesClientApi,
   ClientInformationRepository,
   EndpointRepository,
   OcpiModule,
-  OcpiServerConfig,
+  ServerConfig,
   SessionChargingProfileRepository,
   SessionMapper,
 } from '@citrineos/ocpi-base';
@@ -28,16 +29,14 @@ import {
   SequelizeChargingProfileRepository,
   SequelizeTransactionEventRepository,
 } from '@citrineos/data';
+import { ChargingProfilesOcppHandlers } from './module/handlers';
 
 useContainer(Container);
-
-import { ChargingProfilesOcppHandlers } from './module/handlers';
-import { AsyncResponder } from '@citrineos/ocpi-base';
 
 @Service()
 export class ChargingProfilesModule implements OcpiModule {
   constructor(
-    readonly config: OcpiServerConfig,
+    readonly config: ServerConfig,
     readonly cache: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {
