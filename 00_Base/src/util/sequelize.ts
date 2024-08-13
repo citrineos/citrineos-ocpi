@@ -12,7 +12,6 @@ import {
 } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Dialect } from 'sequelize';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { Service } from 'typedi';
 import { Endpoint } from '../model/Endpoint';
 import { ClientInformation } from '../model/ClientInformation';
@@ -33,6 +32,7 @@ import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
 import { AsyncJobStatus } from '../model/AsyncJobStatus';
+import { ServerConfig } from '../config/ServerConfig';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -46,7 +46,7 @@ export class OcpiSequelizeInstance {
   private logger: Logger<ILogObj>;
   private config: OcpiServerConfig;
 
-  constructor(config: OcpiServerConfig) {
+  constructor(config: ServerConfig) {
     this.logger = this.logger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
@@ -73,7 +73,9 @@ export class OcpiSequelizeInstance {
     while (retryCount < maxRetries) {
       try {
         await this.sequelize!.authenticate();
-        this.logger.info("Database connection has been established successfully");
+        this.logger.info(
+          'Database connection has been established successfully',
+        );
 
         this.setupModelAssociations();
         this.syncDatabase();
@@ -81,12 +83,17 @@ export class OcpiSequelizeInstance {
         break;
       } catch (error) {
         retryCount++;
-        this.logger.error(`Failed to connect to the database (attempt ${retryCount}/${maxRetries}):`, error);
+        this.logger.error(
+          `Failed to connect to the database (attempt ${retryCount}/${maxRetries}):`,
+          error,
+        );
         if (retryCount < maxRetries) {
           this.logger.info(`Retrying in ${retryDelay / 1000} seconds...`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
         } else {
-          this.logger.error("Max retries reached. Unable to establish database connection.");
+          this.logger.error(
+            'Max retries reached. Unable to establish database connection.',
+          );
         }
       }
     }
@@ -144,11 +151,11 @@ export class OcpiSequelizeInstance {
 
   private syncDatabase(): void {
     if (this.config.data.sequelize.alter) {
-      this.sequelize.sync({alter: true}).then(() => {
+      this.sequelize.sync({ alter: true }).then(() => {
         this.logger.info('Database altered');
       });
     } else if (this.config.data.sequelize.sync) {
-      this.sequelize.sync({force: true}).then(() => {
+      this.sequelize.sync({ force: true }).then(() => {
         this.logger.info('Database synchronized');
       });
     }
