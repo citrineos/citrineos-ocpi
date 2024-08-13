@@ -1,8 +1,18 @@
 import 'reflect-metadata';
-import { ICache, IMessageHandler, IMessageSender, SystemConfig, } from '@citrineos/base';
+import {
+  ICache,
+  IMessageHandler,
+  IMessageSender,
+  SystemConfig,
+} from '@citrineos/base';
 import { type ILogObj, Logger } from 'tslog';
 import { createLocalConfig } from './config';
-import { MemoryCache, RabbitMqReceiver, RabbitMqSender, RedisCache, } from '@citrineos/util';
+import {
+  MemoryCache,
+  RabbitMqReceiver,
+  RabbitMqSender,
+  RedisCache,
+} from '@citrineos/util';
 import { OcpiServer, OcpiServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { LocationsModule } from '@citrineos/ocpi-locations';
@@ -107,11 +117,11 @@ class CitrineOSServer {
   private initCache(): ICache {
     return this.config.util.cache.redis
       ? new RedisCache({
-        socket: {
-          host: this.config.util.cache.redis.host,
-          port: this.config.util.cache.redis.port,
-        },
-      })
+          socket: {
+            host: this.config.util.cache.redis.host,
+            port: this.config.util.cache.redis.port,
+          },
+        })
       : new MemoryCache();
   }
 
@@ -128,7 +138,7 @@ async function main() {
   await server.initialize();
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Failed to initialize server:', error);
   process.exit(1);
 });
