@@ -1,5 +1,9 @@
 import { Container } from 'typedi';
-import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import {
+  SequelizeCallMessageRepository,
+  SequelizeReservationRepository,
+  SequelizeTransactionEventRepository,
+} from '@citrineos/data';
 
 import { CommandsOcppHandlers } from './handlers';
 import { Service } from 'typedi';
@@ -46,6 +50,22 @@ export class CommandsModule implements OcpiModule {
     Container.set(
       SequelizeTransactionEventRepository,
       new SequelizeTransactionEventRepository(
+        this.config as SystemConfig,
+        this.logger,
+      ),
+    );
+
+    Container.set(
+      SequelizeReservationRepository,
+      new SequelizeReservationRepository(
+        this.config as SystemConfig,
+        this.logger,
+      ),
+    );
+
+    Container.set(
+      SequelizeCallMessageRepository,
+      new SequelizeCallMessageRepository(
         this.config as SystemConfig,
         this.logger,
       ),
