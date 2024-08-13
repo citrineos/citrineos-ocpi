@@ -5,10 +5,7 @@ import {
   MeterValueType,
   TransactionEventRequest,
 } from '@citrineos/base';
-import {
-  Tariff,
-  Transaction,
-} from '@citrineos/data';
+import { Tariff, Transaction } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
@@ -19,12 +16,12 @@ import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
 import { TokenDTO } from '../model/DTO/TokenDTO';
-import { TokensRepository } from '../repository/TokensRepository';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { LocationsService } from '../services/locations.service';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import {TariffsDatasource} from "../datasources/TariffsDatasource";
+import { TariffsDatasource } from '../datasources/TariffsDatasource';
 import { EXTRACT_EVSE_ID } from '../model/DTO/EvseDTO';
+import { TokensDatasource } from '../datasources/TokensDatasource';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -32,7 +29,7 @@ export class SessionMapper extends BaseTransactionMapper {
     protected logger: Logger<ILogObj>,
     protected locationsService: LocationsService,
     protected ocpiLocationsRepository: OcpiLocationRepository,
-    protected tokensRepository: TokensRepository,
+    protected tokensDatasource: TokensDatasource,
     protected tariffsDatasource: TariffsDatasource,
     readonly credentialsService: CredentialsService,
   ) {
@@ -40,7 +37,7 @@ export class SessionMapper extends BaseTransactionMapper {
       logger,
       locationsService,
       ocpiLocationsRepository,
-      tokensRepository,
+      tokensDatasource,
       tariffsDatasource,
     );
   }
