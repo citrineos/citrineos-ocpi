@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
+import { ServerConfig } from '../config/ServerConfig';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiSequelizeInstance } from '../util/sequelize';
 import { OcpiNamespace } from '../util/ocpi.namespace';
@@ -14,12 +14,12 @@ import { EXTRACT_EVSE_ID, EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
 @Service()
 export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.OcpiEvse,
       logger,
       ocpiSequelizeInstance.sequelize,

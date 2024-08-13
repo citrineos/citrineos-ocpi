@@ -1,15 +1,14 @@
-import { Container } from 'typedi';
+import { Container, Service } from 'typedi';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
 
 import { CommandsOcppHandlers } from './handlers';
-import { Service } from 'typedi';
 
 import { CommandsModuleApi } from './api';
 import {
   AsyncResponder,
   CacheWrapper,
   OcpiModule,
-  OcpiServerConfig,
+  ServerConfig,
   SessionMapper,
 } from '@citrineos/ocpi-base';
 import {
@@ -23,7 +22,7 @@ import { ILogObj, Logger } from 'tslog';
 @Service()
 export class CommandsModule implements OcpiModule {
   constructor(
-    readonly config: OcpiServerConfig,
+    readonly config: ServerConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
