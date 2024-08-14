@@ -34,18 +34,6 @@
     "prettier": "prettier --write .",
     "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
-  "dependencies": {
-    "@citrineos/ocpi-base": "0.2.0",
-    "@citrineos/ocpi-credentials": "0.2.0",
-    "@citrineos/ocpi-versions": "0.2.0",
-    "@citrineos/ocpi-commands": "0.2.0",
-    "@citrineos/ocpi-locations": "0.2.0",
-    "@citrineos/ocpi-sessions": "0.2.0",
-    "@citrineos/ocpi-tariffs": "0.2.0",
-    "@citrineos/ocpi-cdrs": "0.2.0",
-    "@citrineos/ocpi-charging-profiles": "0.2.0",
-    "@citrineos/ocpi-tokens": "0.2.0"
-  },
   "workspaces": [
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
