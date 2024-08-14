@@ -2,6 +2,9 @@
   "name": "@citrineos/ocpi-workspace",
   "version": "1.0.0",
   "private": false,
+  "overrides": {
+    "@typescript-eslint/eslint-plugin": "^6.5.0"
+  },
   "devDependencies": {
     "@eslint/js": "9.0.0",
     "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
