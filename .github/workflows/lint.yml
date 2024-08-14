@@ -28,7 +28,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: npm i
+        run: |
+          npm i --prefix ../citrineos-core
+          npm i
 
       - name: Lint
         run: npm run lint
