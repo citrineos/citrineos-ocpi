@@ -287,6 +287,13 @@ export class OcpiServer extends KoaServer {
     this.logger = logger;
     this.repositoryStore = repositoryStore;
     this.modulesConfig = modulesConfig;
+    this._ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
+    this.initContainer();
+    this.modules = this.modulesConfig.map((moduleConfig) => {
+      const module = Container.get(moduleConfig.module);
+      module.init(moduleConfig.handler, moduleConfig.sender);
+      return module;
+    });
   }
 
   public get ocpiSequelizeInstance(): OcpiSequelizeInstance {
@@ -294,17 +301,7 @@ export class OcpiServer extends KoaServer {
   }
 
   public async initialize() {
-    this._ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
     await this._ocpiSequelizeInstance.initializeSequelize();
-
-    this.initContainer();
-
-    this.modules = this.modulesConfig.map((moduleConfig) => {
-      const module = Container.get(moduleConfig.module);
-      module.init(moduleConfig.handler, moduleConfig.sender);
-      return module;
-    });
-
     this.initServer();
   }
 

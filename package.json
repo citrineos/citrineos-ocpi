@@ -21,7 +21,7 @@
     "clean-and-seed-db": "npm run clean-db && npm run seed-db",
     "start-mock-emsp": "npm run build && nodemon ./mock-client/index.ts --config ./mock-client/nodemon.json",
     "start-mockoon": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000",
-    "install-all": "npm i --workspaces --verbose",
+    "install-all": "npm i --verbose",
     "clear-cache": "npm cache clean --force",
     "remove-dependencies": "rm -rf package-lock.json **/package-lock.json **/**/package-lock.json node_modules **/node_modules **/**/node_modules",
     "fresh": "npm run clean && npm run remove-dependencies && npm run clear-cache",
@@ -31,7 +31,7 @@
     "build": "tsc --build --verbose",
     "lint": "npx eslint --ext .ts ./",
     "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
-    "prettier": "npx prettier --write .",
+    "prettier": "prettier --write .",
     "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
   "dependencies": {
