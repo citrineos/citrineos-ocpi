@@ -29,8 +29,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm i --prefix ../citrineos-core
-          npm i
+          npm run install-all --prefix ../citrineos-core
+          npm run install-all
 
       - name: Lint
         run: npm run lint
