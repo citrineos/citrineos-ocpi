@@ -334,8 +334,8 @@ export class CommandExecutor {
     if (!evse) {
       throw new NotFoundError('EVSE not found');
     }
-    const ocpiLocation = await this.ocpiLocationRepo.readByKey(
-      reserveNow.location_id,
+    const ocpiLocation = await this.ocpiLocationRepo.getLocationByCoreLocationId(
+        Number(reserveNow.location_id)
     );
     if (!ocpiLocation) {
       throw new NotFoundError('Location not found');
@@ -558,6 +558,7 @@ export class CommandExecutor {
       await this.reservationRepo.createOrUpdateReservation(
         request,
         evse.stationId,
+        false,
       );
     if (!storedCoreReservation) {
       throw new Error('Could not create or update reservation in core.');
@@ -571,6 +572,8 @@ export class CommandExecutor {
         [OcpiReservationProps.countryCode]: countryCode,
         [OcpiReservationProps.partyId]: partyId,
         [OcpiReservationProps.locationId]: reserveNow.location_id,
+        [OcpiReservationProps.evseUid]: reserveNow.evse_uid ?? null,
+        [OcpiReservationProps.authorizationReference]: reserveNow.authorization_reference ?? null,
       }),
     );
 

@@ -53,22 +53,6 @@ export class CommandsModule implements OcpiModule {
         this.logger,
       ),
     );
-
-    Container.set(
-      SequelizeReservationRepository,
-      new SequelizeReservationRepository(
-        this.config as SystemConfig,
-        this.logger,
-      ),
-    );
-
-    Container.set(
-      SequelizeCallMessageRepository,
-      new SequelizeCallMessageRepository(
-        this.config as SystemConfig,
-        this.logger,
-      ),
-    );
   }
 
   getController(): any {

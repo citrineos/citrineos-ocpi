@@ -20,6 +20,8 @@ export enum OcpiReservationProps {
   location = 'location',
   coreReservationId = 'coreReservationId',
   coreReservation = 'coreReservation',
+  evseUid = 'evseUid',
+  authorizationReference = 'authorizationReference',
 }
 
 @Table
@@ -66,4 +68,14 @@ export class OcpiReservation extends Model {
   @IsString()
   @IsNotEmpty()
   [OcpiReservationProps.partyId]!: string;
+
+  @Column(DataType.STRING)
+  @MaxLength(36)
+  @IsString()
+  [OcpiReservationProps.evseUid]?: string | null;
+
+  @Column(DataType.STRING)
+  @MaxLength(36)
+  @IsString()
+  [OcpiReservationProps.authorizationReference]?: string | null;
 }

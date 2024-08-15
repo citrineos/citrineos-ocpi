@@ -114,7 +114,7 @@ export class CommandsService {
         timeout: this.TIMEOUT,
       });
     } catch (e) {
-      if (e instanceof NotFoundError || e instanceof BadRequestError) {
+      if (e instanceof NotFoundError) {
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.REJECTED,
@@ -122,6 +122,15 @@ export class CommandsService {
           },
           e.message,
           e as NotFoundError,
+        );
+      } else if (e instanceof BadRequestError) {
+        return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+          {
+            result: CommandResponseType.REJECTED,
+            timeout: this.TIMEOUT,
+          },
+          e.message,
+          e as BadRequestError,
         );
       } else {
         console.error(e);
