@@ -30,6 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm run install-all --prefix ../citrineos-core
+          npm run build --prefix ../citrineos-core
           npm run install-all
 
       - name: Lint
