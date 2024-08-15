@@ -44,7 +44,8 @@ import {
 } from '../model/OcpiReservation';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
-import { OcpiEvse } from '../model/OcpiEvse';
+import { LocationsDatasource } from '../datasources/LocationsDatasource';
+import { EXTRACT_EVSE_ID, EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
 
 @Service()
 export class CommandExecutor {
@@ -57,9 +58,10 @@ export class CommandExecutor {
     readonly ocpiReservationRepo: OcpiReservationRepository,
     readonly transactionRepo: SequelizeTransactionEventRepository,
     readonly chargingProfileRepo: SequelizeChargingProfileRepository,
-    readonly reservationRepo: SequelizeReservationRepository,
+    readonly coreReservationRepo: SequelizeReservationRepository,
     readonly callMessageRepo: SequelizeCallMessageRepository,
     readonly sessionMapper: SessionMapper,
+    readonly locationsDatasource: LocationsDatasource,
   ) {}
 
   public async executeStartSession(startSession: StartSession): Promise<void> {
@@ -328,11 +330,11 @@ export class CommandExecutor {
     if (!reserveNow.evse_uid) {
       throw new BadRequestError('Missing evse_uid');
     }
-    const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
-      reserveNow.evse_uid!,
-    );
-    if (!evse) {
-      throw new NotFoundError('EVSE not found');
+    const evseId = Number(EXTRACT_EVSE_ID(reserveNow.evse_uid!));
+    const stationId = EXTRACT_STATION_ID(reserveNow.evse_uid!);
+    // Check if evse exists and given evse_uid matches the given location_id
+    if(!await this.locationsDatasource.getEvse(Number(reserveNow.location_id), stationId, evseId)) {
+        throw new NotFoundError('EVSE not found');
     }
     const ocpiLocation = await this.ocpiLocationRepo.getLocationByCoreLocationId(
         Number(reserveNow.location_id)
@@ -356,7 +358,8 @@ export class CommandExecutor {
     const [request, coreReservationDBId] =
       await this.createAndStoreReservations(
         reserveNow,
-        evse,
+        stationId,
+        evseId,
         countryCode,
         partyId,
       );
@@ -370,7 +373,7 @@ export class CommandExecutor {
       }),
     );
     await this.abstractModule.sendCall(
-      evse.stationId,
+      stationId,
       'tenantId',
       CallAction.ReserveNow,
       request,
@@ -513,7 +516,8 @@ export class CommandExecutor {
    */
   private async createAndStoreReservations(
     reserveNow: ReserveNow,
-    evse: OcpiEvse,
+    stationId: string,
+    evseId: number,
     countryCode: string,
     partyId: string,
   ): Promise<[ReserveNowRequest, number]> {
@@ -533,8 +537,8 @@ export class CommandExecutor {
       // Based on OCPI 2.1.1, The reservation_id sent by the Sender (eMSP) to the Receiver (CPO) SHALL NOT be sent
       // directly to a Charge Point. The CPO SHALL make sure the Reservation ID sent to the Charge Point is unique and
       // is not used by another Sender(eMSP).
-      coreReservationId = await this.reservationRepo.getNextReservationId(
-        evse.stationId,
+      coreReservationId = await this.coreReservationRepo.getNextReservationId(
+        stationId,
       );
     } else {
       coreReservationId = existingOcpiReservation.coreReservation.id;
@@ -552,12 +556,12 @@ export class CommandExecutor {
           reserveNow.token.type,
         ),
       },
-      evseId: evse.evseId,
+      evseId,
     } as ReserveNowRequest;
     const storedCoreReservation =
-      await this.reservationRepo.createOrUpdateReservation(
+      await this.coreReservationRepo.createOrUpdateReservation(
         request,
-        evse.stationId,
+        stationId,
         false,
       );
     if (!storedCoreReservation) {
