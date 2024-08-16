@@ -5,6 +5,8 @@ WORKDIR /usr/local/apps
 # COPY
 COPY . .
 
+COPY ./Server/tsconfig.docker.json /usr/local/apps/Server/tsconfig.json
+
 # INSTALL
 RUN npm run install-all
 
