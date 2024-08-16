@@ -59,6 +59,7 @@ import { CpoTenantRepository } from '../repository/CpoTenantRepository';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { OcpiParams } from '../trigger/util/ocpi.params';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 
 const clientInformationInclude = [
   {
@@ -410,7 +411,7 @@ export class CredentialsService {
     const serverVersion = serverVersionResponse[0];
     // TODO, should version url should be in DB?
     const serverVersionUrl =
-      'https://plugfest-dallas.demo.citrineos.app:445/ocpi/versions';
+      'https://plugfest.demo.citrineos.app:445/ocpi/versions';
 
     const clientVersion = await this.getVersionDetails(
       versionNumber,
@@ -498,21 +499,32 @@ export class CredentialsService {
 
     const clientInformation = clientCpoTenant.clientInformation[0];
 
-    // await clientInformation.save(); // todo
-    await clientCpoTenant.save();
+    try {
+      await clientCpoTenant.save();
+    } catch (e: any) {
+      throw new BadRequestError(
+        `Could not register credentials, ${e.name} ${e.message}`,
+      );
+    }
 
     const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
-    const updatedClientInformation =
-      await this.performPostAndReturnSavedClientCredentials(
-        clientInformation,
-        clientCredentialsUrl,
-        versionNumber,
-        credentialsTokenA,
-        credentialsTokenB,
-        serverVersionUrl,
-      );
-    console.debug('updatedClientInformation', updatedClientInformation);
-    return updatedClientInformation;
+    try {
+      const updatedClientInformation =
+        await this.performPostAndReturnSavedClientCredentials(
+          clientInformation,
+          clientCredentialsUrl,
+          versionNumber,
+          credentialsTokenA,
+          credentialsTokenB,
+          serverVersionUrl,
+        );
+      console.debug('updatedClientInformation', updatedClientInformation);
+      return updatedClientInformation;
+    } catch (e: any) {
+      const msg = `Failed to register credentials - ${e.name} ${e.message}`;
+      this.logger.error(msg, e);
+      throw new BadRequestError(msg);
+    }
   }
 
   async deleteTenant(
@@ -903,17 +915,25 @@ export class CredentialsService {
   ): Promise<ClientVersion> {
     this.versionsClientApi.baseUrl = url;
 
-    const versions = await this.versionsClientApi.getVersions({
-      version: versionNumber,
-      authorization: token,
-    });
+    let versions: VersionListResponseDTO | null = null;
+    try {
+      versions = await this.versionsClientApi.getVersions({
+        version: versionNumber,
+        authorization: token,
+      });
+    } catch (e: any) {
+      const msg = `Could not get versions. Request to client failed with message: ${e.message}`;
+      this.logger.error(msg);
+      throw new NotFoundError(msg);
+    }
     if (!versions || !versions.data) {
-      throw new NotFoundError('Versions not found');
+      const msg =
+        'Versions list response was null or did not have expected data';
+      this.logger.error(msg);
+      throw new NotFoundError(msg);
     }
 
-    const version = versions.data?.find(
-      (v: any) => v.version === versionNumber,
-    );
+    const version = versions.data.find((v: any) => v.version === versionNumber);
     if (!version) {
       throw new NotFoundError('Matching version not found');
     }

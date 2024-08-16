@@ -162,6 +162,7 @@ export class CredentialsModuleApi
    * and register token B and C.
    */
   @Post('/register-credentials-token-a')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -228,6 +229,7 @@ export class CredentialsModuleApi
    * @param credentialsRequest AdminCredentialsRequestDTO including version url and server credentials roles
    */
   @Post('/generate-credentials-token-a')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -254,6 +256,7 @@ export class CredentialsModuleApi
   }
 
   @Put('/regenerate-credentials-token')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
