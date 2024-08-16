@@ -1,6 +1,6 @@
-import { OcpiSequelizeInstance, OcpiServerConfig } from '@citrineos/ocpi-base';
+import { OcpiSequelizeInstance, ServerConfig } from '@citrineos/ocpi-base';
 
-const ocpiSequelizeInstance = new OcpiSequelizeInstance(new OcpiServerConfig());
+const ocpiSequelizeInstance = new OcpiSequelizeInstance(new ServerConfig());
 const sequelize = ocpiSequelizeInstance.sequelize;
 
 const syncDatabase = async () => {

@@ -1,13 +1,7 @@
-import {
-  IsBoolean,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 import { Service } from 'typedi';
 import 'reflect-metadata';
+import { Optional } from '../../util/decorators/optional';
 
 @Service()
 export class SequelizeConfig {
@@ -24,7 +18,7 @@ export class SequelizeConfig {
   @IsNotEmpty()
   database: string;
 
-  @IsOptional()
+  @Optional()
   dialect?: any;
 
   @IsString()
@@ -40,12 +34,22 @@ export class SequelizeConfig {
   storage: string;
 
   @IsBoolean()
-  @IsOptional()
+  @Optional()
   sync?: boolean;
 
   @IsBoolean()
-  @IsOptional()
+  @Optional()
   alter?: boolean;
+
+  @IsInt()
+  @Min(0)
+  @Optional()
+  maxRetries?: number;
+
+  @IsInt()
+  @Min(0)
+  @Optional()
+  retryDelay?: number;
 
   constructor() {
     this.host = 'localhost';
