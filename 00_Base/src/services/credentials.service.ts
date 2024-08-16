@@ -36,7 +36,7 @@ import { ImageType } from '../model/ImageType';
 import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
 import { VersionRepository } from '../repository/VersionRepository';
 import { VersionEndpoint } from '../model/VersionEndpoint';
-import { CpoTenant } from '../model/CpoTenant';
+import { CpoTenant, CpoTenantProps } from '../model/CpoTenant';
 import {
   ServerCredentialsRole,
   ServerCredentialsRoleProps,
@@ -45,7 +45,6 @@ import { ServerVersion } from '../model/ServerVersion';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { CredentialsResponse } from '../model/CredentialsResponse';
-import { buildPostCredentialsParams } from '../trigger/param/credentials/post.credentials.params';
 import { OcpiResponseStatusCode } from '../model/ocpi.response';
 import { ServerCredentialsRoleRepository } from '../repository/ServerCredentialsRoleRepository';
 import { ClientCredentialsRoleRepository } from '../repository/ClientCredentialsRoleRepository';
@@ -497,15 +496,28 @@ export class CredentialsService {
       },
     );
 
-    const clientInformation = clientCpoTenant.clientInformation[0];
-
-    try {
-      await clientCpoTenant.save();
-    } catch (e: any) {
-      throw new BadRequestError(
-        `Could not register credentials, ${e.name} ${e.message}`,
-      );
-    }
+    await clientCpoTenant.save();
+    const clientInformationList = await clientCpoTenant.$get(
+      CpoTenantProps.clientInformation,
+      {
+        include: [
+          {
+            model: ClientVersion,
+            include: [Endpoint],
+          },
+          {
+            model: ClientCredentialsRole,
+            include: [
+              {
+                model: BusinessDetails,
+                include: [Image],
+              },
+            ],
+          },
+        ],
+      },
+    );
+    const clientInformation = clientInformationList[0];
 
     const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
     try {
