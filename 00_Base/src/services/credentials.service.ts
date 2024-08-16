@@ -59,6 +59,7 @@ import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestEx
 import { OcpiParams } from '../trigger/util/ocpi.params';
 import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
+import { buildPostCredentialsParams } from '../trigger/param/credentials/post.credentials.params';
 
 const clientInformationInclude = [
   {
