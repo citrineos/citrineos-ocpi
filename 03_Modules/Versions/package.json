@@ -8,7 +8,6 @@
     "dist"
   ],
   "scripts": {
-    "prepublish": "npx eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,7 +17,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/deasync-promise": "1.0.0",
-    "eslint": "8.48.0",
     "typescript": "5.0.4"
   },
   "dependencies": {
