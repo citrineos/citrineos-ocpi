@@ -7,6 +7,11 @@
 - [Release Information](#release-information)
 - [Getting Started](#getting-started)
 - [Running database seeders](#running-database-seeders)
+- [Running CORE with OCPI (NPM)](#running-core-with-ocpi-npm)
+- [Running CORE with OCPI (Docker)](#running-core-with-ocpi-docker)
+- [Attaching Debugger (optional)](#attaching-debugger-optional)
+- [Usage](#usage)
+- [Testing with EVerest](#testing-with-everest)
 - [Running `clean` and `fresh`](#running-clean-and-fresh)
 - [Linting and Prettier](#linting-and-prettier)
 - [Contributing](#contributing)
@@ -55,6 +60,53 @@ The following commands were created to initialize the DB tables:
 
 `npm run sync-db` - ORM creates / updates DB tables to align with the models defined in the code
 `npm run seed-db` - creates seed data
+
+## Running CORE with OCPI (NPM)
+
+You should be able to run CORE with OCPI by running `npm run start` command. This will run `nodemon` which
+will watch for local file changes and rebuild and re-run the app when changes are detected. The debugger port
+is also available on port `9229`.
+
+## Running CORE with OCPI (Docker)
+
+You should be able to run `npm run start-docker-compose` which will use the `./Server/docker-compose-local.yml`
+configuration to `docker compose up`. This configuration will ensure that `citrineos-core` and `citrineos-ocoi`
+directories are mounted ensuring the same hot code reloading capabilities. We also ensure that any locally
+generated `dist`, `node_modules`, `package-lock.json`, etc. are ignored by the docker container to
+prevent any conflicts.
+
+You can also run `docker compose -f ./Server/docker-compose.yml up` to run within Docker but without `nodemon`
+
+## Attaching Debugger (optional)
+
+Whether you run the application with Docker or locally with npm, you should be able to attach a debugger.
+With debugger attached you should be able to set breakpoints in the TS code right from your IDE and debug
+with ease.
+
+### Attaching Debugger before execution using `--inspect-brk`
+
+You can modify `nodemon.json` exec command from:
+
+```shell
+npm run build --prefix ../ && node --inspect=0.0.0.0:9229 ./dist/index.js
+```
+
+to
+
+```shell
+npm run build --prefix ../ && node --inspect-brk=0.0.0.0:9229 ./dist/index.js
+```
+
+which will wait for the debugger to attach before proceeding with execution.
+
+## Usage
+
+You can now connect your OCPP 2.0.1 compliant charging stations to the CitrineOS server. Make sure to configure the
+charging stations to point to the server's IP address and port as specified in the config.json file.
+
+## Testing with EVerest
+
+This [README](./Server/everest/README.md)
 
 ## Running `clean` and `fresh`
 
