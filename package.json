@@ -35,9 +35,6 @@
     "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
   "workspaces": [
-    "../citrineos-core/00_Base",
-    "../citrineos-core/01_Data",
-    "../citrineos-core/02_Util",
     "./00_Base",
     "./03_Modules/Commands",
     "./03_Modules/Credentials",
