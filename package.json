@@ -4,12 +4,12 @@
   "private": false,
   "devDependencies": {
     "@eslint/js": "9.0.0",
-    "@typescript-eslint/eslint-plugin-tslint": "7.0.2",
+    "@types/eslint__js": "8.42.3",
     "concurrently": "8.2.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-import": "2.29.1",
     "prettier": "3.2.5",
+    "typescript": "5.5.4",
     "typescript-eslint": "7.6.0"
   },
   "scripts": {
@@ -21,7 +21,7 @@
     "clean-and-seed-db": "npm run clean-db && npm run seed-db",
     "start-mock-emsp": "npm run build && nodemon ./mock-client/index.ts --config ./mock-client/nodemon.json",
     "start-mockoon": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000",
-    "install-all": "npm i --workspaces --verbose",
+    "install-all": "npm i --verbose",
     "clear-cache": "npm cache clean --force",
     "remove-dependencies": "rm -rf package-lock.json **/package-lock.json **/**/package-lock.json node_modules **/node_modules **/**/node_modules",
     "fresh": "npm run clean && npm run remove-dependencies && npm run clear-cache",
@@ -29,28 +29,24 @@
     "clean-dist": "find . -type d -name dist -not -path '*/node_modules/*' -exec rm -rf {} +",
     "clean": "npm run clean-dist && npm run clean-tsbuildinfo",
     "build": "tsc --build --verbose",
-    "lint": "npx eslint --ext .ts ./",
-    "lint-fix": "npm run prettier && npx eslint --ext .ts --fix ./",
-    "prettier": "npx prettier --write .",
+    "lint": "npx eslint ./",
+    "lint-fix": "npm run prettier && npx eslint --fix ./",
+    "prettier": "prettier --write .",
     "fresh-and-install-all": "npm run fresh && npm run install-all"
   },
   "workspaces": [
-    "Server",
-    "00_Base",
-    "03_Modules/Commands",
-    "03_Modules/Credentials",
-    "03_Modules/Locations",
-    "03_Modules/Versions",
-    "03_Modules/ChargingProfiles",
-    "03_Modules/Sessions",
-    "03_Modules/Tariffs",
-    "03_Modules/Cdrs",
-    "03_Modules/Tokens",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",
-    "../citrineos-core/02_Util"
-  ],
-  "dependencies": {
-    "all": "^0.0.0"
-  }
+    "../citrineos-core/02_Util",
+    "./00_Base",
+    "./03_Modules/Commands",
+    "./03_Modules/Credentials",
+    "./03_Modules/Locations",
+    "./03_Modules/Versions",
+    "./03_Modules/ChargingProfiles",
+    "./03_Modules/Sessions",
+    "./03_Modules/Tariffs",
+    "./03_Modules/Cdrs",
+    "./03_Modules/Tokens"
+  ]
 }

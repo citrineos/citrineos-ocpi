@@ -41,6 +41,7 @@ This release provides full OCPI 2.2.1 CPO functionality. The features included a
 - **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs
 
 ## Getting Started
+
 OCPI cannot be ran alone. To run OCPI, you must extend the `/Server` configuration included in
 [CORE](https://github.com/citrineos/citrineos-core) to also initialize OCPI components. For this purpose,
 we have created a [DEMO](https://github.com/citrineos/citrineos-demo) repo where we have an example `/Server`
@@ -49,6 +50,7 @@ setup that runs `CORE` together with `OCPI`.
 You should still be able to `npm run lint/test/prettier` here.
 
 ## Running database seeders:
+
 The following commands were created to initialize the DB tables:
 
 `npm run sync-db` - ORM creates / updates DB tables to align with the models defined in the code

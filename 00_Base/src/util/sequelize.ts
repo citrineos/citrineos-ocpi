@@ -47,7 +47,7 @@ export const ON_DELETE_SET_NULL = 'SET NULL';
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
   private logger: Logger<ILogObj>;
-  private config: OcpiServerConfig;
+  private config: ServerConfig;
 
   constructor(config: ServerConfig) {
     this.logger = this.logger = new Logger<ILogObj>({
