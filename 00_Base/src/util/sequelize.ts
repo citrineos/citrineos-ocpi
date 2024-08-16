@@ -2,11 +2,13 @@ import {
   AdditionalInfo,
   Authorization,
   ChargingStation,
+  Evse,
   IdToken,
   IdTokenAdditionalInfo,
   IdTokenInfo,
   Location,
   ModelCtor,
+  Reservation,
   Sequelize,
   StatusNotification,
 } from '@citrineos/data';
@@ -28,6 +30,7 @@ import { OcpiToken } from '../model/OcpiToken';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
+import { OcpiReservation } from '../model/OcpiReservation';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
@@ -110,11 +113,13 @@ export class OcpiSequelizeInstance {
       ClientVersion,
       ServerVersion,
       Endpoint,
+      Evse,
       Version,
       VersionEndpoint,
       OcpiLocation,
       OcpiEvse,
       OcpiConnector,
+      OcpiReservation,
       ResponseUrlCorrelationId,
       OcpiTariff,
       SessionChargingProfile,
@@ -128,6 +133,7 @@ export class OcpiSequelizeInstance {
       ChargingStation,
       StatusNotification,
       Location,
+      Reservation,
     ];
   }
 

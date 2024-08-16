@@ -20,9 +20,11 @@ import {
   CommandsService,
   CommandType,
   EnumParam,
+  FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
   MultipleTypes,
+  OcpiHeaders,
   OcpiResponse,
   ReserveNow,
   ResponseGenerator,
@@ -74,6 +76,7 @@ export class CommandsModuleApi
       | StartSession
       | StopSession
       | UnlockConnector,
+    @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
   ): Promise<OcpiResponse<CommandResponse | undefined>> {
     console.log('postCommand', commandType, payload);
     switch (commandType) {
@@ -109,7 +112,12 @@ export class CommandsModuleApi
           undefined,
         );
       } else {
-        return await this.commandsService.postCommand(commandType, payload);
+        return await this.commandsService.postCommand(
+          commandType,
+          payload,
+          ocpiHeader.fromCountryCode,
+          ocpiHeader.fromPartyId,
+        );
       }
     });
   }

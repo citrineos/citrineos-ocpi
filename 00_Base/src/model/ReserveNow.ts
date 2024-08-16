@@ -1,25 +1,24 @@
 import {
-  IsDateString,
+  IsDate,
   IsNotEmpty,
   IsObject,
   IsString,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { OcpiToken } from './OcpiToken';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { ResponseUrl } from './ResponseUrl';
+import { TokenDTO } from './DTO/TokenDTO';
 
 export class ReserveNow extends ResponseUrl {
   @IsObject()
   @IsNotEmpty()
-  @Type(() => OcpiToken)
+  @Type(() => TokenDTO)
   @ValidateNested()
-  token!: OcpiToken;
+  token!: TokenDTO;
 
-  @IsString()
-  @IsDateString()
+  @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
   expiry_date!: Date;

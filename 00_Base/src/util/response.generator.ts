@@ -49,4 +49,16 @@ export class ResponseGenerator {
     response.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
     return response;
   }
+
+  static buildInvalidOrMissingParametersResponse<T>(
+      data?: T,
+      message?: string,
+      error?: Error,
+  ): OcpiResponse<T> {
+    const response: OcpiResponse<T> = new OcpiResponse<T>();
+    response.status_code = OcpiResponseStatusCode.ClientInvalidOrMissingParameters;
+    response.status_message = message ?? error?.message;
+    response.data = data;
+    return response;
+  }
 }
