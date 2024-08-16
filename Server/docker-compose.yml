@@ -34,7 +34,7 @@ services:
   citrine:
     build:
       context: ../
-      dockerfile: deploy.Dockerfile
+      dockerfile: ./Server/deploy.Dockerfile
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
