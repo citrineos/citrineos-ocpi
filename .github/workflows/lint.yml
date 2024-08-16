@@ -29,6 +29,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # temporarily need run fresh because package-lock is committed, 
+          # but once dynamic based on OS, fresh wont be necessary to remove the package-lock.
+          npm run fresh
           npm run install-all --prefix ../citrineos-core
           npm run build --prefix ../citrineos-core
           npm run install-all
