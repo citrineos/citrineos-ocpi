@@ -7,6 +7,8 @@ import {
   AbstractModule,
   AsHandler,
   CallAction,
+  CancelReservationResponse,
+  CancelReservationStatusEnumType,
   EventGroup,
   HandlerProperties,
   ICache,
@@ -16,6 +18,8 @@ import {
   RequestStartStopStatusEnumType,
   RequestStartTransactionResponse,
   RequestStopTransactionResponse,
+  ReserveNowResponse,
+  ReserveNowStatusEnumType,
   SystemConfig,
 } from '@citrineos/base';
 import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
@@ -44,6 +48,8 @@ export class CommandsOcppHandlers extends AbstractModule {
   protected _responses: CallAction[] = [
     CallAction.RequestStartTransaction,
     CallAction.RequestStopTransaction,
+    CallAction.CancelReservation,
+    CallAction.ReserveNow,
   ];
 
   constructor(
@@ -126,18 +132,47 @@ export class CommandsOcppHandlers extends AbstractModule {
     this.sendCommandResult(message.context.correlationId, result);
   }
 
+  @AsHandler(CallAction.ReserveNow)
+  protected async _handleReserveNowResponse(
+    message: IMessage<ReserveNowResponse>,
+    props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling ReserveNowResponse:', message, props);
+
+    const result = this.getResult(message.payload.status);
+
+    this.sendCommandResult(message.context.correlationId, result);
+  }
+
+  @AsHandler(CallAction.CancelReservation)
+  protected async _handleCancelReservationResponse(
+    message: IMessage<CancelReservationResponse>,
+    props?: HandlerProperties,
+  ): Promise<void> {
+    this._logger.debug('Handling CancelReservationResponse:', message, props);
+
+    const result = this.getResult(message.payload.status);
+
+    this.sendCommandResult(message.context.correlationId, result);
+  }
+
   private getResult(
-    requestStartStopStatus: RequestStartStopStatusEnumType,
+    responseStatus:
+      | RequestStartStopStatusEnumType
+      | ReserveNowStatusEnumType
+      | CancelReservationStatusEnumType,
   ): CommandResultType {
-    switch (requestStartStopStatus) {
+    switch (responseStatus) {
       case RequestStartStopStatusEnumType.Accepted:
+      case ReserveNowStatusEnumType.Accepted:
+      case CancelReservationStatusEnumType.Accepted:
         return CommandResultType.ACCEPTED;
       case RequestStartStopStatusEnumType.Rejected:
+      case ReserveNowStatusEnumType.Rejected:
+      case CancelReservationStatusEnumType.Rejected:
         return CommandResultType.REJECTED;
       default:
-        throw new Error(
-          `Unknown RequestStartStopStatusEnumType: ${requestStartStopStatus}`,
-        );
+        throw new Error(`Unknown ResponseStatusEnumType: ${responseStatus}`);
     }
   }
 
