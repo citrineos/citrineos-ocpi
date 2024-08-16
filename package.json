@@ -8,7 +8,6 @@
     "concurrently": "8.2.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-import": "2.29.1",
     "prettier": "3.2.5",
     "typescript": "5.5.4",
     "typescript-eslint": "7.6.0"
