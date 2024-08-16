@@ -12,10 +12,12 @@ import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
   SequelizeBootRepository,
+  SequelizeCallMessageRepository,
   SequelizeCertificateRepository,
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   SequelizeMessageInfoRepository,
+  SequelizeReservationRepository,
   SequelizeSecurityEventRepository,
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
@@ -345,6 +347,10 @@ export class OcpiServer extends KoaServer {
     );
     Container.set(SequelizeBootRepository, this.repositoryStore.bootRepository);
     Container.set(
+      SequelizeCallMessageRepository,
+      this.repositoryStore.callMessageRepository,
+    );
+    Container.set(
       SequelizeCertificateRepository,
       this.repositoryStore.certificateRepository,
     );
@@ -359,6 +365,10 @@ export class OcpiServer extends KoaServer {
     Container.set(
       SequelizeMessageInfoRepository,
       this.repositoryStore.messageInfoRepository,
+    );
+    Container.set(
+      SequelizeReservationRepository,
+      this.repositoryStore.reservationRepository,
     );
     Container.set(
       SequelizeSecurityEventRepository,
