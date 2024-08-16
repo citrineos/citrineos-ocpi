@@ -1,3 +1,4 @@
+/* eslint-disable */
 require('ts-node/register');
 require('tsconfig-paths/register');
 const { OcpiServerConfig } = require('./ocpi.server.config.ts');
