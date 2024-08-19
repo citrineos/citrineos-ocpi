@@ -1,4 +1,4 @@
-import { Table, Model, Column, DataType } from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from '@citrineos/data';
 
 /**
  * OCPI representation of a Connector -- not named 'Connector' to avoid collisions

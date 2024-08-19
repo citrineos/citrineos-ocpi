@@ -53,7 +53,7 @@ import {
   SmartChargingModule,
   SmartChargingModuleApi,
 } from '@citrineos/smartcharging';
-import { RepositoryStore, sequelize } from '@citrineos/data';
+import { RepositoryStore, sequelize, Sequelize } from '@citrineos/data';
 import {
   type FastifyRouteSchemaDef,
   type FastifySchemaCompiler,
@@ -68,7 +68,6 @@ import { Container, OcpiServer, ServerConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
-import { Sequelize } from 'sequelize-typescript';
 import { TenantModule, TenantModuleApi } from '@citrineos/tenant';
 import { LocationsModule } from '@citrineos/ocpi-locations';
 import { SessionsModule } from '@citrineos/ocpi-sessions';
@@ -186,7 +185,7 @@ export class CitrineOSServer {
     this.registerAjv();
 
     // start ocpi needs to happen first to load authorizer
-    this.startOcpiServer(config.ocpiServer.host, config.ocpiServer.port);
+    this.startOcpiServer();
 
     // Initialize module & API
     // Always initialize API after SwaggerUI
@@ -334,7 +333,6 @@ export class CitrineOSServer {
     this._sequelizeInstance = sequelize.DefaultSequelizeInstance.getInstance(
       this._config as SystemConfig,
       this._logger,
-      true,
     );
   }
 
@@ -555,7 +553,7 @@ export class CitrineOSServer {
     }
   }
 
-  private startOcpiServer(host: string, port: number) {
+  private startOcpiServer() {
     this.ocpiServer = new OcpiServer(
       this._config as ServerConfig,
       this._cache,
