@@ -2,7 +2,7 @@
 
 import { QueryInterface, QueryOptions } from 'sequelize';
 import { OcpiLocationProps } from '@citrineos/ocpi-base';
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from '@citrineos/data';
 
 const START_ID = 1;
 
