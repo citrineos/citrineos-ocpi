@@ -10,15 +10,6 @@
   "references": [
     {
       "path": "../../00_Base"
-    },
-    {
-      "path": "../../../citrineos-core/00_Base"
-    },
-    {
-      "path": "../../../citrineos-core/01_Data"
-    },
-    {
-      "path": "../../../citrineos-core/02_Util"
     }
   ]
 }

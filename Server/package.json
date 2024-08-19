@@ -1,0 +1,76 @@
+{
+  "name": "@citrineos/demo",
+  "version": "0.0.20",
+  "description": "Runs CitrineOS CORE and OCPI",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
+    "fresh": "rm -rf node_modules package-lock.json && npm run clean",
+    "copy-assets": "ts-node ./copy-assets.ts",
+    "start": "cross-env APP_NAME=all APP_ENV=local nodemon",
+    "start-docker-compose": "docker compose -f docker-compose.yml up --force-recreate",
+    "start-docker": "nodemon",
+    "start-docker-cloud": "node --inspect=0.0.0.0:9229 dist/index.js",
+    "start-everest": "cd ./everest && EVEREST_IMAGE_TAG=0.0.16 EVEREST_TARGET_URL=ws://host.docker.internal:8081/cp001 docker-compose up",
+    "start-everest-windows": "cd ./everest && set EVEREST_IMAGE_TAG=0.0.16&& set EVEREST_TARGET_URL=ws://host.docker.internal:8081/cp001&& docker compose up -d"
+  },
+  "keywords": [
+    "ocpp",
+    "ocpp_v201"
+  ],
+  "author": "S44",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/amqplib": "0.10.1",
+    "@types/bcrypt": "5.0.2",
+    "@types/deasync-promise": "1.0.0",
+    "@types/uuid": "9.0.1",
+    "@types/ws": "8.5.4",
+    "nodemon": "2.0.22",
+    "ts-node": "10.9.1",
+    "typescript": "5.0.4"
+  },
+  "dependencies": {
+    "@citrineos/ocpi-base": "1.0.0",
+    "@citrineos/ocpi-credentials": "1.0.0",
+    "@citrineos/ocpi-versions": "1.0.0",
+    "@citrineos/ocpi-commands": "1.0.0",
+    "@citrineos/ocpi-locations": "1.0.0",
+    "@citrineos/ocpi-sessions": "1.0.0",
+    "@citrineos/ocpi-tariffs": "1.0.0",
+    "@citrineos/ocpi-cdrs": "1.0.0",
+    "@citrineos/ocpi-charging-profiles": "1.0.0",
+    "@citrineos/ocpi-tokens": "1.0.0",
+    "@citrineos/certificates": "1.4.0",
+    "@citrineos/configuration": "1.4.0",
+    "@citrineos/evdriver": "1.4.0",
+    "@citrineos/monitoring": "1.4.0",
+    "@citrineos/reporting": "1.4.0",
+    "@citrineos/smartcharging": "1.4.0",
+    "@citrineos/tenant": "1.4.0",
+    "@citrineos/transactions": "1.4.0",
+    "@directus/extensions": "1.0.2",
+    "@fastify/type-provider-json-schema-to-ts": "2.2.2",
+    "fastify": "4.22.2",
+    "sqlite3": "5.1.6",
+    "tslog": "4.9.2",
+    "uuid": "9.0.0",
+    "ws": "8.13.0",
+    "cross-env": "7.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "optionalDependencies": {
+    "bufferutil": "4.0.8",
+    "utf-8-validate": "6.0.3"
+  },
+  "workspaces": [
+    "../"
+  ]
+}
