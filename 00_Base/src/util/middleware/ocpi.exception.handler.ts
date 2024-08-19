@@ -4,7 +4,7 @@ import {
   UnauthorizedError,
 } from 'routing-controllers';
 import { Context } from 'vm';
-import { HttpStatus } from '@citrineos/base';
+import { HttpStatus, UnauthorizedException } from '@citrineos/base';
 import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
 import { Service } from 'typedi';
 import { UnknownTokenException } from '../../exception/unknown.token.exception';
@@ -15,6 +15,7 @@ import { MissingParamException } from '../../exception/missing.param.exception';
 import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
 import { NotRegisteredException } from '../../exception/NotRegisteredException';
 import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
+import { ContentType } from '../ContentType';
 
 /**
  * GlobalExceptionHandler handles all exceptions
@@ -29,8 +30,10 @@ export class OcpiExceptionHandler implements KoaMiddlewareInterface {
       await next();
     } catch (err) {
       console.error('OcpiExceptionHandler error', err);
+      context.type = ContentType.JSON;
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
+          case UnauthorizedException.name:
           case UnauthorizedError.name:
             context.status = HttpStatus.UNAUTHORIZED;
             context.body = JSON.stringify(
