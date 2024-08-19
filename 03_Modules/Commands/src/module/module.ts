@@ -1,9 +1,5 @@
 import { Container, Service } from 'typedi';
-import {
-  SequelizeCallMessageRepository,
-  SequelizeReservationRepository,
-  SequelizeTransactionEventRepository,
-} from '@citrineos/data';
+import { SequelizeTransactionEventRepository } from '@citrineos/data';
 
 import { CommandsOcppHandlers } from './handlers';
 
