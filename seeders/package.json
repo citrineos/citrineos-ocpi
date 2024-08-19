@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "@citrineos/ocpi-base": "1.0.0",
-    "@citrineos/base": "1.4.0",
-    "@citrineos/data": "1.4.0"
+    "@citrineos/base": "~1.4.0",
+    "@citrineos/data": "~1.4.0"
   },
   "workspaces": [
     "../00_Base",
