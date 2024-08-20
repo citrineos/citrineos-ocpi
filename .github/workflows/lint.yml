@@ -11,7 +11,7 @@ concurrency:
 jobs:
   linter:
     name: Linter
-    runs-on: ubuntu-22.04 # todo: to prevent needing to run npm i we can have our own image where everything is installed
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [18]
@@ -19,22 +19,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Clone citrineos-core repository
-        run: git clone -b rc-1.4.0 https://github.com/citrineos/citrineos-core.git ../citrineos-core
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: |
-          # temporarily need run fresh because package-lock is committed, 
-          # but once dynamic based on OS, fresh wont be necessary to remove the package-lock.
-          npm run fresh
-          npm run install-all --prefix ../citrineos-core
-          npm run build --prefix ../citrineos-core
-          npm run install-all
+        run: npm run install-all
 
       - name: Lint
         run: npm run lint
