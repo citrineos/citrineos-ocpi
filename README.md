@@ -43,16 +43,7 @@ This release provides full OCPI 2.2.1 CPO functionality. The features included a
 - **Sender Interface Endpoints**: Sessions, CDRs, Tariffs, and Locations.
 - **Receiver Interface Endpoints**: Charging Profiles, Commands, and Tokens.
 - **Pushes all data to MSPs**
-- **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs
-
-## Getting Started
-
-OCPI cannot be ran alone. To run OCPI, you must extend the `/Server` configuration included in
-[CORE](https://github.com/citrineos/citrineos-core) to also initialize OCPI components. For this purpose,
-we have created a [DEMO](https://github.com/citrineos/citrineos-demo) repo where we have an example `/Server`
-setup that runs `CORE` together with `OCPI`.
-
-You should still be able to `npm run lint/test/prettier` here.
+- **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs~~~~
 
 ## Running database seeders:
 
