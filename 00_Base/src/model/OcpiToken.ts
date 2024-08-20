@@ -109,6 +109,7 @@ export class TokenResponse extends OcpiResponse<TokenDTO> {
     response.status_code = statusCode;
     response.data = data!;
     response.status_message = message;
+    response.timestamp = new Date();
     return response;
   }
 }
