@@ -3,6 +3,7 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
+  IsObject,
   IsString,
   IsUrl,
   MaxLength,
@@ -16,6 +17,7 @@ import { DisplayText } from './DisplayText';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/optional';
 import { PaginatedResponse } from './PaginatedResponse';
+import { OcpiResponse } from './ocpi.response';
 
 export class Tariff {
   @MaxLength(36)
@@ -94,6 +96,14 @@ export class Tariff {
   @IsNotEmpty()
   @Type(() => Date)
   last_updated!: Date;
+}
+
+export class TariffResponse extends OcpiResponse<Tariff> {
+  @IsObject()
+  @IsNotEmpty()
+  @Type(() => Tariff)
+  @ValidateNested()
+  data!: Tariff;
 }
 
 export class PaginatedTariffResponse extends PaginatedResponse<Tariff> {
