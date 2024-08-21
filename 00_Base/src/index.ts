@@ -229,6 +229,7 @@ export { LocationsBroadcaster } from './broadcaster/locations.broadcaster';
 export {
   PaginatedTariffResponse,
   TariffDTO,
+  TariffResponse,
 } from './model/DTO/tariffs/TariffDTO';
 export { OcpiLocation, OcpiLocationProps } from './model/OcpiLocation';
 export { OcpiEvse } from './model/OcpiEvse';
