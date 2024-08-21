@@ -9,6 +9,7 @@ export class ResponseGenerator {
     response.status_code = OcpiResponseStatusCode.GenericSuccessCode;
     response.status_message = message ?? 'Success';
     response.data = data;
+    response.timestamp = new Date();
     return response;
   }
 
@@ -21,6 +22,7 @@ export class ResponseGenerator {
     response.status_code = OcpiResponseStatusCode.ServerGenericError;
     response.status_message = message ?? error?.message;
     response.data = data;
+    response.timestamp = new Date();
     return response;
   }
 
@@ -33,6 +35,7 @@ export class ResponseGenerator {
     response.status_code = OcpiResponseStatusCode.ClientGenericError;
     response.status_message = message ?? error?.message;
     response.data = data;
+    response.timestamp = new Date();
     return response;
   }
 
@@ -51,14 +54,16 @@ export class ResponseGenerator {
   }
 
   static buildInvalidOrMissingParametersResponse<T>(
-      data?: T,
-      message?: string,
-      error?: Error,
+    data?: T,
+    message?: string,
+    error?: Error,
   ): OcpiResponse<T> {
     const response: OcpiResponse<T> = new OcpiResponse<T>();
-    response.status_code = OcpiResponseStatusCode.ClientInvalidOrMissingParameters;
+    response.status_code =
+      OcpiResponseStatusCode.ClientInvalidOrMissingParameters;
     response.status_message = message ?? error?.message;
     response.data = data;
+    response.timestamp = new Date();
     return response;
   }
 }
