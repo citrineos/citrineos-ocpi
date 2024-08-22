@@ -1,5 +1,5 @@
 import { BaseClientApi } from './BaseClientApi';
-import { TariffResponse } from '../model/DTO/tariffs/TariffDTO';
+import { TariffResponse } from '../model/Tariff';
 import { GetTariffParams } from './param/tariffs/get.tariff.params';
 import { PutTariffParams } from './param/tariffs/put.tariff.params';
 import { DeleteTariffParams } from './param/tariffs/delete.tariff.params';

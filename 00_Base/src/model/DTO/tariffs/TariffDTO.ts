@@ -3,7 +3,6 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsObject,
   IsString,
   IsUrl,
   MaxLength,
@@ -18,7 +17,6 @@ import { TariffElement } from '../../TariffElement';
 import { EnergyMix } from '../../EnergyMix';
 import { DisplayText } from '../../DisplayText';
 import { TariffType } from '../../TariffType';
-import { OcpiResponse, OcpiResponseStatusCode } from '../../ocpi.response';
 
 export class TariffDTO {
   @MaxLength(36)
@@ -106,26 +104,4 @@ export class PaginatedTariffResponse extends PaginatedResponse<TariffDTO> {
   @Optional(false)
   @Type(() => TariffDTO)
   data!: TariffDTO[];
-}
-
-export class TariffResponse extends OcpiResponse<TariffDTO> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => TariffDTO)
-  @ValidateNested()
-  data!: TariffDTO;
-
-  static build(
-    tariff: TariffDTO,
-    status_code = OcpiResponseStatusCode.GenericSuccessCode,
-    status_message?: string,
-  ) {
-    const response = new TariffResponse();
-    response.data = new TariffDTO();
-    response.status_code = status_code;
-    response.status_message = status_message;
-    response.data = tariff;
-    response.timestamp = new Date();
-    return response;
-  }
 }

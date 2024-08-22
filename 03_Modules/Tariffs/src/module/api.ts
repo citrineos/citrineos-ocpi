@@ -33,8 +33,8 @@ import {
   PaginatedTariffResponse,
   PutTariffRequest,
   ResponseSchema,
+  TariffDTO,
   TariffKey,
-  TariffResponse,
   TariffsBroadcaster,
   TariffsService,
   versionIdParam,
@@ -116,11 +116,8 @@ export class TariffsModuleApi
    */
 
   @Put()
-  async updateTariff(
-    @Body() tariffDto: PutTariffRequest,
-  ): Promise<TariffResponse> {
-    const tariff = await this.tariffService.createOrUpdateTariff(tariffDto);
-    return TariffResponse.build(tariff);
+  async updateTariff(@Body() tariffDto: PutTariffRequest): Promise<TariffDTO> {
+    return await this.tariffService.createOrUpdateTariff(tariffDto);
   }
 
   @Delete('/:tariffId')
