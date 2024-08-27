@@ -14,6 +14,7 @@ import { WrongClientAccessException } from '../../exception/wrong.client.access.
 import { InvalidParamException } from '../../exception/invalid.param.exception';
 import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
 import { NotFoundException } from '../../exception/NotFoundException';
+import { ContentType } from '../ContentType';
 
 class HttpExceptionBody {
   message?: string;
@@ -33,6 +34,7 @@ export class HttpExceptionHandler implements KoaMiddlewareInterface {
       await next();
     } catch (err) {
       console.error('HttpExceptionHandler error', err);
+      context.type = ContentType.JSON;
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:
