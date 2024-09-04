@@ -60,13 +60,11 @@ is also available on port `9229`.
 
 ## Running CORE with OCPI (Docker)
 
-You should be able to run `npm run start-docker-compose` which will use the `./Server/docker-compose-local.yml`
+You should be able to run `npm run start-docker-compose` which will use the `./Server/docker-compose.yml`
 configuration to `docker compose up`. This configuration will ensure that `citrineos-core` and `citrineos-ocoi`
 directories are mounted ensuring the same hot code reloading capabilities. We also ensure that any locally
 generated `dist`, `node_modules`, `package-lock.json`, etc. are ignored by the docker container to
 prevent any conflicts.
-
-You can also run `docker compose -f ./Server/docker-compose.yml up` to run within Docker but without `nodemon`
 
 ## Attaching Debugger (optional)
 
