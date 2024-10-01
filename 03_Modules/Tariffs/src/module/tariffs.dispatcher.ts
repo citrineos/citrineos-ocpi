@@ -14,7 +14,7 @@ export class TariffsDispatcher {
   ) {}
 
   public initializeListeners() {
-    (this.ocpiTariffRepository as CrudRepository<OcpiTariff>)
+    (this.ocpiTariffRepository as unknown as CrudRepository<OcpiTariff>)
       .on('created', (tariffs) =>
         this.tariffsBroadcaster.broadcastOcpiUpdate(tariffs),
       )

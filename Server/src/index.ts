@@ -21,13 +21,16 @@ import {
 import { MonitoringModule, MonitoringModuleApi } from '@citrineos/monitoring';
 import {
   Authenticator,
+  BasicAuthenticationFilter,
   CertificateAuthorityService,
+  ConnectedStationFilter,
   DirectusUtil,
   initSwagger,
   MemoryCache,
   RabbitMqReceiver,
   RabbitMqSender,
   RedisCache,
+  UnknownStationFilter,
   WebsocketNetworkConnection,
 } from '@citrineos/util';
 import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
@@ -246,7 +249,7 @@ export class CitrineOSServer {
     return new RabbitMqReceiver(this._config as SystemConfig, this._logger);
   }
 
-  protected getOcpiModuleConfig() {
+  protected getOcpiModuleConfig(): ModuleConfig[] {
     return [
       {
         module: VersionsModule,
@@ -293,7 +296,7 @@ export class CitrineOSServer {
         handler: this._createHandler(),
         sender: this._createSender(),
       },
-    ];
+    ] as any;
   }
 
   private initHealthCheck() {
@@ -366,13 +369,19 @@ export class CitrineOSServer {
 
   private initNetworkConnection() {
     this._authenticator = new Authenticator(
-      this._cache,
-      new sequelize.SequelizeLocationRepository(
-        this._config as SystemConfig,
+      new UnknownStationFilter(
+        new sequelize.SequelizeLocationRepository(
+          this._config as SystemConfig,
+          this._logger,
+        ),
         this._logger,
       ),
-      new sequelize.SequelizeDeviceModelRepository(
-        this._config as SystemConfig,
+      new ConnectedStationFilter(this._cache, this._logger),
+      new BasicAuthenticationFilter(
+        new sequelize.SequelizeDeviceModelRepository(
+          this._config as SystemConfig,
+          this._logger,
+        ),
         this._logger,
       ),
       this._logger,
@@ -460,6 +469,7 @@ export class CitrineOSServer {
         this._createHandler(),
         this._logger,
         this._repositoryStore.authorizationRepository,
+        this._repositoryStore.localAuthListRepository,
         this._repositoryStore.deviceModelRepository,
         this._repositoryStore.tariffRepository,
         this._repositoryStore.transactionEventRepository,
@@ -558,8 +568,8 @@ export class CitrineOSServer {
       this._config as ServerConfig,
       this._cache,
       this._logger,
-      this.getOcpiModuleConfig(),
-      this._repositoryStore,
+      this.getOcpiModuleConfig() as any,
+      this._repositoryStore as any,
     );
   }
 
