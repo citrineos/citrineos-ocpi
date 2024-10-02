@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { OcpiResponse } from './ocpi.response';
+import { OcpiResponse } from './OcpiResponse';
 
 export class OcpiStringResponse extends OcpiResponse<string> {
   @IsString()

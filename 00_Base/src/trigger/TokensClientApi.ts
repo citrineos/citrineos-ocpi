@@ -1,7 +1,7 @@
-import { PostTokenParams } from './param/tokens/postTokenParams';
+import { PostTokenParams } from './param/tokens/PostTokenParams';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { AuthorizationInfoResponse } from '../model/AuthorizationInfo';
-import { PaginatedOcpiParams } from './param/paginated.ocpi.params';
+import { PaginatedOcpiParams } from './param/PaginatedOcpiParams';
 import { BaseClientApi, TriggerRequestOptions } from './BaseClientApi';
 import { PaginatedTokenResponse } from '../model/OcpiToken';
 import { VersionNumber } from '../model/VersionNumber';

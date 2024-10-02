@@ -1,7 +1,7 @@
 import { IsBoolean, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 import { Service } from 'typedi';
 import 'reflect-metadata';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 @Service()
 export class SequelizeConfig {

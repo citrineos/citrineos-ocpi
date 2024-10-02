@@ -1,19 +1,11 @@
 import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
 import { fromImageDTO, Image, toImageDTO } from './Image';
-import { Optional } from '../util/decorators/optional';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasOne,
-  Model,
-  Table,
-} from '@citrineos/data';
+import { Optional } from '../util/decorators/Optional';
+import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from '@citrineos/data';
 import { ClientCredentialsRole } from './ClientCredentialsRole';
 import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';
 
 export enum BusinessDetailsProps {

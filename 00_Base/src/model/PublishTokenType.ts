@@ -1,7 +1,7 @@
 import { IsString, MaxLength } from 'class-validator';
 import { TokenType } from './TokenType';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
+import { Optional } from '../util/decorators/Optional';
+import { Enum } from '../util/decorators/Enum';
 
 export class PublishTokenType {
   @MaxLength(36)

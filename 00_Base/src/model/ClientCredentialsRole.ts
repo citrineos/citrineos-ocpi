@@ -18,7 +18,7 @@ import {
   toBusinessDetailsDTO,
 } from './BusinessDetails';
 import { Exclude } from 'class-transformer';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
 import { Image } from './Image';
 

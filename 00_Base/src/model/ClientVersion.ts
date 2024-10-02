@@ -1,22 +1,14 @@
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasMany,
-  Model,
-  Table,
-} from '@citrineos/data';
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from '@citrineos/data';
 import { VersionNumber } from './VersionNumber';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../util/decorators/enum';
+import { Enum } from '../util/decorators/Enum';
 import { Exclude } from 'class-transformer';
 import { Endpoint } from './Endpoint';
 import { ClientInformation } from './ClientInformation';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
 import { IVersion } from './Version';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 
 @Table
 export class ClientVersion extends Model implements IVersion {

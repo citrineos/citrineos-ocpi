@@ -12,21 +12,13 @@ import {
 import { TokenEnergyContract } from './TokenEnergyContract';
 import { WhitelistType } from './WhitelistType';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse, OcpiResponseStatusCode } from './ocpi.response';
+import { Optional } from '../util/decorators/Optional';
+import { Enum } from '../util/decorators/Enum';
+import { OcpiResponse, OcpiResponseStatusCode } from './OcpiResponse';
 import { PaginatedResponse } from './PaginatedResponse';
 import { TokenType } from './TokenType';
 import { TokenDTO } from './DTO/TokenDTO';
-import {
-  Authorization,
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  Model,
-  Table,
-} from '@citrineos/data';
+import { Authorization, BelongsTo, Column, DataType, ForeignKey, Model, Table } from '@citrineos/data';
 
 @Table
 export class OcpiToken extends Model {

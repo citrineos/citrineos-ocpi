@@ -14,11 +14,11 @@ import { ChargingPeriod } from './ChargingPeriod';
 import { AuthMethod } from './AuthMethod';
 import { SessionStatus } from './SessionStatus';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
+import { Optional } from '../util/decorators/Optional';
+import { Enum } from '../util/decorators/Enum';
 import { CdrToken } from './CdrToken';
 import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './ocpi.response';
+import { OcpiResponse } from './OcpiResponse';
 
 export class Session {
   @MaxLength(2)

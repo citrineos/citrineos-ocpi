@@ -1,14 +1,5 @@
-import {
-  Authorization,
-  ChargingStation,
-  Tariff,
-  Transaction,
-  TransactionEvent,
-} from '@citrineos/data';
-import {
-  TransactionEventEnumType,
-  TransactionEventRequest,
-} from '@citrineos/base';
+import { Authorization, ChargingStation, Tariff, Transaction, TransactionEvent } from '@citrineos/data';
+import { TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
@@ -17,7 +8,7 @@ import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
 import { TariffKey } from '../model/OcpiTariff';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { LocationsService } from '../services/locations.service';
+import { LocationsService } from '../services/LocationsService';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
 import { TariffsDatasource } from '../datasources/TariffsDatasource';

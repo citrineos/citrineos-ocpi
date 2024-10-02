@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 import 'reflect-metadata';
 import { ServerConfigUtilCache } from './ServerConfigUtilCache';
 import { ServerConfigUtilMessageBroker } from './ServerConfigUtilMessageBroker';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 import { ServerConfigUtilSwagger } from './ServerConfigUtilSwagger';
 import { ServerConfigUtilDirectus } from './ServerConfigUtilDirectus';
 import { ServerConfigUtilNetworkConnection } from './ServerConfigUtilNetworkConnection';
