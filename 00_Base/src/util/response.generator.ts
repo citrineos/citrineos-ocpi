@@ -1,4 +1,5 @@
 import { OcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
+import { NotFoundException } from '../exception/NotFoundException';
 
 export class ResponseGenerator {
   static buildGenericSuccessResponse<T>(
@@ -65,5 +66,16 @@ export class ResponseGenerator {
     response.data = data;
     response.timestamp = new Date();
     return response;
+  }
+
+  static buildUnknownSessionResponse<T>(
+    data: T,
+    error: NotFoundException,
+  ): OcpiResponse<T> {
+    return ResponseGenerator.buildGenericClientErrorResponse(
+      data,
+      error.message,
+      error,
+    );
   }
 }
