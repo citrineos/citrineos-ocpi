@@ -1,4 +1,8 @@
-import { AuthorizationStatusEnumType, IdTokenInfoType, IMessageContext } from '@citrineos/base';
+import {
+  AuthorizationStatusEnumType,
+  IdTokenInfoType,
+  IMessageContext,
+} from '@citrineos/base';
 import { Authorization, IdToken, IdTokenInfo } from '@citrineos/data';
 import { IAuthorizer } from '@citrineos/util';
 import {
@@ -12,7 +16,6 @@ import {
   PostTokenParams,
   ServerCredentialsRoleProps,
   TokensClientApi,
-  TokensRepository,
   UnsuccessfulRequestException,
   WhitelistType,
 } from '@citrineos/ocpi-base';
@@ -20,12 +23,13 @@ import { BadRequestError } from 'routing-controllers';
 import { ILogObj, Logger } from 'tslog';
 import { AuthorizationInfo } from '@citrineos/ocpi-base/dist/model/AuthorizationInfo';
 import { Service } from 'typedi';
+import { TokensDatasource } from '@citrineos/ocpi-base/dist/datasources/TokensDatasource';
 
 @Service()
 export class RealTimeAuthorizer implements IAuthorizer {
   constructor(
     private readonly logger: Logger<ILogObj>,
-    private readonly tokensRepository: TokensRepository,
+    private readonly tokensDatasource: TokensDatasource,
     private readonly credentialsService: CredentialsService,
     private readonly tokensClientApi: TokensClientApi,
   ) {}
@@ -37,17 +41,32 @@ export class RealTimeAuthorizer implements IAuthorizer {
     result.status = AuthorizationStatusEnumType.Invalid;
     try {
       const ocpiToken = await this.getOcpiToken(authorization);
-      if (ocpiToken.whitelist === WhitelistType.ALWAYS || ocpiToken.whitelist === WhitelistType.ALLOWED) {
+      if (
+        ocpiToken.whitelist === WhitelistType.ALWAYS ||
+        ocpiToken.whitelist === WhitelistType.ALLOWED
+      ) {
         result.status = AuthorizationStatusEnumType.Accepted;
       } else if (ocpiToken.whitelist === WhitelistType.ALLOWED_OFFLINE) {
         try {
-          await this.performAndRealTimeAuthUpdateResult(result, ocpiToken, authorization);
+          await this.performAndRealTimeAuthUpdateResult(
+            result,
+            ocpiToken,
+            authorization,
+          );
         } catch (e: any) {
-          this.logger.error('Issue performing real-time authorization - permitting because whitelist type is ALLOWED_OFFLINE. Error:' + e.message);
+          this.logger.error(
+            'Issue performing real-time authorization - permitting because whitelist type is ALLOWED_OFFLINE. Error:' +
+              e.message,
+          );
           result.status = AuthorizationStatusEnumType.Accepted;
         }
-      } else { // NEVER
-        await this.performAndRealTimeAuthUpdateResult(result, ocpiToken, authorization);
+      } else {
+        // NEVER
+        await this.performAndRealTimeAuthUpdateResult(
+          result,
+          ocpiToken,
+          authorization,
+        );
       }
     } catch (e: any) {
       this.logger.error('Error: could not authorize token -' + e.message);
@@ -55,7 +74,11 @@ export class RealTimeAuthorizer implements IAuthorizer {
     return result;
   }
 
-  private async performAndRealTimeAuthUpdateResult(result: Partial<IdTokenInfo>, ocpiToken: OcpiToken, authorization: Authorization) {
+  private async performAndRealTimeAuthUpdateResult(
+    result: Partial<IdTokenInfo>,
+    ocpiToken: OcpiToken,
+    authorization: Authorization,
+  ) {
     const cpoTenant = await this.getCpoTenant(ocpiToken);
     const params = this.buildPostTokenParams(
       authorization,
@@ -74,7 +97,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
   private async getOcpiToken(authorization: Authorization): Promise<OcpiToken> {
     const idToken = authorization.idToken as IdToken;
     const idTokenId = idToken.id;
-    const ocpiToken = await this.tokensRepository.getOcpiTokenByAuthorizationId(
+    const ocpiToken = await this.tokensDatasource.getOcpiTokenByAuthorizationId(
       authorization.id,
     );
     if (!ocpiToken) {

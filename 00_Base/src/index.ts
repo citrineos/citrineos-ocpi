@@ -1,7 +1,7 @@
 import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
-import { OcpiServerConfig } from './config/ocpi.server.config';
+import { ServerConfig } from './config/ServerConfig';
 import { OcpiSequelizeInstance } from './util/sequelize';
 import { KoaServer } from './util/koa.server';
 import Koa from 'koa';
@@ -12,10 +12,12 @@ import {
   RepositoryStore,
   SequelizeAuthorizationRepository,
   SequelizeBootRepository,
+  SequelizeCallMessageRepository,
   SequelizeCertificateRepository,
   SequelizeDeviceModelRepository,
   SequelizeLocationRepository,
   SequelizeMessageInfoRepository,
+  SequelizeReservationRepository,
   SequelizeSecurityEventRepository,
   SequelizeSubscriptionRepository,
   SequelizeTariffRepository,
@@ -26,6 +28,7 @@ import { SessionBroadcaster } from './broadcaster/session.broadcaster';
 import { CdrBroadcaster } from './broadcaster/cdr.broadcaster';
 import * as packageJson from '../package.json';
 
+export { plainToClass } from './util/util';
 export {
   OcpiErrorResponse,
   buildOcpiErrorResponse,
@@ -77,7 +80,9 @@ export {
 } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
-export { OcpiServerConfig } from './config/ocpi.server.config';
+export { ServerConfig } from './config/ServerConfig';
+export * from './config/sub';
+
 export { CommandResponse } from './model/CommandResponse';
 export { ActiveChargingProfile } from './model/ActiveChargingProfile';
 export { ActiveChargingProfileResult } from './model/ActiveChargingProfileResult';
@@ -262,15 +267,16 @@ export class OcpiModuleConfig {
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
-  readonly serverConfig: OcpiServerConfig;
-  readonly cache: ICache;
-  readonly logger: Logger<ILogObj>;
-  readonly ocpiSequelizeInstance: OcpiSequelizeInstance;
-  readonly modules: OcpiModule[] = [];
-  readonly repositoryStore: RepositoryStore;
+  private readonly serverConfig: ServerConfig;
+  private readonly cache: ICache;
+  private readonly logger: Logger<ILogObj>;
+  private _ocpiSequelizeInstance!: OcpiSequelizeInstance;
+  private modules: OcpiModule[] = [];
+  private readonly repositoryStore: RepositoryStore;
+  private modulesConfig: OcpiModuleConfig[] = [];
 
   constructor(
-    serverConfig: OcpiServerConfig,
+    serverConfig: ServerConfig,
     cache: ICache,
     logger: Logger<ILogObj>,
     modulesConfig: OcpiModuleConfig[],
@@ -281,17 +287,23 @@ export class OcpiServer extends KoaServer {
     this.serverConfig = serverConfig;
     this.cache = cache;
     this.logger = logger;
-    this.ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
     this.repositoryStore = repositoryStore;
-
+    this.modulesConfig = modulesConfig;
+    this._ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
     this.initContainer();
-
-    this.modules = modulesConfig.map((moduleConfig) => {
+    this.modules = this.modulesConfig.map((moduleConfig) => {
       const module = Container.get(moduleConfig.module);
       module.init(moduleConfig.handler, moduleConfig.sender);
       return module;
     });
+  }
 
+  public get ocpiSequelizeInstance(): OcpiSequelizeInstance {
+    return this._ocpiSequelizeInstance;
+  }
+
+  public async initialize() {
+    await this._ocpiSequelizeInstance.initializeSequelize();
     this.initServer();
   }
 
@@ -324,7 +336,7 @@ export class OcpiServer extends KoaServer {
   }
 
   private initContainer() {
-    Container.set(OcpiServerConfig, this.serverConfig);
+    Container.set(ServerConfig, this.serverConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
     Container.set(OcpiSequelizeInstance, this.ocpiSequelizeInstance);
@@ -334,6 +346,10 @@ export class OcpiServer extends KoaServer {
       this.repositoryStore.authorizationRepository,
     );
     Container.set(SequelizeBootRepository, this.repositoryStore.bootRepository);
+    Container.set(
+      SequelizeCallMessageRepository,
+      this.repositoryStore.callMessageRepository,
+    );
     Container.set(
       SequelizeCertificateRepository,
       this.repositoryStore.certificateRepository,
@@ -349,6 +365,10 @@ export class OcpiServer extends KoaServer {
     Container.set(
       SequelizeMessageInfoRepository,
       this.repositoryStore.messageInfoRepository,
+    );
+    Container.set(
+      SequelizeReservationRepository,
+      this.repositoryStore.reservationRepository,
     );
     Container.set(
       SequelizeSecurityEventRepository,

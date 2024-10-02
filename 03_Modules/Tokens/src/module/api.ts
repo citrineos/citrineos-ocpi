@@ -116,7 +116,7 @@ export class TokensModuleApi
       type ?? TokenType.RFID,
     );
 
-    const token = await this.tokensService.getSingleToken(tokenRequest);
+    const token = await this.tokensService.getToken(tokenRequest);
 
     if (token === undefined) {
       throw new UnknownTokenException('Token not found in the database');
@@ -193,7 +193,13 @@ export class TokensModuleApi
       );
     }
 
-    await this.tokensService.patchToken(countryCode, partyId, tokenUid, type ?? TokenType.RFID, token);
+    await this.tokensService.patchToken(
+      countryCode,
+      partyId,
+      tokenUid,
+      type ?? TokenType.RFID,
+      token,
+    );
 
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }

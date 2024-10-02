@@ -16,6 +16,7 @@ import { ENUM_QUERY_PARAM } from '../util/decorators/enum.query.param';
 import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
 import { Constructable } from 'typedi';
 import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
+import { ContentType } from '../util/ContentType';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -49,7 +50,7 @@ function isRequired(meta: { required?: boolean }, route: IRoute) {
 export function getContentType(route: IRoute): string {
   const defaultContentType =
     ['json', 'default'].indexOf(route.controller.type) > -1
-      ? 'application/json'
+      ? ContentType.JSON
       : 'text/html; charset=utf-8';
   const contentMeta = route.responseHandlers.find(
     (h) => h.type === 'content-type',
@@ -235,7 +236,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     // const $ref = { $ref: ref };
 
     const content: any = {
-      'application/json': {
+      [ContentType.JSON]: {
         schema: bodyParamsSchema
           ? { allOf: [bodySchema, bodyParamsSchema] }
           : bodySchema,
@@ -249,7 +250,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     );
 
     if (example) {
-      content['application/json']['example'] = example;
+      content[ContentType.JSON]['example'] = example;
     }
 
     return {
@@ -258,7 +259,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     };
   } else if (bodyParamsSchema) {
     return {
-      content: { 'application/json': { schema: bodyParamsSchema } },
+      content: { [ContentType.JSON]: { schema: bodyParamsSchema } },
     };
   }
 }

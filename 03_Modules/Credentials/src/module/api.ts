@@ -162,6 +162,7 @@ export class CredentialsModuleApi
    * and register token B and C.
    */
   @Post('/register-credentials-token-a')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -177,14 +178,11 @@ export class CredentialsModuleApi
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('registerCredentialsTokenA', credentials);
-    let clientInformation: ClientInformation =
+    const clientInformation: ClientInformation =
       await this.credentialsService?.registerCredentialsTokenA(
         versionNumber,
         credentials,
       );
-    clientInformation = clientInformation.get
-      ? clientInformation.get({ plain: true })
-      : clientInformation;
     return CredentialsResponse.build(toCredentialsDTO(clientInformation));
   }
 
@@ -228,6 +226,7 @@ export class CredentialsModuleApi
    * @param credentialsRequest AdminCredentialsRequestDTO including version url and server credentials roles
    */
   @Post('/generate-credentials-token-a')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
@@ -254,6 +253,7 @@ export class CredentialsModuleApi
   }
 
   @Put('/regenerate-credentials-token')
+  @AsAdminEndpoint()
   @ResponseSchema(CredentialsResponse, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',

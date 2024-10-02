@@ -6,13 +6,5 @@
     "outDir": "./dist",
     "composite": true,
     "rootDir": "./src"
-  },
-  "references": [
-    {
-      "path": "../../citrineos-core/00_Base"
-    },
-    {
-      "path": "../../citrineos-core/01_Data"
-    }
-  ]
+  }
 }

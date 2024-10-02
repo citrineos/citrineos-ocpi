@@ -1,13 +1,13 @@
 import { KoaMiddlewareInterface } from 'routing-controllers';
 import { HttpHeader, HttpStatus } from '@citrineos/base';
-import { Context } from 'vm';
-import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
 import { Service } from 'typedi';
 import { extractToken } from '../decorators/auth.token';
 import { OcpiHttpHeader } from '../ocpi.http.header';
 import { BaseMiddleware } from './base.middleware';
-import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 import { ClientInformationRepository } from '../../repository/ClientInformationRepository';
+import { ContentType } from '../ContentType';
+import { buildOcpiErrorResponse } from '../../model/ocpi.error.response';
+import { OcpiResponseStatusCode } from '../../model/ocpi.response';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
@@ -29,18 +29,18 @@ export class AuthMiddleware
     super();
   }
 
-  throwError(ctx: Context) {
-    ctx.throw(
-      HttpStatus.UNAUTHORIZED,
-      JSON.stringify(
-        buildOcpiErrorResponse(
-          OcpiResponseStatusCode.ClientNotEnoughInformation,
-        ),
+  throwError(ctx: any) {
+    ctx.type = ContentType.JSON;
+    ctx.status = HttpStatus.UNAUTHORIZED;
+    ctx.body = JSON.stringify(
+      buildOcpiErrorResponse(
+        OcpiResponseStatusCode.ClientNotEnoughInformation,
+        'Not Authorized',
       ),
     );
   }
 
-  async use(context: Context, next: (err?: any) => Promise<any>): Promise<any> {
+  async use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
     console.debug(
       `AuthMiddleware executed for ${context.request.method} ${context.request.url}`,
     );
