@@ -57,6 +57,7 @@
     "@directus/extensions": "~1.0.2",
     "@fastify/type-provider-json-schema-to-ts": "2.2.2",
     "fastify": "4.22.2",
+    "@fastify/cors": "^9.0.1",
     "sqlite3": "5.1.6",
     "tslog": "4.9.2",
     "uuid": "9.0.0",

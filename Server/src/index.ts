@@ -78,6 +78,7 @@ import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { CdrsModule } from '@citrineos/ocpi-cdrs';
 import { RealTimeAuthorizer, TokensModule } from '@citrineos/ocpi-tokens';
+import cors from '@fastify/cors';
 
 interface ModuleConfig {
   ModuleClass: new (...args: any[]) => AbstractModule;
@@ -140,6 +141,12 @@ export class CitrineOSServer {
     // Create server instance
     this._server =
       server || fastify().withTypeProvider<JsonSchemaToTsProvider>();
+
+    // enable cors
+    (this._server as any).register(cors, {
+      origin: true, // This can be customized to specify allowed origins
+      methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
+    });
 
     // Add health check
     this.initHealthCheck();
