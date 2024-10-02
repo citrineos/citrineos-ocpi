@@ -1,0 +1,42 @@
+{
+  "extends": "../tsconfig.build.json",
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": ["**/dist/**", "**/node_modules/**"],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "../00_Base"
+    },
+    {
+      "path": "../03_Modules/Versions"
+    },
+    {
+      "path": "../03_Modules/Credentials"
+    },
+    {
+      "path": "../03_Modules/Commands"
+    },
+    {
+      "path": "../03_Modules/Locations"
+    },
+    {
+      "path": "../03_Modules/Sessions"
+    },
+    {
+      "path": "../03_Modules/ChargingProfiles"
+    },
+    {
+      "path": "../03_Modules/Tariffs"
+    },
+    {
+      "path": "../03_Modules/Tokens"
+    },
+    {
+      "path": "../03_Modules/Cdrs"
+    }
+  ]
+}

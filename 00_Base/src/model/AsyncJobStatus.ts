@@ -5,7 +5,7 @@ import {
   Model,
   PrimaryKey,
   Table,
-} from 'sequelize-typescript';
+} from '@citrineos/data';
 import { v4 as uuidv4 } from 'uuid';
 import { PaginatedParams } from '../controllers/param/paginated.params';
 

@@ -15,5 +15,6 @@ export enum OcpiNamespace {
   OcpiLocation = 'OcpiLocation',
   OcpiEvse = 'OcpiEvse',
   OcpiConnector = 'OcpiConnector',
+  OcpiReservation = 'OcpiReservation',
   ResponseUrlCorrelationId = 'ResponseUrlCorrelationId',
 }

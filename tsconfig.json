@@ -4,18 +4,10 @@
     "rootDir": "./",
     "outDir": "./dist"
   },
-  "exclude": [
-    "./dist/**/*",
-    "**/node_modules/**",
-    "DirectusExtensions",
-    // todo for now
-    "Swarm",
-    // todo for now,
-    "Server_OLD"
-  ],
+  "exclude": ["./dist/**/*", "**/node_modules/**"],
   "references": [
     {
-      "path": "Server"
+      "path": "./Server"
     }
   ]
 }

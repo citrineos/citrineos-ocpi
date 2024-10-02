@@ -14,6 +14,7 @@ import { WrongClientAccessException } from '../../exception/wrong.client.access.
 import { InvalidParamException } from '../../exception/invalid.param.exception';
 import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
 import { NotFoundException } from '../../exception/NotFoundException';
+import { ContentType } from '../ContentType';
 
 class HttpExceptionBody {
   message?: string;
@@ -33,6 +34,7 @@ export class HttpExceptionHandler implements KoaMiddlewareInterface {
       await next();
     } catch (err) {
       console.error('HttpExceptionHandler error', err);
+      context.type = ContentType.JSON;
       if (err?.constructor?.name) {
         switch (err.constructor.name) {
           case UnauthorizedError.name:
@@ -83,6 +85,12 @@ export class HttpExceptionHandler implements KoaMiddlewareInterface {
             );
             break;
           case UnsuccessfulRequestException.name:
+            context.status = HttpStatus.BAD_REQUEST;
+            context.body = JSON.stringify(
+              new HttpExceptionBody((err as any).message),
+            );
+            break;
+          case 'SequelizeUniqueConstraintError':
             context.status = HttpStatus.BAD_REQUEST;
             context.body = JSON.stringify(
               new HttpExceptionBody((err as any).message),
