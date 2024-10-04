@@ -1,8 +1,8 @@
 import { BaseClientApi } from './BaseClientApi';
-import { OcpiResponse } from '../model/ocpi.response';
+import { OcpiResponse } from '../model/OcpiResponse';
 import { Service } from 'typedi';
-import { OcpiParams } from './util/ocpi.params';
-import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { OcpiParams } from './util/OcpiParams';
+import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
 
 @Service()
 export class AsyncReceiverApi extends BaseClientApi {

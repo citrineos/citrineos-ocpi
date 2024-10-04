@@ -1,4 +1,4 @@
-import { OcpiHttpHeader } from '../ocpi.http.header';
+import { OcpiHttpHeader } from '../OcpiHttpHeader';
 import { OcpiHeaders } from '../../model/OcpiHeaders';
 import { createParamDecorator } from 'routing-controllers';
 

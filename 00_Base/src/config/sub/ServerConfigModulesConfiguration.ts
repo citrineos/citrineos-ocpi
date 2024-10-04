@@ -1,15 +1,8 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsPositive,
-  IsString,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import 'reflect-metadata';
 import { RegistrationStatusEnumType } from '@citrineos/base';
-import { Enum } from '../../util/decorators/enum';
-import { Optional } from '../../util/decorators/optional';
+import { Enum } from '../../util/decorators/Enum';
+import { Optional } from '../../util/decorators/Optional';
 
 export class ServerConfigModulesConfiguration {
   @IsInt()

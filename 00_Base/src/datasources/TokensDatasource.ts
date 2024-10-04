@@ -11,10 +11,10 @@ import { OcpiToken, SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
 import { TokenType } from '../model/TokenType';
 import { Op } from 'sequelize';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/OcpiLogger';
 import { TokensRepository } from '../repository/TokensRepository';
 import { IdTokenEnumType } from '@citrineos/base';
-import { UnknownTokenException } from '../exception/unknown.token.exception';
+import { UnknownTokenException } from '../exception/UnknownTokenException';
 import { Service } from 'typedi';
 
 @Service()

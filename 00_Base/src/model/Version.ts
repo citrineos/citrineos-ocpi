@@ -5,9 +5,9 @@ import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
 import { Column, DataType, HasMany, Model, Table } from '@citrineos/data';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../util/decorators/enum';
+import { Enum } from '../util/decorators/Enum';
 import { VersionEndpoint } from './VersionEndpoint';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 
 export interface IVersion {
   id?: number;

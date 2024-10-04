@@ -10,9 +10,9 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { Optional } from '../../../util/decorators/optional';
+import { Optional } from '../../../util/decorators/Optional';
 import { Type } from 'class-transformer';
-import { CREATE, UPDATE } from '../../../util/consts';
+import { CREATE, UPDATE } from '../../../util/Consts';
 
 // TODO add remaining OCPI-specific properties
 export class AdminConnectorDTO {

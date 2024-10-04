@@ -5,7 +5,7 @@
 
 import { Inject, Service } from 'typedi';
 import { SingleTokenRequest } from '../model/OcpiToken';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/OcpiLogger';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { TokenType } from '../model/TokenType';
 import { ITokensDatasource } from '../datasources/ITokensDatasource';

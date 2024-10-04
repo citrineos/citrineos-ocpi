@@ -1,11 +1,15 @@
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
-import { ServerConfigUtilCertificateAuthorityChargingStationCAAcme } from './ServerConfigUtilCertificateAuthorityChargingStationCAAcme';
-import { Optional } from '../../util/decorators/optional';
-import { Enum } from '../../util/decorators/enum';
+import {
+  ServerConfigUtilCertificateAuthorityChargingStationCAAcme,
+} from './ServerConfigUtilCertificateAuthorityChargingStationCAAcme';
+import { Optional } from '../../util/decorators/Optional';
+import { Enum } from '../../util/decorators/Enum';
 import { ServerConfigUtilCertificateAuthorityV2gCAName } from './ServerConfigUtilCertificateAuthorityV2gCAName';
-import { ServerConfigUtilCertificateAuthorityChargingStationCAName } from './ServerConfigUtilCertificateAuthorityChargingStationCAName';
+import {
+  ServerConfigUtilCertificateAuthorityChargingStationCAName,
+} from './ServerConfigUtilCertificateAuthorityChargingStationCAName';
 
 export class ServerConfigUtilCertificateAuthorityChargingStationCA {
   @Enum(

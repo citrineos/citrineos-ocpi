@@ -1,17 +1,10 @@
 import { IsInt, IsNotEmpty, IsString, IsUrl, Max } from 'class-validator';
-import { Optional } from '../util/decorators/optional';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  Model,
-  Table,
-} from '@citrineos/data';
+import { Optional } from '../util/decorators/Optional';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from '@citrineos/data';
 import { Exclude } from 'class-transformer';
 import { BusinessDetails } from './BusinessDetails';
 import { ImageCategory } from './ImageCategory';
-import { Enum } from '../util/decorators/enum';
+import { Enum } from '../util/decorators/Enum';
 import { ImageDTO } from './DTO/ImageDTO';
 import { ImageType } from './ImageType';
 
