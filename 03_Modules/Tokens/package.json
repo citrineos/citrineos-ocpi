@@ -17,7 +17,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/deasync-promise": "1.0.0",
+    "@types/deasync-promise": "1.0.2",
     "typescript": "5.0.4"
   },
   "dependencies": {
