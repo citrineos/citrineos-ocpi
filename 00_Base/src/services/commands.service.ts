@@ -82,7 +82,7 @@ export class CommandsService {
             timeout: this.TIMEOUT,
           },
           e.message,
-          e as NotFoundError,
+          e as Error,
         );
       } else {
         console.error(e);
