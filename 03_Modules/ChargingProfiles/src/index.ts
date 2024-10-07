@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ChargingProfilesModuleApi } from './module/api';
+import { ChargingProfilesModuleApi } from './module/ChargingProfilesModuleApi';
 import {
   AsyncResponder,
   CacheWrapper,
@@ -29,7 +29,7 @@ import {
   SequelizeChargingProfileRepository,
   SequelizeTransactionEventRepository,
 } from '@citrineos/data';
-import { ChargingProfilesOcppHandlers } from './module/handlers';
+import { ChargingProfilesOcppHandlers } from './module/ChargingProfilesOcppHandlers';
 
 useContainer(Container);
 

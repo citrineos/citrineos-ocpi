@@ -2,12 +2,12 @@ import { Service } from 'typedi';
 import { OcpiTariffRepository } from '../repository/OcpiTariffRepository';
 import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { SequelizeTariffRepository, Tariff } from '@citrineos/data';
-import { TariffMapper } from '../mapper/tariff.mapper';
+import { TariffMapper } from '../mapper/TariffMapper';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { Op } from 'sequelize';
 import { ILogObj, Logger } from 'tslog';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
-import { OcpiSequelizeInstance } from '../util/sequelize';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { GetTariffsParams } from '../model/DTO/tariffs/GetTariffsParams';
 import { ITariffsDatasource } from './ITariffsDatasource';
 

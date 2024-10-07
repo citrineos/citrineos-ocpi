@@ -2,7 +2,7 @@ import { IsBoolean, IsInt, IsPositive } from 'class-validator';
 import { Service } from 'typedi';
 import 'reflect-metadata';
 import { EndpointPrefixHostPort } from './EndpointPrefixHostPort';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 @Service()
 export class ServerConfigModulesTransactions extends EndpointPrefixHostPort {

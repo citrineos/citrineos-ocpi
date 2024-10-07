@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
+import { Enum } from '../util/decorators/Enum';
+import { OcpiResponse } from './OcpiResponse';
 import { Type } from 'class-transformer';
 
 export enum ChargingProfileResultType {

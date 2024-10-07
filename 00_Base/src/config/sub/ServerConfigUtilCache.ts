@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
 import { ServerConfigHostPort } from './ServerConfigHostPort';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 @Service()
 export class ServerConfigUtilCache {

@@ -3,7 +3,7 @@ import { IHeaders } from 'typed-rest-client/Interfaces';
 import { Service } from 'typedi';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { IRestResponse } from 'typed-rest-client';
-import { OcpiRegistrationParams } from './util/ocpi.registration.params';
+import { OcpiRegistrationParams } from './util/OcpiRegistrationParams';
 import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 

@@ -1,5 +1,5 @@
 import { ArrayMinSize, IsArray, IsNotEmpty } from 'class-validator';
-import { Enum } from '../../util/decorators/enum';
+import { Enum } from '../../util/decorators/Enum';
 import { VersionNumber } from '../VersionNumber';
 import { Type } from 'class-transformer';
 import { Endpoint, EndpointDTO } from '../Endpoint';

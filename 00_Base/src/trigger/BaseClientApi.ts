@@ -1,13 +1,13 @@
 import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { VersionNumber } from '../model/VersionNumber';
-import { OcpiRegistrationParams } from './util/ocpi.registration.params';
-import { OcpiParams } from './util/ocpi.params';
+import { OcpiRegistrationParams } from './util/OcpiRegistrationParams';
+import { OcpiParams } from './util/OcpiParams';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { HttpHeader } from '@citrineos/base';
-import { OcpiHttpHeader } from '../util/ocpi.http.header';
-import { base64Encode } from '../util/util';
-import { OcpiResponse } from '../model/ocpi.response';
+import { OcpiHttpHeader } from '../util/OcpiHttpHeader';
+import { base64Encode } from '../util/Util';
+import { OcpiResponse } from '../model/OcpiResponse';
 import { PaginatedResponse } from '../model/PaginatedResponse';
 import { Constructable, Inject } from 'typedi';
 import { v4 as uuidv4 } from 'uuid';

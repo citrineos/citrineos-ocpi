@@ -1,5 +1,5 @@
 import { IsInt, IsPositive, IsString } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 export class EndpointPrefixHostPort {
   @IsString()

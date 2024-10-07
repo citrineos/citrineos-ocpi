@@ -1,7 +1,7 @@
 import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 import { ServerConfigUtilmessageBrokerKafkaSasl } from './ServerConfigUtilmessageBrokerKafkaSasl';
 
 export class ServerConfigUtilMessageBrokerKafka {

@@ -4,18 +4,15 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { Inject, Service } from 'typedi';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/OcpiLogger';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
 import { TokensClientApi } from '../trigger/TokensClientApi';
-import { buildPaginatedOcpiParams } from '../trigger/param/paginated.ocpi.params';
+import { buildPaginatedOcpiParams } from '../trigger/param/PaginatedOcpiParams';
 import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
-import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { CredentialsService } from './credentials.service';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { CredentialsService } from './CredentialsService';
+import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
 import { Op } from 'sequelize';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { AsyncJobRequest } from '../model/AsyncJobRequest';
