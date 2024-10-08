@@ -33,7 +33,7 @@
     "clean-dist": "find . -type d -name dist -not -path '*/node_modules/*' -exec rm -rf {} +",
     "clean": "npm run clean-dist && npm run clean-tsbuildinfo",
     "build": "tsc --build --verbose",
-    "postbuild": "npm run copy-assets --prefix ./Server",
+    "postbuild": "npm run copy-assets --prefix ./Server && npm run build:base:esm --prefix ./citrineos-core",
     "lint": "npx eslint ./",
     "lint-fix": "npm run prettier && npx eslint --fix ./",
     "prettier": "prettier --write .",

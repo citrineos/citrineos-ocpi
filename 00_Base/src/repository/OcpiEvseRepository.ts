@@ -3,8 +3,8 @@ import { OcpiEvse } from '../model/OcpiEvse';
 import { SequelizeRepository } from '@citrineos/data';
 import { ServerConfig } from '../config/ServerConfig';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { SystemConfig } from '@citrineos/base';
 import { EXTRACT_EVSE_ID, EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
 

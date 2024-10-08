@@ -1,5 +1,5 @@
 import { IsInt, IsPositive, IsString } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 export class EndpointPrefixHostPort {
   @IsString()
@@ -7,12 +7,12 @@ export class EndpointPrefixHostPort {
 
   @IsString()
   @Optional()
-  host?: string;
+  host?: string = '0.0.0.0';
 
   @IsInt()
   @Optional()
   @IsPositive()
-  port?: number;
+  port?: number = 8080;
 
   constructor(endpointPrefix: string) {
     this.endpointPrefix = endpointPrefix;

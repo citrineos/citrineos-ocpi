@@ -1,16 +1,9 @@
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { ModuleId } from './ModuleId';
 import { InterfaceRole } from './InterfaceRole';
-import { Enum } from '../util/decorators/enum';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  Model,
-  Table,
-} from '@citrineos/data';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { Enum } from '../util/decorators/Enum';
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from '@citrineos/data';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { Exclude } from 'class-transformer';
 import { ClientVersion } from './ClientVersion';
 import { ServerVersion } from './ServerVersion';

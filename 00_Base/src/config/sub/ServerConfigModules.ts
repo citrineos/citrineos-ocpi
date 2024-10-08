@@ -1,9 +1,4 @@
-import {
-  IsNotEmpty,
-  Validate,
-  ValidateNested,
-  ValidationArguments,
-} from 'class-validator';
+import { IsNotEmpty, Validate, ValidateNested, ValidationArguments } from 'class-validator';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
 import { ServerConfigModulesCertificates } from './ServerConfigModulesCertificates';
@@ -15,7 +10,7 @@ import { ServerConfigModulesReporting } from './ServerConfigModulesReporting';
 import { ServerConfigModulesSmartCharging } from './ServerConfigModulesSmartCharging';
 import { ServerConfigModulesTenant } from './ServerConfigModulesTenant';
 import { ServerConfigModulesTransactions } from './ServerConfigModulesTransactions';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 export class ServerConfigModules {
   @Optional()

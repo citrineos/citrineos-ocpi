@@ -1,13 +1,8 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsNotEmpty,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, ValidateNested } from 'class-validator';
 import { RegularHours } from './RegularHours';
 import { ExceptionalPeriod } from './ExceptionalPeriod';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+import { Optional } from '../util/decorators/Optional';
 
 export class Hours {
   @IsArray()

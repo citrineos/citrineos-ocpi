@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { CredentialsRoleDTO } from './CredentialsRoleDTO';
 import { AdminCredentialsRequestDTO } from './AdminCredentialsRequestDTO';
-import { CountryCode } from '../../util/util';
+import { CountryCode } from '../../util/Util';
 
 export class AdminUpdateCredentialsRequestDTO extends AdminCredentialsRequestDTO {
   @IsEnum(CountryCode)

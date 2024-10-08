@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { TariffsModuleApi } from './module/api';
+import { TariffsModuleApi } from './module/TariffsModuleApi';
 import { OcpiModule } from '@citrineos/ocpi-base';
 import {
   ICache,
@@ -13,10 +13,10 @@ import {
 } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { TariffsDispatcher } from './module/tariffs.dispatcher';
+import { TariffsDispatcher } from './module/TariffsDispatcher';
 
-export { TariffsModuleApi } from './module/api';
-export { ITariffsModuleApi } from './module/interface';
+export { TariffsModuleApi } from './module/TariffsModuleApi';
+export { ITariffsModuleApi } from './module/ITariffsModuleApi';
 
 @Service()
 export class TariffsModule implements OcpiModule {

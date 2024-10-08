@@ -18,10 +18,10 @@ import { SignedData } from './SignedData';
 import { Price } from './Price';
 import { AuthMethod } from './AuthMethod';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
+import { Optional } from '../util/decorators/Optional';
+import { Enum } from '../util/decorators/Enum';
 import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './ocpi.response';
+import { OcpiResponse } from './OcpiResponse';
 import { Tariff } from './Tariff';
 
 export class Cdr {

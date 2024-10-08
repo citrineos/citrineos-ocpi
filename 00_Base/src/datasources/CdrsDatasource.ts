@@ -3,7 +3,7 @@ import { PaginatedResult } from '../model/PaginatedResult';
 import { ITransactionDatasource } from './ITransactionDatasource';
 import { TRANSACTION_DATASOURCE_SERVICE_TOKEN } from '../services/TransactionFilterService';
 import { ICdrsDatasource } from './ICdrsDatasource';
-import { CdrMapper } from '../mapper/cdr.mapper';
+import { CdrMapper } from '../mapper/CdrMapper';
 import { Cdr } from '../model/Cdr';
 
 export const CDR_DATASOURCE_SERVICE_TOKEN = new Token(

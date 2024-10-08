@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import 'reflect-metadata';
-import { Enum } from '../../util/decorators/enum';
+import { Enum } from '../../util/decorators/Enum';
 import { Env } from './Env';
 
 export class ServerConfigUtilCertificateAuthorityChargingStationCAAcme {

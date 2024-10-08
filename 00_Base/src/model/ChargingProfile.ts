@@ -1,15 +1,7 @@
-import {
-  IsArray,
-  IsDateString,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { ChargingProfilePeriod } from './ChargingProfilePeriod';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+import { Optional } from '../util/decorators/Optional';
 
 export class ChargingProfile {
   @IsString()

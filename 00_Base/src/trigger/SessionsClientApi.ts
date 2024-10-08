@@ -1,11 +1,11 @@
-import { GetSessionParams } from './param/sessions/get.session.params';
-import { PatchSessionParams } from './param/sessions/patch.session.params';
-import { PutSessionParams } from './param/sessions/put.session.params';
+import { GetSessionParams } from './param/sessions/GetSessionParams';
+import { PatchSessionParams } from './param/sessions/PatchSessionParams';
+import { PutSessionParams } from './param/sessions/PutSessionParams';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { BaseClientApi } from './BaseClientApi';
 import { SessionResponse } from '../model/Session';
 import { Service } from 'typedi';
-import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
 import { ModuleId } from '../model/ModuleId';
 
 @Service()

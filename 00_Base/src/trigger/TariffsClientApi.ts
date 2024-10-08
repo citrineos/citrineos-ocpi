@@ -1,11 +1,11 @@
 import { BaseClientApi } from './BaseClientApi';
 import { TariffResponse } from '../model/Tariff';
-import { GetTariffParams } from './param/tariffs/get.tariff.params';
-import { PutTariffParams } from './param/tariffs/put.tariff.params';
-import { DeleteTariffParams } from './param/tariffs/delete.tariff.params';
+import { GetTariffParams } from './param/tariffs/GetTariffParams';
+import { PutTariffParams } from './param/tariffs/PutTariffParams';
+import { DeleteTariffParams } from './param/tariffs/DeleteTariffParams';
 import { IHeaders } from 'typed-rest-client/Interfaces';
 import { ModuleId } from '../model/ModuleId';
-import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
+import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
 import { Service } from 'typedi';
 
 @Service()

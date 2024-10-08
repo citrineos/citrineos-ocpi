@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../../util/decorators/enum';
+import { Enum } from '../../util/decorators/Enum';
 import { VersionNumber } from '../VersionNumber';
 
 export class VersionDTO {

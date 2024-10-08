@@ -4,9 +4,9 @@ import { OcpiToken } from './OcpiToken';
 import { AuthorizationInfoAllowed } from './AuthorizationInfoAllowed';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
-import { OcpiResponse } from './ocpi.response';
+import { Optional } from '../util/decorators/Optional';
+import { Enum } from '../util/decorators/Enum';
+import { OcpiResponse } from './OcpiResponse';
 
 export class AuthorizationInfo {
   @Enum(AuthorizationInfoAllowed, 'AuthorizationInfoAllowed')

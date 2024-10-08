@@ -1,8 +1,8 @@
 import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 import { EvseStatus } from './EvseStatus';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
-import { Enum } from '../util/decorators/enum';
+import { Optional } from '../util/decorators/Optional';
+import { Enum } from '../util/decorators/Enum';
 
 export class EvseStatusSchedule {
   @IsString()

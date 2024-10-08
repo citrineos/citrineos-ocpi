@@ -1,4 +1,4 @@
-import { PaginatedParams } from '../controllers/param/paginated.params';
+import { PaginatedParams } from '../controllers/param/PaginatedParams';
 
 export class AsyncJobRequest {
   mspCountryCode!: string;

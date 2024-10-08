@@ -3,15 +3,15 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { CdrsModuleApi } from './module/api';
+import { CdrsModuleApi } from './module/CdrsModuleApi';
 import { CacheWrapper, OcpiModule, ServerConfig } from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { CdrsOcppHandlers } from './module/handlers';
+import { CdrsOcppHandlers } from './module/CdrsOcppHandlers';
 
-export { CdrsModuleApi } from './module/api';
-export { ICdrsModuleApi } from './module/interface';
+export { CdrsModuleApi } from './module/CdrsModuleApi';
+export { ICdrsModuleApi } from './module/ICdrsModuleApi';
 
 @Service()
 export class CdrsModule implements OcpiModule {

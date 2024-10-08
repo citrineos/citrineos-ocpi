@@ -21,13 +21,16 @@ import {
 import { MonitoringModule, MonitoringModuleApi } from '@citrineos/monitoring';
 import {
   Authenticator,
+  BasicAuthenticationFilter,
   CertificateAuthorityService,
+  ConnectedStationFilter,
   DirectusUtil,
   initSwagger,
   MemoryCache,
   RabbitMqReceiver,
   RabbitMqSender,
   RedisCache,
+  UnknownStationFilter,
   WebsocketNetworkConnection,
 } from '@citrineos/util';
 import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
@@ -35,9 +38,6 @@ import addFormats from 'ajv-formats';
 import fastify, { type FastifyInstance } from 'fastify';
 import { type ILogObj, Logger } from 'tslog';
 import { systemConfig } from './config';
-import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
-import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
-import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
 import {
   ConfigurationModule,
   ConfigurationModuleApi,
@@ -78,6 +78,7 @@ import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { CdrsModule } from '@citrineos/ocpi-cdrs';
 import { RealTimeAuthorizer, TokensModule } from '@citrineos/ocpi-tokens';
+import cors from '@fastify/cors';
 
 interface ModuleConfig {
   ModuleClass: new (...args: any[]) => AbstractModule;
@@ -140,6 +141,12 @@ export class CitrineOSServer {
     // Create server instance
     this._server =
       server || fastify().withTypeProvider<JsonSchemaToTsProvider>();
+
+    // enable cors
+    (this._server as any).register(cors, {
+      origin: true, // This can be customized to specify allowed origins
+      methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
+    });
 
     // Add health check
     this.initHealthCheck();
@@ -249,7 +256,7 @@ export class CitrineOSServer {
     return new RabbitMqReceiver(this._config as SystemConfig, this._logger);
   }
 
-  protected getOcpiModuleConfig() {
+  protected getOcpiModuleConfig(): ModuleConfig[] {
     return [
       {
         module: VersionsModule,
@@ -296,7 +303,7 @@ export class CitrineOSServer {
         handler: this._createHandler(),
         sender: this._createSender(),
       },
-    ];
+    ] as any;
   }
 
   private initHealthCheck() {
@@ -370,7 +377,10 @@ export class CitrineOSServer {
   private initNetworkConnection() {
     this._authenticator = new Authenticator(
       new UnknownStationFilter(
-        new sequelize.SequelizeLocationRepository(this._config as SystemConfig, this._logger),
+        new sequelize.SequelizeLocationRepository(
+          this._config as SystemConfig,
+          this._logger,
+        ),
         this._logger,
       ),
       new ConnectedStationFilter(this._cache, this._logger),
@@ -565,8 +575,8 @@ export class CitrineOSServer {
       this._config as ServerConfig,
       this._cache,
       this._logger,
-      this.getOcpiModuleConfig(),
-      this._repositoryStore,
+      this.getOcpiModuleConfig() as any,
+      this._repositoryStore as any,
     );
   }
 

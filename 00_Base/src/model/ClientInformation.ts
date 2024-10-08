@@ -17,7 +17,7 @@ import { CpoTenant } from './CpoTenant';
 import { Exclude } from 'class-transformer';
 import { ClientVersion } from './ClientVersion';
 import { ServerVersion } from './ServerVersion';
-import { ON_DELETE_CASCADE } from '../util/sequelize';
+import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 import { ModuleId } from './ModuleId';
 import { Endpoint } from './Endpoint';
 import { VersionNumber } from './VersionNumber';

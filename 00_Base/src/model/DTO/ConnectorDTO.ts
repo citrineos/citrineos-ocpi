@@ -13,9 +13,9 @@ import { ConnectorType } from '../ConnectorType';
 import { ConnectorFormat } from '../ConnectorFormat';
 import { PowerType } from '../PowerType';
 import { Type } from 'class-transformer';
-import { Optional } from '../../util/decorators/optional';
-import { Enum } from '../../util/decorators/enum';
-import { OcpiResponse } from '../ocpi.response';
+import { Optional } from '../../util/decorators/Optional';
+import { Enum } from '../../util/decorators/Enum';
+import { OcpiResponse } from '../OcpiResponse';
 import { uidDelimiter } from './EvseDTO';
 
 export const TEMPORARY_CONNECTOR_ID = (

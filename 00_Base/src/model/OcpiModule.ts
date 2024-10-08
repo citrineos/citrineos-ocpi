@@ -1,11 +1,8 @@
 import { Constructable } from 'typedi';
 import { IMessageHandler, IMessageSender } from '@citrineos/base';
 
-export abstract class OcpiModule {
-  public abstract init(
-    handler?: IMessageHandler,
-    sender?: IMessageSender,
-  ): void;
+export interface OcpiModule {
+  init(handler?: IMessageHandler | any, sender?: IMessageSender | any): void; // need | any otherwise TS confused because import comes from different moduels
 
-  public abstract getController(): Constructable<any>;
+  getController(): Constructable<any>;
 }

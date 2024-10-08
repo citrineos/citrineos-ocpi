@@ -1,7 +1,7 @@
 import { ISessionsDatasource } from './ISessionsDatasource';
 import { Session } from '../model/Session';
 import { Inject, Service, Token } from 'typedi';
-import { SessionMapper } from '../mapper/session.mapper';
+import { SessionMapper } from '../mapper/SessionMapper';
 import { PaginatedResult } from '../model/PaginatedResult';
 import { ITransactionDatasource } from './ITransactionDatasource';
 import { TRANSACTION_DATASOURCE_SERVICE_TOKEN } from '../services/TransactionFilterService';

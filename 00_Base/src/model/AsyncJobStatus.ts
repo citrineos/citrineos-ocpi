@@ -1,13 +1,6 @@
-import {
-  Column,
-  DataType,
-  Default,
-  Model,
-  PrimaryKey,
-  Table,
-} from '@citrineos/data';
+import { Column, DataType, Default, Model, PrimaryKey, Table } from '@citrineos/data';
 import { v4 as uuidv4 } from 'uuid';
-import { PaginatedParams } from '../controllers/param/paginated.params';
+import { PaginatedParams } from '../controllers/param/PaginatedParams';
 
 export enum AsyncJobName {
   FETCH_OCPI_TOKENS = 'FETCH_OCPI_TOKENS',

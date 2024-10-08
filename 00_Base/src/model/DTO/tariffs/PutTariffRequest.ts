@@ -9,7 +9,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Optional } from '../../../util/decorators/optional';
+import { Optional } from '../../../util/decorators/Optional';
 import { TariffType } from '../../TariffType';
 import { Type } from 'class-transformer';
 import { DisplayText } from '../../DisplayText';

@@ -1,9 +1,9 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiSequelizeInstance } from '../util/sequelize';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { SystemConfig } from '@citrineos/base';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { Op } from 'sequelize';
 import { ServerConfig } from '../config/ServerConfig';

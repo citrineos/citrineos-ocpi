@@ -1,9 +1,9 @@
-import { Enum } from '../util/decorators/enum';
+import { Enum } from '../util/decorators/Enum';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Optional } from '../util/decorators/optional';
+import { Optional } from '../util/decorators/Optional';
 import { Type } from 'class-transformer';
 import { DisplayText } from './DisplayText';
-import { OcpiResponse } from './ocpi.response';
+import { OcpiResponse } from './OcpiResponse';
 
 export enum CommandResultType {
   ACCEPTED = 'ACCEPTED',

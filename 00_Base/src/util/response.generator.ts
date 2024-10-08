@@ -1,4 +1,4 @@
-import { OcpiResponse, OcpiResponseStatusCode } from '../model/ocpi.response';
+import { OcpiResponse, OcpiResponseStatusCode } from '../model/OcpiResponse';
 
 export class ResponseGenerator {
   static buildGenericSuccessResponse<T>(

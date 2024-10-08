@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { Enum } from '../util/decorators/enum';
+import { Enum } from '../util/decorators/Enum';
 import { IsInt, IsNotEmpty, IsPositive, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import {

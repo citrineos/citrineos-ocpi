@@ -4,16 +4,12 @@ import { ChargingStation, Location } from '@citrineos/data';
 import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
-import { LocationsBroadcaster } from '../broadcaster/locations.broadcaster';
-import {
-  AdminConnectorDTO,
-  AdminEvseDTO,
-  AdminLocationDTO,
-} from '../model/DTO/admin/AdminLocationDTO';
+import { LocationsBroadcaster } from '../broadcaster/LocationsBroadcaster';
+import { AdminConnectorDTO, AdminEvseDTO, AdminLocationDTO } from '../model/DTO/admin/AdminLocationDTO';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { InvalidParamException } from '../exception/invalid.param.exception';
+import { InvalidParamException } from '../exception/InvalidParamException';
 import { validate } from 'class-validator';
-import { CREATE, UPDATE } from '../util/consts';
+import { CREATE, UPDATE } from '../util/Consts';
 import { LocationsDatasource } from '../datasources/LocationsDatasource';
 
 @Service()

@@ -9,7 +9,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 import { Type } from 'class-transformer';
 import { PublishTokenType } from '../PublishTokenType';
 import { GeoLocation } from '../GeoLocation';
@@ -19,7 +19,7 @@ import { BusinessDetails } from '../BusinessDetails';
 import { Facilities } from '../Facilities';
 import { Hours } from '../Hours';
 import { EnergyMix } from '../EnergyMix';
-import { OcpiResponse } from '../ocpi.response';
+import { OcpiResponse } from '../OcpiResponse';
 import { PaginatedResponse } from '../PaginatedResponse';
 
 export class LocationDTO {

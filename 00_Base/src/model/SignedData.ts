@@ -1,16 +1,7 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-  MaxLength,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsString, IsUrl, MaxLength, ValidateNested } from 'class-validator';
 import { SignedValue } from './SignedValue';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+import { Optional } from '../util/decorators/Optional';
 
 export class SignedData {
   @MaxLength(36)
