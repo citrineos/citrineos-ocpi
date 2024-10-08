@@ -7,11 +7,11 @@ import { ServerConfigUtilmessageBrokerKafkaSasl } from './ServerConfigUtilmessag
 export class ServerConfigUtilMessageBrokerKafka {
   @IsString()
   @Optional()
-  topicPrefix?: string;
+  topicPrefix?: string = '';
 
   @IsString()
   @Optional()
-  topicName?: string;
+  topicName?: string = '';
 
   @IsArray()
   @IsNotEmpty()

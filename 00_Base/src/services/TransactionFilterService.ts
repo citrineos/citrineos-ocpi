@@ -4,7 +4,6 @@ import {
   SequelizeTransactionEventRepository,
   Transaction,
 } from '@citrineos/data';
-import { Attributes, CountOptions } from 'sequelize/types/model';
 import { TransactionQueryBuilder } from './TransactionQueryBuilder';
 import { Service, Token } from 'typedi';
 
@@ -56,18 +55,13 @@ export class TransactionFilterService implements ITransactionDatasource {
 
     const [transactions, total] = await Promise.all([
       this.transactionRepository.transaction.readAllByQuery(queryOptions),
-      Transaction.count(
-        countQueryOptions as Omit<
-          CountOptions<Attributes<Transaction>>,
-          'group'
-        >,
-      ),
+      Transaction.count(countQueryOptions as any),
     ]);
 
     const result: PaginatedResult<Transaction> =
       new PaginatedResult<Transaction>();
     result.data = transactions;
-    result.total = total;
+    result.total = total as any;
 
     return result;
   }

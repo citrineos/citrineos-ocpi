@@ -7,39 +7,39 @@ import { Optional } from '../../util/decorators/Optional';
 export class SequelizeConfig {
   @IsString()
   @IsNotEmpty()
-  host: string;
+  host: string = 'localhost';
 
   @IsInt()
   @Min(0)
   @IsNotEmpty()
-  port: number;
+  port: number = 5432;
 
   @IsString()
   @IsNotEmpty()
-  database: string;
+  database: string = 'citrine';
 
   @Optional()
-  dialect?: any;
+  dialect?: any = 'postgres';
 
   @IsString()
   @IsNotEmpty()
-  username: string;
+  username: string = 'citrine';
 
   @IsString()
   @IsNotEmpty()
-  password: string;
+  password: string = 'citrine';
 
   @IsString()
   @IsNotEmpty()
-  storage: string;
+  storage: string = '';
 
   @IsBoolean()
   @Optional()
-  sync?: boolean;
+  sync?: boolean = false;
 
   @IsBoolean()
   @Optional()
-  alter?: boolean;
+  alter?: boolean = true;
 
   @IsInt()
   @Min(0)
@@ -50,16 +50,4 @@ export class SequelizeConfig {
   @Min(0)
   @Optional()
   retryDelay?: number;
-
-  constructor() {
-    this.host = 'localhost';
-    this.port = 5432;
-    this.database = 'citrine';
-    this.dialect = 'postgres';
-    this.username = 'citrine';
-    this.password = 'citrine';
-    this.storage = '';
-    this.sync = false;
-    this.alter = true;
-  }
 }

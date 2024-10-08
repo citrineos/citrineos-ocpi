@@ -9,14 +9,10 @@ import { Optional } from '../../util/decorators/Optional';
 export class ServerConfigUtilCache {
   @IsBoolean()
   @Optional()
-  memory?: boolean;
+  memory?: boolean = true;
 
   @IsNotEmpty()
   @Type(() => ServerConfigHostPort)
   @ValidateNested()
   redis?: ServerConfigHostPort;
-
-  constructor() {
-    this.memory = true;
-  }
 }

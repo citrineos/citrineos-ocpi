@@ -1,36 +1,36 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 import 'reflect-metadata';
 import { Optional } from '../../util/decorators/Optional';
 
 export class ServerConfigUtilDirectus {
   @IsString()
   @IsNotEmpty()
-  host: string;
+  host: string = '0.0.0.0';
 
   @IsInt()
   @IsPositive()
   @IsNotEmpty()
-  port: number;
+  port: number = 8055;
 
   @IsString()
   @Optional()
-  token?: string;
+  token?: string = undefined;
 
   @IsString()
   @Optional()
-  username?: string;
+  username?: string = undefined;
 
   @IsString()
   @Optional()
-  password?: string;
+  password?: string = undefined;
 
   @IsBoolean()
   @IsNotEmpty()
-  generateFlows: boolean;
-
-  constructor() {
-    this.host = '0.0.0.0';
-    this.port = 8055;
-    this.generateFlows = false;
-  }
+  generateFlows: boolean = false;
 }

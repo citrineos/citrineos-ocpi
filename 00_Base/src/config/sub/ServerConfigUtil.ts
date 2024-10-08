@@ -18,7 +18,7 @@ export class ServerConfigUtil {
   @Validate((obj: ServerConfigUtilCache) => obj.memory || obj.redis, {
     message: 'A cache implementation must be set',
   })
-  cache: ServerConfigUtilCache;
+  cache: ServerConfigUtilCache = new ServerConfigUtilCache();
 
   @IsNotEmpty()
   @Type(() => ServerConfigUtilMessageBroker)
@@ -29,34 +29,28 @@ export class ServerConfigUtil {
       message: 'A message broker implementation must be set',
     },
   )
-  messageBroker: ServerConfigUtilMessageBroker;
+  messageBroker: ServerConfigUtilMessageBroker =
+    new ServerConfigUtilMessageBroker();
 
   @Optional()
   @Type(() => ServerConfigUtilSwagger)
   @ValidateNested()
-  swagger?: ServerConfigUtilSwagger;
+  swagger?: ServerConfigUtilSwagger = new ServerConfigUtilSwagger();
 
   @Optional()
   @Type(() => ServerConfigUtilDirectus)
   @ValidateNested()
-  directus?: ServerConfigUtilDirectus;
+  directus?: ServerConfigUtilDirectus = new ServerConfigUtilDirectus();
 
   @IsNotEmpty()
   @Type(() => ServerConfigUtilNetworkConnection)
   @ValidateNested()
-  networkConnection: ServerConfigUtilNetworkConnection;
+  networkConnection: ServerConfigUtilNetworkConnection =
+    new ServerConfigUtilNetworkConnection();
 
   @IsNotEmpty()
   @Type(() => ServerConfigUtilCertificateAuthority)
   @ValidateNested()
-  certificateAuthority: ServerConfigUtilCertificateAuthority;
-
-  constructor() {
-    this.cache = new ServerConfigUtilCache();
-    this.messageBroker = new ServerConfigUtilMessageBroker();
-    this.swagger = new ServerConfigUtilSwagger();
-    this.directus = new ServerConfigUtilDirectus();
-    this.networkConnection = new ServerConfigUtilNetworkConnection();
-    this.certificateAuthority = new ServerConfigUtilCertificateAuthority();
-  }
+  certificateAuthority: ServerConfigUtilCertificateAuthority =
+    new ServerConfigUtilCertificateAuthority();
 }
