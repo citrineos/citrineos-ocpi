@@ -38,12 +38,40 @@ function parseEnvValue(value: string, targetType: any): any {
   return value;
 }
 
-function overrideConfigWithEnv<T>(config: T, parentKey = ''): T {
+function ensureAllProperties<T>(instance: T, cls: new () => T): T {
+  const defaultInstance = new cls();
+  for (const key of Object.keys(defaultInstance as any)) {
+    const defaultValue = (defaultInstance as any)[key];
+    const instanceValue = (instance as any)[key];
+
+    // If the key does not exist in the instance, set it to undefined
+    if (!(key in (instance as any))) {
+      (instance as any)[key] = undefined;
+    } else if (
+      typeof defaultValue === 'object' &&
+      defaultValue !== null &&
+      !(defaultValue instanceof Array)
+    ) {
+      // If the default value is a nested object, recurse
+      (instance as any)[key] = ensureAllProperties(
+        instanceValue || {},
+        defaultValue.constructor,
+      );
+    }
+  }
+
+  return instance;
+}
+
+function overrideConfigWithEnv(
+  config: ServerConfig,
+  parentKey = '',
+): ServerConfig {
   const configEntries = Object.entries(config as any);
   for (const [key, value] of configEntries) {
     const envVar = `${parentKey}${key.toUpperCase()}`;
     if (typeof value === 'object' && value !== null) {
-      (config as any)[key] = overrideConfigWithEnv(value, `${envVar}_`);
+      (config as any)[key] = overrideConfigWithEnv(value as any, `${envVar}_`);
     } else {
       const envValue = process.env[`CITRINEOS_${envVar}`];
       if (envValue) {
@@ -61,6 +89,9 @@ function overrideConfigWithEnv<T>(config: T, parentKey = ''): T {
 }
 
 const serverConfig: ServerConfig = getConfig();
-const finalConfig = overrideConfigWithEnv(serverConfig);
-console.debug('Loading config', finalConfig);
+const fullConfig = ensureAllProperties<ServerConfig>(
+  serverConfig,
+  ServerConfig,
+);
+const finalConfig = overrideConfigWithEnv(fullConfig);
 export const systemConfig = finalConfig;
