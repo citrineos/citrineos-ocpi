@@ -55,14 +55,12 @@ services:
       - 9229:9229
 
   directus:
-    build:
-      context: ../../citrineos-core/DirectusExtensions
-      dockerfile: ./directus.Dockerfile
+    image: ghcr.io/citrineos/citrineos-directus:latest
     ports:
       - 8055:8055
     volumes:
-      - ../../citrineos-core/Server/data/directus/uploads:/directus/uploads
-      - ../../citrineos-core/Server/directus-env-config.cjs:/directus/config.cjs
+      - ./data/directus/uploads:/directus/uploads
+      - ./directus-env-config.cjs:/directus/config.cjs
     depends_on:
       ocpp-db:
         condition: service_healthy
