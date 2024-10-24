@@ -84,6 +84,7 @@ export const dockerConfig: ServerConfig = {
       host: 'directus',
       port: 8055,
       generateFlows: true,
+      token: '-ssaT85n4S-wVD21LKOCDwvXN5PtnJc0',
     },
     networkConnection: {
       websocketServers: [
