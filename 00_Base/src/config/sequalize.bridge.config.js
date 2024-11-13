@@ -1,4 +1,5 @@
 /* eslint-disable */
+require('reflect-metadata');
 require('ts-node/register');
 require('tsconfig-paths/register');
 const { ServerConfig } = require('./ServerConfig.ts');
