@@ -1,11 +1,12 @@
 /* eslint-disable */
+require('reflect-metadata');
 require('ts-node/register');
 require('tsconfig-paths/register');
-const { OcpiServerConfig } = require('./ocpi.server.config.ts');
+const { ServerConfig } = require('./ServerConfig.ts');
 
 //TODO eliminate this file and use the typescript file directly
 
-const ocpiConfig = new OcpiServerConfig();
+const ocpiConfig = new ServerConfig();
 const { host, port, database, dialect, username, password, storage } =
   ocpiConfig.data.sequelize;
 
