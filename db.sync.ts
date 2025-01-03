@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { OcpiSequelizeInstance, ServerConfig } from '@citrineos/ocpi-base';
 
 const ocpiSequelizeInstance = new OcpiSequelizeInstance(new ServerConfig());
