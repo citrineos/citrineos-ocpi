@@ -38,7 +38,12 @@ export const CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and e."connectorId" = ${connectorId} and c."name" = 'Connector' and v."name" = 'ConnectorType'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          e."id" = ${evseComponentId} and 
+          e."connectorId" = ${connectorId} and 
+          c."name" = 'Connector' and 
+          v."name" = 'ConnectorType'
       ), 'Unknown'
     ) as connector_type,
     coalesce(
@@ -48,7 +53,12 @@ export const CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and e."connectorId" = ${connectorId} and c."name" = 'Connector' and v."name" = 'AvailabilityState'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          e."id" = ${evseComponentId} and 
+          e."connectorId" = ${connectorId} and 
+          c."name" = 'Connector' and 
+          v."name" = 'AvailabilityState'
       ), 'Unavailable'
     ) as connector_availability_state;
 `;
