@@ -25,7 +25,7 @@ import {
   EvseDTO,
   LocationsBroadcaster,
 } from '@citrineos/ocpi-base';
-import { LocationsDatasource } from '@citrineos/ocpi-base/dist/datasources/LocationsDatasource';
+import { LocationsDatasource } from '@citrineos/ocpi-base';
 
 /**
  * Component that handles provisioning related messages.

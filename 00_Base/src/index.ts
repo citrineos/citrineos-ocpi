@@ -254,6 +254,7 @@ export {
 } from './model/variableattributes/ConnectorVariableAttributes';
 export { UnregisterClientRequestDTO } from './model/UnregisterClientRequestDTO';
 export { LocationsDatasource } from './datasources/LocationsDatasource';
+export { TokensDatasource } from './datasources/TokensDatasource';
 
 useContainer(Container);
 

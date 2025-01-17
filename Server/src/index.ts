@@ -25,6 +25,7 @@ import {
   DirectusUtil,
   initSwagger,
   MemoryCache,
+  NetworkProfileFilter,
   RabbitMqReceiver,
   RabbitMqSender,
   RedisCache,
@@ -32,12 +33,14 @@ import {
 } from '@citrineos/util';
 import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
 import addFormats from 'ajv-formats';
-import fastify, { type FastifyInstance } from 'fastify';
+import fastify, { RouteOptions, type FastifyInstance } from 'fastify';
 import { type ILogObj, Logger } from 'tslog';
 import { systemConfig } from './config';
-import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
-import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
-import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
+import {
+  UnknownStationFilter,
+  ConnectedStationFilter,
+  BasicAuthenticationFilter,
+} from '@citrineos/util';
 import {
   ConfigurationModule,
   ConfigurationModuleApi,
@@ -170,12 +173,20 @@ export class CitrineOSServer {
         this._config as SystemConfig,
         this._logger,
       );
-      this._server.addHook(
-        'onRoute',
-        directusUtil.addDirectusMessageApiFlowsFastifyRouteHook.bind(
-          directusUtil,
-        ),
-      );
+      this._server.addHook('onRoute', (routeOptions: RouteOptions) => {
+        directusUtil!
+          .addDirectusMessageApiFlowsFastifyRouteHook(
+            routeOptions,
+            this._server.getSchemas(),
+          )
+          .then()
+          .catch((error: any) => {
+            this._logger.error(
+              'Could not add Directus Message API flow',
+              error,
+            );
+          });
+      });
       this._server.addHook('onReady', async () => {
         this._logger?.info('Directus actions initialization finished');
       });
@@ -370,10 +381,20 @@ export class CitrineOSServer {
   private initNetworkConnection() {
     this._authenticator = new Authenticator(
       new UnknownStationFilter(
-        new sequelize.SequelizeLocationRepository(this._config as SystemConfig, this._logger),
+        new sequelize.SequelizeLocationRepository(
+          this._config as SystemConfig,
+          this._logger,
+        ),
         this._logger,
       ),
       new ConnectedStationFilter(this._cache, this._logger),
+      new NetworkProfileFilter(
+        new sequelize.SequelizeDeviceModelRepository(
+          this._config as SystemConfig,
+          this._logger,
+        ),
+        this._logger,
+      ),
       new BasicAuthenticationFilter(
         new sequelize.SequelizeDeviceModelRepository(
           this._config as SystemConfig,
@@ -398,6 +419,7 @@ export class CitrineOSServer {
       async (_identifier: string, _message: string) => false,
       this._logger,
       this._ajv,
+      this._repositoryStore.locationRepository,
     );
 
     this._networkConnection = new WebsocketNetworkConnection(

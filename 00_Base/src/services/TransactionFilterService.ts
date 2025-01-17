@@ -57,17 +57,14 @@ export class TransactionFilterService implements ITransactionDatasource {
     const [transactions, total] = await Promise.all([
       this.transactionRepository.transaction.readAllByQuery(queryOptions),
       Transaction.count(
-        countQueryOptions as Omit<
-          CountOptions<Attributes<Transaction>>,
-          'group'
-        >,
+        countQueryOptions
       ),
     ]);
 
     const result: PaginatedResult<Transaction> =
       new PaginatedResult<Transaction>();
     result.data = transactions;
-    result.total = total;
+    result.total = total[0].count;
 
     return result;
   }
