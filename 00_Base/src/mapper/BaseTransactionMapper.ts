@@ -5,10 +5,7 @@ import {
   Transaction,
   TransactionEvent,
 } from '@citrineos/data';
-import {
-  TransactionEventEnumType,
-  TransactionEventRequest,
-} from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
@@ -147,9 +144,12 @@ export abstract class BaseTransactionMapper {
 
   protected getStartAndEndEvents(
     transaction: Transaction,
-  ): [TransactionEventRequest, TransactionEventRequest | undefined] {
+  ): [
+    OCPP2_0_1.TransactionEventRequest,
+    OCPP2_0_1.TransactionEventRequest | undefined,
+  ] {
     let startEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === TransactionEventEnumType.Started,
+      (event) => event.eventType === OCPP2_0_1.TransactionEventEnumType.Started,
     );
     if (!startEvent) {
       this.logger.error("No 'Started' event found in transaction events");
@@ -157,7 +157,7 @@ export abstract class BaseTransactionMapper {
     }
 
     const endEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === TransactionEventEnumType.Ended,
+      (event) => event.eventType === OCPP2_0_1.TransactionEventEnumType.Ended,
     );
     return [startEvent, endEvent];
   }

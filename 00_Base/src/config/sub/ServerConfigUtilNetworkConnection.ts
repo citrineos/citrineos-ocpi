@@ -2,6 +2,7 @@ import { IsArray, Validate, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
 import { ServerUtilNetworkConnectionWebsocketServer } from './ServerUtilNetworkConnectionWebsocketServer';
+import { OCPPVersion } from '@citrineos/base';
 
 export class ServerConfigUtilNetworkConnection {
   @IsArray()
@@ -41,7 +42,7 @@ export class ServerConfigUtilNetworkConnection {
         '0.0.0.0',
         8081,
         60,
-        'ocpp2.0.1',
+        OCPPVersion.OCPP2_0_1,
         0,
         true,
       ),
@@ -50,7 +51,7 @@ export class ServerConfigUtilNetworkConnection {
         '0.0.0.0',
         8082,
         60,
-        'ocpp2.0.1',
+        OCPPVersion.OCPP2_0_1,
         1,
         false,
       ),

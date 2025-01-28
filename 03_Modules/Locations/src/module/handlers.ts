@@ -1,19 +1,18 @@
 import {
   AbstractModule,
   AsHandler,
-  CallAction,
-  EventDataType,
   EventGroup,
   HandlerProperties,
   ICache,
   IMessage,
   IMessageHandler,
   IMessageSender,
-  NotifyEventRequest,
-  StatusNotificationRequest,
   SystemConfig,
+  OCPP2_0_1,
+  OCPP2_0_1_CallAction,
+  OCPPVersion,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
 import { ILogObj, Logger } from 'tslog';
 import deasyncPromise from 'deasync-promise';
 import {
@@ -26,6 +25,7 @@ import {
   LocationsBroadcaster,
 } from '@citrineos/ocpi-base';
 import { LocationsDatasource } from '@citrineos/ocpi-base/dist/datasources/LocationsDatasource';
+import { Timer } from '../../../../00_Base/src/util/Timer';
 
 /**
  * Component that handles provisioning related messages.
@@ -34,11 +34,11 @@ export class LocationsHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [
-    CallAction.NotifyEvent,
-    CallAction.StatusNotification,
+  protected _requests: OCPP2_0_1_CallAction[] = [
+    OCPP2_0_1_CallAction.NotifyEvent,
+    OCPP2_0_1_CallAction.StatusNotification,
   ];
-  protected _responses: CallAction[] = [];
+  protected _responses: OCPP2_0_1_CallAction[] = [];
 
   private locationsBroadcaster: LocationsBroadcaster;
   private locationsDatasource: LocationsDatasource;
@@ -88,11 +88,7 @@ export class LocationsHandlers extends AbstractModule {
     const timer = new Timer();
     this._logger.info('Initializing...');
 
-    if (!deasyncPromise(this._initHandler(this._requests, this._responses))) {
-      throw new Error(
-        'Could not initialize module due to failure in handler initialization.',
-      );
-    }
+    this.initHandlers();
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
   }
@@ -100,15 +96,15 @@ export class LocationsHandlers extends AbstractModule {
   /**
    * Handle requests
    */
-  @AsHandler(CallAction.NotifyEvent)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.NotifyEvent)
   protected async _handleNotifyEvent(
-    message: IMessage<NotifyEventRequest>,
+    message: IMessage<OCPP2_0_1.NotifyEventRequest>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('NotifyEvent received:', message, props);
 
     const stationId = message.context.stationId;
-    const events = message.payload.eventData as EventDataType[];
+    const events = message.payload.eventData as OCPP2_0_1.EventDataType[];
 
     const evseUpdateMap: Record<number, Partial<EvseDTO>> = {};
     const connectorUpdateMap: Record<
@@ -180,9 +176,9 @@ export class LocationsHandlers extends AbstractModule {
     }
   }
 
-  @AsHandler(CallAction.StatusNotification)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.StatusNotification)
   protected async _handleStatusNotification(
-    message: IMessage<StatusNotificationRequest>,
+    message: IMessage<OCPP2_0_1.StatusNotificationRequest>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('StatusNotification received:', message, props);

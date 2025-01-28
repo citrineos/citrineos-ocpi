@@ -1,11 +1,4 @@
-import {
-  AdditionalInfoType,
-  AuthorizationData,
-  AuthorizationStatusEnumType,
-  IdTokenEnumType,
-  IdTokenInfoType,
-  IdTokenType,
-} from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { OcpiToken } from '../model/OcpiToken';
 import { TokenType } from '../model/TokenType';
 import { Authorization, IdToken } from '@citrineos/data';
@@ -48,7 +41,7 @@ export class OcpiTokensMapper {
     tokenDto.group_id = authorization.idTokenInfo?.groupIdToken?.idToken;
     tokenDto.valid =
       authorization.idTokenInfo?.status ===
-      AuthorizationStatusEnumType.Accepted;
+      OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
     tokenDto.whitelist = token.whitelist;
     tokenDto.language = authorization.idTokenInfo?.language1;
     tokenDto.default_profile_type = token.default_profile_type;
@@ -60,15 +53,15 @@ export class OcpiTokensMapper {
 
   public static mapOcpiTokenTypeToOcppIdTokenType(
     type: TokenType,
-  ): IdTokenEnumType {
+  ): OCPP2_0_1.IdTokenEnumType {
     switch (type) {
       case TokenType.RFID:
         // If you are actually using ISO15693, you need to change this
-        return IdTokenEnumType.ISO14443;
+        return OCPP2_0_1.IdTokenEnumType.ISO14443;
       case TokenType.AD_HOC_USER:
       case TokenType.APP_USER:
       case TokenType.OTHER:
-        return IdTokenEnumType.Central;
+        return OCPP2_0_1.IdTokenEnumType.Central;
       default:
         throw new Error(`Unknown token type: ${type}`);
     }
@@ -76,29 +69,29 @@ export class OcpiTokensMapper {
 
   public static mapOcpiTokenToOcppAuthorization(
     tokenDto: TokenDTO,
-  ): AuthorizationData {
-    const additionalInfo: AdditionalInfoType = {
+  ): OCPP2_0_1.AuthorizationData {
+    const additionalInfo: OCPP2_0_1.AdditionalInfoType = {
       additionalIdToken: tokenDto.contract_id,
-      type: IdTokenEnumType.eMAID,
+      type: OCPP2_0_1.IdTokenEnumType.eMAID,
     };
 
-    const idToken: IdTokenType = {
+    const idToken: OCPP2_0_1.IdTokenType = {
       idToken: tokenDto.uid,
       type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
       additionalInfo: [additionalInfo],
     };
 
-    const idTokenInfo: IdTokenInfoType = {
+    const idTokenInfo: OCPP2_0_1.IdTokenInfoType = {
       status: tokenDto.valid
-        ? AuthorizationStatusEnumType.Accepted
-        : AuthorizationStatusEnumType.Invalid,
+        ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
+        : OCPP2_0_1.AuthorizationStatusEnumType.Invalid,
       language1: tokenDto.language ?? undefined,
     };
 
     if (tokenDto.group_id) {
       idTokenInfo['groupIdToken'] = {
         idToken: tokenDto.group_id,
-        type: IdTokenEnumType.Central,
+        type: OCPP2_0_1.IdTokenEnumType.Central,
       };
     }
 
@@ -118,15 +111,15 @@ export class OcpiTokensMapper {
   public static mapTokenDTOToPartialAuthorization(
     existingAuth: Authorization,
     tokenDTO: Partial<TokenDTO>,
-  ): Partial<IdTokenInfoType> {
-    const idTokenInfo: Partial<IdTokenInfoType> = {
+  ): Partial<OCPP2_0_1.IdTokenInfoType> {
+    const idTokenInfo: Partial<OCPP2_0_1.IdTokenInfoType> = {
       status: existingAuth.idTokenInfo?.status,
     };
 
     if (tokenDTO.valid !== undefined) {
       idTokenInfo.status = tokenDTO.valid
-        ? AuthorizationStatusEnumType.Accepted
-        : AuthorizationStatusEnumType.Invalid;
+        ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
+        : OCPP2_0_1.AuthorizationStatusEnumType.Invalid;
     }
 
     if (tokenDTO.group_id) {

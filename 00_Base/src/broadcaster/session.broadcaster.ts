@@ -15,10 +15,7 @@ import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
 import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
 import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
-import {
-  TransactionEventEnumType,
-  TriggerReasonEnumType,
-} from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { InternalServerError } from 'routing-controllers';
 import { SessionStatus } from '../model/SessionStatus';
 
@@ -154,7 +151,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
       if (
         transactionEvent.meterValue &&
         transactionEvent.meterValue.length > 0 &&
-        transactionEvent.triggerReason !== TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
+        transactionEvent.triggerReason !==
+          OCPP2_0_1.TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
       ) {
         const transactionId = transactionEvent.transactionDatabaseId;
         if (transactionId) {
@@ -162,7 +160,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
           if (transaction) {
             let finalTransactionEvents = [];
             let finalMeterValues = [];
-            if (transactionEvent.eventType === TransactionEventEnumType.Ended) {
+            if (
+              transactionEvent.eventType ===
+              OCPP2_0_1.TransactionEventEnumType.Ended
+            ) {
               finalTransactionEvents = [
                 ...(transaction.transactionEvents ?? []),
                 transactionEvent,

@@ -8,7 +8,7 @@ import {
 import { GeoLocation } from '../model/GeoLocation';
 import { Location } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
-import { ConnectorEnumType, ConnectorStatusEnumType } from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { Capability } from '../model/Capability';
 import { ConnectorType } from '../model/ConnectorType';
 import { ConnectorFormat } from '../model/ConnectorFormat';
@@ -42,22 +42,26 @@ export class LocationMapper {
 
     // TODO handle RESERVED
     if (
-      uniqueStates.find((state) => state === ConnectorStatusEnumType.Occupied)
+      uniqueStates.find(
+        (state) => state === OCPP2_0_1.ConnectorStatusEnumType.Occupied,
+      )
     ) {
       return EvseStatus.CHARGING;
     } else if (
-      uniqueStates.find((state) => state === ConnectorStatusEnumType.Available)
+      uniqueStates.find(
+        (state) => state === OCPP2_0_1.ConnectorStatusEnumType.Available,
+      )
     ) {
       return EvseStatus.AVAILABLE;
     } else if (
       uniqueStates.find(
-        (state) => state === ConnectorStatusEnumType.Unavailable,
+        (state) => state === OCPP2_0_1.ConnectorStatusEnumType.Unavailable,
       )
     ) {
       return EvseStatus.INOPERATIVE;
     } else if (
       uniqueStates.length === 1 &&
-      uniqueStates[0] === ConnectorStatusEnumType.Faulted
+      uniqueStates[0] === OCPP2_0_1.ConnectorStatusEnumType.Faulted
     ) {
       return EvseStatus.OUTOFORDER;
     } else {
@@ -272,26 +276,26 @@ export class LocationMapper {
     // wInductive
     // wResonant
     switch (connectorType) {
-      case ConnectorEnumType.cCCS1:
+      case OCPP2_0_1.ConnectorEnumType.cCCS1:
         return ConnectorType.IEC_62196_T1_COMBO;
-      case ConnectorEnumType.cCCS2:
+      case OCPP2_0_1.ConnectorEnumType.cCCS2:
         return ConnectorType.IEC_62196_T2_COMBO;
-      case ConnectorEnumType.cG105:
+      case OCPP2_0_1.ConnectorEnumType.cG105:
         return ConnectorType.CHADEMO;
-      case ConnectorEnumType.cTesla:
+      case OCPP2_0_1.ConnectorEnumType.cTesla:
         return ConnectorType.TESLA_S;
-      case ConnectorEnumType.cType1:
+      case OCPP2_0_1.ConnectorEnumType.cType1:
         return ConnectorType.IEC_62196_T1;
-      case ConnectorEnumType.cType2:
-      case ConnectorEnumType.sType2:
+      case OCPP2_0_1.ConnectorEnumType.cType2:
+      case OCPP2_0_1.ConnectorEnumType.sType2:
         return ConnectorType.IEC_62196_T2;
-      case ConnectorEnumType.s309_1P_16A:
+      case OCPP2_0_1.ConnectorEnumType.s309_1P_16A:
         return ConnectorType.IEC_60309_2_single_16;
-      case ConnectorEnumType.s309_3P_16A:
+      case OCPP2_0_1.ConnectorEnumType.s309_3P_16A:
         return ConnectorType.IEC_60309_2_three_16;
-      case ConnectorEnumType.s309_3P_32A:
+      case OCPP2_0_1.ConnectorEnumType.s309_3P_32A:
         return ConnectorType.IEC_60309_2_three_32;
-      case ConnectorEnumType.sType3:
+      case OCPP2_0_1.ConnectorEnumType.sType3:
         return ConnectorType.IEC_62196_T3C;
       default:
         // TODO figure out a different default value as needed
@@ -302,7 +306,7 @@ export class LocationMapper {
   private getConnectorPowerType(connectorType: string | undefined): PowerType {
     // TODO include more cases
     switch (connectorType) {
-      case ConnectorEnumType.cType1:
+      case OCPP2_0_1.ConnectorEnumType.cType1:
         return PowerType.AC_1_PHASE;
       default:
         return PowerType.DC;

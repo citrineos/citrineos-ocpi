@@ -6,31 +6,22 @@
 import {
   AbstractModule,
   AsHandler,
-  CallAction,
-  ChargingProfileStatusEnumType,
-  ClearChargingProfileResponse,
-  ClearChargingProfileStatusEnumType,
-  CompositeScheduleType,
   EventGroup,
-  GenericStatusEnumType,
-  GetCompositeScheduleRequest,
-  GetCompositeScheduleResponse,
   HandlerProperties,
   ICache,
   IMessage,
   IMessageHandler,
   IMessageSender,
   MessageOrigin,
-  NotifyChargingLimitRequest,
-  NotifyEVChargingScheduleRequest,
-  SetChargingProfileResponse,
   SystemConfig,
-  TransactionEventRequest,
-  TriggerReasonEnumType,
+  OCPP2_0_1,
+  OCPP2_0_1_CallAction,
+  OCPPVersion,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
+import { Timer } from '../../../../00_Base/src/util/Timer';
 import {
   ActiveChargingProfile,
   ActiveChargingProfileResult,
@@ -58,15 +49,15 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   // duration: 3600s. Guide from OCPI 2.2.1: between 5 and 60 minutes.
   readonly COMPOSITE_SCHEDULE_DURATION: number = 60 * 60;
 
-  protected _requests: CallAction[] = [
-    CallAction.NotifyEVChargingSchedule,
-    CallAction.NotifyChargingLimit,
-    CallAction.TransactionEvent,
+  protected _requests: OCPP2_0_1_CallAction[] = [
+    OCPP2_0_1_CallAction.NotifyEVChargingSchedule,
+    OCPP2_0_1_CallAction.NotifyChargingLimit,
+    OCPP2_0_1_CallAction.TransactionEvent,
   ];
-  protected _responses: CallAction[] = [
-    CallAction.GetCompositeSchedule,
-    CallAction.ClearChargingProfile,
-    CallAction.SetChargingProfile,
+  protected _responses: OCPP2_0_1_CallAction[] = [
+    OCPP2_0_1_CallAction.GetCompositeSchedule,
+    OCPP2_0_1_CallAction.ClearChargingProfile,
+    OCPP2_0_1_CallAction.SetChargingProfile,
   ];
 
   constructor(
@@ -95,23 +86,19 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const timer = new Timer();
     this._logger.info('Initializing...');
 
-    if (!deasyncPromise(this._initHandler(this._requests, this._responses))) {
-      throw new Error(
-        'Could not initialize module due to failure in handler initialization.',
-      );
-    }
+    this.initHandlers();
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
   }
 
-  @AsHandler(CallAction.GetCompositeSchedule)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.GetCompositeSchedule)
   protected async _handleGetCompositeScheduleResponse(
-    message: IMessage<GetCompositeScheduleResponse>,
+    message: IMessage<OCPP2_0_1.GetCompositeScheduleResponse>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
-    const response = message.payload as GetCompositeScheduleResponse;
+    const response = message.payload as OCPP2_0_1.GetCompositeScheduleResponse;
     const ocppSchedule = response.schedule;
     const ocpiSchedule = ocppSchedule
       ? this.mapOcppScheduleToOcpi(ocppSchedule)
@@ -136,9 +123,9 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
   }
 
-  @AsHandler(CallAction.ClearChargingProfile)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.ClearChargingProfile)
   protected async _handleClearChargingProfileResponse(
-    message: IMessage<ClearChargingProfileResponse>,
+    message: IMessage<OCPP2_0_1.ClearChargingProfileResponse>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
@@ -156,7 +143,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       // This needs to be improved when we are able to match the request using response
       if (
         e instanceof NotFoundError &&
-        status === ClearChargingProfileStatusEnumType.Accepted
+        status === OCPP2_0_1.ClearChargingProfileStatusEnumType.Accepted
       ) {
         const stationId = message.context.stationId;
         const evseIds =
@@ -172,11 +159,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
             this.sendCall(
               stationId,
               'tenantId',
-              CallAction.GetCompositeSchedule,
+              OCPPVersion.OCPP2_0_1,
+              OCPP2_0_1_CallAction.GetCompositeSchedule,
               {
                 duration: this.COMPOSITE_SCHEDULE_DURATION,
                 evseId: evseId,
-              } as GetCompositeScheduleRequest,
+              } as OCPP2_0_1.GetCompositeScheduleRequest,
               undefined,
               uuidv4(),
               MessageOrigin.ChargingStationManagementSystem,
@@ -187,9 +175,9 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
   }
 
-  @AsHandler(CallAction.SetChargingProfile)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.SetChargingProfile)
   protected async _handleSetChargingProfileResponse(
-    message: IMessage<SetChargingProfileResponse>,
+    message: IMessage<OCPP2_0_1.SetChargingProfileResponse>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
@@ -207,7 +195,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       // This needs to be improved when we are able to match the request and response
       if (
         e instanceof NotFoundError &&
-        status === ChargingProfileStatusEnumType.Accepted
+        status === OCPP2_0_1.ChargingProfileStatusEnumType.Accepted
       ) {
         const stationId = message.context.stationId;
         const evseIds =
@@ -223,11 +211,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
             this.sendCall(
               stationId,
               'tenantId',
-              CallAction.GetCompositeSchedule,
+              OCPPVersion.OCPP2_0_1,
+              OCPP2_0_1_CallAction.GetCompositeSchedule,
               {
                 duration: this.COMPOSITE_SCHEDULE_DURATION,
                 evseId: evseId,
-              } as GetCompositeScheduleRequest,
+              } as OCPP2_0_1.GetCompositeScheduleRequest,
               undefined,
               uuidv4(),
               MessageOrigin.ChargingStationManagementSystem,
@@ -238,9 +227,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
   }
 
-  @AsHandler(CallAction.NotifyEVChargingSchedule)
+  @AsHandler(
+    OCPPVersion.OCPP2_0_1,
+    OCPP2_0_1_CallAction.NotifyEVChargingSchedule,
+  )
   protected async _handleNotifyEVChargingScheduleRequest(
-    message: IMessage<NotifyEVChargingScheduleRequest>,
+    message: IMessage<OCPP2_0_1.NotifyEVChargingScheduleRequest>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
@@ -261,11 +253,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
       this.sendCall(
         message.context.stationId,
         'tenantId',
-        CallAction.GetCompositeSchedule,
+        OCPPVersion.OCPP2_0_1,
+        OCPP2_0_1_CallAction.GetCompositeSchedule,
         {
           duration: this.COMPOSITE_SCHEDULE_DURATION,
           evseId: message.payload.evseId,
-        } as GetCompositeScheduleRequest,
+        } as OCPP2_0_1.GetCompositeScheduleRequest,
         undefined,
         uuidv4(),
         MessageOrigin.ChargingStationManagementSystem,
@@ -273,9 +266,9 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
   }
 
-  @AsHandler(CallAction.NotifyChargingLimit)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.NotifyChargingLimit)
   protected async _handleNotifyChargingLimitRequest(
-    message: IMessage<NotifyChargingLimitRequest>,
+    message: IMessage<OCPP2_0_1.NotifyChargingLimitRequest>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
@@ -289,11 +282,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
         this.sendCall(
           message.context.stationId,
           'tenantId',
-          CallAction.GetCompositeSchedule,
+          OCPPVersion.OCPP2_0_1,
+          OCPP2_0_1_CallAction.GetCompositeSchedule,
           {
             duration: this.COMPOSITE_SCHEDULE_DURATION,
             evseId: message.payload.evseId,
-          } as GetCompositeScheduleRequest,
+          } as OCPP2_0_1.GetCompositeScheduleRequest,
           undefined,
           uuidv4(),
           MessageOrigin.ChargingStationManagementSystem,
@@ -302,9 +296,9 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     }
   }
 
-  @AsHandler(CallAction.TransactionEvent)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.TransactionEvent)
   protected async _handleTransactionEventRequest(
-    message: IMessage<TransactionEventRequest>,
+    message: IMessage<OCPP2_0_1.TransactionEventRequest>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
@@ -312,7 +306,10 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
     const stationId = message.context.stationId;
     const transactionId = request.transactionInfo.transactionId;
 
-    if (request.triggerReason === TriggerReasonEnumType.ChargingRateChanged) {
+    if (
+      request.triggerReason ===
+      OCPP2_0_1.TriggerReasonEnumType.ChargingRateChanged
+    ) {
       const existingSchedule: boolean = await this.checkExistingSchedule(
         stationId,
         request.evse?.id,
@@ -336,11 +333,12 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
           this.sendCall(
             message.context.stationId,
             'tenantId',
-            CallAction.GetCompositeSchedule,
+            OCPPVersion.OCPP2_0_1,
+            OCPP2_0_1_CallAction.GetCompositeSchedule,
             {
               duration: this.COMPOSITE_SCHEDULE_DURATION,
               evseId: evseId,
-            } as GetCompositeScheduleRequest,
+            } as OCPP2_0_1.GetCompositeScheduleRequest,
             undefined,
             uuidv4(),
             MessageOrigin.ChargingStationManagementSystem,
@@ -352,19 +350,19 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
 
   private getResult(
     status:
-      | GenericStatusEnumType
-      | ClearChargingProfileStatusEnumType
-      | ChargingProfileStatusEnumType,
+      | OCPP2_0_1.GenericStatusEnumType
+      | OCPP2_0_1.ClearChargingProfileStatusEnumType
+      | OCPP2_0_1.ChargingProfileStatusEnumType,
   ): ChargingProfileResultType {
     switch (status) {
-      case GenericStatusEnumType.Accepted:
-      case ClearChargingProfileStatusEnumType.Accepted:
-      case ChargingProfileStatusEnumType.Accepted:
+      case OCPP2_0_1.GenericStatusEnumType.Accepted:
+      case OCPP2_0_1.ClearChargingProfileStatusEnumType.Accepted:
+      case OCPP2_0_1.ChargingProfileStatusEnumType.Accepted:
         return ChargingProfileResultType.ACCEPTED;
-      case GenericStatusEnumType.Rejected:
-      case ChargingProfileStatusEnumType.Rejected:
+      case OCPP2_0_1.GenericStatusEnumType.Rejected:
+      case OCPP2_0_1.ChargingProfileStatusEnumType.Rejected:
         return ChargingProfileResultType.REJECTED;
-      case ClearChargingProfileStatusEnumType.Unknown:
+      case OCPP2_0_1.ClearChargingProfileStatusEnumType.Unknown:
         return ChargingProfileResultType.UNKNOWN;
       default:
         throw new Error(`Unknown status: ${status}`);
@@ -372,7 +370,7 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   }
 
   private mapOcppScheduleToOcpi(
-    schedule: CompositeScheduleType,
+    schedule: OCPP2_0_1.CompositeScheduleType,
   ): ActiveChargingProfile {
     return {
       start_date_time: new Date(schedule.scheduleStart),

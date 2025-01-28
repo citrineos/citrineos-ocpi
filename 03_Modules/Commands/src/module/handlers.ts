@@ -6,23 +6,18 @@
 import {
   AbstractModule,
   AsHandler,
-  CallAction,
-  CancelReservationResponse,
-  CancelReservationStatusEnumType,
   EventGroup,
   HandlerProperties,
   ICache,
   IMessage,
   IMessageHandler,
   IMessageSender,
-  RequestStartStopStatusEnumType,
-  RequestStartTransactionResponse,
-  RequestStopTransactionResponse,
-  ReserveNowResponse,
-  ReserveNowStatusEnumType,
+  OCPP2_0_1,
   SystemConfig,
+  OCPP2_0_1_CallAction,
+  OCPPVersion,
 } from '@citrineos/base';
-import { RabbitMqReceiver, RabbitMqSender, Timer } from '@citrineos/util';
+import { RabbitMqReceiver, RabbitMqSender } from '@citrineos/util';
 import deasyncPromise from 'deasync-promise';
 import { ILogObj, Logger } from 'tslog';
 import {
@@ -35,6 +30,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { SequelizeTransactionEventRepository } from '@citrineos/data';
+import { Timer } from '../../../../00_Base/src/util/Timer';
 
 /**
  * Component that handles provisioning related messages.
@@ -44,12 +40,12 @@ export class CommandsOcppHandlers extends AbstractModule {
   /**
    * Fields
    */
-  protected _requests: CallAction[] = [];
-  protected _responses: CallAction[] = [
-    CallAction.RequestStartTransaction,
-    CallAction.RequestStopTransaction,
-    CallAction.CancelReservation,
-    CallAction.ReserveNow,
+  protected _requests: OCPP2_0_1_CallAction[] = [];
+  protected _responses: OCPP2_0_1_CallAction[] = [
+    OCPP2_0_1_CallAction.RequestStartTransaction,
+    OCPP2_0_1_CallAction.RequestStopTransaction,
+    OCPP2_0_1_CallAction.CancelReservation,
+    OCPP2_0_1_CallAction.ReserveNow,
   ];
 
   constructor(
@@ -74,18 +70,17 @@ export class CommandsOcppHandlers extends AbstractModule {
     const timer = new Timer();
     this._logger.info('Initializing...');
 
-    if (!deasyncPromise(this._initHandler(this._requests, this._responses))) {
-      throw new Error(
-        'Could not initialize module due to failure in handler initialization.',
-      );
-    }
+    this.initHandlers();
 
     this._logger.info(`Initialized in ${timer.end()}ms...`);
   }
 
-  @AsHandler(CallAction.RequestStartTransaction)
+  @AsHandler(
+    OCPPVersion.OCPP2_0_1,
+    OCPP2_0_1_CallAction.RequestStartTransaction,
+  )
   protected async _handleRequestStartTransactionResponse(
-    message: IMessage<RequestStartTransactionResponse>,
+    message: IMessage<OCPP2_0_1.RequestStartTransactionResponse>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling RequestStartTransaction:', message, props);
@@ -120,9 +115,9 @@ export class CommandsOcppHandlers extends AbstractModule {
     );
   }
 
-  @AsHandler(CallAction.RequestStopTransaction)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.RequestStopTransaction)
   protected _handleRequestStopTransactionResponse(
-    message: IMessage<RequestStopTransactionResponse>,
+    message: IMessage<OCPP2_0_1.RequestStopTransactionResponse>,
     props?: HandlerProperties,
   ): void {
     this._logger.debug('Handling RequestStopTransaction:', message, props);
@@ -132,9 +127,9 @@ export class CommandsOcppHandlers extends AbstractModule {
     this.sendCommandResult(message.context.correlationId, result);
   }
 
-  @AsHandler(CallAction.ReserveNow)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.ReserveNow)
   protected async _handleReserveNowResponse(
-    message: IMessage<ReserveNowResponse>,
+    message: IMessage<OCPP2_0_1.ReserveNowResponse>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling ReserveNowResponse:', message, props);
@@ -144,9 +139,9 @@ export class CommandsOcppHandlers extends AbstractModule {
     this.sendCommandResult(message.context.correlationId, result);
   }
 
-  @AsHandler(CallAction.CancelReservation)
+  @AsHandler(OCPPVersion.OCPP2_0_1, OCPP2_0_1_CallAction.CancelReservation)
   protected async _handleCancelReservationResponse(
-    message: IMessage<CancelReservationResponse>,
+    message: IMessage<OCPP2_0_1.CancelReservationResponse>,
     props?: HandlerProperties,
   ): Promise<void> {
     this._logger.debug('Handling CancelReservationResponse:', message, props);
@@ -158,18 +153,18 @@ export class CommandsOcppHandlers extends AbstractModule {
 
   private getResult(
     responseStatus:
-      | RequestStartStopStatusEnumType
-      | ReserveNowStatusEnumType
-      | CancelReservationStatusEnumType,
+      | OCPP2_0_1.RequestStartStopStatusEnumType
+      | OCPP2_0_1.ReserveNowStatusEnumType
+      | OCPP2_0_1.CancelReservationStatusEnumType,
   ): CommandResultType {
     switch (responseStatus) {
-      case RequestStartStopStatusEnumType.Accepted:
-      case ReserveNowStatusEnumType.Accepted:
-      case CancelReservationStatusEnumType.Accepted:
+      case OCPP2_0_1.RequestStartStopStatusEnumType.Accepted:
+      case OCPP2_0_1.ReserveNowStatusEnumType.Accepted:
+      case OCPP2_0_1.CancelReservationStatusEnumType.Accepted:
         return CommandResultType.ACCEPTED;
-      case RequestStartStopStatusEnumType.Rejected:
-      case ReserveNowStatusEnumType.Rejected:
-      case CancelReservationStatusEnumType.Rejected:
+      case OCPP2_0_1.RequestStartStopStatusEnumType.Rejected:
+      case OCPP2_0_1.ReserveNowStatusEnumType.Rejected:
+      case OCPP2_0_1.CancelReservationStatusEnumType.Rejected:
         return CommandResultType.REJECTED;
       default:
         throw new Error(`Unknown ResponseStatusEnumType: ${responseStatus}`);

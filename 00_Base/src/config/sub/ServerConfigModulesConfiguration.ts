@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import 'reflect-metadata';
-import { RegistrationStatusEnumType } from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { Enum } from '../../util/decorators/enum';
 import { Optional } from '../../util/decorators/optional';
 
@@ -21,9 +21,9 @@ export class ServerConfigModulesConfiguration {
   bootRetryInterval: number;
 
   @IsNotEmpty()
-  @IsEnum(RegistrationStatusEnumType)
-  @Enum(RegistrationStatusEnumType, 'RegistrationStatusEnumType')
-  unknownChargerStatus: RegistrationStatusEnumType;
+  @IsEnum(OCPP2_0_1.RegistrationStatusEnumType)
+  @Enum(OCPP2_0_1.RegistrationStatusEnumType, 'RegistrationStatusEnumType')
+  unknownChargerStatus: OCPP2_0_1.RegistrationStatusEnumType;
 
   // Unknown chargers have no entry in BootConfig table
   @IsBoolean()
@@ -53,7 +53,7 @@ export class ServerConfigModulesConfiguration {
   constructor() {
     this.heartbeatInterval = 60;
     this.bootRetryInterval = 15;
-    this.unknownChargerStatus = RegistrationStatusEnumType.Accepted;
+    this.unknownChargerStatus = OCPP2_0_1.RegistrationStatusEnumType.Accepted;
     this.getBaseReportOnPending = true;
     this.bootWithRejectedVariables = true;
     this.autoAccept = true;

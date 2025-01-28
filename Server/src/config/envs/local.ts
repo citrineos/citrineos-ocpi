@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { RegistrationStatusEnumType } from '@citrineos/base';
+import { OCPP2_0_1, OCPPVersion } from '@citrineos/base';
 import path from 'path';
 import {
   Env,
@@ -25,7 +25,7 @@ export const localConfig: ServerConfig = {
     configuration: {
       heartbeatInterval: 60,
       bootRetryInterval: 15,
-      unknownChargerStatus: RegistrationStatusEnumType.Accepted,
+      unknownChargerStatus: OCPP2_0_1.RegistrationStatusEnumType.Accepted,
       getBaseReportOnPending: true,
       bootWithRejectedVariables: true,
       autoAccept: true,
@@ -94,7 +94,7 @@ export const localConfig: ServerConfig = {
           pingInterval: 60,
           host: '0.0.0.0',
           port: 8081,
-          protocol: 'ocpp2.0.1',
+          protocol: OCPPVersion.OCPP2_0_1,
         },
         {
           id: '1',
@@ -103,7 +103,7 @@ export const localConfig: ServerConfig = {
           pingInterval: 60,
           host: '0.0.0.0',
           port: 8082,
-          protocol: 'ocpp2.0.1',
+          protocol: OCPPVersion.OCPP2_0_1,
         },
       ],
     },
