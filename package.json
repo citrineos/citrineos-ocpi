@@ -11,8 +11,7 @@
     "prettier": "3.2.5",
     "typescript": "5.5.4",
     "typescript-eslint": "7.6.0",
-    "sequelize-cli": "6.6.2",
-    "reflect-metadata": "0.2.2"
+    "sequelize-cli": "6.6.2"
   },
   "scripts": {
     "test": "jest --config jest.config.js",
