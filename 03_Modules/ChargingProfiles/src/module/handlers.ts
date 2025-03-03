@@ -245,19 +245,11 @@ export class ChargingProfilesOcppHandlers extends AbstractModule {
   ): Promise<void> {
     this._logger.debug('Handling:', message, props);
 
-    // TODO: We want to send GetCompositeSchedule only when the schedule in the request is validated
-    //  i.e., citrine accepts the schedule.
-    //  But NotifyEVChargingSchedule belongs to ISO 15118 based Smart Charging
-    //  which has not been implemented yet in core.
-    //  After it is implemented,
-    //  we need to do the same validation on the schedule here as in the core handler
-    //  before sending the getCompositeSchedule call
-    const isValidSchedule = true;
     const existingSchedule: boolean = await this.checkExistingSchedule(
       message.context.stationId,
       message.payload.evseId,
     );
-    if (isValidSchedule && existingSchedule) {
+    if (existingSchedule) {
       this.sendCall(
         message.context.stationId,
         'tenantId',
