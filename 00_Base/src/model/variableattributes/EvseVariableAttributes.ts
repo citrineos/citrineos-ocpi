@@ -52,11 +52,13 @@ export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
   from 
     coalesce(
       (
-        select string_agg(distinct e."connectorId"::text, ',') from "VariableAttributes" va 
-        left join "Variables" v on va."variableId" = v."id" 
-        left join "Components" c on va."componentId" = c."id"
-        left join "Evses" e on c."evseDatabaseId" = e."databaseId"
-        where va."stationId" = '${stationId}' and e."connectorId" is not null
+        select string_agg(distinct e."connectorId"::text, ',') 
+        from "VariableAttributes" va 
+          left join "Variables" v on va."variableId" = v."id" 
+          left join "Components" c on va."componentId" = c."id"
+          left join "Evses" e on c."evseDatabaseId" = e."databaseId"
+        where va."stationId" = '${stationId}' and 
+          e."connectorId" is not null
       ), ''
     ) as connector_ids_string,
     coalesce(
@@ -66,7 +68,11 @@ export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'AvailabilityState'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          e."id" = ${evseComponentId} and 
+          c."name" = 'EVSE' and 
+          v."name" = 'AvailabilityState'
       ), 'Unavailable'
     ) as evse_availability_state,
     coalesce(
@@ -76,7 +82,11 @@ export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'EvseId'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          e."id" = ${evseComponentId} and 
+          c."name" = 'EVSE' and 
+          v."name" = 'EvseId'
       ), 'Unknown'
     ) as evse_id,
     coalesce(
@@ -86,7 +96,11 @@ export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'DCVoltage'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'MaxSet' and
+          e."id" = ${evseComponentId} and 
+          c."name" = 'EVSE' and 
+          v."name" = 'DCVoltage'
       ), '0'
     ) as evse_dc_voltage,
     coalesce(
@@ -96,7 +110,11 @@ export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = ${evseComponentId} and c."name" = 'EVSE' and v."name" = 'DCCurrent'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'MaxSet' and
+          e."id" = ${evseComponentId} and 
+          c."name" = 'EVSE' and 
+          v."name" = 'DCCurrent'
       ), '0'
     ) as evse_dc_current,
     coalesce(
@@ -106,7 +124,11 @@ export const CONSTRUCT_EVSE_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId" 
-        where va."stationId" = '${stationId}' and e."id" = 1 and c."name" = 'EVSE' and v."name" = 'Power'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'MaxSet' and
+          e."id" = 1 and 
+          c."name" = 'EVSE' and 
+          v."name" = 'Power'
       ), '0'
     ) as evse_power;
 `;

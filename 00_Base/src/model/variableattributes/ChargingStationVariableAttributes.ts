@@ -48,7 +48,8 @@ export const CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY = (
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
           left join "Evses" e on c."evseDatabaseId" = e."databaseId"
-        where va."stationId" = '${stationId}' and e."id" is not null
+        where va."stationId" = '${stationId}' and 
+          e."id" is not null
       ), ''
     ) as evse_ids_string,
     coalesce(
@@ -57,7 +58,10 @@ export const CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY = (
         from "VariableAttributes" va 
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
-        where va."stationId" = '${stationId}' and c."name" = 'AuthCtrlr' and v."name" = 'AuthorizeRemoteStart'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          c."name" = 'AuthCtrlr' and 
+          v."name" = 'AuthorizeRemoteStart'
       ), 'FALSE'
     ) as authorize_remote_start,
     coalesce(
@@ -66,7 +70,10 @@ export const CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY = (
         from "VariableAttributes" va 
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
-        where va."stationId" = '${stationId}' and c."name" = 'BayOccupancySensor' and v."name" = 'Active'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          c."name" = 'BayOccupancySensor' and 
+          v."name" = 'Active'
       ), 'FALSE'
     ) as bay_occupancy_sensor_active,
     coalesce(
@@ -75,7 +82,10 @@ export const CONSTRUCT_CHARGING_STATION_VARIABLE_ATTRIBUTES_QUERY = (
         from "VariableAttributes" va 
           left join "Variables" v on va."variableId" = v."id" 
           left join "Components" c on va."componentId" = c."id"
-        where va."stationId" = '${stationId}' and c."name" = 'TokenReader' and v."name" = 'Enabled'
+        where va."stationId" = '${stationId}' and 
+          va."type" = 'Actual' and
+          c."name" = 'TokenReader' and 
+          v."name" = 'Enabled'
       ), 'FALSE'
     ) as token_reader_enabled;
 `;
