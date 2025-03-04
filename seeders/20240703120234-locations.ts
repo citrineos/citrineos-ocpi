@@ -44,7 +44,8 @@ export = {
             postalCode: 'postalCode',
             state: 'state',
             country: 'country',
-            coordinates: Sequelize.fn('ST_GeomFromText', 'POINT(74 41)'), // converts to needed Geometry object
+            // coordinates: Sequelize.fn('ST_GeomFromText', 'POINT(74 41)'), // converts to needed Geometry object
+            coordinates: '010100000000000000008052400000000000804440',
             createdAt: new Date(0),
             updatedAt: new Date(),
           },
