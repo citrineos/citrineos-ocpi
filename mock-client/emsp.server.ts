@@ -36,7 +36,7 @@ export class EmspServer extends KoaServer {
       this.initKoaSwagger(
         {
           title: 'CitrineOS EMSP OCPI 2.2.1 MOCK',
-          version: '1.0.0',
+          version: '2.0.0',
         },
         [
           {

@@ -470,7 +470,7 @@ export function getSpec(
 ): oa.OpenAPIObject {
   return {
     components: { schemas: {} },
-    info: { title: '', version: '1.0.0' },
+    info: { title: '', version: '2.0.0' },
     openapi: '3.0.0',
     paths: getPaths(routes, schemas),
   };
