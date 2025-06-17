@@ -1,0 +1,163 @@
+// Copyright (c) 2023 S44, LLC
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache 2.0
+
+import 'reflect-metadata';
+import { ILogObj, Logger } from 'tslog';
+import {
+  AS_DTO_EVENT_HANDLER_METADATA,
+  IDtoEventHandlerDefinition,
+} from './AsDtoEventHandler';
+import {
+  IDtoModule,
+  IDtoEvent,
+  IDtoEventReceiver,
+  DtoEventType,
+  DtoEventObjectType,
+} from './types';
+import { ICache, SystemConfig } from '@citrineos/base';
+
+export abstract class AbstractDtoModule implements IDtoModule {
+  protected _config: SystemConfig;
+  protected readonly _receiver: IDtoEventReceiver;
+  protected readonly _logger: Logger<ILogObj>;
+
+  protected _eventTypes: DtoEventType[] = [];
+  protected _objectTypes: DtoEventObjectType[] = [];
+  private startTime = Date.now();
+
+  constructor(
+    config: SystemConfig,
+    receiver: IDtoEventReceiver,
+    logger?: Logger<ILogObj>,
+  ) {
+    this._logger = logger
+      ? logger.getSubLogger({ name: this.constructor.name })
+      : new Logger<ILogObj>({ name: this.constructor.name });
+    this._logger.info('Initializing...');
+    this._config = config;
+    this._receiver = receiver;
+
+    // Set module for proper message flow.
+    this.receiver.module = this;
+  }
+
+  /**
+   * Getters & Setters
+   */
+  get receiver(): IDtoEventReceiver {
+    return this._receiver;
+  }
+
+  get config(): SystemConfig {
+    return this._config;
+  }
+
+  /**
+   * Sets the system configuration for the module.
+   *
+   * @param {SystemConfig} config - The new configuration to set.
+   */
+  set config(config: SystemConfig) {
+    this._config = config;
+    // Update all necessary settings for hot reload
+    this._logger.info(
+      `Updating system configuration for ${this.constructor.name} module...`,
+    );
+    this._logger.settings.minLevel = this._config.logLevel;
+  }
+
+  /**
+   * Methods
+   */
+
+  /**
+   * Handles a GraphQL message.
+   *
+   * @param {IDtoEvent} message - The message to handle.
+   * @param {DtoEventHandlerProperties} props - Optional properties for the handler.
+   * @return {void} This function does not return anything.
+   */
+  async handle(message: IDtoEvent): Promise<void> {
+    try {
+      const handlerDefinition = (
+        Reflect.getMetadata(
+          AS_DTO_EVENT_HANDLER_METADATA,
+          this.constructor,
+        ) as Array<IDtoEventHandlerDefinition>
+      )
+        .filter(
+          (h) =>
+            h.eventType === message.context.eventType &&
+            h.objectType === message.context.objectType,
+        )
+        .pop();
+
+      if (handlerDefinition) {
+        await handlerDefinition.method.call(this, message);
+      } else {
+        this._logger.warn(
+          `No handler found for eventType: ${message.context.eventType} and objectType: ${message.context.objectType} at module ${this.constructor.name}`,
+        );
+      }
+    } catch (error) {
+      this._logger.error('Failed handling GraphQL message: ', error, message);
+      // Unlike OCPP, GraphQL subscriptions are one-way, so we don't send error responses back
+    }
+  }
+
+  /**
+   * Shuts down the handler and sender.
+   */
+  async shutdown(): Promise<void> {
+    await this._receiver.shutdown();
+  }
+
+  /**
+   * Initializes the handler for handling GraphQL subscription messages.
+   */
+  public async initHandlers(): Promise<void> {
+    const handlerDefinitions = Reflect.getMetadata(
+      AS_DTO_EVENT_HANDLER_METADATA,
+      this.constructor,
+    ) as Array<IDtoEventHandlerDefinition>;
+    for (const handlerDefinition of handlerDefinitions) {
+      const result = await this._initHandler(
+        handlerDefinition.eventType,
+        handlerDefinition.objectType,
+        handlerDefinition.eventId,
+      );
+      if (!result) {
+        this._logger.error(
+          `Failed to initialize handler for eventType: ${handlerDefinition.eventType} and objectType: ${handlerDefinition.objectType} at module ${this.constructor.name}`,
+        );
+        throw new Error(
+          'Could not initialize module due to failure in handler initialization.',
+        );
+      }
+    }
+    this._logger.info(`Initialized in ${Date.now() - this.startTime}ms...`);
+  }
+
+  /**
+   * Initializes a handler for handling Dto events.
+   *
+   * @param {DtoEventType[]} eventTypes - The array of event types.
+   * @param {DtoEventObjectType[]} objectTypes - The array of event object types.
+   * @return {Promise<boolean>} Returns a promise that resolves to a boolean indicating if the initialization was successful.
+   */
+  private async _initHandler(
+    eventType: DtoEventType,
+    objectType: DtoEventObjectType,
+    eventId: string,
+  ): Promise<boolean> {
+    this._receiver.module = this;
+
+    const success = await this._receiver.subscribe(eventType, objectType, {
+      eventId: eventId,
+    });
+
+    return success;
+  }
+}
