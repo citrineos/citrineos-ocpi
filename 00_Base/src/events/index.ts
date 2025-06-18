@@ -24,5 +24,5 @@ export { AbstractDtoModule } from './module';
 export { AbstractDtoEventReceiver, AbstractDtoEventSender } from './handlers';
 export { RabbitMqDtoReceiver } from './rabbitmq/receiver';
 export { RabbitMqDtoSender } from './rabbitmq/sender';
-export { PgNotifyEventSubscriber } from './pgnotify/client';
+export { PgNotifyEventSubscriber } from './pgnotify/subscriber';
 export { AbstractDtoRouter } from './router';

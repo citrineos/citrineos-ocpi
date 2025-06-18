@@ -16,7 +16,7 @@ import {
   DtoEventType,
   DtoEventObjectType,
 } from './types';
-import { ICache, SystemConfig } from '@citrineos/base';
+import { SystemConfig } from '@citrineos/base';
 
 export abstract class AbstractDtoModule implements IDtoModule {
   protected _config: SystemConfig;
