@@ -69,6 +69,8 @@ export interface IDtoEvent {
  * Dto event receiver interface
  */
 export interface IDtoEventReceiver {
+  init(): Promise<void>;
+
   /**
    * Subscribes to Dto mutation events based on mutation types and object types.
    *
@@ -121,6 +123,8 @@ export interface IDtoModule {
  * Dto event sender interface
  */
 export interface IDtoEventSender {
+  init(): Promise<void>;
+
   /**
    * Sends a Dto event to the upstream service.
    *
@@ -154,14 +158,14 @@ export interface IDtoEventSubscriber {
    * @param handleDisconnect - Optional. The function to handle disconnection events.
    * @returns A promise that resolves to a boolean indicating whether the subscription was successful.
    */
-  subscribe(
+  subscribe<T extends IDtoPayload>(
     eventId: string,
-    handleEvent: () => void,
+    handleEvent: (event: { eventType: DtoEventType; payload: T }) => void,
     handleError: (error: any) => void,
     handleDisconnect?: () => void,
   ): Promise<boolean>;
 
-  shutdown(): void;
+  shutdown(): Promise<void>;
 }
 
 /**
@@ -175,10 +179,12 @@ export interface IDtoRouter {
    */
   subscriber: IDtoEventSubscriber;
 
+  init(): Promise<void>;
+
   /**
    * Subscribes to Dto events
    */
-  subscribe(
+  subscribe<T extends IDtoPayload>(
     eventId: string,
     eventType: DtoEventType,
     objectType: DtoEventObjectType,

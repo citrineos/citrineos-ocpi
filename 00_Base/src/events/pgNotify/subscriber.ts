@@ -1,9 +1,14 @@
 import { SystemConfig } from '@citrineos/base';
-import { IDtoEventSubscriber } from '..';
+import { DtoEventType, IDtoEventSubscriber, IDtoPayload } from '..';
 import { Client } from 'pg';
 import { runner, RunnerOption } from 'node-pg-migrate';
 import path from 'path';
 import { ILogObj, Logger } from 'tslog';
+
+interface IPgNotification {
+  operation: DtoEventType;
+  data: any;
+}
 
 export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
   protected _pgClient: Client;
@@ -52,9 +57,9 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
       });
   }
 
-  async subscribe(
+  async subscribe<T extends IDtoPayload>(
     eventId: string,
-    handleEvent: (event: any) => void,
+    handleEvent: (event: { eventType: DtoEventType; payload: T }) => void,
     handleError: (error: any) => void,
     handleDisconnect?: () => void,
   ): Promise<boolean> {
@@ -66,8 +71,13 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
             return;
           }
           try {
-            const event = JSON.parse(msg.payload || '{}');
-            handleEvent(event);
+            const notificationPayload: IPgNotification = JSON.parse(
+              msg.payload || '{}',
+            );
+            handleEvent({
+              eventType: notificationPayload.operation,
+              payload: notificationPayload.data,
+            });
           } catch (error) {
             console.error(`Error parsing event payload for ${eventId}:`, error);
             handleError(error);
@@ -88,7 +98,7 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
     }
   }
 
-  shutdown(): void {
+  async shutdown(): Promise<void> {
     this._pgClient.end();
   }
 }

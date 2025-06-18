@@ -51,7 +51,7 @@ export class RabbitMqDtoReceiver
     super(config, logger, module);
   }
 
-  async initConnection(): Promise<any> {
+  async init(): Promise<void> {
     this._abortReconnectController = new AbortController();
     this._channel = await this._connectWithRetry(
       this._abortReconnectController.signal,
@@ -68,7 +68,7 @@ export class RabbitMqDtoReceiver
     filter?: { [k: string]: string },
   ): Promise<boolean> {
     const exchange = this._config.util.messageBroker.amqp?.exchange as string;
-    const queueName = `${RabbitMqReceiver.QUEUE_PREFIX}${eventType}_${objectType}_${Date.now()}`;
+    const queueName = `${RabbitMqDtoReceiver.QUEUE_PREFIX}${eventType}_${objectType}_${Date.now()}`;
 
     // Ensure that filter includes the x-match header set to all
     filter = filter
@@ -148,7 +148,7 @@ export class RabbitMqDtoReceiver
           err,
         );
         await new Promise((res) =>
-          setTimeout(res, RabbitMqReceiver.RECONNECT_DELAY),
+          setTimeout(res, RabbitMqDtoReceiver.RECONNECT_DELAY),
         );
       }
     }

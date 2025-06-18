@@ -38,14 +38,13 @@ export class RabbitMqDtoSender
    */
   constructor(config: SystemConfig, logger?: Logger<ILogObj>) {
     super(config, logger);
+  }
 
-    this._connectWithRetry()
-      .then((channel) => {
-        this._channel = channel;
-      })
-      .catch((error) => {
-        this._logger.error('Failed to connect to RabbitMQ', error);
-      });
+  async init(): Promise<void> {
+    this._abortReconnectController = new AbortController();
+    this._channel = await this._connectWithRetry(
+      this._abortReconnectController.signal,
+    );
   }
 
   /**
@@ -62,9 +61,7 @@ export class RabbitMqDtoSender
    * @returns A promise that resolves to an object indicating whether the message was successfully published.
    * @throws {Error} If the RabbitMQ channel is not available.
    */
-  async sendEvent(
-    event: IDtoEvent,
-  ): Promise<boolean> {
+  async sendEvent(event: IDtoEvent): Promise<boolean> {
     const exchange = this._config.util.messageBroker.amqp?.exchange as string;
     if (!this._channel) {
       throw new Error('RabbitMQ is down. Cannot send message.');
@@ -86,7 +83,7 @@ export class RabbitMqDtoSender
         },
       },
     );
-    return success ;
+    return success;
   }
 
   /**
@@ -140,7 +137,7 @@ export class RabbitMqDtoSender
           err,
         );
         await new Promise((res) =>
-          setTimeout(res, RabbitMqSender.RECONNECT_DELAY),
+          setTimeout(res, RabbitMqDtoSender.RECONNECT_DELAY),
         );
       }
     }

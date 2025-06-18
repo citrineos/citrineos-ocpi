@@ -1,19 +1,16 @@
-// Copyright (c) 2025 S44, LLC
-// Copyright Contributors to the CitrineOS Project
-//
-// SPDX-License-Identifier: Apache 2.0
-
 import { SystemConfig } from '@citrineos/base';
 import {
+  DtoEvent,
   DtoEventObjectType,
   DtoEventType,
-  IDtoEventSubscriber,
   IDtoEventSender,
+  IDtoEventSubscriber,
+  IDtoPayload,
   IDtoRouter,
-} from './types';
-import { ILogObj, Logger } from 'tslog';
+} from '@citrineos/ocpi-base';
+import { Logger, ILogObj } from 'tslog';
 
-export abstract class AbstractDtoRouter implements IDtoRouter {
+export class DtoRouter implements IDtoRouter {
   protected _config: SystemConfig;
   protected readonly _sender: IDtoEventSender;
   protected _subscriber: IDtoEventSubscriber;
@@ -32,6 +29,12 @@ export abstract class AbstractDtoRouter implements IDtoRouter {
     this._sender = sender;
     this._subscriber = subscriber;
   }
+
+  async init(): Promise<void> {
+    await this._sender.init();
+    await this._subscriber.init();
+  }
+
   /**
    * Getters & Setters
    */
@@ -48,11 +51,32 @@ export abstract class AbstractDtoRouter implements IDtoRouter {
     this._sender.shutdown();
   }
 
-  subscribe(
+  async subscribe<T extends IDtoPayload>(
     eventId: string,
     eventType: DtoEventType,
     objectType: DtoEventObjectType,
   ): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    this._subscriber.subscribe(
+      eventId,
+      async (event: { eventType: DtoEventType; payload: T }) => {
+        this._logger.info(
+          `${eventId} received event for eventType ${eventType} and objectType ${objectType}: ${JSON.stringify(event)}`,
+        );
+        const dtoEvent = new DtoEvent(
+          eventId,
+          { eventType, objectType },
+          event.payload,
+        );
+
+        await this._sender.sendEvent(dtoEvent);
+      },
+      (error) => {
+        this._logger.error(
+          `${eventId} received error for eventType ${eventType} and objectType ${objectType}: ${error.message}`,
+        );
+      },
+      () => {},
+    );
+    return true;
   }
 }
