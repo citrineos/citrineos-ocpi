@@ -1,4 +1,3 @@
-// Copyright (c) 2025 S44, LLC
 // Copyright Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache 2.0
@@ -12,7 +11,7 @@ export {
   IDtoEventReceiver,
   IDtoModule,
   IDtoEventSender,
-  IDtoClient,
+  IDtoEventSubscriber,
   IDtoRouter,
   DtoEvent,
 } from './types';
@@ -23,3 +22,7 @@ export {
 } from './AsDtoEventHandler';
 export { AbstractDtoModule } from './module';
 export { AbstractDtoEventReceiver, AbstractDtoEventSender } from './handlers';
+export { RabbitMqDtoReceiver } from './rabbitmq/receiver';
+export { RabbitMqDtoSender } from './rabbitmq/sender';
+export { PgNotifyEventSubscriber } from './pgnotify/client';
+export { AbstractDtoRouter } from './router';

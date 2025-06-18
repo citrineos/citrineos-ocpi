@@ -12,7 +12,7 @@ import { IDtoEventSender, AbstractDtoEventSender, IDtoEvent } from '..';
 /**
  * Implementation of a {@link IEventSender} using RabbitMQ as the underlying transport.
  */
-export class RabbitMqSender
+export class RabbitMqDtoSender
   extends AbstractDtoEventSender
   implements IDtoEventSender
 {

@@ -24,7 +24,7 @@ import {
 /**
  * Implementation of a {@link IEventHandler} using RabbitMQ as the underlying transport.
  */
-export class RabbitMqReceiver
+export class RabbitMqDtoReceiver
   extends AbstractDtoEventReceiver
   implements IDtoEventReceiver
 {
