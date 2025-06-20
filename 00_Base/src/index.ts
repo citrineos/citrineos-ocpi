@@ -27,6 +27,7 @@ import {
 import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
 import * as packageJson from '../package.json';
+import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
 
 export { plainToClass } from './util/Util';
 export {
@@ -390,6 +391,7 @@ export class OcpiServer extends KoaServer {
       SequelizeVariableMonitoringRepository,
       this.repositoryStore.variableMonitoringRepository,
     );
+    Container.set(OcpiGraphqlClient, new OcpiGraphqlClient(this.serverConfig.util.graphql.url));
     this.onContainerInitialized();
   }
 
