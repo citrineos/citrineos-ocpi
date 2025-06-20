@@ -53,6 +53,16 @@ To get started with CitrineOS OCPI, you will need to:
 1. `cd citrineos-ocpi/Server`
 1. `docker compose build && docker compose up -d`
 
+## Generating GraphQL Types
+
+Before building or running the project, you must generate the GraphQL types using codegen. Run the following command from the project root:
+
+```sh
+npm run generate
+```
+
+This will use [GraphQL Code Generator](https://www.graphql-code-generator.com/) to generate the necessary TypeScript types from your GraphQL schema and documents.
+
 ## Running database seeders:
 
 The following commands were created to initialize the DB tables:

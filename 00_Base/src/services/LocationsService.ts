@@ -14,13 +14,17 @@ import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/OcpiResponse
 import { buildOcpiErrorResponse } from '../model/OcpiErrorResponse';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { NotFoundException } from '../exception/NotFoundException';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { GET_LOCATIONS_QUERY } from '../graphql/queries/location.queries';
 import { LocationsDatasource } from '../datasources/LocationsDatasource';
+import type { GetLocationsQuery } from '../graphql/types/graphql';
 
 @Service()
 export class LocationsService {
   constructor(
     private logger: Logger<ILogObj>,
     private locationsDatasource: LocationsDatasource,
+    private ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
   /**
@@ -40,15 +44,23 @@ export class LocationsService {
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
 
-    const [locations, locationsTotal] =
-      await this.locationsDatasource.getLocations(
-        limit,
-        offset,
-        ocpiHeaders.toCountryCode,
-        ocpiHeaders.toPartyId,
-        dateFrom,
-        dateTo,
-      );
+    const variables = {
+      limit,
+      offset,
+      countryCode: ocpiHeaders.toCountryCode,
+      partyId: ocpiHeaders.toPartyId,
+      dateFrom: dateFrom ? dateFrom.toISOString() : undefined,
+      dateTo: dateTo ? dateTo.toISOString() : undefined,
+    };
+
+    const response = await this.ocpiGraphqlClient.request<GetLocationsQuery>(GET_LOCATIONS_QUERY, variables);
+
+    // Map GraphQL DTOs to OCPI DTOs (assuming a mapper exists)
+    const locations = response.Locations?.map((item) => {
+      // TODO: Implement the mapping logic from GraphQL DTO to OCPI DTO
+      return (global as any).LocationMapper.fromGraphql(item);
+    }) ?? [];
+    const locationsTotal = locations.length;
 
     return buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
