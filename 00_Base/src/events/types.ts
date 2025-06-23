@@ -18,15 +18,8 @@ export enum DtoEventType {
  * Object types corresponding to Data Transfer Objects (DTOs) in the system.
  */
 export enum DtoEventObjectType {
-  CDR = 'CDR',
-  CHARGING_PROFILE = 'CHARGING_PROFILE',
-  COMMAND = 'COMMAND',
-  CREDENTIAL = 'CREDENTIAL',
-  LOCATION = 'LOCATION',
-  SESSION = 'SESSION',
-  TARIFF = 'TARIFF',
-  TOKEN = 'TOKEN',
-  VERSION = 'VERSION',
+  ChargingStation = 'ChargingStation',
+  Transaction = 'Transaction',
 }
 
 /**

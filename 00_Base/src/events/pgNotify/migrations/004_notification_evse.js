@@ -1,18 +1,6 @@
 exports.up = (pgm) => {
-  pgm.createView(
-    'ChargingStationsWithTenant',
-    {},
-    `
-    SELECT 
-      cs.*,
-      t.name as tenantName
-    FROM ChargingStations cs
-    LEFT JOIN tenants t ON cs.tenantId = t.id
-  `,
-  );
-
   pgm.createFunction(
-    'ChargingStationNotify',
+    'EvseNotify',
     [],
     {
       returns: 'trigger',
@@ -21,25 +9,25 @@ exports.up = (pgm) => {
     },
     `
     DECLARE
-      requiredFields text[] := ARRAY['id', 'locationId', 'tenantId', 'tenantName'];
-      notificationData jsonb;
-      fullData jsonb;
+      stationData jsonb;
+      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt'];
+      requiredData jsonb;
       changedData jsonb;
+      notificationData jsonb;
     BEGIN
-      -- Get full station details with joins
-      SELECT to_jsonb(cst.*) INTO fullData
-      FROM ChargingStationsWithTenant cst
-      WHERE cst.id = COALESCE(NEW.id, OLD.id);
+      SELECT to_jsonb(cs.*) INTO stationData
+      FROM ChargingStations cs 
+      WHERE cs.id = COALESCE(NEW.chargingStationId, OLD.chargingStationId);
 
       IF TG_OP = 'INSERT' THEN
         -- For INSERT: include all fields
-        notificationData := fullData;
+        notificationData := to_jsonb(NEW);
         
       ELSIF TG_OP = 'UPDATE' THEN
         -- For UPDATE: required fields + changed fields
         -- Start with required fields
-        SELECT jsonb_object_agg(key, value) INTO notificationData
-        FROM jsonb_each(fullData)
+        SELECT jsonb_object_agg(key, value) INTO requiredData
+        FROM jsonb_each(to_jsonb(NEW))
         WHERE key = ANY(requiredFields);
         
         -- Add changed fields
@@ -50,17 +38,21 @@ exports.up = (pgm) => {
         AND key != ALL(requiredFields); -- Don't duplicate required fields
         
         -- Merge required and changed fields
-        notificationData := notificationData || COALESCE(changedData, '{}'::jsonb);
+        notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
         
       ELSIF TG_OP = 'DELETE' THEN
         -- For DELETE: only required fields
         SELECT jsonb_object_agg(key, value) INTO notificationData
-        FROM jsonb_each(fullData)
+        FROM jsonb_each(to_jsonb(OLD))
         WHERE key = ANY(requiredFields);
       END IF;
 
+      -- Add station data to notification
+      notificationData := notificationData || 
+                          jsonb_build_object('chargingStation', stationData);
+
       PERFORM pg_notify(
-        'ChargingStationChanges',
+        'EvseNotification',
         json_build_object(
           'operation', TG_OP,
           'data', notificationData
@@ -72,16 +64,15 @@ exports.up = (pgm) => {
     `,
   );
 
-  pgm.createTrigger('ChargingStations', 'ChargingStationChanges', {
+  pgm.createTrigger('Evses', 'EvseNotification', {
     when: 'AFTER',
     operation: ['INSERT', 'UPDATE', 'DELETE'],
-    function: 'ChargingStationNotify',
+    function: 'EvseNotify',
     level: 'ROW',
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTrigger('ChargingStations', 'ChargingStationChanges');
-  pgm.dropFunction('ChargingStationNotify', []);
-  pgm.dropView('ChargingStationsWithTenant');
+  pgm.dropTrigger('Evses', 'EvseNotification');
+  pgm.dropFunction('EvseNotify', []);
 };
