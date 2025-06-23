@@ -15,10 +15,6 @@ exports.up = (pgm) => {
       changedData jsonb;
       notificationData jsonb;
     BEGIN
-      SELECT to_jsonb(cs.*) INTO stationData
-      FROM ChargingStations cs 
-      WHERE cs.id = COALESCE(NEW.chargingStationId, OLD.chargingStationId);
-
       IF TG_OP = 'INSERT' THEN
         -- For INSERT: include all fields
         notificationData := to_jsonb(NEW);
@@ -48,6 +44,9 @@ exports.up = (pgm) => {
       END IF;
 
       -- Add station data to notification
+      SELECT to_jsonb(cs) INTO stationData
+      FROM ChargingStations cs
+      WHERE cs.id = COALESCE(NEW.chargingStationId, OLD.chargingStationId);
       notificationData := notificationData || 
                           jsonb_build_object('chargingStation', stationData);
 
