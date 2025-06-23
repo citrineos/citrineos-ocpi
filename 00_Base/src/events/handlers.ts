@@ -4,7 +4,14 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { ILogObj, Logger } from 'tslog';
-import { DtoEventObjectType, DtoEventType, IDtoEvent, IDtoEventReceiver, IDtoEventSender, IDtoModule } from './types';
+import {
+  DtoEventObjectType,
+  DtoEventType,
+  IDtoEvent,
+  IDtoEventReceiver,
+  IDtoEventSender,
+  IDtoModule,
+} from './types';
 import { SystemConfig } from '@citrineos/base';
 
 /**
@@ -57,6 +64,8 @@ export abstract class AbstractDtoEventReceiver implements IDtoEventReceiver {
   /**
    * Abstract Methods
    */
+  abstract init(): Promise<void>;
+
   abstract subscribe(
     mutation: DtoEventType,
     objectType: DtoEventObjectType,
@@ -92,6 +101,8 @@ export abstract class AbstractDtoEventSender implements IDtoEventSender {
   /**
    * Abstract Methods
    */
+  abstract init(): Promise<void>;
+
   abstract sendEvent(event: IDtoEvent): Promise<boolean>;
 
   abstract shutdown(): Promise<void>;
