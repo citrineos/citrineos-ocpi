@@ -15,15 +15,23 @@ import { buildOcpiErrorResponse } from '../model/OcpiErrorResponse';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { NotFoundException } from '../exception/NotFoundException';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GET_LOCATIONS_QUERY } from '../graphql/queries/location.queries';
-import { LocationsDatasource } from '../datasources/LocationsDatasource';
-import type { GetLocationsQuery } from '../graphql/types/graphql';
+import {
+  GET_CONNECTOR_BY_ID_QUERY,
+  GET_EVSE_BY_ID_QUERY,
+  GET_LOCATION_BY_ID_QUERY,
+  GET_LOCATIONS_QUERY,
+} from '../graphql/queries/location.queries';
+import type {
+  GetLocationsQuery,
+  GetLocationByIdQuery,
+  GetEvseByIdQuery,
+  GetConnectorByIdQuery,
+} from '../graphql/types/graphql';
 
 @Service()
 export class LocationsService {
   constructor(
     private logger: Logger<ILogObj>,
-    private locationsDatasource: LocationsDatasource,
     private ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
@@ -75,7 +83,10 @@ export class LocationsService {
     this.logger.debug(`Getting location ${locationId}`);
 
     try {
-      const location = await this.locationsDatasource.getLocation(locationId);
+      const variables = { id: locationId };
+      const response = await this.ocpiGraphqlClient.request<GetLocationByIdQuery>(GET_LOCATION_BY_ID_QUERY, variables);
+      // response.Locations is an array, so pick the first
+      const location = (global as any).LocationMapper.fromGraphql(response.Locations?.[0]);
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
         location,
@@ -102,10 +113,11 @@ export class LocationsService {
     );
 
     try {
-      const evse = await this.locationsDatasource.getEvse(
-        locationId,
-        stationId,
-        evseId,
+      const variables = { locationId, stationId, evseId };
+      const response = await this.ocpiGraphqlClient.request<GetEvseByIdQuery>(GET_EVSE_BY_ID_QUERY, variables);
+      // Traverse to the EVSE object
+      const evse = (global as any).EvseMapper.fromGraphql(
+        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
@@ -131,11 +143,11 @@ export class LocationsService {
     );
 
     try {
-      const connector = await this.locationsDatasource.getConnector(
-        locationId,
-        stationId,
-        evseId,
-        connectorId,
+      const variables = { locationId, stationId, evseId, connectorId };
+      const response = await this.ocpiGraphqlClient.request<GetConnectorByIdQuery>(GET_CONNECTOR_BY_ID_QUERY, variables);
+      // Traverse to the Connector object
+      const connector = (global as any).ConnectorMapper.fromGraphql(
+        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse?.Connectors?.[0]
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

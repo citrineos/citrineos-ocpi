@@ -2,14 +2,15 @@ import { Inject, Service } from 'typedi';
 import { PaginatedSessionResponse } from '../model/Session';
 import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
-import { ISessionsDatasource } from '../datasources/ISessionsDatasource';
-import { SESSION_DATASOURCE_SERVICE_TOKEN } from '../datasources/SessionsDatasource';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { TransactionQueryBuilder } from './TransactionQueryBuilder';
+import { GetTransactionsQuery } from '../graphql/types/graphql';
+import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
 
 @Service()
 export class SessionsService {
   constructor(
-    @Inject(SESSION_DATASOURCE_SERVICE_TOKEN)
-    private readonly sessionsDatasource: ISessionsDatasource,
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
   public async getSessions(
@@ -22,25 +23,26 @@ export class SessionsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedSessionResponse> {
-    const result = await this.sessionsDatasource.getSessions(
-      toCountryCode,
-      toPartyId,
-      fromCountryCode,
-      fromPartyId,
+    const queryOptions = {
+      cpoCountryCode: toCountryCode,
+      cpoPartyId: toPartyId,
+      mspCountryCode: fromCountryCode,
+      mspPartyId: fromPartyId,
       dateFrom,
       dateTo,
       offset,
       limit,
-    );
+    };
+    const result = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(GET_TRANSACTIONS_QUERY, queryOptions);
 
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
-      result.total,
+      result.Transactions_aggregate.aggregate?.count || 0,
       limit,
       offset,
-      result.data,
+      result.Transactions || [],
     );
 
-    return response as PaginatedSessionResponse;
+    return response as unknown as PaginatedSessionResponse;
   }
 }

@@ -10,14 +10,16 @@ import { LocationDTO } from '../model/DTO/LocationDTO';
 import { InvalidParamException } from '../exception/InvalidParamException';
 import { validate } from 'class-validator';
 import { CREATE, UPDATE } from '../util/Consts';
-import { LocationsDatasource } from '../datasources/LocationsDatasource';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { CREATE_OR_UPDATE_LOCATION_MUTATION } from '../graphql/queries/adminLocation.mutations';
+import type { CreateOrUpdateLocationMutation } from '../graphql/types/graphql';
 
 @Service()
 export class AdminLocationsService {
   constructor(
     private logger: Logger<ILogObj>,
     private locationsBroadcaster: LocationsBroadcaster,
-    private locationsDatasource: LocationsDatasource,
+    private ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
   public async createOrUpdateLocation(
@@ -56,13 +58,14 @@ export class AdminLocationsService {
       }
     }
 
-    const locationDto =
-      await this.locationsDatasource.adminCreateOrUpdateLocation(
-        coreLocation,
-        ocpiLocation,
-        evses,
-        connectors,
-      );
+    const variables = {
+      coreLocation,
+      ocpiLocation,
+      evses,
+      connectors,
+    };
+    const response = await this.ocpiGraphqlClient.request<CreateOrUpdateLocationMutation>(CREATE_OR_UPDATE_LOCATION_MUTATION, variables);
+    const locationDto = response.insert_Locations_one  as unknown as LocationDTO
 
     if (broadcast) {
       await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(
