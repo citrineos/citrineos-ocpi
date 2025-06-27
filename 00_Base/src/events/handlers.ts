@@ -11,6 +11,7 @@ import {
   IDtoEventReceiver,
   IDtoEventSender,
   IDtoModule,
+  IDtoPayload,
 } from './types';
 import { SystemConfig } from '@citrineos/base';
 
@@ -57,7 +58,7 @@ export abstract class AbstractDtoEventReceiver implements IDtoEventReceiver {
   /**
    * Methods
    */
-  async handle(event: IDtoEvent): Promise<void> {
+  async handle(event: IDtoEvent<IDtoPayload>): Promise<void> {
     await this._module?.handle(event);
   }
 
@@ -103,7 +104,7 @@ export abstract class AbstractDtoEventSender implements IDtoEventSender {
    */
   abstract init(): Promise<void>;
 
-  abstract sendEvent(event: IDtoEvent): Promise<boolean>;
+  abstract sendEvent(event: IDtoEvent<IDtoPayload>): Promise<boolean>;
 
   abstract shutdown(): Promise<void>;
 }

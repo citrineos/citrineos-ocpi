@@ -7,7 +7,7 @@ import { SystemConfig } from '@citrineos/base';
 import * as amqplib from 'amqplib';
 import { instanceToPlain } from 'class-transformer';
 import { ILogObj, Logger } from 'tslog';
-import { IDtoEventSender, AbstractDtoEventSender, IDtoEvent } from '..';
+import { IDtoEventSender, AbstractDtoEventSender, IDtoEvent, IDtoPayload } from '..';
 
 /**
  * Implementation of a {@link IEventSender} using RabbitMQ as the underlying transport.
@@ -61,7 +61,7 @@ export class RabbitMqDtoSender
    * @returns A promise that resolves to an object indicating whether the message was successfully published.
    * @throws {Error} If the RabbitMQ channel is not available.
    */
-  async sendEvent(event: IDtoEvent): Promise<boolean> {
+  async sendEvent(event: IDtoEvent<IDtoPayload>): Promise<boolean> {
     const exchange = this._config.util.messageBroker.amqp?.exchange as string;
     if (!this._channel) {
       throw new Error('RabbitMQ is down. Cannot send message.');

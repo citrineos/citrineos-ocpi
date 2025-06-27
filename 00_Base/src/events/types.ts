@@ -20,6 +20,7 @@ export enum DtoEventType {
 export enum DtoEventObjectType {
   ChargingStation = 'ChargingStation',
   Transaction = 'Transaction',
+  TransactionEvent = 'TransactionEvent',
 }
 
 /**
@@ -38,7 +39,7 @@ export interface IDtoPayload {}
 /**
  * Dto event interface
  */
-export interface IDtoEvent {
+export interface IDtoEvent<T extends IDtoPayload> {
   /**
    * The event identifier
    */
@@ -54,8 +55,8 @@ export interface IDtoEvent {
   /**
    * The payload of the event
    */
-  get payload(): IDtoPayload;
-  set payload(value: IDtoPayload);
+  get payload(): T;
+  set payload(value: T);
 }
 
 /**
@@ -83,7 +84,7 @@ export interface IDtoEventReceiver {
    * Handles incoming Dto events.
    * @param event - The event to be handled.
    */
-  handle(event: IDtoEvent): void;
+  handle(event: IDtoEvent<IDtoPayload>): void;
 
   /**
    * Shuts down the handler.
@@ -103,11 +104,22 @@ export interface IDtoModule {
 
   /**
    * Handles incoming Dto events
+   * 
+   * @returns A promise that resolves when the event is handled.
    */
-  handle(event: IDtoEvent): Promise<void>;
+  handle(event: IDtoEvent<IDtoPayload>): Promise<void>;
+
+  /**
+   * Initializes the module
+   *
+   * @returns A promise that resolves when the module is initialized.
+   */
+  init(): Promise<void>;
 
   /**
    * Shuts down the module
+   * 
+   * @returns A promise that resolves when the module is shut down.
    */
   shutdown(): Promise<void>;
 }
@@ -126,7 +138,7 @@ export interface IDtoEventSender {
    * @returns A promise that resolves to a boolean indicating whether the event was successfully sent.
    * @throws {Error} If the event cannot be sent.
    */
-  sendEvent(event: IDtoEvent): Promise<boolean>;
+  sendEvent(event: IDtoEvent<IDtoPayload>): Promise<boolean>;
 
   /**
    * Shuts down the sender.
@@ -196,13 +208,13 @@ export interface IDtoRouter {
 /**
  * Default implementation of IDtoEvent
  */
-export class DtoEvent implements IDtoEvent {
+export class DtoEvent<T extends IDtoPayload> implements IDtoEvent<T> {
   /**
    * Fields
    */
   protected _eventId: string;
   protected _context: IDtoEventContext;
-  protected _payload: IDtoPayload;
+  protected _payload: T;
 
   /**
    * Constructs a new instance of DtoEvent.
@@ -215,7 +227,7 @@ export class DtoEvent implements IDtoEvent {
   constructor(
     eventId: string,
     context: IDtoEventContext,
-    payload: IDtoPayload,
+    payload: T,
     eventType?: DtoEventType,
     objectType?: DtoEventObjectType,
   ) {
@@ -235,7 +247,7 @@ export class DtoEvent implements IDtoEvent {
   get context(): IDtoEventContext {
     return this._context;
   }
-  get payload(): IDtoPayload {
+  get payload(): T {
     return this._payload;
   }
 }

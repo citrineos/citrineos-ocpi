@@ -1,6 +1,6 @@
 exports.up = (pgm) => {
   pgm.createFunction(
-    'TariffNotify',
+    'TransactionEventNotify',
     [],
     {
       returns: 'trigger',
@@ -9,7 +9,7 @@ exports.up = (pgm) => {
     },
     `
     DECLARE
-      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt'];
+      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt', 'transactionId'];
       requiredData jsonb;
       changedData jsonb;
       notificationData jsonb;
@@ -43,7 +43,7 @@ exports.up = (pgm) => {
       END IF;
 
       PERFORM pg_notify(
-        'TariffNotification',
+        'TransactionEventNotification',
         json_build_object(
           'operation', TG_OP,
           'data', notificationData
@@ -55,15 +55,15 @@ exports.up = (pgm) => {
     `,
   );
 
-  pgm.createTrigger('Tariffs', 'TariffNotification', {
+  pgm.createTrigger('TransactionEvents', 'TransactionEventNotification', {
     when: 'AFTER',
     operation: ['INSERT', 'UPDATE', 'DELETE'],
-    function: 'TariffNotify',
+    function: 'TransactionEventNotify',
     level: 'ROW',
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTrigger('Tariffs', 'TariffNotification');
-  pgm.dropFunction('TariffNotify', []);
+  pgm.dropTrigger('TransactionEvents', 'TransactionEventNotification');
+  pgm.dropFunction('TransactionEventNotify', []);
 };

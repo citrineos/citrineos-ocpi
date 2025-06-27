@@ -46,7 +46,7 @@
     "lodash.capitalize": "4.2.1",
     "lodash.merge": "4.6.2",
     "lodash.startcase": "4.4.0",
-    "node-pg-migrate": "^8.0.2",
+    "node-pg-migrate": "^7.9.1",
     "pg": "^8.11.3",
     "reflect-metadata": "0.1.13",
     "routing-controllers": "0.10.4",

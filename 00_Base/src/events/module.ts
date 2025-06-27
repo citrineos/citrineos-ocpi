@@ -15,6 +15,7 @@ import {
   IDtoEventReceiver,
   DtoEventType,
   DtoEventObjectType,
+  IDtoPayload,
 } from './types';
 import { SystemConfig } from '@citrineos/base';
 
@@ -42,6 +43,12 @@ export abstract class AbstractDtoModule implements IDtoModule {
     // Set module for proper message flow.
     this.receiver.module = this;
   }
+
+  /**
+   * Abstract Methods
+   */
+
+  abstract init(): Promise<void>;
 
   /**
    * Getters & Setters
@@ -79,7 +86,7 @@ export abstract class AbstractDtoModule implements IDtoModule {
    * @param {DtoEventHandlerProperties} props - Optional properties for the handler.
    * @return {void} This function does not return anything.
    */
-  async handle(message: IDtoEvent): Promise<void> {
+  async handle(message: IDtoEvent<IDtoPayload>): Promise<void> {
     try {
       const handlerDefinition = (
         Reflect.getMetadata(

@@ -1,3 +1,7 @@
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache 2.0
+
 import { SystemConfig } from '@citrineos/base';
 import {
   DtoEvent,

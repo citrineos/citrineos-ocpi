@@ -6,8 +6,6 @@
 import * as amqplib from 'amqplib';
 import { ILogObj, Logger } from 'tslog';
 import {
-  CacheNamespace,
-  ICache,
   RetryMessageError,
   SystemConfig,
 } from '@citrineos/base';
@@ -19,6 +17,7 @@ import {
   DtoEventType,
   IDtoEventReceiver,
   IDtoModule,
+  IDtoPayload,
 } from '..';
 
 /**
@@ -32,7 +31,6 @@ export class RabbitMqDtoReceiver
    * Constants
    */
   private static readonly QUEUE_PREFIX = 'rabbit_queue_';
-  private static readonly CACHE_PREFIX = 'rabbit_subscription_';
   private static readonly RECONNECT_DELAY = 5000;
 
   /**
@@ -77,6 +75,8 @@ export class RabbitMqDtoReceiver
           ...filter,
         }
       : { 'x-match': 'all' };
+    // Add eventType and objectType to filter
+    filter = { eventType, objectType, ...filter };
 
     if (!this._channel) {
       throw new Error('RabbitMQ is down: cannot subscribe.');
@@ -224,7 +224,7 @@ export class RabbitMqDtoReceiver
         );
         const parsed = plainToInstance(
           DtoEvent,
-          <DtoEvent>JSON.parse(message.content.toString()),
+          <DtoEvent<IDtoPayload>>JSON.parse(message.content.toString()),
         );
         await this.handle(parsed);
       } catch (error) {
