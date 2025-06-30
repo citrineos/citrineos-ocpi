@@ -149,7 +149,8 @@ export const swarmConfig: ServerConfig = {
     },
     graphql: {
       url: 'http://localhost:8090/v1/graphql',
-    }
+      adminSecret: 'CitrineOS!',
+    },
   },
   logLevel: 2, // debug
   maxCallLengthSeconds: 5,
