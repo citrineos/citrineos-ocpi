@@ -31,9 +31,9 @@
     "typescript": "5.0.4"
   },
   "dependencies": {
-    "@citrineos/base": "~1.4.0",
-    "@citrineos/data": "~1.4.0",
-    "@citrineos/util": "~1.4.0",
+    "@citrineos/base": "~1.8.0",
+    "@citrineos/data": "~1.8.0",
+    "@citrineos/util": "~1.8.0",
     "@types/sequelize": "4.28.20",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",

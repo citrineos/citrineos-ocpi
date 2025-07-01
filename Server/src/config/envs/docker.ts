@@ -80,11 +80,6 @@ export const dockerConfig: ServerConfig = {
       exposeData: true,
       exposeMessage: true,
     },
-    directus: {
-      host: 'directus',
-      port: 8055,
-      generateFlows: true,
-    },
     networkConnection: {
       websocketServers: [
         {

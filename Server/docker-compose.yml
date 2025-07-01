@@ -1,35 +1,35 @@
 version: '3'
 services:
-  amqp-broker:
-    image: rabbitmq:3-management
-    ports:
-      - 15672:15672
-      - 5672:5672
-    environment:
-      RABBITMQ_DEFAULT_USER: 'guest'
-      RABBITMQ_DEFAULT_PASS: 'guest'
-    volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 10s
-      timeout: 10s
-      retries: 3
-  ocpp-db:
-    image: citrineos/postgis:v1.1.0
-    ports:
-      - 5432:5432
-    volumes:
-      - ./data/postgresql/pgdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: citrine
-      POSTGRES_USER: citrine
-      POSTGRES_PASSWORD: 'citrine'
-    healthcheck:
-      test: 'pg_isready --username=citrine'
-      interval: 5s
-      timeout: 10s
-      retries: 5
+  # amqp-broker:
+  #   image: rabbitmq:3-management
+  #   ports:
+  #     - 15672:15672
+  #     - 5672:5672
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: 'guest'
+  #     RABBITMQ_DEFAULT_PASS: 'guest'
+  #   volumes:
+  #     - ./data/rabbitmq:/var/lib/rabbitmq
+  #   healthcheck:
+  #     test: rabbitmq-diagnostics -q ping
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 3
+  # ocpp-db:
+  #   image: citrineos/postgis:v1.1.0
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - ./data/postgresql/pgdata:/var/lib/postgresql/data
+  #   environment:
+  #     POSTGRES_DB: citrine
+  #     POSTGRES_USER: citrine
+  #     POSTGRES_PASSWORD: 'citrine'
+  #   healthcheck:
+  #     test: 'pg_isready --username=citrine'
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 5
 
   citrine:
     build:
@@ -38,11 +38,11 @@ services:
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
-    depends_on:
-      ocpp-db:
-        condition: service_healthy
-      amqp-broker:
-        condition: service_healthy
+    # depends_on:
+    #   ocpp-db:
+    #     condition: service_healthy
+    #   amqp-broker:
+    #     condition: service_healthy
     ports:
       - 8080:8080
       - 8081:8081
