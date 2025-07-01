@@ -3,7 +3,7 @@ import { DeleteTariffParams } from '../trigger/param/tariffs/DeleteTariffParams'
 import { CredentialsService } from '../services/CredentialsService';
 import { ModuleId } from '../model/ModuleId';
 import { PutTariffParams } from '../trigger/param/tariffs/PutTariffParams';
-import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
+import { TariffKey } from '../model/OcpiTariff';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { TariffsService } from '../services/TariffsService';
 import { TariffsClientApi } from '../trigger/TariffsClientApi';
@@ -19,12 +19,6 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     private readonly tariffsClientApi: TariffsClientApi,
   ) {
     super();
-  }
-
-  public async broadcastOcpiUpdate(ocpiTariffs: OcpiTariff[]) {
-    (await this.tariffService.getTariffsForOcpiTariffs(ocpiTariffs)).forEach(
-      (tariff) => this.broadcastTariff(tariff),
-    );
   }
 
   public async broadcastByKey(key: TariffKey) {

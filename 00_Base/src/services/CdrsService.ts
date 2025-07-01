@@ -1,14 +1,13 @@
-import { Inject, Service } from 'typedi';
+import { Service } from 'typedi';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { PaginatedCdrResponse } from '../model/Cdr';
-import { ICdrsDatasource } from '../datasources/ICdrsDatasource';
-import { CDR_DATASOURCE_SERVICE_TOKEN } from '../datasources/CdrsDatasource';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
 
 @Service()
 export class CdrsService {
   constructor(
-    @Inject(CDR_DATASOURCE_SERVICE_TOKEN)
-    private readonly cdrsDatasource: ICdrsDatasource,
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
   public async getCdrs(
@@ -21,23 +20,22 @@ export class CdrsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedCdrResponse> {
-    const result = await this.cdrsDatasource.getCdrs(
+    const variables = {
       toCountryCode,
       toPartyId,
       fromCountryCode,
       fromPartyId,
-      dateFrom,
-      dateTo,
+      dateFrom: dateFrom ? dateFrom.toISOString() : undefined,
+      dateTo: dateTo ? dateTo.toISOString() : undefined,
       offset,
       limit,
-    );
-
+    };
+    const result = await this.ocpiGraphqlClient.request<any>(GET_TRANSACTIONS_QUERY, variables);
     const response = new PaginatedCdrResponse();
-    response.data = result.data;
-    response.total = result.total;
+    response.data = result.Cdrs;
+    response.total = result.Cdrs_aggregate?.aggregate?.count || 0;
     response.offset = offset;
     response.limit = limit;
-
     return response;
   }
 }

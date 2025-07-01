@@ -17,18 +17,18 @@ import { Op } from 'sequelize';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { AsyncJobRequest } from '../model/AsyncJobRequest';
 import { ITokensDatasource } from '../datasources/ITokensDatasource';
-import { TokensDatasource } from '../datasources/TokensDatasource';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { UPDATE_TOKEN_MUTATION } from '../graphql/queries/token.queries';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 @Service()
 export class TokensAdminService {
   constructor(
     private readonly logger: OcpiLogger,
-    @Inject(() => TokensDatasource)
-    private readonly tokensDatasource: ITokensDatasource,
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
     private readonly credentialsService: CredentialsService,
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
   async startFetchTokensByParty(
@@ -260,8 +260,9 @@ export class TokensAdminService {
   private async updateTokens(tokens: TokenDTO[]) {
     for (const token of tokens) {
       try {
-        const updatedToken = await this.tokensDatasource.updateToken(token);
-
+        const variables = { token };
+        const result = await this.ocpiGraphqlClient.request<any>(UPDATE_TOKEN_MUTATION, variables);
+        const updatedToken = result.updateToken;
         if (!updatedToken) {
           this.logger.error(`Failed to update token ${token.uid}`);
         }

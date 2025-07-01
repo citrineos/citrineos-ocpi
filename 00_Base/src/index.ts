@@ -392,7 +392,12 @@ export class OcpiServer extends KoaServer {
       SequelizeVariableMonitoringRepository,
       this.repositoryStore.variableMonitoringRepository,
     );
-    Container.set(OcpiGraphqlClient, new OcpiGraphqlClient(this.serverConfig.util.graphql.url));
+    Container.set(
+      OcpiGraphqlClient,
+      new OcpiGraphqlClient(this.serverConfig.util.graphql.url, {
+        'x-hasura-admin-secret': this.serverConfig.util.graphql.adminSecret,
+      }),
+    );
     this.onContainerInitialized();
   }
 

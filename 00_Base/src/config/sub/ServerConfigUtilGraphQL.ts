@@ -8,7 +8,12 @@ export class ServerConfigUtilGraphQL {
   @IsNotEmpty()
   url: string;
 
+  @IsString()
+  @IsNotEmpty()
+  adminSecret: string;
+
   constructor() {
     this.url = 'http://localhost:8090/v1/graphql';
+    this.adminSecret = 'CitrineOS!';
   }
 }
