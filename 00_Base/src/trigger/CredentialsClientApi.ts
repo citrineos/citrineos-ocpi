@@ -1,14 +1,14 @@
 import { BaseClientApi } from './BaseClientApi';
 import { ModuleId } from '../model/ModuleId';
-import { OcpiRegistrationParams } from './util/ocpi.registration.params';
+import { OcpiRegistrationParams } from './util/OcpiRegistrationParams';
 import { CredentialsResponse } from '../model/CredentialsResponse';
 import { IHeaders } from 'typed-rest-client/Interfaces';
-import { PostCredentialsParams } from './param/credentials/post.credentials.params';
-import { PutCredentialsParams } from './param/credentials/put.credentials.params';
+import { PostCredentialsParams } from './param/credentials/PostCredentialsParams';
+import { PutCredentialsParams } from './param/credentials/PutCredentialsParams';
 import { Service } from 'typedi';
 import { VersionNumber } from '../model/VersionNumber';
-import { OcpiEmptyResponse } from '../model/ocpi.empty.response';
-import { OcpiParams } from './util/ocpi.params';
+import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+import { OcpiParams } from './util/OcpiParams';
 
 @Service()
 export class CredentialsClientApi extends BaseClientApi {

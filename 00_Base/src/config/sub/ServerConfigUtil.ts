@@ -4,11 +4,12 @@ import { Type } from 'class-transformer';
 import 'reflect-metadata';
 import { ServerConfigUtilCache } from './ServerConfigUtilCache';
 import { ServerConfigUtilMessageBroker } from './ServerConfigUtilMessageBroker';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 import { ServerConfigUtilSwagger } from './ServerConfigUtilSwagger';
 import { ServerConfigUtilDirectus } from './ServerConfigUtilDirectus';
 import { ServerConfigUtilNetworkConnection } from './ServerConfigUtilNetworkConnection';
 import { ServerConfigUtilCertificateAuthority } from './ServerConfigUtilCertificateAuthority';
+import { ServerConfigUtilGraphQL } from './ServerConfigUtilGraphQL';
 
 @Service()
 export class ServerConfigUtil {
@@ -51,6 +52,11 @@ export class ServerConfigUtil {
   @ValidateNested()
   certificateAuthority: ServerConfigUtilCertificateAuthority;
 
+  @IsNotEmpty()
+  @Type(() => ServerConfigUtilGraphQL)
+  @ValidateNested()
+  graphql: ServerConfigUtilGraphQL;
+
   constructor() {
     this.cache = new ServerConfigUtilCache();
     this.messageBroker = new ServerConfigUtilMessageBroker();
@@ -58,5 +64,6 @@ export class ServerConfigUtil {
     this.directus = new ServerConfigUtilDirectus();
     this.networkConnection = new ServerConfigUtilNetworkConnection();
     this.certificateAuthority = new ServerConfigUtilCertificateAuthority();
+    this.graphql = new ServerConfigUtilGraphQL();
   }
 }

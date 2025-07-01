@@ -1,15 +1,7 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsDateString,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayMinSize, IsArray, IsDateString, IsNotEmpty, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { CdrDimension } from './CdrDimension';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+import { Optional } from '../util/decorators/Optional';
 
 export class ChargingPeriod {
   @IsString()

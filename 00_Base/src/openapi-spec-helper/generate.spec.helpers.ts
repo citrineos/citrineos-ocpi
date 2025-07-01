@@ -7,12 +7,12 @@ import { IRoute } from './index';
 import { mergeDeep } from './merge.deep';
 import { capitalize } from './capitalize';
 import { smartcase } from './smart.case';
-import { ENUM_PARAM } from '../util/decorators/enum.param';
+import { ENUM_PARAM } from '../util/decorators/EnumParam';
 import { refPointerPrefix } from './class.validator';
 import { SchemaStore } from './schema.store';
-import { MULTIPLE_TYPES } from '../util/decorators/multiple.types';
+import { MULTIPLE_TYPES } from '../util/decorators/MultipleTypes';
 import { HttpHeader } from '@citrineos/base';
-import { ENUM_QUERY_PARAM } from '../util/decorators/enum.query.param';
+import { ENUM_QUERY_PARAM } from '../util/decorators/EnumQueryParam';
 import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
 import { Constructable } from 'typedi';
 import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
@@ -470,7 +470,7 @@ export function getSpec(
 ): oa.OpenAPIObject {
   return {
     components: { schemas: {} },
-    info: { title: '', version: '1.0.0' },
+    info: { title: '', version: '2.0.0' },
     openapi: '3.0.0',
     paths: getPaths(routes, schemas),
   };

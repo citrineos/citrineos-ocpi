@@ -8,8 +8,8 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
-import { Enum } from '../../util/decorators/enum';
+import { Optional } from '../../util/decorators/Optional';
+import { Enum } from '../../util/decorators/Enum';
 import { EvseStatus } from '../EvseStatus';
 import { Type } from 'class-transformer';
 import { EvseStatusSchedule } from '../EvseStatusSchedule';
@@ -18,7 +18,7 @@ import { ConnectorDTO } from './ConnectorDTO';
 import { GeoLocation } from '../GeoLocation';
 import { DisplayText } from '../DisplayText';
 import { ParkingRestriction } from '../ParkingRestriction';
-import { OcpiResponse } from '../ocpi.response';
+import { OcpiResponse } from '../OcpiResponse';
 
 // TODO make dynamic
 export const uidDelimiter = '::';

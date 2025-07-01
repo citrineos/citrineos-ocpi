@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
 import { ServerConfig } from '../config/ServerConfig';
-import { OcpiSequelizeInstance } from '../util/sequelize';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { AsyncJobStatus } from '../model/AsyncJobStatus';

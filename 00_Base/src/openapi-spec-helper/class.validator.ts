@@ -1,10 +1,4 @@
-import {
-  getMetadataStorage,
-  IS_ARRAY,
-  IS_DATE_STRING,
-  IS_ENUM,
-  ValidationTypes,
-} from 'class-validator';
+import { getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes } from 'class-validator';
 import { targetConstructorToSchema } from 'class-validator-jsonschema';
 import { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters';
 import { IOptions } from 'class-validator-jsonschema/build/options';
@@ -13,7 +7,7 @@ import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMet
 // @ts-expect-error importing js directly from class-transformer
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage.js';
 import { SchemaStore } from './schema.store';
-import { OPTIONAL_PARAM } from '../util/decorators/optional';
+import { OPTIONAL_PARAM } from '../util/decorators/Optional';
 import { Constructable } from 'typedi';
 
 export const refPointerPrefix = '#/components/schemas/';

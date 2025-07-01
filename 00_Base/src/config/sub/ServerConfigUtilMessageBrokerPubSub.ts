@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import 'reflect-metadata';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 
 export class ServerConfigUtilMessageBrokerPubSub {
   @IsString()

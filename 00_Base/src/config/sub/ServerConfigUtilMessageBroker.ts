@@ -2,7 +2,7 @@ import { ValidateNested } from 'class-validator';
 import { Service } from 'typedi';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
-import { Optional } from '../../util/decorators/optional';
+import { Optional } from '../../util/decorators/Optional';
 import { ServerConfigUtilMessageBrokerAmqp } from './ServerConfigUtilMessageBrokerAmqp';
 import { ServerConfigUtilMessageBrokerPubSub } from './ServerConfigUtilMessageBrokerPubSub';
 import { ServerConfigUtilMessageBrokerKafka } from './ServerConfigUtilMessageBrokerKafka';

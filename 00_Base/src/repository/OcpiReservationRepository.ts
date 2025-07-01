@@ -1,13 +1,10 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { SystemConfig } from '@citrineos/base';
-import {
-  OcpiReservation,
-  OcpiReservationProps,
-} from '../model/OcpiReservation';
+import { OcpiReservation, OcpiReservationProps } from '../model/OcpiReservation';
 import { ServerConfig } from '../config/ServerConfig';
 
 @Service()

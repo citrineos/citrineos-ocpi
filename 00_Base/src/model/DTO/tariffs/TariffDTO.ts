@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginatedResponse } from '../../PaginatedResponse';
-import { Optional } from '../../../util/decorators/optional';
+import { Optional } from '../../../util/decorators/Optional';
 import { Price } from '../../Price';
 import { TariffElement } from '../../TariffElement';
 import { EnergyMix } from '../../EnergyMix';

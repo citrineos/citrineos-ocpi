@@ -3,4 +3,4 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-export { CommandsModule } from './module/module';
+export { CommandsModule } from './module/CommandsModule';

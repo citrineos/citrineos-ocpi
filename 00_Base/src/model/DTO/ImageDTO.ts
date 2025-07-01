@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsString, IsUrl, Max } from 'class-validator';
-import { Optional } from '../../util/decorators/optional';
-import { Enum } from '../../util/decorators/enum';
+import { Optional } from '../../util/decorators/Optional';
+import { Enum } from '../../util/decorators/Enum';
 import { ImageCategory } from '../ImageCategory';
 import { ImageType } from '../ImageType';
 

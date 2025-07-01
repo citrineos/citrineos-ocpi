@@ -33,7 +33,7 @@ The modules in CitrineOS OCPI integrate with modules in CitrineOS Core and Citri
 
 ## Release Information
 
-### Version 1.0.0
+### Version 2.0.0
 
 #### Included Functionality
 
@@ -44,6 +44,24 @@ This release provides full OCPI 2.2.1 CPO functionality. The features included a
 - **Receiver Interface Endpoints**: Charging Profiles, Commands, and Tokens.
 - **Pushes all data to MSPs**
 - **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs~~~~
+
+## Getting Started
+
+To get started with CitrineOS OCPI, you will need to:
+
+1. Clone the CitrineOS OCPI repository.
+1. `cd citrineos-ocpi/Server`
+1. `docker compose build && docker compose up -d`
+
+## Generating GraphQL Types
+
+Before building or running the project, you must generate the GraphQL types using codegen. Run the following command from the project root:
+
+```sh
+npm run generate
+```
+
+This will use [GraphQL Code Generator](https://www.graphql-code-generator.com/) to generate the necessary TypeScript types from your GraphQL schema and documents.
 
 ## Running database seeders:
 

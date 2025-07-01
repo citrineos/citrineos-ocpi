@@ -5,11 +5,11 @@
 
 import { Service } from 'typedi';
 import { OcpiToken } from '../model/OcpiToken';
-import { OcpiSequelizeInstance } from '../util/sequelize';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { SequelizeRepository, SequelizeTransaction } from '@citrineos/data';
-import { OcpiLogger } from '../util/logger';
+import { OcpiLogger } from '../util/OcpiLogger';
 import { SystemConfig } from '@citrineos/base';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ServerConfig } from '../config/ServerConfig';
 
