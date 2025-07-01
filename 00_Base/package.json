@@ -45,7 +45,7 @@
     "zod": "3.22.3",
     "class-validator": "0.14.1",
     "class-validator-jsonschema": "5.0.0",
-    "koa": "2.15.3",
+    "koa": "2.16.1",
     "koa-bodyparser": "4.4.1",
     "koa-logger": "3.2.1",
     "koa2-swagger-ui": "5.10.0",
