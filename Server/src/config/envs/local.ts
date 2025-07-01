@@ -130,6 +130,9 @@ export const localConfig: ServerConfig = {
         },
       },
     },
+    graphql: {
+      url: 'http://localhost:8090/v1/graphql',
+    }
   },
   logLevel: 2, // debug
   maxCallLengthSeconds: 30,
