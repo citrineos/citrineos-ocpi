@@ -192,6 +192,8 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
+package-lock.json
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,node,git
 
 # Files produced by build

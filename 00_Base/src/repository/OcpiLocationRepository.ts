@@ -1,12 +1,12 @@
 import { Service } from 'typedi';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiSequelizeInstance } from '../util/sequelize';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { SystemConfig } from '@citrineos/base';
 import { Op } from 'sequelize';
+import { ServerConfig } from '../config/ServerConfig';
 
 /**
  * Repository for OCPI Location
@@ -14,12 +14,12 @@ import { Op } from 'sequelize';
 @Service()
 export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.OcpiLocation,
       logger,
       ocpiSequelizeInstance.sequelize,

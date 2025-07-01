@@ -1,4 +1,4 @@
-import { Table, Model, DataType, Column } from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from '@citrineos/data';
 import { OcpiConnector } from './OcpiConnector';
 
 /**

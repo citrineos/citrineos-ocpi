@@ -15,9 +15,9 @@ import { TariffElement } from './TariffElement';
 import { EnergyMix } from './EnergyMix';
 import { DisplayText } from './DisplayText';
 import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/optional';
+import { Optional } from '../util/decorators/Optional';
 import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './ocpi.response';
+import { OcpiResponse } from './OcpiResponse';
 
 export class Tariff {
   @MaxLength(36)

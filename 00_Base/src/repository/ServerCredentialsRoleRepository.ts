@@ -1,31 +1,28 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiSequelizeInstance } from '../util/sequelize';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { SystemConfig } from '@citrineos/base';
-import {
-  ServerCredentialsRole,
-  ServerCredentialsRoleProps,
-} from '../model/ServerCredentialsRole';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { ILogObj, Logger } from 'tslog';
 import { NotFoundError } from 'routing-controllers';
 import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
 import { BusinessDetails } from '../model/BusinessDetails';
 import { Image } from '../model/Image';
 import { Role } from '../model/Role';
+import { ServerConfig } from '../config/ServerConfig';
 
 @Service()
 export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerCredentialsRole> {
   logger: Logger<ILogObj>;
 
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.ServerCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,

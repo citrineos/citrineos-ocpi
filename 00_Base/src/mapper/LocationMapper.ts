@@ -1,10 +1,7 @@
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
-import {
-  ConnectorDTO,
-  TEMPORARY_CONNECTOR_ID,
-} from '../model/DTO/ConnectorDTO';
+import { ConnectorDTO, TEMPORARY_CONNECTOR_ID } from '../model/DTO/ConnectorDTO';
 import { GeoLocation } from '../model/GeoLocation';
 import { Location } from '@citrineos/data';
 import { EvseStatus } from '../model/EvseStatus';
@@ -18,7 +15,7 @@ import { EvseVariableAttributes } from '../model/variableattributes/EvseVariable
 import { OcpiEvse } from '../model/OcpiEvse';
 import { ConnectorVariableAttributes } from '../model/variableattributes/ConnectorVariableAttributes';
 import { OcpiConnector } from '../model/OcpiConnector';
-import { NOT_APPLICABLE } from '../util/consts';
+import { NOT_APPLICABLE } from '../util/Consts';
 import { Service } from 'typedi';
 import { ILogObj, Logger } from 'tslog';
 import { Point } from 'geojson';

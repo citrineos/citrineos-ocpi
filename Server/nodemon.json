@@ -1,6 +1,29 @@
 {
-  "watch": ["src"],
+  "watch": [
+    "src",
+    "../../citrineos-core/00_Base",
+    "../../citrineos-core/01_Data",
+    "../../citrineos-core/02_Util",
+    "../../citrineos-core/03_Modules/Certificates",
+    "../../citrineos-core/03_Modules/Configuration",
+    "../../citrineos-core/03_Modules/EVDriver",
+    "../../citrineos-core/03_Modules/Monitoring",
+    "../../citrineos-core/03_Modules/OcppRouter",
+    "../../citrineos-core/03_Modules/Reporting",
+    "../../citrineos-core/03_Modules/SmartCharging",
+    "../../citrineos-core/03_Modules/Tenant",
+    "../../citrineos-core/03_Modules/Transactions",
+    "../../citrineos-ocpi/00_Base",
+    "../../citrineos-ocpi/03_Modules/Versions",
+    "../../citrineos-ocpi/03_Modules/Credentials",
+    "../../citrineos-ocpi/03_Modules/Commands",
+    "../../citrineos-ocpi/03_Modules/Locations",
+    "../../citrineos-ocpi/03_Modules/Sessions",
+    "../../citrineos-ocpi/03_Modules/ChargingProfiles",
+    "../../citrineos-ocpi/03_Modules/Tokens",
+    "../../citrineos-ocpi/03_Modules/Cdrs"
+  ],
   "ext": "ts,js",
   "ignore": ["**/dist/**", "**/node_modules/**"],
-  "exec": "npm run build --prefix ../ && node --inspect=0.0.0.0:9230 --nolazy -r ts-node/register"
+  "exec": "npm run build --prefix ../ && node --inspect=0.0.0.0:9229 ./dist/index.js"
 }

@@ -1,17 +1,14 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { OcpiServerConfig } from '../config/ocpi.server.config';
-import { OcpiSequelizeInstance } from '../util/sequelize';
+import { ServerConfig } from '../config/ServerConfig';
+import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { SystemConfig, UnauthorizedException } from '@citrineos/base';
 import { ClientInformation } from '../model/ClientInformation';
-import { OcpiNamespace } from '../util/ocpi.namespace';
+import { OcpiNamespace } from '../util/OcpiNamespace';
 import { ILogObj, Logger } from 'tslog';
 import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
 import { CpoTenant } from '../model/CpoTenant';
-import {
-  ServerCredentialsRole,
-  ServerCredentialsRoleProps,
-} from '../model/ServerCredentialsRole';
+import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
 import { ClientVersion } from '../model/ClientVersion';
@@ -22,13 +19,13 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
   logger: Logger<ILogObj>;
 
   constructor(
-    ocpiSystemConfig: OcpiServerConfig,
+    systemConfig: ServerConfig,
     logger: Logger<ILogObj>,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
-      ocpiSystemConfig as SystemConfig,
+      systemConfig as SystemConfig,
       OcpiNamespace.ClientInformation,
       logger,
       ocpiSequelizeInstance.sequelize,

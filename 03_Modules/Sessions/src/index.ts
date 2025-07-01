@@ -3,19 +3,15 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { SessionsModuleApi } from './module/api';
-import {
-  CacheWrapper,
-  OcpiModule,
-  OcpiServerConfig,
-} from '@citrineos/ocpi-base';
+import { SessionsModuleApi } from './module/SessionsModuleApi';
+import { CacheWrapper, OcpiModule, ServerConfig } from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { SessionsOcppHandlers } from './module/handlers';
+import { SessionsOcppHandlers } from './module/SessionsOcppHandlers';
 
-export { SessionsModuleApi } from './module/api';
-export { ISessionsModuleApi } from './module/interface';
+export { SessionsModuleApi } from './module/SessionsModuleApi';
+export { ISessionsModuleApi } from './module/ISessionsModuleApi';
 
 @Service()
 export class SessionsModule implements OcpiModule {
@@ -23,7 +19,7 @@ export class SessionsModule implements OcpiModule {
   sender!: IMessageSender;
 
   constructor(
-    readonly config: OcpiServerConfig,
+    readonly config: ServerConfig,
     readonly cache: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}

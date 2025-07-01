@@ -1,34 +1,25 @@
-import {
-  Authorization,
-  ChargingStation,
-  Tariff,
-  Transaction,
-  TransactionEvent,
-} from '@citrineos/data';
-import {
-  TransactionEventEnumType,
-  TransactionEventRequest,
-} from '@citrineos/base';
+import { Authorization, ChargingStation, Tariff, Transaction, TransactionEvent } from '@citrineos/data';
+import { TransactionEventEnumType, TransactionEventRequest } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
-import { TokensRepository } from '../repository/TokensRepository';
 import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
 import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
 import { TariffKey } from '../model/OcpiTariff';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { LocationsService } from '../services/locations.service';
+import { LocationsService } from '../services/LocationsService';
 import { OcpiToken } from '../model/OcpiToken';
 import { OcpiTokensMapper } from './OcpiTokensMapper';
-import {TariffsDatasource} from "../datasources/TariffsDatasource";
+import { TariffsDatasource } from '../datasources/TariffsDatasource';
+import { TokensDatasource } from '../datasources/TokensDatasource';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
     protected logger: Logger<ILogObj>,
     protected locationsService: LocationsService,
     protected ocpiLocationsRepository: OcpiLocationRepository,
-    protected tokensRepository: TokensRepository,
+    protected tokensDatasource: TokensDatasource,
     protected tariffsDatasource: TariffsDatasource,
   ) {}
 
@@ -76,7 +67,7 @@ export abstract class BaseTransactionMapper {
         if (ocppAuth && ocpiToken) {
           tokenDto = await OcpiTokensMapper.toDto(ocppAuth, ocpiToken);
         } else {
-          tokenDto = await this.tokensRepository.getTokenDtoByIdToken(
+          tokenDto = await this.tokensDatasource.getTokenByIdToken(
             idToken.idToken,
             idToken.type,
           );

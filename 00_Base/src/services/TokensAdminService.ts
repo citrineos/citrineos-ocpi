@@ -3,29 +3,29 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Service } from 'typedi';
-import { OcpiLogger } from '../util/logger';
-import { TokensRepository } from '../repository/TokensRepository';
+import { Inject, Service } from 'typedi';
+import { OcpiLogger } from '../util/OcpiLogger';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
 import { TokensClientApi } from '../trigger/TokensClientApi';
-import { buildPaginatedOcpiParams } from '../trigger/param/paginated.ocpi.params';
+import { buildPaginatedOcpiParams } from '../trigger/param/PaginatedOcpiParams';
 import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
-import { OcpiResponseStatusCode } from '../model/ocpi.response';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { CredentialsService } from './credentials.service';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { CredentialsService } from './CredentialsService';
+import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
 import { Op } from 'sequelize';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { AsyncJobRequest } from '../model/AsyncJobRequest';
+import { ITokensDatasource } from '../datasources/ITokensDatasource';
+import { TokensDatasource } from '../datasources/TokensDatasource';
+import { TokenDTO } from '../model/DTO/TokenDTO';
 
 @Service()
 export class TokensAdminService {
   constructor(
     private readonly logger: OcpiLogger,
-    private readonly tokenRepository: TokensRepository,
+    @Inject(() => TokensDatasource)
+    private readonly tokensDatasource: ITokensDatasource,
     private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
     private readonly credentialsService: CredentialsService,
@@ -81,7 +81,7 @@ export class TokensAdminService {
     clientCredentials: ClientInformation,
   ) {
     try {
-      const token = clientCredentials[ClientInformationProps.clientToken];
+      const clientToken = clientCredentials[ClientInformationProps.clientToken];
       const clientVersions = await clientCredentials.$get(
         ClientInformationProps.clientVersionDetails,
       );
@@ -98,7 +98,7 @@ export class TokensAdminService {
         asyncJobStatus.paginationParams.dateFrom,
         asyncJobStatus.paginationParams.dateTo,
       );
-      params.authorization = token;
+      params.authorization = clientToken;
       params.version = clientVersions[0].version;
 
       let finished = false;
@@ -108,7 +108,7 @@ export class TokensAdminService {
         if (
           response.status_code === OcpiResponseStatusCode.GenericSuccessCode
         ) {
-          await this.tokenRepository.updateBatchedTokens(response.data);
+          await this.updateTokens(response.data);
 
           asyncJobStatus =
             await this.asyncJobStatusRepository.updateAsyncJobStatus({
@@ -255,5 +255,19 @@ export class TokensAdminService {
     jobId: string,
   ): Promise<AsyncJobStatus | undefined> {
     return await this.asyncJobStatusRepository.deleteByKey(jobId);
+  }
+
+  private async updateTokens(tokens: TokenDTO[]) {
+    for (const token of tokens) {
+      try {
+        const updatedToken = await this.tokensDatasource.updateToken(token);
+
+        if (!updatedToken) {
+          this.logger.error(`Failed to update token ${token.uid}`);
+        }
+      } catch (e) {
+        this.logger.error(`Failed to update token ${token.uid}`, e);
+      }
+    }
   }
 }
