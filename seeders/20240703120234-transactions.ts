@@ -1,12 +1,7 @@
 'use strict';
 
 import { QueryInterface, QueryOptions } from 'sequelize';
-import {
-  ChargingStateEnumType,
-  ReasonEnumType,
-  TransactionEventEnumType,
-  TriggerReasonEnumType,
-} from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 
 const START_ID = 1;
 
@@ -36,10 +31,10 @@ export = {
             transactionId: DUMMY_IDS.TRANSACTION_ID,
             evseDatabaseId: DUMMY_IDS.EVSE_ID,
             isActive: false,
-            chargingState: ChargingStateEnumType.Idle,
+            chargingState: OCPP2_0_1.ChargingStateEnumType.Idle,
             timeSpentCharging: 7200, // 2 hours
             totalKwh: 40.5,
-            stoppedReason: ReasonEnumType.Remote,
+            stoppedReason: OCPP2_0_1.ReasonEnumType.Remote,
             remoteStartId: 1,
             createdAt: new Date('2024-04-03T13:55:49.466Z'),
             updatedAt: new Date(),
@@ -57,9 +52,9 @@ export = {
           {
             id: DUMMY_IDS.START_TRANSACTION_EVENT,
             stationId: DUMMY_IDS.CHARGING_STATION,
-            eventType: TransactionEventEnumType.Started,
+            eventType: OCPP2_0_1.TransactionEventEnumType.Started,
             timestamp: new Date('2024-04-03T13:55:49.466Z').toISOString(),
-            triggerReason: TriggerReasonEnumType.Authorized,
+            triggerReason: OCPP2_0_1.TriggerReasonEnumType.Authorized,
             seqNo: 1,
             transactionDatabaseId: transactionDatabaseId,
             offline: false,
@@ -77,9 +72,9 @@ export = {
           {
             id: DUMMY_IDS.UPDATE_TRANSACTION_EVENT_1,
             stationId: DUMMY_IDS.CHARGING_STATION,
-            eventType: TransactionEventEnumType.Updated,
+            eventType: OCPP2_0_1.TransactionEventEnumType.Updated,
             timestamp: new Date('2024-04-03T14:00:00.147Z').toISOString(),
-            triggerReason: TriggerReasonEnumType.MeterValuePeriodic,
+            triggerReason: OCPP2_0_1.TriggerReasonEnumType.MeterValuePeriodic,
             seqNo: 2,
             transactionDatabaseId: transactionDatabaseId,
             offline: false,
@@ -96,9 +91,9 @@ export = {
           {
             id: DUMMY_IDS.END_TRANSACTION_EVENT,
             stationId: DUMMY_IDS.CHARGING_STATION,
-            eventType: TransactionEventEnumType.Ended,
+            eventType: OCPP2_0_1.TransactionEventEnumType.Ended,
             timestamp: new Date('2024-04-03T14:01:23.297Z').toISOString(),
-            triggerReason: TriggerReasonEnumType.StopAuthorized,
+            triggerReason: OCPP2_0_1.TriggerReasonEnumType.StopAuthorized,
             seqNo: 4,
             transactionDatabaseId: transactionDatabaseId,
             offline: false,

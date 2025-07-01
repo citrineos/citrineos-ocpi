@@ -1,6 +1,5 @@
 import {
-  AuthorizationStatusEnumType,
-  IdTokenInfoType,
+  OCPP2_0_1,
   IMessageContext,
 } from '@citrineos/base';
 import { Authorization, IdToken, IdTokenInfo } from '@citrineos/data';
@@ -36,16 +35,16 @@ export class RealTimeAuthorizer implements IAuthorizer {
   async authorize(
     authorization: Authorization,
     _context: IMessageContext,
-  ): Promise<Partial<IdTokenInfoType>> {
+  ): Promise<Partial<OCPP2_0_1.IdTokenInfoType>> {
     const result = {} as Partial<IdTokenInfo>;
-    result.status = AuthorizationStatusEnumType.Invalid;
+    result.status = OCPP2_0_1.AuthorizationStatusEnumType.Invalid;
     try {
       const ocpiToken = await this.getOcpiToken(authorization);
       if (
         ocpiToken.whitelist === WhitelistType.ALWAYS ||
         ocpiToken.whitelist === WhitelistType.ALLOWED
       ) {
-        result.status = AuthorizationStatusEnumType.Accepted;
+        result.status = OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
       } else if (ocpiToken.whitelist === WhitelistType.ALLOWED_OFFLINE) {
         try {
           await this.performAndRealTimeAuthUpdateResult(
@@ -58,7 +57,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
             'Issue performing real-time authorization - permitting because whitelist type is ALLOWED_OFFLINE. Error:' +
               e.message,
           );
-          result.status = AuthorizationStatusEnumType.Accepted;
+          result.status = OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
         }
       } else {
         // NEVER
@@ -90,7 +89,7 @@ export class RealTimeAuthorizer implements IAuthorizer {
       cpoTenant,
     );
     if (authorizationInfo.allowed === AuthorizationInfoAllowed.Allowed) {
-      result.status = AuthorizationStatusEnumType.Accepted;
+      result.status = OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
     }
   }
 

@@ -12,7 +12,7 @@ import {
   TransactionEvent,
   Transaction,
 } from '@citrineos/data';
-import { TransactionEventEnumType } from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 
 @Service()
 export class TransactionQueryBuilder {
@@ -39,7 +39,7 @@ export class TransactionQueryBuilder {
               as: Transaction.TRANSACTION_EVENTS_FILTER_ALIAS,
               attributes: ['eventType'],
               where: {
-                eventType: TransactionEventEnumType.Ended,
+                eventType: OCPP2_0_1.TransactionEventEnumType.Ended,
               },
             },
           ]

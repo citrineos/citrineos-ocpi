@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { MeasurandEnumType, MeterValueType, TransactionEventRequest } from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { Tariff, Transaction } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
@@ -127,7 +127,9 @@ export class SessionMapper extends BaseTransactionMapper {
     };
   }
 
-  private getLatestEvent(transactionEvents: TransactionEventRequest[]): Date {
+  private getLatestEvent(
+    transactionEvents: OCPP2_0_1.TransactionEventRequest[],
+  ): Date {
     return transactionEvents.reduce((latestDate, current) => {
       const currentDate = new Date(current.timestamp);
       if (!latestDate || currentDate > latestDate) {
@@ -199,7 +201,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getChargingPeriods(
-    meterValues: MeterValueType[] = [],
+    meterValues: OCPP2_0_1.MeterValueType[] = [],
     tariffId: string,
   ): ChargingPeriod[] {
     return meterValues
@@ -219,9 +221,9 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private mapMeterValueToChargingPeriod(
-    meterValue: MeterValueType,
+    meterValue: OCPP2_0_1.MeterValueType,
     tariffId: string,
-    previousMeterValue?: MeterValueType,
+    previousMeterValue?: OCPP2_0_1.MeterValueType,
   ): ChargingPeriod {
     return {
       start_date_time: new Date(meterValue.timestamp),
@@ -231,13 +233,13 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getCdrDimensions(
-    meterValue: MeterValueType,
-    previousMeterValue?: MeterValueType,
+    meterValue: OCPP2_0_1.MeterValueType,
+    previousMeterValue?: OCPP2_0_1.MeterValueType,
   ): CdrDimension[] {
     const cdrDimensions: CdrDimension[] = [];
     for (const sampledValue of meterValue.sampledValue) {
       switch (sampledValue.measurand) {
-        case MeasurandEnumType.Current_Import:
+        case OCPP2_0_1.MeasurandEnumType.Current_Import:
           if (sampledValue.phase === 'N') {
             cdrDimensions.push({
               type: CdrDimensionType.CURRENT,
@@ -245,7 +247,7 @@ export class SessionMapper extends BaseTransactionMapper {
             });
           }
           break;
-        case MeasurandEnumType.Energy_Active_Import_Register:
+        case OCPP2_0_1.MeasurandEnumType.Energy_Active_Import_Register:
           if (!sampledValue.phase) {
             cdrDimensions.push({
               type: CdrDimensionType.ENERGY_IMPORT,
@@ -261,7 +263,7 @@ export class SessionMapper extends BaseTransactionMapper {
             }
           }
           break;
-        case MeasurandEnumType.SoC:
+        case OCPP2_0_1.MeasurandEnumType.SoC:
           cdrDimensions.push({
             type: CdrDimensionType.STATE_OF_CHARGE,
             volume: sampledValue.value,
@@ -276,20 +278,20 @@ export class SessionMapper extends BaseTransactionMapper {
     return cdrDimensions;
   }
 
-  private getEnergyImportForMeterValue(meterValue?: MeterValueType) {
+  private getEnergyImportForMeterValue(meterValue?: OCPP2_0_1.MeterValueType) {
     return (
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-            MeasurandEnumType.Energy_Active_Import_Register &&
+            OCPP2_0_1.MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );
   }
 
   private getTimeElapsedForMeterValue(
-    meterValue: MeterValueType,
-    previousMeterValue?: MeterValueType,
+    meterValue: OCPP2_0_1.MeterValueType,
+    previousMeterValue?: OCPP2_0_1.MeterValueType,
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
@@ -301,7 +303,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getTransactionStatus(
-    endEvent: TransactionEventRequest | undefined,
+    endEvent: OCPP2_0_1.TransactionEventRequest | undefined,
   ): SessionStatus {
     // TODO: Implement other session status
     return endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;

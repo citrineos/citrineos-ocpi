@@ -1,3 +1,4 @@
+import { OCPPVersion } from '@citrineos/base';
 import {
   IsBoolean,
   IsInt,
@@ -9,6 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import 'reflect-metadata';
+
 
 export class ServerUtilNetworkConnectionWebsocketServer {
   @IsString()
@@ -31,7 +33,7 @@ export class ServerUtilNetworkConnectionWebsocketServer {
 
   @IsString()
   @IsNotEmpty()
-  protocol: string;
+  protocol: OCPPVersion;
 
   @IsInt()
   @IsNotEmpty()
@@ -68,7 +70,7 @@ export class ServerUtilNetworkConnectionWebsocketServer {
     host: string,
     port: number,
     pingInterval: number,
-    protocol: string,
+    protocol: OCPPVersion,
     securityProfile: number,
     allowUnknownChargingStations: boolean,
   ) {

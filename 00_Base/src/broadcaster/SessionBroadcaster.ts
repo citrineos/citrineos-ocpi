@@ -7,9 +7,15 @@ import { CredentialsService } from '../services/CredentialsService';
 import { ILogObj, Logger } from 'tslog';
 import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
+<<<<<<< HEAD:00_Base/src/broadcaster/SessionBroadcaster.ts
 import { PatchSessionParams } from '../trigger/param/sessions/PatchSessionParams';
 import { PutSessionParams } from '../trigger/param/sessions/PutSessionParams';
 import { TransactionEventEnumType, TriggerReasonEnumType } from '@citrineos/base';
+=======
+import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
+import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
+import { OCPP2_0_1 } from '@citrineos/base';
+>>>>>>> chore/update-ocpi-to-use-new-ocpp-enums:00_Base/src/broadcaster/session.broadcaster.ts
 import { InternalServerError } from 'routing-controllers';
 import { SessionStatus } from '../model/SessionStatus';
 
@@ -145,7 +151,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
       if (
         transactionEvent.meterValue &&
         transactionEvent.meterValue.length > 0 &&
-        transactionEvent.triggerReason !== TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
+        transactionEvent.triggerReason !==
+          OCPP2_0_1.TriggerReasonEnumType.RemoteStart // skip remote start because it will be handled by PUT
       ) {
         const transactionId = transactionEvent.transactionDatabaseId;
         if (transactionId) {
@@ -153,7 +160,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
           if (transaction) {
             let finalTransactionEvents = [];
             let finalMeterValues = [];
-            if (transactionEvent.eventType === TransactionEventEnumType.Ended) {
+            if (
+              transactionEvent.eventType ===
+              OCPP2_0_1.TransactionEventEnumType.Ended
+            ) {
               finalTransactionEvents = [
                 ...(transaction.transactionEvents ?? []),
                 transactionEvent,

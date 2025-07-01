@@ -13,8 +13,13 @@ import { TokenType } from '../model/TokenType';
 import { Op } from 'sequelize';
 import { OcpiLogger } from '../util/OcpiLogger';
 import { TokensRepository } from '../repository/TokensRepository';
+<<<<<<< HEAD
 import { IdTokenEnumType } from '@citrineos/base';
 import { UnknownTokenException } from '../exception/UnknownTokenException';
+=======
+import { OCPP2_0_1 } from '@citrineos/base';
+import { UnknownTokenException } from '../exception/unknown.token.exception';
+>>>>>>> chore/update-ocpi-to-use-new-ocpp-enums
 import { Service } from 'typedi';
 
 @Service()
@@ -69,7 +74,7 @@ export class TokensDatasource implements ITokensDatasource {
 
   async getTokenByIdToken(
     idToken: string,
-    type: IdTokenEnumType,
+    type: OCPP2_0_1.IdTokenEnumType,
   ): Promise<TokenDTO | undefined> {
     const ocppAuth =
       await this.authorizationRepository.readOnlyOneByQuerystring({

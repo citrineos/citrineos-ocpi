@@ -17,7 +17,7 @@ import { ServerConfig } from '../config/ServerConfig';
 export class TokensRepository extends SequelizeRepository<OcpiToken> {
   constructor(
     systemConfig: ServerConfig,
-    private readonly logger: OcpiLogger,
+    protected readonly logger: OcpiLogger,
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(

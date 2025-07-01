@@ -1,19 +1,10 @@
 import { StartSession } from '../model/StartSession';
 import {
   AbstractModule,
-  CallAction,
-  CancelReservationRequest,
-  ChargingProfileKindEnumType,
-  ChargingProfilePurposeEnumType,
-  ChargingProfileType,
-  ChargingScheduleType,
-  ClearChargingProfileRequest,
-  GetCompositeScheduleRequest,
+  OCPP2_0_1_CallAction,
   MessageOrigin,
-  RequestStartTransactionRequest,
-  RequestStopTransactionRequest,
-  ReserveNowRequest,
-  SetChargingProfileRequest,
+  OCPP2_0_1,
+  OCPPVersion,
 } from '@citrineos/base';
 import { Service } from 'typedi';
 import { ResponseUrlRepository } from '../repository/ResponseUrlRepository';
@@ -90,12 +81,13 @@ export class CommandExecutor {
         ),
       },
       evseId: evse.evseId,
-    } as RequestStartTransactionRequest;
+    } as OCPP2_0_1.RequestStartTransactionRequest;
 
     await this.abstractModule.sendCall(
       evse.stationId,
       'tenantId',
-      CallAction.RequestStartTransaction,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.RequestStartTransaction,
       request,
       undefined,
       correlationId,
@@ -133,12 +125,13 @@ export class CommandExecutor {
 
     const request = {
       transactionId: stopSession.session_id,
-    } as RequestStopTransactionRequest;
+    } as OCPP2_0_1.RequestStopTransactionRequest;
 
     await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
-      CallAction.RequestStopTransaction,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.RequestStopTransaction,
       request,
       undefined,
       correlationId,
@@ -182,12 +175,13 @@ export class CommandExecutor {
     const request = {
       duration: duration,
       evseId: transaction.evse?.id,
-    } as GetCompositeScheduleRequest;
+    } as OCPP2_0_1.GetCompositeScheduleRequest;
 
     await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
-      CallAction.GetCompositeSchedule,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.GetCompositeSchedule,
       request,
       undefined,
       correlationId,
@@ -239,12 +233,13 @@ export class CommandExecutor {
 
     const request = {
       chargingProfileId: chargingProfiles[0].chargingProfileId,
-    } as ClearChargingProfileRequest;
+    } as OCPP2_0_1.ClearChargingProfileRequest;
 
     await this.abstractModule.sendCall(
       transaction.stationId,
       'tenantId',
-      CallAction.ClearChargingProfile,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.ClearChargingProfile,
       request,
       undefined,
       correlationId,
@@ -309,7 +304,8 @@ export class CommandExecutor {
     await this.abstractModule.sendCall(
       stationId,
       'tenantId',
-      CallAction.SetChargingProfile,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.SetChargingProfile,
       setChargingProfileRequest,
       undefined,
       correlationId,
@@ -330,12 +326,19 @@ export class CommandExecutor {
     const evseId = Number(EXTRACT_EVSE_ID(reserveNow.evse_uid!));
     const stationId = EXTRACT_STATION_ID(reserveNow.evse_uid!);
     // Check if evse exists and given evse_uid matches the given location_id
-    if(!await this.locationsDatasource.getEvse(Number(reserveNow.location_id), stationId, evseId)) {
-        throw new NotFoundError('EVSE not found');
+    if (
+      !(await this.locationsDatasource.getEvse(
+        Number(reserveNow.location_id),
+        stationId,
+        evseId,
+      ))
+    ) {
+      throw new NotFoundError('EVSE not found');
     }
-    const ocpiLocation = await this.ocpiLocationRepo.getLocationByCoreLocationId(
-        Number(reserveNow.location_id)
-    );
+    const ocpiLocation =
+      await this.ocpiLocationRepo.getLocationByCoreLocationId(
+        Number(reserveNow.location_id),
+      );
     if (!ocpiLocation) {
       throw new NotFoundError('Location not found');
     }
@@ -372,7 +375,8 @@ export class CommandExecutor {
     await this.abstractModule.sendCall(
       stationId,
       'tenantId',
-      CallAction.ReserveNow,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.ReserveNow,
       request,
       undefined,
       correlationId,
@@ -428,10 +432,11 @@ export class CommandExecutor {
     await this.abstractModule.sendCall(
       existingCoreReservation.stationId,
       'tenantId',
-      CallAction.CancelReservation,
+      OCPPVersion.OCPP2_0_1,
+      OCPP2_0_1_CallAction.CancelReservation,
       {
         reservationId: existingCoreReservation.id,
-      } as CancelReservationRequest,
+      } as OCPP2_0_1.CancelReservationRequest,
       undefined,
       correlationId,
       MessageOrigin.ChargingStationManagementSystem,
@@ -443,7 +448,7 @@ export class CommandExecutor {
     evseId: number,
     sessionId: string,
     stationId: string,
-  ): Promise<SetChargingProfileRequest> {
+  ): Promise<OCPP2_0_1.SetChargingProfileRequest> {
     const startDateTime = chargingProfile.start_date_time
       ? new Date(chargingProfile.start_date_time)
       : undefined;
@@ -475,7 +480,7 @@ export class CommandExecutor {
           limit: period.limit,
         }),
       ),
-    } as ChargingScheduleType;
+    } as OCPP2_0_1.ChargingScheduleType;
 
     const profileId =
       await this.chargingProfileRepo.getNextChargingProfileId(stationId);
@@ -484,16 +489,17 @@ export class CommandExecutor {
       chargingProfile: {
         id: profileId,
         stackLevel: 0,
-        chargingProfilePurpose: ChargingProfilePurposeEnumType.TxProfile,
+        chargingProfilePurpose:
+          OCPP2_0_1.ChargingProfilePurposeEnumType.TxProfile,
         chargingProfileKind: startDateTime
-          ? ChargingProfileKindEnumType.Absolute
-          : ChargingProfileKindEnumType.Relative,
+          ? OCPP2_0_1.ChargingProfileKindEnumType.Absolute
+          : OCPP2_0_1.ChargingProfileKindEnumType.Relative,
         validFrom: startDateTime?.toISOString(),
         validTo: endDateTime?.toISOString(),
         chargingSchedule: [chargingSchedule],
         transactionId: sessionId,
-      } as ChargingProfileType,
-    } as SetChargingProfileRequest;
+      } as OCPP2_0_1.ChargingProfileType,
+    } as OCPP2_0_1.SetChargingProfileRequest;
 
     console.log(
       `Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`,
@@ -517,7 +523,7 @@ export class CommandExecutor {
     evseId: number,
     countryCode: string,
     partyId: string,
-  ): Promise<[ReserveNowRequest, number]> {
+  ): Promise<[OCPP2_0_1.ReserveNowRequest, number]> {
     const existingOcpiReservation =
       await this.ocpiReservationRepo.readOnlyOneByQuery({
         where: {
@@ -534,9 +540,8 @@ export class CommandExecutor {
       // Based on OCPI 2.1.1, The reservation_id sent by the Sender (eMSP) to the Receiver (CPO) SHALL NOT be sent
       // directly to a Charge Point. The CPO SHALL make sure the Reservation ID sent to the Charge Point is unique and
       // is not used by another Sender(eMSP).
-      coreReservationId = await this.coreReservationRepo.getNextReservationId(
-        stationId,
-      );
+      coreReservationId =
+        await this.coreReservationRepo.getNextReservationId(stationId);
     } else {
       coreReservationId = existingOcpiReservation.coreReservation.id;
     }
@@ -554,7 +559,7 @@ export class CommandExecutor {
         ),
       },
       evseId,
-    } as ReserveNowRequest;
+    } as OCPP2_0_1.ReserveNowRequest;
     const storedCoreReservation =
       await this.coreReservationRepo.createOrUpdateReservation(
         request,
@@ -574,7 +579,8 @@ export class CommandExecutor {
         [OcpiReservationProps.partyId]: partyId,
         [OcpiReservationProps.locationId]: reserveNow.location_id,
         [OcpiReservationProps.evseUid]: reserveNow.evse_uid ?? null,
-        [OcpiReservationProps.authorizationReference]: reserveNow.authorization_reference ?? null,
+        [OcpiReservationProps.authorizationReference]:
+          reserveNow.authorization_reference ?? null,
       }),
     );
 

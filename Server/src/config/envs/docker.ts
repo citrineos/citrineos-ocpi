@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { RegistrationStatusEnumType } from '@citrineos/base';
+import { OCPP2_0_1, OCPPVersion } from '@citrineos/base';
 import {
   Env,
   ServerConfig,
@@ -25,7 +25,7 @@ export const dockerConfig: ServerConfig = {
     configuration: {
       heartbeatInterval: 60,
       bootRetryInterval: 15,
-      unknownChargerStatus: RegistrationStatusEnumType.Accepted,
+      unknownChargerStatus: OCPP2_0_1.RegistrationStatusEnumType.Accepted,
       getBaseReportOnPending: true,
       bootWithRejectedVariables: true,
       autoAccept: true,
@@ -89,7 +89,7 @@ export const dockerConfig: ServerConfig = {
           pingInterval: 60,
           host: '0.0.0.0',
           port: 8081,
-          protocol: 'ocpp2.0.1',
+          protocol: OCPPVersion.OCPP2_0_1,
         },
         {
           id: '1',
@@ -98,7 +98,7 @@ export const dockerConfig: ServerConfig = {
           pingInterval: 60,
           host: '0.0.0.0',
           port: 8082,
-          protocol: 'ocpp2.0.1',
+          protocol: OCPPVersion.OCPP2_0_1,
         },
         {
           id: '2',
@@ -107,7 +107,7 @@ export const dockerConfig: ServerConfig = {
           pingInterval: 60,
           host: '0.0.0.0',
           port: 8443,
-          protocol: 'ocpp2.0.1',
+          protocol: OCPPVersion.OCPP2_0_1,
           accountKeyFilePath: path.resolve(
             path.dirname(__filename),
             '../../assets/certificates/acme_account_key.pem',
@@ -132,7 +132,7 @@ export const dockerConfig: ServerConfig = {
           pingInterval: 60,
           host: '0.0.0.0',
           port: 8444,
-          protocol: 'ocpp2.0.1',
+          protocol: OCPPVersion.OCPP2_0_1,
           tlsKeyFilePath: path.resolve(
             path.dirname(__filename),
             '../../assets/certificates/leafKey.pem',
