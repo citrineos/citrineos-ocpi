@@ -2,14 +2,10 @@ import { Service } from 'typedi';
 import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiResponse } from '../model/OcpiResponse';
 import { ChargingProfileResponse, ChargingProfileResultType } from '../model/ChargingProfileResponse';
-import {
-  buildGenericServerErrorResponse,
-  buildGenericSuccessResponse,
-  buildUnknownSessionResponse,
-} from '../util/ResponseGenerator';
 import { NotFoundException } from '../exception/NotFoundException';
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { NotFoundError } from 'routing-controllers';
+import { ResponseGenerator } from '../util/response.generator';
 
 @Service()
 export class ChargingProfilesService {
@@ -28,13 +24,13 @@ export class ChargingProfilesService {
         duration,
         responseUrl,
       );
-      return buildGenericSuccessResponse({
+      return ResponseGenerator.buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
         timeout: this.TIMEOUT,
       });
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof NotFoundError) {
-        return buildUnknownSessionResponse(
+        return ResponseGenerator.buildUnknownSessionResponse(
           {
             result: ChargingProfileResultType.UNKNOWN_SESSION,
             timeout: this.TIMEOUT,
@@ -42,12 +38,13 @@ export class ChargingProfilesService {
           e as NotFoundException,
         );
       }
-      return buildGenericServerErrorResponse(
+      return ResponseGenerator.buildGenericServerErrorResponse(
         {
           result: ChargingProfileResultType.REJECTED,
           timeout: this.TIMEOUT,
         },
-        e as Error,
+        e.message,
+        e
       );
     }
   }
@@ -61,13 +58,13 @@ export class ChargingProfilesService {
         sessionId,
         responseUrl,
       );
-      return buildGenericSuccessResponse({
+      return ResponseGenerator.buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
         timeout: this.TIMEOUT,
       });
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof NotFoundError) {
-        return buildUnknownSessionResponse(
+        return ResponseGenerator.buildUnknownSessionResponse(
           {
             result: ChargingProfileResultType.UNKNOWN_SESSION,
             timeout: this.TIMEOUT,
@@ -75,12 +72,13 @@ export class ChargingProfilesService {
           e as NotFoundException,
         );
       }
-      return buildGenericServerErrorResponse(
+      return ResponseGenerator.buildGenericServerErrorResponse(
         {
           result: ChargingProfileResultType.REJECTED,
           timeout: this.TIMEOUT,
         },
-        e as Error,
+        e.message,
+        e
       );
     }
   }
@@ -94,13 +92,13 @@ export class ChargingProfilesService {
         sessionId,
         setChargingProfile,
       );
-      return buildGenericSuccessResponse({
+      return ResponseGenerator.buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
         timeout: this.TIMEOUT,
       });
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof NotFoundError) {
-        return buildUnknownSessionResponse(
+        return ResponseGenerator.buildUnknownSessionResponse(
           {
             result: ChargingProfileResultType.UNKNOWN_SESSION,
             timeout: this.TIMEOUT,
@@ -108,12 +106,13 @@ export class ChargingProfilesService {
           e as NotFoundException,
         );
       }
-      return buildGenericServerErrorResponse(
+      return ResponseGenerator.buildGenericServerErrorResponse(
         {
           result: ChargingProfileResultType.REJECTED,
           timeout: this.TIMEOUT,
         },
-        e as Error,
+        e.message,
+        e
       );
     }
   }

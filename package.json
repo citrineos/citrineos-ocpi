@@ -3,14 +3,20 @@
   "version": "2.0.0",
   "private": false,
   "devDependencies": {
-    "@eslint/js": "9.0.0",
+    "@eslint/js": "^9.0.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-graphql-request": "^6.3.0",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
     "@types/eslint__js": "8.42.3",
-    "concurrently": "8.2.2",
-    "eslint": "8.57.0",
-    "eslint-config-prettier": "9.1.0",
-    "prettier": "3.2.5",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
     "typescript": "5.5.4",
-    "typescript-eslint": "7.6.0"
+    "typescript-eslint": "^8.7.0"
   },
   "scripts": {
     "test": "jest --config jest.config.js",
@@ -37,7 +43,8 @@
     "lint": "npx eslint ./",
     "lint-fix": "npm run prettier && npx eslint --fix ./",
     "prettier": "prettier --write .",
-    "fresh-and-install-all": "npm run fresh && npm run install-all"
+    "fresh-and-install-all": "npm run fresh && npm run install-all",
+    "generate": "graphql-codegen"
   },
   "workspaces": [
     "./00_Base",
