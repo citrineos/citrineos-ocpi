@@ -14,17 +14,12 @@ export class TariffsDispatcher {
   ) {}
 
   public initializeListeners() {
-    (this.ocpiTariffRepository as CrudRepository<OcpiTariff>)
-      .on('created', (tariffs) =>
-        this.tariffsBroadcaster.broadcastOcpiUpdate(tariffs),
-      )
-      .on('updated', (tariffs) =>
-        this.tariffsBroadcaster.broadcastOcpiUpdate(tariffs),
-      )
-      .on('deleted', (tariffs) =>
+    (this.ocpiTariffRepository as CrudRepository<OcpiTariff>).on(
+      'deleted',
+      (tariffs) =>
         this.tariffsBroadcaster.broadcastDeletionByKeys(
           tariffs.map((tariff) => tariff.key),
         ),
-      );
+    );
   }
 }

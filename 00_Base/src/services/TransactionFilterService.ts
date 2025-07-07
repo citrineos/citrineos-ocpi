@@ -1,12 +1,11 @@
 import { ITransactionDatasource } from '../datasources/ITransactionDatasource';
 import { PaginatedResult } from '../model/PaginatedResult';
-import {
-  SequelizeTransactionEventRepository,
-  Transaction,
-} from '@citrineos/data';
-import { Attributes, CountOptions } from 'sequelize/types/model';
-import { TransactionQueryBuilder } from './TransactionQueryBuilder';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { Service, Token } from 'typedi';
+import { Transaction } from '@citrineos/data';
+import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
+import { TransactionQueryBuilder } from './TransactionQueryBuilder';
+import { GetTransactionsQuery } from '../graphql/types/graphql';
 
 export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
   'TRANSACTION_DATASOURCE_SERVICE_TOKEN',
@@ -15,7 +14,7 @@ export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
 @Service(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
 export class TransactionFilterService implements ITransactionDatasource {
   constructor(
-    private readonly transactionRepository: SequelizeTransactionEventRepository,
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
     private readonly transactionQueryBuilder: TransactionQueryBuilder,
   ) {}
 
@@ -54,21 +53,14 @@ export class TransactionFilterService implements ITransactionDatasource {
       col: 'id',
     };
 
-    const [transactions, total] = await Promise.all([
-      this.transactionRepository.transaction.readAllByQuery(queryOptions),
-      Transaction.count(
-        countQueryOptions as Omit<
-          CountOptions<Attributes<Transaction>>,
-          'group'
-        >,
-      ),
-    ]);
+    // Call GraphQL endpoint
+    const response = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(GET_TRANSACTIONS_QUERY, queryOptions);
+    const transactions = response.Transactions || [];
+    const total = response.Transactions_aggregate?.aggregate?.count || 0;
 
-    const result: PaginatedResult<Transaction> =
-      new PaginatedResult<Transaction>();
-    result.data = transactions;
+    const result: PaginatedResult<Transaction> = new PaginatedResult<Transaction>();
+    result.data = transactions as unknown as Transaction[];
     result.total = total;
-
     return result;
   }
 }
