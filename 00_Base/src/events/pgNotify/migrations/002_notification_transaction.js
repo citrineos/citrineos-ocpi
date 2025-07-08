@@ -34,12 +34,6 @@ exports.up = (pgm) => {
         
         -- Merge required and changed fields
         notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
-        
-      ELSIF TG_OP = 'DELETE' THEN
-        -- For DELETE: only required fields
-        SELECT jsonb_object_agg(key, value) INTO notificationData
-        FROM jsonb_each(to_jsonb(OLD))
-        WHERE key = ANY(requiredFields);
       END IF;
 
       PERFORM pg_notify(
@@ -57,7 +51,7 @@ exports.up = (pgm) => {
 
   pgm.createTrigger('Transactions', 'TransactionNotification', {
     when: 'AFTER',
-    operation: ['INSERT', 'UPDATE', 'DELETE'],
+    operation: ['INSERT', 'UPDATE'],
     function: 'TransactionNotify',
     level: 'ROW',
   });

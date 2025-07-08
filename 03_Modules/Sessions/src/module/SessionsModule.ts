@@ -11,7 +11,7 @@ import {
   IDtoEventReceiver,
 } from '@citrineos/ocpi-base';
 import { SystemConfig } from '@citrineos/base';
-import { Transaction, TransactionEvent } from '@citrineos/data';
+import { MeterValue, Transaction } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 
 export class SessionsModule extends AbstractDtoModule {
@@ -37,40 +37,41 @@ export class SessionsModule extends AbstractDtoModule {
   @AsDtoEventHandler(
     DtoEventType.INSERT,
     DtoEventObjectType.Transaction,
-    'TransactionNotifications',
+    'TransactionNotification',
   )
   async handleTransactionInsert(event: IDtoEvent<Transaction>): Promise<void> {
     this._logger.info(`Handling Transaction Insert: ${JSON.stringify(event)}`);
-    // Handle the insert event logic here
+    // Inserts are Session PUT requests
   }
 
   @AsDtoEventHandler(
     DtoEventType.UPDATE,
     DtoEventObjectType.Transaction,
-    'TransactionNotifications',
+    'TransactionNotification',
   )
-  async handleTransactionUpdate(event: IDtoEvent<Partial<Transaction>>): Promise<void> {
+  async handleTransactionUpdate(
+    event: IDtoEvent<Partial<Transaction>>,
+  ): Promise<void> {
     this._logger.info(`Handling Transaction Update: ${JSON.stringify(event)}`);
-    // Handle the insert event logic here
-  }
-
-  @AsDtoEventHandler(
-    DtoEventType.DELETE,
-    DtoEventObjectType.Transaction,
-    'TransactionNotifications',
-  )
-  async handleTransactionDelete(event: IDtoEvent<Partial<Transaction>>): Promise<void> {
-    this._logger.info(`Handling Transaction Delete: ${JSON.stringify(event)}`);
-    // Handle the insert event logic here
+    // All updates are Session PATCH requests
+    if (event.payload.isActive === false) {
+      this._logger.info(`Transaction is no longer active: ${event.eventId}`);
+      // This triggers a Cdr POST request
+    }
   }
 
   @AsDtoEventHandler(
     DtoEventType.INSERT,
-    DtoEventObjectType.TransactionEvent,
-    'TransactionEventNotifications',
+    DtoEventObjectType.MeterValue,
+    'MeterValueNotification',
   )
-  async handleTransactionEventInsert(event: IDtoEvent<Partial<TransactionEvent>>): Promise<void> {
-    this._logger.info(`Handling Transaction Event Insert: ${JSON.stringify(event)}`);
-    // Handle the insert event logic here
+  async handleMeterValueInsert(event: IDtoEvent<MeterValue>): Promise<void> {
+    this._logger.info(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
+    if (event.payload.transactionDatabaseId) {
+      this._logger.info(
+        `Meter Value belongs to Transaction: ${event.payload.transactionDatabaseId}`,
+      );
+      // The meter value should be converted to a charging period for a Session PATCH request
+    }
   }
 }

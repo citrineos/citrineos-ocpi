@@ -1,6 +1,6 @@
 exports.up = (pgm) => {
   pgm.createFunction(
-    'EvseNotify',
+    'ConnectorNotify',
     [],
     {
       returns: 'trigger',
@@ -38,7 +38,7 @@ exports.up = (pgm) => {
       END IF;
 
       PERFORM pg_notify(
-        'EvseNotification',
+        'ConnectorNotification',
         json_build_object(
           'operation', TG_OP,
           'data', notificationData
@@ -50,15 +50,15 @@ exports.up = (pgm) => {
     `,
   );
 
-  pgm.createTrigger('Evses', 'EvseNotification', {
+  pgm.createTrigger('Connectors', 'ConnectorNotification', {
     when: 'AFTER',
     operation: ['INSERT', 'UPDATE'],
-    function: 'EvseNotify',
+    function: 'ConnectorNotify',
     level: 'ROW',
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTrigger('Evses', 'EvseNotification');
-  pgm.dropFunction('EvseNotify', []);
+  pgm.dropTrigger('Connectors', 'ConnectorNotification');
+  pgm.dropFunction('ConnectorNotify', []);
 };

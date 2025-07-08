@@ -1,6 +1,6 @@
 exports.up = (pgm) => {
   pgm.createFunction(
-    'TransactionEventNotify',
+    'LocationNotify',
     [],
     {
       returns: 'trigger',
@@ -9,7 +9,8 @@ exports.up = (pgm) => {
     },
     `
     DECLARE
-      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt', 'transactionId'];
+      stationData jsonb;
+      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt'];
       requiredData jsonb;
       changedData jsonb;
       notificationData jsonb;
@@ -34,16 +35,10 @@ exports.up = (pgm) => {
         
         -- Merge required and changed fields
         notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
-        
-      ELSIF TG_OP = 'DELETE' THEN
-        -- For DELETE: only required fields
-        SELECT jsonb_object_agg(key, value) INTO notificationData
-        FROM jsonb_each(to_jsonb(OLD))
-        WHERE key = ANY(requiredFields);
       END IF;
 
       PERFORM pg_notify(
-        'TransactionEventNotification',
+        'LocationNotification',
         json_build_object(
           'operation', TG_OP,
           'data', notificationData
@@ -55,15 +50,15 @@ exports.up = (pgm) => {
     `,
   );
 
-  pgm.createTrigger('TransactionEvents', 'TransactionEventNotification', {
+  pgm.createTrigger('Locations', 'LocationNotification', {
     when: 'AFTER',
-    operation: ['INSERT', 'UPDATE', 'DELETE'],
-    function: 'TransactionEventNotify',
+    operation: ['INSERT', 'UPDATE'],
+    function: 'LocationNotify',
     level: 'ROW',
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTrigger('TransactionEvents', 'TransactionEventNotification');
-  pgm.dropFunction('TransactionEventNotify', []);
+  pgm.dropTrigger('Locations', 'LocationNotification');
+  pgm.dropFunction('LocationNotify', []);
 };
