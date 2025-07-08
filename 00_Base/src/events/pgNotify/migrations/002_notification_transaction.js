@@ -13,7 +13,6 @@ exports.up = (pgm) => {
       requiredData jsonb;
       changedData jsonb;
       notificationData jsonb;
-      meterValues jsonb;
     BEGIN
       IF TG_OP = 'INSERT' THEN
         -- For INSERT: include all fields
@@ -35,22 +34,6 @@ exports.up = (pgm) => {
         
         -- Merge required and changed fields
         notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
-
-        -- If isActive is FALSE, include all meter values for Cdr
-        IF NEW.isActive = FALSE THEN
-          SELECT jsonb_agg(to_jsonb(mv)) INTO meterValues
-          FROM "MeterValues" mv
-          WHERE mv.transactionDatabaseId = NEW.id;
-
-          -- Add meter values to notification data
-          notificationData := notificationData || jsonb_build_object('meterValues', meterValues);
-        END IF;
-        
-      ELSIF TG_OP = 'DELETE' THEN
-        -- For DELETE: only required fields
-        SELECT jsonb_object_agg(key, value) INTO notificationData
-        FROM jsonb_each(to_jsonb(OLD))
-        WHERE key = ANY(requiredFields);
       END IF;
 
       PERFORM pg_notify(
@@ -68,7 +51,7 @@ exports.up = (pgm) => {
 
   pgm.createTrigger('Transactions', 'TransactionNotification', {
     when: 'AFTER',
-    operation: ['INSERT', 'UPDATE', 'DELETE'],
+    operation: ['INSERT', 'UPDATE'],
     function: 'TransactionNotify',
     level: 'ROW',
   });

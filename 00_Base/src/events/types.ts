@@ -18,9 +18,13 @@ export enum DtoEventType {
  * Object types corresponding to Data Transfer Objects (DTOs) in the system.
  */
 export enum DtoEventObjectType {
+  Location = 'Location',
   ChargingStation = 'ChargingStation',
+  Evse = 'Evse',
+  Connector = 'Connector',
   Transaction = 'Transaction',
-  TransactionEvent = 'TransactionEvent',
+  MeterValue = 'MeterValue',
+  Tariff = 'Tariff',
 }
 
 /**

@@ -1,6 +1,6 @@
 exports.up = (pgm) => {
   pgm.createFunction(
-    'EvseNotify',
+    'LocationNotify',
     [],
     {
       returns: 'trigger',
@@ -10,7 +10,7 @@ exports.up = (pgm) => {
     `
     DECLARE
       stationData jsonb;
-      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt', 'stationId'];
+      requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt'];
       requiredData jsonb;
       changedData jsonb;
       notificationData jsonb;
@@ -38,7 +38,7 @@ exports.up = (pgm) => {
       END IF;
 
       PERFORM pg_notify(
-        'EvseNotification',
+        'LocationNotification',
         json_build_object(
           'operation', TG_OP,
           'data', notificationData
@@ -50,15 +50,15 @@ exports.up = (pgm) => {
     `,
   );
 
-  pgm.createTrigger('Evses', 'EvseNotification', {
+  pgm.createTrigger('Locations', 'LocationNotification', {
     when: 'AFTER',
     operation: ['INSERT', 'UPDATE'],
-    function: 'EvseNotify',
+    function: 'LocationNotify',
     level: 'ROW',
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTrigger('Evses', 'EvseNotification');
-  pgm.dropFunction('EvseNotify', []);
+  pgm.dropTrigger('Locations', 'LocationNotification');
+  pgm.dropFunction('LocationNotify', []);
 };
