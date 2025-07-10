@@ -1,4 +1,11 @@
-import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 import 'reflect-metadata';
 import { RegistrationStatusEnumType } from '@citrineos/base';
 import { Enum } from '../../util/decorators/Enum';

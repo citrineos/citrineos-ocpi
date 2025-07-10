@@ -18,7 +18,15 @@ import { OcpiResponse, OcpiResponseStatusCode } from './OcpiResponse';
 import { PaginatedResponse } from './PaginatedResponse';
 import { TokenType } from './TokenType';
 import { TokenDTO } from './DTO/TokenDTO';
-import { Authorization, BelongsTo, Column, DataType, ForeignKey, Model, Table } from '@citrineos/data';
+import {
+  Authorization,
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from '@citrineos/data';
 
 @Table
 export class OcpiToken extends Model {

@@ -2,29 +2,42 @@
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = { [_ in K]?: never };
+export type Incremental<T> =
+  | T
+  | {
+      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
+    };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  bigint: { input: any; output: any; }
-  bpchar: { input: any; output: any; }
-  enum_Connectors_errorCode: { input: any; output: any; }
-  enum_Connectors_status: { input: any; output: any; }
-  enum_InstalledCertificates_certificateType: { input: any; output: any; }
-  geography: { input: any; output: any; }
-  geometry: { input: any; output: any; }
-  json: { input: any; output: any; }
-  jsonb: { input: any; output: any; }
-  numeric: { input: any; output: any; }
-  timestamptz: { input: any; output: any; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
+  bigint: { input: any; output: any };
+  bpchar: { input: any; output: any };
+  enum_Connectors_errorCode: { input: any; output: any };
+  enum_Connectors_status: { input: any; output: any };
+  enum_InstalledCertificates_certificateType: { input: any; output: any };
+  geography: { input: any; output: any };
+  geometry: { input: any; output: any };
+  json: { input: any; output: any };
+  jsonb: { input: any; output: any };
+  numeric: { input: any; output: any };
+  timestamptz: { input: any; output: any };
 };
 
 /** columns and relationships of "AdditionalInfos" */
@@ -44,7 +57,6 @@ export type AdditionalInfos = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "AdditionalInfos" */
 export type AdditionalInfosIdTokenAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
@@ -53,7 +65,6 @@ export type AdditionalInfosIdTokenAdditionalInfosArgs = {
   order_by?: InputMaybe<Array<IdTokenAdditionalInfos_Order_By>>;
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "AdditionalInfos" */
 export type AdditionalInfosIdTokenAdditionalInfos_AggregateArgs = {
@@ -97,7 +108,6 @@ export type AdditionalInfos_Aggregate_Fields = {
   var_samp?: Maybe<AdditionalInfos_Var_Samp_Fields>;
   variance?: Maybe<AdditionalInfos_Variance_Fields>;
 };
-
 
 /** aggregate fields of "AdditionalInfos" */
 export type AdditionalInfos_Aggregate_FieldsCountArgs = {
@@ -161,7 +171,7 @@ export enum AdditionalInfos_Constraint {
   /** unique or primary key constraint on columns "additionalIdToken", "type" */
   AdditionalInfosAdditionalIdTokenTypeKey = 'AdditionalInfos_additionalIdToken_type_key',
   /** unique or primary key constraint on columns "id" */
-  AdditionalInfosPkey = 'AdditionalInfos_pkey'
+  AdditionalInfosPkey = 'AdditionalInfos_pkey',
 }
 
 /** input type for incrementing numeric columns in table "AdditionalInfos" */
@@ -277,7 +287,7 @@ export enum AdditionalInfos_Select_Column {
   /** column name */
   Type = 'type',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "AdditionalInfos" */
@@ -373,7 +383,7 @@ export enum AdditionalInfos_Update_Column {
   /** column name */
   Type = 'type',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type AdditionalInfos_Updates = {
@@ -447,7 +457,6 @@ export type Authorizations = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Authorizations" */
 export type AuthorizationsLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -456,7 +465,6 @@ export type AuthorizationsLocalListAuthorizationsArgs = {
   order_by?: InputMaybe<Array<LocalListAuthorizations_Order_By>>;
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Authorizations" */
 export type AuthorizationsLocalListAuthorizations_AggregateArgs = {
@@ -500,7 +508,6 @@ export type Authorizations_Aggregate_Fields = {
   var_samp?: Maybe<Authorizations_Var_Samp_Fields>;
   variance?: Maybe<Authorizations_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Authorizations" */
 export type Authorizations_Aggregate_FieldsCountArgs = {
@@ -572,7 +579,7 @@ export enum Authorizations_Constraint {
   /** unique or primary key constraint on columns "idTokenId" */
   AuthorizationsIdTokenIdKey = 'Authorizations_idTokenId_key',
   /** unique or primary key constraint on columns "id" */
-  AuthorizationsPkey = 'Authorizations_pkey'
+  AuthorizationsPkey = 'Authorizations_pkey',
 }
 
 /** input type for incrementing numeric columns in table "Authorizations" */
@@ -710,7 +717,7 @@ export enum Authorizations_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Authorizations" */
@@ -830,7 +837,7 @@ export enum Authorizations_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Authorizations_Updates = {
@@ -931,7 +938,6 @@ export type Boots = {
   variablesRejectedOnLastBoot?: Maybe<Scalars['json']['output']>;
 };
 
-
 /** columns and relationships of "Boots" */
 export type BootsVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -940,7 +946,6 @@ export type BootsVariableAttributesArgs = {
   order_by?: InputMaybe<Array<VariableAttributes_Order_By>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Boots" */
 export type BootsVariableAttributes_AggregateArgs = {
@@ -951,12 +956,10 @@ export type BootsVariableAttributes_AggregateArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Boots" */
 export type BootsStatusInfoArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 /** columns and relationships of "Boots" */
 export type BootsVariablesRejectedOnLastBootArgs = {
@@ -1012,7 +1015,6 @@ export type Boots_Aggregate_Fields = {
   var_samp?: Maybe<Boots_Var_Samp_Fields>;
   variance?: Maybe<Boots_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Boots" */
 export type Boots_Aggregate_FieldsCountArgs = {
@@ -1084,7 +1086,7 @@ export type Boots_Bool_Exp = {
 /** unique or primary key constraints on table "Boots" */
 export enum Boots_Constraint {
   /** unique or primary key constraint on columns "id" */
-  BootsPkey = 'Boots_pkey'
+  BootsPkey = 'Boots_pkey',
 }
 
 /** input type for incrementing numeric columns in table "Boots" */
@@ -1241,7 +1243,7 @@ export enum Boots_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VariablesRejectedOnLastBoot = 'variablesRejectedOnLastBoot'
+  VariablesRejectedOnLastBoot = 'variablesRejectedOnLastBoot',
 }
 
 /** select "Boots_aggregate_bool_exp_bool_and_arguments_columns" columns of table "Boots" */
@@ -1253,7 +1255,7 @@ export enum Boots_Select_Column_Boots_Aggregate_Bool_Exp_Bool_And_Arguments_Colu
   /** column name */
   GetBaseReportOnPending = 'getBaseReportOnPending',
   /** column name */
-  GetConfigurationsOnPending = 'getConfigurationsOnPending'
+  GetConfigurationsOnPending = 'getConfigurationsOnPending',
 }
 
 /** select "Boots_aggregate_bool_exp_bool_or_arguments_columns" columns of table "Boots" */
@@ -1265,7 +1267,7 @@ export enum Boots_Select_Column_Boots_Aggregate_Bool_Exp_Bool_Or_Arguments_Colum
   /** column name */
   GetBaseReportOnPending = 'getBaseReportOnPending',
   /** column name */
-  GetConfigurationsOnPending = 'getConfigurationsOnPending'
+  GetConfigurationsOnPending = 'getConfigurationsOnPending',
 }
 
 /** input type for updating data in table "Boots" */
@@ -1401,7 +1403,7 @@ export enum Boots_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VariablesRejectedOnLastBoot = 'variablesRejectedOnLastBoot'
+  VariablesRejectedOnLastBoot = 'variablesRejectedOnLastBoot',
 }
 
 export type Boots_Updates = {
@@ -1532,7 +1534,6 @@ export type Certificates_Aggregate_Fields = {
   variance?: Maybe<Certificates_Variance_Fields>;
 };
 
-
 /** aggregate fields of "Certificates" */
 export type Certificates_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<Certificates_Select_Column>>;
@@ -1610,7 +1611,7 @@ export enum Certificates_Constraint {
   /** unique or primary key constraint on columns "id" */
   CertificatesPkey = 'Certificates_pkey',
   /** unique or primary key constraint on columns "issuerName", "serialNumber" */
-  CertificatesSerialNumberIssuerNameKey = 'Certificates_serialNumber_issuerName_key'
+  CertificatesSerialNumberIssuerNameKey = 'Certificates_serialNumber_issuerName_key',
 }
 
 /** input type for incrementing numeric columns in table "Certificates" */
@@ -1804,19 +1805,19 @@ export enum Certificates_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  ValidBefore = 'validBefore'
+  ValidBefore = 'validBefore',
 }
 
 /** select "Certificates_aggregate_bool_exp_bool_and_arguments_columns" columns of table "Certificates" */
 export enum Certificates_Select_Column_Certificates_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  IsCa = 'isCA'
+  IsCa = 'isCA',
 }
 
 /** select "Certificates_aggregate_bool_exp_bool_or_arguments_columns" columns of table "Certificates" */
 export enum Certificates_Select_Column_Certificates_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  IsCa = 'isCA'
+  IsCa = 'isCA',
 }
 
 /** input type for updating data in table "Certificates" */
@@ -1980,7 +1981,7 @@ export enum Certificates_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  ValidBefore = 'validBefore'
+  ValidBefore = 'validBefore',
 }
 
 export type Certificates_Updates = {
@@ -2114,7 +2115,6 @@ export type ChangeConfigurations_Aggregate_Fields = {
   variance?: Maybe<ChangeConfigurations_Variance_Fields>;
 };
 
-
 /** aggregate fields of "ChangeConfigurations" */
 export type ChangeConfigurations_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<ChangeConfigurations_Select_Column>>;
@@ -2177,7 +2177,7 @@ export enum ChangeConfigurations_Constraint {
   /** unique or primary key constraint on columns "id" */
   ChangeConfigurationsPkey = 'ChangeConfigurations_pkey',
   /** unique or primary key constraint on columns "key", "stationId" */
-  ChangeConfigurationsStationIdKeyKey = 'ChangeConfigurations_stationId_key_key'
+  ChangeConfigurationsStationIdKeyKey = 'ChangeConfigurations_stationId_key_key',
 }
 
 /** input type for incrementing numeric columns in table "ChangeConfigurations" */
@@ -2296,19 +2296,19 @@ export enum ChangeConfigurations_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  Value = 'value'
+  Value = 'value',
 }
 
 /** select "ChangeConfigurations_aggregate_bool_exp_bool_and_arguments_columns" columns of table "ChangeConfigurations" */
 export enum ChangeConfigurations_Select_Column_ChangeConfigurations_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  Readonly = 'readonly'
+  Readonly = 'readonly',
 }
 
 /** select "ChangeConfigurations_aggregate_bool_exp_bool_or_arguments_columns" columns of table "ChangeConfigurations" */
 export enum ChangeConfigurations_Select_Column_ChangeConfigurations_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  Readonly = 'readonly'
+  Readonly = 'readonly',
 }
 
 /** input type for updating data in table "ChangeConfigurations" */
@@ -2412,7 +2412,7 @@ export enum ChangeConfigurations_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  Value = 'value'
+  Value = 'value',
 }
 
 export type ChangeConfigurations_Updates = {
@@ -2485,12 +2485,10 @@ export type ChargingNeeds = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "ChargingNeeds" */
 export type ChargingNeedsAcChargingParametersArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 /** columns and relationships of "ChargingNeeds" */
 export type ChargingNeedsDcChargingParametersArgs = {
@@ -2530,7 +2528,6 @@ export type ChargingNeeds_Aggregate_Fields = {
   var_samp?: Maybe<ChargingNeeds_Var_Samp_Fields>;
   variance?: Maybe<ChargingNeeds_Variance_Fields>;
 };
-
 
 /** aggregate fields of "ChargingNeeds" */
 export type ChargingNeeds_Aggregate_FieldsCountArgs = {
@@ -2611,7 +2608,7 @@ export enum ChargingNeeds_Constraint {
   /** unique or primary key constraint on columns "evseDatabaseId", "transactionDatabaseId" */
   ChargingNeedsEvseDatabaseIdTransactionDatabaseIdKey = 'ChargingNeeds_evseDatabaseId_transactionDatabaseId_key',
   /** unique or primary key constraint on columns "id" */
-  ChargingNeedsPkey = 'ChargingNeeds_pkey'
+  ChargingNeedsPkey = 'ChargingNeeds_pkey',
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -2781,7 +2778,7 @@ export enum ChargingNeeds_Select_Column {
   /** column name */
   TransactionDatabaseId = 'transactionDatabaseId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "ChargingNeeds" */
@@ -2921,7 +2918,7 @@ export enum ChargingNeeds_Update_Column {
   /** column name */
   TransactionDatabaseId = 'transactionDatabaseId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type ChargingNeeds_Updates = {
@@ -3029,7 +3026,6 @@ export type ChargingProfiles = {
   validTo?: Maybe<Scalars['timestamptz']['output']>;
 };
 
-
 /** columns and relationships of "ChargingProfiles" */
 export type ChargingProfilesChargingSchedulesArgs = {
   distinct_on?: InputMaybe<Array<ChargingSchedules_Select_Column>>;
@@ -3038,7 +3034,6 @@ export type ChargingProfilesChargingSchedulesArgs = {
   order_by?: InputMaybe<Array<ChargingSchedules_Order_By>>;
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingProfiles" */
 export type ChargingProfilesChargingSchedules_AggregateArgs = {
@@ -3098,7 +3093,6 @@ export type ChargingProfiles_Aggregate_Fields = {
   var_samp?: Maybe<ChargingProfiles_Var_Samp_Fields>;
   variance?: Maybe<ChargingProfiles_Variance_Fields>;
 };
-
 
 /** aggregate fields of "ChargingProfiles" */
 export type ChargingProfiles_Aggregate_FieldsCountArgs = {
@@ -3181,7 +3175,7 @@ export enum ChargingProfiles_Constraint {
   /** unique or primary key constraint on columns "databaseId" */
   ChargingProfilesPkey = 'ChargingProfiles_pkey',
   /** unique or primary key constraint on columns "id", "stationId" */
-  ChargingProfilesStationIdIdKey = 'ChargingProfiles_stationId_id_key'
+  ChargingProfilesStationIdIdKey = 'ChargingProfiles_stationId_id_key',
 }
 
 /** input type for incrementing numeric columns in table "ChargingProfiles" */
@@ -3379,19 +3373,19 @@ export enum ChargingProfiles_Select_Column {
   /** column name */
   ValidFrom = 'validFrom',
   /** column name */
-  ValidTo = 'validTo'
+  ValidTo = 'validTo',
 }
 
 /** select "ChargingProfiles_aggregate_bool_exp_bool_and_arguments_columns" columns of table "ChargingProfiles" */
 export enum ChargingProfiles_Select_Column_ChargingProfiles_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  IsActive = 'isActive'
+  IsActive = 'isActive',
 }
 
 /** select "ChargingProfiles_aggregate_bool_exp_bool_or_arguments_columns" columns of table "ChargingProfiles" */
 export enum ChargingProfiles_Select_Column_ChargingProfiles_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  IsActive = 'isActive'
+  IsActive = 'isActive',
 }
 
 /** input type for updating data in table "ChargingProfiles" */
@@ -3559,7 +3553,7 @@ export enum ChargingProfiles_Update_Column {
   /** column name */
   ValidFrom = 'validFrom',
   /** column name */
-  ValidTo = 'validTo'
+  ValidTo = 'validTo',
 }
 
 export type ChargingProfiles_Updates = {
@@ -3660,7 +3654,6 @@ export type ChargingSchedules = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "ChargingSchedules" */
 export type ChargingSchedulesSalesTariffsArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
@@ -3670,7 +3663,6 @@ export type ChargingSchedulesSalesTariffsArgs = {
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingSchedules" */
 export type ChargingSchedulesSalesTariffs_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
@@ -3679,7 +3671,6 @@ export type ChargingSchedulesSalesTariffs_AggregateArgs = {
   order_by?: InputMaybe<Array<SalesTariffs_Order_By>>;
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingSchedules" */
 export type ChargingSchedulesChargingSchedulePeriodArgs = {
@@ -3719,7 +3710,6 @@ export type ChargingSchedules_Aggregate_Fields = {
   var_samp?: Maybe<ChargingSchedules_Var_Samp_Fields>;
   variance?: Maybe<ChargingSchedules_Variance_Fields>;
 };
-
 
 /** aggregate fields of "ChargingSchedules" */
 export type ChargingSchedules_Aggregate_FieldsCountArgs = {
@@ -3804,7 +3794,7 @@ export enum ChargingSchedules_Constraint {
   /** unique or primary key constraint on columns "id", "stationId" */
   ChargingSchedulesIdStationIdKey = 'ChargingSchedules_id_stationId_key',
   /** unique or primary key constraint on columns "databaseId" */
-  ChargingSchedulesPkey = 'ChargingSchedules_pkey'
+  ChargingSchedulesPkey = 'ChargingSchedules_pkey',
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -3998,7 +3988,7 @@ export enum ChargingSchedules_Select_Column {
   /** column name */
   TimeBase = 'timeBase',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "ChargingSchedules" */
@@ -4154,7 +4144,7 @@ export enum ChargingSchedules_Update_Column {
   /** column name */
   TimeBase = 'timeBase',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type ChargingSchedules_Updates = {
@@ -4293,7 +4283,6 @@ export type ChargingStationNetworkProfiles_Aggregate_Fields = {
   variance?: Maybe<ChargingStationNetworkProfiles_Variance_Fields>;
 };
 
-
 /** aggregate fields of "ChargingStationNetworkProfiles" */
 export type ChargingStationNetworkProfiles_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -4360,7 +4349,7 @@ export enum ChargingStationNetworkProfiles_Constraint {
   /** unique or primary key constraint on columns "configurationSlot" */
   ChargingStationNetworkProfilesConfigurationSlotKey = 'ChargingStationNetworkProfiles_configurationSlot_key',
   /** unique or primary key constraint on columns "websocketServerConfigId", "stationId" */
-  ChargingStationNetworkProfilesPkey = 'ChargingStationNetworkProfiles_pkey'
+  ChargingStationNetworkProfilesPkey = 'ChargingStationNetworkProfiles_pkey',
 }
 
 /** input type for incrementing numeric columns in table "ChargingStationNetworkProfiles" */
@@ -4483,7 +4472,7 @@ export enum ChargingStationNetworkProfiles_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  WebsocketServerConfigId = 'websocketServerConfigId'
+  WebsocketServerConfigId = 'websocketServerConfigId',
 }
 
 /** input type for updating data in table "ChargingStationNetworkProfiles" */
@@ -4591,7 +4580,7 @@ export enum ChargingStationNetworkProfiles_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  WebsocketServerConfigId = 'websocketServerConfigId'
+  WebsocketServerConfigId = 'websocketServerConfigId',
 }
 
 export type ChargingStationNetworkProfiles_Updates = {
@@ -4694,7 +4683,6 @@ export type ChargingStationSecurityInfos_Aggregate_Fields = {
   var_samp?: Maybe<ChargingStationSecurityInfos_Var_Samp_Fields>;
   variance?: Maybe<ChargingStationSecurityInfos_Variance_Fields>;
 };
-
 
 /** aggregate fields of "ChargingStationSecurityInfos" */
 export type ChargingStationSecurityInfos_Aggregate_FieldsCountArgs = {
@@ -5040,7 +5028,7 @@ export enum ChargingStationSecurityInfos_Constraint {
   /** unique or primary key constraint on columns "stationId" */
   ChargingStationSecurityInfosStationIdKey141 = 'ChargingStationSecurityInfos_stationId_key141',
   /** unique or primary key constraint on columns "stationId" */
-  ChargingStationSecurityInfosStationIdKey142 = 'ChargingStationSecurityInfos_stationId_key142'
+  ChargingStationSecurityInfosStationIdKey142 = 'ChargingStationSecurityInfos_stationId_key142',
 }
 
 /** input type for incrementing numeric columns in table "ChargingStationSecurityInfos" */
@@ -5147,7 +5135,7 @@ export enum ChargingStationSecurityInfos_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "ChargingStationSecurityInfos" */
@@ -5243,7 +5231,7 @@ export enum ChargingStationSecurityInfos_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type ChargingStationSecurityInfos_Updates = {
@@ -5344,7 +5332,6 @@ export type ChargingStationSequences_Aggregate_Fields = {
   variance?: Maybe<ChargingStationSequences_Variance_Fields>;
 };
 
-
 /** aggregate fields of "ChargingStationSequences" */
 export type ChargingStationSequences_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
@@ -5409,7 +5396,7 @@ export enum ChargingStationSequences_Constraint {
   /** unique or primary key constraint on columns "id" */
   ChargingStationSequencesPkey = 'ChargingStationSequences_pkey',
   /** unique or primary key constraint on columns "stationId", "type" */
-  ChargingStationSequencesStationIdTypeKey = 'ChargingStationSequences_stationId_type_key'
+  ChargingStationSequencesStationIdTypeKey = 'ChargingStationSequences_stationId_type_key',
 }
 
 /** input type for incrementing numeric columns in table "ChargingStationSequences" */
@@ -5527,7 +5514,7 @@ export enum ChargingStationSequences_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  Value = 'value'
+  Value = 'value',
 }
 
 /** input type for updating data in table "ChargingStationSequences" */
@@ -5635,7 +5622,7 @@ export enum ChargingStationSequences_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  Value = 'value'
+  Value = 'value',
 }
 
 export type ChargingStationSequences_Updates = {
@@ -5745,7 +5732,6 @@ export type ChargingStations = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsChargingStationNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -5754,7 +5740,6 @@ export type ChargingStationsChargingStationNetworkProfilesArgs = {
   order_by?: InputMaybe<Array<ChargingStationNetworkProfiles_Order_By>>;
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsChargingStationNetworkProfiles_AggregateArgs = {
@@ -5765,7 +5750,6 @@ export type ChargingStationsChargingStationNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsChargingStationSequencesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
@@ -5774,7 +5758,6 @@ export type ChargingStationsChargingStationSequencesArgs = {
   order_by?: InputMaybe<Array<ChargingStationSequences_Order_By>>;
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsChargingStationSequences_AggregateArgs = {
@@ -5785,7 +5768,6 @@ export type ChargingStationsChargingStationSequences_AggregateArgs = {
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsConnectorsArgs = {
   distinct_on?: InputMaybe<Array<Connectors_Select_Column>>;
@@ -5794,7 +5776,6 @@ export type ChargingStationsConnectorsArgs = {
   order_by?: InputMaybe<Array<Connectors_Order_By>>;
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsConnectors_AggregateArgs = {
@@ -5805,7 +5786,6 @@ export type ChargingStationsConnectors_AggregateArgs = {
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsLatestStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
@@ -5814,7 +5794,6 @@ export type ChargingStationsLatestStatusNotificationsArgs = {
   order_by?: InputMaybe<Array<LatestStatusNotifications_Order_By>>;
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsLatestStatusNotifications_AggregateArgs = {
@@ -5825,7 +5804,6 @@ export type ChargingStationsLatestStatusNotifications_AggregateArgs = {
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<StatusNotifications_Select_Column>>;
@@ -5834,7 +5812,6 @@ export type ChargingStationsStatusNotificationsArgs = {
   order_by?: InputMaybe<Array<StatusNotifications_Order_By>>;
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsStatusNotifications_AggregateArgs = {
@@ -5845,7 +5822,6 @@ export type ChargingStationsStatusNotifications_AggregateArgs = {
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsTransactionsArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
@@ -5854,7 +5830,6 @@ export type ChargingStationsTransactionsArgs = {
   order_by?: InputMaybe<Array<Transactions_Order_By>>;
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsTransactions_AggregateArgs = {
@@ -5865,7 +5840,6 @@ export type ChargingStationsTransactions_AggregateArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -5874,7 +5848,6 @@ export type ChargingStationsVariableAttributesArgs = {
   order_by?: InputMaybe<Array<VariableAttributes_Order_By>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ChargingStations" */
 export type ChargingStationsVariableAttributes_AggregateArgs = {
@@ -5934,7 +5907,6 @@ export type ChargingStations_Aggregate_Fields = {
   var_samp?: Maybe<ChargingStations_Var_Samp_Fields>;
   variance?: Maybe<ChargingStations_Variance_Fields>;
 };
-
 
 /** aggregate fields of "ChargingStations" */
 export type ChargingStations_Aggregate_FieldsCountArgs = {
@@ -6019,7 +5991,7 @@ export type ChargingStations_Bool_Exp = {
 /** unique or primary key constraints on table "ChargingStations" */
 export enum ChargingStations_Constraint {
   /** unique or primary key constraint on columns "id" */
-  ChargingStationsPkey = 'ChargingStations_pkey'
+  ChargingStationsPkey = 'ChargingStations_pkey',
 }
 
 /** input type for incrementing numeric columns in table "ChargingStations" */
@@ -6225,19 +6197,19 @@ export enum ChargingStations_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** select "ChargingStations_aggregate_bool_exp_bool_and_arguments_columns" columns of table "ChargingStations" */
 export enum ChargingStations_Select_Column_ChargingStations_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  IsOnline = 'isOnline'
+  IsOnline = 'isOnline',
 }
 
 /** select "ChargingStations_aggregate_bool_exp_bool_or_arguments_columns" columns of table "ChargingStations" */
 export enum ChargingStations_Select_Column_ChargingStations_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  IsOnline = 'isOnline'
+  IsOnline = 'isOnline',
 }
 
 /** input type for updating data in table "ChargingStations" */
@@ -6373,7 +6345,7 @@ export enum ChargingStations_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type ChargingStations_Updates = {
@@ -6474,7 +6446,6 @@ export type ComponentVariables_Aggregate_Fields = {
   variance?: Maybe<ComponentVariables_Variance_Fields>;
 };
 
-
 /** aggregate fields of "ComponentVariables" */
 export type ComponentVariables_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<ComponentVariables_Select_Column>>;
@@ -6536,7 +6507,7 @@ export type ComponentVariables_Bool_Exp = {
 /** unique or primary key constraints on table "ComponentVariables" */
 export enum ComponentVariables_Constraint {
   /** unique or primary key constraint on columns "componentId", "variableId" */
-  ComponentVariablesPkey = 'ComponentVariables_pkey'
+  ComponentVariablesPkey = 'ComponentVariables_pkey',
 }
 
 /** input type for incrementing numeric columns in table "ComponentVariables" */
@@ -6641,7 +6612,7 @@ export enum ComponentVariables_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 /** input type for updating data in table "ComponentVariables" */
@@ -6741,7 +6712,7 @@ export enum ComponentVariables_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 export type ComponentVariables_Updates = {
@@ -6834,7 +6805,6 @@ export type Components = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Components" */
 export type ComponentsComponentVariablesArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
@@ -6843,7 +6813,6 @@ export type ComponentsComponentVariablesArgs = {
   order_by?: InputMaybe<Array<ComponentVariables_Order_By>>;
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Components" */
 export type ComponentsComponentVariables_AggregateArgs = {
@@ -6854,7 +6823,6 @@ export type ComponentsComponentVariables_AggregateArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Components" */
 export type ComponentsEventDataArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
@@ -6863,7 +6831,6 @@ export type ComponentsEventDataArgs = {
   order_by?: InputMaybe<Array<EventData_Order_By>>;
   where?: InputMaybe<EventData_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Components" */
 export type ComponentsEventData_AggregateArgs = {
@@ -6874,7 +6841,6 @@ export type ComponentsEventData_AggregateArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Components" */
 export type ComponentsMessageInfosArgs = {
   distinct_on?: InputMaybe<Array<MessageInfos_Select_Column>>;
@@ -6883,7 +6849,6 @@ export type ComponentsMessageInfosArgs = {
   order_by?: InputMaybe<Array<MessageInfos_Order_By>>;
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Components" */
 export type ComponentsMessageInfos_AggregateArgs = {
@@ -6894,7 +6859,6 @@ export type ComponentsMessageInfos_AggregateArgs = {
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Components" */
 export type ComponentsVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -6903,7 +6867,6 @@ export type ComponentsVariableAttributesArgs = {
   order_by?: InputMaybe<Array<VariableAttributes_Order_By>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Components" */
 export type ComponentsVariableAttributes_AggregateArgs = {
@@ -6914,7 +6877,6 @@ export type ComponentsVariableAttributes_AggregateArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Components" */
 export type ComponentsVariableMonitoringsArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
@@ -6923,7 +6885,6 @@ export type ComponentsVariableMonitoringsArgs = {
   order_by?: InputMaybe<Array<VariableMonitorings_Order_By>>;
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Components" */
 export type ComponentsVariableMonitorings_AggregateArgs = {
@@ -6967,7 +6928,6 @@ export type Components_Aggregate_Fields = {
   var_samp?: Maybe<Components_Var_Samp_Fields>;
   variance?: Maybe<Components_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Components" */
 export type Components_Aggregate_FieldsCountArgs = {
@@ -7045,7 +7005,7 @@ export enum Components_Constraint {
   /** unique or primary key constraint on columns "id" */
   ComponentsPkey = 'Components_pkey',
   /** unique or primary key constraint on columns "name" */
-  ComponentsName = 'components_name'
+  ComponentsName = 'components_name',
 }
 
 /** input type for incrementing numeric columns in table "Components" */
@@ -7180,7 +7140,7 @@ export enum Components_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Components" */
@@ -7288,7 +7248,7 @@ export enum Components_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Components_Updates = {
@@ -7362,7 +7322,6 @@ export type CompositeSchedules = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "CompositeSchedules" */
 export type CompositeSchedulesChargingSchedulePeriodArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -7401,7 +7360,6 @@ export type CompositeSchedules_Aggregate_Fields = {
   var_samp?: Maybe<CompositeSchedules_Var_Samp_Fields>;
   variance?: Maybe<CompositeSchedules_Variance_Fields>;
 };
-
 
 /** aggregate fields of "CompositeSchedules" */
 export type CompositeSchedules_Aggregate_FieldsCountArgs = {
@@ -7474,7 +7432,7 @@ export type CompositeSchedules_Bool_Exp = {
 /** unique or primary key constraints on table "CompositeSchedules" */
 export enum CompositeSchedules_Constraint {
   /** unique or primary key constraint on columns "id" */
-  CompositeSchedulesPkey = 'CompositeSchedules_pkey'
+  CompositeSchedulesPkey = 'CompositeSchedules_pkey',
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -7631,7 +7589,7 @@ export enum CompositeSchedules_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "CompositeSchedules" */
@@ -7759,7 +7717,7 @@ export enum CompositeSchedules_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type CompositeSchedules_Updates = {
@@ -7857,7 +7815,6 @@ export type Connectors = {
   vendorId?: Maybe<Scalars['String']['output']>;
 };
 
-
 /** columns and relationships of "Connectors" */
 export type ConnectorsStartTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
@@ -7866,7 +7823,6 @@ export type ConnectorsStartTransactionsArgs = {
   order_by?: InputMaybe<Array<StartTransactions_Order_By>>;
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Connectors" */
 export type ConnectorsStartTransactions_AggregateArgs = {
@@ -7910,7 +7866,6 @@ export type Connectors_Aggregate_Fields = {
   var_samp?: Maybe<Connectors_Var_Samp_Fields>;
   variance?: Maybe<Connectors_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Connectors" */
 export type Connectors_Aggregate_FieldsCountArgs = {
@@ -7983,7 +7938,7 @@ export enum Connectors_Constraint {
   /** unique or primary key constraint on columns "id" */
   ConnectorsPkey = 'Connectors_pkey',
   /** unique or primary key constraint on columns "stationId", "connectorId" */
-  ConnectorsStationIdConnectorIdKey = 'Connectors_stationId_connectorId_key'
+  ConnectorsStationIdConnectorIdKey = 'Connectors_stationId_connectorId_key',
 }
 
 /** input type for incrementing numeric columns in table "Connectors" */
@@ -8150,7 +8105,7 @@ export enum Connectors_Select_Column {
   /** column name */
   VendorErrorCode = 'vendorErrorCode',
   /** column name */
-  VendorId = 'vendorId'
+  VendorId = 'vendorId',
 }
 
 /** input type for updating data in table "Connectors" */
@@ -8278,7 +8233,7 @@ export enum Connectors_Update_Column {
   /** column name */
   VendorErrorCode = 'vendorErrorCode',
   /** column name */
-  VendorId = 'vendorId'
+  VendorId = 'vendorId',
 }
 
 export type Connectors_Updates = {
@@ -8414,7 +8369,6 @@ export type EventData_Aggregate_Fields = {
   variance?: Maybe<EventData_Variance_Fields>;
 };
 
-
 /** aggregate fields of "EventData" */
 export type EventData_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<EventData_Select_Column>>;
@@ -8499,7 +8453,7 @@ export enum EventData_Constraint {
   /** unique or primary key constraint on columns "id" */
   EventDataPkey = 'EventData_pkey',
   /** unique or primary key constraint on columns "stationId" */
-  EventDataStationIdKey = 'EventData_stationId_key'
+  EventDataStationIdKey = 'EventData_stationId_key',
 }
 
 /** input type for incrementing numeric columns in table "EventData" */
@@ -8707,19 +8661,19 @@ export enum EventData_Select_Column {
   /** column name */
   VariableId = 'variableId',
   /** column name */
-  VariableMonitoringId = 'variableMonitoringId'
+  VariableMonitoringId = 'variableMonitoringId',
 }
 
 /** select "EventData_aggregate_bool_exp_bool_and_arguments_columns" columns of table "EventData" */
 export enum EventData_Select_Column_EventData_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  Cleared = 'cleared'
+  Cleared = 'cleared',
 }
 
 /** select "EventData_aggregate_bool_exp_bool_or_arguments_columns" columns of table "EventData" */
 export enum EventData_Select_Column_EventData_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  Cleared = 'cleared'
+  Cleared = 'cleared',
 }
 
 /** input type for updating data in table "EventData" */
@@ -8903,7 +8857,7 @@ export enum EventData_Update_Column {
   /** column name */
   VariableId = 'variableId',
   /** column name */
-  VariableMonitoringId = 'variableMonitoringId'
+  VariableMonitoringId = 'variableMonitoringId',
 }
 
 export type EventData_Updates = {
@@ -9021,7 +8975,6 @@ export type Evses = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Evses" */
 export type EvsesChargingNeedsArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
@@ -9030,7 +8983,6 @@ export type EvsesChargingNeedsArgs = {
   order_by?: InputMaybe<Array<ChargingNeeds_Order_By>>;
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Evses" */
 export type EvsesChargingNeeds_AggregateArgs = {
@@ -9041,7 +8993,6 @@ export type EvsesChargingNeeds_AggregateArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Evses" */
 export type EvsesComponentsArgs = {
   distinct_on?: InputMaybe<Array<Components_Select_Column>>;
@@ -9050,7 +9001,6 @@ export type EvsesComponentsArgs = {
   order_by?: InputMaybe<Array<Components_Order_By>>;
   where?: InputMaybe<Components_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Evses" */
 export type EvsesComponents_AggregateArgs = {
@@ -9061,7 +9011,6 @@ export type EvsesComponents_AggregateArgs = {
   where?: InputMaybe<Components_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Evses" */
 export type EvsesReservationsArgs = {
   distinct_on?: InputMaybe<Array<Reservations_Select_Column>>;
@@ -9070,7 +9019,6 @@ export type EvsesReservationsArgs = {
   order_by?: InputMaybe<Array<Reservations_Order_By>>;
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Evses" */
 export type EvsesReservations_AggregateArgs = {
@@ -9081,7 +9029,6 @@ export type EvsesReservations_AggregateArgs = {
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Evses" */
 export type EvsesTransactionEventsArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
@@ -9090,7 +9037,6 @@ export type EvsesTransactionEventsArgs = {
   order_by?: InputMaybe<Array<TransactionEvents_Order_By>>;
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Evses" */
 export type EvsesTransactionEvents_AggregateArgs = {
@@ -9101,7 +9047,6 @@ export type EvsesTransactionEvents_AggregateArgs = {
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Evses" */
 export type EvsesTransactionsArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
@@ -9110,7 +9055,6 @@ export type EvsesTransactionsArgs = {
   order_by?: InputMaybe<Array<Transactions_Order_By>>;
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Evses" */
 export type EvsesTransactions_AggregateArgs = {
@@ -9121,7 +9065,6 @@ export type EvsesTransactions_AggregateArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Evses" */
 export type EvsesVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -9130,7 +9073,6 @@ export type EvsesVariableAttributesArgs = {
   order_by?: InputMaybe<Array<VariableAttributes_Order_By>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Evses" */
 export type EvsesVariableAttributes_AggregateArgs = {
@@ -9174,7 +9116,6 @@ export type Evses_Aggregate_Fields = {
   var_samp?: Maybe<Evses_Var_Samp_Fields>;
   variance?: Maybe<Evses_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Evses" */
 export type Evses_Aggregate_FieldsCountArgs = {
@@ -9254,7 +9195,7 @@ export enum Evses_Constraint {
   /** unique or primary key constraint on columns "databaseId" */
   EvsesPkey = 'Evses_pkey',
   /** unique or primary key constraint on columns "id" */
-  EvsesId = 'evses_id'
+  EvsesId = 'evses_id',
 }
 
 /** input type for incrementing numeric columns in table "Evses" */
@@ -9382,7 +9323,7 @@ export enum Evses_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Evses" */
@@ -9494,7 +9435,7 @@ export enum Evses_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Evses_Updates = {
@@ -9607,7 +9548,6 @@ export type IdTokenAdditionalInfos_Aggregate_Fields = {
   variance?: Maybe<IdTokenAdditionalInfos_Variance_Fields>;
 };
 
-
 /** aggregate fields of "IdTokenAdditionalInfos" */
 export type IdTokenAdditionalInfos_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
@@ -9669,7 +9609,7 @@ export type IdTokenAdditionalInfos_Bool_Exp = {
 /** unique or primary key constraints on table "IdTokenAdditionalInfos" */
 export enum IdTokenAdditionalInfos_Constraint {
   /** unique or primary key constraint on columns "additionalInfoId", "idTokenId" */
-  IdTokenAdditionalInfosPkey = 'IdTokenAdditionalInfos_pkey'
+  IdTokenAdditionalInfosPkey = 'IdTokenAdditionalInfos_pkey',
 }
 
 /** input type for incrementing numeric columns in table "IdTokenAdditionalInfos" */
@@ -9774,7 +9714,7 @@ export enum IdTokenAdditionalInfos_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "IdTokenAdditionalInfos" */
@@ -9874,7 +9814,7 @@ export enum IdTokenAdditionalInfos_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type IdTokenAdditionalInfos_Updates = {
@@ -9959,7 +9899,6 @@ export type IdTokenInfos = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "IdTokenInfos" */
 export type IdTokenInfosAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<Authorizations_Select_Column>>;
@@ -9968,7 +9907,6 @@ export type IdTokenInfosAuthorizationsArgs = {
   order_by?: InputMaybe<Array<Authorizations_Order_By>>;
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokenInfos" */
 export type IdTokenInfosAuthorizations_AggregateArgs = {
@@ -9979,7 +9917,6 @@ export type IdTokenInfosAuthorizations_AggregateArgs = {
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokenInfos" */
 export type IdTokenInfosLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -9989,7 +9926,6 @@ export type IdTokenInfosLocalListAuthorizationsArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokenInfos" */
 export type IdTokenInfosLocalListAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -9998,7 +9934,6 @@ export type IdTokenInfosLocalListAuthorizations_AggregateArgs = {
   order_by?: InputMaybe<Array<LocalListAuthorizations_Order_By>>;
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokenInfos" */
 export type IdTokenInfosPersonalMessageArgs = {
@@ -10038,7 +9973,6 @@ export type IdTokenInfos_Aggregate_Fields = {
   var_samp?: Maybe<IdTokenInfos_Var_Samp_Fields>;
   variance?: Maybe<IdTokenInfos_Variance_Fields>;
 };
-
 
 /** aggregate fields of "IdTokenInfos" */
 export type IdTokenInfos_Aggregate_FieldsCountArgs = {
@@ -10112,7 +10046,7 @@ export type IdTokenInfos_Bool_Exp = {
 /** unique or primary key constraints on table "IdTokenInfos" */
 export enum IdTokenInfos_Constraint {
   /** unique or primary key constraint on columns "id" */
-  IdTokenInfosPkey = 'IdTokenInfos_pkey'
+  IdTokenInfosPkey = 'IdTokenInfos_pkey',
 }
 
 /** input type for incrementing numeric columns in table "IdTokenInfos" */
@@ -10270,7 +10204,7 @@ export enum IdTokenInfos_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "IdTokenInfos" */
@@ -10402,7 +10336,7 @@ export enum IdTokenInfos_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type IdTokenInfos_Updates = {
@@ -10504,7 +10438,6 @@ export type IdTokens = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "IdTokens" */
 export type IdTokensIdTokenAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
@@ -10513,7 +10446,6 @@ export type IdTokensIdTokenAdditionalInfosArgs = {
   order_by?: InputMaybe<Array<IdTokenAdditionalInfos_Order_By>>;
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokens" */
 export type IdTokensIdTokenAdditionalInfos_AggregateArgs = {
@@ -10524,7 +10456,6 @@ export type IdTokensIdTokenAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokens" */
 export type IdTokensIdTokenInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenInfos_Select_Column>>;
@@ -10533,7 +10464,6 @@ export type IdTokensIdTokenInfosArgs = {
   order_by?: InputMaybe<Array<IdTokenInfos_Order_By>>;
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokens" */
 export type IdTokensIdTokenInfos_AggregateArgs = {
@@ -10544,7 +10474,6 @@ export type IdTokensIdTokenInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokens" */
 export type IdTokensLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -10553,7 +10482,6 @@ export type IdTokensLocalListAuthorizationsArgs = {
   order_by?: InputMaybe<Array<LocalListAuthorizations_Order_By>>;
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokens" */
 export type IdTokensLocalListAuthorizations_AggregateArgs = {
@@ -10564,7 +10492,6 @@ export type IdTokensLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokens" */
 export type IdTokensStartTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
@@ -10573,7 +10500,6 @@ export type IdTokensStartTransactionsArgs = {
   order_by?: InputMaybe<Array<StartTransactions_Order_By>>;
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokens" */
 export type IdTokensStartTransactions_AggregateArgs = {
@@ -10584,7 +10510,6 @@ export type IdTokensStartTransactions_AggregateArgs = {
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokens" */
 export type IdTokensStopTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StopTransactions_Select_Column>>;
@@ -10593,7 +10518,6 @@ export type IdTokensStopTransactionsArgs = {
   order_by?: InputMaybe<Array<StopTransactions_Order_By>>;
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokens" */
 export type IdTokensStopTransactions_AggregateArgs = {
@@ -10604,7 +10528,6 @@ export type IdTokensStopTransactions_AggregateArgs = {
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "IdTokens" */
 export type IdTokensTransactionEventsArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
@@ -10613,7 +10536,6 @@ export type IdTokensTransactionEventsArgs = {
   order_by?: InputMaybe<Array<TransactionEvents_Order_By>>;
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
-
 
 /** columns and relationships of "IdTokens" */
 export type IdTokensTransactionEvents_AggregateArgs = {
@@ -10657,7 +10579,6 @@ export type IdTokens_Aggregate_Fields = {
   var_samp?: Maybe<IdTokens_Var_Samp_Fields>;
   variance?: Maybe<IdTokens_Variance_Fields>;
 };
-
 
 /** aggregate fields of "IdTokens" */
 export type IdTokens_Aggregate_FieldsCountArgs = {
@@ -10734,7 +10655,7 @@ export enum IdTokens_Constraint {
   /** unique or primary key constraint on columns "id" */
   IdTokensPkey = 'IdTokens_pkey',
   /** unique or primary key constraint on columns "idToken" */
-  IdTokensIdToken = 'id_tokens_id_token'
+  IdTokensIdToken = 'id_tokens_id_token',
 }
 
 /** input type for incrementing numeric columns in table "IdTokens" */
@@ -10862,7 +10783,7 @@ export enum IdTokens_Select_Column {
   /** column name */
   Type = 'type',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "IdTokens" */
@@ -10958,7 +10879,7 @@ export enum IdTokens_Update_Column {
   /** column name */
   Type = 'type',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type IdTokens_Updates = {
@@ -11060,7 +10981,6 @@ export type InstalledCertificates_Aggregate_Fields = {
   variance?: Maybe<InstalledCertificates_Variance_Fields>;
 };
 
-
 /** aggregate fields of "InstalledCertificates" */
 export type InstalledCertificates_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<InstalledCertificates_Select_Column>>;
@@ -11123,7 +11043,7 @@ export type InstalledCertificates_Bool_Exp = {
 /** unique or primary key constraints on table "InstalledCertificates" */
 export enum InstalledCertificates_Constraint {
   /** unique or primary key constraint on columns "id" */
-  InstalledCertificatesPkey = 'InstalledCertificates_pkey'
+  InstalledCertificatesPkey = 'InstalledCertificates_pkey',
 }
 
 /** input type for incrementing numeric columns in table "InstalledCertificates" */
@@ -11135,7 +11055,9 @@ export type InstalledCertificates_Inc_Input = {
 /** input type for inserting data into table "InstalledCertificates" */
 export type InstalledCertificates_Insert_Input = {
   Tenant?: InputMaybe<Tenants_Obj_Rel_Insert_Input>;
-  certificateType?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
+  certificateType?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
   createdAt?: InputMaybe<Scalars['timestamptz']['input']>;
   hashAlgorithm?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['Int']['input']>;
@@ -11150,7 +11072,9 @@ export type InstalledCertificates_Insert_Input = {
 /** aggregate max on columns */
 export type InstalledCertificates_Max_Fields = {
   __typename?: 'InstalledCertificates_max_fields';
-  certificateType?: Maybe<Scalars['enum_InstalledCertificates_certificateType']['output']>;
+  certificateType?: Maybe<
+    Scalars['enum_InstalledCertificates_certificateType']['output']
+  >;
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   hashAlgorithm?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
@@ -11179,7 +11103,9 @@ export type InstalledCertificates_Max_Order_By = {
 /** aggregate min on columns */
 export type InstalledCertificates_Min_Fields = {
   __typename?: 'InstalledCertificates_min_fields';
-  certificateType?: Maybe<Scalars['enum_InstalledCertificates_certificateType']['output']>;
+  certificateType?: Maybe<
+    Scalars['enum_InstalledCertificates_certificateType']['output']
+  >;
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   hashAlgorithm?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
@@ -11262,12 +11188,14 @@ export enum InstalledCertificates_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "InstalledCertificates" */
 export type InstalledCertificates_Set_Input = {
-  certificateType?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
+  certificateType?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
   createdAt?: InputMaybe<Scalars['timestamptz']['input']>;
   hashAlgorithm?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['Int']['input']>;
@@ -11328,7 +11256,9 @@ export type InstalledCertificates_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type InstalledCertificates_Stream_Cursor_Value_Input = {
-  certificateType?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
+  certificateType?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
   createdAt?: InputMaybe<Scalars['timestamptz']['input']>;
   hashAlgorithm?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['Int']['input']>;
@@ -11374,7 +11304,7 @@ export enum InstalledCertificates_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type InstalledCertificates_Updates = {
@@ -11489,7 +11419,6 @@ export type LatestStatusNotifications_Aggregate_Fields = {
   variance?: Maybe<LatestStatusNotifications_Variance_Fields>;
 };
 
-
 /** aggregate fields of "LatestStatusNotifications" */
 export type LatestStatusNotifications_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
@@ -11552,7 +11481,7 @@ export type LatestStatusNotifications_Bool_Exp = {
 /** unique or primary key constraints on table "LatestStatusNotifications" */
 export enum LatestStatusNotifications_Constraint {
   /** unique or primary key constraint on columns "id" */
-  LatestStatusNotificationsPkey = 'LatestStatusNotifications_pkey'
+  LatestStatusNotificationsPkey = 'LatestStatusNotifications_pkey',
 }
 
 /** input type for incrementing numeric columns in table "LatestStatusNotifications" */
@@ -11664,7 +11593,7 @@ export enum LatestStatusNotifications_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "LatestStatusNotifications" */
@@ -11768,7 +11697,7 @@ export enum LatestStatusNotifications_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type LatestStatusNotifications_Updates = {
@@ -11855,7 +11784,6 @@ export type LocalListAuthorizations = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "LocalListAuthorizations" */
 export type LocalListAuthorizationsLocalListVersionAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
@@ -11865,16 +11793,17 @@ export type LocalListAuthorizationsLocalListVersionAuthorizationsArgs = {
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "LocalListAuthorizations" */
-export type LocalListAuthorizationsLocalListVersionAuthorizations_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<LocalListVersionAuthorizations_Order_By>>;
-  where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
-};
-
+export type LocalListAuthorizationsLocalListVersionAuthorizations_AggregateArgs =
+  {
+    distinct_on?: InputMaybe<
+      Array<LocalListVersionAuthorizations_Select_Column>
+    >;
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    offset?: InputMaybe<Scalars['Int']['input']>;
+    order_by?: InputMaybe<Array<LocalListVersionAuthorizations_Order_By>>;
+    where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
+  };
 
 /** columns and relationships of "LocalListAuthorizations" */
 export type LocalListAuthorizationsSendLocalListAuthorizationsArgs = {
@@ -11884,7 +11813,6 @@ export type LocalListAuthorizationsSendLocalListAuthorizationsArgs = {
   order_by?: InputMaybe<Array<SendLocalListAuthorizations_Order_By>>;
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "LocalListAuthorizations" */
 export type LocalListAuthorizationsSendLocalListAuthorizations_AggregateArgs = {
@@ -11928,7 +11856,6 @@ export type LocalListAuthorizations_Aggregate_Fields = {
   var_samp?: Maybe<LocalListAuthorizations_Var_Samp_Fields>;
   variance?: Maybe<LocalListAuthorizations_Variance_Fields>;
 };
-
 
 /** aggregate fields of "LocalListAuthorizations" */
 export type LocalListAuthorizations_Aggregate_FieldsCountArgs = {
@@ -12004,7 +11931,7 @@ export type LocalListAuthorizations_Bool_Exp = {
 /** unique or primary key constraints on table "LocalListAuthorizations" */
 export enum LocalListAuthorizations_Constraint {
   /** unique or primary key constraint on columns "id" */
-  LocalListAuthorizationsPkey = 'LocalListAuthorizations_pkey'
+  LocalListAuthorizationsPkey = 'LocalListAuthorizations_pkey',
 }
 
 /** input type for incrementing numeric columns in table "LocalListAuthorizations" */
@@ -12155,7 +12082,7 @@ export enum LocalListAuthorizations_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "LocalListAuthorizations" */
@@ -12287,7 +12214,7 @@ export enum LocalListAuthorizations_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type LocalListAuthorizations_Updates = {
@@ -12406,7 +12333,6 @@ export type LocalListVersionAuthorizations_Aggregate_Fields = {
   variance?: Maybe<LocalListVersionAuthorizations_Variance_Fields>;
 };
 
-
 /** aggregate fields of "LocalListVersionAuthorizations" */
 export type LocalListVersionAuthorizations_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
@@ -12468,7 +12394,7 @@ export type LocalListVersionAuthorizations_Bool_Exp = {
 /** unique or primary key constraints on table "LocalListVersionAuthorizations" */
 export enum LocalListVersionAuthorizations_Constraint {
   /** unique or primary key constraint on columns "localListVersionId", "authorizationId" */
-  LocalListVersionAuthorizationsPkey = 'LocalListVersionAuthorizations_pkey'
+  LocalListVersionAuthorizationsPkey = 'LocalListVersionAuthorizations_pkey',
 }
 
 /** input type for incrementing numeric columns in table "LocalListVersionAuthorizations" */
@@ -12573,7 +12499,7 @@ export enum LocalListVersionAuthorizations_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "LocalListVersionAuthorizations" */
@@ -12673,7 +12599,7 @@ export enum LocalListVersionAuthorizations_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type LocalListVersionAuthorizations_Updates = {
@@ -12747,7 +12673,6 @@ export type LocalListVersions = {
   versionNumber?: Maybe<Scalars['Int']['output']>;
 };
 
-
 /** columns and relationships of "LocalListVersions" */
 export type LocalListVersionsLocalListVersionAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
@@ -12756,7 +12681,6 @@ export type LocalListVersionsLocalListVersionAuthorizationsArgs = {
   order_by?: InputMaybe<Array<LocalListVersionAuthorizations_Order_By>>;
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "LocalListVersions" */
 export type LocalListVersionsLocalListVersionAuthorizations_AggregateArgs = {
@@ -12800,7 +12724,6 @@ export type LocalListVersions_Aggregate_Fields = {
   var_samp?: Maybe<LocalListVersions_Var_Samp_Fields>;
   variance?: Maybe<LocalListVersions_Variance_Fields>;
 };
-
 
 /** aggregate fields of "LocalListVersions" */
 export type LocalListVersions_Aggregate_FieldsCountArgs = {
@@ -12866,7 +12789,7 @@ export enum LocalListVersions_Constraint {
   /** unique or primary key constraint on columns "id" */
   LocalListVersionsPkey = 'LocalListVersions_pkey',
   /** unique or primary key constraint on columns "stationId" */
-  LocalListVersionsStationIdKey = 'LocalListVersions_stationId_key'
+  LocalListVersionsStationIdKey = 'LocalListVersions_stationId_key',
 }
 
 /** input type for incrementing numeric columns in table "LocalListVersions" */
@@ -12983,7 +12906,7 @@ export enum LocalListVersions_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VersionNumber = 'versionNumber'
+  VersionNumber = 'versionNumber',
 }
 
 /** input type for updating data in table "LocalListVersions" */
@@ -13087,7 +13010,7 @@ export enum LocalListVersions_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VersionNumber = 'versionNumber'
+  VersionNumber = 'versionNumber',
 }
 
 export type LocalListVersions_Updates = {
@@ -13166,7 +13089,6 @@ export type Locations = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Locations" */
 export type LocationsChargingStationsArgs = {
   distinct_on?: InputMaybe<Array<ChargingStations_Select_Column>>;
@@ -13175,7 +13097,6 @@ export type LocationsChargingStationsArgs = {
   order_by?: InputMaybe<Array<ChargingStations_Order_By>>;
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Locations" */
 export type LocationsChargingStations_AggregateArgs = {
@@ -13219,7 +13140,6 @@ export type Locations_Aggregate_Fields = {
   var_samp?: Maybe<Locations_Var_Samp_Fields>;
   variance?: Maybe<Locations_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Locations" */
 export type Locations_Aggregate_FieldsCountArgs = {
@@ -13286,7 +13206,7 @@ export type Locations_Bool_Exp = {
 /** unique or primary key constraints on table "Locations" */
 export enum Locations_Constraint {
   /** unique or primary key constraint on columns "id" */
-  LocationsPkey = 'Locations_pkey'
+  LocationsPkey = 'Locations_pkey',
 }
 
 /** input type for incrementing numeric columns in table "Locations" */
@@ -13438,7 +13358,7 @@ export enum Locations_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Locations" */
@@ -13554,7 +13474,7 @@ export enum Locations_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Locations_Updates = {
@@ -13628,7 +13548,6 @@ export type MessageInfos = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "MessageInfos" */
 export type MessageInfosMessageArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -13683,7 +13602,6 @@ export type MessageInfos_Aggregate_Fields = {
   var_samp?: Maybe<MessageInfos_Var_Samp_Fields>;
   variance?: Maybe<MessageInfos_Variance_Fields>;
 };
-
 
 /** aggregate fields of "MessageInfos" */
 export type MessageInfos_Aggregate_FieldsCountArgs = {
@@ -13758,7 +13676,7 @@ export enum MessageInfos_Constraint {
   /** unique or primary key constraint on columns "databaseId" */
   MessageInfosPkey = 'MessageInfos_pkey',
   /** unique or primary key constraint on columns "id", "stationId" */
-  MessageInfosStationIdIdKey = 'MessageInfos_stationId_id_key'
+  MessageInfosStationIdIdKey = 'MessageInfos_stationId_id_key',
 }
 
 /** input type for incrementing numeric columns in table "MessageInfos" */
@@ -13925,19 +13843,19 @@ export enum MessageInfos_Select_Column {
   /** column name */
   TransactionId = 'transactionId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** select "MessageInfos_aggregate_bool_exp_bool_and_arguments_columns" columns of table "MessageInfos" */
 export enum MessageInfos_Select_Column_MessageInfos_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  Active = 'active'
+  Active = 'active',
 }
 
 /** select "MessageInfos_aggregate_bool_exp_bool_or_arguments_columns" columns of table "MessageInfos" */
 export enum MessageInfos_Select_Column_MessageInfos_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  Active = 'active'
+  Active = 'active',
 }
 
 /** input type for updating data in table "MessageInfos" */
@@ -14081,7 +13999,7 @@ export enum MessageInfos_Update_Column {
   /** column name */
   TransactionId = 'transactionId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type MessageInfos_Updates = {
@@ -14167,7 +14085,6 @@ export type MeterValues = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "MeterValues" */
 export type MeterValuesSampledValueArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -14206,7 +14123,6 @@ export type MeterValues_Aggregate_Fields = {
   var_samp?: Maybe<MeterValues_Var_Samp_Fields>;
   variance?: Maybe<MeterValues_Variance_Fields>;
 };
-
 
 /** aggregate fields of "MeterValues" */
 export type MeterValues_Aggregate_FieldsCountArgs = {
@@ -14281,7 +14197,7 @@ export type MeterValues_Bool_Exp = {
 /** unique or primary key constraints on table "MeterValues" */
 export enum MeterValues_Constraint {
   /** unique or primary key constraint on columns "id" */
-  MeterValuesPkey = 'MeterValues_pkey'
+  MeterValuesPkey = 'MeterValues_pkey',
 }
 
 /** input type for incrementing numeric columns in table "MeterValues" */
@@ -14426,7 +14342,7 @@ export enum MeterValues_Select_Column {
   /** column name */
   TransactionEventId = 'transactionEventId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "MeterValues" */
@@ -14570,7 +14486,7 @@ export enum MeterValues_Update_Column {
   /** column name */
   TransactionEventId = 'transactionEventId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type MeterValues_Updates = {
@@ -14663,7 +14579,6 @@ export type OcppMessages = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "OCPPMessages" */
 export type OcppMessagesMessageArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -14702,7 +14617,6 @@ export type OcppMessages_Aggregate_Fields = {
   var_samp?: Maybe<OcppMessages_Var_Samp_Fields>;
   variance?: Maybe<OcppMessages_Variance_Fields>;
 };
-
 
 /** aggregate fields of "OCPPMessages" */
 export type OcppMessages_Aggregate_FieldsCountArgs = {
@@ -14772,7 +14686,7 @@ export type OcppMessages_Bool_Exp = {
 /** unique or primary key constraints on table "OCPPMessages" */
 export enum OcppMessages_Constraint {
   /** unique or primary key constraint on columns "id" */
-  OcppMessagesPkey = 'OCPPMessages_pkey'
+  OcppMessagesPkey = 'OCPPMessages_pkey',
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -14935,7 +14849,7 @@ export enum OcppMessages_Select_Column {
   /** column name */
   Timestamp = 'timestamp',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "OCPPMessages" */
@@ -15051,7 +14965,7 @@ export enum OcppMessages_Update_Column {
   /** column name */
   Timestamp = 'timestamp',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type OcppMessages_Updates = {
@@ -15135,12 +15049,10 @@ export type Reservations = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Reservations" */
 export type ReservationsGroupIdTokenArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
 };
-
 
 /** columns and relationships of "Reservations" */
 export type ReservationsIdTokenArgs = {
@@ -15196,7 +15108,6 @@ export type Reservations_Aggregate_Fields = {
   var_samp?: Maybe<Reservations_Var_Samp_Fields>;
   variance?: Maybe<Reservations_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Reservations" */
 export type Reservations_Aggregate_FieldsCountArgs = {
@@ -15277,7 +15188,7 @@ export enum Reservations_Constraint {
   /** unique or primary key constraint on columns "id", "stationId" */
   ReservationsIdStationIdKey = 'Reservations_id_stationId_key',
   /** unique or primary key constraint on columns "databaseId" */
-  ReservationsPkey = 'Reservations_pkey'
+  ReservationsPkey = 'Reservations_pkey',
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -15464,19 +15375,19 @@ export enum Reservations_Select_Column {
   /** column name */
   TerminatedByTransaction = 'terminatedByTransaction',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** select "Reservations_aggregate_bool_exp_bool_and_arguments_columns" columns of table "Reservations" */
 export enum Reservations_Select_Column_Reservations_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  IsActive = 'isActive'
+  IsActive = 'isActive',
 }
 
 /** select "Reservations_aggregate_bool_exp_bool_or_arguments_columns" columns of table "Reservations" */
 export enum Reservations_Select_Column_Reservations_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  IsActive = 'isActive'
+  IsActive = 'isActive',
 }
 
 /** input type for updating data in table "Reservations" */
@@ -15620,7 +15531,7 @@ export enum Reservations_Update_Column {
   /** column name */
   TerminatedByTransaction = 'terminatedByTransaction',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Reservations_Updates = {
@@ -15711,7 +15622,6 @@ export type SalesTariffs = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "SalesTariffs" */
 export type SalesTariffsSalesTariffEntryArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -15750,7 +15660,6 @@ export type SalesTariffs_Aggregate_Fields = {
   var_samp?: Maybe<SalesTariffs_Var_Samp_Fields>;
   variance?: Maybe<SalesTariffs_Variance_Fields>;
 };
-
 
 /** aggregate fields of "SalesTariffs" */
 export type SalesTariffs_Aggregate_FieldsCountArgs = {
@@ -15827,7 +15736,7 @@ export enum SalesTariffs_Constraint {
   /** unique or primary key constraint on columns "id", "chargingScheduleDatabaseId" */
   SalesTariffsIdChargingScheduleDatabaseIdKey = 'SalesTariffs_id_chargingScheduleDatabaseId_key',
   /** unique or primary key constraint on columns "databaseId" */
-  SalesTariffsPkey = 'SalesTariffs_pkey'
+  SalesTariffsPkey = 'SalesTariffs_pkey',
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -15979,7 +15888,7 @@ export enum SalesTariffs_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "SalesTariffs" */
@@ -16111,7 +16020,7 @@ export enum SalesTariffs_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type SalesTariffs_Updates = {
@@ -16239,7 +16148,6 @@ export type SecurityEvents_Aggregate_Fields = {
   variance?: Maybe<SecurityEvents_Variance_Fields>;
 };
 
-
 /** aggregate fields of "SecurityEvents" */
 export type SecurityEvents_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<SecurityEvents_Select_Column>>;
@@ -16300,7 +16208,7 @@ export type SecurityEvents_Bool_Exp = {
 /** unique or primary key constraints on table "SecurityEvents" */
 export enum SecurityEvents_Constraint {
   /** unique or primary key constraint on columns "id" */
-  SecurityEventsPkey = 'SecurityEvents_pkey'
+  SecurityEventsPkey = 'SecurityEvents_pkey',
 }
 
 /** input type for incrementing numeric columns in table "SecurityEvents" */
@@ -16423,7 +16331,7 @@ export enum SecurityEvents_Select_Column {
   /** column name */
   Type = 'type',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "SecurityEvents" */
@@ -16527,7 +16435,7 @@ export enum SecurityEvents_Update_Column {
   /** column name */
   Type = 'type',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type SecurityEvents_Updates = {
@@ -16628,7 +16536,6 @@ export type SendLocalListAuthorizations_Aggregate_Fields = {
   variance?: Maybe<SendLocalListAuthorizations_Variance_Fields>;
 };
 
-
 /** aggregate fields of "SendLocalListAuthorizations" */
 export type SendLocalListAuthorizations_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
@@ -16690,7 +16597,7 @@ export type SendLocalListAuthorizations_Bool_Exp = {
 /** unique or primary key constraints on table "SendLocalListAuthorizations" */
 export enum SendLocalListAuthorizations_Constraint {
   /** unique or primary key constraint on columns "authorizationId", "sendLocalListId" */
-  SendLocalListAuthorizationsPkey = 'SendLocalListAuthorizations_pkey'
+  SendLocalListAuthorizationsPkey = 'SendLocalListAuthorizations_pkey',
 }
 
 /** input type for incrementing numeric columns in table "SendLocalListAuthorizations" */
@@ -16795,7 +16702,7 @@ export enum SendLocalListAuthorizations_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "SendLocalListAuthorizations" */
@@ -16895,7 +16802,7 @@ export enum SendLocalListAuthorizations_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type SendLocalListAuthorizations_Updates = {
@@ -16971,7 +16878,6 @@ export type SendLocalLists = {
   versionNumber?: Maybe<Scalars['Int']['output']>;
 };
 
-
 /** columns and relationships of "SendLocalLists" */
 export type SendLocalListsSendLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
@@ -16980,7 +16886,6 @@ export type SendLocalListsSendLocalListAuthorizationsArgs = {
   order_by?: InputMaybe<Array<SendLocalListAuthorizations_Order_By>>;
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "SendLocalLists" */
 export type SendLocalListsSendLocalListAuthorizations_AggregateArgs = {
@@ -17024,7 +16929,6 @@ export type SendLocalLists_Aggregate_Fields = {
   var_samp?: Maybe<SendLocalLists_Var_Samp_Fields>;
   variance?: Maybe<SendLocalLists_Variance_Fields>;
 };
-
 
 /** aggregate fields of "SendLocalLists" */
 export type SendLocalLists_Aggregate_FieldsCountArgs = {
@@ -17090,7 +16994,7 @@ export type SendLocalLists_Bool_Exp = {
 /** unique or primary key constraints on table "SendLocalLists" */
 export enum SendLocalLists_Constraint {
   /** unique or primary key constraint on columns "id" */
-  SendLocalListsPkey = 'SendLocalLists_pkey'
+  SendLocalListsPkey = 'SendLocalLists_pkey',
 }
 
 /** input type for incrementing numeric columns in table "SendLocalLists" */
@@ -17223,7 +17127,7 @@ export enum SendLocalLists_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VersionNumber = 'versionNumber'
+  VersionNumber = 'versionNumber',
 }
 
 /** input type for updating data in table "SendLocalLists" */
@@ -17335,7 +17239,7 @@ export enum SendLocalLists_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VersionNumber = 'versionNumber'
+  VersionNumber = 'versionNumber',
 }
 
 export type SendLocalLists_Updates = {
@@ -17422,7 +17326,6 @@ export type ServerNetworkProfiles = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "ServerNetworkProfiles" */
 export type ServerNetworkProfilesChargingStationNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -17432,16 +17335,17 @@ export type ServerNetworkProfilesChargingStationNetworkProfilesArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "ServerNetworkProfiles" */
-export type ServerNetworkProfilesChargingStationNetworkProfiles_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<ChargingStationNetworkProfiles_Order_By>>;
-  where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
-};
-
+export type ServerNetworkProfilesChargingStationNetworkProfiles_AggregateArgs =
+  {
+    distinct_on?: InputMaybe<
+      Array<ChargingStationNetworkProfiles_Select_Column>
+    >;
+    limit?: InputMaybe<Scalars['Int']['input']>;
+    offset?: InputMaybe<Scalars['Int']['input']>;
+    order_by?: InputMaybe<Array<ChargingStationNetworkProfiles_Order_By>>;
+    where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
+  };
 
 /** columns and relationships of "ServerNetworkProfiles" */
 export type ServerNetworkProfilesSetNetworkProfilesArgs = {
@@ -17451,7 +17355,6 @@ export type ServerNetworkProfilesSetNetworkProfilesArgs = {
   order_by?: InputMaybe<Array<SetNetworkProfiles_Order_By>>;
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "ServerNetworkProfiles" */
 export type ServerNetworkProfilesSetNetworkProfiles_AggregateArgs = {
@@ -17511,7 +17414,6 @@ export type ServerNetworkProfiles_Aggregate_Fields = {
   var_samp?: Maybe<ServerNetworkProfiles_Var_Samp_Fields>;
   variance?: Maybe<ServerNetworkProfiles_Variance_Fields>;
 };
-
 
 /** aggregate fields of "ServerNetworkProfiles" */
 export type ServerNetworkProfiles_Aggregate_FieldsCountArgs = {
@@ -17590,7 +17492,7 @@ export type ServerNetworkProfiles_Bool_Exp = {
 /** unique or primary key constraints on table "ServerNetworkProfiles" */
 export enum ServerNetworkProfiles_Constraint {
   /** unique or primary key constraint on columns "id" */
-  ServerNetworkProfilesPkey = 'ServerNetworkProfiles_pkey'
+  ServerNetworkProfilesPkey = 'ServerNetworkProfiles_pkey',
 }
 
 /** input type for incrementing numeric columns in table "ServerNetworkProfiles" */
@@ -17779,19 +17681,19 @@ export enum ServerNetworkProfiles_Select_Column {
   /** column name */
   TlsKeyFilePath = 'tlsKeyFilePath',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** select "ServerNetworkProfiles_aggregate_bool_exp_bool_and_arguments_columns" columns of table "ServerNetworkProfiles" */
 export enum ServerNetworkProfiles_Select_Column_ServerNetworkProfiles_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  AllowUnknownChargingStations = 'allowUnknownChargingStations'
+  AllowUnknownChargingStations = 'allowUnknownChargingStations',
 }
 
 /** select "ServerNetworkProfiles_aggregate_bool_exp_bool_or_arguments_columns" columns of table "ServerNetworkProfiles" */
 export enum ServerNetworkProfiles_Select_Column_ServerNetworkProfiles_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  AllowUnknownChargingStations = 'allowUnknownChargingStations'
+  AllowUnknownChargingStations = 'allowUnknownChargingStations',
 }
 
 /** input type for updating data in table "ServerNetworkProfiles" */
@@ -17947,7 +17849,7 @@ export enum ServerNetworkProfiles_Update_Column {
   /** column name */
   TlsKeyFilePath = 'tlsKeyFilePath',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type ServerNetworkProfiles_Updates = {
@@ -18045,7 +17947,6 @@ export type SetNetworkProfiles = {
   websocketServerConfigId?: Maybe<Scalars['String']['output']>;
 };
 
-
 /** columns and relationships of "SetNetworkProfiles" */
 export type SetNetworkProfilesChargingStationNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -18054,7 +17955,6 @@ export type SetNetworkProfilesChargingStationNetworkProfilesArgs = {
   order_by?: InputMaybe<Array<ChargingStationNetworkProfiles_Order_By>>;
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "SetNetworkProfiles" */
 export type SetNetworkProfilesChargingStationNetworkProfiles_AggregateArgs = {
@@ -18098,7 +17998,6 @@ export type SetNetworkProfiles_Aggregate_Fields = {
   var_samp?: Maybe<SetNetworkProfiles_Var_Samp_Fields>;
   variance?: Maybe<SetNetworkProfiles_Variance_Fields>;
 };
-
 
 /** aggregate fields of "SetNetworkProfiles" */
 export type SetNetworkProfiles_Aggregate_FieldsCountArgs = {
@@ -18349,7 +18248,7 @@ export enum SetNetworkProfiles_Constraint {
   /** unique or primary key constraint on columns "correlationId" */
   SetNetworkProfilesCorrelationIdKey85 = 'SetNetworkProfiles_correlationId_key85',
   /** unique or primary key constraint on columns "id" */
-  SetNetworkProfilesPkey = 'SetNetworkProfiles_pkey'
+  SetNetworkProfilesPkey = 'SetNetworkProfiles_pkey',
 }
 
 /** input type for incrementing numeric columns in table "SetNetworkProfiles" */
@@ -18550,7 +18449,7 @@ export enum SetNetworkProfiles_Select_Column {
   /** column name */
   Vpn = 'vpn',
   /** column name */
-  WebsocketServerConfigId = 'websocketServerConfigId'
+  WebsocketServerConfigId = 'websocketServerConfigId',
 }
 
 /** input type for updating data in table "SetNetworkProfiles" */
@@ -18710,7 +18609,7 @@ export enum SetNetworkProfiles_Update_Column {
   /** column name */
   Vpn = 'vpn',
   /** column name */
-  WebsocketServerConfigId = 'websocketServerConfigId'
+  WebsocketServerConfigId = 'websocketServerConfigId',
 }
 
 export type SetNetworkProfiles_Updates = {
@@ -18837,7 +18736,6 @@ export type StartTransactions_Aggregate_Fields = {
   variance?: Maybe<StartTransactions_Variance_Fields>;
 };
 
-
 /** aggregate fields of "StartTransactions" */
 export type StartTransactions_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<StartTransactions_Select_Column>>;
@@ -18914,7 +18812,7 @@ export type StartTransactions_Bool_Exp = {
 /** unique or primary key constraints on table "StartTransactions" */
 export enum StartTransactions_Constraint {
   /** unique or primary key constraint on columns "id" */
-  StartTransactionsPkey = 'StartTransactions_pkey'
+  StartTransactionsPkey = 'StartTransactions_pkey',
 }
 
 /** input type for incrementing numeric columns in table "StartTransactions" */
@@ -19079,7 +18977,7 @@ export enum StartTransactions_Select_Column {
   /** column name */
   TransactionDatabaseId = 'transactionDatabaseId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "StartTransactions" */
@@ -19235,7 +19133,7 @@ export enum StartTransactions_Update_Column {
   /** column name */
   TransactionDatabaseId = 'transactionDatabaseId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type StartTransactions_Updates = {
@@ -19342,7 +19240,6 @@ export type StatusNotifications = {
   vendorId?: Maybe<Scalars['String']['output']>;
 };
 
-
 /** columns and relationships of "StatusNotifications" */
 export type StatusNotificationsLatestStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
@@ -19351,7 +19248,6 @@ export type StatusNotificationsLatestStatusNotificationsArgs = {
   order_by?: InputMaybe<Array<LatestStatusNotifications_Order_By>>;
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
-
 
 /** columns and relationships of "StatusNotifications" */
 export type StatusNotificationsLatestStatusNotifications_AggregateArgs = {
@@ -19395,7 +19291,6 @@ export type StatusNotifications_Aggregate_Fields = {
   var_samp?: Maybe<StatusNotifications_Var_Samp_Fields>;
   variance?: Maybe<StatusNotifications_Variance_Fields>;
 };
-
 
 /** aggregate fields of "StatusNotifications" */
 export type StatusNotifications_Aggregate_FieldsCountArgs = {
@@ -19469,7 +19364,7 @@ export type StatusNotifications_Bool_Exp = {
 /** unique or primary key constraints on table "StatusNotifications" */
 export enum StatusNotifications_Constraint {
   /** unique or primary key constraint on columns "id" */
-  StatusNotificationsPkey = 'StatusNotifications_pkey'
+  StatusNotificationsPkey = 'StatusNotifications_pkey',
 }
 
 /** input type for incrementing numeric columns in table "StatusNotifications" */
@@ -19645,7 +19540,7 @@ export enum StatusNotifications_Select_Column {
   /** column name */
   VendorErrorCode = 'vendorErrorCode',
   /** column name */
-  VendorId = 'vendorId'
+  VendorId = 'vendorId',
 }
 
 /** input type for updating data in table "StatusNotifications" */
@@ -19785,7 +19680,7 @@ export enum StatusNotifications_Update_Column {
   /** column name */
   VendorErrorCode = 'vendorErrorCode',
   /** column name */
-  VendorId = 'vendorId'
+  VendorId = 'vendorId',
 }
 
 export type StatusNotifications_Updates = {
@@ -19873,7 +19768,6 @@ export type StopTransactions = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "StopTransactions" */
 export type StopTransactionsMeterValuesArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -19882,7 +19776,6 @@ export type StopTransactionsMeterValuesArgs = {
   order_by?: InputMaybe<Array<MeterValues_Order_By>>;
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
-
 
 /** columns and relationships of "StopTransactions" */
 export type StopTransactionsMeterValues_AggregateArgs = {
@@ -19926,7 +19819,6 @@ export type StopTransactions_Aggregate_Fields = {
   var_samp?: Maybe<StopTransactions_Var_Samp_Fields>;
   variance?: Maybe<StopTransactions_Variance_Fields>;
 };
-
 
 /** aggregate fields of "StopTransactions" */
 export type StopTransactions_Aggregate_FieldsCountArgs = {
@@ -20000,7 +19892,7 @@ export type StopTransactions_Bool_Exp = {
 /** unique or primary key constraints on table "StopTransactions" */
 export enum StopTransactions_Constraint {
   /** unique or primary key constraint on columns "id" */
-  StopTransactionsPkey = 'StopTransactions_pkey'
+  StopTransactionsPkey = 'StopTransactions_pkey',
 }
 
 /** input type for incrementing numeric columns in table "StopTransactions" */
@@ -20155,7 +20047,7 @@ export enum StopTransactions_Select_Column {
   /** column name */
   TransactionDatabaseId = 'transactionDatabaseId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "StopTransactions" */
@@ -20291,7 +20183,7 @@ export enum StopTransactions_Update_Column {
   /** column name */
   TransactionDatabaseId = 'transactionDatabaseId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type StopTransactions_Updates = {
@@ -20478,7 +20370,6 @@ export type Subscriptions_Aggregate_Fields = {
   variance?: Maybe<Subscriptions_Variance_Fields>;
 };
 
-
 /** aggregate fields of "Subscriptions" */
 export type Subscriptions_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<Subscriptions_Select_Column>>;
@@ -20542,7 +20433,7 @@ export type Subscriptions_Bool_Exp = {
 /** unique or primary key constraints on table "Subscriptions" */
 export enum Subscriptions_Constraint {
   /** unique or primary key constraint on columns "id" */
-  SubscriptionsPkey = 'Subscriptions_pkey'
+  SubscriptionsPkey = 'Subscriptions_pkey',
 }
 
 /** input type for incrementing numeric columns in table "Subscriptions" */
@@ -20673,7 +20564,7 @@ export enum Subscriptions_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  Url = 'url'
+  Url = 'url',
 }
 
 /** select "Subscriptions_aggregate_bool_exp_bool_and_arguments_columns" columns of table "Subscriptions" */
@@ -20685,7 +20576,7 @@ export enum Subscriptions_Select_Column_Subscriptions_Aggregate_Bool_Exp_Bool_An
   /** column name */
   OnMessage = 'onMessage',
   /** column name */
-  SentMessage = 'sentMessage'
+  SentMessage = 'sentMessage',
 }
 
 /** select "Subscriptions_aggregate_bool_exp_bool_or_arguments_columns" columns of table "Subscriptions" */
@@ -20697,7 +20588,7 @@ export enum Subscriptions_Select_Column_Subscriptions_Aggregate_Bool_Exp_Bool_Or
   /** column name */
   OnMessage = 'onMessage',
   /** column name */
-  SentMessage = 'sentMessage'
+  SentMessage = 'sentMessage',
 }
 
 /** input type for updating data in table "Subscriptions" */
@@ -20813,7 +20704,7 @@ export enum Subscriptions_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  Url = 'url'
+  Url = 'url',
 }
 
 export type Subscriptions_Updates = {
@@ -20916,7 +20807,6 @@ export type Tariffs_Aggregate_Fields = {
   var_samp?: Maybe<Tariffs_Var_Samp_Fields>;
   variance?: Maybe<Tariffs_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Tariffs" */
 export type Tariffs_Aggregate_FieldsCountArgs = {
@@ -21518,7 +21408,7 @@ export enum Tariffs_Constraint {
   /** unique or primary key constraint on columns "stationId" */
   TariffsStationIdKey260 = 'Tariffs_stationId_key260',
   /** unique or primary key constraint on columns "stationId" */
-  TariffsStationIdKey261 = 'Tariffs_stationId_key261'
+  TariffsStationIdKey261 = 'Tariffs_stationId_key261',
 }
 
 /** input type for incrementing numeric columns in table "Tariffs" */
@@ -21679,7 +21569,7 @@ export enum Tariffs_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Tariffs" */
@@ -21847,7 +21737,7 @@ export enum Tariffs_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Tariffs_Updates = {
@@ -22145,7 +22035,6 @@ export type Tenants = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<AdditionalInfos_Select_Column>>;
@@ -22154,7 +22043,6 @@ export type TenantsAdditionalInfosArgs = {
   order_by?: InputMaybe<Array<AdditionalInfos_Order_By>>;
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsAdditionalInfos_AggregateArgs = {
@@ -22165,7 +22053,6 @@ export type TenantsAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<Authorizations_Select_Column>>;
@@ -22174,7 +22061,6 @@ export type TenantsAuthorizationsArgs = {
   order_by?: InputMaybe<Array<Authorizations_Order_By>>;
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsAuthorizations_AggregateArgs = {
@@ -22185,7 +22071,6 @@ export type TenantsAuthorizations_AggregateArgs = {
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsBootsArgs = {
   distinct_on?: InputMaybe<Array<Boots_Select_Column>>;
@@ -22194,7 +22079,6 @@ export type TenantsBootsArgs = {
   order_by?: InputMaybe<Array<Boots_Order_By>>;
   where?: InputMaybe<Boots_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsBoots_AggregateArgs = {
@@ -22205,7 +22089,6 @@ export type TenantsBoots_AggregateArgs = {
   where?: InputMaybe<Boots_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsCertificatesArgs = {
   distinct_on?: InputMaybe<Array<Certificates_Select_Column>>;
@@ -22214,7 +22097,6 @@ export type TenantsCertificatesArgs = {
   order_by?: InputMaybe<Array<Certificates_Order_By>>;
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsCertificates_AggregateArgs = {
@@ -22225,7 +22107,6 @@ export type TenantsCertificates_AggregateArgs = {
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChangeConfigurationsArgs = {
   distinct_on?: InputMaybe<Array<ChangeConfigurations_Select_Column>>;
@@ -22234,7 +22115,6 @@ export type TenantsChangeConfigurationsArgs = {
   order_by?: InputMaybe<Array<ChangeConfigurations_Order_By>>;
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChangeConfigurations_AggregateArgs = {
@@ -22245,7 +22125,6 @@ export type TenantsChangeConfigurations_AggregateArgs = {
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingNeedsArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
@@ -22254,7 +22133,6 @@ export type TenantsChargingNeedsArgs = {
   order_by?: InputMaybe<Array<ChargingNeeds_Order_By>>;
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingNeeds_AggregateArgs = {
@@ -22265,7 +22143,6 @@ export type TenantsChargingNeeds_AggregateArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingProfiles_Select_Column>>;
@@ -22274,7 +22151,6 @@ export type TenantsChargingProfilesArgs = {
   order_by?: InputMaybe<Array<ChargingProfiles_Order_By>>;
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingProfiles_AggregateArgs = {
@@ -22285,7 +22161,6 @@ export type TenantsChargingProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingSchedulesArgs = {
   distinct_on?: InputMaybe<Array<ChargingSchedules_Select_Column>>;
@@ -22294,7 +22169,6 @@ export type TenantsChargingSchedulesArgs = {
   order_by?: InputMaybe<Array<ChargingSchedules_Order_By>>;
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingSchedules_AggregateArgs = {
@@ -22305,7 +22179,6 @@ export type TenantsChargingSchedules_AggregateArgs = {
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -22314,7 +22187,6 @@ export type TenantsChargingStationNetworkProfilesArgs = {
   order_by?: InputMaybe<Array<ChargingStationNetworkProfiles_Order_By>>;
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationNetworkProfiles_AggregateArgs = {
@@ -22325,7 +22197,6 @@ export type TenantsChargingStationNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationSecurityInfosArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSecurityInfos_Select_Column>>;
@@ -22334,7 +22205,6 @@ export type TenantsChargingStationSecurityInfosArgs = {
   order_by?: InputMaybe<Array<ChargingStationSecurityInfos_Order_By>>;
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationSecurityInfos_AggregateArgs = {
@@ -22345,7 +22215,6 @@ export type TenantsChargingStationSecurityInfos_AggregateArgs = {
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationSequencesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
@@ -22354,7 +22223,6 @@ export type TenantsChargingStationSequencesArgs = {
   order_by?: InputMaybe<Array<ChargingStationSequences_Order_By>>;
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationSequences_AggregateArgs = {
@@ -22365,7 +22233,6 @@ export type TenantsChargingStationSequences_AggregateArgs = {
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStationsArgs = {
   distinct_on?: InputMaybe<Array<ChargingStations_Select_Column>>;
@@ -22374,7 +22241,6 @@ export type TenantsChargingStationsArgs = {
   order_by?: InputMaybe<Array<ChargingStations_Order_By>>;
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsChargingStations_AggregateArgs = {
@@ -22385,7 +22251,6 @@ export type TenantsChargingStations_AggregateArgs = {
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsComponentVariablesArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
@@ -22394,7 +22259,6 @@ export type TenantsComponentVariablesArgs = {
   order_by?: InputMaybe<Array<ComponentVariables_Order_By>>;
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsComponentVariables_AggregateArgs = {
@@ -22405,7 +22269,6 @@ export type TenantsComponentVariables_AggregateArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsComponentsArgs = {
   distinct_on?: InputMaybe<Array<Components_Select_Column>>;
@@ -22414,7 +22277,6 @@ export type TenantsComponentsArgs = {
   order_by?: InputMaybe<Array<Components_Order_By>>;
   where?: InputMaybe<Components_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsComponents_AggregateArgs = {
@@ -22425,7 +22287,6 @@ export type TenantsComponents_AggregateArgs = {
   where?: InputMaybe<Components_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsCompositeSchedulesArgs = {
   distinct_on?: InputMaybe<Array<CompositeSchedules_Select_Column>>;
@@ -22434,7 +22295,6 @@ export type TenantsCompositeSchedulesArgs = {
   order_by?: InputMaybe<Array<CompositeSchedules_Order_By>>;
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsCompositeSchedules_AggregateArgs = {
@@ -22445,7 +22305,6 @@ export type TenantsCompositeSchedules_AggregateArgs = {
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsConnectorsArgs = {
   distinct_on?: InputMaybe<Array<Connectors_Select_Column>>;
@@ -22454,7 +22313,6 @@ export type TenantsConnectorsArgs = {
   order_by?: InputMaybe<Array<Connectors_Order_By>>;
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsConnectors_AggregateArgs = {
@@ -22465,7 +22323,6 @@ export type TenantsConnectors_AggregateArgs = {
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsEventDataArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
@@ -22474,7 +22331,6 @@ export type TenantsEventDataArgs = {
   order_by?: InputMaybe<Array<EventData_Order_By>>;
   where?: InputMaybe<EventData_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsEventData_AggregateArgs = {
@@ -22485,7 +22341,6 @@ export type TenantsEventData_AggregateArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsEvsesArgs = {
   distinct_on?: InputMaybe<Array<Evses_Select_Column>>;
@@ -22494,7 +22349,6 @@ export type TenantsEvsesArgs = {
   order_by?: InputMaybe<Array<Evses_Order_By>>;
   where?: InputMaybe<Evses_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsEvses_AggregateArgs = {
@@ -22505,7 +22359,6 @@ export type TenantsEvses_AggregateArgs = {
   where?: InputMaybe<Evses_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsIdTokenAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
@@ -22514,7 +22367,6 @@ export type TenantsIdTokenAdditionalInfosArgs = {
   order_by?: InputMaybe<Array<IdTokenAdditionalInfos_Order_By>>;
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsIdTokenAdditionalInfos_AggregateArgs = {
@@ -22525,7 +22377,6 @@ export type TenantsIdTokenAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsIdTokenInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenInfos_Select_Column>>;
@@ -22534,7 +22385,6 @@ export type TenantsIdTokenInfosArgs = {
   order_by?: InputMaybe<Array<IdTokenInfos_Order_By>>;
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsIdTokenInfos_AggregateArgs = {
@@ -22545,7 +22395,6 @@ export type TenantsIdTokenInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsIdTokensArgs = {
   distinct_on?: InputMaybe<Array<IdTokens_Select_Column>>;
@@ -22554,7 +22403,6 @@ export type TenantsIdTokensArgs = {
   order_by?: InputMaybe<Array<IdTokens_Order_By>>;
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsIdTokens_AggregateArgs = {
@@ -22565,7 +22413,6 @@ export type TenantsIdTokens_AggregateArgs = {
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsInstalledCertificatesArgs = {
   distinct_on?: InputMaybe<Array<InstalledCertificates_Select_Column>>;
@@ -22574,7 +22421,6 @@ export type TenantsInstalledCertificatesArgs = {
   order_by?: InputMaybe<Array<InstalledCertificates_Order_By>>;
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsInstalledCertificates_AggregateArgs = {
@@ -22585,7 +22431,6 @@ export type TenantsInstalledCertificates_AggregateArgs = {
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsLatestStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
@@ -22594,7 +22439,6 @@ export type TenantsLatestStatusNotificationsArgs = {
   order_by?: InputMaybe<Array<LatestStatusNotifications_Order_By>>;
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsLatestStatusNotifications_AggregateArgs = {
@@ -22605,7 +22449,6 @@ export type TenantsLatestStatusNotifications_AggregateArgs = {
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -22614,7 +22457,6 @@ export type TenantsLocalListAuthorizationsArgs = {
   order_by?: InputMaybe<Array<LocalListAuthorizations_Order_By>>;
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsLocalListAuthorizations_AggregateArgs = {
@@ -22625,7 +22467,6 @@ export type TenantsLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsLocalListVersionAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
@@ -22634,7 +22475,6 @@ export type TenantsLocalListVersionAuthorizationsArgs = {
   order_by?: InputMaybe<Array<LocalListVersionAuthorizations_Order_By>>;
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsLocalListVersionAuthorizations_AggregateArgs = {
@@ -22645,7 +22485,6 @@ export type TenantsLocalListVersionAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsLocalListVersionsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersions_Select_Column>>;
@@ -22654,7 +22493,6 @@ export type TenantsLocalListVersionsArgs = {
   order_by?: InputMaybe<Array<LocalListVersions_Order_By>>;
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsLocalListVersions_AggregateArgs = {
@@ -22665,7 +22503,6 @@ export type TenantsLocalListVersions_AggregateArgs = {
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsLocationsArgs = {
   distinct_on?: InputMaybe<Array<Locations_Select_Column>>;
@@ -22674,7 +22511,6 @@ export type TenantsLocationsArgs = {
   order_by?: InputMaybe<Array<Locations_Order_By>>;
   where?: InputMaybe<Locations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsLocations_AggregateArgs = {
@@ -22685,7 +22521,6 @@ export type TenantsLocations_AggregateArgs = {
   where?: InputMaybe<Locations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsMessageInfosArgs = {
   distinct_on?: InputMaybe<Array<MessageInfos_Select_Column>>;
@@ -22694,7 +22529,6 @@ export type TenantsMessageInfosArgs = {
   order_by?: InputMaybe<Array<MessageInfos_Order_By>>;
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsMessageInfos_AggregateArgs = {
@@ -22705,7 +22539,6 @@ export type TenantsMessageInfos_AggregateArgs = {
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsMeterValuesArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -22714,7 +22547,6 @@ export type TenantsMeterValuesArgs = {
   order_by?: InputMaybe<Array<MeterValues_Order_By>>;
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsMeterValues_AggregateArgs = {
@@ -22725,7 +22557,6 @@ export type TenantsMeterValues_AggregateArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsOcppMessagesArgs = {
   distinct_on?: InputMaybe<Array<OcppMessages_Select_Column>>;
@@ -22734,7 +22565,6 @@ export type TenantsOcppMessagesArgs = {
   order_by?: InputMaybe<Array<OcppMessages_Order_By>>;
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsOcppMessages_AggregateArgs = {
@@ -22745,7 +22575,6 @@ export type TenantsOcppMessages_AggregateArgs = {
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsReservationsArgs = {
   distinct_on?: InputMaybe<Array<Reservations_Select_Column>>;
@@ -22754,7 +22583,6 @@ export type TenantsReservationsArgs = {
   order_by?: InputMaybe<Array<Reservations_Order_By>>;
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsReservations_AggregateArgs = {
@@ -22765,7 +22593,6 @@ export type TenantsReservations_AggregateArgs = {
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsSalesTariffsArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
@@ -22774,7 +22601,6 @@ export type TenantsSalesTariffsArgs = {
   order_by?: InputMaybe<Array<SalesTariffs_Order_By>>;
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsSalesTariffs_AggregateArgs = {
@@ -22785,7 +22611,6 @@ export type TenantsSalesTariffs_AggregateArgs = {
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsSecurityEventsArgs = {
   distinct_on?: InputMaybe<Array<SecurityEvents_Select_Column>>;
@@ -22794,7 +22619,6 @@ export type TenantsSecurityEventsArgs = {
   order_by?: InputMaybe<Array<SecurityEvents_Order_By>>;
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsSecurityEvents_AggregateArgs = {
@@ -22805,7 +22629,6 @@ export type TenantsSecurityEvents_AggregateArgs = {
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsSendLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
@@ -22814,7 +22637,6 @@ export type TenantsSendLocalListAuthorizationsArgs = {
   order_by?: InputMaybe<Array<SendLocalListAuthorizations_Order_By>>;
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsSendLocalListAuthorizations_AggregateArgs = {
@@ -22825,7 +22647,6 @@ export type TenantsSendLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsSendLocalListsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalLists_Select_Column>>;
@@ -22834,7 +22655,6 @@ export type TenantsSendLocalListsArgs = {
   order_by?: InputMaybe<Array<SendLocalLists_Order_By>>;
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsSendLocalLists_AggregateArgs = {
@@ -22845,7 +22665,6 @@ export type TenantsSendLocalLists_AggregateArgs = {
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsServerNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ServerNetworkProfiles_Select_Column>>;
@@ -22854,7 +22673,6 @@ export type TenantsServerNetworkProfilesArgs = {
   order_by?: InputMaybe<Array<ServerNetworkProfiles_Order_By>>;
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsServerNetworkProfiles_AggregateArgs = {
@@ -22865,7 +22683,6 @@ export type TenantsServerNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsSetNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<SetNetworkProfiles_Select_Column>>;
@@ -22874,7 +22691,6 @@ export type TenantsSetNetworkProfilesArgs = {
   order_by?: InputMaybe<Array<SetNetworkProfiles_Order_By>>;
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsSetNetworkProfiles_AggregateArgs = {
@@ -22885,7 +22701,6 @@ export type TenantsSetNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsStartTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
@@ -22894,7 +22709,6 @@ export type TenantsStartTransactionsArgs = {
   order_by?: InputMaybe<Array<StartTransactions_Order_By>>;
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsStartTransactions_AggregateArgs = {
@@ -22905,7 +22719,6 @@ export type TenantsStartTransactions_AggregateArgs = {
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<StatusNotifications_Select_Column>>;
@@ -22914,7 +22727,6 @@ export type TenantsStatusNotificationsArgs = {
   order_by?: InputMaybe<Array<StatusNotifications_Order_By>>;
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsStatusNotifications_AggregateArgs = {
@@ -22925,7 +22737,6 @@ export type TenantsStatusNotifications_AggregateArgs = {
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsStopTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StopTransactions_Select_Column>>;
@@ -22934,7 +22745,6 @@ export type TenantsStopTransactionsArgs = {
   order_by?: InputMaybe<Array<StopTransactions_Order_By>>;
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsStopTransactions_AggregateArgs = {
@@ -22945,7 +22755,6 @@ export type TenantsStopTransactions_AggregateArgs = {
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsSubscriptionsArgs = {
   distinct_on?: InputMaybe<Array<Subscriptions_Select_Column>>;
@@ -22954,7 +22763,6 @@ export type TenantsSubscriptionsArgs = {
   order_by?: InputMaybe<Array<Subscriptions_Order_By>>;
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsSubscriptions_AggregateArgs = {
@@ -22965,7 +22773,6 @@ export type TenantsSubscriptions_AggregateArgs = {
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsTariffsArgs = {
   distinct_on?: InputMaybe<Array<Tariffs_Select_Column>>;
@@ -22974,7 +22781,6 @@ export type TenantsTariffsArgs = {
   order_by?: InputMaybe<Array<Tariffs_Order_By>>;
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsTariffs_AggregateArgs = {
@@ -22985,7 +22791,6 @@ export type TenantsTariffs_AggregateArgs = {
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsTransactionEventsArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
@@ -22994,7 +22799,6 @@ export type TenantsTransactionEventsArgs = {
   order_by?: InputMaybe<Array<TransactionEvents_Order_By>>;
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsTransactionEvents_AggregateArgs = {
@@ -23005,7 +22809,6 @@ export type TenantsTransactionEvents_AggregateArgs = {
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsTransactionsArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
@@ -23014,7 +22817,6 @@ export type TenantsTransactionsArgs = {
   order_by?: InputMaybe<Array<Transactions_Order_By>>;
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsTransactions_AggregateArgs = {
@@ -23025,7 +22827,6 @@ export type TenantsTransactions_AggregateArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -23034,7 +22835,6 @@ export type TenantsVariableAttributesArgs = {
   order_by?: InputMaybe<Array<VariableAttributes_Order_By>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsVariableAttributes_AggregateArgs = {
@@ -23045,7 +22845,6 @@ export type TenantsVariableAttributes_AggregateArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsVariableCharacteristicsArgs = {
   distinct_on?: InputMaybe<Array<VariableCharacteristics_Select_Column>>;
@@ -23054,7 +22853,6 @@ export type TenantsVariableCharacteristicsArgs = {
   order_by?: InputMaybe<Array<VariableCharacteristics_Order_By>>;
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsVariableCharacteristics_AggregateArgs = {
@@ -23065,7 +22863,6 @@ export type TenantsVariableCharacteristics_AggregateArgs = {
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsVariableMonitoringStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitoringStatuses_Select_Column>>;
@@ -23074,7 +22871,6 @@ export type TenantsVariableMonitoringStatusesArgs = {
   order_by?: InputMaybe<Array<VariableMonitoringStatuses_Order_By>>;
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsVariableMonitoringStatuses_AggregateArgs = {
@@ -23085,7 +22881,6 @@ export type TenantsVariableMonitoringStatuses_AggregateArgs = {
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsVariableMonitoringsArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
@@ -23094,7 +22889,6 @@ export type TenantsVariableMonitoringsArgs = {
   order_by?: InputMaybe<Array<VariableMonitorings_Order_By>>;
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsVariableMonitorings_AggregateArgs = {
@@ -23105,7 +22899,6 @@ export type TenantsVariableMonitorings_AggregateArgs = {
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsVariableStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableStatuses_Select_Column>>;
@@ -23114,7 +22907,6 @@ export type TenantsVariableStatusesArgs = {
   order_by?: InputMaybe<Array<VariableStatuses_Order_By>>;
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsVariableStatuses_AggregateArgs = {
@@ -23125,7 +22917,6 @@ export type TenantsVariableStatuses_AggregateArgs = {
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Tenants" */
 export type TenantsVariablesArgs = {
   distinct_on?: InputMaybe<Array<Variables_Select_Column>>;
@@ -23134,7 +22925,6 @@ export type TenantsVariablesArgs = {
   order_by?: InputMaybe<Array<Variables_Order_By>>;
   where?: InputMaybe<Variables_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Tenants" */
 export type TenantsVariables_AggregateArgs = {
@@ -23167,7 +22957,6 @@ export type Tenants_Aggregate_Fields = {
   var_samp?: Maybe<Tenants_Var_Samp_Fields>;
   variance?: Maybe<Tenants_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Tenants" */
 export type Tenants_Aggregate_FieldsCountArgs = {
@@ -23297,7 +23086,7 @@ export type Tenants_Bool_Exp = {
 /** unique or primary key constraints on table "Tenants" */
 export enum Tenants_Constraint {
   /** unique or primary key constraint on columns "id" */
-  TenantsPkey = 'Tenants_pkey'
+  TenantsPkey = 'Tenants_pkey',
 }
 
 /** input type for incrementing numeric columns in table "Tenants" */
@@ -23488,7 +23277,7 @@ export enum Tenants_Select_Column {
   /** column name */
   PartyId = 'partyId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Tenants" */
@@ -23556,7 +23345,7 @@ export enum Tenants_Update_Column {
   /** column name */
   PartyId = 'partyId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Tenants_Updates = {
@@ -23620,7 +23409,6 @@ export type TransactionEvents = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "TransactionEvents" */
 export type TransactionEventsMeterValuesArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -23630,7 +23418,6 @@ export type TransactionEventsMeterValuesArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 /** columns and relationships of "TransactionEvents" */
 export type TransactionEventsMeterValues_AggregateArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -23639,7 +23426,6 @@ export type TransactionEventsMeterValues_AggregateArgs = {
   order_by?: InputMaybe<Array<MeterValues_Order_By>>;
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
-
 
 /** columns and relationships of "TransactionEvents" */
 export type TransactionEventsTransactionInfoArgs = {
@@ -23695,7 +23481,6 @@ export type TransactionEvents_Aggregate_Fields = {
   var_samp?: Maybe<TransactionEvents_Var_Samp_Fields>;
   variance?: Maybe<TransactionEvents_Variance_Fields>;
 };
-
 
 /** aggregate fields of "TransactionEvents" */
 export type TransactionEvents_Aggregate_FieldsCountArgs = {
@@ -23785,7 +23570,7 @@ export type TransactionEvents_Bool_Exp = {
 /** unique or primary key constraints on table "TransactionEvents" */
 export enum TransactionEvents_Constraint {
   /** unique or primary key constraint on columns "id" */
-  TransactionEventsPkey = 'TransactionEvents_pkey'
+  TransactionEventsPkey = 'TransactionEvents_pkey',
 }
 
 /** input type for incrementing numeric columns in table "TransactionEvents" */
@@ -23994,19 +23779,19 @@ export enum TransactionEvents_Select_Column {
   /** column name */
   TriggerReason = 'triggerReason',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** select "TransactionEvents_aggregate_bool_exp_bool_and_arguments_columns" columns of table "TransactionEvents" */
 export enum TransactionEvents_Select_Column_TransactionEvents_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  Offline = 'offline'
+  Offline = 'offline',
 }
 
 /** select "TransactionEvents_aggregate_bool_exp_bool_or_arguments_columns" columns of table "TransactionEvents" */
 export enum TransactionEvents_Select_Column_TransactionEvents_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  Offline = 'offline'
+  Offline = 'offline',
 }
 
 /** input type for updating data in table "TransactionEvents" */
@@ -24202,7 +23987,7 @@ export enum TransactionEvents_Update_Column {
   /** column name */
   TriggerReason = 'triggerReason',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type TransactionEvents_Updates = {
@@ -24340,7 +24125,6 @@ export type Transactions = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Transactions" */
 export type TransactionsChargingNeedsArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
@@ -24349,7 +24133,6 @@ export type TransactionsChargingNeedsArgs = {
   order_by?: InputMaybe<Array<ChargingNeeds_Order_By>>;
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Transactions" */
 export type TransactionsChargingNeeds_AggregateArgs = {
@@ -24360,7 +24143,6 @@ export type TransactionsChargingNeeds_AggregateArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Transactions" */
 export type TransactionsChargingProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingProfiles_Select_Column>>;
@@ -24369,7 +24151,6 @@ export type TransactionsChargingProfilesArgs = {
   order_by?: InputMaybe<Array<ChargingProfiles_Order_By>>;
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Transactions" */
 export type TransactionsChargingProfiles_AggregateArgs = {
@@ -24380,7 +24161,6 @@ export type TransactionsChargingProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Transactions" */
 export type TransactionsMeterValuesArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -24389,7 +24169,6 @@ export type TransactionsMeterValuesArgs = {
   order_by?: InputMaybe<Array<MeterValues_Order_By>>;
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Transactions" */
 export type TransactionsMeterValues_AggregateArgs = {
@@ -24400,7 +24179,6 @@ export type TransactionsMeterValues_AggregateArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Transactions" */
 export type TransactionsTransactionEventsArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
@@ -24409,7 +24187,6 @@ export type TransactionsTransactionEventsArgs = {
   order_by?: InputMaybe<Array<TransactionEvents_Order_By>>;
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Transactions" */
 export type TransactionsTransactionEvents_AggregateArgs = {
@@ -24469,7 +24246,6 @@ export type Transactions_Aggregate_Fields = {
   var_samp?: Maybe<Transactions_Var_Samp_Fields>;
   variance?: Maybe<Transactions_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Transactions" */
 export type Transactions_Aggregate_FieldsCountArgs = {
@@ -24561,7 +24337,7 @@ export enum Transactions_Constraint {
   /** unique or primary key constraint on columns "id" */
   TransactionsPkey = 'Transactions_pkey',
   /** unique or primary key constraint on columns "transactionId", "stationId" */
-  TransactionsStationIdTransactionIdKey = 'Transactions_stationId_transactionId_key'
+  TransactionsStationIdTransactionIdKey = 'Transactions_stationId_transactionId_key',
 }
 
 /** input type for incrementing numeric columns in table "Transactions" */
@@ -24756,19 +24532,19 @@ export enum Transactions_Select_Column {
   /** column name */
   TransactionId = 'transactionId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** select "Transactions_aggregate_bool_exp_bool_and_arguments_columns" columns of table "Transactions" */
 export enum Transactions_Select_Column_Transactions_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  IsActive = 'isActive'
+  IsActive = 'isActive',
 }
 
 /** select "Transactions_aggregate_bool_exp_bool_or_arguments_columns" columns of table "Transactions" */
 export enum Transactions_Select_Column_Transactions_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  IsActive = 'isActive'
+  IsActive = 'isActive',
 }
 
 /** input type for updating data in table "Transactions" */
@@ -24936,7 +24712,7 @@ export enum Transactions_Update_Column {
   /** column name */
   TransactionId = 'transactionId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Transactions_Updates = {
@@ -25054,7 +24830,6 @@ export type VariableAttributes = {
   variableId?: Maybe<Scalars['Int']['output']>;
 };
 
-
 /** columns and relationships of "VariableAttributes" */
 export type VariableAttributesVariableStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableStatuses_Select_Column>>;
@@ -25063,7 +24838,6 @@ export type VariableAttributesVariableStatusesArgs = {
   order_by?: InputMaybe<Array<VariableStatuses_Order_By>>;
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
-
 
 /** columns and relationships of "VariableAttributes" */
 export type VariableAttributesVariableStatuses_AggregateArgs = {
@@ -25123,7 +24897,6 @@ export type VariableAttributes_Aggregate_Fields = {
   var_samp?: Maybe<VariableAttributes_Var_Samp_Fields>;
   variance?: Maybe<VariableAttributes_Variance_Fields>;
 };
-
 
 /** aggregate fields of "VariableAttributes" */
 export type VariableAttributes_Aggregate_FieldsCountArgs = {
@@ -25220,7 +24993,7 @@ export enum VariableAttributes_Constraint {
   /** unique or primary key constraint on columns "stationId", "variableId" */
   VariableAttributesStationIdVariableId = 'variable_attributes_station_id_variable_id',
   /** unique or primary key constraint on columns "stationId", "componentId", "variableId" */
-  VariableAttributesStationIdVariableIdComponentId = 'variable_attributes_station_id_variable_id_component_id'
+  VariableAttributesStationIdVariableIdComponentId = 'variable_attributes_station_id_variable_id_component_id',
 }
 
 /** input type for incrementing numeric columns in table "VariableAttributes" */
@@ -25421,7 +25194,7 @@ export enum VariableAttributes_Select_Column {
   /** column name */
   Value = 'value',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 /** select "VariableAttributes_aggregate_bool_exp_bool_and_arguments_columns" columns of table "VariableAttributes" */
@@ -25429,7 +25202,7 @@ export enum VariableAttributes_Select_Column_VariableAttributes_Aggregate_Bool_E
   /** column name */
   Constant = 'constant',
   /** column name */
-  Persistent = 'persistent'
+  Persistent = 'persistent',
 }
 
 /** select "VariableAttributes_aggregate_bool_exp_bool_or_arguments_columns" columns of table "VariableAttributes" */
@@ -25437,7 +25210,7 @@ export enum VariableAttributes_Select_Column_VariableAttributes_Aggregate_Bool_E
   /** column name */
   Constant = 'constant',
   /** column name */
-  Persistent = 'persistent'
+  Persistent = 'persistent',
 }
 
 /** input type for updating data in table "VariableAttributes" */
@@ -25597,7 +25370,7 @@ export enum VariableAttributes_Update_Column {
   /** column name */
   Value = 'value',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 export type VariableAttributes_Updates = {
@@ -25736,7 +25509,6 @@ export type VariableCharacteristics_Aggregate_Fields = {
   variance?: Maybe<VariableCharacteristics_Variance_Fields>;
 };
 
-
 /** aggregate fields of "VariableCharacteristics" */
 export type VariableCharacteristics_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<VariableCharacteristics_Select_Column>>;
@@ -25809,7 +25581,7 @@ export enum VariableCharacteristics_Constraint {
   /** unique or primary key constraint on columns "id" */
   VariableCharacteristicsPkey = 'VariableCharacteristics_pkey',
   /** unique or primary key constraint on columns "variableId" */
-  VariableCharacteristicsVariableIdKey = 'VariableCharacteristics_variableId_key'
+  VariableCharacteristicsVariableIdKey = 'VariableCharacteristics_variableId_key',
 }
 
 /** input type for incrementing numeric columns in table "VariableCharacteristics" */
@@ -25964,19 +25736,19 @@ export enum VariableCharacteristics_Select_Column {
   /** column name */
   ValuesList = 'valuesList',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 /** select "VariableCharacteristics_aggregate_bool_exp_bool_and_arguments_columns" columns of table "VariableCharacteristics" */
 export enum VariableCharacteristics_Select_Column_VariableCharacteristics_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  SupportsMonitoring = 'supportsMonitoring'
+  SupportsMonitoring = 'supportsMonitoring',
 }
 
 /** select "VariableCharacteristics_aggregate_bool_exp_bool_or_arguments_columns" columns of table "VariableCharacteristics" */
 export enum VariableCharacteristics_Select_Column_VariableCharacteristics_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  SupportsMonitoring = 'supportsMonitoring'
+  SupportsMonitoring = 'supportsMonitoring',
 }
 
 /** input type for updating data in table "VariableCharacteristics" */
@@ -26116,7 +25888,7 @@ export enum VariableCharacteristics_Update_Column {
   /** column name */
   ValuesList = 'valuesList',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 export type VariableCharacteristics_Updates = {
@@ -26201,7 +25973,6 @@ export type VariableMonitoringStatuses = {
   variableMonitoringId?: Maybe<Scalars['Int']['output']>;
 };
 
-
 /** columns and relationships of "VariableMonitoringStatuses" */
 export type VariableMonitoringStatusesStatusInfoArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -26240,7 +26011,6 @@ export type VariableMonitoringStatuses_Aggregate_Fields = {
   var_samp?: Maybe<VariableMonitoringStatuses_Var_Samp_Fields>;
   variance?: Maybe<VariableMonitoringStatuses_Variance_Fields>;
 };
-
 
 /** aggregate fields of "VariableMonitoringStatuses" */
 export type VariableMonitoringStatuses_Aggregate_FieldsCountArgs = {
@@ -26304,7 +26074,7 @@ export type VariableMonitoringStatuses_Bool_Exp = {
 /** unique or primary key constraints on table "VariableMonitoringStatuses" */
 export enum VariableMonitoringStatuses_Constraint {
   /** unique or primary key constraint on columns "id" */
-  VariableMonitoringStatusesPkey = 'VariableMonitoringStatuses_pkey'
+  VariableMonitoringStatusesPkey = 'VariableMonitoringStatuses_pkey',
 }
 
 /** input type for incrementing numeric columns in table "VariableMonitoringStatuses" */
@@ -26418,7 +26188,7 @@ export enum VariableMonitoringStatuses_Select_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VariableMonitoringId = 'variableMonitoringId'
+  VariableMonitoringId = 'variableMonitoringId',
 }
 
 /** input type for updating data in table "VariableMonitoringStatuses" */
@@ -26526,7 +26296,7 @@ export enum VariableMonitoringStatuses_Update_Column {
   /** column name */
   UpdatedAt = 'updatedAt',
   /** column name */
-  VariableMonitoringId = 'variableMonitoringId'
+  VariableMonitoringId = 'variableMonitoringId',
 }
 
 export type VariableMonitoringStatuses_Updates = {
@@ -26610,7 +26380,6 @@ export type VariableMonitorings = {
   variableId?: Maybe<Scalars['Int']['output']>;
 };
 
-
 /** columns and relationships of "VariableMonitorings" */
 export type VariableMonitoringsVariableMonitoringStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitoringStatuses_Select_Column>>;
@@ -26619,7 +26388,6 @@ export type VariableMonitoringsVariableMonitoringStatusesArgs = {
   order_by?: InputMaybe<Array<VariableMonitoringStatuses_Order_By>>;
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
-
 
 /** columns and relationships of "VariableMonitorings" */
 export type VariableMonitoringsVariableMonitoringStatuses_AggregateArgs = {
@@ -26679,7 +26447,6 @@ export type VariableMonitorings_Aggregate_Fields = {
   var_samp?: Maybe<VariableMonitorings_Var_Samp_Fields>;
   variance?: Maybe<VariableMonitorings_Variance_Fields>;
 };
-
 
 /** aggregate fields of "VariableMonitorings" */
 export type VariableMonitorings_Aggregate_FieldsCountArgs = {
@@ -26761,7 +26528,7 @@ export enum VariableMonitorings_Constraint {
   /** unique or primary key constraint on columns "databaseId" */
   VariableMonitoringsPkey = 'VariableMonitorings_pkey',
   /** unique or primary key constraint on columns "id", "stationId" */
-  VariableMonitoringsStationIdIdKey = 'VariableMonitorings_stationId_id_key'
+  VariableMonitoringsStationIdIdKey = 'VariableMonitorings_stationId_id_key',
 }
 
 /** input type for incrementing numeric columns in table "VariableMonitorings" */
@@ -26930,19 +26697,19 @@ export enum VariableMonitorings_Select_Column {
   /** column name */
   Value = 'value',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 /** select "VariableMonitorings_aggregate_bool_exp_bool_and_arguments_columns" columns of table "VariableMonitorings" */
 export enum VariableMonitorings_Select_Column_VariableMonitorings_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
   /** column name */
-  Transaction = 'transaction'
+  Transaction = 'transaction',
 }
 
 /** select "VariableMonitorings_aggregate_bool_exp_bool_or_arguments_columns" columns of table "VariableMonitorings" */
 export enum VariableMonitorings_Select_Column_VariableMonitorings_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
   /** column name */
-  Transaction = 'transaction'
+  Transaction = 'transaction',
 }
 
 /** input type for updating data in table "VariableMonitorings" */
@@ -27102,7 +26869,7 @@ export enum VariableMonitorings_Update_Column {
   /** column name */
   Value = 'value',
   /** column name */
-  VariableId = 'variableId'
+  VariableId = 'variableId',
 }
 
 export type VariableMonitorings_Updates = {
@@ -27200,7 +26967,6 @@ export type VariableStatuses = {
   variableAttributeId?: Maybe<Scalars['Int']['output']>;
 };
 
-
 /** columns and relationships of "VariableStatuses" */
 export type VariableStatusesStatusInfoArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
@@ -27239,7 +27005,6 @@ export type VariableStatuses_Aggregate_Fields = {
   var_samp?: Maybe<VariableStatuses_Var_Samp_Fields>;
   variance?: Maybe<VariableStatuses_Variance_Fields>;
 };
-
 
 /** aggregate fields of "VariableStatuses" */
 export type VariableStatuses_Aggregate_FieldsCountArgs = {
@@ -27304,7 +27069,7 @@ export type VariableStatuses_Bool_Exp = {
 /** unique or primary key constraints on table "VariableStatuses" */
 export enum VariableStatuses_Constraint {
   /** unique or primary key constraint on columns "id" */
-  VariableStatusesPkey = 'VariableStatuses_pkey'
+  VariableStatusesPkey = 'VariableStatuses_pkey',
 }
 
 /** input type for incrementing numeric columns in table "VariableStatuses" */
@@ -27426,7 +27191,7 @@ export enum VariableStatuses_Select_Column {
   /** column name */
   Value = 'value',
   /** column name */
-  VariableAttributeId = 'variableAttributeId'
+  VariableAttributeId = 'variableAttributeId',
 }
 
 /** input type for updating data in table "VariableStatuses" */
@@ -27538,7 +27303,7 @@ export enum VariableStatuses_Update_Column {
   /** column name */
   Value = 'value',
   /** column name */
-  VariableAttributeId = 'variableAttributeId'
+  VariableAttributeId = 'variableAttributeId',
 }
 
 export type VariableStatuses_Updates = {
@@ -27626,7 +27391,6 @@ export type Variables = {
   updatedAt: Scalars['timestamptz']['output'];
 };
 
-
 /** columns and relationships of "Variables" */
 export type VariablesComponentVariablesArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
@@ -27635,7 +27399,6 @@ export type VariablesComponentVariablesArgs = {
   order_by?: InputMaybe<Array<ComponentVariables_Order_By>>;
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Variables" */
 export type VariablesComponentVariables_AggregateArgs = {
@@ -27646,7 +27409,6 @@ export type VariablesComponentVariables_AggregateArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Variables" */
 export type VariablesEventDataArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
@@ -27655,7 +27417,6 @@ export type VariablesEventDataArgs = {
   order_by?: InputMaybe<Array<EventData_Order_By>>;
   where?: InputMaybe<EventData_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Variables" */
 export type VariablesEventData_AggregateArgs = {
@@ -27666,7 +27427,6 @@ export type VariablesEventData_AggregateArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Variables" */
 export type VariablesVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -27675,7 +27435,6 @@ export type VariablesVariableAttributesArgs = {
   order_by?: InputMaybe<Array<VariableAttributes_Order_By>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Variables" */
 export type VariablesVariableAttributes_AggregateArgs = {
@@ -27686,7 +27445,6 @@ export type VariablesVariableAttributes_AggregateArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 /** columns and relationships of "Variables" */
 export type VariablesVariableMonitoringsArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
@@ -27695,7 +27453,6 @@ export type VariablesVariableMonitoringsArgs = {
   order_by?: InputMaybe<Array<VariableMonitorings_Order_By>>;
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
-
 
 /** columns and relationships of "Variables" */
 export type VariablesVariableMonitorings_AggregateArgs = {
@@ -27739,7 +27496,6 @@ export type Variables_Aggregate_Fields = {
   var_samp?: Maybe<Variables_Var_Samp_Fields>;
   variance?: Maybe<Variables_Variance_Fields>;
 };
-
 
 /** aggregate fields of "Variables" */
 export type Variables_Aggregate_FieldsCountArgs = {
@@ -27812,7 +27568,7 @@ export enum Variables_Constraint {
   /** unique or primary key constraint on columns "id" */
   VariablesPkey = 'Variables_pkey',
   /** unique or primary key constraint on columns "name" */
-  VariablesName = 'variables_name'
+  VariablesName = 'variables_name',
 }
 
 /** input type for incrementing numeric columns in table "Variables" */
@@ -27936,7 +27692,7 @@ export enum Variables_Select_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 /** input type for updating data in table "Variables" */
@@ -28032,7 +27788,7 @@ export enum Variables_Update_Column {
   /** column name */
   TenantId = 'tenantId',
   /** column name */
-  UpdatedAt = 'updatedAt'
+  UpdatedAt = 'updatedAt',
 }
 
 export type Variables_Updates = {
@@ -28134,7 +27890,7 @@ export enum Cursor_Ordering {
   /** ascending ordering of the cursor */
   Asc = 'ASC',
   /** descending ordering of the cursor */
-  Desc = 'DESC'
+  Desc = 'DESC',
 }
 
 /** Boolean expression to compare columns of type "enum_Connectors_errorCode". All fields are combined with logical 'AND'. */
@@ -28165,15 +27921,31 @@ export type Enum_Connectors_Status_Comparison_Exp = {
 
 /** Boolean expression to compare columns of type "enum_InstalledCertificates_certificateType". All fields are combined with logical 'AND'. */
 export type Enum_InstalledCertificates_CertificateType_Comparison_Exp = {
-  _eq?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
-  _gt?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
-  _gte?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
-  _in?: InputMaybe<Array<Scalars['enum_InstalledCertificates_certificateType']['input']>>;
+  _eq?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
+  _gt?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
+  _gte?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
+  _in?: InputMaybe<
+    Array<Scalars['enum_InstalledCertificates_certificateType']['input']>
+  >;
   _is_null?: InputMaybe<Scalars['Boolean']['input']>;
-  _lt?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
-  _lte?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
-  _neq?: InputMaybe<Scalars['enum_InstalledCertificates_certificateType']['input']>;
-  _nin?: InputMaybe<Array<Scalars['enum_InstalledCertificates_certificateType']['input']>>;
+  _lt?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
+  _lte?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
+  _neq?: InputMaybe<
+    Scalars['enum_InstalledCertificates_certificateType']['input']
+  >;
+  _nin?: InputMaybe<
+    Array<Scalars['enum_InstalledCertificates_certificateType']['input']>
+  >;
 };
 
 export type Geography_Cast_Exp = {
@@ -28693,13 +28465,17 @@ export type Mutation_Root = {
   /** update single row of the table: "AdditionalInfos" */
   update_AdditionalInfos_by_pk?: Maybe<AdditionalInfos>;
   /** update multiples rows of table: "AdditionalInfos" */
-  update_AdditionalInfos_many?: Maybe<Array<Maybe<AdditionalInfos_Mutation_Response>>>;
+  update_AdditionalInfos_many?: Maybe<
+    Array<Maybe<AdditionalInfos_Mutation_Response>>
+  >;
   /** update data of the table: "Authorizations" */
   update_Authorizations?: Maybe<Authorizations_Mutation_Response>;
   /** update single row of the table: "Authorizations" */
   update_Authorizations_by_pk?: Maybe<Authorizations>;
   /** update multiples rows of table: "Authorizations" */
-  update_Authorizations_many?: Maybe<Array<Maybe<Authorizations_Mutation_Response>>>;
+  update_Authorizations_many?: Maybe<
+    Array<Maybe<Authorizations_Mutation_Response>>
+  >;
   /** update data of the table: "Boots" */
   update_Boots?: Maybe<Boots_Mutation_Response>;
   /** update single row of the table: "Boots" */
@@ -28711,61 +28487,81 @@ export type Mutation_Root = {
   /** update single row of the table: "Certificates" */
   update_Certificates_by_pk?: Maybe<Certificates>;
   /** update multiples rows of table: "Certificates" */
-  update_Certificates_many?: Maybe<Array<Maybe<Certificates_Mutation_Response>>>;
+  update_Certificates_many?: Maybe<
+    Array<Maybe<Certificates_Mutation_Response>>
+  >;
   /** update data of the table: "ChangeConfigurations" */
   update_ChangeConfigurations?: Maybe<ChangeConfigurations_Mutation_Response>;
   /** update single row of the table: "ChangeConfigurations" */
   update_ChangeConfigurations_by_pk?: Maybe<ChangeConfigurations>;
   /** update multiples rows of table: "ChangeConfigurations" */
-  update_ChangeConfigurations_many?: Maybe<Array<Maybe<ChangeConfigurations_Mutation_Response>>>;
+  update_ChangeConfigurations_many?: Maybe<
+    Array<Maybe<ChangeConfigurations_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingNeeds" */
   update_ChargingNeeds?: Maybe<ChargingNeeds_Mutation_Response>;
   /** update single row of the table: "ChargingNeeds" */
   update_ChargingNeeds_by_pk?: Maybe<ChargingNeeds>;
   /** update multiples rows of table: "ChargingNeeds" */
-  update_ChargingNeeds_many?: Maybe<Array<Maybe<ChargingNeeds_Mutation_Response>>>;
+  update_ChargingNeeds_many?: Maybe<
+    Array<Maybe<ChargingNeeds_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingProfiles" */
   update_ChargingProfiles?: Maybe<ChargingProfiles_Mutation_Response>;
   /** update single row of the table: "ChargingProfiles" */
   update_ChargingProfiles_by_pk?: Maybe<ChargingProfiles>;
   /** update multiples rows of table: "ChargingProfiles" */
-  update_ChargingProfiles_many?: Maybe<Array<Maybe<ChargingProfiles_Mutation_Response>>>;
+  update_ChargingProfiles_many?: Maybe<
+    Array<Maybe<ChargingProfiles_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingSchedules" */
   update_ChargingSchedules?: Maybe<ChargingSchedules_Mutation_Response>;
   /** update single row of the table: "ChargingSchedules" */
   update_ChargingSchedules_by_pk?: Maybe<ChargingSchedules>;
   /** update multiples rows of table: "ChargingSchedules" */
-  update_ChargingSchedules_many?: Maybe<Array<Maybe<ChargingSchedules_Mutation_Response>>>;
+  update_ChargingSchedules_many?: Maybe<
+    Array<Maybe<ChargingSchedules_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingStationNetworkProfiles" */
   update_ChargingStationNetworkProfiles?: Maybe<ChargingStationNetworkProfiles_Mutation_Response>;
   /** update single row of the table: "ChargingStationNetworkProfiles" */
   update_ChargingStationNetworkProfiles_by_pk?: Maybe<ChargingStationNetworkProfiles>;
   /** update multiples rows of table: "ChargingStationNetworkProfiles" */
-  update_ChargingStationNetworkProfiles_many?: Maybe<Array<Maybe<ChargingStationNetworkProfiles_Mutation_Response>>>;
+  update_ChargingStationNetworkProfiles_many?: Maybe<
+    Array<Maybe<ChargingStationNetworkProfiles_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingStationSecurityInfos" */
   update_ChargingStationSecurityInfos?: Maybe<ChargingStationSecurityInfos_Mutation_Response>;
   /** update single row of the table: "ChargingStationSecurityInfos" */
   update_ChargingStationSecurityInfos_by_pk?: Maybe<ChargingStationSecurityInfos>;
   /** update multiples rows of table: "ChargingStationSecurityInfos" */
-  update_ChargingStationSecurityInfos_many?: Maybe<Array<Maybe<ChargingStationSecurityInfos_Mutation_Response>>>;
+  update_ChargingStationSecurityInfos_many?: Maybe<
+    Array<Maybe<ChargingStationSecurityInfos_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingStationSequences" */
   update_ChargingStationSequences?: Maybe<ChargingStationSequences_Mutation_Response>;
   /** update single row of the table: "ChargingStationSequences" */
   update_ChargingStationSequences_by_pk?: Maybe<ChargingStationSequences>;
   /** update multiples rows of table: "ChargingStationSequences" */
-  update_ChargingStationSequences_many?: Maybe<Array<Maybe<ChargingStationSequences_Mutation_Response>>>;
+  update_ChargingStationSequences_many?: Maybe<
+    Array<Maybe<ChargingStationSequences_Mutation_Response>>
+  >;
   /** update data of the table: "ChargingStations" */
   update_ChargingStations?: Maybe<ChargingStations_Mutation_Response>;
   /** update single row of the table: "ChargingStations" */
   update_ChargingStations_by_pk?: Maybe<ChargingStations>;
   /** update multiples rows of table: "ChargingStations" */
-  update_ChargingStations_many?: Maybe<Array<Maybe<ChargingStations_Mutation_Response>>>;
+  update_ChargingStations_many?: Maybe<
+    Array<Maybe<ChargingStations_Mutation_Response>>
+  >;
   /** update data of the table: "ComponentVariables" */
   update_ComponentVariables?: Maybe<ComponentVariables_Mutation_Response>;
   /** update single row of the table: "ComponentVariables" */
   update_ComponentVariables_by_pk?: Maybe<ComponentVariables>;
   /** update multiples rows of table: "ComponentVariables" */
-  update_ComponentVariables_many?: Maybe<Array<Maybe<ComponentVariables_Mutation_Response>>>;
+  update_ComponentVariables_many?: Maybe<
+    Array<Maybe<ComponentVariables_Mutation_Response>>
+  >;
   /** update data of the table: "Components" */
   update_Components?: Maybe<Components_Mutation_Response>;
   /** update single row of the table: "Components" */
@@ -28777,7 +28573,9 @@ export type Mutation_Root = {
   /** update single row of the table: "CompositeSchedules" */
   update_CompositeSchedules_by_pk?: Maybe<CompositeSchedules>;
   /** update multiples rows of table: "CompositeSchedules" */
-  update_CompositeSchedules_many?: Maybe<Array<Maybe<CompositeSchedules_Mutation_Response>>>;
+  update_CompositeSchedules_many?: Maybe<
+    Array<Maybe<CompositeSchedules_Mutation_Response>>
+  >;
   /** update data of the table: "Connectors" */
   update_Connectors?: Maybe<Connectors_Mutation_Response>;
   /** update single row of the table: "Connectors" */
@@ -28801,13 +28599,17 @@ export type Mutation_Root = {
   /** update single row of the table: "IdTokenAdditionalInfos" */
   update_IdTokenAdditionalInfos_by_pk?: Maybe<IdTokenAdditionalInfos>;
   /** update multiples rows of table: "IdTokenAdditionalInfos" */
-  update_IdTokenAdditionalInfos_many?: Maybe<Array<Maybe<IdTokenAdditionalInfos_Mutation_Response>>>;
+  update_IdTokenAdditionalInfos_many?: Maybe<
+    Array<Maybe<IdTokenAdditionalInfos_Mutation_Response>>
+  >;
   /** update data of the table: "IdTokenInfos" */
   update_IdTokenInfos?: Maybe<IdTokenInfos_Mutation_Response>;
   /** update single row of the table: "IdTokenInfos" */
   update_IdTokenInfos_by_pk?: Maybe<IdTokenInfos>;
   /** update multiples rows of table: "IdTokenInfos" */
-  update_IdTokenInfos_many?: Maybe<Array<Maybe<IdTokenInfos_Mutation_Response>>>;
+  update_IdTokenInfos_many?: Maybe<
+    Array<Maybe<IdTokenInfos_Mutation_Response>>
+  >;
   /** update data of the table: "IdTokens" */
   update_IdTokens?: Maybe<IdTokens_Mutation_Response>;
   /** update single row of the table: "IdTokens" */
@@ -28819,31 +28621,41 @@ export type Mutation_Root = {
   /** update single row of the table: "InstalledCertificates" */
   update_InstalledCertificates_by_pk?: Maybe<InstalledCertificates>;
   /** update multiples rows of table: "InstalledCertificates" */
-  update_InstalledCertificates_many?: Maybe<Array<Maybe<InstalledCertificates_Mutation_Response>>>;
+  update_InstalledCertificates_many?: Maybe<
+    Array<Maybe<InstalledCertificates_Mutation_Response>>
+  >;
   /** update data of the table: "LatestStatusNotifications" */
   update_LatestStatusNotifications?: Maybe<LatestStatusNotifications_Mutation_Response>;
   /** update single row of the table: "LatestStatusNotifications" */
   update_LatestStatusNotifications_by_pk?: Maybe<LatestStatusNotifications>;
   /** update multiples rows of table: "LatestStatusNotifications" */
-  update_LatestStatusNotifications_many?: Maybe<Array<Maybe<LatestStatusNotifications_Mutation_Response>>>;
+  update_LatestStatusNotifications_many?: Maybe<
+    Array<Maybe<LatestStatusNotifications_Mutation_Response>>
+  >;
   /** update data of the table: "LocalListAuthorizations" */
   update_LocalListAuthorizations?: Maybe<LocalListAuthorizations_Mutation_Response>;
   /** update single row of the table: "LocalListAuthorizations" */
   update_LocalListAuthorizations_by_pk?: Maybe<LocalListAuthorizations>;
   /** update multiples rows of table: "LocalListAuthorizations" */
-  update_LocalListAuthorizations_many?: Maybe<Array<Maybe<LocalListAuthorizations_Mutation_Response>>>;
+  update_LocalListAuthorizations_many?: Maybe<
+    Array<Maybe<LocalListAuthorizations_Mutation_Response>>
+  >;
   /** update data of the table: "LocalListVersionAuthorizations" */
   update_LocalListVersionAuthorizations?: Maybe<LocalListVersionAuthorizations_Mutation_Response>;
   /** update single row of the table: "LocalListVersionAuthorizations" */
   update_LocalListVersionAuthorizations_by_pk?: Maybe<LocalListVersionAuthorizations>;
   /** update multiples rows of table: "LocalListVersionAuthorizations" */
-  update_LocalListVersionAuthorizations_many?: Maybe<Array<Maybe<LocalListVersionAuthorizations_Mutation_Response>>>;
+  update_LocalListVersionAuthorizations_many?: Maybe<
+    Array<Maybe<LocalListVersionAuthorizations_Mutation_Response>>
+  >;
   /** update data of the table: "LocalListVersions" */
   update_LocalListVersions?: Maybe<LocalListVersions_Mutation_Response>;
   /** update single row of the table: "LocalListVersions" */
   update_LocalListVersions_by_pk?: Maybe<LocalListVersions>;
   /** update multiples rows of table: "LocalListVersions" */
-  update_LocalListVersions_many?: Maybe<Array<Maybe<LocalListVersions_Mutation_Response>>>;
+  update_LocalListVersions_many?: Maybe<
+    Array<Maybe<LocalListVersions_Mutation_Response>>
+  >;
   /** update data of the table: "Locations" */
   update_Locations?: Maybe<Locations_Mutation_Response>;
   /** update single row of the table: "Locations" */
@@ -28855,7 +28667,9 @@ export type Mutation_Root = {
   /** update single row of the table: "MessageInfos" */
   update_MessageInfos_by_pk?: Maybe<MessageInfos>;
   /** update multiples rows of table: "MessageInfos" */
-  update_MessageInfos_many?: Maybe<Array<Maybe<MessageInfos_Mutation_Response>>>;
+  update_MessageInfos_many?: Maybe<
+    Array<Maybe<MessageInfos_Mutation_Response>>
+  >;
   /** update data of the table: "MeterValues" */
   update_MeterValues?: Maybe<MeterValues_Mutation_Response>;
   /** update single row of the table: "MeterValues" */
@@ -28867,73 +28681,97 @@ export type Mutation_Root = {
   /** update single row of the table: "OCPPMessages" */
   update_OCPPMessages_by_pk?: Maybe<OcppMessages>;
   /** update multiples rows of table: "OCPPMessages" */
-  update_OCPPMessages_many?: Maybe<Array<Maybe<OcppMessages_Mutation_Response>>>;
+  update_OCPPMessages_many?: Maybe<
+    Array<Maybe<OcppMessages_Mutation_Response>>
+  >;
   /** update data of the table: "Reservations" */
   update_Reservations?: Maybe<Reservations_Mutation_Response>;
   /** update single row of the table: "Reservations" */
   update_Reservations_by_pk?: Maybe<Reservations>;
   /** update multiples rows of table: "Reservations" */
-  update_Reservations_many?: Maybe<Array<Maybe<Reservations_Mutation_Response>>>;
+  update_Reservations_many?: Maybe<
+    Array<Maybe<Reservations_Mutation_Response>>
+  >;
   /** update data of the table: "SalesTariffs" */
   update_SalesTariffs?: Maybe<SalesTariffs_Mutation_Response>;
   /** update single row of the table: "SalesTariffs" */
   update_SalesTariffs_by_pk?: Maybe<SalesTariffs>;
   /** update multiples rows of table: "SalesTariffs" */
-  update_SalesTariffs_many?: Maybe<Array<Maybe<SalesTariffs_Mutation_Response>>>;
+  update_SalesTariffs_many?: Maybe<
+    Array<Maybe<SalesTariffs_Mutation_Response>>
+  >;
   /** update data of the table: "SecurityEvents" */
   update_SecurityEvents?: Maybe<SecurityEvents_Mutation_Response>;
   /** update single row of the table: "SecurityEvents" */
   update_SecurityEvents_by_pk?: Maybe<SecurityEvents>;
   /** update multiples rows of table: "SecurityEvents" */
-  update_SecurityEvents_many?: Maybe<Array<Maybe<SecurityEvents_Mutation_Response>>>;
+  update_SecurityEvents_many?: Maybe<
+    Array<Maybe<SecurityEvents_Mutation_Response>>
+  >;
   /** update data of the table: "SendLocalListAuthorizations" */
   update_SendLocalListAuthorizations?: Maybe<SendLocalListAuthorizations_Mutation_Response>;
   /** update single row of the table: "SendLocalListAuthorizations" */
   update_SendLocalListAuthorizations_by_pk?: Maybe<SendLocalListAuthorizations>;
   /** update multiples rows of table: "SendLocalListAuthorizations" */
-  update_SendLocalListAuthorizations_many?: Maybe<Array<Maybe<SendLocalListAuthorizations_Mutation_Response>>>;
+  update_SendLocalListAuthorizations_many?: Maybe<
+    Array<Maybe<SendLocalListAuthorizations_Mutation_Response>>
+  >;
   /** update data of the table: "SendLocalLists" */
   update_SendLocalLists?: Maybe<SendLocalLists_Mutation_Response>;
   /** update single row of the table: "SendLocalLists" */
   update_SendLocalLists_by_pk?: Maybe<SendLocalLists>;
   /** update multiples rows of table: "SendLocalLists" */
-  update_SendLocalLists_many?: Maybe<Array<Maybe<SendLocalLists_Mutation_Response>>>;
+  update_SendLocalLists_many?: Maybe<
+    Array<Maybe<SendLocalLists_Mutation_Response>>
+  >;
   /** update data of the table: "ServerNetworkProfiles" */
   update_ServerNetworkProfiles?: Maybe<ServerNetworkProfiles_Mutation_Response>;
   /** update single row of the table: "ServerNetworkProfiles" */
   update_ServerNetworkProfiles_by_pk?: Maybe<ServerNetworkProfiles>;
   /** update multiples rows of table: "ServerNetworkProfiles" */
-  update_ServerNetworkProfiles_many?: Maybe<Array<Maybe<ServerNetworkProfiles_Mutation_Response>>>;
+  update_ServerNetworkProfiles_many?: Maybe<
+    Array<Maybe<ServerNetworkProfiles_Mutation_Response>>
+  >;
   /** update data of the table: "SetNetworkProfiles" */
   update_SetNetworkProfiles?: Maybe<SetNetworkProfiles_Mutation_Response>;
   /** update single row of the table: "SetNetworkProfiles" */
   update_SetNetworkProfiles_by_pk?: Maybe<SetNetworkProfiles>;
   /** update multiples rows of table: "SetNetworkProfiles" */
-  update_SetNetworkProfiles_many?: Maybe<Array<Maybe<SetNetworkProfiles_Mutation_Response>>>;
+  update_SetNetworkProfiles_many?: Maybe<
+    Array<Maybe<SetNetworkProfiles_Mutation_Response>>
+  >;
   /** update data of the table: "StartTransactions" */
   update_StartTransactions?: Maybe<StartTransactions_Mutation_Response>;
   /** update single row of the table: "StartTransactions" */
   update_StartTransactions_by_pk?: Maybe<StartTransactions>;
   /** update multiples rows of table: "StartTransactions" */
-  update_StartTransactions_many?: Maybe<Array<Maybe<StartTransactions_Mutation_Response>>>;
+  update_StartTransactions_many?: Maybe<
+    Array<Maybe<StartTransactions_Mutation_Response>>
+  >;
   /** update data of the table: "StatusNotifications" */
   update_StatusNotifications?: Maybe<StatusNotifications_Mutation_Response>;
   /** update single row of the table: "StatusNotifications" */
   update_StatusNotifications_by_pk?: Maybe<StatusNotifications>;
   /** update multiples rows of table: "StatusNotifications" */
-  update_StatusNotifications_many?: Maybe<Array<Maybe<StatusNotifications_Mutation_Response>>>;
+  update_StatusNotifications_many?: Maybe<
+    Array<Maybe<StatusNotifications_Mutation_Response>>
+  >;
   /** update data of the table: "StopTransactions" */
   update_StopTransactions?: Maybe<StopTransactions_Mutation_Response>;
   /** update single row of the table: "StopTransactions" */
   update_StopTransactions_by_pk?: Maybe<StopTransactions>;
   /** update multiples rows of table: "StopTransactions" */
-  update_StopTransactions_many?: Maybe<Array<Maybe<StopTransactions_Mutation_Response>>>;
+  update_StopTransactions_many?: Maybe<
+    Array<Maybe<StopTransactions_Mutation_Response>>
+  >;
   /** update data of the table: "Subscriptions" */
   update_Subscriptions?: Maybe<Subscriptions_Mutation_Response>;
   /** update single row of the table: "Subscriptions" */
   update_Subscriptions_by_pk?: Maybe<Subscriptions>;
   /** update multiples rows of table: "Subscriptions" */
-  update_Subscriptions_many?: Maybe<Array<Maybe<Subscriptions_Mutation_Response>>>;
+  update_Subscriptions_many?: Maybe<
+    Array<Maybe<Subscriptions_Mutation_Response>>
+  >;
   /** update data of the table: "Tariffs" */
   update_Tariffs?: Maybe<Tariffs_Mutation_Response>;
   /** update single row of the table: "Tariffs" */
@@ -28951,43 +28789,57 @@ export type Mutation_Root = {
   /** update single row of the table: "TransactionEvents" */
   update_TransactionEvents_by_pk?: Maybe<TransactionEvents>;
   /** update multiples rows of table: "TransactionEvents" */
-  update_TransactionEvents_many?: Maybe<Array<Maybe<TransactionEvents_Mutation_Response>>>;
+  update_TransactionEvents_many?: Maybe<
+    Array<Maybe<TransactionEvents_Mutation_Response>>
+  >;
   /** update data of the table: "Transactions" */
   update_Transactions?: Maybe<Transactions_Mutation_Response>;
   /** update single row of the table: "Transactions" */
   update_Transactions_by_pk?: Maybe<Transactions>;
   /** update multiples rows of table: "Transactions" */
-  update_Transactions_many?: Maybe<Array<Maybe<Transactions_Mutation_Response>>>;
+  update_Transactions_many?: Maybe<
+    Array<Maybe<Transactions_Mutation_Response>>
+  >;
   /** update data of the table: "VariableAttributes" */
   update_VariableAttributes?: Maybe<VariableAttributes_Mutation_Response>;
   /** update single row of the table: "VariableAttributes" */
   update_VariableAttributes_by_pk?: Maybe<VariableAttributes>;
   /** update multiples rows of table: "VariableAttributes" */
-  update_VariableAttributes_many?: Maybe<Array<Maybe<VariableAttributes_Mutation_Response>>>;
+  update_VariableAttributes_many?: Maybe<
+    Array<Maybe<VariableAttributes_Mutation_Response>>
+  >;
   /** update data of the table: "VariableCharacteristics" */
   update_VariableCharacteristics?: Maybe<VariableCharacteristics_Mutation_Response>;
   /** update single row of the table: "VariableCharacteristics" */
   update_VariableCharacteristics_by_pk?: Maybe<VariableCharacteristics>;
   /** update multiples rows of table: "VariableCharacteristics" */
-  update_VariableCharacteristics_many?: Maybe<Array<Maybe<VariableCharacteristics_Mutation_Response>>>;
+  update_VariableCharacteristics_many?: Maybe<
+    Array<Maybe<VariableCharacteristics_Mutation_Response>>
+  >;
   /** update data of the table: "VariableMonitoringStatuses" */
   update_VariableMonitoringStatuses?: Maybe<VariableMonitoringStatuses_Mutation_Response>;
   /** update single row of the table: "VariableMonitoringStatuses" */
   update_VariableMonitoringStatuses_by_pk?: Maybe<VariableMonitoringStatuses>;
   /** update multiples rows of table: "VariableMonitoringStatuses" */
-  update_VariableMonitoringStatuses_many?: Maybe<Array<Maybe<VariableMonitoringStatuses_Mutation_Response>>>;
+  update_VariableMonitoringStatuses_many?: Maybe<
+    Array<Maybe<VariableMonitoringStatuses_Mutation_Response>>
+  >;
   /** update data of the table: "VariableMonitorings" */
   update_VariableMonitorings?: Maybe<VariableMonitorings_Mutation_Response>;
   /** update single row of the table: "VariableMonitorings" */
   update_VariableMonitorings_by_pk?: Maybe<VariableMonitorings>;
   /** update multiples rows of table: "VariableMonitorings" */
-  update_VariableMonitorings_many?: Maybe<Array<Maybe<VariableMonitorings_Mutation_Response>>>;
+  update_VariableMonitorings_many?: Maybe<
+    Array<Maybe<VariableMonitorings_Mutation_Response>>
+  >;
   /** update data of the table: "VariableStatuses" */
   update_VariableStatuses?: Maybe<VariableStatuses_Mutation_Response>;
   /** update single row of the table: "VariableStatuses" */
   update_VariableStatuses_by_pk?: Maybe<VariableStatuses>;
   /** update multiples rows of table: "VariableStatuses" */
-  update_VariableStatuses_many?: Maybe<Array<Maybe<VariableStatuses_Mutation_Response>>>;
+  update_VariableStatuses_many?: Maybe<
+    Array<Maybe<VariableStatuses_Mutation_Response>>
+  >;
   /** update data of the table: "Variables" */
   update_Variables?: Maybe<Variables_Mutation_Response>;
   /** update single row of the table: "Variables" */
@@ -28996,108 +28848,90 @@ export type Mutation_Root = {
   update_Variables_many?: Maybe<Array<Maybe<Variables_Mutation_Response>>>;
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_AdditionalInfosArgs = {
   where: AdditionalInfos_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_AdditionalInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_AuthorizationsArgs = {
   where: Authorizations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Authorizations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_BootsArgs = {
   where: Boots_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Boots_By_PkArgs = {
   id: Scalars['String']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_CertificatesArgs = {
   where: Certificates_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Certificates_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChangeConfigurationsArgs = {
   where: ChangeConfigurations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChangeConfigurations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingNeedsArgs = {
   where: ChargingNeeds_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingNeeds_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingProfilesArgs = {
   where: ChargingProfiles_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingProfiles_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingSchedulesArgs = {
   where: ChargingSchedules_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingSchedules_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationNetworkProfilesArgs = {
   where: ChargingStationNetworkProfiles_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationNetworkProfiles_By_PkArgs = {
@@ -29105,48 +28939,40 @@ export type Mutation_RootDelete_ChargingStationNetworkProfiles_By_PkArgs = {
   websocketServerConfigId: Scalars['String']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationSecurityInfosArgs = {
   where: ChargingStationSecurityInfos_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationSecurityInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationSequencesArgs = {
   where: ChargingStationSequences_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationSequences_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ChargingStationsArgs = {
   where: ChargingStations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ChargingStations_By_PkArgs = {
   id: Scalars['String']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ComponentVariablesArgs = {
   where: ComponentVariables_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ComponentVariables_By_PkArgs = {
@@ -29154,72 +28980,60 @@ export type Mutation_RootDelete_ComponentVariables_By_PkArgs = {
   variableId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ComponentsArgs = {
   where: Components_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Components_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_CompositeSchedulesArgs = {
   where: CompositeSchedules_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_CompositeSchedules_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ConnectorsArgs = {
   where: Connectors_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Connectors_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_EventDataArgs = {
   where: EventData_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_EventData_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_EvsesArgs = {
   where: Evses_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Evses_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_IdTokenAdditionalInfosArgs = {
   where: IdTokenAdditionalInfos_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_IdTokenAdditionalInfos_By_PkArgs = {
@@ -29227,72 +29041,60 @@ export type Mutation_RootDelete_IdTokenAdditionalInfos_By_PkArgs = {
   idTokenId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_IdTokenInfosArgs = {
   where: IdTokenInfos_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_IdTokenInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_IdTokensArgs = {
   where: IdTokens_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_IdTokens_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_InstalledCertificatesArgs = {
   where: InstalledCertificates_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_InstalledCertificates_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_LatestStatusNotificationsArgs = {
   where: LatestStatusNotifications_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_LatestStatusNotifications_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_LocalListAuthorizationsArgs = {
   where: LocalListAuthorizations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_LocalListAuthorizations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_LocalListVersionAuthorizationsArgs = {
   where: LocalListVersionAuthorizations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_LocalListVersionAuthorizations_By_PkArgs = {
@@ -29300,108 +29102,90 @@ export type Mutation_RootDelete_LocalListVersionAuthorizations_By_PkArgs = {
   localListVersionId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_LocalListVersionsArgs = {
   where: LocalListVersions_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_LocalListVersions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_LocationsArgs = {
   where: Locations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Locations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_MessageInfosArgs = {
   where: MessageInfos_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_MessageInfos_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_MeterValuesArgs = {
   where: MeterValues_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_MeterValues_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_OcppMessagesArgs = {
   where: OcppMessages_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_OcppMessages_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ReservationsArgs = {
   where: Reservations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Reservations_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_SalesTariffsArgs = {
   where: SalesTariffs_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_SalesTariffs_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_SecurityEventsArgs = {
   where: SecurityEvents_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_SecurityEvents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_SendLocalListAuthorizationsArgs = {
   where: SendLocalListAuthorizations_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_SendLocalListAuthorizations_By_PkArgs = {
@@ -29409,210 +29193,175 @@ export type Mutation_RootDelete_SendLocalListAuthorizations_By_PkArgs = {
   sendLocalListId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_SendLocalListsArgs = {
   where: SendLocalLists_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_SendLocalLists_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_ServerNetworkProfilesArgs = {
   where: ServerNetworkProfiles_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_ServerNetworkProfiles_By_PkArgs = {
   id: Scalars['String']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_SetNetworkProfilesArgs = {
   where: SetNetworkProfiles_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_SetNetworkProfiles_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_StartTransactionsArgs = {
   where: StartTransactions_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_StartTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_StatusNotificationsArgs = {
   where: StatusNotifications_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_StatusNotifications_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_StopTransactionsArgs = {
   where: StopTransactions_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_StopTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_SubscriptionsArgs = {
   where: Subscriptions_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Subscriptions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_TariffsArgs = {
   where: Tariffs_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Tariffs_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_TenantsArgs = {
   where: Tenants_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Tenants_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_TransactionEventsArgs = {
   where: TransactionEvents_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_TransactionEvents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_TransactionsArgs = {
   where: Transactions_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_Transactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_VariableAttributesArgs = {
   where: VariableAttributes_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_VariableAttributes_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_VariableCharacteristicsArgs = {
   where: VariableCharacteristics_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_VariableCharacteristics_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_VariableMonitoringStatusesArgs = {
   where: VariableMonitoringStatuses_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_VariableMonitoringStatuses_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_VariableMonitoringsArgs = {
   where: VariableMonitorings_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_VariableMonitorings_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_VariableStatusesArgs = {
   where: VariableStatuses_Bool_Exp;
 };
-
 
 /** mutation root */
 export type Mutation_RootDelete_VariableStatuses_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_VariablesArgs = {
   where: Variables_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootDelete_Variables_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_AdditionalInfosArgs = {
@@ -29620,13 +29369,11 @@ export type Mutation_RootInsert_AdditionalInfosArgs = {
   on_conflict?: InputMaybe<AdditionalInfos_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_AdditionalInfos_OneArgs = {
   object: AdditionalInfos_Insert_Input;
   on_conflict?: InputMaybe<AdditionalInfos_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_AuthorizationsArgs = {
@@ -29634,13 +29381,11 @@ export type Mutation_RootInsert_AuthorizationsArgs = {
   on_conflict?: InputMaybe<Authorizations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Authorizations_OneArgs = {
   object: Authorizations_Insert_Input;
   on_conflict?: InputMaybe<Authorizations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_BootsArgs = {
@@ -29648,13 +29393,11 @@ export type Mutation_RootInsert_BootsArgs = {
   on_conflict?: InputMaybe<Boots_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Boots_OneArgs = {
   object: Boots_Insert_Input;
   on_conflict?: InputMaybe<Boots_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_CertificatesArgs = {
@@ -29662,13 +29405,11 @@ export type Mutation_RootInsert_CertificatesArgs = {
   on_conflict?: InputMaybe<Certificates_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Certificates_OneArgs = {
   object: Certificates_Insert_Input;
   on_conflict?: InputMaybe<Certificates_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChangeConfigurationsArgs = {
@@ -29676,13 +29417,11 @@ export type Mutation_RootInsert_ChangeConfigurationsArgs = {
   on_conflict?: InputMaybe<ChangeConfigurations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChangeConfigurations_OneArgs = {
   object: ChangeConfigurations_Insert_Input;
   on_conflict?: InputMaybe<ChangeConfigurations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingNeedsArgs = {
@@ -29690,13 +29429,11 @@ export type Mutation_RootInsert_ChargingNeedsArgs = {
   on_conflict?: InputMaybe<ChargingNeeds_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingNeeds_OneArgs = {
   object: ChargingNeeds_Insert_Input;
   on_conflict?: InputMaybe<ChargingNeeds_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingProfilesArgs = {
@@ -29704,13 +29441,11 @@ export type Mutation_RootInsert_ChargingProfilesArgs = {
   on_conflict?: InputMaybe<ChargingProfiles_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingProfiles_OneArgs = {
   object: ChargingProfiles_Insert_Input;
   on_conflict?: InputMaybe<ChargingProfiles_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingSchedulesArgs = {
@@ -29718,13 +29453,11 @@ export type Mutation_RootInsert_ChargingSchedulesArgs = {
   on_conflict?: InputMaybe<ChargingSchedules_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingSchedules_OneArgs = {
   object: ChargingSchedules_Insert_Input;
   on_conflict?: InputMaybe<ChargingSchedules_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationNetworkProfilesArgs = {
@@ -29732,13 +29465,11 @@ export type Mutation_RootInsert_ChargingStationNetworkProfilesArgs = {
   on_conflict?: InputMaybe<ChargingStationNetworkProfiles_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationNetworkProfiles_OneArgs = {
   object: ChargingStationNetworkProfiles_Insert_Input;
   on_conflict?: InputMaybe<ChargingStationNetworkProfiles_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationSecurityInfosArgs = {
@@ -29746,13 +29477,11 @@ export type Mutation_RootInsert_ChargingStationSecurityInfosArgs = {
   on_conflict?: InputMaybe<ChargingStationSecurityInfos_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationSecurityInfos_OneArgs = {
   object: ChargingStationSecurityInfos_Insert_Input;
   on_conflict?: InputMaybe<ChargingStationSecurityInfos_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationSequencesArgs = {
@@ -29760,13 +29489,11 @@ export type Mutation_RootInsert_ChargingStationSequencesArgs = {
   on_conflict?: InputMaybe<ChargingStationSequences_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationSequences_OneArgs = {
   object: ChargingStationSequences_Insert_Input;
   on_conflict?: InputMaybe<ChargingStationSequences_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ChargingStationsArgs = {
@@ -29774,13 +29501,11 @@ export type Mutation_RootInsert_ChargingStationsArgs = {
   on_conflict?: InputMaybe<ChargingStations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ChargingStations_OneArgs = {
   object: ChargingStations_Insert_Input;
   on_conflict?: InputMaybe<ChargingStations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ComponentVariablesArgs = {
@@ -29788,13 +29513,11 @@ export type Mutation_RootInsert_ComponentVariablesArgs = {
   on_conflict?: InputMaybe<ComponentVariables_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ComponentVariables_OneArgs = {
   object: ComponentVariables_Insert_Input;
   on_conflict?: InputMaybe<ComponentVariables_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ComponentsArgs = {
@@ -29802,13 +29525,11 @@ export type Mutation_RootInsert_ComponentsArgs = {
   on_conflict?: InputMaybe<Components_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Components_OneArgs = {
   object: Components_Insert_Input;
   on_conflict?: InputMaybe<Components_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_CompositeSchedulesArgs = {
@@ -29816,13 +29537,11 @@ export type Mutation_RootInsert_CompositeSchedulesArgs = {
   on_conflict?: InputMaybe<CompositeSchedules_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_CompositeSchedules_OneArgs = {
   object: CompositeSchedules_Insert_Input;
   on_conflict?: InputMaybe<CompositeSchedules_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ConnectorsArgs = {
@@ -29830,13 +29549,11 @@ export type Mutation_RootInsert_ConnectorsArgs = {
   on_conflict?: InputMaybe<Connectors_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Connectors_OneArgs = {
   object: Connectors_Insert_Input;
   on_conflict?: InputMaybe<Connectors_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_EventDataArgs = {
@@ -29844,13 +29561,11 @@ export type Mutation_RootInsert_EventDataArgs = {
   on_conflict?: InputMaybe<EventData_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_EventData_OneArgs = {
   object: EventData_Insert_Input;
   on_conflict?: InputMaybe<EventData_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_EvsesArgs = {
@@ -29858,13 +29573,11 @@ export type Mutation_RootInsert_EvsesArgs = {
   on_conflict?: InputMaybe<Evses_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Evses_OneArgs = {
   object: Evses_Insert_Input;
   on_conflict?: InputMaybe<Evses_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_IdTokenAdditionalInfosArgs = {
@@ -29872,13 +29585,11 @@ export type Mutation_RootInsert_IdTokenAdditionalInfosArgs = {
   on_conflict?: InputMaybe<IdTokenAdditionalInfos_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_IdTokenAdditionalInfos_OneArgs = {
   object: IdTokenAdditionalInfos_Insert_Input;
   on_conflict?: InputMaybe<IdTokenAdditionalInfos_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_IdTokenInfosArgs = {
@@ -29886,13 +29597,11 @@ export type Mutation_RootInsert_IdTokenInfosArgs = {
   on_conflict?: InputMaybe<IdTokenInfos_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_IdTokenInfos_OneArgs = {
   object: IdTokenInfos_Insert_Input;
   on_conflict?: InputMaybe<IdTokenInfos_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_IdTokensArgs = {
@@ -29900,13 +29609,11 @@ export type Mutation_RootInsert_IdTokensArgs = {
   on_conflict?: InputMaybe<IdTokens_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_IdTokens_OneArgs = {
   object: IdTokens_Insert_Input;
   on_conflict?: InputMaybe<IdTokens_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_InstalledCertificatesArgs = {
@@ -29914,13 +29621,11 @@ export type Mutation_RootInsert_InstalledCertificatesArgs = {
   on_conflict?: InputMaybe<InstalledCertificates_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_InstalledCertificates_OneArgs = {
   object: InstalledCertificates_Insert_Input;
   on_conflict?: InputMaybe<InstalledCertificates_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_LatestStatusNotificationsArgs = {
@@ -29928,13 +29633,11 @@ export type Mutation_RootInsert_LatestStatusNotificationsArgs = {
   on_conflict?: InputMaybe<LatestStatusNotifications_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_LatestStatusNotifications_OneArgs = {
   object: LatestStatusNotifications_Insert_Input;
   on_conflict?: InputMaybe<LatestStatusNotifications_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_LocalListAuthorizationsArgs = {
@@ -29942,13 +29645,11 @@ export type Mutation_RootInsert_LocalListAuthorizationsArgs = {
   on_conflict?: InputMaybe<LocalListAuthorizations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_LocalListAuthorizations_OneArgs = {
   object: LocalListAuthorizations_Insert_Input;
   on_conflict?: InputMaybe<LocalListAuthorizations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_LocalListVersionAuthorizationsArgs = {
@@ -29956,13 +29657,11 @@ export type Mutation_RootInsert_LocalListVersionAuthorizationsArgs = {
   on_conflict?: InputMaybe<LocalListVersionAuthorizations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_LocalListVersionAuthorizations_OneArgs = {
   object: LocalListVersionAuthorizations_Insert_Input;
   on_conflict?: InputMaybe<LocalListVersionAuthorizations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_LocalListVersionsArgs = {
@@ -29970,13 +29669,11 @@ export type Mutation_RootInsert_LocalListVersionsArgs = {
   on_conflict?: InputMaybe<LocalListVersions_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_LocalListVersions_OneArgs = {
   object: LocalListVersions_Insert_Input;
   on_conflict?: InputMaybe<LocalListVersions_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_LocationsArgs = {
@@ -29984,13 +29681,11 @@ export type Mutation_RootInsert_LocationsArgs = {
   on_conflict?: InputMaybe<Locations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Locations_OneArgs = {
   object: Locations_Insert_Input;
   on_conflict?: InputMaybe<Locations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_MessageInfosArgs = {
@@ -29998,13 +29693,11 @@ export type Mutation_RootInsert_MessageInfosArgs = {
   on_conflict?: InputMaybe<MessageInfos_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_MessageInfos_OneArgs = {
   object: MessageInfos_Insert_Input;
   on_conflict?: InputMaybe<MessageInfos_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_MeterValuesArgs = {
@@ -30012,13 +29705,11 @@ export type Mutation_RootInsert_MeterValuesArgs = {
   on_conflict?: InputMaybe<MeterValues_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_MeterValues_OneArgs = {
   object: MeterValues_Insert_Input;
   on_conflict?: InputMaybe<MeterValues_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_OcppMessagesArgs = {
@@ -30026,13 +29717,11 @@ export type Mutation_RootInsert_OcppMessagesArgs = {
   on_conflict?: InputMaybe<OcppMessages_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_OcppMessages_OneArgs = {
   object: OcppMessages_Insert_Input;
   on_conflict?: InputMaybe<OcppMessages_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ReservationsArgs = {
@@ -30040,13 +29729,11 @@ export type Mutation_RootInsert_ReservationsArgs = {
   on_conflict?: InputMaybe<Reservations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Reservations_OneArgs = {
   object: Reservations_Insert_Input;
   on_conflict?: InputMaybe<Reservations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_SalesTariffsArgs = {
@@ -30054,13 +29741,11 @@ export type Mutation_RootInsert_SalesTariffsArgs = {
   on_conflict?: InputMaybe<SalesTariffs_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_SalesTariffs_OneArgs = {
   object: SalesTariffs_Insert_Input;
   on_conflict?: InputMaybe<SalesTariffs_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_SecurityEventsArgs = {
@@ -30068,13 +29753,11 @@ export type Mutation_RootInsert_SecurityEventsArgs = {
   on_conflict?: InputMaybe<SecurityEvents_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_SecurityEvents_OneArgs = {
   object: SecurityEvents_Insert_Input;
   on_conflict?: InputMaybe<SecurityEvents_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_SendLocalListAuthorizationsArgs = {
@@ -30082,13 +29765,11 @@ export type Mutation_RootInsert_SendLocalListAuthorizationsArgs = {
   on_conflict?: InputMaybe<SendLocalListAuthorizations_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_SendLocalListAuthorizations_OneArgs = {
   object: SendLocalListAuthorizations_Insert_Input;
   on_conflict?: InputMaybe<SendLocalListAuthorizations_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_SendLocalListsArgs = {
@@ -30096,13 +29777,11 @@ export type Mutation_RootInsert_SendLocalListsArgs = {
   on_conflict?: InputMaybe<SendLocalLists_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_SendLocalLists_OneArgs = {
   object: SendLocalLists_Insert_Input;
   on_conflict?: InputMaybe<SendLocalLists_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_ServerNetworkProfilesArgs = {
@@ -30110,13 +29789,11 @@ export type Mutation_RootInsert_ServerNetworkProfilesArgs = {
   on_conflict?: InputMaybe<ServerNetworkProfiles_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_ServerNetworkProfiles_OneArgs = {
   object: ServerNetworkProfiles_Insert_Input;
   on_conflict?: InputMaybe<ServerNetworkProfiles_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_SetNetworkProfilesArgs = {
@@ -30124,13 +29801,11 @@ export type Mutation_RootInsert_SetNetworkProfilesArgs = {
   on_conflict?: InputMaybe<SetNetworkProfiles_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_SetNetworkProfiles_OneArgs = {
   object: SetNetworkProfiles_Insert_Input;
   on_conflict?: InputMaybe<SetNetworkProfiles_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_StartTransactionsArgs = {
@@ -30138,13 +29813,11 @@ export type Mutation_RootInsert_StartTransactionsArgs = {
   on_conflict?: InputMaybe<StartTransactions_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_StartTransactions_OneArgs = {
   object: StartTransactions_Insert_Input;
   on_conflict?: InputMaybe<StartTransactions_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_StatusNotificationsArgs = {
@@ -30152,13 +29825,11 @@ export type Mutation_RootInsert_StatusNotificationsArgs = {
   on_conflict?: InputMaybe<StatusNotifications_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_StatusNotifications_OneArgs = {
   object: StatusNotifications_Insert_Input;
   on_conflict?: InputMaybe<StatusNotifications_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_StopTransactionsArgs = {
@@ -30166,13 +29837,11 @@ export type Mutation_RootInsert_StopTransactionsArgs = {
   on_conflict?: InputMaybe<StopTransactions_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_StopTransactions_OneArgs = {
   object: StopTransactions_Insert_Input;
   on_conflict?: InputMaybe<StopTransactions_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_SubscriptionsArgs = {
@@ -30180,13 +29849,11 @@ export type Mutation_RootInsert_SubscriptionsArgs = {
   on_conflict?: InputMaybe<Subscriptions_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Subscriptions_OneArgs = {
   object: Subscriptions_Insert_Input;
   on_conflict?: InputMaybe<Subscriptions_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_TariffsArgs = {
@@ -30194,13 +29861,11 @@ export type Mutation_RootInsert_TariffsArgs = {
   on_conflict?: InputMaybe<Tariffs_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Tariffs_OneArgs = {
   object: Tariffs_Insert_Input;
   on_conflict?: InputMaybe<Tariffs_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_TenantsArgs = {
@@ -30208,13 +29873,11 @@ export type Mutation_RootInsert_TenantsArgs = {
   on_conflict?: InputMaybe<Tenants_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Tenants_OneArgs = {
   object: Tenants_Insert_Input;
   on_conflict?: InputMaybe<Tenants_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_TransactionEventsArgs = {
@@ -30222,13 +29885,11 @@ export type Mutation_RootInsert_TransactionEventsArgs = {
   on_conflict?: InputMaybe<TransactionEvents_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_TransactionEvents_OneArgs = {
   object: TransactionEvents_Insert_Input;
   on_conflict?: InputMaybe<TransactionEvents_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_TransactionsArgs = {
@@ -30236,13 +29897,11 @@ export type Mutation_RootInsert_TransactionsArgs = {
   on_conflict?: InputMaybe<Transactions_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Transactions_OneArgs = {
   object: Transactions_Insert_Input;
   on_conflict?: InputMaybe<Transactions_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_VariableAttributesArgs = {
@@ -30250,13 +29909,11 @@ export type Mutation_RootInsert_VariableAttributesArgs = {
   on_conflict?: InputMaybe<VariableAttributes_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_VariableAttributes_OneArgs = {
   object: VariableAttributes_Insert_Input;
   on_conflict?: InputMaybe<VariableAttributes_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_VariableCharacteristicsArgs = {
@@ -30264,13 +29921,11 @@ export type Mutation_RootInsert_VariableCharacteristicsArgs = {
   on_conflict?: InputMaybe<VariableCharacteristics_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_VariableCharacteristics_OneArgs = {
   object: VariableCharacteristics_Insert_Input;
   on_conflict?: InputMaybe<VariableCharacteristics_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_VariableMonitoringStatusesArgs = {
@@ -30278,13 +29933,11 @@ export type Mutation_RootInsert_VariableMonitoringStatusesArgs = {
   on_conflict?: InputMaybe<VariableMonitoringStatuses_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_VariableMonitoringStatuses_OneArgs = {
   object: VariableMonitoringStatuses_Insert_Input;
   on_conflict?: InputMaybe<VariableMonitoringStatuses_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_VariableMonitoringsArgs = {
@@ -30292,13 +29945,11 @@ export type Mutation_RootInsert_VariableMonitoringsArgs = {
   on_conflict?: InputMaybe<VariableMonitorings_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_VariableMonitorings_OneArgs = {
   object: VariableMonitorings_Insert_Input;
   on_conflict?: InputMaybe<VariableMonitorings_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_VariableStatusesArgs = {
@@ -30306,13 +29957,11 @@ export type Mutation_RootInsert_VariableStatusesArgs = {
   on_conflict?: InputMaybe<VariableStatuses_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_VariableStatuses_OneArgs = {
   object: VariableStatuses_Insert_Input;
   on_conflict?: InputMaybe<VariableStatuses_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootInsert_VariablesArgs = {
@@ -30320,13 +29969,11 @@ export type Mutation_RootInsert_VariablesArgs = {
   on_conflict?: InputMaybe<Variables_On_Conflict>;
 };
 
-
 /** mutation root */
 export type Mutation_RootInsert_Variables_OneArgs = {
   object: Variables_Insert_Input;
   on_conflict?: InputMaybe<Variables_On_Conflict>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_AdditionalInfosArgs = {
@@ -30335,7 +29982,6 @@ export type Mutation_RootUpdate_AdditionalInfosArgs = {
   where: AdditionalInfos_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_AdditionalInfos_By_PkArgs = {
   _inc?: InputMaybe<AdditionalInfos_Inc_Input>;
@@ -30343,12 +29989,10 @@ export type Mutation_RootUpdate_AdditionalInfos_By_PkArgs = {
   pk_columns: AdditionalInfos_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_AdditionalInfos_ManyArgs = {
   updates: Array<AdditionalInfos_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_AuthorizationsArgs = {
@@ -30357,7 +30001,6 @@ export type Mutation_RootUpdate_AuthorizationsArgs = {
   where: Authorizations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Authorizations_By_PkArgs = {
   _inc?: InputMaybe<Authorizations_Inc_Input>;
@@ -30365,12 +30008,10 @@ export type Mutation_RootUpdate_Authorizations_By_PkArgs = {
   pk_columns: Authorizations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Authorizations_ManyArgs = {
   updates: Array<Authorizations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_BootsArgs = {
@@ -30379,7 +30020,6 @@ export type Mutation_RootUpdate_BootsArgs = {
   where: Boots_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Boots_By_PkArgs = {
   _inc?: InputMaybe<Boots_Inc_Input>;
@@ -30387,12 +30027,10 @@ export type Mutation_RootUpdate_Boots_By_PkArgs = {
   pk_columns: Boots_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Boots_ManyArgs = {
   updates: Array<Boots_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_CertificatesArgs = {
@@ -30401,7 +30039,6 @@ export type Mutation_RootUpdate_CertificatesArgs = {
   where: Certificates_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Certificates_By_PkArgs = {
   _inc?: InputMaybe<Certificates_Inc_Input>;
@@ -30409,12 +30046,10 @@ export type Mutation_RootUpdate_Certificates_By_PkArgs = {
   pk_columns: Certificates_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Certificates_ManyArgs = {
   updates: Array<Certificates_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChangeConfigurationsArgs = {
@@ -30423,7 +30058,6 @@ export type Mutation_RootUpdate_ChangeConfigurationsArgs = {
   where: ChangeConfigurations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChangeConfigurations_By_PkArgs = {
   _inc?: InputMaybe<ChangeConfigurations_Inc_Input>;
@@ -30431,12 +30065,10 @@ export type Mutation_RootUpdate_ChangeConfigurations_By_PkArgs = {
   pk_columns: ChangeConfigurations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChangeConfigurations_ManyArgs = {
   updates: Array<ChangeConfigurations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingNeedsArgs = {
@@ -30450,7 +30082,6 @@ export type Mutation_RootUpdate_ChargingNeedsArgs = {
   where: ChargingNeeds_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingNeeds_By_PkArgs = {
   _append?: InputMaybe<ChargingNeeds_Append_Input>;
@@ -30463,12 +30094,10 @@ export type Mutation_RootUpdate_ChargingNeeds_By_PkArgs = {
   pk_columns: ChargingNeeds_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingNeeds_ManyArgs = {
   updates: Array<ChargingNeeds_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingProfilesArgs = {
@@ -30477,7 +30106,6 @@ export type Mutation_RootUpdate_ChargingProfilesArgs = {
   where: ChargingProfiles_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingProfiles_By_PkArgs = {
   _inc?: InputMaybe<ChargingProfiles_Inc_Input>;
@@ -30485,12 +30113,10 @@ export type Mutation_RootUpdate_ChargingProfiles_By_PkArgs = {
   pk_columns: ChargingProfiles_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingProfiles_ManyArgs = {
   updates: Array<ChargingProfiles_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingSchedulesArgs = {
@@ -30504,7 +30130,6 @@ export type Mutation_RootUpdate_ChargingSchedulesArgs = {
   where: ChargingSchedules_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingSchedules_By_PkArgs = {
   _append?: InputMaybe<ChargingSchedules_Append_Input>;
@@ -30517,12 +30142,10 @@ export type Mutation_RootUpdate_ChargingSchedules_By_PkArgs = {
   pk_columns: ChargingSchedules_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingSchedules_ManyArgs = {
   updates: Array<ChargingSchedules_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationNetworkProfilesArgs = {
@@ -30531,7 +30154,6 @@ export type Mutation_RootUpdate_ChargingStationNetworkProfilesArgs = {
   where: ChargingStationNetworkProfiles_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationNetworkProfiles_By_PkArgs = {
   _inc?: InputMaybe<ChargingStationNetworkProfiles_Inc_Input>;
@@ -30539,12 +30161,10 @@ export type Mutation_RootUpdate_ChargingStationNetworkProfiles_By_PkArgs = {
   pk_columns: ChargingStationNetworkProfiles_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationNetworkProfiles_ManyArgs = {
   updates: Array<ChargingStationNetworkProfiles_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationSecurityInfosArgs = {
@@ -30553,7 +30173,6 @@ export type Mutation_RootUpdate_ChargingStationSecurityInfosArgs = {
   where: ChargingStationSecurityInfos_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationSecurityInfos_By_PkArgs = {
   _inc?: InputMaybe<ChargingStationSecurityInfos_Inc_Input>;
@@ -30561,12 +30180,10 @@ export type Mutation_RootUpdate_ChargingStationSecurityInfos_By_PkArgs = {
   pk_columns: ChargingStationSecurityInfos_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationSecurityInfos_ManyArgs = {
   updates: Array<ChargingStationSecurityInfos_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationSequencesArgs = {
@@ -30575,7 +30192,6 @@ export type Mutation_RootUpdate_ChargingStationSequencesArgs = {
   where: ChargingStationSequences_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationSequences_By_PkArgs = {
   _inc?: InputMaybe<ChargingStationSequences_Inc_Input>;
@@ -30583,12 +30199,10 @@ export type Mutation_RootUpdate_ChargingStationSequences_By_PkArgs = {
   pk_columns: ChargingStationSequences_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationSequences_ManyArgs = {
   updates: Array<ChargingStationSequences_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStationsArgs = {
@@ -30597,7 +30211,6 @@ export type Mutation_RootUpdate_ChargingStationsArgs = {
   where: ChargingStations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStations_By_PkArgs = {
   _inc?: InputMaybe<ChargingStations_Inc_Input>;
@@ -30605,12 +30218,10 @@ export type Mutation_RootUpdate_ChargingStations_By_PkArgs = {
   pk_columns: ChargingStations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ChargingStations_ManyArgs = {
   updates: Array<ChargingStations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ComponentVariablesArgs = {
@@ -30619,7 +30230,6 @@ export type Mutation_RootUpdate_ComponentVariablesArgs = {
   where: ComponentVariables_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ComponentVariables_By_PkArgs = {
   _inc?: InputMaybe<ComponentVariables_Inc_Input>;
@@ -30627,12 +30237,10 @@ export type Mutation_RootUpdate_ComponentVariables_By_PkArgs = {
   pk_columns: ComponentVariables_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ComponentVariables_ManyArgs = {
   updates: Array<ComponentVariables_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ComponentsArgs = {
@@ -30641,7 +30249,6 @@ export type Mutation_RootUpdate_ComponentsArgs = {
   where: Components_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Components_By_PkArgs = {
   _inc?: InputMaybe<Components_Inc_Input>;
@@ -30649,12 +30256,10 @@ export type Mutation_RootUpdate_Components_By_PkArgs = {
   pk_columns: Components_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Components_ManyArgs = {
   updates: Array<Components_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_CompositeSchedulesArgs = {
@@ -30668,7 +30273,6 @@ export type Mutation_RootUpdate_CompositeSchedulesArgs = {
   where: CompositeSchedules_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_CompositeSchedules_By_PkArgs = {
   _append?: InputMaybe<CompositeSchedules_Append_Input>;
@@ -30681,12 +30285,10 @@ export type Mutation_RootUpdate_CompositeSchedules_By_PkArgs = {
   pk_columns: CompositeSchedules_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_CompositeSchedules_ManyArgs = {
   updates: Array<CompositeSchedules_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ConnectorsArgs = {
@@ -30695,7 +30297,6 @@ export type Mutation_RootUpdate_ConnectorsArgs = {
   where: Connectors_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Connectors_By_PkArgs = {
   _inc?: InputMaybe<Connectors_Inc_Input>;
@@ -30703,12 +30304,10 @@ export type Mutation_RootUpdate_Connectors_By_PkArgs = {
   pk_columns: Connectors_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Connectors_ManyArgs = {
   updates: Array<Connectors_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_EventDataArgs = {
@@ -30717,7 +30316,6 @@ export type Mutation_RootUpdate_EventDataArgs = {
   where: EventData_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_EventData_By_PkArgs = {
   _inc?: InputMaybe<EventData_Inc_Input>;
@@ -30725,12 +30323,10 @@ export type Mutation_RootUpdate_EventData_By_PkArgs = {
   pk_columns: EventData_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_EventData_ManyArgs = {
   updates: Array<EventData_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_EvsesArgs = {
@@ -30739,7 +30335,6 @@ export type Mutation_RootUpdate_EvsesArgs = {
   where: Evses_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Evses_By_PkArgs = {
   _inc?: InputMaybe<Evses_Inc_Input>;
@@ -30747,12 +30342,10 @@ export type Mutation_RootUpdate_Evses_By_PkArgs = {
   pk_columns: Evses_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Evses_ManyArgs = {
   updates: Array<Evses_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_IdTokenAdditionalInfosArgs = {
@@ -30761,7 +30354,6 @@ export type Mutation_RootUpdate_IdTokenAdditionalInfosArgs = {
   where: IdTokenAdditionalInfos_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_IdTokenAdditionalInfos_By_PkArgs = {
   _inc?: InputMaybe<IdTokenAdditionalInfos_Inc_Input>;
@@ -30769,12 +30361,10 @@ export type Mutation_RootUpdate_IdTokenAdditionalInfos_By_PkArgs = {
   pk_columns: IdTokenAdditionalInfos_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_IdTokenAdditionalInfos_ManyArgs = {
   updates: Array<IdTokenAdditionalInfos_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_IdTokenInfosArgs = {
@@ -30783,7 +30373,6 @@ export type Mutation_RootUpdate_IdTokenInfosArgs = {
   where: IdTokenInfos_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_IdTokenInfos_By_PkArgs = {
   _inc?: InputMaybe<IdTokenInfos_Inc_Input>;
@@ -30791,12 +30380,10 @@ export type Mutation_RootUpdate_IdTokenInfos_By_PkArgs = {
   pk_columns: IdTokenInfos_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_IdTokenInfos_ManyArgs = {
   updates: Array<IdTokenInfos_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_IdTokensArgs = {
@@ -30805,7 +30392,6 @@ export type Mutation_RootUpdate_IdTokensArgs = {
   where: IdTokens_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_IdTokens_By_PkArgs = {
   _inc?: InputMaybe<IdTokens_Inc_Input>;
@@ -30813,12 +30399,10 @@ export type Mutation_RootUpdate_IdTokens_By_PkArgs = {
   pk_columns: IdTokens_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_IdTokens_ManyArgs = {
   updates: Array<IdTokens_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_InstalledCertificatesArgs = {
@@ -30827,7 +30411,6 @@ export type Mutation_RootUpdate_InstalledCertificatesArgs = {
   where: InstalledCertificates_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_InstalledCertificates_By_PkArgs = {
   _inc?: InputMaybe<InstalledCertificates_Inc_Input>;
@@ -30835,12 +30418,10 @@ export type Mutation_RootUpdate_InstalledCertificates_By_PkArgs = {
   pk_columns: InstalledCertificates_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_InstalledCertificates_ManyArgs = {
   updates: Array<InstalledCertificates_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_LatestStatusNotificationsArgs = {
@@ -30849,7 +30430,6 @@ export type Mutation_RootUpdate_LatestStatusNotificationsArgs = {
   where: LatestStatusNotifications_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LatestStatusNotifications_By_PkArgs = {
   _inc?: InputMaybe<LatestStatusNotifications_Inc_Input>;
@@ -30857,12 +30437,10 @@ export type Mutation_RootUpdate_LatestStatusNotifications_By_PkArgs = {
   pk_columns: LatestStatusNotifications_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LatestStatusNotifications_ManyArgs = {
   updates: Array<LatestStatusNotifications_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_LocalListAuthorizationsArgs = {
@@ -30871,7 +30449,6 @@ export type Mutation_RootUpdate_LocalListAuthorizationsArgs = {
   where: LocalListAuthorizations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LocalListAuthorizations_By_PkArgs = {
   _inc?: InputMaybe<LocalListAuthorizations_Inc_Input>;
@@ -30879,12 +30456,10 @@ export type Mutation_RootUpdate_LocalListAuthorizations_By_PkArgs = {
   pk_columns: LocalListAuthorizations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LocalListAuthorizations_ManyArgs = {
   updates: Array<LocalListAuthorizations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_LocalListVersionAuthorizationsArgs = {
@@ -30893,7 +30468,6 @@ export type Mutation_RootUpdate_LocalListVersionAuthorizationsArgs = {
   where: LocalListVersionAuthorizations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LocalListVersionAuthorizations_By_PkArgs = {
   _inc?: InputMaybe<LocalListVersionAuthorizations_Inc_Input>;
@@ -30901,12 +30475,10 @@ export type Mutation_RootUpdate_LocalListVersionAuthorizations_By_PkArgs = {
   pk_columns: LocalListVersionAuthorizations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LocalListVersionAuthorizations_ManyArgs = {
   updates: Array<LocalListVersionAuthorizations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_LocalListVersionsArgs = {
@@ -30915,7 +30487,6 @@ export type Mutation_RootUpdate_LocalListVersionsArgs = {
   where: LocalListVersions_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LocalListVersions_By_PkArgs = {
   _inc?: InputMaybe<LocalListVersions_Inc_Input>;
@@ -30923,12 +30494,10 @@ export type Mutation_RootUpdate_LocalListVersions_By_PkArgs = {
   pk_columns: LocalListVersions_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_LocalListVersions_ManyArgs = {
   updates: Array<LocalListVersions_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_LocationsArgs = {
@@ -30937,7 +30506,6 @@ export type Mutation_RootUpdate_LocationsArgs = {
   where: Locations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Locations_By_PkArgs = {
   _inc?: InputMaybe<Locations_Inc_Input>;
@@ -30945,12 +30513,10 @@ export type Mutation_RootUpdate_Locations_By_PkArgs = {
   pk_columns: Locations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Locations_ManyArgs = {
   updates: Array<Locations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_MessageInfosArgs = {
@@ -30959,7 +30525,6 @@ export type Mutation_RootUpdate_MessageInfosArgs = {
   where: MessageInfos_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_MessageInfos_By_PkArgs = {
   _inc?: InputMaybe<MessageInfos_Inc_Input>;
@@ -30967,12 +30532,10 @@ export type Mutation_RootUpdate_MessageInfos_By_PkArgs = {
   pk_columns: MessageInfos_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_MessageInfos_ManyArgs = {
   updates: Array<MessageInfos_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_MeterValuesArgs = {
@@ -30981,7 +30544,6 @@ export type Mutation_RootUpdate_MeterValuesArgs = {
   where: MeterValues_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_MeterValues_By_PkArgs = {
   _inc?: InputMaybe<MeterValues_Inc_Input>;
@@ -30989,12 +30551,10 @@ export type Mutation_RootUpdate_MeterValues_By_PkArgs = {
   pk_columns: MeterValues_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_MeterValues_ManyArgs = {
   updates: Array<MeterValues_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_OcppMessagesArgs = {
@@ -31008,7 +30568,6 @@ export type Mutation_RootUpdate_OcppMessagesArgs = {
   where: OcppMessages_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_OcppMessages_By_PkArgs = {
   _append?: InputMaybe<OcppMessages_Append_Input>;
@@ -31021,12 +30580,10 @@ export type Mutation_RootUpdate_OcppMessages_By_PkArgs = {
   pk_columns: OcppMessages_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_OcppMessages_ManyArgs = {
   updates: Array<OcppMessages_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ReservationsArgs = {
@@ -31040,7 +30597,6 @@ export type Mutation_RootUpdate_ReservationsArgs = {
   where: Reservations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Reservations_By_PkArgs = {
   _append?: InputMaybe<Reservations_Append_Input>;
@@ -31053,12 +30609,10 @@ export type Mutation_RootUpdate_Reservations_By_PkArgs = {
   pk_columns: Reservations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Reservations_ManyArgs = {
   updates: Array<Reservations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_SalesTariffsArgs = {
@@ -31072,7 +30626,6 @@ export type Mutation_RootUpdate_SalesTariffsArgs = {
   where: SalesTariffs_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SalesTariffs_By_PkArgs = {
   _append?: InputMaybe<SalesTariffs_Append_Input>;
@@ -31085,12 +30638,10 @@ export type Mutation_RootUpdate_SalesTariffs_By_PkArgs = {
   pk_columns: SalesTariffs_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SalesTariffs_ManyArgs = {
   updates: Array<SalesTariffs_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_SecurityEventsArgs = {
@@ -31099,7 +30650,6 @@ export type Mutation_RootUpdate_SecurityEventsArgs = {
   where: SecurityEvents_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SecurityEvents_By_PkArgs = {
   _inc?: InputMaybe<SecurityEvents_Inc_Input>;
@@ -31107,12 +30657,10 @@ export type Mutation_RootUpdate_SecurityEvents_By_PkArgs = {
   pk_columns: SecurityEvents_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SecurityEvents_ManyArgs = {
   updates: Array<SecurityEvents_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_SendLocalListAuthorizationsArgs = {
@@ -31121,7 +30669,6 @@ export type Mutation_RootUpdate_SendLocalListAuthorizationsArgs = {
   where: SendLocalListAuthorizations_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SendLocalListAuthorizations_By_PkArgs = {
   _inc?: InputMaybe<SendLocalListAuthorizations_Inc_Input>;
@@ -31129,12 +30676,10 @@ export type Mutation_RootUpdate_SendLocalListAuthorizations_By_PkArgs = {
   pk_columns: SendLocalListAuthorizations_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SendLocalListAuthorizations_ManyArgs = {
   updates: Array<SendLocalListAuthorizations_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_SendLocalListsArgs = {
@@ -31143,7 +30688,6 @@ export type Mutation_RootUpdate_SendLocalListsArgs = {
   where: SendLocalLists_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SendLocalLists_By_PkArgs = {
   _inc?: InputMaybe<SendLocalLists_Inc_Input>;
@@ -31151,12 +30695,10 @@ export type Mutation_RootUpdate_SendLocalLists_By_PkArgs = {
   pk_columns: SendLocalLists_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SendLocalLists_ManyArgs = {
   updates: Array<SendLocalLists_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_ServerNetworkProfilesArgs = {
@@ -31165,7 +30707,6 @@ export type Mutation_RootUpdate_ServerNetworkProfilesArgs = {
   where: ServerNetworkProfiles_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ServerNetworkProfiles_By_PkArgs = {
   _inc?: InputMaybe<ServerNetworkProfiles_Inc_Input>;
@@ -31173,12 +30714,10 @@ export type Mutation_RootUpdate_ServerNetworkProfiles_By_PkArgs = {
   pk_columns: ServerNetworkProfiles_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_ServerNetworkProfiles_ManyArgs = {
   updates: Array<ServerNetworkProfiles_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_SetNetworkProfilesArgs = {
@@ -31187,7 +30726,6 @@ export type Mutation_RootUpdate_SetNetworkProfilesArgs = {
   where: SetNetworkProfiles_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SetNetworkProfiles_By_PkArgs = {
   _inc?: InputMaybe<SetNetworkProfiles_Inc_Input>;
@@ -31195,12 +30733,10 @@ export type Mutation_RootUpdate_SetNetworkProfiles_By_PkArgs = {
   pk_columns: SetNetworkProfiles_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_SetNetworkProfiles_ManyArgs = {
   updates: Array<SetNetworkProfiles_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_StartTransactionsArgs = {
@@ -31209,7 +30745,6 @@ export type Mutation_RootUpdate_StartTransactionsArgs = {
   where: StartTransactions_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_StartTransactions_By_PkArgs = {
   _inc?: InputMaybe<StartTransactions_Inc_Input>;
@@ -31217,12 +30752,10 @@ export type Mutation_RootUpdate_StartTransactions_By_PkArgs = {
   pk_columns: StartTransactions_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_StartTransactions_ManyArgs = {
   updates: Array<StartTransactions_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_StatusNotificationsArgs = {
@@ -31231,7 +30764,6 @@ export type Mutation_RootUpdate_StatusNotificationsArgs = {
   where: StatusNotifications_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_StatusNotifications_By_PkArgs = {
   _inc?: InputMaybe<StatusNotifications_Inc_Input>;
@@ -31239,12 +30771,10 @@ export type Mutation_RootUpdate_StatusNotifications_By_PkArgs = {
   pk_columns: StatusNotifications_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_StatusNotifications_ManyArgs = {
   updates: Array<StatusNotifications_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_StopTransactionsArgs = {
@@ -31253,7 +30783,6 @@ export type Mutation_RootUpdate_StopTransactionsArgs = {
   where: StopTransactions_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_StopTransactions_By_PkArgs = {
   _inc?: InputMaybe<StopTransactions_Inc_Input>;
@@ -31261,12 +30790,10 @@ export type Mutation_RootUpdate_StopTransactions_By_PkArgs = {
   pk_columns: StopTransactions_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_StopTransactions_ManyArgs = {
   updates: Array<StopTransactions_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_SubscriptionsArgs = {
@@ -31275,7 +30802,6 @@ export type Mutation_RootUpdate_SubscriptionsArgs = {
   where: Subscriptions_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Subscriptions_By_PkArgs = {
   _inc?: InputMaybe<Subscriptions_Inc_Input>;
@@ -31283,12 +30809,10 @@ export type Mutation_RootUpdate_Subscriptions_By_PkArgs = {
   pk_columns: Subscriptions_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Subscriptions_ManyArgs = {
   updates: Array<Subscriptions_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_TariffsArgs = {
@@ -31297,7 +30821,6 @@ export type Mutation_RootUpdate_TariffsArgs = {
   where: Tariffs_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Tariffs_By_PkArgs = {
   _inc?: InputMaybe<Tariffs_Inc_Input>;
@@ -31305,12 +30828,10 @@ export type Mutation_RootUpdate_Tariffs_By_PkArgs = {
   pk_columns: Tariffs_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Tariffs_ManyArgs = {
   updates: Array<Tariffs_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_TenantsArgs = {
@@ -31319,7 +30840,6 @@ export type Mutation_RootUpdate_TenantsArgs = {
   where: Tenants_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Tenants_By_PkArgs = {
   _inc?: InputMaybe<Tenants_Inc_Input>;
@@ -31327,12 +30847,10 @@ export type Mutation_RootUpdate_Tenants_By_PkArgs = {
   pk_columns: Tenants_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Tenants_ManyArgs = {
   updates: Array<Tenants_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_TransactionEventsArgs = {
@@ -31341,7 +30859,6 @@ export type Mutation_RootUpdate_TransactionEventsArgs = {
   where: TransactionEvents_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_TransactionEvents_By_PkArgs = {
   _inc?: InputMaybe<TransactionEvents_Inc_Input>;
@@ -31349,12 +30866,10 @@ export type Mutation_RootUpdate_TransactionEvents_By_PkArgs = {
   pk_columns: TransactionEvents_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_TransactionEvents_ManyArgs = {
   updates: Array<TransactionEvents_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_TransactionsArgs = {
@@ -31363,7 +30878,6 @@ export type Mutation_RootUpdate_TransactionsArgs = {
   where: Transactions_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Transactions_By_PkArgs = {
   _inc?: InputMaybe<Transactions_Inc_Input>;
@@ -31371,12 +30885,10 @@ export type Mutation_RootUpdate_Transactions_By_PkArgs = {
   pk_columns: Transactions_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Transactions_ManyArgs = {
   updates: Array<Transactions_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_VariableAttributesArgs = {
@@ -31385,7 +30897,6 @@ export type Mutation_RootUpdate_VariableAttributesArgs = {
   where: VariableAttributes_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableAttributes_By_PkArgs = {
   _inc?: InputMaybe<VariableAttributes_Inc_Input>;
@@ -31393,12 +30904,10 @@ export type Mutation_RootUpdate_VariableAttributes_By_PkArgs = {
   pk_columns: VariableAttributes_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableAttributes_ManyArgs = {
   updates: Array<VariableAttributes_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_VariableCharacteristicsArgs = {
@@ -31407,7 +30916,6 @@ export type Mutation_RootUpdate_VariableCharacteristicsArgs = {
   where: VariableCharacteristics_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableCharacteristics_By_PkArgs = {
   _inc?: InputMaybe<VariableCharacteristics_Inc_Input>;
@@ -31415,12 +30923,10 @@ export type Mutation_RootUpdate_VariableCharacteristics_By_PkArgs = {
   pk_columns: VariableCharacteristics_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableCharacteristics_ManyArgs = {
   updates: Array<VariableCharacteristics_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_VariableMonitoringStatusesArgs = {
@@ -31429,7 +30935,6 @@ export type Mutation_RootUpdate_VariableMonitoringStatusesArgs = {
   where: VariableMonitoringStatuses_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableMonitoringStatuses_By_PkArgs = {
   _inc?: InputMaybe<VariableMonitoringStatuses_Inc_Input>;
@@ -31437,12 +30942,10 @@ export type Mutation_RootUpdate_VariableMonitoringStatuses_By_PkArgs = {
   pk_columns: VariableMonitoringStatuses_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableMonitoringStatuses_ManyArgs = {
   updates: Array<VariableMonitoringStatuses_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_VariableMonitoringsArgs = {
@@ -31451,7 +30954,6 @@ export type Mutation_RootUpdate_VariableMonitoringsArgs = {
   where: VariableMonitorings_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableMonitorings_By_PkArgs = {
   _inc?: InputMaybe<VariableMonitorings_Inc_Input>;
@@ -31459,12 +30961,10 @@ export type Mutation_RootUpdate_VariableMonitorings_By_PkArgs = {
   pk_columns: VariableMonitorings_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableMonitorings_ManyArgs = {
   updates: Array<VariableMonitorings_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_VariableStatusesArgs = {
@@ -31473,7 +30973,6 @@ export type Mutation_RootUpdate_VariableStatusesArgs = {
   where: VariableStatuses_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableStatuses_By_PkArgs = {
   _inc?: InputMaybe<VariableStatuses_Inc_Input>;
@@ -31481,12 +30980,10 @@ export type Mutation_RootUpdate_VariableStatuses_By_PkArgs = {
   pk_columns: VariableStatuses_Pk_Columns_Input;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_VariableStatuses_ManyArgs = {
   updates: Array<VariableStatuses_Updates>;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_VariablesArgs = {
@@ -31495,14 +30992,12 @@ export type Mutation_RootUpdate_VariablesArgs = {
   where: Variables_Bool_Exp;
 };
 
-
 /** mutation root */
 export type Mutation_RootUpdate_Variables_By_PkArgs = {
   _inc?: InputMaybe<Variables_Inc_Input>;
   _set?: InputMaybe<Variables_Set_Input>;
   pk_columns: Variables_Pk_Columns_Input;
 };
-
 
 /** mutation root */
 export type Mutation_RootUpdate_Variables_ManyArgs = {
@@ -31535,7 +31030,7 @@ export enum Order_By {
   /** in descending order, nulls first */
   DescNullsFirst = 'desc_nulls_first',
   /** in descending order, nulls last */
-  DescNullsLast = 'desc_nulls_last'
+  DescNullsLast = 'desc_nulls_last',
 }
 
 export type Query_Root = {
@@ -31848,7 +31343,6 @@ export type Query_Root = {
   Variables_by_pk?: Maybe<Variables>;
 };
 
-
 export type Query_RootAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<AdditionalInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31856,7 +31350,6 @@ export type Query_RootAdditionalInfosArgs = {
   order_by?: InputMaybe<Array<AdditionalInfos_Order_By>>;
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
-
 
 export type Query_RootAdditionalInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<AdditionalInfos_Select_Column>>;
@@ -31866,11 +31359,9 @@ export type Query_RootAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
 
-
 export type Query_RootAdditionalInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<Authorizations_Select_Column>>;
@@ -31880,7 +31371,6 @@ export type Query_RootAuthorizationsArgs = {
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
 
-
 export type Query_RootAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Authorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31889,11 +31379,9 @@ export type Query_RootAuthorizations_AggregateArgs = {
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
 
-
 export type Query_RootAuthorizations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootBootsArgs = {
   distinct_on?: InputMaybe<Array<Boots_Select_Column>>;
@@ -31903,7 +31391,6 @@ export type Query_RootBootsArgs = {
   where?: InputMaybe<Boots_Bool_Exp>;
 };
 
-
 export type Query_RootBoots_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Boots_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31912,11 +31399,9 @@ export type Query_RootBoots_AggregateArgs = {
   where?: InputMaybe<Boots_Bool_Exp>;
 };
 
-
 export type Query_RootBoots_By_PkArgs = {
   id: Scalars['String']['input'];
 };
-
 
 export type Query_RootCertificatesArgs = {
   distinct_on?: InputMaybe<Array<Certificates_Select_Column>>;
@@ -31926,7 +31411,6 @@ export type Query_RootCertificatesArgs = {
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
 
-
 export type Query_RootCertificates_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Certificates_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31935,11 +31419,9 @@ export type Query_RootCertificates_AggregateArgs = {
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
 
-
 export type Query_RootCertificates_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChangeConfigurationsArgs = {
   distinct_on?: InputMaybe<Array<ChangeConfigurations_Select_Column>>;
@@ -31949,7 +31431,6 @@ export type Query_RootChangeConfigurationsArgs = {
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
 
-
 export type Query_RootChangeConfigurations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChangeConfigurations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31958,11 +31439,9 @@ export type Query_RootChangeConfigurations_AggregateArgs = {
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
 
-
 export type Query_RootChangeConfigurations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChargingNeedsArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
@@ -31972,7 +31451,6 @@ export type Query_RootChargingNeedsArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 export type Query_RootChargingNeeds_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31981,11 +31459,9 @@ export type Query_RootChargingNeeds_AggregateArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 export type Query_RootChargingNeeds_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChargingProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingProfiles_Select_Column>>;
@@ -31995,7 +31471,6 @@ export type Query_RootChargingProfilesArgs = {
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootChargingProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32004,11 +31479,9 @@ export type Query_RootChargingProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootChargingProfiles_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChargingSchedulesArgs = {
   distinct_on?: InputMaybe<Array<ChargingSchedules_Select_Column>>;
@@ -32018,7 +31491,6 @@ export type Query_RootChargingSchedulesArgs = {
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
 
-
 export type Query_RootChargingSchedules_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingSchedules_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32027,11 +31499,9 @@ export type Query_RootChargingSchedules_AggregateArgs = {
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
 
-
 export type Query_RootChargingSchedules_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChargingStationNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -32041,7 +31511,6 @@ export type Query_RootChargingStationNetworkProfilesArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStationNetworkProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32050,12 +31519,10 @@ export type Query_RootChargingStationNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStationNetworkProfiles_By_PkArgs = {
   stationId: Scalars['String']['input'];
   websocketServerConfigId: Scalars['String']['input'];
 };
-
 
 export type Query_RootChargingStationSecurityInfosArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSecurityInfos_Select_Column>>;
@@ -32065,7 +31532,6 @@ export type Query_RootChargingStationSecurityInfosArgs = {
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStationSecurityInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSecurityInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32074,11 +31540,9 @@ export type Query_RootChargingStationSecurityInfos_AggregateArgs = {
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStationSecurityInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChargingStationSequencesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
@@ -32088,7 +31552,6 @@ export type Query_RootChargingStationSequencesArgs = {
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStationSequences_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32097,11 +31560,9 @@ export type Query_RootChargingStationSequences_AggregateArgs = {
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStationSequences_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootChargingStationsArgs = {
   distinct_on?: InputMaybe<Array<ChargingStations_Select_Column>>;
@@ -32111,7 +31572,6 @@ export type Query_RootChargingStationsArgs = {
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32120,11 +31580,9 @@ export type Query_RootChargingStations_AggregateArgs = {
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
 
-
 export type Query_RootChargingStations_By_PkArgs = {
   id: Scalars['String']['input'];
 };
-
 
 export type Query_RootComponentVariablesArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
@@ -32134,7 +31592,6 @@ export type Query_RootComponentVariablesArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 export type Query_RootComponentVariables_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32143,12 +31600,10 @@ export type Query_RootComponentVariables_AggregateArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 export type Query_RootComponentVariables_By_PkArgs = {
   componentId: Scalars['Int']['input'];
   variableId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootComponentsArgs = {
   distinct_on?: InputMaybe<Array<Components_Select_Column>>;
@@ -32158,7 +31613,6 @@ export type Query_RootComponentsArgs = {
   where?: InputMaybe<Components_Bool_Exp>;
 };
 
-
 export type Query_RootComponents_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Components_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32167,11 +31621,9 @@ export type Query_RootComponents_AggregateArgs = {
   where?: InputMaybe<Components_Bool_Exp>;
 };
 
-
 export type Query_RootComponents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootCompositeSchedulesArgs = {
   distinct_on?: InputMaybe<Array<CompositeSchedules_Select_Column>>;
@@ -32181,7 +31633,6 @@ export type Query_RootCompositeSchedulesArgs = {
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
 
-
 export type Query_RootCompositeSchedules_AggregateArgs = {
   distinct_on?: InputMaybe<Array<CompositeSchedules_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32190,11 +31641,9 @@ export type Query_RootCompositeSchedules_AggregateArgs = {
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
 
-
 export type Query_RootCompositeSchedules_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootConnectorsArgs = {
   distinct_on?: InputMaybe<Array<Connectors_Select_Column>>;
@@ -32204,7 +31653,6 @@ export type Query_RootConnectorsArgs = {
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
 
-
 export type Query_RootConnectors_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Connectors_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32213,11 +31661,9 @@ export type Query_RootConnectors_AggregateArgs = {
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
 
-
 export type Query_RootConnectors_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootEventDataArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
@@ -32227,7 +31673,6 @@ export type Query_RootEventDataArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 export type Query_RootEventData_AggregateArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32236,11 +31681,9 @@ export type Query_RootEventData_AggregateArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 export type Query_RootEventData_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootEvsesArgs = {
   distinct_on?: InputMaybe<Array<Evses_Select_Column>>;
@@ -32250,7 +31693,6 @@ export type Query_RootEvsesArgs = {
   where?: InputMaybe<Evses_Bool_Exp>;
 };
 
-
 export type Query_RootEvses_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Evses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32259,11 +31701,9 @@ export type Query_RootEvses_AggregateArgs = {
   where?: InputMaybe<Evses_Bool_Exp>;
 };
 
-
 export type Query_RootEvses_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootIdTokenAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
@@ -32273,7 +31713,6 @@ export type Query_RootIdTokenAdditionalInfosArgs = {
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
 
-
 export type Query_RootIdTokenAdditionalInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32282,12 +31721,10 @@ export type Query_RootIdTokenAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
 
-
 export type Query_RootIdTokenAdditionalInfos_By_PkArgs = {
   additionalInfoId: Scalars['Int']['input'];
   idTokenId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootIdTokenInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenInfos_Select_Column>>;
@@ -32297,7 +31734,6 @@ export type Query_RootIdTokenInfosArgs = {
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
 
-
 export type Query_RootIdTokenInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<IdTokenInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32306,11 +31742,9 @@ export type Query_RootIdTokenInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
 
-
 export type Query_RootIdTokenInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootIdTokensArgs = {
   distinct_on?: InputMaybe<Array<IdTokens_Select_Column>>;
@@ -32320,7 +31754,6 @@ export type Query_RootIdTokensArgs = {
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
 
-
 export type Query_RootIdTokens_AggregateArgs = {
   distinct_on?: InputMaybe<Array<IdTokens_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32329,11 +31762,9 @@ export type Query_RootIdTokens_AggregateArgs = {
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
 
-
 export type Query_RootIdTokens_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootInstalledCertificatesArgs = {
   distinct_on?: InputMaybe<Array<InstalledCertificates_Select_Column>>;
@@ -32343,7 +31774,6 @@ export type Query_RootInstalledCertificatesArgs = {
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
 
-
 export type Query_RootInstalledCertificates_AggregateArgs = {
   distinct_on?: InputMaybe<Array<InstalledCertificates_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32352,11 +31782,9 @@ export type Query_RootInstalledCertificates_AggregateArgs = {
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
 
-
 export type Query_RootInstalledCertificates_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootLatestStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
@@ -32366,7 +31794,6 @@ export type Query_RootLatestStatusNotificationsArgs = {
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
 
-
 export type Query_RootLatestStatusNotifications_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32375,11 +31802,9 @@ export type Query_RootLatestStatusNotifications_AggregateArgs = {
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
 
-
 export type Query_RootLatestStatusNotifications_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -32389,7 +31814,6 @@ export type Query_RootLocalListAuthorizationsArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Query_RootLocalListAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32398,11 +31822,9 @@ export type Query_RootLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Query_RootLocalListAuthorizations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootLocalListVersionAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
@@ -32412,7 +31834,6 @@ export type Query_RootLocalListVersionAuthorizationsArgs = {
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
 
-
 export type Query_RootLocalListVersionAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32421,12 +31842,10 @@ export type Query_RootLocalListVersionAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
 
-
 export type Query_RootLocalListVersionAuthorizations_By_PkArgs = {
   authorizationId: Scalars['Int']['input'];
   localListVersionId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootLocalListVersionsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersions_Select_Column>>;
@@ -32436,7 +31855,6 @@ export type Query_RootLocalListVersionsArgs = {
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
 
-
 export type Query_RootLocalListVersions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32445,11 +31863,9 @@ export type Query_RootLocalListVersions_AggregateArgs = {
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
 
-
 export type Query_RootLocalListVersions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootLocationsArgs = {
   distinct_on?: InputMaybe<Array<Locations_Select_Column>>;
@@ -32459,7 +31875,6 @@ export type Query_RootLocationsArgs = {
   where?: InputMaybe<Locations_Bool_Exp>;
 };
 
-
 export type Query_RootLocations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Locations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32468,11 +31883,9 @@ export type Query_RootLocations_AggregateArgs = {
   where?: InputMaybe<Locations_Bool_Exp>;
 };
 
-
 export type Query_RootLocations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootMessageInfosArgs = {
   distinct_on?: InputMaybe<Array<MessageInfos_Select_Column>>;
@@ -32482,7 +31895,6 @@ export type Query_RootMessageInfosArgs = {
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
 
-
 export type Query_RootMessageInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<MessageInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32491,11 +31903,9 @@ export type Query_RootMessageInfos_AggregateArgs = {
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
 
-
 export type Query_RootMessageInfos_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootMeterValuesArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -32505,7 +31915,6 @@ export type Query_RootMeterValuesArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 export type Query_RootMeterValues_AggregateArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32514,11 +31923,9 @@ export type Query_RootMeterValues_AggregateArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 export type Query_RootMeterValues_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootOcppMessagesArgs = {
   distinct_on?: InputMaybe<Array<OcppMessages_Select_Column>>;
@@ -32528,7 +31935,6 @@ export type Query_RootOcppMessagesArgs = {
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
 
-
 export type Query_RootOcppMessages_AggregateArgs = {
   distinct_on?: InputMaybe<Array<OcppMessages_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32537,11 +31943,9 @@ export type Query_RootOcppMessages_AggregateArgs = {
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
 
-
 export type Query_RootOcppMessages_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootReservationsArgs = {
   distinct_on?: InputMaybe<Array<Reservations_Select_Column>>;
@@ -32551,7 +31955,6 @@ export type Query_RootReservationsArgs = {
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
 
-
 export type Query_RootReservations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Reservations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32560,11 +31963,9 @@ export type Query_RootReservations_AggregateArgs = {
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
 
-
 export type Query_RootReservations_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootSalesTariffsArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
@@ -32574,7 +31975,6 @@ export type Query_RootSalesTariffsArgs = {
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
 
-
 export type Query_RootSalesTariffs_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32583,11 +31983,9 @@ export type Query_RootSalesTariffs_AggregateArgs = {
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
 
-
 export type Query_RootSalesTariffs_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootSecurityEventsArgs = {
   distinct_on?: InputMaybe<Array<SecurityEvents_Select_Column>>;
@@ -32597,7 +31995,6 @@ export type Query_RootSecurityEventsArgs = {
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
 
-
 export type Query_RootSecurityEvents_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SecurityEvents_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32606,11 +32003,9 @@ export type Query_RootSecurityEvents_AggregateArgs = {
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
 
-
 export type Query_RootSecurityEvents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootSendLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
@@ -32620,7 +32015,6 @@ export type Query_RootSendLocalListAuthorizationsArgs = {
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Query_RootSendLocalListAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32629,12 +32023,10 @@ export type Query_RootSendLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Query_RootSendLocalListAuthorizations_By_PkArgs = {
   authorizationId: Scalars['Int']['input'];
   sendLocalListId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootSendLocalListsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalLists_Select_Column>>;
@@ -32644,7 +32036,6 @@ export type Query_RootSendLocalListsArgs = {
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
 
-
 export type Query_RootSendLocalLists_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SendLocalLists_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32653,11 +32044,9 @@ export type Query_RootSendLocalLists_AggregateArgs = {
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
 
-
 export type Query_RootSendLocalLists_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootServerNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ServerNetworkProfiles_Select_Column>>;
@@ -32667,7 +32056,6 @@ export type Query_RootServerNetworkProfilesArgs = {
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootServerNetworkProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ServerNetworkProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32676,11 +32064,9 @@ export type Query_RootServerNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootServerNetworkProfiles_By_PkArgs = {
   id: Scalars['String']['input'];
 };
-
 
 export type Query_RootSetNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<SetNetworkProfiles_Select_Column>>;
@@ -32690,7 +32076,6 @@ export type Query_RootSetNetworkProfilesArgs = {
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootSetNetworkProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SetNetworkProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32699,11 +32084,9 @@ export type Query_RootSetNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Query_RootSetNetworkProfiles_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootStartTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
@@ -32713,7 +32096,6 @@ export type Query_RootStartTransactionsArgs = {
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
 
-
 export type Query_RootStartTransactions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32722,11 +32104,9 @@ export type Query_RootStartTransactions_AggregateArgs = {
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
 
-
 export type Query_RootStartTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<StatusNotifications_Select_Column>>;
@@ -32736,7 +32116,6 @@ export type Query_RootStatusNotificationsArgs = {
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
 
-
 export type Query_RootStatusNotifications_AggregateArgs = {
   distinct_on?: InputMaybe<Array<StatusNotifications_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32745,11 +32124,9 @@ export type Query_RootStatusNotifications_AggregateArgs = {
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
 
-
 export type Query_RootStatusNotifications_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootStopTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StopTransactions_Select_Column>>;
@@ -32759,7 +32136,6 @@ export type Query_RootStopTransactionsArgs = {
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
 
-
 export type Query_RootStopTransactions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<StopTransactions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32768,11 +32144,9 @@ export type Query_RootStopTransactions_AggregateArgs = {
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
 
-
 export type Query_RootStopTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootSubscriptionsArgs = {
   distinct_on?: InputMaybe<Array<Subscriptions_Select_Column>>;
@@ -32782,7 +32156,6 @@ export type Query_RootSubscriptionsArgs = {
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
 
-
 export type Query_RootSubscriptions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Subscriptions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32791,11 +32164,9 @@ export type Query_RootSubscriptions_AggregateArgs = {
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
 
-
 export type Query_RootSubscriptions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootTariffsArgs = {
   distinct_on?: InputMaybe<Array<Tariffs_Select_Column>>;
@@ -32805,7 +32176,6 @@ export type Query_RootTariffsArgs = {
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
 
-
 export type Query_RootTariffs_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Tariffs_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32814,11 +32184,9 @@ export type Query_RootTariffs_AggregateArgs = {
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
 
-
 export type Query_RootTariffs_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootTenantsArgs = {
   distinct_on?: InputMaybe<Array<Tenants_Select_Column>>;
@@ -32828,7 +32196,6 @@ export type Query_RootTenantsArgs = {
   where?: InputMaybe<Tenants_Bool_Exp>;
 };
 
-
 export type Query_RootTenants_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Tenants_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32837,11 +32204,9 @@ export type Query_RootTenants_AggregateArgs = {
   where?: InputMaybe<Tenants_Bool_Exp>;
 };
 
-
 export type Query_RootTenants_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootTransactionEventsArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
@@ -32851,7 +32216,6 @@ export type Query_RootTransactionEventsArgs = {
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
 
-
 export type Query_RootTransactionEvents_AggregateArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32860,11 +32224,9 @@ export type Query_RootTransactionEvents_AggregateArgs = {
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
 
-
 export type Query_RootTransactionEvents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootTransactionsArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
@@ -32874,7 +32236,6 @@ export type Query_RootTransactionsArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 export type Query_RootTransactions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32883,11 +32244,9 @@ export type Query_RootTransactions_AggregateArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 export type Query_RootTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -32897,7 +32256,6 @@ export type Query_RootVariableAttributesArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 export type Query_RootVariableAttributes_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32906,11 +32264,9 @@ export type Query_RootVariableAttributes_AggregateArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 export type Query_RootVariableAttributes_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootVariableCharacteristicsArgs = {
   distinct_on?: InputMaybe<Array<VariableCharacteristics_Select_Column>>;
@@ -32920,7 +32276,6 @@ export type Query_RootVariableCharacteristicsArgs = {
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
 
-
 export type Query_RootVariableCharacteristics_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableCharacteristics_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32929,11 +32284,9 @@ export type Query_RootVariableCharacteristics_AggregateArgs = {
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
 
-
 export type Query_RootVariableCharacteristics_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootVariableMonitoringStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitoringStatuses_Select_Column>>;
@@ -32943,7 +32296,6 @@ export type Query_RootVariableMonitoringStatusesArgs = {
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
 
-
 export type Query_RootVariableMonitoringStatuses_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitoringStatuses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32952,11 +32304,9 @@ export type Query_RootVariableMonitoringStatuses_AggregateArgs = {
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
 
-
 export type Query_RootVariableMonitoringStatuses_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootVariableMonitoringsArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
@@ -32966,7 +32316,6 @@ export type Query_RootVariableMonitoringsArgs = {
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
 
-
 export type Query_RootVariableMonitorings_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32975,11 +32324,9 @@ export type Query_RootVariableMonitorings_AggregateArgs = {
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
 
-
 export type Query_RootVariableMonitorings_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Query_RootVariableStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableStatuses_Select_Column>>;
@@ -32989,7 +32336,6 @@ export type Query_RootVariableStatusesArgs = {
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
 
-
 export type Query_RootVariableStatuses_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableStatuses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -32998,11 +32344,9 @@ export type Query_RootVariableStatuses_AggregateArgs = {
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
 
-
 export type Query_RootVariableStatuses_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Query_RootVariablesArgs = {
   distinct_on?: InputMaybe<Array<Variables_Select_Column>>;
@@ -33012,7 +32356,6 @@ export type Query_RootVariablesArgs = {
   where?: InputMaybe<Variables_Bool_Exp>;
 };
 
-
 export type Query_RootVariables_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Variables_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33020,7 +32363,6 @@ export type Query_RootVariables_AggregateArgs = {
   order_by?: InputMaybe<Array<Variables_Order_By>>;
   where?: InputMaybe<Variables_Bool_Exp>;
 };
-
 
 export type Query_RootVariables_By_PkArgs = {
   id: Scalars['Int']['input'];
@@ -33449,7 +32791,6 @@ export type Subscription_Root = {
   Variables_stream: Array<Variables>;
 };
 
-
 export type Subscription_RootAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<AdditionalInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33457,7 +32798,6 @@ export type Subscription_RootAdditionalInfosArgs = {
   order_by?: InputMaybe<Array<AdditionalInfos_Order_By>>;
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
-
 
 export type Subscription_RootAdditionalInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<AdditionalInfos_Select_Column>>;
@@ -33467,18 +32807,15 @@ export type Subscription_RootAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootAdditionalInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootAdditionalInfos_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<AdditionalInfos_Stream_Cursor_Input>>;
   where?: InputMaybe<AdditionalInfos_Bool_Exp>;
 };
-
 
 export type Subscription_RootAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<Authorizations_Select_Column>>;
@@ -33488,7 +32825,6 @@ export type Subscription_RootAuthorizationsArgs = {
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Authorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33497,18 +32833,15 @@ export type Subscription_RootAuthorizations_AggregateArgs = {
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootAuthorizations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootAuthorizations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Authorizations_Stream_Cursor_Input>>;
   where?: InputMaybe<Authorizations_Bool_Exp>;
 };
-
 
 export type Subscription_RootBootsArgs = {
   distinct_on?: InputMaybe<Array<Boots_Select_Column>>;
@@ -33518,7 +32851,6 @@ export type Subscription_RootBootsArgs = {
   where?: InputMaybe<Boots_Bool_Exp>;
 };
 
-
 export type Subscription_RootBoots_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Boots_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33527,18 +32859,15 @@ export type Subscription_RootBoots_AggregateArgs = {
   where?: InputMaybe<Boots_Bool_Exp>;
 };
 
-
 export type Subscription_RootBoots_By_PkArgs = {
   id: Scalars['String']['input'];
 };
-
 
 export type Subscription_RootBoots_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Boots_Stream_Cursor_Input>>;
   where?: InputMaybe<Boots_Bool_Exp>;
 };
-
 
 export type Subscription_RootCertificatesArgs = {
   distinct_on?: InputMaybe<Array<Certificates_Select_Column>>;
@@ -33548,7 +32877,6 @@ export type Subscription_RootCertificatesArgs = {
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
 
-
 export type Subscription_RootCertificates_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Certificates_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33557,18 +32885,15 @@ export type Subscription_RootCertificates_AggregateArgs = {
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
 
-
 export type Subscription_RootCertificates_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootCertificates_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Certificates_Stream_Cursor_Input>>;
   where?: InputMaybe<Certificates_Bool_Exp>;
 };
-
 
 export type Subscription_RootChangeConfigurationsArgs = {
   distinct_on?: InputMaybe<Array<ChangeConfigurations_Select_Column>>;
@@ -33578,7 +32903,6 @@ export type Subscription_RootChangeConfigurationsArgs = {
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
 
-
 export type Subscription_RootChangeConfigurations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChangeConfigurations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33587,18 +32911,15 @@ export type Subscription_RootChangeConfigurations_AggregateArgs = {
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
 
-
 export type Subscription_RootChangeConfigurations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootChangeConfigurations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChangeConfigurations_Stream_Cursor_Input>>;
   where?: InputMaybe<ChangeConfigurations_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingNeedsArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
@@ -33608,7 +32929,6 @@ export type Subscription_RootChargingNeedsArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingNeeds_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingNeeds_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33617,18 +32937,15 @@ export type Subscription_RootChargingNeeds_AggregateArgs = {
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingNeeds_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootChargingNeeds_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingNeeds_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingNeeds_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingProfiles_Select_Column>>;
@@ -33638,7 +32955,6 @@ export type Subscription_RootChargingProfilesArgs = {
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33647,18 +32963,15 @@ export type Subscription_RootChargingProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingProfiles_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootChargingProfiles_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingProfiles_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingProfiles_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingSchedulesArgs = {
   distinct_on?: InputMaybe<Array<ChargingSchedules_Select_Column>>;
@@ -33668,7 +32981,6 @@ export type Subscription_RootChargingSchedulesArgs = {
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingSchedules_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingSchedules_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33677,18 +32989,15 @@ export type Subscription_RootChargingSchedules_AggregateArgs = {
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingSchedules_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootChargingSchedules_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingSchedules_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingSchedules_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingStationNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
@@ -33698,7 +33007,6 @@ export type Subscription_RootChargingStationNetworkProfilesArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStationNetworkProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationNetworkProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33707,19 +33015,16 @@ export type Subscription_RootChargingStationNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStationNetworkProfiles_By_PkArgs = {
   stationId: Scalars['String']['input'];
   websocketServerConfigId: Scalars['String']['input'];
 };
-
 
 export type Subscription_RootChargingStationNetworkProfiles_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingStationNetworkProfiles_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingStationNetworkProfiles_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingStationSecurityInfosArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSecurityInfos_Select_Column>>;
@@ -33729,7 +33034,6 @@ export type Subscription_RootChargingStationSecurityInfosArgs = {
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStationSecurityInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSecurityInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33738,18 +33042,15 @@ export type Subscription_RootChargingStationSecurityInfos_AggregateArgs = {
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStationSecurityInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootChargingStationSecurityInfos_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingStationSecurityInfos_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingStationSecurityInfos_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingStationSequencesArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
@@ -33759,7 +33060,6 @@ export type Subscription_RootChargingStationSequencesArgs = {
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStationSequences_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStationSequences_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33768,18 +33068,15 @@ export type Subscription_RootChargingStationSequences_AggregateArgs = {
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStationSequences_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootChargingStationSequences_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingStationSequences_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingStationSequences_Bool_Exp>;
 };
-
 
 export type Subscription_RootChargingStationsArgs = {
   distinct_on?: InputMaybe<Array<ChargingStations_Select_Column>>;
@@ -33789,7 +33086,6 @@ export type Subscription_RootChargingStationsArgs = {
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ChargingStations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33798,18 +33094,15 @@ export type Subscription_RootChargingStations_AggregateArgs = {
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
 
-
 export type Subscription_RootChargingStations_By_PkArgs = {
   id: Scalars['String']['input'];
 };
-
 
 export type Subscription_RootChargingStations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ChargingStations_Stream_Cursor_Input>>;
   where?: InputMaybe<ChargingStations_Bool_Exp>;
 };
-
 
 export type Subscription_RootComponentVariablesArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
@@ -33819,7 +33112,6 @@ export type Subscription_RootComponentVariablesArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 export type Subscription_RootComponentVariables_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ComponentVariables_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33828,19 +33120,16 @@ export type Subscription_RootComponentVariables_AggregateArgs = {
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
 
-
 export type Subscription_RootComponentVariables_By_PkArgs = {
   componentId: Scalars['Int']['input'];
   variableId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootComponentVariables_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ComponentVariables_Stream_Cursor_Input>>;
   where?: InputMaybe<ComponentVariables_Bool_Exp>;
 };
-
 
 export type Subscription_RootComponentsArgs = {
   distinct_on?: InputMaybe<Array<Components_Select_Column>>;
@@ -33850,7 +33139,6 @@ export type Subscription_RootComponentsArgs = {
   where?: InputMaybe<Components_Bool_Exp>;
 };
 
-
 export type Subscription_RootComponents_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Components_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33859,18 +33147,15 @@ export type Subscription_RootComponents_AggregateArgs = {
   where?: InputMaybe<Components_Bool_Exp>;
 };
 
-
 export type Subscription_RootComponents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootComponents_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Components_Stream_Cursor_Input>>;
   where?: InputMaybe<Components_Bool_Exp>;
 };
-
 
 export type Subscription_RootCompositeSchedulesArgs = {
   distinct_on?: InputMaybe<Array<CompositeSchedules_Select_Column>>;
@@ -33880,7 +33165,6 @@ export type Subscription_RootCompositeSchedulesArgs = {
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
 
-
 export type Subscription_RootCompositeSchedules_AggregateArgs = {
   distinct_on?: InputMaybe<Array<CompositeSchedules_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33889,18 +33173,15 @@ export type Subscription_RootCompositeSchedules_AggregateArgs = {
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
 
-
 export type Subscription_RootCompositeSchedules_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootCompositeSchedules_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<CompositeSchedules_Stream_Cursor_Input>>;
   where?: InputMaybe<CompositeSchedules_Bool_Exp>;
 };
-
 
 export type Subscription_RootConnectorsArgs = {
   distinct_on?: InputMaybe<Array<Connectors_Select_Column>>;
@@ -33910,7 +33191,6 @@ export type Subscription_RootConnectorsArgs = {
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
 
-
 export type Subscription_RootConnectors_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Connectors_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33919,18 +33199,15 @@ export type Subscription_RootConnectors_AggregateArgs = {
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
 
-
 export type Subscription_RootConnectors_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootConnectors_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Connectors_Stream_Cursor_Input>>;
   where?: InputMaybe<Connectors_Bool_Exp>;
 };
-
 
 export type Subscription_RootEventDataArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
@@ -33940,7 +33217,6 @@ export type Subscription_RootEventDataArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 export type Subscription_RootEventData_AggregateArgs = {
   distinct_on?: InputMaybe<Array<EventData_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33949,18 +33225,15 @@ export type Subscription_RootEventData_AggregateArgs = {
   where?: InputMaybe<EventData_Bool_Exp>;
 };
 
-
 export type Subscription_RootEventData_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootEventData_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<EventData_Stream_Cursor_Input>>;
   where?: InputMaybe<EventData_Bool_Exp>;
 };
-
 
 export type Subscription_RootEvsesArgs = {
   distinct_on?: InputMaybe<Array<Evses_Select_Column>>;
@@ -33970,7 +33243,6 @@ export type Subscription_RootEvsesArgs = {
   where?: InputMaybe<Evses_Bool_Exp>;
 };
 
-
 export type Subscription_RootEvses_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Evses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -33979,18 +33251,15 @@ export type Subscription_RootEvses_AggregateArgs = {
   where?: InputMaybe<Evses_Bool_Exp>;
 };
 
-
 export type Subscription_RootEvses_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootEvses_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Evses_Stream_Cursor_Input>>;
   where?: InputMaybe<Evses_Bool_Exp>;
 };
-
 
 export type Subscription_RootIdTokenAdditionalInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
@@ -34000,7 +33269,6 @@ export type Subscription_RootIdTokenAdditionalInfosArgs = {
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootIdTokenAdditionalInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<IdTokenAdditionalInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34009,19 +33277,16 @@ export type Subscription_RootIdTokenAdditionalInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootIdTokenAdditionalInfos_By_PkArgs = {
   additionalInfoId: Scalars['Int']['input'];
   idTokenId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootIdTokenAdditionalInfos_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<IdTokenAdditionalInfos_Stream_Cursor_Input>>;
   where?: InputMaybe<IdTokenAdditionalInfos_Bool_Exp>;
 };
-
 
 export type Subscription_RootIdTokenInfosArgs = {
   distinct_on?: InputMaybe<Array<IdTokenInfos_Select_Column>>;
@@ -34031,7 +33296,6 @@ export type Subscription_RootIdTokenInfosArgs = {
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootIdTokenInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<IdTokenInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34040,18 +33304,15 @@ export type Subscription_RootIdTokenInfos_AggregateArgs = {
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootIdTokenInfos_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootIdTokenInfos_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<IdTokenInfos_Stream_Cursor_Input>>;
   where?: InputMaybe<IdTokenInfos_Bool_Exp>;
 };
-
 
 export type Subscription_RootIdTokensArgs = {
   distinct_on?: InputMaybe<Array<IdTokens_Select_Column>>;
@@ -34061,7 +33322,6 @@ export type Subscription_RootIdTokensArgs = {
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
 
-
 export type Subscription_RootIdTokens_AggregateArgs = {
   distinct_on?: InputMaybe<Array<IdTokens_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34070,18 +33330,15 @@ export type Subscription_RootIdTokens_AggregateArgs = {
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
 
-
 export type Subscription_RootIdTokens_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootIdTokens_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<IdTokens_Stream_Cursor_Input>>;
   where?: InputMaybe<IdTokens_Bool_Exp>;
 };
-
 
 export type Subscription_RootInstalledCertificatesArgs = {
   distinct_on?: InputMaybe<Array<InstalledCertificates_Select_Column>>;
@@ -34091,7 +33348,6 @@ export type Subscription_RootInstalledCertificatesArgs = {
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
 
-
 export type Subscription_RootInstalledCertificates_AggregateArgs = {
   distinct_on?: InputMaybe<Array<InstalledCertificates_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34100,18 +33356,15 @@ export type Subscription_RootInstalledCertificates_AggregateArgs = {
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
 
-
 export type Subscription_RootInstalledCertificates_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootInstalledCertificates_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<InstalledCertificates_Stream_Cursor_Input>>;
   where?: InputMaybe<InstalledCertificates_Bool_Exp>;
 };
-
 
 export type Subscription_RootLatestStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
@@ -34121,7 +33374,6 @@ export type Subscription_RootLatestStatusNotificationsArgs = {
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
 
-
 export type Subscription_RootLatestStatusNotifications_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LatestStatusNotifications_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34130,18 +33382,15 @@ export type Subscription_RootLatestStatusNotifications_AggregateArgs = {
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
 
-
 export type Subscription_RootLatestStatusNotifications_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootLatestStatusNotifications_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<LatestStatusNotifications_Stream_Cursor_Input>>;
   where?: InputMaybe<LatestStatusNotifications_Bool_Exp>;
 };
-
 
 export type Subscription_RootLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
@@ -34151,7 +33400,6 @@ export type Subscription_RootLocalListAuthorizationsArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocalListAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListAuthorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34160,18 +33408,15 @@ export type Subscription_RootLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocalListAuthorizations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootLocalListAuthorizations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<LocalListAuthorizations_Stream_Cursor_Input>>;
   where?: InputMaybe<LocalListAuthorizations_Bool_Exp>;
 };
-
 
 export type Subscription_RootLocalListVersionAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
@@ -34181,7 +33426,6 @@ export type Subscription_RootLocalListVersionAuthorizationsArgs = {
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocalListVersionAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersionAuthorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34190,19 +33434,16 @@ export type Subscription_RootLocalListVersionAuthorizations_AggregateArgs = {
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocalListVersionAuthorizations_By_PkArgs = {
   authorizationId: Scalars['Int']['input'];
   localListVersionId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootLocalListVersionAuthorizations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<LocalListVersionAuthorizations_Stream_Cursor_Input>>;
   where?: InputMaybe<LocalListVersionAuthorizations_Bool_Exp>;
 };
-
 
 export type Subscription_RootLocalListVersionsArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersions_Select_Column>>;
@@ -34212,7 +33453,6 @@ export type Subscription_RootLocalListVersionsArgs = {
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocalListVersions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<LocalListVersions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34221,18 +33461,15 @@ export type Subscription_RootLocalListVersions_AggregateArgs = {
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocalListVersions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootLocalListVersions_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<LocalListVersions_Stream_Cursor_Input>>;
   where?: InputMaybe<LocalListVersions_Bool_Exp>;
 };
-
 
 export type Subscription_RootLocationsArgs = {
   distinct_on?: InputMaybe<Array<Locations_Select_Column>>;
@@ -34242,7 +33479,6 @@ export type Subscription_RootLocationsArgs = {
   where?: InputMaybe<Locations_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Locations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34251,18 +33487,15 @@ export type Subscription_RootLocations_AggregateArgs = {
   where?: InputMaybe<Locations_Bool_Exp>;
 };
 
-
 export type Subscription_RootLocations_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootLocations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Locations_Stream_Cursor_Input>>;
   where?: InputMaybe<Locations_Bool_Exp>;
 };
-
 
 export type Subscription_RootMessageInfosArgs = {
   distinct_on?: InputMaybe<Array<MessageInfos_Select_Column>>;
@@ -34272,7 +33505,6 @@ export type Subscription_RootMessageInfosArgs = {
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootMessageInfos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<MessageInfos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34281,18 +33513,15 @@ export type Subscription_RootMessageInfos_AggregateArgs = {
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
 
-
 export type Subscription_RootMessageInfos_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootMessageInfos_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<MessageInfos_Stream_Cursor_Input>>;
   where?: InputMaybe<MessageInfos_Bool_Exp>;
 };
-
 
 export type Subscription_RootMeterValuesArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
@@ -34302,7 +33531,6 @@ export type Subscription_RootMeterValuesArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 export type Subscription_RootMeterValues_AggregateArgs = {
   distinct_on?: InputMaybe<Array<MeterValues_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34311,18 +33539,15 @@ export type Subscription_RootMeterValues_AggregateArgs = {
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
 
-
 export type Subscription_RootMeterValues_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootMeterValues_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<MeterValues_Stream_Cursor_Input>>;
   where?: InputMaybe<MeterValues_Bool_Exp>;
 };
-
 
 export type Subscription_RootOcppMessagesArgs = {
   distinct_on?: InputMaybe<Array<OcppMessages_Select_Column>>;
@@ -34332,7 +33557,6 @@ export type Subscription_RootOcppMessagesArgs = {
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
 
-
 export type Subscription_RootOcppMessages_AggregateArgs = {
   distinct_on?: InputMaybe<Array<OcppMessages_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34341,18 +33565,15 @@ export type Subscription_RootOcppMessages_AggregateArgs = {
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
 
-
 export type Subscription_RootOcppMessages_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootOcppMessages_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<OcppMessages_Stream_Cursor_Input>>;
   where?: InputMaybe<OcppMessages_Bool_Exp>;
 };
-
 
 export type Subscription_RootReservationsArgs = {
   distinct_on?: InputMaybe<Array<Reservations_Select_Column>>;
@@ -34362,7 +33583,6 @@ export type Subscription_RootReservationsArgs = {
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
 
-
 export type Subscription_RootReservations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Reservations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34371,18 +33591,15 @@ export type Subscription_RootReservations_AggregateArgs = {
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
 
-
 export type Subscription_RootReservations_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootReservations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Reservations_Stream_Cursor_Input>>;
   where?: InputMaybe<Reservations_Bool_Exp>;
 };
-
 
 export type Subscription_RootSalesTariffsArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
@@ -34392,7 +33609,6 @@ export type Subscription_RootSalesTariffsArgs = {
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
 
-
 export type Subscription_RootSalesTariffs_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SalesTariffs_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34401,18 +33617,15 @@ export type Subscription_RootSalesTariffs_AggregateArgs = {
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
 
-
 export type Subscription_RootSalesTariffs_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootSalesTariffs_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<SalesTariffs_Stream_Cursor_Input>>;
   where?: InputMaybe<SalesTariffs_Bool_Exp>;
 };
-
 
 export type Subscription_RootSecurityEventsArgs = {
   distinct_on?: InputMaybe<Array<SecurityEvents_Select_Column>>;
@@ -34422,7 +33635,6 @@ export type Subscription_RootSecurityEventsArgs = {
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
 
-
 export type Subscription_RootSecurityEvents_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SecurityEvents_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34431,18 +33643,15 @@ export type Subscription_RootSecurityEvents_AggregateArgs = {
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
 
-
 export type Subscription_RootSecurityEvents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootSecurityEvents_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<SecurityEvents_Stream_Cursor_Input>>;
   where?: InputMaybe<SecurityEvents_Bool_Exp>;
 };
-
 
 export type Subscription_RootSendLocalListAuthorizationsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
@@ -34452,7 +33661,6 @@ export type Subscription_RootSendLocalListAuthorizationsArgs = {
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootSendLocalListAuthorizations_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SendLocalListAuthorizations_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34461,19 +33669,16 @@ export type Subscription_RootSendLocalListAuthorizations_AggregateArgs = {
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
 
-
 export type Subscription_RootSendLocalListAuthorizations_By_PkArgs = {
   authorizationId: Scalars['Int']['input'];
   sendLocalListId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootSendLocalListAuthorizations_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<SendLocalListAuthorizations_Stream_Cursor_Input>>;
   where?: InputMaybe<SendLocalListAuthorizations_Bool_Exp>;
 };
-
 
 export type Subscription_RootSendLocalListsArgs = {
   distinct_on?: InputMaybe<Array<SendLocalLists_Select_Column>>;
@@ -34483,7 +33688,6 @@ export type Subscription_RootSendLocalListsArgs = {
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
 
-
 export type Subscription_RootSendLocalLists_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SendLocalLists_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34492,18 +33696,15 @@ export type Subscription_RootSendLocalLists_AggregateArgs = {
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
 
-
 export type Subscription_RootSendLocalLists_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootSendLocalLists_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<SendLocalLists_Stream_Cursor_Input>>;
   where?: InputMaybe<SendLocalLists_Bool_Exp>;
 };
-
 
 export type Subscription_RootServerNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<ServerNetworkProfiles_Select_Column>>;
@@ -34513,7 +33714,6 @@ export type Subscription_RootServerNetworkProfilesArgs = {
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootServerNetworkProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<ServerNetworkProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34522,18 +33722,15 @@ export type Subscription_RootServerNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootServerNetworkProfiles_By_PkArgs = {
   id: Scalars['String']['input'];
 };
-
 
 export type Subscription_RootServerNetworkProfiles_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<ServerNetworkProfiles_Stream_Cursor_Input>>;
   where?: InputMaybe<ServerNetworkProfiles_Bool_Exp>;
 };
-
 
 export type Subscription_RootSetNetworkProfilesArgs = {
   distinct_on?: InputMaybe<Array<SetNetworkProfiles_Select_Column>>;
@@ -34543,7 +33740,6 @@ export type Subscription_RootSetNetworkProfilesArgs = {
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootSetNetworkProfiles_AggregateArgs = {
   distinct_on?: InputMaybe<Array<SetNetworkProfiles_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34552,18 +33748,15 @@ export type Subscription_RootSetNetworkProfiles_AggregateArgs = {
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
 
-
 export type Subscription_RootSetNetworkProfiles_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootSetNetworkProfiles_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<SetNetworkProfiles_Stream_Cursor_Input>>;
   where?: InputMaybe<SetNetworkProfiles_Bool_Exp>;
 };
-
 
 export type Subscription_RootStartTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
@@ -34573,7 +33766,6 @@ export type Subscription_RootStartTransactionsArgs = {
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
 
-
 export type Subscription_RootStartTransactions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<StartTransactions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34582,18 +33774,15 @@ export type Subscription_RootStartTransactions_AggregateArgs = {
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
 
-
 export type Subscription_RootStartTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootStartTransactions_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<StartTransactions_Stream_Cursor_Input>>;
   where?: InputMaybe<StartTransactions_Bool_Exp>;
 };
-
 
 export type Subscription_RootStatusNotificationsArgs = {
   distinct_on?: InputMaybe<Array<StatusNotifications_Select_Column>>;
@@ -34603,7 +33792,6 @@ export type Subscription_RootStatusNotificationsArgs = {
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
 
-
 export type Subscription_RootStatusNotifications_AggregateArgs = {
   distinct_on?: InputMaybe<Array<StatusNotifications_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34612,18 +33800,15 @@ export type Subscription_RootStatusNotifications_AggregateArgs = {
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
 
-
 export type Subscription_RootStatusNotifications_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootStatusNotifications_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<StatusNotifications_Stream_Cursor_Input>>;
   where?: InputMaybe<StatusNotifications_Bool_Exp>;
 };
-
 
 export type Subscription_RootStopTransactionsArgs = {
   distinct_on?: InputMaybe<Array<StopTransactions_Select_Column>>;
@@ -34633,7 +33818,6 @@ export type Subscription_RootStopTransactionsArgs = {
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
 
-
 export type Subscription_RootStopTransactions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<StopTransactions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34642,18 +33826,15 @@ export type Subscription_RootStopTransactions_AggregateArgs = {
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
 
-
 export type Subscription_RootStopTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootStopTransactions_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<StopTransactions_Stream_Cursor_Input>>;
   where?: InputMaybe<StopTransactions_Bool_Exp>;
 };
-
 
 export type Subscription_RootSubscriptionsArgs = {
   distinct_on?: InputMaybe<Array<Subscriptions_Select_Column>>;
@@ -34663,7 +33844,6 @@ export type Subscription_RootSubscriptionsArgs = {
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
 
-
 export type Subscription_RootSubscriptions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Subscriptions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34672,18 +33852,15 @@ export type Subscription_RootSubscriptions_AggregateArgs = {
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
 
-
 export type Subscription_RootSubscriptions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootSubscriptions_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Subscriptions_Stream_Cursor_Input>>;
   where?: InputMaybe<Subscriptions_Bool_Exp>;
 };
-
 
 export type Subscription_RootTariffsArgs = {
   distinct_on?: InputMaybe<Array<Tariffs_Select_Column>>;
@@ -34693,7 +33870,6 @@ export type Subscription_RootTariffsArgs = {
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
 
-
 export type Subscription_RootTariffs_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Tariffs_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34702,18 +33878,15 @@ export type Subscription_RootTariffs_AggregateArgs = {
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
 
-
 export type Subscription_RootTariffs_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootTariffs_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Tariffs_Stream_Cursor_Input>>;
   where?: InputMaybe<Tariffs_Bool_Exp>;
 };
-
 
 export type Subscription_RootTenantsArgs = {
   distinct_on?: InputMaybe<Array<Tenants_Select_Column>>;
@@ -34723,7 +33896,6 @@ export type Subscription_RootTenantsArgs = {
   where?: InputMaybe<Tenants_Bool_Exp>;
 };
 
-
 export type Subscription_RootTenants_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Tenants_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34732,18 +33904,15 @@ export type Subscription_RootTenants_AggregateArgs = {
   where?: InputMaybe<Tenants_Bool_Exp>;
 };
 
-
 export type Subscription_RootTenants_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootTenants_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Tenants_Stream_Cursor_Input>>;
   where?: InputMaybe<Tenants_Bool_Exp>;
 };
-
 
 export type Subscription_RootTransactionEventsArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
@@ -34753,7 +33922,6 @@ export type Subscription_RootTransactionEventsArgs = {
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
 
-
 export type Subscription_RootTransactionEvents_AggregateArgs = {
   distinct_on?: InputMaybe<Array<TransactionEvents_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34762,18 +33930,15 @@ export type Subscription_RootTransactionEvents_AggregateArgs = {
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
 
-
 export type Subscription_RootTransactionEvents_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootTransactionEvents_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<TransactionEvents_Stream_Cursor_Input>>;
   where?: InputMaybe<TransactionEvents_Bool_Exp>;
 };
-
 
 export type Subscription_RootTransactionsArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
@@ -34783,7 +33948,6 @@ export type Subscription_RootTransactionsArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 export type Subscription_RootTransactions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Transactions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34792,18 +33956,15 @@ export type Subscription_RootTransactions_AggregateArgs = {
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
 
-
 export type Subscription_RootTransactions_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootTransactions_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Transactions_Stream_Cursor_Input>>;
   where?: InputMaybe<Transactions_Bool_Exp>;
 };
-
 
 export type Subscription_RootVariableAttributesArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
@@ -34813,7 +33974,6 @@ export type Subscription_RootVariableAttributesArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableAttributes_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableAttributes_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34822,18 +33982,15 @@ export type Subscription_RootVariableAttributes_AggregateArgs = {
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableAttributes_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootVariableAttributes_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<VariableAttributes_Stream_Cursor_Input>>;
   where?: InputMaybe<VariableAttributes_Bool_Exp>;
 };
-
 
 export type Subscription_RootVariableCharacteristicsArgs = {
   distinct_on?: InputMaybe<Array<VariableCharacteristics_Select_Column>>;
@@ -34843,7 +34000,6 @@ export type Subscription_RootVariableCharacteristicsArgs = {
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableCharacteristics_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableCharacteristics_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34852,18 +34008,15 @@ export type Subscription_RootVariableCharacteristics_AggregateArgs = {
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableCharacteristics_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootVariableCharacteristics_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<VariableCharacteristics_Stream_Cursor_Input>>;
   where?: InputMaybe<VariableCharacteristics_Bool_Exp>;
 };
-
 
 export type Subscription_RootVariableMonitoringStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitoringStatuses_Select_Column>>;
@@ -34873,7 +34026,6 @@ export type Subscription_RootVariableMonitoringStatusesArgs = {
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableMonitoringStatuses_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitoringStatuses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34882,18 +34034,15 @@ export type Subscription_RootVariableMonitoringStatuses_AggregateArgs = {
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableMonitoringStatuses_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootVariableMonitoringStatuses_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<VariableMonitoringStatuses_Stream_Cursor_Input>>;
   where?: InputMaybe<VariableMonitoringStatuses_Bool_Exp>;
 };
-
 
 export type Subscription_RootVariableMonitoringsArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
@@ -34903,7 +34052,6 @@ export type Subscription_RootVariableMonitoringsArgs = {
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableMonitorings_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableMonitorings_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34912,18 +34060,15 @@ export type Subscription_RootVariableMonitorings_AggregateArgs = {
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableMonitorings_By_PkArgs = {
   databaseId: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootVariableMonitorings_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<VariableMonitorings_Stream_Cursor_Input>>;
   where?: InputMaybe<VariableMonitorings_Bool_Exp>;
 };
-
 
 export type Subscription_RootVariableStatusesArgs = {
   distinct_on?: InputMaybe<Array<VariableStatuses_Select_Column>>;
@@ -34933,7 +34078,6 @@ export type Subscription_RootVariableStatusesArgs = {
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableStatuses_AggregateArgs = {
   distinct_on?: InputMaybe<Array<VariableStatuses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34942,18 +34086,15 @@ export type Subscription_RootVariableStatuses_AggregateArgs = {
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariableStatuses_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootVariableStatuses_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<VariableStatuses_Stream_Cursor_Input>>;
   where?: InputMaybe<VariableStatuses_Bool_Exp>;
 };
-
 
 export type Subscription_RootVariablesArgs = {
   distinct_on?: InputMaybe<Array<Variables_Select_Column>>;
@@ -34963,7 +34104,6 @@ export type Subscription_RootVariablesArgs = {
   where?: InputMaybe<Variables_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariables_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Variables_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -34972,11 +34112,9 @@ export type Subscription_RootVariables_AggregateArgs = {
   where?: InputMaybe<Variables_Bool_Exp>;
 };
 
-
 export type Subscription_RootVariables_By_PkArgs = {
   id: Scalars['Int']['input'];
 };
-
 
 export type Subscription_RootVariables_StreamArgs = {
   batch_size: Scalars['Int']['input'];
@@ -35001,8 +34139,22 @@ export type CreateOrUpdateLocationMutationVariables = Exact<{
   object: Locations_Insert_Input;
 }>;
 
-
-export type CreateOrUpdateLocationMutation = { __typename?: 'mutation_root', insert_Locations_one?: { __typename?: 'Locations', id: number, name?: string | null, address?: string | null, city?: string | null, postalCode?: string | null, state?: string | null, country?: string | null, coordinates?: any | null, createdAt: any, updatedAt: any } | null };
+export type CreateOrUpdateLocationMutation = {
+  __typename?: 'mutation_root';
+  insert_Locations_one?: {
+    __typename?: 'Locations';
+    id: number;
+    name?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    state?: string | null;
+    country?: string | null;
+    coordinates?: any | null;
+    createdAt: any;
+    updatedAt: any;
+  } | null;
+};
 
 export type GetLocationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -35013,15 +34165,81 @@ export type GetLocationsQueryVariables = Exact<{
   dateTo?: InputMaybe<Scalars['String']['input']>;
 }>;
 
-
-export type GetLocationsQuery = { __typename?: 'query_root', Locations: Array<{ __typename?: 'Locations', id: number, name?: string | null, address?: string | null, city?: string | null, postalCode?: string | null, state?: string | null, country?: string | null, coordinates?: any | null, createdAt: any, updatedAt: any, ChargingStations: Array<{ __typename?: 'ChargingStations', id: string, isOnline?: boolean | null, protocol?: string | null, createdAt: any, updatedAt: any, Evses: Array<{ __typename?: 'VariableAttributes', Evse?: { __typename?: 'Evses', databaseId: number, id?: number | null, connectorId?: number | null, createdAt: any, updatedAt: any } | null }> }> }> };
+export type GetLocationsQuery = {
+  __typename?: 'query_root';
+  Locations: Array<{
+    __typename?: 'Locations';
+    id: number;
+    name?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    state?: string | null;
+    country?: string | null;
+    coordinates?: any | null;
+    createdAt: any;
+    updatedAt: any;
+    ChargingStations: Array<{
+      __typename?: 'ChargingStations';
+      id: string;
+      isOnline?: boolean | null;
+      protocol?: string | null;
+      createdAt: any;
+      updatedAt: any;
+      Evses: Array<{
+        __typename?: 'VariableAttributes';
+        Evse?: {
+          __typename?: 'Evses';
+          databaseId: number;
+          id?: number | null;
+          connectorId?: number | null;
+          createdAt: any;
+          updatedAt: any;
+        } | null;
+      }>;
+    }>;
+  }>;
+};
 
 export type GetLocationByIdQueryVariables = Exact<{
   id: Scalars['Int']['input'];
 }>;
 
-
-export type GetLocationByIdQuery = { __typename?: 'query_root', Locations: Array<{ __typename?: 'Locations', id: number, name?: string | null, address?: string | null, city?: string | null, postalCode?: string | null, state?: string | null, country?: string | null, coordinates?: any | null, createdAt: any, updatedAt: any, ChargingStations: Array<{ __typename?: 'ChargingStations', id: string, isOnline?: boolean | null, protocol?: string | null, createdAt: any, updatedAt: any, Evses: Array<{ __typename?: 'VariableAttributes', Evse?: { __typename?: 'Evses', databaseId: number, id?: number | null, connectorId?: number | null, createdAt: any, updatedAt: any } | null }> }> }> };
+export type GetLocationByIdQuery = {
+  __typename?: 'query_root';
+  Locations: Array<{
+    __typename?: 'Locations';
+    id: number;
+    name?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    state?: string | null;
+    country?: string | null;
+    coordinates?: any | null;
+    createdAt: any;
+    updatedAt: any;
+    ChargingStations: Array<{
+      __typename?: 'ChargingStations';
+      id: string;
+      isOnline?: boolean | null;
+      protocol?: string | null;
+      createdAt: any;
+      updatedAt: any;
+      Evses: Array<{
+        __typename?: 'VariableAttributes';
+        Evse?: {
+          __typename?: 'Evses';
+          databaseId: number;
+          id?: number | null;
+          connectorId?: number | null;
+          createdAt: any;
+          updatedAt: any;
+        } | null;
+      }>;
+    }>;
+  }>;
+};
 
 export type GetEvseByIdQueryVariables = Exact<{
   locationId: Scalars['Int']['input'];
@@ -35029,8 +34247,28 @@ export type GetEvseByIdQueryVariables = Exact<{
   evseId: Scalars['Int']['input'];
 }>;
 
-
-export type GetEvseByIdQuery = { __typename?: 'query_root', Locations: Array<{ __typename?: 'Locations', id: number, ChargingStations: Array<{ __typename?: 'ChargingStations', id: string, Evses: Array<{ __typename?: 'VariableAttributes', Evse?: { __typename?: 'Evses', databaseId: number, id?: number | null, connectorId?: number | null, createdAt: any, updatedAt: any } | null }> }> }> };
+export type GetEvseByIdQuery = {
+  __typename?: 'query_root';
+  Locations: Array<{
+    __typename?: 'Locations';
+    id: number;
+    ChargingStations: Array<{
+      __typename?: 'ChargingStations';
+      id: string;
+      Evses: Array<{
+        __typename?: 'VariableAttributes';
+        Evse?: {
+          __typename?: 'Evses';
+          databaseId: number;
+          id?: number | null;
+          connectorId?: number | null;
+          createdAt: any;
+          updatedAt: any;
+        } | null;
+      }>;
+    }>;
+  }>;
+};
 
 export type GetConnectorByIdQueryVariables = Exact<{
   locationId: Scalars['Int']['input'];
@@ -35039,8 +34277,34 @@ export type GetConnectorByIdQueryVariables = Exact<{
   connectorId: Scalars['Int']['input'];
 }>;
 
-
-export type GetConnectorByIdQuery = { __typename?: 'query_root', Locations: Array<{ __typename?: 'Locations', id: number, ChargingStations: Array<{ __typename?: 'ChargingStations', id: string, Evses: Array<{ __typename?: 'VariableAttributes', Evse?: { __typename?: 'Evses', databaseId: number, id?: number | null, connectorId?: number | null, createdAt: any, updatedAt: any, Connectors: Array<{ __typename?: 'VariableAttributes', id: number, createdAt: any, updatedAt: any }> } | null }> }> }> };
+export type GetConnectorByIdQuery = {
+  __typename?: 'query_root';
+  Locations: Array<{
+    __typename?: 'Locations';
+    id: number;
+    ChargingStations: Array<{
+      __typename?: 'ChargingStations';
+      id: string;
+      Evses: Array<{
+        __typename?: 'VariableAttributes';
+        Evse?: {
+          __typename?: 'Evses';
+          databaseId: number;
+          id?: number | null;
+          connectorId?: number | null;
+          createdAt: any;
+          updatedAt: any;
+          Connectors: Array<{
+            __typename?: 'VariableAttributes';
+            id: number;
+            createdAt: any;
+            updatedAt: any;
+          }>;
+        } | null;
+      }>;
+    }>;
+  }>;
+};
 
 export type GetTariffByKeyQueryVariables = Exact<{
   id: Scalars['Int']['input'];
@@ -35048,8 +34312,23 @@ export type GetTariffByKeyQueryVariables = Exact<{
   partyId: Scalars['String']['input'];
 }>;
 
-
-export type GetTariffByKeyQuery = { __typename?: 'query_root', Tariffs: Array<{ __typename?: 'Tariffs', authorizationAmount?: any | null, createdAt: any, currency: any, id: number, paymentFee?: any | null, pricePerKwh: any, pricePerMin?: any | null, pricePerSession?: any | null, stationId?: string | null, taxRate?: any | null, updatedAt: any }> };
+export type GetTariffByKeyQuery = {
+  __typename?: 'query_root';
+  Tariffs: Array<{
+    __typename?: 'Tariffs';
+    authorizationAmount?: any | null;
+    createdAt: any;
+    currency: any;
+    id: number;
+    paymentFee?: any | null;
+    pricePerKwh: any;
+    pricePerMin?: any | null;
+    pricePerSession?: any | null;
+    stationId?: string | null;
+    taxRate?: any | null;
+    updatedAt: any;
+  }>;
+};
 
 export type GetTariffsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -35060,22 +34339,61 @@ export type GetTariffsQueryVariables = Exact<{
   partyId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
-
-export type GetTariffsQuery = { __typename?: 'query_root', Tariffs: Array<{ __typename?: 'Tariffs', authorizationAmount?: any | null, createdAt: any, currency: any, id: number, paymentFee?: any | null, pricePerKwh: any, pricePerMin?: any | null, pricePerSession?: any | null, stationId?: string | null, taxRate?: any | null, updatedAt: any }>, Tariffs_aggregate: { __typename?: 'Tariffs_aggregate', aggregate?: { __typename?: 'Tariffs_aggregate_fields', count: number } | null } };
+export type GetTariffsQuery = {
+  __typename?: 'query_root';
+  Tariffs: Array<{
+    __typename?: 'Tariffs';
+    authorizationAmount?: any | null;
+    createdAt: any;
+    currency: any;
+    id: number;
+    paymentFee?: any | null;
+    pricePerKwh: any;
+    pricePerMin?: any | null;
+    pricePerSession?: any | null;
+    stationId?: string | null;
+    taxRate?: any | null;
+    updatedAt: any;
+  }>;
+  Tariffs_aggregate: {
+    __typename?: 'Tariffs_aggregate';
+    aggregate?: {
+      __typename?: 'Tariffs_aggregate_fields';
+      count: number;
+    } | null;
+  };
+};
 
 export type CreateOrUpdateTariffMutationVariables = Exact<{
   object: Tariffs_Insert_Input;
 }>;
 
-
-export type CreateOrUpdateTariffMutation = { __typename?: 'mutation_root', insert_Tariffs_one?: { __typename?: 'Tariffs', id: number, authorizationAmount?: any | null, createdAt: any, currency: any, paymentFee?: any | null, pricePerKwh: any, pricePerMin?: any | null, pricePerSession?: any | null, stationId?: string | null, taxRate?: any | null, updatedAt: any } | null };
+export type CreateOrUpdateTariffMutation = {
+  __typename?: 'mutation_root';
+  insert_Tariffs_one?: {
+    __typename?: 'Tariffs';
+    id: number;
+    authorizationAmount?: any | null;
+    createdAt: any;
+    currency: any;
+    paymentFee?: any | null;
+    pricePerKwh: any;
+    pricePerMin?: any | null;
+    pricePerSession?: any | null;
+    stationId?: string | null;
+    taxRate?: any | null;
+    updatedAt: any;
+  } | null;
+};
 
 export type DeleteTariffMutationVariables = Exact<{
   id: Scalars['Int']['input'];
 }>;
 
-
-export type DeleteTariffMutation = { __typename?: 'mutation_root', delete_Tariffs_by_pk?: { __typename?: 'Tariffs', id: number } | null };
+export type DeleteTariffMutation = {
+  __typename?: 'mutation_root';
+  delete_Tariffs_by_pk?: { __typename?: 'Tariffs'; id: number } | null;
+};
 
 export type ReadAuthorizationsQueryVariables = Exact<{
   idToken?: InputMaybe<Scalars['String']['input']>;
@@ -35084,16 +34402,80 @@ export type ReadAuthorizationsQueryVariables = Exact<{
   partyId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
-
-export type ReadAuthorizationsQuery = { __typename?: 'query_root', Authorizations: Array<{ __typename?: 'Authorizations', id: number, createdAt: any, updatedAt: any, tenantId: number, Tenant: { __typename?: 'Tenants', id: number, countryCode?: string | null, partyId?: string | null }, IdToken?: { __typename?: 'IdTokens', id: number, idToken?: string | null, type?: string | null } | null, IdTokenInfo?: { __typename?: 'IdTokenInfos', id: number, IdToken?: { __typename?: 'IdTokens', id: number, idToken?: string | null, IdTokenAdditionalInfos: Array<{ __typename?: 'IdTokenAdditionalInfos', additionalInfoId: number, createdAt: any, idTokenId: number, tenantId: number, updatedAt: any, AdditionalInfo: { __typename?: 'AdditionalInfos', id: number }, IdToken: { __typename?: 'IdTokens', id: number }, Tenant: { __typename?: 'Tenants', id: number } }> } | null } | null }> };
+export type ReadAuthorizationsQuery = {
+  __typename?: 'query_root';
+  Authorizations: Array<{
+    __typename?: 'Authorizations';
+    id: number;
+    createdAt: any;
+    updatedAt: any;
+    tenantId: number;
+    Tenant: {
+      __typename?: 'Tenants';
+      id: number;
+      countryCode?: string | null;
+      partyId?: string | null;
+    };
+    IdToken?: {
+      __typename?: 'IdTokens';
+      id: number;
+      idToken?: string | null;
+      type?: string | null;
+    } | null;
+    IdTokenInfo?: {
+      __typename?: 'IdTokenInfos';
+      id: number;
+      IdToken?: {
+        __typename?: 'IdTokens';
+        id: number;
+        idToken?: string | null;
+        IdTokenAdditionalInfos: Array<{
+          __typename?: 'IdTokenAdditionalInfos';
+          additionalInfoId: number;
+          createdAt: any;
+          idTokenId: number;
+          tenantId: number;
+          updatedAt: any;
+          AdditionalInfo: { __typename?: 'AdditionalInfos'; id: number };
+          IdToken: { __typename?: 'IdTokens'; id: number };
+          Tenant: { __typename?: 'Tenants'; id: number };
+        }>;
+      } | null;
+    } | null;
+  }>;
+};
 
 export type UpdateAuthorizationMutationVariables = Exact<{
   where: Authorizations_Bool_Exp;
   set: Authorizations_Set_Input;
 }>;
 
-
-export type UpdateAuthorizationMutation = { __typename?: 'mutation_root', update_Authorizations?: { __typename?: 'Authorizations_mutation_response', returning: Array<{ __typename?: 'Authorizations', id: number, IdToken?: { __typename?: 'IdTokens', idToken?: string | null, type?: string | null } | null, IdTokenInfo?: { __typename?: 'IdTokenInfos', status?: string | null, language1?: string | null, groupIdTokenId?: number | null } | null, Tenant: { __typename?: 'Tenants', countryCode?: string | null, partyId?: string | null } }> } | null };
+export type UpdateAuthorizationMutation = {
+  __typename?: 'mutation_root';
+  update_Authorizations?: {
+    __typename?: 'Authorizations_mutation_response';
+    returning: Array<{
+      __typename?: 'Authorizations';
+      id: number;
+      IdToken?: {
+        __typename?: 'IdTokens';
+        idToken?: string | null;
+        type?: string | null;
+      } | null;
+      IdTokenInfo?: {
+        __typename?: 'IdTokenInfos';
+        status?: string | null;
+        language1?: string | null;
+        groupIdTokenId?: number | null;
+      } | null;
+      Tenant: {
+        __typename?: 'Tenants';
+        countryCode?: string | null;
+        partyId?: string | null;
+      };
+    }>;
+  } | null;
+};
 
 export type GetTransactionsQueryVariables = Exact<{
   cpoCountryCode?: InputMaybe<Scalars['String']['input']>;
@@ -35107,19 +34489,2554 @@ export type GetTransactionsQueryVariables = Exact<{
   endedOnly?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
+export type GetTransactionsQuery = {
+  __typename?: 'query_root';
+  Transactions: Array<{
+    __typename?: 'Transactions';
+    id: number;
+    stationId?: string | null;
+    transactionId?: string | null;
+    isActive?: boolean | null;
+    chargingState?: string | null;
+    timeSpentCharging?: any | null;
+    totalKwh?: any | null;
+    stoppedReason?: string | null;
+    remoteStartId?: number | null;
+    totalCost?: any | null;
+    createdAt: any;
+    updatedAt: any;
+    Evse?: { __typename?: 'Evses'; id?: number | null } | null;
+    TransactionEvents: Array<{
+      __typename?: 'TransactionEvents';
+      id: number;
+      eventType?: string | null;
+    }>;
+    MeterValues: Array<{ __typename?: 'MeterValues'; id: number }>;
+    StartTransaction?: { __typename?: 'StartTransactions'; id: number } | null;
+    StopTransaction?: { __typename?: 'StopTransactions'; id: number } | null;
+  }>;
+  Transactions_aggregate: {
+    __typename?: 'Transactions_aggregate';
+    aggregate?: {
+      __typename?: 'Transactions_aggregate_fields';
+      count: number;
+    } | null;
+  };
+};
 
-export type GetTransactionsQuery = { __typename?: 'query_root', Transactions: Array<{ __typename?: 'Transactions', id: number, stationId?: string | null, transactionId?: string | null, isActive?: boolean | null, chargingState?: string | null, timeSpentCharging?: any | null, totalKwh?: any | null, stoppedReason?: string | null, remoteStartId?: number | null, totalCost?: any | null, createdAt: any, updatedAt: any, Evse?: { __typename?: 'Evses', id?: number | null } | null, TransactionEvents: Array<{ __typename?: 'TransactionEvents', id: number, eventType?: string | null }>, MeterValues: Array<{ __typename?: 'MeterValues', id: number }>, StartTransaction?: { __typename?: 'StartTransactions', id: number } | null, StopTransaction?: { __typename?: 'StopTransactions', id: number } | null }>, Transactions_aggregate: { __typename?: 'Transactions_aggregate', aggregate?: { __typename?: 'Transactions_aggregate_fields', count: number } | null } };
-
-
-export const CreateOrUpdateLocationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrUpdateLocation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"object"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Locations_insert_input"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insert_Locations_one"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"object"},"value":{"kind":"Variable","name":{"kind":"Name","value":"object"}}},{"kind":"Argument","name":{"kind":"Name","value":"on_conflict"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"constraint"},"value":{"kind":"EnumValue","value":"Locations_pkey"}},{"kind":"ObjectField","name":{"kind":"Name","value":"update_columns"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"name"},{"kind":"EnumValue","value":"address"},{"kind":"EnumValue","value":"city"},{"kind":"EnumValue","value":"postalCode"},{"kind":"EnumValue","value":"state"},{"kind":"EnumValue","value":"country"},{"kind":"EnumValue","value":"coordinates"},{"kind":"EnumValue","value":"updatedAt"}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"address"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateOrUpdateLocationMutation, CreateOrUpdateLocationMutationVariables>;
-export const GetLocationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLocations"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Locations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"address"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"ChargingStations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isOnline"}},{"kind":"Field","name":{"kind":"Name","value":"protocol"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","alias":{"kind":"Name","value":"Evses"},"name":{"kind":"Name","value":"VariableAttributes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"distinct_on"},"value":{"kind":"EnumValue","value":"evseDatabaseId"}},{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"evseDatabaseId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"Evse"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"connectorId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Evse"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"databaseId"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"connectorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetLocationsQuery, GetLocationsQueryVariables>;
-export const GetLocationByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLocationById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Locations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"address"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"coordinates"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"ChargingStations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"isOnline"}},{"kind":"Field","name":{"kind":"Name","value":"protocol"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","alias":{"kind":"Name","value":"Evses"},"name":{"kind":"Name","value":"VariableAttributes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"distinct_on"},"value":{"kind":"EnumValue","value":"evseDatabaseId"}},{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"evseDatabaseId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"Evse"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"connectorId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Evse"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"databaseId"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"connectorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetLocationByIdQuery, GetLocationByIdQueryVariables>;
-export const GetEvseByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetEvseById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"evseId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Locations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locationId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"ChargingStations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stationId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","alias":{"kind":"Name","value":"Evses"},"name":{"kind":"Name","value":"VariableAttributes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"evseDatabaseId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"evseId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Evse"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"databaseId"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"connectorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetEvseByIdQuery, GetEvseByIdQueryVariables>;
-export const GetConnectorByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetConnectorById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"evseId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"connectorId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Locations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locationId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"ChargingStations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stationId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","alias":{"kind":"Name","value":"Evses"},"name":{"kind":"Name","value":"VariableAttributes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"evseDatabaseId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"evseId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Evse"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"databaseId"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"connectorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","alias":{"kind":"Name","value":"Connectors"},"name":{"kind":"Name","value":"VariableAttributes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"connectorId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetConnectorByIdQuery, GetConnectorByIdQueryVariables>;
-export const GetTariffByKeyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTariffByKey"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Tariffs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"Tenant"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"countryCode"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"partyId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorizationAmount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"paymentFee"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerKwh"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerMin"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerSession"}},{"kind":"Field","name":{"kind":"Name","value":"stationId"}},{"kind":"Field","name":{"kind":"Name","value":"taxRate"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetTariffByKeyQuery, GetTariffByKeyQueryVariables>;
-export const GetTariffsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTariffs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"timestamptz"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"timestamptz"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Tariffs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"Tenant"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"countryCode"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"partyId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_gte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"_lte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorizationAmount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"paymentFee"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerKwh"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerMin"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerSession"}},{"kind":"Field","name":{"kind":"Name","value":"stationId"}},{"kind":"Field","name":{"kind":"Name","value":"taxRate"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"Tariffs_aggregate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"Tenant"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"countryCode"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"partyId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_gte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"_lte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<GetTariffsQuery, GetTariffsQueryVariables>;
-export const CreateOrUpdateTariffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrUpdateTariff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"object"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Tariffs_insert_input"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"insert_Tariffs_one"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"object"},"value":{"kind":"Variable","name":{"kind":"Name","value":"object"}}},{"kind":"Argument","name":{"kind":"Name","value":"on_conflict"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"constraint"},"value":{"kind":"EnumValue","value":"Tariffs_pkey"}},{"kind":"ObjectField","name":{"kind":"Name","value":"update_columns"},"value":{"kind":"ListValue","values":[{"kind":"EnumValue","value":"authorizationAmount"},{"kind":"EnumValue","value":"createdAt"},{"kind":"EnumValue","value":"currency"},{"kind":"EnumValue","value":"paymentFee"},{"kind":"EnumValue","value":"pricePerKwh"},{"kind":"EnumValue","value":"pricePerMin"},{"kind":"EnumValue","value":"pricePerSession"},{"kind":"EnumValue","value":"stationId"},{"kind":"EnumValue","value":"taxRate"},{"kind":"EnumValue","value":"updatedAt"}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"authorizationAmount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"paymentFee"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerKwh"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerMin"}},{"kind":"Field","name":{"kind":"Name","value":"pricePerSession"}},{"kind":"Field","name":{"kind":"Name","value":"stationId"}},{"kind":"Field","name":{"kind":"Name","value":"taxRate"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateOrUpdateTariffMutation, CreateOrUpdateTariffMutationVariables>;
-export const DeleteTariffDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteTariff"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"delete_Tariffs_by_pk"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DeleteTariffMutation, DeleteTariffMutationVariables>;
-export const ReadAuthorizationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReadAuthorizations"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"idToken"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"type"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Authorizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"IdToken"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"idToken"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"idToken"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"type"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"type"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"Tenant"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"countryCode"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"countryCode"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"partyId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"partyId"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"IdTokenInfo"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"IdToken"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"IdTokenAdditionalInfos"},"value":{"kind":"ObjectValue","fields":[]}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"tenantId"}},{"kind":"Field","name":{"kind":"Name","value":"Tenant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"countryCode"}},{"kind":"Field","name":{"kind":"Name","value":"partyId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"IdToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"idToken"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}},{"kind":"Field","name":{"kind":"Name","value":"IdTokenInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"IdToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"idToken"}},{"kind":"Field","name":{"kind":"Name","value":"IdTokenAdditionalInfos"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"AdditionalInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"IdToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"Tenant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"additionalInfoId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"idTokenId"}},{"kind":"Field","name":{"kind":"Name","value":"tenantId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<ReadAuthorizationsQuery, ReadAuthorizationsQueryVariables>;
-export const UpdateAuthorizationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateAuthorization"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Authorizations_bool_exp"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"set"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Authorizations_set_input"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"update_Authorizations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"_set"},"value":{"kind":"Variable","name":{"kind":"Name","value":"set"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"returning"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"IdToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"idToken"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}},{"kind":"Field","name":{"kind":"Name","value":"IdTokenInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"language1"}},{"kind":"Field","name":{"kind":"Name","value":"groupIdTokenId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"Tenant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"countryCode"}},{"kind":"Field","name":{"kind":"Name","value":"partyId"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateAuthorizationMutation, UpdateAuthorizationMutationVariables>;
-export const GetTransactionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTransactions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"cpoCountryCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"cpoPartyId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"mspCountryCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"mspPartyId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"timestamptz"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"timestamptz"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"endedOnly"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Transactions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stationId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"TransactionEvents"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"IdToken"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"Authorization"},"value":{"kind":"ObjectValue","fields":[]}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_gte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"_lte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"createdAt"},"value":{"kind":"EnumValue","value":"asc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"stationId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionId"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"chargingState"}},{"kind":"Field","name":{"kind":"Name","value":"timeSpentCharging"}},{"kind":"Field","name":{"kind":"Name","value":"totalKwh"}},{"kind":"Field","name":{"kind":"Name","value":"stoppedReason"}},{"kind":"Field","name":{"kind":"Name","value":"remoteStartId"}},{"kind":"Field","name":{"kind":"Name","value":"totalCost"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"Evse"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"TransactionEvents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"eventType"}}]}},{"kind":"Field","name":{"kind":"Name","value":"MeterValues"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"StartTransaction"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"StopTransaction"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"Transactions_aggregate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"stationId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"TransactionEvents"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"IdToken"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"Authorization"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"IdToken"},"value":{"kind":"ObjectValue","fields":[]}}]}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_gte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateFrom"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"_lte"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dateTo"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<GetTransactionsQuery, GetTransactionsQueryVariables>;
+export const CreateOrUpdateLocationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateOrUpdateLocation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'object' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'Locations_insert_input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'insert_Locations_one' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'object' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'object' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'on_conflict' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'constraint' },
+                      value: { kind: 'EnumValue', value: 'Locations_pkey' },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'update_columns' },
+                      value: {
+                        kind: 'ListValue',
+                        values: [
+                          { kind: 'EnumValue', value: 'name' },
+                          { kind: 'EnumValue', value: 'address' },
+                          { kind: 'EnumValue', value: 'city' },
+                          { kind: 'EnumValue', value: 'postalCode' },
+                          { kind: 'EnumValue', value: 'state' },
+                          { kind: 'EnumValue', value: 'country' },
+                          { kind: 'EnumValue', value: 'coordinates' },
+                          { kind: 'EnumValue', value: 'updatedAt' },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'city' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postalCode' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'coordinates' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateOrUpdateLocationMutation,
+  CreateOrUpdateLocationMutationVariables
+>;
+export const GetLocationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetLocations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'offset' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'countryCode' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'partyId' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'dateFrom' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'dateTo' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Locations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'offset' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'city' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postalCode' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'coordinates' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'ChargingStations' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'isOnline' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'protocol' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createdAt' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updatedAt' },
+                      },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'Evses' },
+                        name: { kind: 'Name', value: 'VariableAttributes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'distinct_on' },
+                            value: {
+                              kind: 'EnumValue',
+                              value: 'evseDatabaseId',
+                            },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'where' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'evseDatabaseId',
+                                  },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: {
+                                          kind: 'Name',
+                                          value: '_is_null',
+                                        },
+                                        value: {
+                                          kind: 'BooleanValue',
+                                          value: false,
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: 'Evse' },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: {
+                                          kind: 'Name',
+                                          value: 'connectorId',
+                                        },
+                                        value: {
+                                          kind: 'ObjectValue',
+                                          fields: [
+                                            {
+                                              kind: 'ObjectField',
+                                              name: {
+                                                kind: 'Name',
+                                                value: '_is_null',
+                                              },
+                                              value: {
+                                                kind: 'BooleanValue',
+                                                value: false,
+                                              },
+                                            },
+                                          ],
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Evse' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'databaseId' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'connectorId',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'createdAt' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'updatedAt' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetLocationsQuery, GetLocationsQueryVariables>;
+export const GetLocationByIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetLocationById' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Locations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'id' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'city' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postalCode' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'coordinates' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'ChargingStations' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'isOnline' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'protocol' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createdAt' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updatedAt' },
+                      },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'Evses' },
+                        name: { kind: 'Name', value: 'VariableAttributes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'distinct_on' },
+                            value: {
+                              kind: 'EnumValue',
+                              value: 'evseDatabaseId',
+                            },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'where' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'evseDatabaseId',
+                                  },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: {
+                                          kind: 'Name',
+                                          value: '_is_null',
+                                        },
+                                        value: {
+                                          kind: 'BooleanValue',
+                                          value: false,
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: 'Evse' },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: {
+                                          kind: 'Name',
+                                          value: 'connectorId',
+                                        },
+                                        value: {
+                                          kind: 'ObjectValue',
+                                          fields: [
+                                            {
+                                              kind: 'ObjectField',
+                                              name: {
+                                                kind: 'Name',
+                                                value: '_is_null',
+                                              },
+                                              value: {
+                                                kind: 'BooleanValue',
+                                                value: false,
+                                              },
+                                            },
+                                          ],
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Evse' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'databaseId' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'connectorId',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'createdAt' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'updatedAt' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetLocationByIdQuery,
+  GetLocationByIdQueryVariables
+>;
+export const GetEvseByIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetEvseById' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'stationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'evseId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Locations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'locationId' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'ChargingStations' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'where' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'id' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'stationId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'Evses' },
+                        name: { kind: 'Name', value: 'VariableAttributes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'where' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'evseDatabaseId',
+                                  },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: { kind: 'Name', value: '_eq' },
+                                        value: {
+                                          kind: 'Variable',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'evseId',
+                                          },
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Evse' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'databaseId' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'connectorId',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'createdAt' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'updatedAt' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEvseByIdQuery, GetEvseByIdQueryVariables>;
+export const GetConnectorByIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetConnectorById' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'stationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'evseId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'connectorId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Locations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'locationId' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'ChargingStations' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'where' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'id' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'stationId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        alias: { kind: 'Name', value: 'Evses' },
+                        name: { kind: 'Name', value: 'VariableAttributes' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'where' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'evseDatabaseId',
+                                  },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: { kind: 'Name', value: '_eq' },
+                                        value: {
+                                          kind: 'Variable',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'evseId',
+                                          },
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Evse' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'databaseId' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'connectorId',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'createdAt' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'updatedAt' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    alias: {
+                                      kind: 'Name',
+                                      value: 'Connectors',
+                                    },
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'VariableAttributes',
+                                    },
+                                    arguments: [
+                                      {
+                                        kind: 'Argument',
+                                        name: { kind: 'Name', value: 'where' },
+                                        value: {
+                                          kind: 'ObjectValue',
+                                          fields: [
+                                            {
+                                              kind: 'ObjectField',
+                                              name: {
+                                                kind: 'Name',
+                                                value: 'id',
+                                              },
+                                              value: {
+                                                kind: 'ObjectValue',
+                                                fields: [
+                                                  {
+                                                    kind: 'ObjectField',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: '_eq',
+                                                    },
+                                                    value: {
+                                                      kind: 'Variable',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'connectorId',
+                                                      },
+                                                    },
+                                                  },
+                                                ],
+                                              },
+                                            },
+                                          ],
+                                        },
+                                      },
+                                    ],
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'createdAt',
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'updatedAt',
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetConnectorByIdQuery,
+  GetConnectorByIdQueryVariables
+>;
+export const GetTariffByKeyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetTariffByKey' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'countryCode' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'partyId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Tariffs' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'id' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'Tenant' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'countryCode' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'countryCode',
+                                    },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'partyId' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'partyId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'authorizationAmount' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'paymentFee' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pricePerKwh' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pricePerMin' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pricePerSession' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'stationId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'taxRate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetTariffByKeyQuery, GetTariffByKeyQueryVariables>;
+export const GetTariffsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetTariffs' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'offset' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'dateFrom' },
+          },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'timestamptz' },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'dateTo' },
+          },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'timestamptz' },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'countryCode' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'partyId' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Tariffs' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'offset' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'Tenant' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'countryCode' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'countryCode',
+                                    },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'partyId' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'partyId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'updatedAt' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_gte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateFrom' },
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_lte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateTo' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'authorizationAmount' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'paymentFee' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pricePerKwh' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pricePerMin' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pricePerSession' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'stationId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'taxRate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Tariffs_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'Tenant' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'countryCode' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'countryCode',
+                                    },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'partyId' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'partyId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'updatedAt' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_gte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateFrom' },
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_lte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateTo' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetTariffsQuery, GetTariffsQueryVariables>;
+export const CreateOrUpdateTariffDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateOrUpdateTariff' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'object' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'Tariffs_insert_input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'insert_Tariffs_one' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'object' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'object' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'on_conflict' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'constraint' },
+                      value: { kind: 'EnumValue', value: 'Tariffs_pkey' },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'update_columns' },
+                      value: {
+                        kind: 'ListValue',
+                        values: [
+                          { kind: 'EnumValue', value: 'authorizationAmount' },
+                          { kind: 'EnumValue', value: 'createdAt' },
+                          { kind: 'EnumValue', value: 'currency' },
+                          { kind: 'EnumValue', value: 'paymentFee' },
+                          { kind: 'EnumValue', value: 'pricePerKwh' },
+                          { kind: 'EnumValue', value: 'pricePerMin' },
+                          { kind: 'EnumValue', value: 'pricePerSession' },
+                          { kind: 'EnumValue', value: 'stationId' },
+                          { kind: 'EnumValue', value: 'taxRate' },
+                          { kind: 'EnumValue', value: 'updatedAt' },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'authorizationAmount' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'currency' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'paymentFee' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pricePerKwh' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pricePerMin' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pricePerSession' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'stationId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'taxRate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateOrUpdateTariffMutation,
+  CreateOrUpdateTariffMutationVariables
+>;
+export const DeleteTariffDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteTariff' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'delete_Tariffs_by_pk' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteTariffMutation,
+  DeleteTariffMutationVariables
+>;
+export const ReadAuthorizationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ReadAuthorizations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'idToken' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'type' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'countryCode' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'partyId' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Authorizations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'IdToken' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'idToken' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'idToken' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'type' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'type' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'Tenant' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'countryCode' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'countryCode',
+                                    },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'partyId' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'partyId' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'IdTokenInfo' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'IdToken' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'IdTokenAdditionalInfos',
+                                  },
+                                  value: { kind: 'ObjectValue', fields: [] },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tenantId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'Tenant' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'countryCode' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'partyId' },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'IdToken' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'idToken' },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'IdTokenInfo' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'IdToken' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'id' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'idToken' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'IdTokenAdditionalInfos',
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'AdditionalInfo',
+                                    },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'IdToken' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'Tenant' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'additionalInfoId',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'createdAt' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'idTokenId' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'tenantId' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'updatedAt' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ReadAuthorizationsQuery,
+  ReadAuthorizationsQueryVariables
+>;
+export const UpdateAuthorizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateAuthorization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'where' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'Authorizations_bool_exp' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'set' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'Authorizations_set_input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'update_Authorizations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'where' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: '_set' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'set' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'returning' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'IdToken' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'idToken' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'type' },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'IdTokenInfo' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'language1' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'groupIdTokenId' },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Tenant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'countryCode' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'partyId' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateAuthorizationMutation,
+  UpdateAuthorizationMutationVariables
+>;
+export const GetTransactionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetTransactions' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'cpoCountryCode' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'cpoPartyId' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'mspCountryCode' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'mspPartyId' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'dateFrom' },
+          },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'timestamptz' },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'dateTo' },
+          },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'timestamptz' },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'offset' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'endedOnly' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Transactions' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'stationId' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_is_null' },
+                            value: { kind: 'BooleanValue', value: false },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'TransactionEvents' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'IdToken' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'Authorization',
+                                  },
+                                  value: { kind: 'ObjectValue', fields: [] },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'updatedAt' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_gte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateFrom' },
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_lte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateTo' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'offset' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'createdAt' },
+                      value: { kind: 'EnumValue', value: 'asc' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'stationId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'transactionId' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'isActive' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'chargingState' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'timeSpentCharging' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalKwh' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'stoppedReason' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'remoteStartId' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCost' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'Evse' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'TransactionEvents' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'eventType' },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'MeterValues' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'StartTransaction' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'StopTransaction' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'Transactions_aggregate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'stationId' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_is_null' },
+                            value: { kind: 'BooleanValue', value: false },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'TransactionEvents' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'IdToken' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'Authorization',
+                                  },
+                                  value: {
+                                    kind: 'ObjectValue',
+                                    fields: [
+                                      {
+                                        kind: 'ObjectField',
+                                        name: {
+                                          kind: 'Name',
+                                          value: 'IdToken',
+                                        },
+                                        value: {
+                                          kind: 'ObjectValue',
+                                          fields: [],
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'updatedAt' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_gte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateFrom' },
+                            },
+                          },
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_lte' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'dateTo' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aggregate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetTransactionsQuery,
+  GetTransactionsQueryVariables
+>;

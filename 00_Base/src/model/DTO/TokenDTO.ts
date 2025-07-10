@@ -3,7 +3,15 @@ import { TokenType } from '../TokenType';
 import { Optional } from '../../util/decorators/Optional';
 import { WhitelistType } from '../WhitelistType';
 import { TokenEnergyContract } from '../TokenEnergyContract';
-import { IsBoolean, IsDate, IsNotEmpty, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TokenDTO {

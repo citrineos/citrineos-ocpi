@@ -1,9 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import 'reflect-metadata';
 import { Enum } from '../../util/decorators/Enum';
-import {
-  ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion,
-} from './ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion';
+import { ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion } from './ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion';
 
 export class ServerConfigUtilCertificateAuthorityV2gCAHubject {
   @IsString()

@@ -1,4 +1,9 @@
-import { IsArray, IsBoolean, IsNotEmpty, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  ValidateNested,
+} from 'class-validator';
 import { RegularHours } from './RegularHours';
 import { ExceptionalPeriod } from './ExceptionalPeriod';
 import { Type } from 'class-transformer';

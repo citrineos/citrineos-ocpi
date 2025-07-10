@@ -1,7 +1,15 @@
 import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
 import { fromImageDTO, Image, toImageDTO } from './Image';
 import { Optional } from '../util/decorators/Optional';
-import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from '@citrineos/data';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from '@citrineos/data';
 import { ClientCredentialsRole } from './ClientCredentialsRole';
 import { ServerCredentialsRole } from './ServerCredentialsRole';
 import { Exclude } from 'class-transformer';

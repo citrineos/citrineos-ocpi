@@ -1,4 +1,12 @@
-import { IsDateString, IsInt, IsNotEmpty, IsString, Max, Min, ValidateNested } from 'class-validator';
+import {
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Optional } from '../util/decorators/Optional';
 import { OcpiResponseStatusCode } from './OcpiResponse';
 

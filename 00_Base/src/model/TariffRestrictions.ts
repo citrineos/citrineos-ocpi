@@ -1,4 +1,12 @@
-import { IsArray, IsInt, IsNumber, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsNumber,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { DayOfWeek } from './DayOfWeek';
 import { ReservationRestrictionType } from './ReservationRestrictionType';
 import { Optional } from '../util/decorators/Optional';

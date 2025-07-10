@@ -38,7 +38,10 @@ import { OcpiParams } from '../trigger/util/OcpiParams';
 import { ReserveNow } from '../model/ReserveNow';
 import { CancelReservation } from '../model/CancelReservation';
 import { OcpiReservationRepository } from '../repository/OcpiReservationRepository';
-import { OcpiReservation, OcpiReservationProps } from '../model/OcpiReservation';
+import {
+  OcpiReservation,
+  OcpiReservationProps,
+} from '../model/OcpiReservation';
 import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
 import { LocationsDatasource } from '../datasources/LocationsDatasource';
@@ -330,12 +333,19 @@ export class CommandExecutor {
     const evseId = Number(EXTRACT_EVSE_ID(reserveNow.evse_uid!));
     const stationId = EXTRACT_STATION_ID(reserveNow.evse_uid!);
     // Check if evse exists and given evse_uid matches the given location_id
-    if(!await this.locationsDatasource.getEvse(Number(reserveNow.location_id), stationId, evseId)) {
-        throw new NotFoundError('EVSE not found');
+    if (
+      !(await this.locationsDatasource.getEvse(
+        Number(reserveNow.location_id),
+        stationId,
+        evseId,
+      ))
+    ) {
+      throw new NotFoundError('EVSE not found');
     }
-    const ocpiLocation = await this.ocpiLocationRepo.getLocationByCoreLocationId(
-        Number(reserveNow.location_id)
-    );
+    const ocpiLocation =
+      await this.ocpiLocationRepo.getLocationByCoreLocationId(
+        Number(reserveNow.location_id),
+      );
     if (!ocpiLocation) {
       throw new NotFoundError('Location not found');
     }
@@ -534,9 +544,8 @@ export class CommandExecutor {
       // Based on OCPI 2.1.1, The reservation_id sent by the Sender (eMSP) to the Receiver (CPO) SHALL NOT be sent
       // directly to a Charge Point. The CPO SHALL make sure the Reservation ID sent to the Charge Point is unique and
       // is not used by another Sender(eMSP).
-      coreReservationId = await this.coreReservationRepo.getNextReservationId(
-        stationId,
-      );
+      coreReservationId =
+        await this.coreReservationRepo.getNextReservationId(stationId);
     } else {
       coreReservationId = existingOcpiReservation.coreReservation.id;
     }
@@ -574,7 +583,8 @@ export class CommandExecutor {
         [OcpiReservationProps.partyId]: partyId,
         [OcpiReservationProps.locationId]: reserveNow.location_id,
         [OcpiReservationProps.evseUid]: reserveNow.evse_uid ?? null,
-        [OcpiReservationProps.authorizationReference]: reserveNow.authorization_reference ?? null,
+        [OcpiReservationProps.authorizationReference]:
+          reserveNow.authorization_reference ?? null,
       }),
     );
 

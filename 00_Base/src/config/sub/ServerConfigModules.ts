@@ -1,4 +1,9 @@
-import { IsNotEmpty, Validate, ValidateNested, ValidationArguments } from 'class-validator';
+import {
+  IsNotEmpty,
+  Validate,
+  ValidateNested,
+  ValidationArguments,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import 'reflect-metadata';
 import { ServerConfigModulesCertificates } from './ServerConfigModulesCertificates';

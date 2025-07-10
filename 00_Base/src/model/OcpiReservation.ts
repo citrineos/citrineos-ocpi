@@ -1,5 +1,13 @@
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { BelongsTo, Column, DataType, ForeignKey, Model, Reservation, Table } from '@citrineos/data';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Reservation,
+  Table,
+} from '@citrineos/data';
 import { CountryCode } from '../util/Util';
 import { Enum } from '../util/decorators/Enum';
 import { OcpiLocation } from './OcpiLocation';

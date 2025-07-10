@@ -1,7 +1,13 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import { Evse, IdToken, SequelizeTransactionEventRepository, Transaction, TransactionEvent } from '@citrineos/data';
+import {
+  Evse,
+  IdToken,
+  SequelizeTransactionEventRepository,
+  Transaction,
+  TransactionEvent,
+} from '@citrineos/data';
 import { SessionMapper } from '../mapper/SessionMapper';
 import { CredentialsService } from '../services/CredentialsService';
 import { ILogObj, Logger } from 'tslog';
@@ -9,7 +15,10 @@ import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
 import { PatchSessionParams } from '../trigger/param/sessions/PatchSessionParams';
 import { PutSessionParams } from '../trigger/param/sessions/PutSessionParams';
-import { TransactionEventEnumType, TriggerReasonEnumType } from '@citrineos/base';
+import {
+  TransactionEventEnumType,
+  TriggerReasonEnumType,
+} from '@citrineos/base';
 import { InternalServerError } from 'routing-controllers';
 import { SessionStatus } from '../model/SessionStatus';
 

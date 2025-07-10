@@ -1,4 +1,11 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsString, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 import { EnergySources } from './EnergySources';
 import { EnvironmentalImpact } from './EnvironmentalImpact';
 import { Type } from 'class-transformer';

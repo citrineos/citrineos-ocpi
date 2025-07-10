@@ -1,4 +1,12 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from '@citrineos/data';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  Model,
+  Table,
+} from '@citrineos/data';
 import { VersionNumber } from './VersionNumber';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Enum } from '../util/decorators/Enum';

@@ -4,7 +4,10 @@ import { ILogObj, Logger } from 'tslog';
 import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { OcpiNamespace } from '../util/OcpiNamespace';
 import { SystemConfig } from '@citrineos/base';
-import { OcpiReservation, OcpiReservationProps } from '../model/OcpiReservation';
+import {
+  OcpiReservation,
+  OcpiReservationProps,
+} from '../model/OcpiReservation';
 import { ServerConfig } from '../config/ServerConfig';
 
 @Service()
@@ -34,13 +37,13 @@ export class OcpiReservationRepository extends SequelizeRepository<OcpiReservati
         where: {
           // unique constraints
           [OcpiReservationProps.reservationId]:
-              reservation[OcpiReservationProps.reservationId],
+            reservation[OcpiReservationProps.reservationId],
           [OcpiReservationProps.countryCode]:
-              reservation[OcpiReservationProps.countryCode],
+            reservation[OcpiReservationProps.countryCode],
           [OcpiReservationProps.partyId]:
-              reservation[OcpiReservationProps.partyId],
-        }
-      })
+            reservation[OcpiReservationProps.partyId],
+        },
+      });
     } catch (e) {
       this.logger.error(e);
       return undefined;
@@ -50,13 +53,15 @@ export class OcpiReservationRepository extends SequelizeRepository<OcpiReservati
       return await this.create(reservation);
     } else {
       return await this._updateByKey(
-          {
-            [OcpiReservationProps.locationId]:
-                reservation[OcpiReservationProps.locationId],
-            [OcpiReservationProps.evseUid]: reservation[OcpiReservationProps.evseUid],
-            [OcpiReservationProps.authorizationReference]: reservation[OcpiReservationProps.authorizationReference],
-          },
-          existingReservation.id.toString(),
+        {
+          [OcpiReservationProps.locationId]:
+            reservation[OcpiReservationProps.locationId],
+          [OcpiReservationProps.evseUid]:
+            reservation[OcpiReservationProps.evseUid],
+          [OcpiReservationProps.authorizationReference]:
+            reservation[OcpiReservationProps.authorizationReference],
+        },
+        existingReservation.id.toString(),
       );
     }
   }

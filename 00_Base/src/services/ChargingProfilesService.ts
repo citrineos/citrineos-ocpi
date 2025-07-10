@@ -1,7 +1,10 @@
 import { Service } from 'typedi';
 import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiResponse } from '../model/OcpiResponse';
-import { ChargingProfileResponse, ChargingProfileResultType } from '../model/ChargingProfileResponse';
+import {
+  ChargingProfileResponse,
+  ChargingProfileResultType,
+} from '../model/ChargingProfileResponse';
 import { NotFoundException } from '../exception/NotFoundException';
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { NotFoundError } from 'routing-controllers';
@@ -44,7 +47,7 @@ export class ChargingProfilesService {
           timeout: this.TIMEOUT,
         },
         e.message,
-        e
+        e,
       );
     }
   }
@@ -78,7 +81,7 @@ export class ChargingProfilesService {
           timeout: this.TIMEOUT,
         },
         e.message,
-        e
+        e,
       );
     }
   }
@@ -112,7 +115,7 @@ export class ChargingProfilesService {
           timeout: this.TIMEOUT,
         },
         e.message,
-        e
+        e,
       );
     }
   }

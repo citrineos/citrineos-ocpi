@@ -1,5 +1,8 @@
 import { EnumParam } from './EnumParam';
-import { VersionNumber, VersionNumberEnumName } from '../../model/VersionNumber';
+import {
+  VersionNumber,
+  VersionNumberEnumName,
+} from '../../model/VersionNumber';
 
 export const versionIdParam = 'versionId';
 

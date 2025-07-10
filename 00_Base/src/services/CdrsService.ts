@@ -6,9 +6,7 @@ import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
 
 @Service()
 export class CdrsService {
-  constructor(
-    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
-  ) {}
+  constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
 
   public async getCdrs(
     fromCountryCode: string,
@@ -30,7 +28,10 @@ export class CdrsService {
       offset,
       limit,
     };
-    const result = await this.ocpiGraphqlClient.request<any>(GET_TRANSACTIONS_QUERY, variables);
+    const result = await this.ocpiGraphqlClient.request<any>(
+      GET_TRANSACTIONS_QUERY,
+      variables,
+    );
     const response = new PaginatedCdrResponse();
     response.data = result.Cdrs;
     response.total = result.Cdrs_aggregate?.aggregate?.count || 0;

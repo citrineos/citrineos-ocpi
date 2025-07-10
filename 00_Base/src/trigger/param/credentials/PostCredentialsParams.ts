@@ -1,4 +1,7 @@
-import { buildOcpiRegistrationParams, OcpiRegistrationParams } from '../../util/OcpiRegistrationParams';
+import {
+  buildOcpiRegistrationParams,
+  OcpiRegistrationParams,
+} from '../../util/OcpiRegistrationParams';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { CredentialsDTO } from '../../../model/DTO/CredentialsDTO';
 import { VersionNumber } from '../../../model/VersionNumber';

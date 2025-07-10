@@ -3,64 +3,37 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { localConfig } from './envs/local';
-import { dockerConfig } from './envs/docker';
-import { plainToClass, ServerConfig } from '@citrineos/ocpi-base';
+import { ILogObj, Logger } from 'tslog';
+import { loadOcpiConfig } from './ocpiConfigLoader';
+import { OcpiConfig } from '@citrineos/ocpi-base/dist/config/types';
 
-function getConfig(): ServerConfig {
-  let systemConfigPlain: any;
-  switch (process.env.APP_ENV) {
-    case 'local':
-      systemConfigPlain = localConfig;
-      break;
-    case 'docker':
-      systemConfigPlain = dockerConfig;
-      break;
-    default:
-      throw new Error('Invalid APP_ENV "${process.env.APP_ENV}"');
+// Initialize logger for configuration loading
+const configLogger = new Logger<ILogObj>({ name: 'OcpiConfigLoader' });
+
+// Load and export the system configuration
+let systemConfig: OcpiConfig | null = null;
+
+export async function getSystemConfig(): Promise<OcpiConfig> {
+  if (!systemConfig) {
+    systemConfig = await loadOcpiConfig(configLogger);
+    configLogger.info('OCPI configuration loaded successfully');
   }
-  return plainToClass(ServerConfig, systemConfigPlain, false);
+  return systemConfig;
 }
 
-function parseEnvValue(value: string, targetType: any): any {
-  if (targetType === Boolean) {
-    return value === 'true';
-  }
-  if (targetType === Number) {
-    return Number(value);
-  }
-  if (targetType === String) {
-    return value;
-  }
-  // if (targetType === ConfigEnum) { // todo parse enum
-  //   return value as ConfigEnum;
-  // }
-  return value;
-}
-
-function overrideConfigWithEnv<T>(config: T, parentKey = ''): T {
-  const configEntries = Object.entries(config as any);
-  for (const [key, value] of configEntries) {
-    const envVar = `${parentKey}${key.toUpperCase()}`;
-    if (typeof value === 'object' && value !== null) {
-      (config as any)[key] = overrideConfigWithEnv(value, `${envVar}_`);
-    } else {
-      const envValue = process.env[`CITRINEOS_${envVar}`];
-      if (envValue) {
-        const targetType = Reflect.getMetadata(
-          'design:type',
-          config as any,
-          key,
-        );
-        (config as any)[key] = parseEnvValue(envValue, targetType);
-      }
-    }
-  }
-
+// For backward compatibility - load config synchronously on module import
+// This is a temporary solution until the server is updated to use async config loading
+export const initializeConfig = async (): Promise<OcpiConfig> => {
+  const config = await getSystemConfig();
+  console.debug('Loading OCPI config', config);
   return config;
-}
+};
 
-const serverConfig: ServerConfig = getConfig();
-const finalConfig = overrideConfigWithEnv(serverConfig);
-console.debug('Loading config', finalConfig);
-export const systemConfig = finalConfig;
+// Export types and utilities
+export { ocpiConfigSchema } from '@citrineos/ocpi-base/dist/config/types';
+export { sampleOcpiConfig } from './sampleOcpiConfig';
+export {
+  loadOcpiConfig,
+  OcpiConfigStore,
+  OcpiConfigStoreFactory,
+} from './ocpiConfigLoader';

@@ -5,12 +5,22 @@
 
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
+import {
+  LocationResponse,
+  PaginatedLocationResponse,
+} from '../model/DTO/LocationDTO';
 import { EvseResponse } from '../model/DTO/EvseDTO';
 import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/PaginatedParams';
-import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/OcpiResponse';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
+import {
+  buildOcpiResponse,
+  OcpiResponseStatusCode,
+} from '../model/OcpiResponse';
 import { buildOcpiErrorResponse } from '../model/OcpiErrorResponse';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { NotFoundException } from '../exception/NotFoundException';
@@ -61,13 +71,17 @@ export class LocationsService {
       dateTo: dateTo ? dateTo.toISOString() : undefined,
     };
 
-    const response = await this.ocpiGraphqlClient.request<GetLocationsQuery>(GET_LOCATIONS_QUERY, variables);
+    const response = await this.ocpiGraphqlClient.request<GetLocationsQuery>(
+      GET_LOCATIONS_QUERY,
+      variables,
+    );
 
     // Map GraphQL DTOs to OCPI DTOs (assuming a mapper exists)
-    const locations = response.Locations?.map((item) => {
-      // TODO: Implement the mapping logic from GraphQL DTO to OCPI DTO
-      return (global as any).LocationMapper.fromGraphql(item);
-    }) ?? [];
+    const locations =
+      response.Locations?.map((item) => {
+        // TODO: Implement the mapping logic from GraphQL DTO to OCPI DTO
+        return (global as any).LocationMapper.fromGraphql(item);
+      }) ?? [];
     const locationsTotal = locations.length;
 
     return buildOcpiPaginatedResponse(
@@ -84,9 +98,15 @@ export class LocationsService {
 
     try {
       const variables = { id: locationId };
-      const response = await this.ocpiGraphqlClient.request<GetLocationByIdQuery>(GET_LOCATION_BY_ID_QUERY, variables);
+      const response =
+        await this.ocpiGraphqlClient.request<GetLocationByIdQuery>(
+          GET_LOCATION_BY_ID_QUERY,
+          variables,
+        );
       // response.Locations is an array, so pick the first
-      const location = (global as any).LocationMapper.fromGraphql(response.Locations?.[0]);
+      const location = (global as any).LocationMapper.fromGraphql(
+        response.Locations?.[0],
+      );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
         location,
@@ -114,10 +134,13 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId };
-      const response = await this.ocpiGraphqlClient.request<GetEvseByIdQuery>(GET_EVSE_BY_ID_QUERY, variables);
+      const response = await this.ocpiGraphqlClient.request<GetEvseByIdQuery>(
+        GET_EVSE_BY_ID_QUERY,
+        variables,
+      );
       // Traverse to the EVSE object
       const evse = (global as any).EvseMapper.fromGraphql(
-        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse
+        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse,
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
@@ -144,10 +167,15 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId, connectorId };
-      const response = await this.ocpiGraphqlClient.request<GetConnectorByIdQuery>(GET_CONNECTOR_BY_ID_QUERY, variables);
+      const response =
+        await this.ocpiGraphqlClient.request<GetConnectorByIdQuery>(
+          GET_CONNECTOR_BY_ID_QUERY,
+          variables,
+        );
       // Traverse to the Connector object
       const connector = (global as any).ConnectorMapper.fromGraphql(
-        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse?.Connectors?.[0]
+        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse
+          ?.Connectors?.[0],
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

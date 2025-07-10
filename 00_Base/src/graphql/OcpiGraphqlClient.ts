@@ -11,4 +11,3 @@ export class OcpiGraphqlClient {
     return this.client.request<T>(query, variables);
   }
 }
-

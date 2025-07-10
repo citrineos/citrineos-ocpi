@@ -1,4 +1,10 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 import 'reflect-metadata';
 import { Optional } from '../../util/decorators/Optional';
 

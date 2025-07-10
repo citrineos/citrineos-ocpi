@@ -54,11 +54,15 @@ export class TransactionFilterService implements ITransactionDatasource {
     };
 
     // Call GraphQL endpoint
-    const response = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(GET_TRANSACTIONS_QUERY, queryOptions);
+    const response = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(
+      GET_TRANSACTIONS_QUERY,
+      queryOptions,
+    );
     const transactions = response.Transactions || [];
     const total = response.Transactions_aggregate?.aggregate?.count || 0;
 
-    const result: PaginatedResult<Transaction> = new PaginatedResult<Transaction>();
+    const result: PaginatedResult<Transaction> =
+      new PaginatedResult<Transaction>();
     result.data = transactions as unknown as Transaction[];
     result.total = total;
     return result;

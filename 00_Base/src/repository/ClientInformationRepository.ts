@@ -8,7 +8,10 @@ import { OcpiNamespace } from '../util/OcpiNamespace';
 import { ILogObj, Logger } from 'tslog';
 import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
 import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
 import { ClientVersion } from '../model/ClientVersion';

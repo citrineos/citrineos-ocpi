@@ -5,7 +5,11 @@ import { OcpiLocation } from '../model/OcpiLocation';
 import { OcpiEvse } from '../model/OcpiEvse';
 import { OcpiConnector } from '../model/OcpiConnector';
 import { LocationsBroadcaster } from '../broadcaster/LocationsBroadcaster';
-import { AdminConnectorDTO, AdminEvseDTO, AdminLocationDTO } from '../model/DTO/admin/AdminLocationDTO';
+import {
+  AdminConnectorDTO,
+  AdminEvseDTO,
+  AdminLocationDTO,
+} from '../model/DTO/admin/AdminLocationDTO';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { InvalidParamException } from '../exception/InvalidParamException';
 import { validate } from 'class-validator';
@@ -64,8 +68,12 @@ export class AdminLocationsService {
       evses,
       connectors,
     };
-    const response = await this.ocpiGraphqlClient.request<CreateOrUpdateLocationMutation>(CREATE_OR_UPDATE_LOCATION_MUTATION, variables);
-    const locationDto = response.insert_Locations_one  as unknown as LocationDTO
+    const response =
+      await this.ocpiGraphqlClient.request<CreateOrUpdateLocationMutation>(
+        CREATE_OR_UPDATE_LOCATION_MUTATION,
+        variables,
+      );
+    const locationDto = response.insert_Locations_one as unknown as LocationDTO;
 
     if (broadcast) {
       await this.locationsBroadcaster.broadcastOnLocationCreateOrUpdate(

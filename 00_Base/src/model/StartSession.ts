@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsObject, IsString, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsObject,
+  IsString,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/Optional';
 import { ResponseUrl } from './ResponseUrl';

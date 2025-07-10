@@ -3,7 +3,14 @@ import { Enum } from '../util/decorators/Enum';
 import { ModuleId } from './ModuleId';
 import { InterfaceRole } from './InterfaceRole';
 import { Exclude } from 'class-transformer';
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from '@citrineos/data';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from '@citrineos/data';
 import { Endpoint, EndpointDTO } from './Endpoint';
 import { Version } from './Version';
 

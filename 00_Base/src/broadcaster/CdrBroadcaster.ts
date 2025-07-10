@@ -1,5 +1,8 @@
 import { Service } from 'typedi';
-import { SequelizeTransactionEventRepository, Transaction } from '@citrineos/data';
+import {
+  SequelizeTransactionEventRepository,
+  Transaction,
+} from '@citrineos/data';
 import { CredentialsService } from '../services/CredentialsService';
 import { ILogObj, Logger } from 'tslog';
 import { BaseBroadcaster } from './BaseBroadcaster';

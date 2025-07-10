@@ -1,4 +1,9 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  ValidateNested,
+} from 'class-validator';
 import { PriceComponent } from './PriceComponent';
 import { TariffRestrictions } from './TariffRestrictions';
 import { Type } from 'class-transformer';
