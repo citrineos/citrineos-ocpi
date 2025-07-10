@@ -19,7 +19,7 @@ export class OcpiLocationRepository extends SequelizeRepository<OcpiLocation> {
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.OcpiLocation,
       logger,
       ocpiSequelizeInstance.sequelize,

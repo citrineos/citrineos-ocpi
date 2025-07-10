@@ -17,7 +17,7 @@ export class OcpiReservationRepository extends SequelizeRepository<OcpiReservati
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.OcpiReservation,
       logger,
       ocpiSequelizeInstance.sequelize,

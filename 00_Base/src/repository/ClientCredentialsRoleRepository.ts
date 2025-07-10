@@ -15,7 +15,7 @@ export class ClientCredentialsRoleRepository extends SequelizeRepository<ClientC
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.ClientCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,

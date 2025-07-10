@@ -15,6 +15,7 @@ import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
 import { ClientVersion } from '../model/ClientVersion';
 import { Endpoint } from '../model/Endpoint';
+import { ServerConfig } from '../config/ServerConfig';
 
 @Service()
 export class ClientInformationRepository extends SequelizeRepository<ClientInformation> {
@@ -27,7 +28,7 @@ export class ClientInformationRepository extends SequelizeRepository<ClientInfor
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.ClientInformation,
       logger,
       ocpiSequelizeInstance.sequelize,

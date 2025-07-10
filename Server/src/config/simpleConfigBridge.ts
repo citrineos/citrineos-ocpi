@@ -17,51 +17,47 @@ import { ServerConfig, Env } from '@citrineos/ocpi-base';
 export function createServerConfigFromOcpiConfig(
   ocpiConfig: any,
 ): ServerConfig {
-  const serverConfig = new ServerConfig();
+  const serverConfig: ServerConfig = {
+    env: ocpiConfig.env === 'development' ? Env.DEVELOPMENT : Env.PRODUCTION,
+    logLevel: ocpiConfig.logLevel,
+    ocpiServer: ocpiConfig.ocpiServer,
 
-  // Copy the essential fields that exist in both configs
-  serverConfig.env =
-    ocpiConfig.env === 'development' ? Env.DEVELOPMENT : Env.PRODUCTION;
-  serverConfig.logLevel = ocpiConfig.logLevel;
-  serverConfig.ocpiServer = ocpiConfig.ocpiServer;
-
-  // Create a fake centralSystem for compatibility (OCPI doesn't need this)
-  serverConfig.centralSystem = {
-    host: ocpiConfig.ocpiServer.host,
-    port: ocpiConfig.ocpiServer.port,
-  } as any;
-
-  // Map database configuration from new structure
-  serverConfig.data = {
-    sequelize: {
-      password: ocpiConfig.database.password,
-      host: ocpiConfig.database.host,
-      port: ocpiConfig.database.port,
-      database: ocpiConfig.database.database,
-      username: ocpiConfig.database.username,
-      storage: '',
-      sync: ocpiConfig.database.sync,
+    // Create a fake centralSystem for compatibility (OCPI doesn't need this)
+    centralSystem: {
+      host: ocpiConfig.ocpiServer.host,
+      port: ocpiConfig.ocpiServer.port,
     },
-  } as any;
 
-  // Map util configuration from new structure
-  serverConfig.util = {
-    cache: ocpiConfig.cache,
-    messageBroker: ocpiConfig.messageBroker,
-    swagger: ocpiConfig.swagger,
-    // Add empty defaults for fields OCPI doesn't use
-    directus: { generateFlows: false },
-    networkConnection: { websocketServers: [] },
-    certificateAuthority: { v2gCA: {}, chargingStationCA: {} },
-    graphql: { url: '', adminSecret: '' },
-  } as any;
+    // Map database configuration from new structure
+    data: {
+      sequelize: {
+        password: ocpiConfig.database.password,
+        host: ocpiConfig.database.host,
+        port: ocpiConfig.database.port,
+        database: ocpiConfig.database.database,
+        username: ocpiConfig.database.username,
+        storage: '',
+        sync: ocpiConfig.database.sync,
+      },
+    },
 
-  // Map modules - use empty defaults since OCPI has its own module system
-  serverConfig.modules = {} as any;
+    // Map util configuration from new structure
+    util: {
+      cache: ocpiConfig.cache,
+      messageBroker: ocpiConfig.messageBroker || { amqp: false },
+      swagger: ocpiConfig.swagger,
+      // Add empty defaults for fields OCPI doesn't use
+      directus: { generateFlows: false },
+      networkConnection: { websocketServers: [] },
+    },
 
-  // Add missing required fields with defaults
-  serverConfig.maxCallLengthSeconds = 30;
-  serverConfig.maxCachingSeconds = 300;
+    // Map modules - use empty defaults since OCPI has its own module system
+    modules: {},
+
+    // Add missing required fields with defaults
+    maxCallLengthSeconds: 30,
+    maxCachingSeconds: 300,
+  };
 
   return serverConfig;
 }

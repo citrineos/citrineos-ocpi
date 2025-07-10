@@ -17,7 +17,7 @@ export interface SequelizeConfig {
   host: string;
   port: number;
   database: string;
-  dialect: string;
+  dialect?: string;
   username: string;
   password: string;
   storage: string;
@@ -31,8 +31,51 @@ export interface ServerConfigData {
   sequelize: SequelizeConfig;
 }
 
+export interface CentralSystemConfig {
+  host: string;
+  port: number;
+}
+
+export interface CacheConfig {
+  redis: {
+    host: string;
+    port: number;
+  };
+}
+
+export interface MessageBrokerConfig {
+  amqp: boolean;
+}
+
+export interface DirectusConfig {
+  generateFlows?: boolean;
+}
+
+export interface NetworkConnectionConfig {
+  websocketServers: any[];
+}
+
+export interface UtilConfig {
+  cache: CacheConfig;
+  messageBroker: MessageBrokerConfig;
+  swagger?: any;
+  directus?: DirectusConfig;
+  networkConnection: NetworkConnectionConfig;
+}
+
+export interface OcpiServerConfig {
+  host: string;
+  port: number;
+}
+
 export interface ServerConfig {
   env: Env;
   data: ServerConfigData;
   logLevel: number;
+  centralSystem: CentralSystemConfig;
+  util: UtilConfig;
+  ocpiServer: OcpiServerConfig;
+  modules: any;
+  maxCallLengthSeconds: number;
+  maxCachingSeconds: number;
 }

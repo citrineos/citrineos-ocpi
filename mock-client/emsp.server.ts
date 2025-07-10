@@ -7,6 +7,7 @@ import {
   OcpiExceptionHandler,
   OcpiSequelizeInstance,
   ServerConfig,
+  Env,
 } from '@citrineos/ocpi-base';
 import { MemoryCache } from '@citrineos/util';
 import { ILogObj, Logger } from 'tslog';
@@ -18,7 +19,33 @@ export class EmspServer extends KoaServer {
   constructor(readonly ocpiSequelizeInstance: OcpiSequelizeInstance) {
     super();
     try {
-      Container.set(ServerConfig, {} as ServerConfig);
+      // Create a minimal ServerConfig for the mock server
+      const mockServerConfig: ServerConfig = {
+        env: Env.DEVELOPMENT,
+        logLevel: 1,
+        data: {
+          sequelize: {
+            host: 'localhost',
+            port: 5432,
+            database: 'ocpi',
+            username: 'ocpi',
+            password: 'ocpi',
+            storage: '',
+            sync: false,
+          },
+        },
+        centralSystem: { host: 'localhost', port: 8080 },
+        util: {
+          cache: { redis: { host: 'localhost', port: 6379 } },
+          messageBroker: { amqp: false },
+          networkConnection: { websocketServers: [] },
+        },
+        ocpiServer: { host: 'localhost', port: 3000 },
+        modules: {},
+        maxCallLengthSeconds: 30,
+        maxCachingSeconds: 300,
+      };
+      Container.set('ServerConfig', mockServerConfig);
       Container.set(CacheWrapper, new CacheWrapper(new MemoryCache()));
       Container.set(
         Logger,

@@ -18,7 +18,7 @@ export class OcpiConnectorRepository extends SequelizeRepository<OcpiConnector> 
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.OcpiConnector,
       logger,
       ocpiSequelizeInstance.sequelize,

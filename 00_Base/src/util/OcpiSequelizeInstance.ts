@@ -64,6 +64,22 @@ function createCompatibleServerConfig(ocpiConfig: OcpiConfig): ServerConfig {
         sync: ocpiConfig.database.sync,
       },
     },
+    centralSystem: {
+      host: ocpiConfig.ocpiServer.host,
+      port: ocpiConfig.ocpiServer.port,
+    },
+    util: {
+      cache: {
+        redis: ocpiConfig.cache.redis || { host: 'localhost', port: 6379 },
+      },
+      messageBroker: { amqp: false },
+      swagger: ocpiConfig.swagger,
+      networkConnection: { websocketServers: [] },
+    },
+    ocpiServer: ocpiConfig.ocpiServer,
+    modules: {},
+    maxCallLengthSeconds: 30,
+    maxCachingSeconds: 300,
   };
 }
 

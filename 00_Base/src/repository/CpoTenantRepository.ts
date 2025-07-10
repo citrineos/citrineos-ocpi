@@ -15,7 +15,7 @@ export class CpoTenantRepository extends SequelizeRepository<CpoTenant> {
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.CpoTenant,
       logger,
       ocpiSequelizeInstance.sequelize,
