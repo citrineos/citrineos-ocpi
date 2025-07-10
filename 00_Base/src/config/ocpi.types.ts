@@ -6,246 +6,103 @@ import { z } from 'zod';
 
 /**
  * OCPI Configuration Schema
- * This schema defines the configuration structure specific to OCPI modules,
- * excluding database configuration but including necessary cache and message broker settings.
+ * This schema defines the configuration structure specific to OCPI modules only.
+ * It excludes all citrineos-core-specific settings.
  */
 export const ocpiConfigInputSchema = z.object({
   env: z.enum(['development', 'production']),
 
-  centralSystem: z.object({
-    host: z.string().default('0.0.0.0').optional(),
-    port: z.number().int().positive().default(8080).optional(),
-  }),
-
-  modules: z.object({
-    certificates: z
-      .object({
-        endpointPrefix: z.string().default('/certificates').optional(),
-      })
-      .optional(),
-
-    configuration: z.object({
-      heartbeatInterval: z.number().int().positive().default(60).optional(),
-      bootRetryInterval: z.number().int().positive().default(15).optional(),
-      unknownChargerStatus: z.string().default('Accepted').optional(),
-      getBaseReportOnPending: z.boolean().default(true).optional(),
-      bootWithRejectedVariables: z.boolean().default(true).optional(),
-      autoAccept: z.boolean().default(true).optional(),
-      endpointPrefix: z.string().default('/configuration').optional(),
-    }),
-
-    evdriver: z.object({
-      endpointPrefix: z.string().default('/evdriver').optional(),
-    }),
-
-    monitoring: z.object({
-      endpointPrefix: z.string().default('/monitoring').optional(),
-    }),
-
-    reporting: z.object({
-      endpointPrefix: z.string().default('/reporting').optional(),
-    }),
-
-    smartcharging: z.object({
-      endpointPrefix: z.string().default('/smartcharging').optional(),
-    }),
-
-    tenant: z.object({
-      endpointPrefix: z.string().default('/tenant').optional(),
-    }),
-
-    transactions: z.object({
-      endpointPrefix: z.string().default('/transactions').optional(),
-      costUpdatedInterval: z.number().int().positive().default(60).optional(),
-    }),
-  }),
-
-  util: z.object({
-    cache: z
-      .object({
-        memory: z.boolean().optional(),
-        redis: z
-          .object({
-            host: z.string().default('localhost').optional(),
-            port: z.number().int().positive().default(6379).optional(),
-          })
-          .optional(),
-      })
-      .refine((obj) => obj.memory || obj.redis, {
-        message: 'A cache implementation must be set',
-      }),
-
-    messageBroker: z
-      .object({
-        amqp: z
-          .object({
-            url: z.string(),
-            exchange: z.string(),
-          })
-          .optional(),
-        kafka: z
-          .object({
-            topicPrefix: z.string().optional(),
-            topicName: z.string().optional(),
-            brokers: z.array(z.string()),
-            sasl: z
-              .object({
-                mechanism: z.string(),
-                username: z.string(),
-                password: z.string(),
-              })
-              .optional(),
-          })
-          .optional(),
-      })
-      .refine((obj) => obj.amqp || obj.kafka, {
-        message: 'A message broker implementation must be set',
-      }),
-
-    swagger: z
-      .object({
-        path: z.string().default('/docs').optional(),
-        logoPath: z.string(),
-        exposeData: z.boolean().default(true).optional(),
-        exposeMessage: z.boolean().default(true).optional(),
-      })
-      .optional(),
-
-    certificateAuthority: z.object({
-      v2gCA: z
-        .object({
-          name: z.enum(['hubject']).default('hubject'),
-          hubject: z
-            .object({
-              baseUrl: z
-                .string()
-                .default('https://open.plugncharge-test.hubject.com'),
-              tokenUrl: z
-                .string()
-                .default(
-                  'https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token',
-                ),
-              isoVersion: z
-                .enum(['ISO15118-2', 'ISO15118-20'])
-                .default('ISO15118-2'),
-            })
-            .optional(),
-        })
-        .refine((obj) => {
-          if (obj.name === 'hubject') {
-            return obj.hubject;
-          }
-          return false;
-        }),
-      chargingStationCA: z
-        .object({
-          name: z.enum(['acme']).default('acme'),
-          acme: z
-            .object({
-              env: z.enum(['staging', 'production']).default('staging'),
-              accountKeyFilePath: z.string(),
-              email: z.string(),
-            })
-            .optional(),
-        })
-        .refine((obj) => {
-          if (obj.name === 'acme') {
-            return obj.acme;
-          }
-          return false;
-        }),
-    }),
-
-    graphql: z.object({
-      url: z.string(),
-      adminSecret: z.string(),
-    }),
-  }),
-
-  logLevel: z.number().min(0).max(6).default(2).optional(),
-  maxCallLengthSeconds: z.number().int().positive().default(5).optional(),
-  maxCachingSeconds: z.number().int().positive().default(10).optional(),
-
+  // OCPI Server configuration
   ocpiServer: z.object({
     host: z.string().default('0.0.0.0').optional(),
     port: z.number().int().positive().default(8085).optional(),
   }),
 
-  userPreferences: z
-    .object({
-      telemetryConsent: z.boolean().default(false).optional(),
-    })
-    .optional(),
-});
-
-export type OcpiConfigInput = z.infer<typeof ocpiConfigInputSchema>;
-
-/**
- * Processed/validated OCPI Configuration Schema
- */
-export const ocpiConfigSchema = z.object({
-  env: z.enum(['development', 'production']),
-
-  centralSystem: z.object({
-    host: z.string(),
-    port: z.number().int().positive(),
-  }),
-
-  modules: z.object({
-    certificates: z
+  // OCPI Module configuration
+  ocpiModules: z.object({
+    credentials: z
       .object({
-        endpointPrefix: z.string(),
+        endpointPrefix: z.string().default('/credentials').optional(),
       })
       .optional(),
 
-    configuration: z.object({
-      heartbeatInterval: z.number().int().positive(),
-      bootRetryInterval: z.number().int().positive(),
-      unknownChargerStatus: z.string(),
-      getBaseReportOnPending: z.boolean(),
-      bootWithRejectedVariables: z.boolean(),
-      autoAccept: z.boolean(),
-      endpointPrefix: z.string(),
-    }),
+    versions: z
+      .object({
+        endpointPrefix: z.string().default('/versions').optional(),
+      })
+      .optional(),
 
-    evdriver: z.object({
-      endpointPrefix: z.string(),
-    }),
+    locations: z
+      .object({
+        endpointPrefix: z.string().default('/locations').optional(),
+      })
+      .optional(),
 
-    monitoring: z.object({
-      endpointPrefix: z.string(),
-    }),
+    sessions: z
+      .object({
+        endpointPrefix: z.string().default('/sessions').optional(),
+      })
+      .optional(),
 
-    reporting: z.object({
-      endpointPrefix: z.string(),
-    }),
+    cdrs: z
+      .object({
+        endpointPrefix: z.string().default('/cdrs').optional(),
+      })
+      .optional(),
 
-    smartcharging: z.object({
-      endpointPrefix: z.string(),
-    }),
+    tokens: z
+      .object({
+        endpointPrefix: z.string().default('/tokens').optional(),
+      })
+      .optional(),
 
-    tenant: z.object({
-      endpointPrefix: z.string(),
-    }),
+    tariffs: z
+      .object({
+        endpointPrefix: z.string().default('/tariffs').optional(),
+      })
+      .optional(),
 
-    transactions: z.object({
-      endpointPrefix: z.string(),
-      costUpdatedInterval: z.number().int().positive(),
-    }),
+    chargingProfiles: z
+      .object({
+        endpointPrefix: z.string().default('/chargingprofiles').optional(),
+      })
+      .optional(),
+
+    commands: z
+      .object({
+        endpointPrefix: z.string().default('/commands').optional(),
+      })
+      .optional(),
   }),
 
-  util: z.object({
-    cache: z.object({
+  // Database configuration (required for OCPI data persistence)
+  database: z.object({
+    host: z.string().default('localhost').optional(),
+    port: z.number().int().positive().default(5432).optional(),
+    database: z.string().default('ocpi').optional(),
+    username: z.string().default('ocpi').optional(),
+    password: z.string().default('').optional(),
+    sync: z.boolean().default(false).optional(),
+  }),
+
+  // Cache configuration (required for OCPI token caching)
+  cache: z
+    .object({
       memory: z.boolean().optional(),
       redis: z
         .object({
-          host: z.string(),
-          port: z.number().int().positive(),
+          host: z.string().default('localhost').optional(),
+          port: z.number().int().positive().default(6379).optional(),
         })
         .optional(),
+    })
+    .refine((obj) => obj.memory || obj.redis, {
+      message: 'A cache implementation must be set',
     }),
 
-    messageBroker: z.object({
+  // Optional message broker for integration
+  messageBroker: z
+    .object({
       amqp: z
         .object({
           url: z.string(),
@@ -266,60 +123,150 @@ export const ocpiConfigSchema = z.object({
             .optional(),
         })
         .optional(),
-    }),
+    })
+    .optional(),
 
-    swagger: z
-      .object({
-        path: z.string(),
-        logoPath: z.string(),
-        exposeData: z.boolean(),
-        exposeMessage: z.boolean(),
-      })
-      .optional(),
+  // Optional Swagger documentation
+  swagger: z
+    .object({
+      path: z.string().default('/docs').optional(),
+      logoPath: z.string(),
+      exposeData: z.boolean().default(true).optional(),
+      exposeMessage: z.boolean().default(true).optional(),
+    })
+    .optional(),
 
-    certificateAuthority: z.object({
-      v2gCA: z.object({
-        name: z.enum(['hubject']),
-        hubject: z
-          .object({
-            baseUrl: z.string(),
-            tokenUrl: z.string(),
-            isoVersion: z.enum(['ISO15118-2', 'ISO15118-20']),
-          })
-          .optional(),
-      }),
-      chargingStationCA: z.object({
-        name: z.enum(['acme']),
-        acme: z
-          .object({
-            env: z.enum(['staging', 'production']),
-            accountKeyFilePath: z.string(),
-            email: z.string(),
-          })
-          .optional(),
-      }),
-    }),
+  // OCPI-specific settings
+  logLevel: z.number().min(0).max(6).default(2).optional(),
+  defaultPageLimit: z.number().int().positive().default(50).optional(),
+  maxPageLimit: z.number().int().positive().default(1000).optional(),
+});
 
-    graphql: z.object({
-      url: z.string(),
-      adminSecret: z.string(),
-    }),
-  }),
+export type OcpiConfigInput = z.infer<typeof ocpiConfigInputSchema>;
 
-  logLevel: z.number().min(0).max(6),
-  maxCallLengthSeconds: z.number().int().positive(),
-  maxCachingSeconds: z.number().int().positive(),
+/**
+ * Processed/validated OCPI Configuration Schema
+ */
+export const ocpiConfigSchema = z.object({
+  env: z.enum(['development', 'production']),
 
   ocpiServer: z.object({
     host: z.string(),
     port: z.number().int().positive(),
   }),
 
-  userPreferences: z
+  ocpiModules: z.object({
+    credentials: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    versions: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    locations: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    sessions: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    cdrs: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    tokens: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    tariffs: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    chargingProfiles: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+
+    commands: z
+      .object({
+        endpointPrefix: z.string(),
+      })
+      .optional(),
+  }),
+
+  database: z.object({
+    host: z.string(),
+    port: z.number().int().positive(),
+    database: z.string(),
+    username: z.string(),
+    password: z.string(),
+    sync: z.boolean(),
+  }),
+
+  cache: z.object({
+    memory: z.boolean().optional(),
+    redis: z
+      .object({
+        host: z.string(),
+        port: z.number().int().positive(),
+      })
+      .optional(),
+  }),
+
+  messageBroker: z
     .object({
-      telemetryConsent: z.boolean(),
+      amqp: z
+        .object({
+          url: z.string(),
+          exchange: z.string(),
+        })
+        .optional(),
+      kafka: z
+        .object({
+          topicPrefix: z.string().optional(),
+          topicName: z.string().optional(),
+          brokers: z.array(z.string()),
+          sasl: z
+            .object({
+              mechanism: z.string(),
+              username: z.string(),
+              password: z.string(),
+            })
+            .optional(),
+        })
+        .optional(),
     })
     .optional(),
+
+  swagger: z
+    .object({
+      path: z.string(),
+      logoPath: z.string(),
+      exposeData: z.boolean(),
+      exposeMessage: z.boolean(),
+    })
+    .optional(),
+
+  logLevel: z.number().min(0).max(6),
+  defaultPageLimit: z.number().int().positive(),
+  maxPageLimit: z.number().int().positive(),
 });
 
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;

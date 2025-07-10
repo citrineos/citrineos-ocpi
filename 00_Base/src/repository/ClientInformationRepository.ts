@@ -1,6 +1,5 @@
 import { Service } from 'typedi';
 import { SequelizeRepository } from '@citrineos/data';
-import { ServerConfig } from '../config/ServerConfig';
 import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { SystemConfig, UnauthorizedException } from '@citrineos/base';
 import { ClientInformation } from '../model/ClientInformation';
@@ -8,7 +7,10 @@ import { OcpiNamespace } from '../util/OcpiNamespace';
 import { ILogObj, Logger } from 'tslog';
 import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
 import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole, ServerCredentialsRoleProps } from '../model/ServerCredentialsRole';
+import {
+  ServerCredentialsRole,
+  ServerCredentialsRoleProps,
+} from '../model/ServerCredentialsRole';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ServerCredentialsRoleRepository } from './ServerCredentialsRoleRepository';
 import { ClientVersion } from '../model/ClientVersion';

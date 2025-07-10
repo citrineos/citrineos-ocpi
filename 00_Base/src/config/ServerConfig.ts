@@ -1,68 +1,38 @@
-import { Service } from 'typedi';
-import { Enum } from '../util/decorators/Enum';
-import { IsInt, IsNotEmpty, IsPositive, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import {
-  Env,
-  LogLevel,
-  SequelizeConfig,
-  ServerConfigCentralSystem,
-  ServerConfigData,
-  ServerConfigHostPort,
-  ServerConfigModules,
-  ServerConfigUtil,
-} from './sub';
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache 2.0
 
-@Service()
-export class ServerConfig {
-  @Enum(Env, 'Env')
-  @IsNotEmpty()
-  env = Env.DEVELOPMENT;
+/**
+ * Minimal ServerConfig compatibility interface for OCPI
+ * This provides just enough structure for existing repositories to work
+ * without requiring the full citrineos-core ServerConfig
+ */
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigData)
-  @ValidateNested()
-  centralSystem!: ServerConfigCentralSystem;
+export enum Env {
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+}
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigModules)
-  @ValidateNested()
-  modules!: ServerConfigModules;
+export interface SequelizeConfig {
+  host: string;
+  port: number;
+  database: string;
+  dialect: string;
+  username: string;
+  password: string;
+  storage: string;
+  sync: boolean;
+  alter?: boolean;
+  maxRetries?: number;
+  retryDelay?: number;
+}
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigData)
-  @ValidateNested()
-  data!: ServerConfigData;
+export interface ServerConfigData {
+  sequelize: SequelizeConfig;
+}
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigUtil)
-  @ValidateNested()
-  util!: ServerConfigUtil;
-
-  @Enum(LogLevel, 'LogLevel')
-  @IsNotEmpty()
-  logLevel: LogLevel;
-
-  @IsInt()
-  @IsPositive()
-  @IsNotEmpty()
-  maxCallLengthSeconds: number;
-
-  @IsInt()
-  @IsPositive()
-  @IsNotEmpty()
-  maxCachingSeconds: number;
-
-  @Type(() => ServerConfigHostPort)
-  ocpiServer: ServerConfigHostPort;
-
-  constructor() {
-    this.data = new ServerConfigData();
-    this.data.sequelize = new SequelizeConfig();
-    this.util = new ServerConfigUtil();
-    this.logLevel = LogLevel.DEBUG;
-    this.ocpiServer = new ServerConfigHostPort('0.0.0.0', 8085);
-    this.maxCallLengthSeconds = 30;
-    this.maxCachingSeconds = 30;
-  }
+export interface ServerConfig {
+  env: Env;
+  data: ServerConfigData;
+  logLevel: number;
 }

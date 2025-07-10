@@ -35,7 +35,7 @@ import addFormats from 'ajv-formats';
 import fastify, { type FastifyInstance } from 'fastify';
 import { type ILogObj, Logger } from 'tslog';
 import { getOcpiSystemConfig } from '../../00_Base/src/config/loader';
-import { createServerConfigFromOcpi } from '../../00_Base/src/config/configBridge';
+import { createServerConfigFromOcpiConfig } from './config/simpleConfigBridge';
 import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
 import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
 import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
@@ -112,7 +112,7 @@ export class CitrineOSServer {
    * Constructor for the class.
    *
    * @param {EventGroup} appName - app type
-   * @param {ServerConfig} config - config
+   * @param {OcpiConfig} config - config
    * @param {FastifyInstance} server - optional Fastify server instance
    * @param {Ajv} ajv - optional Ajv JSON schema validator instance
    * @param {ICache} cache - cache
@@ -566,7 +566,7 @@ export class CitrineOSServer {
 
   private startOcpiServer() {
     this.ocpiServer = new OcpiServer(
-      this._config as ServerConfig,
+      this._config,
       this._cache,
       this._logger,
       this.getOcpiModuleConfig(),
@@ -700,8 +700,22 @@ export class CitrineOSServer {
 }
 
 // Load config using new OCPI config system
-const ocpiConfig = getOcpiSystemConfig();
-const serverConfig = createServerConfigFromOcpi(ocpiConfig);
+import { createDockerOcpiConfig } from './config/envs/docker';
+import { createLocalOcpiConfig } from './config/envs/local';
+
+function getServerOcpiConfig() {
+  switch (process.env.APP_ENV) {
+    case 'docker':
+      return createDockerOcpiConfig();
+    case 'local':
+      return createLocalOcpiConfig();
+    default:
+      return createLocalOcpiConfig();
+  }
+}
+
+const ocpiConfig = getOcpiSystemConfig(getServerOcpiConfig());
+const serverConfig = createServerConfigFromOcpiConfig(ocpiConfig);
 
 new CitrineOSServer(process.env.APP_NAME as EventGroup, serverConfig)
   .run()

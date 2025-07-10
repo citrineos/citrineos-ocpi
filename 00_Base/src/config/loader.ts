@@ -5,7 +5,6 @@
 import { OcpiConfig, OcpiConfigInput } from './ocpi.types';
 import { loadOcpiConfig } from './defineOcpiConfig';
 import { createLocalOcpiConfig } from './envs/local';
-import { createDockerOcpiConfig } from './envs/docker';
 import { ILogObj, Logger } from 'tslog';
 
 /**
@@ -16,7 +15,9 @@ function getDefaultOcpiConfig(): OcpiConfigInput {
     case 'local':
       return createLocalOcpiConfig();
     case 'docker':
-      return createDockerOcpiConfig();
+      // For docker environment, we fall back to local config
+      // The docker-specific config should be provided by the Server
+      return createLocalOcpiConfig();
     default:
       return createLocalOcpiConfig();
   }
