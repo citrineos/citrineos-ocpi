@@ -22,7 +22,7 @@ export class ServerCredentialsRoleRepository extends SequelizeRepository<ServerC
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.ServerCredentialsRole,
       logger,
       ocpiSequelizeInstance.sequelize,

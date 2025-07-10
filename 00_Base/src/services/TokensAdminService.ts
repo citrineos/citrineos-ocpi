@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Inject, Service } from 'typedi';
+import { Service } from 'typedi';
 import { OcpiLogger } from '../util/OcpiLogger';
 import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
 import { TokensClientApi } from '../trigger/TokensClientApi';
@@ -12,11 +12,13 @@ import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { CredentialsService } from './CredentialsService';
-import { ClientInformation, ClientInformationProps } from '../model/ClientInformation';
+import {
+  ClientInformation,
+  ClientInformationProps,
+} from '../model/ClientInformation';
 import { Op } from 'sequelize';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { AsyncJobRequest } from '../model/AsyncJobRequest';
-import { ITokensDatasource } from '../datasources/ITokensDatasource';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { UPDATE_TOKEN_MUTATION } from '../graphql/queries/token.queries';
 import { TokenDTO } from '../model/DTO/TokenDTO';
@@ -261,7 +263,10 @@ export class TokensAdminService {
     for (const token of tokens) {
       try {
         const variables = { token };
-        const result = await this.ocpiGraphqlClient.request<any>(UPDATE_TOKEN_MUTATION, variables);
+        const result = await this.ocpiGraphqlClient.request<any>(
+          UPDATE_TOKEN_MUTATION,
+          variables,
+        );
         const updatedToken = result.updateToken;
         if (!updatedToken) {
           this.logger.error(`Failed to update token ${token.uid}`);

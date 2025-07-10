@@ -1,8 +1,8 @@
-import { CacheWrapper, OcpiModule, ServerConfig } from '@citrineos/ocpi-base';
+import { CacheWrapper, OcpiModule, OcpiConfig } from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 
 import { CredentialsModuleApi } from './module/CredentialsModuleApi';
-import { Service } from 'typedi';
+import { Service, Container } from 'typedi';
 import { ILogObj, Logger } from 'tslog';
 import { CredentialsHandlers } from './module/CredentialsHandlers';
 
@@ -16,14 +16,16 @@ export class CredentialsModule implements OcpiModule {
   sender!: IMessageSender;
 
   constructor(
-    readonly config: ServerConfig,
+    readonly config: OcpiConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
 
   init(_handler: IMessageHandler, _sender: IMessageSender): void {
+    // Get the compatible ServerConfig from the container for legacy handlers
+    const serverConfig = Container.get('ServerConfig');
     new CredentialsHandlers(
-      this.config as SystemConfig,
+      serverConfig as SystemConfig,
       this.cacheWrapper.cache,
       this.sender,
       this.handler,

@@ -14,7 +14,7 @@ export class SessionChargingProfileRepository extends SequelizeRepository<Sessio
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       'SessionChargingProfile',
       logger,
       ocpiSequelizeInstance.sequelize,

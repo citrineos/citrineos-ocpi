@@ -34,7 +34,8 @@ import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-
 import addFormats from 'ajv-formats';
 import fastify, { type FastifyInstance } from 'fastify';
 import { type ILogObj, Logger } from 'tslog';
-import { systemConfig } from './config';
+import { getOcpiSystemConfig } from '@citrineos/ocpi-base';
+import { createServerConfigFromOcpiConfig } from './config/simpleConfigBridge';
 import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
 import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
 import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
@@ -67,7 +68,12 @@ import {
   MessageRouterImpl,
   WebhookDispatcher,
 } from '@citrineos/ocpprouter';
-import { Container, OcpiServer, ServerConfig } from '@citrineos/ocpi-base';
+import {
+  Container,
+  OcpiServer,
+  ServerConfig,
+  OcpiConfig,
+} from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
@@ -90,6 +96,7 @@ export class CitrineOSServer {
    * Fields
    */
   private readonly _config: ServerConfig;
+  private readonly _ocpiConfig: OcpiConfig;
   private readonly _logger: Logger<ILogObj>;
   private readonly _server: FastifyInstance;
   private readonly _cache: ICache;
@@ -111,7 +118,7 @@ export class CitrineOSServer {
    * Constructor for the class.
    *
    * @param {EventGroup} appName - app type
-   * @param {ServerConfig} config - config
+   * @param {OcpiConfig} config - config
    * @param {FastifyInstance} server - optional Fastify server instance
    * @param {Ajv} ajv - optional Ajv JSON schema validator instance
    * @param {ICache} cache - cache
@@ -120,22 +127,24 @@ export class CitrineOSServer {
   constructor(
     appName: string,
     config: ServerConfig,
+    ocpiConfig: OcpiConfig,
     server?: FastifyInstance,
     ajv?: Ajv,
     cache?: ICache,
-    fileAccess?: IFileAccess,
+    _fileAccess?: IFileAccess,
   ) {
     // Set event group
     this.eventGroup = eventGroupFromString(appName);
 
     // Set system config
     // TODO: Create and export config schemas for each util module, such as amqp, redis, kafka, etc, to avoid passing them possibly invalid configuration
-    if (!config.util.messageBroker.amqp) {
-      throw new Error(
-        'This server implementation requires amqp configuration for rabbitMQ.',
-      );
-    }
+    // if (!config.util.messageBroker.amqp) {
+    //   throw new Error(
+    //     'This server implementation requires amqp configuration for rabbitMQ.',
+    //   );
+    // }
     this._config = config;
+    this._ocpiConfig = ocpiConfig;
 
     // Create server instance
     this._server =
@@ -167,7 +176,7 @@ export class CitrineOSServer {
     let directusUtil;
     if (this._config.util.directus?.generateFlows) {
       directusUtil = new DirectusUtil(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._logger,
       );
       this._server.addHook(
@@ -182,7 +191,15 @@ export class CitrineOSServer {
     }
 
     // Initialize File Access Implementation
-    this._fileAccess = this.initFileAccess(fileAccess, directusUtil);
+    // For OCPI, we don't use file access, so provide a no-op implementation
+    this._fileAccess = this.initFileAccess(
+      {
+        getFileURL: () => 'file://localhost/not-implemented',
+        uploadFile: async () => 'not-implemented',
+        getFile: async () => new Uint8Array(0),
+      } as unknown as IFileAccess,
+      directusUtil,
+    );
 
     // Register AJV for schema validation
     this.registerAjv();
@@ -242,11 +259,17 @@ export class CitrineOSServer {
   }
 
   protected _createSender(): IMessageSender {
-    return new RabbitMqSender(this._config as SystemConfig, this._logger);
+    return new RabbitMqSender(
+      this._config as unknown as SystemConfig,
+      this._logger,
+    );
   }
 
   protected _createHandler(): IMessageHandler {
-    return new RabbitMqReceiver(this._config as SystemConfig, this._logger);
+    return new RabbitMqReceiver(
+      this._config as unknown as SystemConfig,
+      this._logger,
+    );
   }
 
   protected getOcpiModuleConfig() {
@@ -325,8 +348,8 @@ export class CitrineOSServer {
   private initLogger() {
     return new Logger<ILogObj>({
       name: 'CitrineOS Logger',
-      minLevel: systemConfig.logLevel,
-      hideLogPositionForProduction: systemConfig.env === 'production',
+      minLevel: this._config.logLevel,
+      hideLogPositionForProduction: this._config.env === 'production',
       // Disable colors for cloud deployment as some cloud logging environments such as cloudwatch can not interpret colors
       stylePrettyLogs: process.env.DEPLOYMENT_TARGET !== 'cloud',
     });
@@ -334,7 +357,7 @@ export class CitrineOSServer {
 
   private initDb() {
     this._sequelizeInstance = sequelize.DefaultSequelizeInstance.getInstance(
-      this._config as SystemConfig,
+      this._config as unknown as SystemConfig,
       this._logger,
     );
   }
@@ -355,7 +378,7 @@ export class CitrineOSServer {
 
   private initSwagger() {
     if (this._config.util.swagger) {
-      initSwagger(this._config as SystemConfig, this._server);
+      initSwagger(this._config as unknown as SystemConfig, this._server);
     }
   }
 
@@ -370,13 +393,16 @@ export class CitrineOSServer {
   private initNetworkConnection() {
     this._authenticator = new Authenticator(
       new UnknownStationFilter(
-        new sequelize.SequelizeLocationRepository(this._config as SystemConfig, this._logger),
+        new sequelize.SequelizeLocationRepository(
+          this._config as unknown as SystemConfig,
+          this._logger,
+        ),
         this._logger,
       ),
       new ConnectedStationFilter(this._cache, this._logger),
       new BasicAuthenticationFilter(
         new sequelize.SequelizeDeviceModelRepository(
-          this._config as SystemConfig,
+          this._config as unknown as SystemConfig,
           this._logger,
         ),
         this._logger,
@@ -390,7 +416,7 @@ export class CitrineOSServer {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const router = new MessageRouterImpl(
-      this._config as SystemConfig,
+      this._config as unknown as SystemConfig,
       this._cache,
       this._createSender(),
       this._createHandler(),
@@ -401,7 +427,7 @@ export class CitrineOSServer {
     );
 
     this._networkConnection = new WebsocketNetworkConnection(
-      this._config as SystemConfig,
+      this._config as unknown as SystemConfig,
       this._cache,
       this._authenticator,
       router,
@@ -419,7 +445,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.certificates) {
       const module = new CertificatesModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._createSender(),
         this._createHandler(),
@@ -443,7 +469,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.configuration) {
       const module = new ConfigurationModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._createSender(),
         this._createHandler(),
@@ -460,7 +486,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.evdriver) {
       const module = new EVDriverModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._createSender(),
         this._createHandler(),
@@ -474,7 +500,7 @@ export class CitrineOSServer {
         (this._repositoryStore as any).reservationRepository,
         (this._repositoryStore as any).callMessageRepository,
         new CertificateAuthorityService(
-          this._config as SystemConfig,
+          this._config as unknown as SystemConfig,
           this._logger,
         ),
         [this.ocpiRealTimeAuthorizer],
@@ -485,7 +511,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.monitoring) {
       const module = new MonitoringModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._createSender(),
         this._createHandler(),
@@ -501,7 +527,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.reporting) {
       const module = new ReportingModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._createSender(),
         this._createHandler(),
@@ -518,7 +544,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.smartcharging) {
       const module = new SmartChargingModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._createSender(),
         this._createHandler(),
@@ -532,7 +558,7 @@ export class CitrineOSServer {
 
     if (this._config.modules.transactions) {
       const module = new TransactionsModule(
-        this._config as SystemConfig,
+        this._config as unknown as SystemConfig,
         this._cache,
         this._fileAccess,
         this._createSender(),
@@ -562,7 +588,7 @@ export class CitrineOSServer {
 
   private startOcpiServer() {
     this.ocpiServer = new OcpiServer(
-      this._config as ServerConfig,
+      this._ocpiConfig,
       this._cache,
       this._logger,
       this.getOcpiModuleConfig(),
@@ -679,23 +705,59 @@ export class CitrineOSServer {
     fileAccess?: IFileAccess,
     directus?: IFileAccess,
   ): IFileAccess {
-    return (
-      fileAccess ||
-      directus ||
-      new DirectusUtil(this._config as SystemConfig, this._logger)
-    );
+    // For OCPI, we don't need DirectusUtil if not explicitly enabled
+    if (fileAccess || directus) {
+      return fileAccess || directus!;
+    }
+
+    // Only initialize DirectusUtil if it's actually enabled via config
+    if (this._config.util.directus?.generateFlows) {
+      return new DirectusUtil(
+        this._config as unknown as SystemConfig,
+        this._logger,
+      );
+    }
+
+    // For OCPI, return a minimal no-op file access implementation
+    return {
+      getFileURL: () => 'file://localhost/not-implemented',
+      uploadFile: async () => 'not-implemented',
+      getFile: async () => new Uint8Array(0),
+    } as unknown as IFileAccess;
   }
 
   private initRepositoryStore() {
     this._repositoryStore = new RepositoryStore(
-      this._config as SystemConfig,
+      this._config as unknown as SystemConfig,
       this._logger,
       this._sequelizeInstance,
     );
   }
 }
 
-new CitrineOSServer(process.env.APP_NAME as EventGroup, systemConfig)
+// Load config using new OCPI config system
+import { createDockerOcpiConfig } from './config/envs/docker';
+import { createLocalOcpiConfig } from './config/envs/local';
+
+function getServerOcpiConfig() {
+  switch (process.env.APP_ENV) {
+    case 'docker':
+      return createDockerOcpiConfig();
+    case 'local':
+      return createLocalOcpiConfig();
+    default:
+      return createLocalOcpiConfig();
+  }
+}
+
+const ocpiConfig = getOcpiSystemConfig(getServerOcpiConfig());
+const serverConfig = createServerConfigFromOcpiConfig(ocpiConfig);
+
+new CitrineOSServer(
+  process.env.APP_NAME as EventGroup,
+  serverConfig,
+  ocpiConfig,
+)
   .run()
   .catch((error: any) => {
     console.error(error);

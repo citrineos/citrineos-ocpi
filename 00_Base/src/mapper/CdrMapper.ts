@@ -59,8 +59,13 @@ export class CdrMapper extends BaseTransactionMapper {
         transactionIdToOcpiTariffMap,
       );
     } catch (error) {
-      // TODO: Handle Error
-      throw new Error();
+      // Log the original error for debugging
+      this.logger.error('Error mapping transactions to CDRs', { error });
+
+      // Preserve the original error context while providing a clear message
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to map transactions to CDRs: ${errorMessage}`);
     }
   }
 

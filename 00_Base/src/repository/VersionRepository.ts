@@ -24,7 +24,7 @@ export class VersionRepository extends SequelizeRepository<Version> {
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.Version,
       logger,
       ocpiSequelizeInstance.sequelize,

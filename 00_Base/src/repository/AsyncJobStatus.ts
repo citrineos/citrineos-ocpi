@@ -14,7 +14,7 @@ export class AsyncJobStatusRepository extends SequelizeRepository<AsyncJobStatus
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       'AsyncJobStatus',
       logger,
       ocpiSequelizeInstance.sequelize,

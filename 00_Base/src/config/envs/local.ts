@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { OcpiConfigInput } from '@citrineos/ocpi-base';
+import { OcpiConfigInput } from '../ocpi.types';
 
-export function createDockerOcpiConfig(): OcpiConfigInput {
+export function createLocalOcpiConfig(): OcpiConfigInput {
   return {
     env: 'development',
 
@@ -44,30 +44,29 @@ export function createDockerOcpiConfig(): OcpiConfigInput {
     },
 
     database: {
-      host: process.env.DB_HOST || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '5432'),
       database: process.env.DB_NAME || 'ocpi',
       username: process.env.DB_USER || 'ocpi',
-      password: process.env.DB_PASS || 'ocpi',
+      password: process.env.DB_PASS || '',
       sync: process.env.DB_SYNC === 'true',
     },
 
     cache: {
-      redis: {
-        host: process.env.REDIS_HOST || 'redis',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-      },
+      memory: true,
     },
 
-    messageBroker: {
-      amqp: {
-        url: process.env.AMQP_URL || 'amqp://guest:guest@rabbitmq:5672',
-        exchange: process.env.AMQP_EXCHANGE || 'ocpi',
-      },
-    },
+    messageBroker: process.env.AMQP_URL
+      ? {
+          amqp: {
+            url: process.env.AMQP_URL,
+            exchange: process.env.AMQP_EXCHANGE || 'ocpi',
+          },
+        }
+      : undefined,
 
     logLevel: parseInt(process.env.LOG_LEVEL || '2'),
-    defaultPageLimit: parseInt(process.env.DEFAULT_PAGE_LIMIT || '50'),
-    maxPageLimit: parseInt(process.env.MAX_PAGE_LIMIT || '1000'),
+    defaultPageLimit: 50,
+    maxPageLimit: 1000,
   };
 }

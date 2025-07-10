@@ -35,7 +35,8 @@ import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
 import { AsyncJobStatus } from '../model/AsyncJobStatus';
-import { ServerConfig } from '../config/ServerConfig';
+import { OcpiConfig } from '../config/ocpi.types';
+import { ServerConfig, Env } from '../config/ServerConfig';
 
 export const ON_DELETE_RESTRICT = 'RESTRICT';
 export const ON_DELETE_CASCADE = 'CASCADE';
@@ -43,36 +44,84 @@ export const ON_DELETE_NO_ACTION = 'NO_ACTION';
 export const ON_DELETE_SET_DEFAULT = 'SET_DEFAULT';
 export const ON_DELETE_SET_NULL = 'SET NULL';
 
+/**
+ * Helper function to create a minimal ServerConfig from OcpiConfig
+ * for compatibility with existing repositories
+ */
+function createCompatibleServerConfig(ocpiConfig: OcpiConfig): ServerConfig {
+  return {
+    env: ocpiConfig.env === 'development' ? Env.DEVELOPMENT : Env.PRODUCTION,
+    logLevel: ocpiConfig.logLevel,
+    data: {
+      sequelize: {
+        host: ocpiConfig.database.host,
+        port: ocpiConfig.database.port,
+        database: ocpiConfig.database.database,
+        dialect: 'postgres',
+        username: ocpiConfig.database.username,
+        password: ocpiConfig.database.password,
+        storage: '',
+        sync: ocpiConfig.database.sync,
+      },
+    },
+    centralSystem: {
+      host: ocpiConfig.ocpiServer.host,
+      port: ocpiConfig.ocpiServer.port,
+    },
+    util: {
+      cache: {
+        redis: ocpiConfig.cache.redis || { host: 'localhost', port: 6379 },
+      },
+      messageBroker: { amqp: false },
+      swagger: ocpiConfig.swagger,
+      networkConnection: { websocketServers: [] },
+    },
+    ocpiServer: ocpiConfig.ocpiServer,
+    modules: {},
+    maxCallLengthSeconds: 30,
+    maxCachingSeconds: 300,
+  };
+}
+
 @Service()
 export class OcpiSequelizeInstance {
   sequelize: Sequelize;
   private logger: Logger<ILogObj>;
-  private config: ServerConfig;
+  private config: OcpiConfig;
+  private compatibleConfig: ServerConfig;
 
-  constructor(config: ServerConfig) {
+  constructor(config: OcpiConfig) {
     this.logger = this.logger = new Logger<ILogObj>({
       name: OcpiSequelizeInstance.name,
     });
     this.config = config;
+    this.compatibleConfig = createCompatibleServerConfig(config);
     this.logger.info('Creating default Sequelize instance');
 
     this.sequelize = new Sequelize({
-      host: config.data.sequelize.host,
-      port: config.data.sequelize.port,
-      database: config.data.sequelize.database,
-      dialect: config.data.sequelize.dialect as Dialect,
-      username: config.data.sequelize.username,
-      password: config.data.sequelize.password,
-      storage: config.data.sequelize.storage,
+      host: config.database.host,
+      port: config.database.port,
+      database: config.database.database,
+      dialect: 'postgres' as Dialect,
+      username: config.database.username,
+      password: config.database.password,
+      storage: '',
       models: this.getModels(),
       logging: this.loggingCallback.bind(this),
     });
   }
 
+  /**
+   * Get a compatible ServerConfig for use with existing repositories
+   */
+  public getCompatibleConfig(): ServerConfig {
+    return this.compatibleConfig;
+  }
+
   public async initializeSequelize(): Promise<void> {
     let retryCount = 0;
-    const maxRetries = this.config.data.sequelize.maxRetries ?? 5;
-    const retryDelay = this.config.data.sequelize.retryDelay ?? 5000;
+    const maxRetries = 5; // Default retry count for OCPI
+    const retryDelay = 5000; // Default retry delay for OCPI
     while (retryCount < maxRetries) {
       try {
         await this.sequelize!.authenticate();
@@ -156,11 +205,7 @@ export class OcpiSequelizeInstance {
   }
 
   private syncDatabase(): void {
-    if (this.config.data.sequelize.alter) {
-      this.sequelize.sync({ alter: true }).then(() => {
-        this.logger.info('Database altered');
-      });
-    } else if (this.config.data.sequelize.sync) {
+    if (this.config.database.sync) {
       this.sequelize.sync({ force: true }).then(() => {
         this.logger.info('Database synchronized');
       });

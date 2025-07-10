@@ -23,7 +23,7 @@ export class EndpointRepository extends SequelizeRepository<Endpoint> {
     readonly serverCredentialsRoleRepository: ServerCredentialsRoleRepository,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.Endpoint,
       logger,
       ocpiSequelizeInstance.sequelize,

@@ -1,6 +1,11 @@
-import { OcpiSequelizeInstance, ServerConfig } from '@citrineos/ocpi-base';
+import {
+  OcpiSequelizeInstance,
+  getOcpiSystemConfig,
+} from '@citrineos/ocpi-base';
 
-const ocpiSequelizeInstance = new OcpiSequelizeInstance(new ServerConfig());
+// Create a minimal OCPI config for database sync using local environment
+const ocpiConfig = getOcpiSystemConfig();
+const ocpiSequelizeInstance = new OcpiSequelizeInstance(ocpiConfig);
 const sequelize = ocpiSequelizeInstance.sequelize;
 
 const syncDatabase = async () => {

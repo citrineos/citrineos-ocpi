@@ -19,7 +19,7 @@ export class OcpiEvseRepository extends SequelizeRepository<OcpiEvse> {
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.OcpiEvse,
       logger,
       ocpiSequelizeInstance.sequelize,

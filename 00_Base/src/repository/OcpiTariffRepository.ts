@@ -17,7 +17,7 @@ export class OcpiTariffRepository extends SequelizeRepository<OcpiTariff> {
     ocpiSequelizeInstance: OcpiSequelizeInstance,
   ) {
     super(
-      systemConfig as SystemConfig,
+      systemConfig as unknown as SystemConfig,
       OcpiNamespace.OcpiTariff,
       logger,
       ocpiSequelizeInstance.sequelize,
