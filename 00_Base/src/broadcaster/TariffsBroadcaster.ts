@@ -55,7 +55,7 @@ export class TariffsBroadcaster extends BaseBroadcaster {
         params,
         this.tariffsClientApi.putTariff,
       );
-    } catch (error) {
+    } catch (_error) {
       console.log(`Failed to broadcast ${tariff.id} tariff`);
     }
   }
@@ -74,7 +74,7 @@ export class TariffsBroadcaster extends BaseBroadcaster {
         params,
         this.tariffsClientApi.deleteTariff,
       );
-    } catch (error) {
+    } catch (_error) {
       console.error(`Failed to broadcast deletion of ${id} tariff`);
     }
   }

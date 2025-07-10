@@ -34,7 +34,8 @@ import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-
 import addFormats from 'ajv-formats';
 import fastify, { type FastifyInstance } from 'fastify';
 import { type ILogObj, Logger } from 'tslog';
-import { systemConfig } from './config';
+import { getOcpiSystemConfig } from '../../00_Base/src/config/loader';
+import { createServerConfigFromOcpi } from '../../00_Base/src/config/configBridge';
 import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
 import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
 import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
@@ -325,8 +326,8 @@ export class CitrineOSServer {
   private initLogger() {
     return new Logger<ILogObj>({
       name: 'CitrineOS Logger',
-      minLevel: systemConfig.logLevel,
-      hideLogPositionForProduction: systemConfig.env === 'production',
+      minLevel: this._config.logLevel,
+      hideLogPositionForProduction: this._config.env === 'production',
       // Disable colors for cloud deployment as some cloud logging environments such as cloudwatch can not interpret colors
       stylePrettyLogs: process.env.DEPLOYMENT_TARGET !== 'cloud',
     });
@@ -370,7 +371,10 @@ export class CitrineOSServer {
   private initNetworkConnection() {
     this._authenticator = new Authenticator(
       new UnknownStationFilter(
-        new sequelize.SequelizeLocationRepository(this._config as SystemConfig, this._logger),
+        new sequelize.SequelizeLocationRepository(
+          this._config as SystemConfig,
+          this._logger,
+        ),
         this._logger,
       ),
       new ConnectedStationFilter(this._cache, this._logger),
@@ -695,7 +699,11 @@ export class CitrineOSServer {
   }
 }
 
-new CitrineOSServer(process.env.APP_NAME as EventGroup, systemConfig)
+// Load config using new OCPI config system
+const ocpiConfig = getOcpiSystemConfig();
+const serverConfig = createServerConfigFromOcpi(ocpiConfig);
+
+new CitrineOSServer(process.env.APP_NAME as EventGroup, serverConfig)
   .run()
   .catch((error: any) => {
     console.error(error);

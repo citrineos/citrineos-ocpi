@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { Inject, Service } from 'typedi';
+import { Service } from 'typedi';
 import { SingleTokenRequest } from '../model/OcpiToken';
 import { OcpiLogger } from '../util/OcpiLogger';
 import { TokenDTO } from '../model/DTO/TokenDTO';
@@ -18,7 +18,6 @@ import {
   UpdateAuthorizationMutation,
 } from '../graphql/types/graphql';
 import { OcpiTokensMapper } from '../mapper/OcpiTokensMapper';
-import { Op } from 'sequelize';
 
 @Service()
 export class TokensService {
