@@ -131,7 +131,7 @@ export class CitrineOSServer {
     server?: FastifyInstance,
     ajv?: Ajv,
     cache?: ICache,
-    fileAccess?: IFileAccess,
+    _fileAccess?: IFileAccess,
   ) {
     // Set event group
     this.eventGroup = eventGroupFromString(appName);
@@ -191,7 +191,15 @@ export class CitrineOSServer {
     }
 
     // Initialize File Access Implementation
-    this._fileAccess = this.initFileAccess(fileAccess, directusUtil);
+    // For OCPI, we don't use file access, so provide a no-op implementation
+    this._fileAccess = this.initFileAccess(
+      {
+        getFileURL: () => 'file://localhost/not-implemented',
+        uploadFile: async () => 'not-implemented',
+        getFile: async () => new Uint8Array(0),
+      } as unknown as IFileAccess,
+      directusUtil,
+    );
 
     // Register AJV for schema validation
     this.registerAjv();
@@ -697,11 +705,25 @@ export class CitrineOSServer {
     fileAccess?: IFileAccess,
     directus?: IFileAccess,
   ): IFileAccess {
-    return (
-      fileAccess ||
-      directus ||
-      new DirectusUtil(this._config as unknown as SystemConfig, this._logger)
-    );
+    // For OCPI, we don't need DirectusUtil if not explicitly enabled
+    if (fileAccess || directus) {
+      return fileAccess || directus!;
+    }
+
+    // Only initialize DirectusUtil if it's actually enabled via config
+    if (this._config.util.directus?.generateFlows) {
+      return new DirectusUtil(
+        this._config as unknown as SystemConfig,
+        this._logger,
+      );
+    }
+
+    // For OCPI, return a minimal no-op file access implementation
+    return {
+      getFileURL: () => 'file://localhost/not-implemented',
+      uploadFile: async () => 'not-implemented',
+      getFile: async () => new Uint8Array(0),
+    } as unknown as IFileAccess;
   }
 
   private initRepositoryStore() {

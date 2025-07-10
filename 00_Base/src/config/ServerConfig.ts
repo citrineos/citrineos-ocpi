@@ -17,7 +17,7 @@ export interface SequelizeConfig {
   host: string;
   port: number;
   database: string;
-  dialect?: string;
+  dialect: string;
   username: string;
   password: string;
   storage: string;

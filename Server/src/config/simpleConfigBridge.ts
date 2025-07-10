@@ -38,6 +38,7 @@ export function createServerConfigFromOcpiConfig(
         username: ocpiConfig.database.username,
         storage: '',
         sync: ocpiConfig.database.sync,
+        dialect: 'postgres', // Default to postgres for OCPI
       },
     },
 

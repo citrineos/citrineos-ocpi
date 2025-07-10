@@ -28,6 +28,7 @@ export class EmspServer extends KoaServer {
             host: 'localhost',
             port: 5432,
             database: 'ocpi',
+            dialect: 'postgres',
             username: 'ocpi',
             password: 'ocpi',
             storage: '',
