@@ -65,9 +65,7 @@ export class CdrMapper extends BaseTransactionMapper {
       // Preserve the original error context while providing a clear message
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to map transactions to CDRs: ${errorMessage}`, {
-        cause: error,
-      });
+      throw new Error(`Failed to map transactions to CDRs: ${errorMessage}`);
     }
   }
 
