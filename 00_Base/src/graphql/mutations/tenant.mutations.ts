@@ -1,109 +1,36 @@
 import { gql } from 'graphql-request';
 
 export const CREATE_TENANT = gql`
-  mutation CreateTenant($input: TenantInput!) {
-    createTenant(input: $input) {
+  mutation CreateTenant($object: Tenants_insert_input!) {
+    insert_Tenants_one(object: $object) {
       id
-      country_code
-      party_id
-      businessDetails {
-        name
-        website
-        images {
-          url
-          category
-          type
-          width
-          height
-        }
-      }
-      partners {
-        id
-        country_code
-        party_id
-        role
-      }
     }
   }
 `;
 
 export const UPDATE_TENANT = gql`
-  mutation UpdateTenant($id: ID!, $input: TenantInput!) {
-    updateTenant(id: $id, input: $input) {
+  mutation UpdateTenant($id: Int!, $input: Tenants_set_input!) {
+    update_Tenants_by_pk(pk_columns: { id: $id }, _set: $input) {
       id
-      country_code
-      party_id
-      businessDetails {
-        name
-        website
-        images {
-          url
-          category
-          type
-          width
-          height
-        }
-      }
-      partners {
-        id
-        country_code
-        party_id
-        role
-      }
     }
   }
 `;
 
 export const CREATE_TENANT_PARTNER = gql`
-  mutation CreateTenantPartner($input: TenantPartnerInput!) {
-    createTenantPartner(input: $input) {
+  mutation CreateTenantPartner($object: TenantPartners_insert_input!) {
+    insert_TenantPartners_one(object: $object) {
       id
-      country_code
-      party_id
-      role
-      businessDetails {
-        name
-        website
-        images {
-          url
-          category
-          type
-          width
-          height
-        }
-      }
-      tenant {
-        id
-        country_code
-        party_id
-      }
     }
   }
 `;
 
-export const UPDATE_TENANT_PARTNER = gql`
-  mutation UpdateTenantPartner($id: ID!, $input: TenantPartnerInput!) {
-    updateTenantPartner(id: $id, input: $input) {
-      id
-      country_code
-      party_id
-      role
-      businessDetails {
-        name
-        website
-        images {
-          url
-          category
-          type
-          width
-          height
-        }
-      }
-      tenant {
-        id
-        country_code
-        party_id
-      }
+export const UPDATE_TENANT_PARTNER_PROFILE = gql`
+  mutation UpdateTenantPartnerProfile($partnerId: Int!, $input: jsonb!) {
+    update_TenantPartners(
+      where: { id: { _eq: $partnerId } }
+      _set: { partnerProfile: $input }
+    ) {
+      affected_rows
     }
   }
 `;

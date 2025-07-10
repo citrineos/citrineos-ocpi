@@ -1,27 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
-import {
-  BadRequestError,
-  InternalServerError,
-  NotFoundError,
-} from 'routing-controllers';
-import {
-  ClientCredentialsRole,
-  ClientCredentialsRoleProps,
-  fromCredentialsRoleDTO,
-} from '../model/ClientCredentialsRole';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { InternalServerError, NotFoundError } from 'routing-controllers';
+import { ClientInformation } from '../model/ClientInformation';
 import { OcpiLogger } from '../util/OcpiLogger';
-import { OcpiSequelizeInstance } from '../util/OcpiSequelizeInstance';
 import { VersionNumber } from '../model/VersionNumber';
 import { VersionsClientApi } from '../trigger/VersionsClientApi';
 import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException';
 import { NotRegisteredException } from '../exception/NotRegisteredException';
-import { BusinessDetails } from '../model/BusinessDetails';
-import { Image } from '../model/Image';
 import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
 import { Role } from '../model/Role';
 import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
@@ -30,59 +15,55 @@ import { ImageCategory } from '../model/ImageCategory';
 import { ImageType } from '../model/ImageType';
 import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { CpoTenant } from '../model/CpoTenant';
-import { ServerCredentialsRole } from '../model/ServerCredentialsRole';
-import { ServerVersion } from '../model/ServerVersion';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { CredentialsResponse } from '../model/CredentialsResponse';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
-import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
-import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
-import { validateVersionEndpointByModuleId } from '../util/validators/VersionsValidators';
-import { validateRole } from '../util/validators/CredentialsValidators';
-import { buildPutCredentialsParams } from '../trigger/param/credentials/PutCredentialsParams';
-import { AdminUpdateCredentialsRequestDTO } from '../model/DTO/AdminUpdateCredentialsRequestDTO';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { OcpiParams } from '../trigger/util/OcpiParams';
 import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 import { buildPostCredentialsParams } from '../trigger/param/credentials/PostCredentialsParams';
-import { GET_TENANT_PARTNER_BY_COUNTRY_AND_PARTY_ID } from '../graphql/queries/tenant.queries';
 import {
   DELETE_CPO_TENANT_BY_ID,
-  GET_CPO_TENANT_BY_CLIENT_COUNTRY_AND_PARTY_ID,
   GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
+  GET_TENANT_BY_ID,
 } from '../graphql/queries/cpoTenant.queries';
 import {
-  GET_CLIENT_INFORMATION_BY_SERVER_COUNTRY_AND_PARTY_ID,
-  GET_CLIENT_INFORMATION_BY_CLIENT_COUNTRY_AND_PARTY_ID,
-  DELETE_CLIENT_INFORMATION_BY_TOKEN,
   GET_CLIENT_INFORMATION_BY_SERVER_TOKEN,
+  GET_CLIENT_INFORMATION_BY_CLIENT_COUNTRY_AND_PARTY_ID,
+  DELETE_TENANT_PARTNER_BY_ID,
 } from '../graphql/queries/clientInformation.queries';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
 import { ClientVersion } from '../model/ClientVersion';
 import { Endpoint } from '../model/Endpoint';
 import {
   CREATE_TENANT,
-  CREATE_TENANT_PARTNER,
   UPDATE_TENANT,
+  CREATE_TENANT_PARTNER,
+  UPDATE_TENANT_PARTNER_PROFILE,
 } from '../graphql/mutations/tenant.mutations';
 import { GET_TENANT_VERSION_ENDPOINTS } from '../graphql/queries/tenantVersionEndpoints.queries';
 import {
   GetClientInformationByClientQuery,
-  GetClientInformationByServerQuery,
-  GetCpoTenantByClientQuery,
   GetCpoTenantByServerQuery,
-  GetTenantPartnerQuery,
+  GetTenantByIdQuery,
   TenantPartners,
+  GetTenantVersionEndpointsQuery,
+  GetClientInformationByServerTokenQuery,
   Tenants,
 } from '../graphql/types/graphql';
-// TODO: temporarily creating CPO credentials, but for multi tenant support, the server credentials
-// should only be made via the admin endpoints and not be hardcoded
+import { CpoTenant } from '../model/CpoTenant';
+import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
+import { ServerVersion } from '../model/ServerVersion';
+import { AdminUpdateCredentialsRequestDTO } from '../model/DTO/AdminUpdateCredentialsRequestDTO';
+import { buildPutCredentialsParams } from '../trigger/param/credentials/PutCredentialsParams';
+import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
+import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
+
 const CpoCredentialsRole = CredentialsRoleDTO.build(
   Role.CPO,
-  'COS', // todo is this okay?
+  'COS',
   'US',
   BusinessDetailsDTO.build(
     'CitrineOS',
@@ -101,217 +82,93 @@ const CpoCredentialsRole = CredentialsRoleDTO.build(
 @Service()
 export class CredentialsService {
   constructor(
-    readonly ocpiSequelizeInstance: OcpiSequelizeInstance,
     readonly logger: OcpiLogger,
     readonly ocpiGraphqlClient: OcpiGraphqlClient,
     readonly versionsClientApi: VersionsClientApi,
     readonly credentialsClientApi: CredentialsClientApi,
   ) {}
 
-  async getClientCredentialsRoleByCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<ClientCredentialsRole> {
-    const variables = { countryCode, partyId };
-    const response =
-      await this.ocpiGraphqlClient.request<GetTenantPartnerQuery>(
-        GET_TENANT_PARTNER_BY_COUNTRY_AND_PARTY_ID,
-        variables,
-      );
-    const partner = response.TenantPartners && response.TenantPartners[0];
-    if (!partner) {
-      const msg =
-        'Client credentials role not found for country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    const credentialRole = partner.partnerProfile.roles[0];
-    return {
-      country_code: partner.countryCode,
-      party_id: partner.partyId,
-      role: credentialRole.role,
-      business_details: credentialRole.business_details,
-      cpoTenantId: partner.Tenant.id,
-    } as unknown as ClientCredentialsRole;
-  }
+  private toClientInformation(partner: TenantPartners): ClientInformation {
+    const clientInfo = new ClientInformation();
+    clientInfo.id = partner.id;
+    clientInfo.clientToken = partner.partnerProfile.credentials.token;
+    clientInfo.serverToken = partner.Tenant.serverCredential.token;
+    clientInfo.registered = true;
 
-  async getClientTokenByClientCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<string> {
-    const clientInformation =
-      await this.getClientInformationByClientCountryCodeAndPartyId(
-        countryCode,
-        partyId,
-      );
-    if (
-      !clientInformation ||
-      !clientInformation[ClientInformationProps.clientToken]
-    ) {
-      const msg = `Client information and token not found for provided country code: ${countryCode}  and party id: ${partyId}`;
-      this.logger.error(msg);
-      throw new NotFoundError();
-    }
-    return clientInformation[ClientInformationProps.clientToken];
-  }
+    clientInfo.clientCredentialsRoles = partner.partnerProfile.roles.map(
+      (role: any) => ClientCredentialsRole.build(role),
+    );
 
-  async getServerCredentialsRoleByCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<ServerCredentialsRole> {
-    const variables = { countryCode, partyId };
-    const response =
-      await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
-        GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
-        variables,
-      );
-    const tenant = response.Tenants && response.Tenants[0];
-    if (
-      !tenant ||
-      !tenant.serverCredentialsRoles ||
-      tenant.serverCredentialsRoles.length === 0
-    ) {
-      const msg =
-        'Server credentials role not found for country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    const serverCredentialsRoles = tenant.serverCredentialsRoles[0];
-    return {
-      country_code: tenant.countryCode,
-      party_id: tenant.partyId,
-      role: serverCredentialsRoles.role,
-      business_details: serverCredentialsRoles.businessDetails,
-      cpoTenantId: tenant.id,
-    } as unknown as ServerCredentialsRole;
-  }
+    clientInfo.clientVersionDetails = [
+      ClientVersion.build({
+        version: partner.partnerProfile.version.version,
+        url: partner.partnerProfile.version.url,
+        endpoints: partner.partnerProfile.version.endpoints.map((ep: any) =>
+          Endpoint.build(ep),
+        ),
+      }),
+    ];
 
-  async getCpoTenantByServerCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<CpoTenant> {
-    const variables = { countryCode, partyId };
-    const response =
-      await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
-        GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
-        variables,
-      );
-    const tenant = response.Tenants && response.Tenants[0];
-    if (!tenant) {
-      const msg = 'Cpo Tenant not found for server country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    return {
-      serverCredentialsRoles: tenant.serverCredentialsRoles,
-      clientInformation: tenant.TenantPartners,
-    } as unknown as CpoTenant;
-  }
+    clientInfo.serverVersionDetails = partner.Tenant.serverVersions.map(
+      (version: any) =>
+        ServerVersion.build({
+          version: version.version,
+          url: version.url,
+          endpoints: version.endpoints.map((ep: any) => Endpoint.build(ep)),
+        }),
+    );
 
-  async getCpoTenantByClientCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<CpoTenant> {
-    const variables = { countryCode, partyId };
-    const response =
-      await this.ocpiGraphqlClient.request<GetCpoTenantByClientQuery>(
-        GET_CPO_TENANT_BY_CLIENT_COUNTRY_AND_PARTY_ID,
-        variables,
-      );
-    const tenant = response.Tenants && response.Tenants[0];
-    if (!tenant) {
-      const msg = 'Cpo Tenant not found for client country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    return {
-      serverCredentialsRoles: tenant.serverCredentialsRoles,
-      clientInformation: tenant.TenantPartners,
-    } as unknown as CpoTenant;
-  }
-
-  async getClientInformationByServerCountryCodeAndPartyId(
-    countryCode: string,
-    partyId: string,
-  ): Promise<any[]> {
-    const variables = { countryCode, partyId };
-    const response =
-      await this.ocpiGraphqlClient.request<GetClientInformationByServerQuery>(
-        GET_CLIENT_INFORMATION_BY_SERVER_COUNTRY_AND_PARTY_ID,
-        variables,
-      );
-    const tenants = response.Tenants;
-    if (!tenants || tenants.length === 0) {
-      const msg = 'Tenant not found for server country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
-    }
-    //TODO: this information needs to be looked into
-    return tenants.map((tenant) => ({
-      clientToken: tenant.TenantPartners[0].partnerProfile.credentials.token,
-      serverToken: tenant.serverCredential.token,
-      registered: true,
-      clientCredentialsRoles: tenant.TenantPartners[0].partnerProfile.roles,
-      clientVersionDetails: tenant.TenantPartners[0].partnerProfile.version,
-      serverVersionDetails: tenant.serverVersions,
-      cpoTenantId: tenant.id,
-    }));
+    clientInfo.cpoTenantId = partner.Tenant.id;
+    clientInfo.cpoTenant = partner.Tenant as unknown as CpoTenant;
+    return clientInfo;
   }
 
   async getClientInformationByClientCountryCodeAndPartyId(
     countryCode: string,
     partyId: string,
   ): Promise<ClientInformation> {
-    const variables = { countryCode, partyId };
     const response =
       await this.ocpiGraphqlClient.request<GetClientInformationByClientQuery>(
         GET_CLIENT_INFORMATION_BY_CLIENT_COUNTRY_AND_PARTY_ID,
-        variables,
+        { countryCode, partyId },
       );
-    const partners = response.TenantPartners;
-    if (!partners || partners.length === 0) {
-      const msg =
-        'Client information not found for client country code and party id';
-      this.logger.debug(msg, countryCode, partyId);
-      throw new NotFoundError(msg);
+    const partner = response.TenantPartners?.[0];
+    if (!partner) {
+      throw new NotFoundError(
+        'Client information not found for client country code and party id',
+      );
     }
-    const partner = partners[0];
-    return {
-      id: partner.id,
-      clientToken: partner.partnerProfile.credentials.token,
-      serverToken: partner.Tenant.serverCredential.token,
-      registered: true,
-      clientCredentialsRoles: partner.partnerProfile.roles,
-      clientVersionDetails: partner.partnerProfile.version,
-      serverVersionDetails: partner.Tenant.serverVersions[0],
-      cpoTenantId: partner.Tenant.id,
-      cpoTenant: partner.Tenant,
-    } as unknown as ClientInformation;
+    return this.toClientInformation(partner as TenantPartners);
   }
 
-  async getClientInformationByServerToken(token: string): Promise<any> {
-    const variables = { serverToken: token };
-    const response = await this.ocpiGraphqlClient.request<any>(
-      GET_CLIENT_INFORMATION_BY_SERVER_TOKEN,
-      variables,
-    );
-    const partners = response.tenantPartners;
-    if (!partners || partners.length === 0) {
-      this.logger.debug('Client information not found for token', token);
-      throw new NotFoundError('Credentials not found');
+  async getClientTokenByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<string> {
+    const clientInfo =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    if (!clientInfo.clientToken) {
+      throw new NotFoundError('Client token not found');
     }
-    const partner = partners[0];
-    return {
-      id: partner.id,
-      country_code: partner.countryCode,
-      party_id: partner.partyId,
-      role: partner.role,
-      serverToken: partner.serverToken,
-      clientToken: partner.clientToken,
-      registered: partner.registered,
-      business_details: partner.businessDetails,
-      tenant: partner.tenant,
-    };
+    return clientInfo.clientToken;
+  }
+
+  async getClientInformationByServerToken(
+    token: string,
+  ): Promise<ClientInformation> {
+    const response =
+      await this.ocpiGraphqlClient.request<GetClientInformationByServerTokenQuery>(
+        GET_CLIENT_INFORMATION_BY_SERVER_TOKEN,
+        { serverToken: token },
+      );
+    const partner = response.TenantPartners?.[0];
+    if (!partner) {
+      throw new NotFoundError('Credentials not found for server token');
+    }
+    return this.toClientInformation(partner as TenantPartners);
   }
 
   async postCredentials(
@@ -324,50 +181,41 @@ export class CredentialsService {
     if (clientInformation.registered) {
       throw new AlreadyRegisteredException();
     }
-    const freshVersionDetails = await this.getClientVersionDetails(
-      clientInformation,
+
+    const clientVersion = await this.getVersionDetails(
       version,
-      credentials,
+      credentials.url,
+      credentials.token,
     );
-    const transaction =
-      await this.ocpiSequelizeInstance.sequelize.transaction();
+    const newServerToken = uuidv4();
 
-    try {
-      const oldMatchingVersionDetails =
-        clientInformation.clientVersionDetails.find(
-          (versionDetails: ClientVersion) => versionDetails.version === version,
-        );
-      if (oldMatchingVersionDetails) {
-        await oldMatchingVersionDetails.destroy();
-      }
-      await freshVersionDetails.save();
-      clientInformation.setDataValue('clientVersionDetails', [
-        ...clientInformation.clientVersionDetails.filter(
-          (role: any) => role.version !== version,
-        ),
-        freshVersionDetails,
-      ]);
+    await this.ocpiGraphqlClient.request(UPDATE_TENANT_PARTNER_PROFILE, {
+      partnerId: clientInformation.id,
+      input: {
+        protocol: 'OCPI',
+        version: {
+          version: clientVersion.version,
+          url: clientVersion.url,
+          endpoints: clientVersion.endpoints,
+        },
+        roles: credentials.roles,
+        credentials: { token: credentials.token },
+      } as any,
+    });
 
-      const newToken = uuidv4();
-      clientInformation.clientToken = credentials.token;
-      clientInformation.serverToken = newToken;
-      clientInformation.registered = true;
-      const newClientCredentialsRoles = credentials.roles.map((role) =>
-        fromCredentialsRoleDTO(role),
-      );
+    await this.ocpiGraphqlClient.request(UPDATE_TENANT, {
+      id: clientInformation.cpoTenantId,
+      input: {
+        serverCredential: { token: newServerToken },
+      },
+    });
 
-      await this.updateClientCredentialRoles(
-        clientInformation,
-        newClientCredentialsRoles,
-      );
-      await clientInformation.save();
-      await transaction.commit();
-      return clientInformation;
-    } catch (error) {
-      this.logger.error('Error while posting credentials', error);
-      await transaction.rollback();
-      throw error;
-    }
+    clientInformation.clientToken = credentials.token;
+    clientInformation.serverToken = newServerToken;
+    clientInformation.registered = true;
+    clientInformation.clientCredentialsRoles = credentials.roles as any;
+
+    return clientInformation;
   }
 
   async putCredentials(
@@ -379,121 +227,172 @@ export class CredentialsService {
     if (!clientInformation.registered) {
       throw new NotRegisteredException();
     }
-    const newToken = uuidv4();
-    clientInformation.clientToken = credentials.token;
-    clientInformation.serverToken = newToken;
-    clientInformation.registered = true;
-    const newClientCredentialsRoles = credentials.roles.map((role) =>
-      fromCredentialsRoleDTO(role),
-    );
-    const transaction =
-      await this.ocpiSequelizeInstance.sequelize.transaction();
+    const newServerToken = uuidv4();
 
-    try {
-      await this.updateClientCredentialRoles(
-        clientInformation,
-        newClientCredentialsRoles,
-      );
-      await clientInformation.save();
-      await transaction.commit();
-    } catch (error) {
-      this.logger.error('Failed to update credentials', error);
-      await transaction.rollback();
-      throw error;
-    }
+    await this.ocpiGraphqlClient.request(UPDATE_TENANT_PARTNER_PROFILE, {
+      partnerId: clientInformation.id,
+      input: {
+        protocol: 'OCPI',
+        roles: credentials.roles,
+        credentials: { token: credentials.token },
+      } as any,
+    });
+
+    await this.ocpiGraphqlClient.request(UPDATE_TENANT, {
+      id: clientInformation.cpoTenantId,
+      input: {
+        serverCredential: { token: newServerToken },
+      },
+    });
+
+    clientInformation.clientToken = credentials.token;
+    clientInformation.serverToken = newServerToken;
+    clientInformation.clientCredentialsRoles = credentials.roles as any;
+
     return clientInformation;
   }
 
   async deleteCredentials(token: string): Promise<void> {
-    try {
-      // Use GraphQL mutation to delete client information by token
-      const variables = { token };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        DELETE_CLIENT_INFORMATION_BY_TOKEN,
-        variables,
+    const clientInfo = await this.getClientInformationByServerToken(token);
+    const response = await this.ocpiGraphqlClient.request<{
+      delete_TenantPartners: { affected_rows: number };
+    }>(DELETE_TENANT_PARTNER_BY_ID, { id: clientInfo.id });
+    if (response.delete_TenantPartners.affected_rows === 0) {
+      throw new NotFoundError(
+        'No client information found for the provided token',
       );
-      if (
-        !response.deleteClientInformation ||
-        response.deleteClientInformation.affected_rows === 0
-      ) {
-        throw new NotFoundError(
-          'No client information found for the provided token',
-        );
-      }
-      return;
-    } catch (e: any) {
-      throw new InternalServerError(
-        `Could not delete credentials, ${e.message}`,
-      ); // todo error handling
     }
   }
 
-  // TODO: add server details for multi tenant support
+  async getCpoTenantByClientCountryCodeAndPartyId(
+    countryCode: string,
+    partyId: string,
+  ): Promise<CpoTenant> {
+    const clientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        countryCode,
+        partyId,
+      );
+    if (!clientInformation.cpoTenant) {
+      throw new NotFoundError(
+        `Cpo Tenant not found for client country code ${countryCode} and party id ${partyId}`,
+      );
+    }
+    return clientInformation.cpoTenant;
+  }
+
   async registerCredentialsTokenA(
     versionNumber: VersionNumber,
     credentials: CredentialsDTO,
   ): Promise<ClientInformation> {
-    const credentialsTokenA = credentials.token;
+    const { url, token: credentialsTokenA, roles } = credentials;
 
-    const versionEndpointsResponse = await this.ocpiGraphqlClient.request<any>(
-      GET_TENANT_VERSION_ENDPOINTS,
-      { version: versionNumber },
-    );
-    const serverVersions =
-      versionEndpointsResponse.tenants &&
-      versionEndpointsResponse.tenants[0] &&
-      versionEndpointsResponse.tenants[0].versions;
-    if (!serverVersions || !serverVersions[0]) {
-      throw new NotFoundError('Version not found');
+    const versionEndpointsResponse =
+      await this.ocpiGraphqlClient.request<GetTenantVersionEndpointsQuery>(
+        GET_TENANT_VERSION_ENDPOINTS,
+        { version: versionNumber },
+      );
+    const serverVersionEndpoints =
+      versionEndpointsResponse.Tenants?.[0]?.serverVersions?.[0]?.endpoints;
+    if (!serverVersionEndpoints) {
+      throw new NotFoundError('Version endpoints not found');
     }
-    const serverVersion = serverVersions[0];
     const serverVersionUrl =
-      serverVersion.endpoints.find(
+      serverVersionEndpoints.find(
         (e: any) => e.identifier === ModuleId.Versions,
-      )?.url || 'https://plugfest.demo.citrineos.app:445/ocpi/versions';
+      )?.url || '';
 
     const clientVersion = await this.getVersionDetails(
       versionNumber,
-      credentials.url,
+      url,
       credentialsTokenA,
     );
-    if (!clientVersion) {
-      throw new NotFoundError(
-        'Did not successfully retrieve client version details',
-      );
-    }
-
     const credentialsTokenB = uuidv4();
 
-    // Use GraphQL mutations to create/update tenant, partner, and client information as needed
-    // (Assume storeServerCredentialsRoles and related logic already use GraphQL)
-    // For demo, we skip direct model instantiation and saving
-    // Instead, map the data as needed for OCPI
-    // You may want to add a mutation here to create client information if needed
+    const cpoRole = roles[0];
+    const tenantResponse =
+      await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
+        GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
+        { countryCode: cpoRole.country_code, partyId: cpoRole.party_id },
+      );
+    let tenant: any = tenantResponse.Tenants?.[0];
 
-    // Simulate fetching the created/updated client information (replace with actual GraphQL call if needed)
-    // For now, use getClientInformationByServerToken
+    if (!tenant) {
+      const createTenantResponse = await this.ocpiGraphqlClient.request<{
+        insert_Tenants_one: { id: number };
+      }>(CREATE_TENANT, {
+        object: {
+          name: cpoRole.business_details.name,
+          countryCode: cpoRole.country_code,
+          partyId: cpoRole.party_id,
+          serverCredential: { token: credentialsTokenB },
+          serverVersions: [
+            {
+              version: versionNumber,
+              url: serverVersionUrl,
+              endpoints: serverVersionEndpoints,
+            },
+          ],
+        },
+      });
+      const tenantId = createTenantResponse.insert_Tenants_one.id;
+      const tenantByIdResponse =
+        await this.ocpiGraphqlClient.request<GetTenantByIdQuery>(
+          GET_TENANT_BY_ID,
+          { id: tenantId },
+        );
+      tenant = tenantByIdResponse.Tenants_by_pk;
+    }
+
+    const createPartnerResponse = await this.ocpiGraphqlClient.request<{
+      insert_TenantPartners_one: { id: number };
+    }>(CREATE_TENANT_PARTNER, {
+      object: {
+        tenantId: tenant.id,
+        countryCode: cpoRole.country_code,
+        partyId: cpoRole.party_id,
+        partnerProfile: {
+          protocol: 'OCPI',
+          roles,
+          version: {
+            version: clientVersion.version,
+            url: clientVersion.url,
+            endpoints: clientVersion.endpoints,
+          },
+          credentials: { token: credentialsTokenA },
+        },
+      },
+    });
+    const partnerId = createPartnerResponse.insert_TenantPartners_one.id;
+
     const clientInformation =
-      await this.getClientInformationByServerToken(credentialsTokenA);
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        cpoRole.country_code,
+        cpoRole.party_id,
+      );
 
     const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
-    try {
-      const updatedClientInformation =
-        await this.performPostAndReturnSavedClientCredentials(
-          clientInformation,
-          clientCredentialsUrl,
-          versionNumber,
-          credentialsTokenA,
-          credentialsTokenB,
-          serverVersionUrl,
-        );
-      this.logger.debug('updatedClientInformation', updatedClientInformation);
-      return updatedClientInformation;
-    } catch (e: any) {
-      const msg = `Failed to register credentials - ${e.name} ${e.message}`;
-      this.logger.error(msg, e);
-      throw new BadRequestError(msg);
-    }
+    const postCredentialsResponse = await this.getPostCredentialsResponse(
+      clientCredentialsUrl,
+      versionNumber,
+      credentialsTokenA,
+      credentialsTokenB,
+      serverVersionUrl,
+    );
+
+    await this.ocpiGraphqlClient.request(UPDATE_TENANT_PARTNER_PROFILE, {
+      partnerId,
+      input: {
+        credentials: { token: postCredentialsResponse.data.token },
+        roles: postCredentialsResponse.data.roles,
+      },
+    });
+
+    clientInformation.clientToken = postCredentialsResponse.data.token;
+    clientInformation.clientCredentialsRoles = postCredentialsResponse.data
+      .roles as any;
+
+    return clientInformation;
   }
 
   async deleteTenant(
@@ -501,150 +400,33 @@ export class CredentialsService {
     versionNumber = VersionNumber.TWO_DOT_TWO_DOT_ONE,
   ): Promise<void> {
     const tenantResponse =
-      await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
-        GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
-        { tenantId },
+      await this.ocpiGraphqlClient.request<GetTenantByIdQuery>(
+        GET_TENANT_BY_ID,
+        { id: tenantId },
       );
-    const tenant = tenantResponse.Tenants && tenantResponse.Tenants[0];
+    const tenant = tenantResponse.Tenants_by_pk;
     if (!tenant) {
       throw new NotFoundError('CpoTenant not found');
     }
-    const serverCredentialsRoles = tenant.serverCredentialsRoles;
-    const serverCredentialsRole = serverCredentialsRoles[0];
 
-    // Fetch all client information for this tenant using GraphQL
-    const clientInformationsResponse =
-      await this.ocpiGraphqlClient.request<GetClientInformationByClientQuery>(
-        GET_CLIENT_INFORMATION_BY_SERVER_COUNTRY_AND_PARTY_ID,
-        {
-          countryCode: serverCredentialsRole.country_code,
-          partyId: serverCredentialsRole.party_id,
-        },
-      );
-    const clientInformations =
-      clientInformationsResponse.TenantPartners?.flatMap(
-        (t: any) => t.partners || [],
-      );
-    if (clientInformations && clientInformations.length > 0) {
-      for (const clientInformation of clientInformations) {
-        const clientCredentialsRoles =
-          clientInformation.clientCredentialsRoles || [];
-        for (const clientCredentialsRole of clientCredentialsRoles) {
-          await this.unregisterClientInformation(
-            clientInformation,
-            versionNumber,
-            clientCredentialsRole.country_code,
-            clientCredentialsRole.party_id,
-            serverCredentialsRole.country_code,
-            serverCredentialsRole.party_id,
-          );
-        }
-        // Use GraphQL mutation to delete client information by token
-        await this.deleteCredentials(clientInformation.clientToken);
-      }
-    }
-    // Use GraphQL mutation to delete the tenant (add mutation as needed)
-    await this.ocpiGraphqlClient.request<any>(DELETE_CPO_TENANT_BY_ID, {
-      id: tenantId,
-    });
-    return;
-  }
-
-  async unregisterClient(
-    request: UnregisterClientRequestDTO,
-    versionNumber = VersionNumber.TWO_DOT_TWO_DOT_ONE,
-  ): Promise<void> {
-    const serverPartyId = request.serverPartyId;
-    const serverCountryCode = request.serverCountryCode;
-    const clientPartyId = request.clientPartyId;
-    const clientCountryCode = request.clientCountryCode;
-    const clientInformations =
-      await this.getClientInformationByServerCountryCodeAndPartyId(
-        serverCountryCode,
-        serverPartyId,
-      );
-    if (!clientInformations) {
-      throw new NotFoundError(
-        `Client information not found for server party id ${serverPartyId} and server country code ${serverCountryCode}`,
-      );
-    }
-    const clientInformationMatches = this.getClientInformationMatches(
-      clientInformations,
-      clientCountryCode,
-      clientPartyId,
-    );
-    if (!clientInformationMatches || clientInformationMatches.length === 0) {
-      throw new NotFoundError(
-        `Client credentials roles not found for client party id ${clientPartyId} and client country code ${clientCountryCode}`,
-      );
-    }
-
-    for (const clientInformation of clientInformationMatches) {
+    for (const partner of tenant.TenantPartners) {
+      const clientInfo = this.toClientInformation(partner as TenantPartners);
       await this.unregisterClientInformation(
-        clientInformation,
-        versionNumber,
-        clientCountryCode,
-        clientPartyId,
-        serverCountryCode,
-        serverPartyId,
+        clientInfo,
+        VersionNumber.TWO_DOT_TWO_DOT_ONE,
+        partner.countryCode,
+        partner.partyId,
+        tenant.countryCode!,
+        tenant.partyId!,
       );
     }
-  }
 
-  async generateCredentialsTokenA(
-    credentialsRequest: AdminCredentialsRequestDTO,
-    versionNumber: VersionNumber,
-  ): Promise<CredentialsDTO> {
-    // The input roles must be CPO
-    const receivedRoles = credentialsRequest.roles;
-    validateRole(receivedRoles, Role.CPO);
-
-    // Fetch version endpoints from Tenant (GraphQL)
-    const versionEndpoints =
-      await this.getVersionEndpointsFromTenant(versionNumber);
-    validateVersionEndpointByModuleId(versionEndpoints, ModuleId.Credentials);
-
-    const storedServerCredentialsRoles: ServerCredentialsRole[] =
-      await this.storeServerCredentialsRoles(receivedRoles);
-
-    const credentialsTokenA = uuidv4();
-    // clientToken, clientCredentialsRoles and clientVersionDetails
-    // are added in the following post credentials requests based on the registration process
-    const clientInfo = await ClientInformation.create(
-      {
-        cpoTenantId: storedServerCredentialsRoles[0].cpoTenantId,
-        registered: false,
-        serverToken: credentialsTokenA,
-        serverVersionDetails: [
-          {
-            version: versionNumber,
-            url: credentialsRequest.url,
-            endpoints: versionEndpoints.map((endpoint) => ({
-              identifier: endpoint.identifier,
-              role: endpoint.role,
-              url: endpoint.url,
-            })),
-          },
-        ],
-      },
-      {
-        include: [
-          {
-            model: ServerVersion,
-            include: [Endpoint],
-          },
-        ],
-      },
-    );
-
-    const storedServerCredentialsRoleDTOs = storedServerCredentialsRoles.map(
-      (storedRole) => ServerCredentialsRole.toCredentialsRoleDTO(storedRole),
-    );
-    return CredentialsDTO.build(
-      clientInfo.serverToken,
-      clientInfo.serverVersionDetails[0].url,
-      storedServerCredentialsRoleDTOs,
-    );
+    const response = await this.ocpiGraphqlClient.request<{
+      delete_Tenants: { affected_rows: number };
+    }>(DELETE_CPO_TENANT_BY_ID, { id: tenantId });
+    if (response.delete_Tenants.affected_rows === 0) {
+      this.logger.warn(`Tenant with id ${tenantId} not found for deletion.`);
+    }
   }
 
   async regenerateCredentialsToken(
@@ -655,16 +437,24 @@ export class CredentialsService {
       // 1. validation
       // expected received roles to be CPO
       const receivedRoles = credentialsRequest.roles;
-      validateRole(receivedRoles, Role.CPO);
+      // validateRole(receivedRoles, Role.CPO);
+
       // expected registered ClientInformation to be found in the database
       const existingClientInformation =
-        await this.getRegisteredClientInformation(credentialsRequest);
-      // expected clientCredentialsUrl to be found in the database
-      const clientVersion =
-        await this.getClientVersionByClientInformationAndVersionNumber(
-          existingClientInformation,
-          versionNumber,
+        await this.getClientInformationByClientCountryCodeAndPartyId(
+          credentialsRequest.mspCountryCode,
+          credentialsRequest.mspPartyId,
         );
+
+      // expected clientCredentialsUrl to be found in the database
+      const clientVersion = existingClientInformation.clientVersionDetails.find(
+        (version) => version.version === versionNumber,
+      );
+      if (!clientVersion) {
+        throw new NotFoundError(
+          `ClientVersion ${versionNumber} not found in ClientInformation ${existingClientInformation.id}`,
+        );
+      }
       const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
 
       // 2. generate new server token and update db data
@@ -673,13 +463,13 @@ export class CredentialsService {
         credentialsRequest.url,
         receivedRoles,
       );
-      const storedServerCredentialsRoles: ServerCredentialsRole[] =
-        await this.updateServerCredentials(
-          existingClientInformation,
-          serverCredentialsDTO,
-          versionNumber,
-          receivedRoles,
-        );
+
+      await this.ocpiGraphqlClient.request(UPDATE_TENANT, {
+        id: existingClientInformation.cpoTenantId,
+        input: {
+          serverCredential: { token: serverCredentialsDTO.token },
+        },
+      });
 
       // 3. send putCredentials request to MSP and update db data
       const clientCredentialsDTO = await this.putCredentialsToMSP(
@@ -688,16 +478,17 @@ export class CredentialsService {
         existingClientInformation.clientToken,
         clientCredentialsUrl,
       );
-      await this.updateClientCredentials(
-        existingClientInformation,
-        clientCredentialsDTO,
-        versionNumber,
-      );
+
+      await this.ocpiGraphqlClient.request(UPDATE_TENANT_PARTNER_PROFILE, {
+        partnerId: existingClientInformation.id,
+        input: {
+          credentials: { token: clientCredentialsDTO.token },
+          roles: clientCredentialsDTO.roles,
+        } as any,
+      });
 
       // 4. return credentialsDTO result
-      const serverCredentialsRoleDTOs = storedServerCredentialsRoles.map(
-        (role) => ServerCredentialsRole.toCredentialsRoleDTO(role),
-      );
+      const serverCredentialsRoleDTOs = receivedRoles; // Assuming receivedRoles are the server roles
       return CredentialsDTO.build(
         serverCredentialsDTO.token,
         serverCredentialsDTO.url,
@@ -709,356 +500,6 @@ export class CredentialsService {
         `Regenerate credentials token failed, ${JSON.stringify(error)}`,
       );
     }
-  }
-  private async getVersionEndpointsFromTenant(
-    versionNumber: VersionNumber,
-  ): Promise<any[]> {
-    // Use the new GraphQL query from queries/tenantVersionEndpoints.queries
-    const variables = { version: versionNumber };
-    const response = await this.ocpiGraphqlClient.request<any>(
-      GET_TENANT_VERSION_ENDPOINTS,
-      variables,
-    );
-    if (
-      response.tenants &&
-      response.tenants[0] &&
-      response.tenants[0].versions &&
-      response.tenants[0].versions[0] &&
-      response.tenants[0].versions[0].endpoints
-    ) {
-      return response.tenants[0].versions[0].endpoints;
-    }
-    return [];
-  }
-
-  async unregisterClientInformation(
-    clientInformation: ClientInformation,
-    versionNumber: VersionNumber,
-    clientCountryCode: string,
-    clientPartyId: string,
-    serverCountryCode: string,
-    serverPartyId: string,
-  ) {
-    const clientVersionDetails =
-      clientInformation[ClientInformationProps.clientVersionDetails];
-    const clientVersion = clientVersionDetails.find(
-      (cv) => cv.version === versionNumber,
-    );
-    if (!clientVersion) {
-      throw new NotFoundError(
-        `Client version not found for client party id ${clientPartyId} and client country code ${clientCountryCode} and matching version ${versionNumber}`,
-      );
-    }
-    const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
-    const authorizationToken =
-      clientInformation[ClientInformationProps.clientToken];
-    const credentialsRoleMatch = clientInformation[
-      ClientInformationProps.clientCredentialsRoles
-    ].find(
-      (clientInformations) =>
-        clientInformations.country_code === clientCountryCode &&
-        clientInformations.party_id === clientPartyId,
-    );
-    const deleteCredentialsResponse = await this.getDeleteCredentialsResponse(
-      clientCredentialsUrl,
-      versionNumber,
-      authorizationToken,
-      credentialsRoleMatch![ClientCredentialsRoleProps.countryCode],
-      credentialsRoleMatch![ClientCredentialsRoleProps.partyId],
-      serverCountryCode,
-      serverPartyId,
-    );
-    if (deleteCredentialsResponse) {
-      await credentialsRoleMatch!.destroy();
-    }
-  }
-
-  private async getDeleteCredentialsResponse(
-    url: string,
-    versionNumber: VersionNumber,
-    authorizationToken: string,
-    clientCountryCode: string,
-    clientPartyId: string,
-    serverCountryCode: string,
-    serverPartyId: string,
-  ): Promise<OcpiEmptyResponse> {
-    try {
-      const params = new OcpiParams();
-      params.version = versionNumber;
-      params.authorization = authorizationToken;
-      params.toCountryCode = clientCountryCode;
-      params.toPartyId = clientPartyId;
-      params.fromCountryCode = serverCountryCode;
-      params.fromPartyId = serverPartyId;
-      params.xRequestId = uuidv4();
-      params.xCorrelationId = uuidv4();
-      this.credentialsClientApi.baseUrl = url;
-      return await this.credentialsClientApi.deleteCredentials(params);
-    } catch (e: any) {
-      const msg = `Could not delete credentials. Request to client failed with message: ${e.message}`;
-      this.logger.error(msg);
-      throw new UnsuccessfulRequestException(msg);
-    }
-  }
-
-  private async getPostCredentialsResponse(
-    clientCredentialsUrl: string,
-    versionNumber: VersionNumber,
-    credentialsTokenA: string,
-    credentialsTokenB: string,
-    serverVersionUrl: string,
-  ): Promise<CredentialsResponse> {
-    this.credentialsClientApi.baseUrl = clientCredentialsUrl;
-    const postCredentialsResponse =
-      await this.credentialsClientApi.postCredentials(
-        buildPostCredentialsParams(
-          versionNumber,
-          credentialsTokenA,
-          this.buildCredentialsDTO(credentialsTokenB, serverVersionUrl),
-        ),
-      );
-    if (
-      !postCredentialsResponse ||
-      postCredentialsResponse.status_code !==
-        OcpiResponseStatusCode.GenericSuccessCode ||
-      !postCredentialsResponse.data
-    ) {
-      throw new InternalServerError(
-        'Could not successfully post credentials to client',
-      );
-    }
-    return postCredentialsResponse;
-  }
-
-  private buildCredentialsDTO(
-    credentialsTokenB: string,
-    serverVersionUrl: string,
-  ): CredentialsDTO {
-    return CredentialsDTO.build(credentialsTokenB, serverVersionUrl, [
-      CpoCredentialsRole,
-    ]);
-  }
-
-  private async updateClientCredentialRoles(
-    clientInformation: ClientInformation,
-    newClientCredentialsRoles: ClientCredentialsRole[],
-  ) {
-    const clientCredentialsRoles = clientInformation.getDataValue(
-      'clientCredentialsRoles',
-    );
-    for (const role of clientCredentialsRoles) {
-      await role.destroy();
-    }
-    clientInformation.setDataValue(
-      'clientCredentialsRoles',
-      newClientCredentialsRoles,
-    );
-    for (const role of clientInformation.getDataValue(
-      'clientCredentialsRoles',
-    )) {
-      role.setDataValue(
-        'cpoTenantId',
-        clientInformation.getDataValue('cpoTenantId'),
-      );
-      role.setDataValue(
-        'clientInformationId',
-        clientInformation.getDataValue('id'),
-      );
-      await role.save();
-    }
-  }
-
-  private async getClientVersionDetails(
-    clientInformation: ClientInformation,
-    versionNumber: VersionNumber,
-    credentials: CredentialsDTO,
-  ): Promise<ClientVersion> {
-    const clientVersion = await this.getVersionDetails(
-      versionNumber,
-      credentials.url,
-      credentials.token,
-    );
-    clientVersion.setDataValue('clientInformationId', clientInformation.id);
-    return clientVersion;
-  }
-
-  private async getVersionDetails(
-    versionNumber: VersionNumber,
-    url: string,
-    token: string,
-  ): Promise<ClientVersion> {
-    this.versionsClientApi.baseUrl = url;
-
-    let versions: VersionListResponseDTO | null = null;
-    try {
-      versions = await this.versionsClientApi.getVersions({
-        version: versionNumber,
-        authorization: token,
-      });
-    } catch (e: any) {
-      const msg = `Could not get versions. Request to client failed with message: ${e.message}`;
-      this.logger.error(msg);
-      throw new NotFoundError(msg);
-    }
-    if (!versions || !versions.data) {
-      const msg =
-        'Versions list response was null or did not have expected data';
-      this.logger.error(msg);
-      throw new NotFoundError(msg);
-    }
-
-    const version = versions.data.find((v: any) => v.version === versionNumber);
-    if (!version) {
-      throw new NotFoundError('Matching version not found');
-    }
-    this.versionsClientApi.baseUrl = version.url;
-    const versionDetails = await this.versionsClientApi.getVersionDetails({
-      authorization: token,
-      version: versionNumber,
-    });
-    if (!versionDetails) {
-      throw new NotFoundError('Matching version details not found');
-    }
-    // TODO: add validation to check expected endpoints based on OCPP 2.2.1, 7.1.6
-    return ClientVersion.build(
-      {
-        version: versionNumber,
-        url: version.url,
-        endpoints: versionDetails.data?.endpoints,
-      },
-      {
-        include: [Endpoint],
-      },
-    );
-  }
-
-  private async performPostAndReturnSavedClientCredentials(
-    clientInformation: ClientInformation,
-    clientCredentialsUrl: string,
-    versionNumber: VersionNumber,
-    credentialsTokenA: string,
-    credentialsTokenB: string,
-    serverVersionUrl: string,
-  ): Promise<ClientInformation> {
-    const postCredentialsResponse = await this.getPostCredentialsResponse(
-      clientCredentialsUrl,
-      versionNumber,
-      credentialsTokenA,
-      credentialsTokenB,
-      serverVersionUrl,
-    );
-    const postCredentials: CredentialsDTO = postCredentialsResponse.data;
-
-    return await this.updateClientInformationByClientCredentialsDTO(
-      clientInformation,
-      postCredentials,
-    );
-  }
-
-  private async getCpoTenantIdForServerRolesForRegistration(
-    serverCredentialsRoleDTOs: CredentialsRoleDTO[],
-  ): Promise<string | undefined> {
-    // Use GraphQL to find the CPO tenant by country/party id
-    let cpoTenantId: number | undefined;
-    for (const role of serverCredentialsRoleDTOs) {
-      const variables = {
-        countryCode: role.country_code,
-        partyId: role.party_id,
-      };
-      const response =
-        await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
-          GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
-          variables,
-        );
-      const tenant = response.Tenants && response.Tenants[0];
-      if (tenant) {
-        if (!cpoTenantId) {
-          cpoTenantId = tenant.id;
-        } else if (cpoTenantId !== tenant.id) {
-          throw new BadRequestError(
-            `ServerCredentialsRoles belongs to different CPO tenants`,
-          );
-        }
-      }
-    }
-    return cpoTenantId ? cpoTenantId.toString() : undefined;
-  }
-
-  private async storeServerCredentialsRoles(
-    credentialsRoleDTOs: CredentialsRoleDTO[],
-  ): Promise<ServerCredentialsRole[]> {
-    // Use GraphQL mutations to create or update tenants and partners as needed
-    const storedServerCredentialsRoles: ServerCredentialsRole[] = [];
-    for (const role of credentialsRoleDTOs) {
-      // Try to get the tenant by country_code and party_id
-      const tenantVariables = {
-        countryCode: role.country_code,
-        partyId: role.party_id,
-      };
-      let tenantId: string | undefined;
-      try {
-        const tenantResponse = await this.ocpiGraphqlClient.request<any>(
-          GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
-          tenantVariables,
-        );
-        const tenant = tenantResponse.tenants && tenantResponse.tenants[0];
-        if (tenant) {
-          tenantId = tenant.id;
-          // Optionally update tenant if business details have changed
-          await this.ocpiGraphqlClient.request<any>(UPDATE_TENANT, {
-            id: tenantId,
-            input: {
-              country_code: role.country_code,
-              party_id: role.party_id,
-              businessDetails: role.business_details,
-            },
-          });
-        } else {
-          // Create tenant if not found
-          const createTenantResponse =
-            await this.ocpiGraphqlClient.request<any>(CREATE_TENANT, {
-              input: {
-                country_code: role.country_code,
-                party_id: role.party_id,
-                businessDetails: role.business_details,
-              },
-            });
-          tenantId = createTenantResponse.createTenant.id;
-        }
-      } catch (e) {
-        // If error, try to create tenant
-        const createTenantResponse = await this.ocpiGraphqlClient.request<any>(
-          CREATE_TENANT,
-          {
-            input: {
-              country_code: role.country_code,
-              party_id: role.party_id,
-              businessDetails: role.business_details,
-            },
-          },
-        );
-        tenantId = createTenantResponse.createTenant.id;
-      }
-      // Now create or update the partner for this tenant
-      await this.ocpiGraphqlClient.request<any>(CREATE_TENANT_PARTNER, {
-        input: {
-          country_code: role.country_code,
-          party_id: role.party_id,
-          role: role.role,
-          businessDetails: role.business_details,
-          tenantId: tenantId,
-        },
-      });
-      // For now, just push a minimal ServerCredentialsRole object for compatibility
-      storedServerCredentialsRoles.push({
-        country_code: role.country_code,
-        party_id: role.party_id,
-        role: role.role,
-        business_details: role.business_details,
-        cpoTenantId: tenantId,
-      } as unknown as ServerCredentialsRole);
-    }
-    return storedServerCredentialsRoles;
   }
 
   private async putCredentialsToMSP(
@@ -1093,190 +534,261 @@ export class CredentialsService {
     }
   }
 
-  private async updateClientInformationByClientCredentialsDTO(
-    clientInformation: ClientInformation,
-    clientCredentialsDTO: CredentialsDTO,
-  ): Promise<ClientInformation> {
-    clientInformation.clientToken = clientCredentialsDTO.token;
-
-    const clientCredentialsRoles = clientCredentialsDTO.roles;
-    // remove old client roles
-    await ClientCredentialsRole.destroy({
-      where: {
-        clientInformationId: clientInformation.id,
-      },
+  private async getVersionDetails(
+    versionNumber: VersionNumber,
+    url: string,
+    token: string,
+  ): Promise<ClientVersion> {
+    this.versionsClientApi.baseUrl = url;
+    const versions = await this.versionsClientApi.getVersions({
+      version: versionNumber,
+      authorization: token,
     });
-    // add new client roles
-    const newClientCredentialsRoles = clientCredentialsRoles.map(
-      (credentialsRoleDTO) =>
-        ClientCredentialsRole.create(
-          {
-            ...(credentialsRoleDTO as Partial<ClientCredentialsRole>),
-            [ClientCredentialsRoleProps.clientInformationId]:
-              clientInformation.id,
-            [ClientCredentialsRoleProps.cpoTenantId]:
-              clientInformation.cpoTenantId,
-          },
-          {
-            include: [
-              {
-                model: BusinessDetails,
-                include: [Image],
-              },
-            ],
-          },
-        ),
+    if (!versions?.data) {
+      throw new NotFoundError(
+        'Versions list response was null or did not have expected data',
+      );
+    }
+    const version = versions.data.find((v) => v.version === versionNumber);
+    if (!version) {
+      throw new NotFoundError('Matching version not found');
+    }
+    this.versionsClientApi.baseUrl = version.url;
+    const versionDetails = await this.versionsClientApi.getVersionDetails({
+      authorization: token,
+      version: versionNumber,
+    });
+    if (!versionDetails?.data) {
+      throw new NotFoundError('Matching version details not found');
+    }
+    return ClientVersion.build(
+      {
+        version: versionNumber,
+        url: version.url,
+        endpoints: versionDetails.data.endpoints,
+      },
+      { include: [Endpoint] },
     );
-    clientInformation.setDataValue(
-      ClientInformationProps.clientCredentialsRoles,
-      newClientCredentialsRoles,
-    );
-
-    return await clientInformation.save();
   }
 
   private findClientCredentialsUrl(clientVersion: ClientVersion): string {
-    if (!clientVersion.endpoints || !clientVersion.endpoints.length) {
-      throw new NotFoundError('Did not successfully retrieve version details');
-    }
-
-    const clientCredentialsEndpoint = clientVersion.endpoints.find(
-      (endpoint) =>
-        endpoint.identifier === ModuleId.Credentials &&
-        endpoint.role === InterfaceRole.RECEIVER,
+    const endpoint = clientVersion.endpoints.find(
+      (e) =>
+        e.identifier === ModuleId.Credentials &&
+        e.role === InterfaceRole.RECEIVER,
     );
-
-    if (!clientCredentialsEndpoint || !clientCredentialsEndpoint.url) {
+    if (!endpoint?.url) {
       throw new NotFoundError(
         'Did not successfully retrieve client credentials from version details',
       );
     }
-
-    return clientCredentialsEndpoint.url;
+    return endpoint.url;
   }
 
-  private async getRegisteredClientInformation(
-    credentialsRequest: AdminUpdateCredentialsRequestDTO,
-  ): Promise<any> {
-    // Use GraphQL to fetch the registered client information instead of repository
-    const variables = {
-      countryCode: credentialsRequest.cpoCountryCode,
-      partyId: credentialsRequest.cpoPartyId,
-    };
-    const response =
-      await this.ocpiGraphqlClient.request<GetClientInformationByServerQuery>(
-        GET_CLIENT_INFORMATION_BY_SERVER_COUNTRY_AND_PARTY_ID,
-        variables,
-      );
-    const tenants = response.Tenants;
-    if (!tenants || tenants.length === 0) {
-      throw new NotFoundError(
-        `Client information not found by ${credentialsRequest.cpoCountryCode} ${credentialsRequest.cpoPartyId}`,
+  private async getPostCredentialsResponse(
+    clientCredentialsUrl: string,
+    versionNumber: VersionNumber,
+    credentialsTokenA: string,
+    credentialsTokenB: string,
+    serverVersionUrl: string,
+  ): Promise<CredentialsResponse> {
+    this.credentialsClientApi.baseUrl = clientCredentialsUrl;
+    const response = await this.credentialsClientApi.postCredentials(
+      buildPostCredentialsParams(
+        versionNumber,
+        credentialsTokenA,
+        this.buildCredentialsDTO(credentialsTokenB, serverVersionUrl),
+      ),
+    );
+    if (
+      response?.status_code !== OcpiResponseStatusCode.GenericSuccessCode ||
+      !response.data
+    ) {
+      throw new InternalServerError(
+        'Could not successfully post credentials to client',
       );
     }
-    // Find the partner matching the MSP country/party id
-    const tenant = tenants[0];
-    const partner = (tenant.TenantPartners || []).find(
-      (p: any) =>
-        p.countryCode === credentialsRequest.mspCountryCode &&
-        p.partyId === credentialsRequest.mspPartyId,
-    );
-    if (!partner) {
-      throw new NotFoundError(
-        `Client information not found by ${credentialsRequest.cpoCountryCode} ${credentialsRequest.cpoPartyId} ${credentialsRequest.mspCountryCode} ${credentialsRequest.mspPartyId}`,
-      );
-    }
-    // TODO('check if partner is registered')
-    // if (!partner.registered) {
-    //   throw new InternalServerError(
-    //     `The registration of the client information ${partner.id} is not completed yet.`,
-    //   );
-    // }
-    return partner;
+    return response;
   }
 
-  private async getClientVersionByClientInformationAndVersionNumber(
+  private buildCredentialsDTO(token: string, url: string): CredentialsDTO {
+    return CredentialsDTO.build(token, url, [CpoCredentialsRole]);
+  }
+
+  async unregisterClientInformation(
     clientInformation: ClientInformation,
     versionNumber: VersionNumber,
-  ): Promise<ClientVersion> {
-    const clientVersionDetails: ClientVersion[] = await clientInformation.$get(
-      ClientInformationProps.clientVersionDetails,
-      {
-        include: [Endpoint],
-      },
-    );
-    const clientVersion = clientVersionDetails.find(
-      (version) => version.version === versionNumber,
-    );
-    if (!clientVersion) {
-      throw new NotFoundError(
-        `ClientVersion ${versionNumber} not found in ClientInformation ${clientInformation.id}`,
-      );
-    }
-    return clientVersion;
-  }
-
-  private async updateServerCredentials(
-    clientInformation: ClientInformation,
-    serverCredentialsDTO: CredentialsDTO,
-    versionNumber: VersionNumber,
-    ServerRoleDTOs: CredentialsRoleDTO[],
-  ): Promise<ServerCredentialsRole[]> {
-    await clientInformation.update({
-      serverToken: serverCredentialsDTO.token,
-    });
-    const storedServerCredentialsRoles: ServerCredentialsRole[] =
-      await this.storeServerCredentialsRoles(ServerRoleDTOs);
-    await ServerVersion.update(
-      {
-        url: serverCredentialsDTO.url,
-      },
-      {
-        where: {
-          clientInformationId: clientInformation.id,
-          version: versionNumber,
-        },
-      },
-    );
-
-    return storedServerCredentialsRoles;
-  }
-
-  private async updateClientCredentials(
-    clientInformation: ClientInformation,
-    clientCredentialsDTO: CredentialsDTO,
-    versionNumber: VersionNumber,
-  ): Promise<void> {
-    await this.updateClientInformationByClientCredentialsDTO(
-      clientInformation,
-      clientCredentialsDTO,
-    );
-    await ClientVersion.update(
-      {
-        url: clientCredentialsDTO.url,
-      },
-      {
-        where: {
-          clientInformationId: clientInformation.id,
-          version: versionNumber,
-        },
-      },
-    );
-  }
-
-  private getClientInformationMatches(
-    clientInformations: ClientInformation[],
     clientCountryCode: string,
     clientPartyId: string,
-  ) {
-    return clientInformations.filter((clientInformation) => {
-      const clientCredentialsRoles =
-        clientInformation[ClientInformationProps.clientCredentialsRoles];
-      return clientCredentialsRoles.some(
-        (clientCredntialsRole) =>
-          clientCredntialsRole.country_code === clientCountryCode &&
-          clientCredntialsRole.party_id === clientPartyId,
+    serverCountryCode: string,
+    serverPartyId: string,
+  ): Promise<void> {
+    const clientVersion = (
+      clientInformation.clientVersionDetails as ClientVersion[]
+    ).find((cv) => cv.version === versionNumber);
+    if (!clientVersion) {
+      throw new NotFoundError(
+        `Client version not found for client party id ${clientPartyId} and client country code ${clientCountryCode} and matching version ${versionNumber}`,
       );
+    }
+    const clientCredentialsUrl = this.findClientCredentialsUrl(clientVersion);
+    await this.getDeleteCredentialsResponse(
+      clientCredentialsUrl,
+      versionNumber,
+      clientInformation.clientToken,
+      clientCountryCode,
+      clientPartyId,
+      serverCountryCode,
+      serverPartyId,
+    );
+    await this.ocpiGraphqlClient.request(DELETE_TENANT_PARTNER_BY_ID, {
+      id: clientInformation.id,
     });
+  }
+
+  async unregisterClient(
+    request: UnregisterClientRequestDTO,
+    versionNumber: VersionNumber,
+  ): Promise<void> {
+    const serverPartyId = request.serverPartyId;
+    const serverCountryCode = request.serverCountryCode;
+    const clientPartyId = request.clientPartyId;
+    const clientCountryCode = request.clientCountryCode;
+
+    const clientInformation =
+      await this.getClientInformationByClientCountryCodeAndPartyId(
+        clientCountryCode,
+        clientPartyId,
+      );
+
+    if (!clientInformation) {
+      throw new NotFoundError(
+        `Client information not found for client party id ${clientPartyId} and client country code ${clientCountryCode}`,
+      );
+    }
+
+    await this.unregisterClientInformation(
+      clientInformation,
+      versionNumber,
+      clientCountryCode,
+      clientPartyId,
+      serverCountryCode,
+      serverPartyId,
+    );
+  }
+
+  private async getDeleteCredentialsResponse(
+    url: string,
+    versionNumber: VersionNumber,
+    authorizationToken: string,
+    clientCountryCode: string,
+    clientPartyId: string,
+    serverCountryCode: string,
+    serverPartyId: string,
+  ): Promise<OcpiEmptyResponse> {
+    try {
+      const params = new OcpiParams();
+      params.version = versionNumber;
+      params.authorization = authorizationToken;
+      params.toCountryCode = clientCountryCode;
+      params.toPartyId = clientPartyId;
+      params.fromCountryCode = serverCountryCode;
+      params.fromPartyId = serverPartyId;
+      params.xRequestId = uuidv4();
+      params.xCorrelationId = uuidv4();
+      this.credentialsClientApi.baseUrl = url;
+      return await this.credentialsClientApi.deleteCredentials(params);
+    } catch (e: any) {
+      throw new UnsuccessfulRequestException(
+        `Could not delete credentials. Request to client failed with message: ${e.message}`,
+      );
+    }
+  }
+
+  async generateCredentialsTokenA(
+    credentialsRequest: AdminCredentialsRequestDTO,
+    versionNumber: VersionNumber,
+  ): Promise<CredentialsDTO> {
+    const receivedRoles = credentialsRequest.roles;
+    // validateRole(receivedRoles, Role.CPO);
+
+    const versionEndpointsResponse =
+      await this.ocpiGraphqlClient.request<GetTenantVersionEndpointsQuery>(
+        GET_TENANT_VERSION_ENDPOINTS,
+        { version: versionNumber },
+      );
+    const serverVersionEndpoints =
+      versionEndpointsResponse.Tenants?.[0]?.serverVersions?.[0]?.endpoints;
+    if (!serverVersionEndpoints) {
+      throw new NotFoundError('Version endpoints not found');
+    }
+    const serverVersionUrl =
+      serverVersionEndpoints.find(
+        (e: any) => e.identifier === ModuleId.Versions,
+      )?.url || '';
+
+    const credentialsTokenA = uuidv4();
+    const credentialsTokenB = uuidv4();
+
+    const cpoRole = receivedRoles[0];
+    const tenantResponse =
+      await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
+        GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
+        { countryCode: cpoRole.country_code, partyId: cpoRole.party_id },
+      );
+    let tenant = tenantResponse.Tenants?.[0];
+
+    if (!tenant) {
+      const createTenantResponse = await this.ocpiGraphqlClient.request<{
+        insert_Tenants_one: { id: number };
+      }>(CREATE_TENANT, {
+        object: {
+          name: cpoRole.business_details.name,
+          countryCode: cpoRole.country_code,
+          partyId: cpoRole.party_id,
+          serverCredential: { token: credentialsTokenB },
+          serverVersions: [
+            {
+              version: versionNumber,
+              url: serverVersionUrl,
+              endpoints: serverVersionEndpoints,
+            },
+          ],
+        },
+      });
+      const tenantId = createTenantResponse.insert_Tenants_one.id;
+      const tenantByIdResponse =
+        await this.ocpiGraphqlClient.request<GetTenantByIdQuery>(
+          GET_TENANT_BY_ID,
+          { id: tenantId },
+        );
+      tenant = tenantByIdResponse.Tenants_by_pk as unknown as Tenants;
+    }
+
+    const createPartnerResponse = await this.ocpiGraphqlClient.request<{
+      insert_TenantPartners_one: { id: number };
+    }>(CREATE_TENANT_PARTNER, {
+      object: {
+        tenantId: tenant.id,
+        countryCode: cpoRole.country_code,
+        partyId: cpoRole.party_id,
+        partnerProfile: {
+          protocol: 'OCPI',
+          roles: receivedRoles,
+          version: {
+            version: versionNumber,
+            url: credentialsRequest.url,
+            endpoints: serverVersionEndpoints,
+          },
+          credentials: { token: credentialsTokenA },
+        },
+      },
+    });
+
+    return CredentialsDTO.build(
+      credentialsTokenA,
+      credentialsRequest.url,
+      receivedRoles,
+    );
   }
 }
