@@ -86,6 +86,9 @@ export class LocationsService {
       const variables = { id: locationId };
       const response = await this.ocpiGraphqlClient.request<GetLocationByIdQuery>(GET_LOCATION_BY_ID_QUERY, variables);
       // response.Locations is an array, so pick the first
+      if (response.Locations && response.Locations.length > 1) {
+        this.logger.warn(`Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`);
+      }
       const location = (global as any).LocationMapper.fromGraphql(response.Locations?.[0]);
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
@@ -116,6 +119,12 @@ export class LocationsService {
       const variables = { locationId, stationId, evseId };
       const response = await this.ocpiGraphqlClient.request<GetEvseByIdQuery>(GET_EVSE_BY_ID_QUERY, variables);
       // Traverse to the EVSE object
+      if (response.Locations?.[0]?.ChargingStations && response.Locations[0].ChargingStations.length > 1) {
+        this.logger.warn(`Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].ChargingStations)}`);
+      }
+      if (response.Locations?.[0]?.ChargingStations?.[0]?.Evses && response.Locations[0].ChargingStations[0].Evses.length > 1) {
+        this.logger.warn(`Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].ChargingStations[0].Evses)}`);
+      }
       const evse = (global as any).EvseMapper.fromGraphql(
         response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse
       );
@@ -146,6 +155,9 @@ export class LocationsService {
       const variables = { locationId, stationId, evseId, connectorId };
       const response = await this.ocpiGraphqlClient.request<GetConnectorByIdQuery>(GET_CONNECTOR_BY_ID_QUERY, variables);
       // Traverse to the Connector object
+      if (response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse?.Connectors && response.Locations[0].ChargingStations[0].Evses[0].Evse.Connectors.length > 1) {
+        this.logger.warn(`Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].ChargingStations[0].Evses[0].Evse.Connectors)}`);
+      }
       const connector = (global as any).ConnectorMapper.fromGraphql(
         response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse?.Connectors?.[0]
       );

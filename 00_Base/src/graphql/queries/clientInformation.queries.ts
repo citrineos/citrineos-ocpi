@@ -4,7 +4,9 @@ import { gql } from 'graphql-request';
 export const GET_CLIENT_INFORMATION_BY_SERVER_TOKEN = gql`
   query GetClientInformationByServerToken($serverToken: String!) {
     TenantPartners(
-      where: { Tenant: { serverCredential: { _contains: { token: $serverToken } } } }
+      where: {
+        Tenant: { serverCredential: { _contains: { token: $serverToken } } }
+      }
     ) {
       id
       partnerProfile

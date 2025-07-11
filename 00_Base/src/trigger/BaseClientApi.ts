@@ -15,9 +15,15 @@ import { ModuleId } from '../model/ModuleId';
 import { ILogObj, Logger } from 'tslog';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GetTenantPartnersByCpoAndModuleIdQuery } from '../graphql/types/graphql';
+import {
+  GetTenantPartnersByCpoAndModuleIdQuery,
+  GetTenantPartnersByCpoClientAndModuleIdQuery,
+} from '../graphql/types/graphql';
 import { Endpoint } from '../model/Endpoint';
-import { GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID } from '../graphql/queries/tenantPartner.queries';
+import {
+  GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID,
+  GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,
+} from '../graphql/queries/tenantPartner.queries';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -421,12 +427,14 @@ export class BaseClientApi {
     toPartyId: string,
   ): Promise<string> {
     const response =
-      await this.ocpiGraphqlClient.request<GetTenantPartnersByCpoAndModuleIdQuery>(
-        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID,
+      await this.ocpiGraphqlClient.request<GetTenantPartnersByCpoClientAndModuleIdQuery>(
+        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,
         {
           cpoCountryCode: fromCountryCode,
           cpoPartyId: fromPartyId,
           moduleId: ModuleId.Credentials, // Assuming credentials module is always used for auth token
+          clientCountryCode: toCountryCode,
+          clientPartyId: toPartyId,
         },
       );
     const clientInfo = response.TenantPartners?.[0];
@@ -449,11 +457,13 @@ export class BaseClientApi {
   ): Promise<Endpoint> {
     const response =
       await this.ocpiGraphqlClient.request<GetTenantPartnersByCpoAndModuleIdQuery>(
-        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID,
+        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,
         {
           cpoCountryCode: fromCountryCode,
           cpoPartyId: fromPartyId,
           moduleId: moduleId,
+          clientCountryCode: toCountryCode,
+          clientPartyId: toPartyId,
         },
       );
     const clientInfo = response.TenantPartners?.[0];

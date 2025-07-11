@@ -168,6 +168,11 @@ export class CredentialsService {
     if (!partner) {
       throw new NotFoundError('Credentials not found for server token');
     }
+    if (response.TenantPartners && response.TenantPartners.length > 1) {
+      this.logger.warn(
+        `Multiple client information entries found for server token ${token}. Returning the first one. All entries: ${JSON.stringify(response.TenantPartners)}`,
+      );
+    }
     return this.toClientInformation(partner as TenantPartners);
   }
 
@@ -316,6 +321,11 @@ export class CredentialsService {
         { countryCode: cpoRole.country_code, partyId: cpoRole.party_id },
       );
     let tenant: any = tenantResponse.Tenants?.[0];
+    if (tenantResponse.Tenants && tenantResponse.Tenants.length > 1) {
+      this.logger.warn(
+        `Multiple tenants found for country code ${cpoRole.country_code} and party id ${cpoRole.party_id}. Returning the first one. All entries: ${JSON.stringify(tenantResponse.Tenants)}`,
+      );
+    }
 
     if (!tenant) {
       const createTenantResponse = await this.ocpiGraphqlClient.request<{
