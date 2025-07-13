@@ -1,4 +1,3 @@
-
 import { gql } from 'graphql-request';
 
 export const GET_CLIENT_INFORMATION_BY_SERVER_TOKEN = gql`
@@ -22,10 +21,7 @@ export const GET_CLIENT_INFORMATION_BY_SERVER_TOKEN = gql`
 export const GET_CLIENT_INFORMATION_BY_CLIENT_COUNTRY_AND_PARTY_ID = gql`
   query GetClientInformationByClient($countryCode: String!, $partyId: String!) {
     TenantPartners(
-      where: {
-        countryCode: { _eq: $countryCode }
-        partyId: { _eq: $partyId }
-      }
+      where: { countryCode: { _eq: $countryCode }, partyId: { _eq: $partyId } }
     ) {
       id
       partnerProfile

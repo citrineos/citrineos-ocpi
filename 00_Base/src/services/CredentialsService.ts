@@ -22,7 +22,6 @@ import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { OcpiParams } from '../trigger/util/OcpiParams';
 import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
-import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 import { buildPostCredentialsParams } from '../trigger/param/credentials/PostCredentialsParams';
 import {
   DELETE_CPO_TENANT_BY_ID,
@@ -291,14 +290,35 @@ export class CredentialsService {
     credentials: CredentialsDTO,
   ): Promise<ClientInformation> {
     const { url, token: credentialsTokenA, roles } = credentials;
+    const cpoRole = roles[0];
 
     const versionEndpointsResponse =
       await this.ocpiGraphqlClient.request<GetTenantVersionEndpointsQuery>(
         GET_TENANT_VERSION_ENDPOINTS,
         { version: versionNumber },
       );
-    const serverVersionEndpoints =
-      versionEndpointsResponse.Tenants?.[0]?.serverVersions?.[0]?.endpoints;
+    const serverVersionEndpoints = versionEndpointsResponse.Tenants?.find(
+      (tenant) =>
+        tenant.countryCode === cpoRole.country_code &&
+        tenant.partyId == cpoRole.party_id,
+    )?.serverVersions?.[0]?.endpoints;
+    if (
+      versionEndpointsResponse.Tenants &&
+      versionEndpointsResponse.Tenants.length > 1
+    ) {
+      this.logger.warn(
+        `Multiple tenants found for version ${versionNumber}. Returning the first one. All entries: ${JSON.stringify(versionEndpointsResponse.Tenants)}`,
+      );
+    }
+    if (
+      versionEndpointsResponse.Tenants?.[0]?.serverVersions &&
+      versionEndpointsResponse.Tenants[0].serverVersions.length > 1
+    ) {
+      this.logger.warn(
+        `Multiple server versions found for tenant. Returning the first one. All entries: ${JSON.stringify(versionEndpointsResponse.Tenants[0].serverVersions)}`,
+      );
+    }
+
     if (!serverVersionEndpoints) {
       throw new NotFoundError('Version endpoints not found');
     }
@@ -314,7 +334,6 @@ export class CredentialsService {
     );
     const credentialsTokenB = uuidv4();
 
-    const cpoRole = roles[0];
     const tenantResponse =
       await this.ocpiGraphqlClient.request<GetCpoTenantByServerQuery>(
         GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID,
@@ -352,6 +371,24 @@ export class CredentialsService {
           { id: tenantId },
         );
       tenant = tenantByIdResponse.Tenants_by_pk;
+      if (
+        tenantByIdResponse.Tenants_by_pk &&
+        Array.isArray(tenantByIdResponse.Tenants_by_pk) &&
+        tenantByIdResponse.Tenants_by_pk.length > 1
+      ) {
+        this.logger.warn(
+          `Multiple tenants found for id ${tenantId}. Returning the first one. All entries: ${JSON.stringify(tenantByIdResponse.Tenants_by_pk)}`,
+        );
+      }
+      if (
+        tenantByIdResponse.Tenants_by_pk &&
+        Array.isArray(tenantByIdResponse.Tenants_by_pk) &&
+        tenantByIdResponse.Tenants_by_pk.length > 1
+      ) {
+        this.logger.warn(
+          `Multiple tenants found for id ${tenantId}. Returning the first one. All entries: ${JSON.stringify(tenantByIdResponse.Tenants_by_pk)}`,
+        );
+      }
     }
 
     const createPartnerResponse = await this.ocpiGraphqlClient.request<{
@@ -418,8 +455,22 @@ export class CredentialsService {
     if (!tenant) {
       throw new NotFoundError('CpoTenant not found');
     }
+    if (
+      tenantResponse.Tenants_by_pk &&
+      Array.isArray(tenantResponse.Tenants_by_pk) &&
+      tenantResponse.Tenants_by_pk.length > 1
+    ) {
+      this.logger.warn(
+        `Multiple tenants found for id ${tenantId}. Returning the first one. All entries: ${JSON.stringify(tenantResponse.Tenants_by_pk)}`,
+      );
+    }
 
     for (const partner of tenant.TenantPartners) {
+      if (tenant.TenantPartners && tenant.TenantPartners.length > 1) {
+        this.logger.warn(
+          `Multiple tenant partners found for tenant id ${tenantId}. Returning the first one. All entries: ${JSON.stringify(tenant.TenantPartners)}`,
+        );
+      }
       const clientInfo = this.toClientInformation(partner as TenantPartners);
       await this.unregisterClientInformation(
         clientInfo,
@@ -460,6 +511,14 @@ export class CredentialsService {
       const clientVersion = existingClientInformation.clientVersionDetails.find(
         (version) => version.version === versionNumber,
       );
+      if (
+        existingClientInformation.clientVersionDetails &&
+        existingClientInformation.clientVersionDetails.length > 1
+      ) {
+        this.logger.warn(
+          `Multiple client version details found for client information ${existingClientInformation.id}. Returning the first one. All entries: ${JSON.stringify(existingClientInformation.clientVersionDetails)}`,
+        );
+      }
       if (!clientVersion) {
         throw new NotFoundError(
           `ClientVersion ${versionNumber} not found in ClientInformation ${existingClientInformation.id}`,
@@ -559,6 +618,11 @@ export class CredentialsService {
         'Versions list response was null or did not have expected data',
       );
     }
+    if (versions.data && versions.data.length > 1) {
+      this.logger.warn(
+        `Multiple versions found for version ${versionNumber}. Returning the first one. All entries: ${JSON.stringify(versions.data)}`,
+      );
+    }
     const version = versions.data.find((v) => v.version === versionNumber);
     if (!version) {
       throw new NotFoundError('Matching version not found');
@@ -570,6 +634,14 @@ export class CredentialsService {
     });
     if (!versionDetails?.data) {
       throw new NotFoundError('Matching version details not found');
+    }
+    if (
+      versionDetails.data.endpoints &&
+      versionDetails.data.endpoints.length > 1
+    ) {
+      this.logger.warn(
+        `Multiple endpoints found for version ${versionNumber}. Returning the first one. All entries: ${JSON.stringify(versionDetails.data.endpoints)}`,
+      );
     }
     return ClientVersion.build(
       {
@@ -587,6 +659,11 @@ export class CredentialsService {
         e.identifier === ModuleId.Credentials &&
         e.role === InterfaceRole.RECEIVER,
     );
+    if (clientVersion.endpoints && clientVersion.endpoints.length > 1) {
+      this.logger.warn(
+        `Multiple endpoints found for client version. Returning the first one. All entries: ${JSON.stringify(clientVersion.endpoints)}`,
+      );
+    }
     if (!endpoint?.url) {
       throw new NotFoundError(
         'Did not successfully retrieve client credentials from version details',
@@ -729,6 +806,22 @@ export class CredentialsService {
       );
     const serverVersionEndpoints =
       versionEndpointsResponse.Tenants?.[0]?.serverVersions?.[0]?.endpoints;
+    if (
+      versionEndpointsResponse.Tenants &&
+      versionEndpointsResponse.Tenants.length > 1
+    ) {
+      this.logger.warn(
+        `Multiple tenants found for version ${versionNumber}. Returning the first one. All entries: ${JSON.stringify(versionEndpointsResponse.Tenants)}`,
+      );
+    }
+    if (
+      versionEndpointsResponse.Tenants?.[0]?.serverVersions &&
+      versionEndpointsResponse.Tenants[0].serverVersions.length > 1
+    ) {
+      this.logger.warn(
+        `Multiple server versions found for tenant. Returning the first one. All entries: ${JSON.stringify(versionEndpointsResponse.Tenants[0].serverVersions)}`,
+      );
+    }
     if (!serverVersionEndpoints) {
       throw new NotFoundError('Version endpoints not found');
     }
