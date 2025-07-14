@@ -137,6 +137,11 @@ export class CredentialsService {
         'Client information not found for client country code and party id',
       );
     }
+    if (response.TenantPartners && response.TenantPartners.length > 1) {
+      this.logger.warn(
+        `Multiple client information entries found for country code ${countryCode} and party id ${partyId}. Returning the first one. All entries: ${JSON.stringify(response.TenantPartners)}`,
+      );
+    }
     return this.toClientInformation(partner as TenantPartners);
   }
 
