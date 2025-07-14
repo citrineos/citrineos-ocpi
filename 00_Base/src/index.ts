@@ -1,7 +1,6 @@
 import { RoutingControllersOptions, useContainer } from 'routing-controllers';
 import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
-import { ServerConfig } from './config/ServerConfig';
 import { OcpiSequelizeInstance } from './util/OcpiSequelizeInstance';
 import { KoaServer } from './util/KoaServer';
 import Koa from 'koa';
@@ -26,8 +25,8 @@ import {
 } from '@citrineos/data';
 import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
-import * as packageJson from '../package.json';
-import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
+import { version } from '../../package.json';
+import { OcpiConfig } from './config/ocpi.types';
 
 export { plainToClass } from './util/Util';
 export {
@@ -81,8 +80,10 @@ export {
 } from './model/ClientInformation';
 export { ClientCredentialsRole } from './model/ClientCredentialsRole';
 export { fromCredentialsRoleDTO } from './model/ClientCredentialsRole';
-export { ServerConfig } from './config/ServerConfig';
-export * from './config/sub';
+export { OcpiConfig, OcpiConfigInput } from './config/ocpi.types';
+export { defineOcpiConfig } from './config/defineOcpiConfig';
+export { getOcpiSystemConfig } from './config/loader';
+export { ServerConfig, Env } from './config/ServerConfig';
 
 export { CommandResponse } from './model/CommandResponse';
 export { ActiveChargingProfile } from './model/ActiveChargingProfile';
@@ -269,7 +270,7 @@ export class OcpiModuleConfig {
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
-  private readonly serverConfig: ServerConfig;
+  private readonly ocpiConfig: OcpiConfig;
   private readonly cache: ICache;
   private readonly logger: Logger<ILogObj>;
   private _ocpiSequelizeInstance!: OcpiSequelizeInstance;
@@ -278,7 +279,7 @@ export class OcpiServer extends KoaServer {
   private modulesConfig: OcpiModuleConfig[] = [];
 
   constructor(
-    serverConfig: ServerConfig,
+    ocpiConfig: OcpiConfig,
     cache: ICache,
     logger: Logger<ILogObj>,
     modulesConfig: OcpiModuleConfig[],
@@ -286,12 +287,12 @@ export class OcpiServer extends KoaServer {
   ) {
     super();
 
-    this.serverConfig = serverConfig;
+    this.ocpiConfig = ocpiConfig;
     this.cache = cache;
     this.logger = logger;
     this.repositoryStore = repositoryStore;
     this.modulesConfig = modulesConfig;
-    this._ocpiSequelizeInstance = new OcpiSequelizeInstance(this.serverConfig);
+    this._ocpiSequelizeInstance = new OcpiSequelizeInstance(this.ocpiConfig);
     this.initContainer();
     this.modules = this.modulesConfig.map((moduleConfig) => {
       const module = Container.get(moduleConfig.module);
@@ -320,10 +321,11 @@ export class OcpiServer extends KoaServer {
         defaultErrorHandler: false,
       } as RoutingControllersOptions;
       this.initApp(options);
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
-          version: packageJson.version,
+          version: version,
         },
         [
           {
@@ -338,7 +340,11 @@ export class OcpiServer extends KoaServer {
   }
 
   private initContainer() {
-    Container.set(ServerConfig, this.serverConfig);
+    Container.set('OcpiConfig', this.ocpiConfig);
+    Container.set(
+      'ServerConfig',
+      this.ocpiSequelizeInstance.getCompatibleConfig(),
+    );
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
     Container.set(OcpiSequelizeInstance, this.ocpiSequelizeInstance);
@@ -392,12 +398,8 @@ export class OcpiServer extends KoaServer {
       SequelizeVariableMonitoringRepository,
       this.repositoryStore.variableMonitoringRepository,
     );
-    Container.set(
-      OcpiGraphqlClient,
-      new OcpiGraphqlClient(this.serverConfig.util.graphql.url, {
-        'x-hasura-admin-secret': this.serverConfig.util.graphql.adminSecret,
-      }),
-    );
+    // GraphQL client is optional for OCPI
+    // TODO: Remove this if not needed for OCPI functionality
     this.onContainerInitialized();
   }
 

@@ -72,7 +72,7 @@ export class AuthMiddleware
           toCountryCode,
           toPartyId,
         );
-      } catch (error) {
+      } catch (_error) {
         return this.throwError(context);
       }
     }

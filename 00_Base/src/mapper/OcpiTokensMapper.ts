@@ -1,4 +1,4 @@
-import { IAuthorizationDto, IdTokenType, OCPP2_0_1 } from '@citrineos/base';
+import { AuthorizationStatusEnumType, IAuthorizationDto, IdTokenType, OCPP2_0_1 } from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
@@ -152,4 +152,53 @@ export class OcpiTokensMapper {
 
   //   return idTokenInfo;
   // }
+
+  public static fromGraphql(graphqlAuth: any): TokenDTO {
+    const idTokenInfo = graphqlAuth.IdTokenInfo;
+    const idToken = graphqlAuth.IdToken;
+    const tenant = graphqlAuth.Tenant;
+
+    return {
+      uid: idToken.idToken,
+      type: idToken.type,
+      country_code: tenant.countryCode,
+      party_id: tenant.partyId,
+      valid: idTokenInfo.status === AuthorizationStatusEnumType.Accepted,
+      contract_id: graphqlAuth.OcpiToken?.contract_id,
+      visual_number: graphqlAuth.OcpiToken?.visual_number,
+      issuer: graphqlAuth.OcpiToken?.issuer,
+      whitelist: graphqlAuth.OcpiToken?.whitelist,
+      default_profile_type: graphqlAuth.OcpiToken?.default_profile_type,
+      energy_contract: graphqlAuth.OcpiToken?.energy_contract,
+      last_updated: graphqlAuth.OcpiToken?.last_updated,
+    };
+  }
+
+  public static toGraphqlWhere(token: TokenDTO): any {
+    return {
+      IdToken: {
+        idToken: { _eq: token.uid },
+        type: {
+          _eq: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(token.type),
+        },
+      },
+      Tenant: {
+        countryCode: { _eq: token.country_code },
+        partyId: { _eq: token.party_id },
+      },
+    };
+  }
+
+  public static toGraphqlSet(token: Partial<TokenDTO>): any {
+    const set: any = {};
+    if (token.valid !== undefined) {
+      set.IdTokenInfo = {
+        status: token.valid
+          ? AuthorizationStatusEnumType.Accepted
+          : AuthorizationStatusEnumType.Invalid,
+      };
+    }
+    //TODO: Add other fields as needed for update
+    return set;
+  }
 }

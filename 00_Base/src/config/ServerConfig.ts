@@ -1,68 +1,81 @@
-import { Service } from 'typedi';
-import { Enum } from '../util/decorators/Enum';
-import { IsInt, IsNotEmpty, IsPositive, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import {
-  Env,
-  LogLevel,
-  SequelizeConfig,
-  ServerConfigCentralSystem,
-  ServerConfigData,
-  ServerConfigHostPort,
-  ServerConfigModules,
-  ServerConfigUtil,
-} from './sub';
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache 2.0
 
-@Service()
-export class ServerConfig {
-  @Enum(Env, 'Env')
-  @IsNotEmpty()
-  env = Env.DEVELOPMENT;
+/**
+ * Minimal ServerConfig compatibility interface for OCPI
+ * This provides just enough structure for existing repositories to work
+ * without requiring the full citrineos-core ServerConfig
+ */
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigData)
-  @ValidateNested()
-  centralSystem!: ServerConfigCentralSystem;
+export enum Env {
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+}
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigModules)
-  @ValidateNested()
-  modules!: ServerConfigModules;
+export interface SequelizeConfig {
+  host: string;
+  port: number;
+  database: string;
+  dialect: string;
+  username: string;
+  password: string;
+  storage: string;
+  sync: boolean;
+  alter?: boolean;
+  maxRetries?: number;
+  retryDelay?: number;
+}
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigData)
-  @ValidateNested()
-  data!: ServerConfigData;
+export interface ServerConfigData {
+  sequelize: SequelizeConfig;
+}
 
-  @IsNotEmpty()
-  @Type(() => ServerConfigUtil)
-  @ValidateNested()
-  util!: ServerConfigUtil;
+export interface CentralSystemConfig {
+  host: string;
+  port: number;
+}
 
-  @Enum(LogLevel, 'LogLevel')
-  @IsNotEmpty()
-  logLevel: LogLevel;
+export interface CacheConfig {
+  redis: {
+    host: string;
+    port: number;
+  };
+}
 
-  @IsInt()
-  @IsPositive()
-  @IsNotEmpty()
+export interface MessageBrokerConfig {
+  amqp: boolean;
+}
+
+export interface DirectusConfig {
+  generateFlows?: boolean;
+}
+
+export interface NetworkConnectionConfig {
+  websocketServers: any[];
+}
+
+export interface UtilConfig {
+  cache: CacheConfig;
+  messageBroker: MessageBrokerConfig;
+  swagger?: any;
+  directus?: DirectusConfig;
+  networkConnection: NetworkConnectionConfig;
+}
+
+export interface OcpiServerConfig {
+  host: string;
+  port: number;
+}
+
+export interface ServerConfig {
+  env: Env;
+  data: ServerConfigData;
+  logLevel: number;
+  centralSystem: CentralSystemConfig;
+  util: UtilConfig;
+  ocpiServer: OcpiServerConfig;
+  modules: any;
   maxCallLengthSeconds: number;
-
-  @IsInt()
-  @IsPositive()
-  @IsNotEmpty()
   maxCachingSeconds: number;
-
-  @Type(() => ServerConfigHostPort)
-  ocpiServer: ServerConfigHostPort;
-
-  constructor() {
-    this.data = new ServerConfigData();
-    this.data.sequelize = new SequelizeConfig();
-    this.util = new ServerConfigUtil();
-    this.logLevel = LogLevel.DEBUG;
-    this.ocpiServer = new ServerConfigHostPort('0.0.0.0', 8085);
-    this.maxCallLengthSeconds = 30;
-    this.maxCachingSeconds = 30;
-  }
 }

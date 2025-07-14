@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { CacheWrapper, OcpiModule, ServerConfig } from '@citrineos/ocpi-base';
+import { CacheWrapper, OcpiModule, OcpiConfig } from '@citrineos/ocpi-base';
 import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
-import { Service } from 'typedi';
+import { Service, Container } from 'typedi';
 import { VersionsModuleApi } from './module/VersionsModuleApi';
 import { VersionsOcppHandlers } from './module/VersionsOcppHandlers';
 import { ILogObj, Logger } from 'tslog';
@@ -20,7 +20,7 @@ export class VersionsModule implements OcpiModule {
   sender!: IMessageSender;
 
   constructor(
-    readonly config: ServerConfig,
+    readonly config: OcpiConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
@@ -28,8 +28,10 @@ export class VersionsModule implements OcpiModule {
   init(handler: IMessageHandler, sender: IMessageSender): void {
     this.handler = handler;
     this.sender = sender;
+    // Get the compatible ServerConfig from the container for legacy handlers
+    const serverConfig = Container.get('ServerConfig');
     new VersionsOcppHandlers(
-      this.config as SystemConfig,
+      serverConfig as SystemConfig,
       this.cacheWrapper.cache,
       this.handler,
       this.sender,

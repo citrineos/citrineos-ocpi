@@ -1,40 +1,49 @@
-import { VersionRepository } from '../repository/VersionRepository';
-import { Version } from '../model/Version';
-import { OcpiNamespace } from '../util/OcpiNamespace';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { GET_TENANT_VERSION_ENDPOINTS } from '../graphql/queries/tenantVersionEndpoints.queries';
 import { VersionNumber } from '../model/VersionNumber';
 import { Service } from 'typedi';
 import { NotFoundError } from 'routing-controllers';
 import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
-import { VersionEndpoint } from '../model/VersionEndpoint';
 
 @Service()
 export class VersionService {
-  constructor(private versionRepository: VersionRepository) {}
+  constructor(private ocpiGraphqlClient: OcpiGraphqlClient) {}
 
   async getVersions(): Promise<VersionListResponseDTO> {
-    const versions: Version[] = await this.versionRepository.readAllByQuery({});
+    const response = await this.ocpiGraphqlClient.request<any>(
+      GET_TENANT_VERSION_ENDPOINTS,
+      { version: undefined }, // fetch all versions
+    );
+    const tenants = response.tenants || [];
+    const versions = tenants.flatMap((tenant: any) => tenant.versions || []);
     return VersionListResponseDTO.build(
-      versions.map((version) => version.toVersionDTO()),
+      versions.map((version: any) => ({
+        version: version.version,
+        url:
+          version.endpoints.find((e: any) => e.identifier === 'versions')
+            ?.url || '',
+      })),
     );
   }
 
   async getVersionDetails(
     version: VersionNumber,
   ): Promise<VersionDetailsResponseDTO> {
-    const versionDetail: Version | undefined =
-      await this.versionRepository.readOnlyOneByQuery(
-        {
-          where: {
-            version: version,
-          },
-          include: [VersionEndpoint],
-        },
-        OcpiNamespace.Version,
-      );
-    if (!versionDetail) {
+    const response = await this.ocpiGraphqlClient.request<any>(
+      GET_TENANT_VERSION_ENDPOINTS,
+      { version },
+    );
+    const tenants = response.tenants || [];
+    const tenantVersion = tenants
+      .flatMap((tenant: any) => tenant.versions || [])
+      .find((v: any) => v.version === version);
+    if (!tenantVersion) {
       throw new NotFoundError('Version not found');
     }
-    return VersionDetailsResponseDTO.build(versionDetail.toVersionDetailsDTO());
+    return VersionDetailsResponseDTO.build({
+      version: tenantVersion.version,
+      endpoints: tenantVersion.endpoints,
+    });
   }
 }

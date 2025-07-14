@@ -2,144 +2,71 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { OCPP2_0_1, OCPPVersion } from '@citrineos/base';
-import path from 'path';
-import {
-  Env,
-  ServerConfig,
-  ServerConfigUtilCertificateAuthorityChargingStationCAName,
-  ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion,
-  ServerConfigUtilCertificateAuthorityV2gCAName,
-} from '@citrineos/ocpi-base';
+import { OcpiConfigInput } from '@citrineos/ocpi-base';
 
-export const localConfig: ServerConfig = {
-  env: Env.DEVELOPMENT,
-  centralSystem: {
-    host: '0.0.0.0',
-    port: 8080,
-  },
-  modules: {
-    certificates: {
-      endpointPrefix: '/certificates',
+export function createLocalOcpiConfig(): OcpiConfigInput {
+  return {
+    env: 'development',
+
+    ocpiServer: {
+      host: '0.0.0.0',
+      port: 8085,
     },
-    configuration: {
-      heartbeatInterval: 60,
-      bootRetryInterval: 15,
-      unknownChargerStatus: OCPP2_0_1.RegistrationStatusEnumType.Accepted,
-      getBaseReportOnPending: true,
-      bootWithRejectedVariables: true,
-      autoAccept: true,
-      endpointPrefix: '/configuration',
+
+    ocpiModules: {
+      credentials: {
+        endpointPrefix: '/credentials',
+      },
+      versions: {
+        endpointPrefix: '/versions',
+      },
+      locations: {
+        endpointPrefix: '/locations',
+      },
+      sessions: {
+        endpointPrefix: '/sessions',
+      },
+      cdrs: {
+        endpointPrefix: '/cdrs',
+      },
+      tokens: {
+        endpointPrefix: '/tokens',
+      },
+      tariffs: {
+        endpointPrefix: '/tariffs',
+      },
+      chargingProfiles: {
+        endpointPrefix: '/chargingprofiles',
+      },
+      commands: {
+        endpointPrefix: '/commands',
+      },
     },
-    evdriver: {
-      endpointPrefix: '/evdriver',
+
+    database: {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME || 'ocpi',
+      username: process.env.DB_USER || 'ocpi',
+      password: process.env.DB_PASS || '',
+      sync: process.env.DB_SYNC === 'true',
     },
-    monitoring: {
-      endpointPrefix: '/monitoring',
-    },
-    reporting: {
-      endpointPrefix: '/reporting',
-    },
-    smartcharging: {
-      endpointPrefix: '/smartcharging',
-    },
-    tenant: {
-      endpointPrefix: '/tenant',
-    },
-    transactions: {
-      endpointPrefix: '/transactions',
-      costUpdatedInterval: 60,
-    },
-  },
-  data: {
-    sequelize: {
-      host: 'localhost',
-      port: 5432,
-      database: 'citrine',
-      dialect: 'postgres',
-      username: 'citrine',
-      password: 'citrine',
-      storage: '',
-      sync: false,
-      alter: true,
-    },
-  },
-  util: {
+
     cache: {
       memory: true,
     },
-    messageBroker: {
-      amqp: {
-        url: 'amqp://guest:guest@localhost:5672',
-        exchange: 'citrineos',
-      },
-    },
-    swagger: {
-      path: '/docs',
-      logoPath: path.resolve(path.dirname(__filename), '../../assets/logo.png'),
-      exposeData: true,
-      exposeMessage: true,
-    },
-    directus: {
-      host: '0.0.0.0',
-      port: 8056,
-      generateFlows: false,
-    },
-    networkConnection: {
-      websocketServers: [
-        {
-          id: '0',
-          securityProfile: 0,
-          allowUnknownChargingStations: true,
-          pingInterval: 60,
-          host: '0.0.0.0',
-          port: 8081,
-          protocol: OCPPVersion.OCPP2_0_1,
-        },
-        {
-          id: '1',
-          securityProfile: 1,
-          allowUnknownChargingStations: false,
-          pingInterval: 60,
-          host: '0.0.0.0',
-          port: 8082,
-          protocol: OCPPVersion.OCPP2_0_1,
-        },
-      ],
-    },
-    certificateAuthority: {
-      v2gCA: {
-        name: ServerConfigUtilCertificateAuthorityV2gCAName.HUBJECT,
-        hubject: {
-          baseUrl: 'https://open.plugncharge-test.hubject.com',
-          tokenUrl:
-            'https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token',
-          isoVersion:
-            ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion.ISO15118_2,
-        },
-      },
-      chargingStationCA: {
-        name: ServerConfigUtilCertificateAuthorityChargingStationCAName.ACME,
-        acme: {
-          env: Env.STAGING,
-          accountKeyFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/acme_account_key.pem',
-          ),
-          email: 'test@citrineos.com',
-        },
-      },
-    },
-    graphql: {
-      url: 'http://localhost:8090/v1/graphql',
-      adminSecret: 'CitrineOS!',
-    },
-  },
-  logLevel: 2, // debug
-  maxCallLengthSeconds: 30,
-  maxCachingSeconds: 30,
-  ocpiServer: {
-    host: '0.0.0.0',
-    port: 8085,
-  },
-};
+
+    messageBroker: process.env.AMQP_URL
+      ? {
+          amqp: {
+            url: process.env.AMQP_URL,
+            exchange: process.env.AMQP_EXCHANGE || 'ocpi',
+          },
+        }
+      : undefined,
+
+    logLevel: parseInt(process.env.LOG_LEVEL || '2'),
+    defaultPageLimit: 50,
+    maxPageLimit: 1000,
+  };
+}

@@ -4,6 +4,9 @@
 // SPDX-License-Identifier: Apache 2.0
 
 /**
- * Interface for the Locations module.
+ * Interface for the Locations module API.
+ * This interface can be extended to define specific method contracts
+ * or augmented using TypeScript declaration merging.
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ILocationsModuleApi {}

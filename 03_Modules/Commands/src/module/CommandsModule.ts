@@ -8,7 +8,7 @@ import {
   AsyncResponder,
   CacheWrapper,
   OcpiModule,
-  ServerConfig,
+  OcpiConfig,
   SessionMapper,
 } from '@citrineos/ocpi-base';
 import {
@@ -22,16 +22,18 @@ import { ILogObj, Logger } from 'tslog';
 @Service()
 export class CommandsModule implements OcpiModule {
   constructor(
-    readonly config: ServerConfig,
+    readonly config: OcpiConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
 
   init(handler?: IMessageHandler, sender?: IMessageSender): void {
+    // Get the compatible ServerConfig from the container for legacy handlers
+    const serverConfig = Container.get('ServerConfig');
     Container.set(
       AbstractModule,
       new CommandsOcppHandlers(
-        this.config as SystemConfig,
+        serverConfig as SystemConfig,
         this.cacheWrapper.cache,
         Container.get(AsyncResponder),
         Container.get(SequelizeTransactionEventRepository),
@@ -45,7 +47,7 @@ export class CommandsModule implements OcpiModule {
     Container.set(
       SequelizeTransactionEventRepository,
       new SequelizeTransactionEventRepository(
-        this.config as SystemConfig,
+        serverConfig as SystemConfig,
         this.logger,
       ),
     );

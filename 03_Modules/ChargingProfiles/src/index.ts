@@ -11,7 +11,7 @@ import {
   ClientInformationRepository,
   EndpointRepository,
   OcpiModule,
-  ServerConfig,
+  OcpiConfig,
   SessionChargingProfileRepository,
   SessionMapper,
 } from '@citrineos/ocpi-base';
@@ -22,7 +22,6 @@ import {
   SystemConfig,
 } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
-
 import { Container, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
 import {
@@ -36,25 +35,35 @@ useContainer(Container);
 @Service()
 export class ChargingProfilesModule implements OcpiModule {
   constructor(
-    readonly config: ServerConfig,
+    readonly config: OcpiConfig,
     readonly cache: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {
+    // Get the compatible ServerConfig from the container for legacy handlers
+    const serverConfig = Container.get('ServerConfig');
     Container.set(
       SequelizeTransactionEventRepository,
-      new SequelizeTransactionEventRepository(config as SystemConfig, logger),
+      new SequelizeTransactionEventRepository(
+        serverConfig as SystemConfig,
+        logger,
+      ),
     );
     Container.set(
       SequelizeChargingProfileRepository,
-      new SequelizeChargingProfileRepository(config as SystemConfig, logger),
+      new SequelizeChargingProfileRepository(
+        serverConfig as SystemConfig,
+        logger,
+      ),
     );
   }
 
   init(handler?: IMessageHandler, sender?: IMessageSender): void {
+    // Get the compatible ServerConfig from the container for legacy handlers
+    const serverConfig = Container.get('ServerConfig');
     Container.set(
       AbstractModule,
       new ChargingProfilesOcppHandlers(
-        this.config as SystemConfig,
+        serverConfig as SystemConfig,
         this.cache.cache,
         Container.get(AsyncResponder),
         Container.get(ChargingProfilesClientApi),

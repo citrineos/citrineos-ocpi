@@ -46,7 +46,7 @@ export class VersionsClientApi extends BaseClientApi {
         additionalHeaders,
       });
       return this.handleResponse(VersionDetailsResponseDTO, response);
-    } catch (e) {
+    } catch (_e) {
       throw new UnsuccessfulRequestException(
         'Could not get version details',
         response!,

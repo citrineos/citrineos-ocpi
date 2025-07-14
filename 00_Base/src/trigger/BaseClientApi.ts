@@ -12,13 +12,18 @@ import { PaginatedResponse } from '../model/PaginatedResponse';
 import { Constructable, Inject } from 'typedi';
 import { v4 as uuidv4 } from 'uuid';
 import { ModuleId } from '../model/ModuleId';
-import { ClientInformationProps } from '../model/ClientInformation';
-import { ClientCredentialsRoleProps } from '../model/ClientCredentialsRole';
 import { ILogObj, Logger } from 'tslog';
-import { ClientInformationRepository } from '../repository/ClientInformationRepository';
-import { Endpoint } from '../model/Endpoint';
-import { EndpointRepository } from '../repository/EndpointRepository';
 import { InterfaceRole } from '../model/InterfaceRole';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import {
+  GetTenantPartnersByCpoAndModuleIdQuery,
+  GetTenantPartnersByCpoClientAndModuleIdQuery,
+} from '../graphql/types/graphql';
+import { Endpoint } from '../model/Endpoint';
+import {
+  GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID,
+  GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,
+} from '../graphql/queries/tenantPartner.queries';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -48,9 +53,7 @@ export class BaseClientApi {
   @Inject()
   protected logger!: Logger<ILogObj>;
   @Inject()
-  protected clientInformationRepository!: ClientInformationRepository;
-  @Inject()
-  protected endpointRepository!: EndpointRepository;
+  protected ocpiGraphqlClient!: OcpiGraphqlClient;
 
   CONTROLLER_PATH = 'null';
   private restClient!: RestClient;
@@ -423,20 +426,25 @@ export class BaseClientApi {
     toCountryCode: string,
     toPartyId: string,
   ): Promise<string> {
-    const clientInfo =
-      await this.clientInformationRepository.getClientInformation(
-        fromCountryCode,
-        fromPartyId,
-        toCountryCode,
-        toPartyId,
+    const response =
+      await this.ocpiGraphqlClient.request<GetTenantPartnersByCpoClientAndModuleIdQuery>(
+        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,
+        {
+          cpoCountryCode: fromCountryCode,
+          cpoPartyId: fromPartyId,
+          moduleId: ModuleId.Credentials, // Assuming credentials module is always used for auth token
+          clientCountryCode: toCountryCode,
+          clientPartyId: toPartyId,
+        },
       );
-    if (!clientInfo) {
+    const clientInfo = response.TenantPartners?.[0];
+    if (!clientInfo || !clientInfo.partnerProfile.credentials?.token) {
       throw new MissingRequiredParamException(
         'authorization',
         `No ClientInformation found from ${fromCountryCode} ${fromPartyId} to ${toCountryCode} ${toPartyId}`,
       );
     }
-    return clientInfo[ClientInformationProps.clientToken];
+    return clientInfo.partnerProfile.credentials.token;
   }
 
   protected async getEndpointWithVersion(
@@ -447,21 +455,34 @@ export class BaseClientApi {
     moduleId: ModuleId,
     role: InterfaceRole,
   ): Promise<Endpoint> {
-    const endpoint = await this.endpointRepository.readEndpoint(
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
-      moduleId,
-      role,
-    );
-    if (!endpoint) {
+    const response =
+      await this.ocpiGraphqlClient.request<GetTenantPartnersByCpoAndModuleIdQuery>(
+        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,
+        {
+          cpoCountryCode: fromCountryCode,
+          cpoPartyId: fromPartyId,
+          moduleId: moduleId,
+          clientCountryCode: toCountryCode,
+          clientPartyId: toPartyId,
+        },
+      );
+    const clientInfo = response.TenantPartners?.[0];
+    if (!clientInfo || !clientInfo.partnerProfile.version?.endpoints) {
       throw new MissingRequiredParamException(
         this._baseUrl,
         `No endpoint found from ${fromCountryCode} ${fromPartyId} to ${toCountryCode} ${toPartyId}`,
       );
     }
-    return endpoint;
+    const endpoint = clientInfo.partnerProfile.version.endpoints.find(
+      (ep: any) => ep.identifier === moduleId && ep.role === role,
+    );
+    if (!endpoint || !endpoint.url) {
+      throw new MissingRequiredParamException(
+        this._baseUrl,
+        `No endpoint found from ${fromCountryCode} ${fromPartyId} to ${toCountryCode} ${toPartyId}`,
+      );
+    }
+    return endpoint as Endpoint;
   }
 
   private initRestClient() {
@@ -477,53 +498,48 @@ export class BaseClientApi {
     moduleId: ModuleId,
   ): Promise<RequiredOcpiParams[]> {
     const urlCountryCodeAndPartyIdList: RequiredOcpiParams[] = [];
-    const clientInformationList =
-      await this.clientInformationRepository.getClientInformationByServerCountryCodeAndPartyId(
-        cpoCountryCode,
-        cpoPartyId,
-      );
-    if (!clientInformationList || clientInformationList.length === 0) {
-      this.logger.error('clientInformationList empty');
-      return urlCountryCodeAndPartyIdList; // todo
-    }
-    for (const clientInformation of clientInformationList) {
-      const clientVersions = await clientInformation.$get(
-        ClientInformationProps.clientVersionDetails,
+    const response =
+      await this.ocpiGraphqlClient.request<GetTenantPartnersByCpoAndModuleIdQuery>(
+        GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID,
         {
-          include: [Endpoint],
+          cpoCountryCode: cpoCountryCode,
+          cpoPartyId: cpoPartyId,
+          moduleId: moduleId,
         },
       );
-      if (!clientVersions || clientVersions.length === 0) {
+
+    const clientInformationList = response.TenantPartners;
+
+    if (!clientInformationList || clientInformationList.length === 0) {
+      this.logger.error('clientInformationList empty');
+      return urlCountryCodeAndPartyIdList;
+    }
+
+    for (const clientInformation of clientInformationList) {
+      const clientVersions = clientInformation.partnerProfile.version;
+      if (!clientVersions || !clientVersions.endpoints) {
         this.logger.error('clientVersions empty');
         continue;
       }
-      const clientCredentialRoles = await clientInformation.$get(
-        ClientInformationProps.clientCredentialsRoles,
-      );
+      const clientCredentialRoles = clientInformation.partnerProfile.roles;
       if (!clientCredentialRoles || clientCredentialRoles.length === 0) {
         this.logger.error('clientCredentialRoles empty');
         continue;
       }
-      for (let i = 0; i < clientCredentialRoles.length; i++) {
-        const clientCredentialRole = clientCredentialRoles[i];
-        const clientVersion = clientVersions[i];
-        const matchingEndpoint = clientVersion.endpoints.find(
-          (endpoint) => endpoint.identifier === moduleId,
-        );
-        if (
-          matchingEndpoint &&
-          matchingEndpoint.url &&
-          matchingEndpoint.url.length > 0
-        ) {
-          urlCountryCodeAndPartyIdList.push({
-            clientUrl: matchingEndpoint.url,
-            authToken: clientInformation[ClientInformationProps.clientToken],
-            clientCountryCode:
-              clientCredentialRole[ClientCredentialsRoleProps.countryCode],
-            clientPartyId:
-              clientCredentialRole[ClientCredentialsRoleProps.partyId],
-          });
-        }
+      const matchingEndpoint = clientVersions.endpoints.find(
+        (endpoint: any) => endpoint.identifier === moduleId,
+      );
+      if (
+        matchingEndpoint &&
+        matchingEndpoint.url &&
+        matchingEndpoint.url.length > 0
+      ) {
+        urlCountryCodeAndPartyIdList.push({
+          clientUrl: matchingEndpoint.url,
+          authToken: clientInformation.partnerProfile.credentials.token,
+          clientCountryCode: clientInformation.countryCode,
+          clientPartyId: clientInformation.partyId,
+        });
       }
     }
     return urlCountryCodeAndPartyIdList;
