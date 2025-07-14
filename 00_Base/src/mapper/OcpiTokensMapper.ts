@@ -1,67 +1,65 @@
-import { OCPP2_0_1 } from '@citrineos/base';
-import { OcpiToken } from '../model/OcpiToken';
+import { IAuthorizationDto, IdTokenType, OCPP2_0_1 } from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
-import { Authorization, IdToken } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
-  public static toEntity(
-    authorizationId: number,
-    tokenDto: TokenDTO,
-  ): OcpiToken {
-    return OcpiToken.build({
-      authorization_id: authorizationId,
-      country_code: tokenDto.country_code,
-      party_id: tokenDto.party_id,
-      uid: tokenDto.uid,
-      type: tokenDto.type,
-      contract_id: tokenDto.contract_id,
-      visual_number: tokenDto.visual_number,
-      issuer: tokenDto.issuer,
-      whitelist: tokenDto.whitelist,
-      default_profile_type: tokenDto.default_profile_type,
-      energy_contract: tokenDto.energy_contract,
-      last_updated: tokenDto.last_updated,
-    });
-  }
-
   public static async toDto(
-    authorization: Authorization,
-    token: OcpiToken,
+    authorization: IAuthorizationDto,
   ): Promise<TokenDTO> {
     const tokenDto = new TokenDTO();
 
-    tokenDto.country_code = token.country_code;
-    tokenDto.party_id = token.party_id;
-    tokenDto.uid = (await authorization.$get('idToken'))!.idToken;
-    tokenDto.type = token.type;
+    tokenDto.country_code = authorization.tenant!.countryCode!;
+    tokenDto.party_id = authorization.tenant!.partyId!;
+    tokenDto.uid = authorization.idToken;
+    tokenDto.type = OcpiTokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
+      authorization.idTokenType ? authorization.idTokenType : null,
+    );
     tokenDto.contract_id = await this.getContractId(authorization);
-    tokenDto.visual_number = token.visual_number;
-    tokenDto.issuer = token.issuer;
-    tokenDto.group_id = authorization.idTokenInfo?.groupIdToken?.idToken;
+    // tokenDto.visual_number = token.visual_number; add to additionalInfo
+    // tokenDto.issuer = token.issuer; add to additionalInfo
+    tokenDto.group_id = authorization.groupAuthorization?.idToken;
     tokenDto.valid =
-      authorization.idTokenInfo?.status ===
-      OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
-    tokenDto.whitelist = token.whitelist;
-    tokenDto.language = authorization.idTokenInfo?.language1;
-    tokenDto.default_profile_type = token.default_profile_type;
-    tokenDto.energy_contract = token.energy_contract;
-    tokenDto.last_updated = token.last_updated;
+      authorization.status === OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
+    // tokenDto.whitelist = token.whitelist; realtimeauth enum
+    tokenDto.language = authorization.language1;
+    // tokenDto.default_profile_type = token.default_profile_type;
+    // tokenDto.energy_contract = token.energy_contract;
+    tokenDto.last_updated = authorization.updatedAt!;
 
     return tokenDto;
   }
 
   public static mapOcpiTokenTypeToOcppIdTokenType(
     type: TokenType,
-  ): OCPP2_0_1.IdTokenEnumType {
+  ): IdTokenType | null {
     switch (type) {
       case TokenType.RFID:
         // If you are actually using ISO15693, you need to change this
-        return OCPP2_0_1.IdTokenEnumType.ISO14443;
+        return IdTokenType.ISO14443;
       case TokenType.AD_HOC_USER:
+        return IdTokenType.Local;
       case TokenType.APP_USER:
+        return IdTokenType.Central;
       case TokenType.OTHER:
-        return OCPP2_0_1.IdTokenEnumType.Central;
+        return IdTokenType.Other;
+      default:
+        throw new Error(`Unknown token type: ${type}`);
+    }
+  }
+
+  public static mapOcppIdTokenTypeToOcpiTokenType(
+    type: IdTokenType | null,
+  ): TokenType {
+    switch (type) {
+      case IdTokenType.ISO14443:
+        // If you are actually using ISO15693, you need to change this
+        return TokenType.RFID;
+      case IdTokenType.Local:
+        return TokenType.AD_HOC_USER;
+      case IdTokenType.Central:
+        return TokenType.APP_USER;
+      case null:
+        return TokenType.OTHER;
       default:
         throw new Error(`Unknown token type: ${type}`);
     }
@@ -69,72 +67,89 @@ export class OcpiTokensMapper {
 
   public static mapOcpiTokenToOcppAuthorization(
     tokenDto: TokenDTO,
-  ): OCPP2_0_1.AuthorizationData {
-    const additionalInfo: OCPP2_0_1.AdditionalInfoType = {
+  ): IAuthorizationDto {
+    const tenantId = 0; // TODO: Handle linking to tenant with tokenDto.country_code and tokenDto.party_id
+
+    const idToken: string = tokenDto.uid;
+    const idTokenType: IdTokenType | null =
+      OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
+    const additionalInfo: [OCPP2_0_1.AdditionalInfoType, ...OCPP2_0_1.AdditionalInfoType[]] = [{
       additionalIdToken: tokenDto.contract_id,
       type: OCPP2_0_1.IdTokenEnumType.eMAID,
-    };
-
-    const idToken: OCPP2_0_1.IdTokenType = {
-      idToken: tokenDto.uid,
-      type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type),
-      additionalInfo: [additionalInfo],
-    };
-
-    const idTokenInfo: OCPP2_0_1.IdTokenInfoType = {
-      status: tokenDto.valid
-        ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
-        : OCPP2_0_1.AuthorizationStatusEnumType.Invalid,
-      language1: tokenDto.language ?? undefined,
-    };
-
-    if (tokenDto.group_id) {
-      idTokenInfo['groupIdToken'] = {
-        idToken: tokenDto.group_id,
-        type: OCPP2_0_1.IdTokenEnumType.Central,
-      };
+    }];
+    if (tokenDto.visual_number) {
+      additionalInfo.push({
+        additionalIdToken: tokenDto.visual_number,
+        type: 'visual_number',
+      });
+    }
+    if (tokenDto.issuer) {
+      additionalInfo.push({
+        additionalIdToken: tokenDto.issuer,
+        type: 'issuer',
+      });
     }
 
-    return { idToken, idTokenInfo };
+    const status: OCPP2_0_1.AuthorizationStatusEnumType = tokenDto.valid
+      ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
+      : OCPP2_0_1.AuthorizationStatusEnumType.Invalid;
+    const language1: string | undefined = tokenDto.language ?? undefined;
+
+    if (tokenDto.group_id) {
+      // TODO: Handle linking to group authorization with tokenDto.group_id
+    }
+
+    return {
+      tenantId,
+      additionalInfo,
+      idToken,
+      idTokenType,
+      status,
+      language1,
+    };
   }
 
   public static async getContractId(
-    authorization: Authorization,
+    authorization: IAuthorizationDto,
   ): Promise<string> {
-    const idToken = await authorization.$get('idToken');
-    const additionalInfo = await (idToken! as IdToken).$get('additionalInfo');
-
-    // TODO: filter by type eMAID
-    return additionalInfo![0].additionalIdToken;
+    const contractId = authorization.additionalInfo!.find(
+      (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
+    )?.additionalIdToken;
+    if (!contractId) {
+      throw new Error(
+        'Contract ID not found in authorization additional info, authorization is incomplete for OCPI token mapping. Please add additional info with type eMAID.',
+      );
+    }
+    return contractId;
   }
 
-  public static mapTokenDTOToPartialAuthorization(
-    existingAuth: Authorization,
-    tokenDTO: Partial<TokenDTO>,
-  ): Partial<OCPP2_0_1.IdTokenInfoType> {
-    const idTokenInfo: Partial<OCPP2_0_1.IdTokenInfoType> = {
-      status: existingAuth.idTokenInfo?.status,
-    };
+  // public static mapTokenDTOToPartialAuthorization(
+  //   existingAuth: Authorization,
+  //   tokenDTO: Partial<TokenDTO>,
+  // ): Partial<OCPP2_0_1.IdTokenInfoType> {
+  //   const idTokenInfo: Partial<OCPP2_0_1.IdTokenInfoType> = {
+  //     status: existingAuth.idTokenInfo?.status,
+  //   };
 
-    if (tokenDTO.valid !== undefined) {
-      idTokenInfo.status = tokenDTO.valid
-        ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
-        : OCPP2_0_1.AuthorizationStatusEnumType.Invalid;
-    }
+  //   if (tokenDTO.valid !== undefined) {
+  //     idTokenInfo.status = tokenDTO.valid
+  //       ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
+  //       : OCPP2_0_1.AuthorizationStatusEnumType.Invalid;
+  //   }
 
-    if (tokenDTO.group_id) {
-      idTokenInfo.groupIdToken = {
-        idToken: tokenDTO.group_id,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-          tokenDTO.type!,
-        ),
-      };
-    }
+  //   if (tokenDTO.group_id) {
+  //     idTokenInfo.groupIdToken = {
+  //       idToken: tokenDTO.group_id,
+  //       type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+  //         tokenDTO.type!,
+  //       ),
+  //     };
+  //   }
 
-    if (tokenDTO.language) {
-      idTokenInfo.language1 = tokenDTO.language;
-    }
+  //   if (tokenDTO.language) {
+  //     idTokenInfo.language1 = tokenDTO.language;
+  //   }
 
-    return idTokenInfo;
-  }
+  //   return idTokenInfo;
+  // }
 }

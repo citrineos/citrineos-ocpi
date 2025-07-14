@@ -7,15 +7,9 @@ import { CredentialsService } from '../services/CredentialsService';
 import { ILogObj, Logger } from 'tslog';
 import { BaseBroadcaster } from './BaseBroadcaster';
 import { ModuleId } from '../model/ModuleId';
-<<<<<<< HEAD:00_Base/src/broadcaster/SessionBroadcaster.ts
 import { PatchSessionParams } from '../trigger/param/sessions/PatchSessionParams';
 import { PutSessionParams } from '../trigger/param/sessions/PutSessionParams';
-import { TransactionEventEnumType, TriggerReasonEnumType } from '@citrineos/base';
-=======
-import { PatchSessionParams } from '../trigger/param/sessions/patch.session.params';
-import { PutSessionParams } from '../trigger/param/sessions/put.session.params';
 import { OCPP2_0_1 } from '@citrineos/base';
->>>>>>> chore/update-ocpi-to-use-new-ocpp-enums:00_Base/src/broadcaster/session.broadcaster.ts
 import { InternalServerError } from 'routing-controllers';
 import { SessionStatus } from '../model/SessionStatus';
 
