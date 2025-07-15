@@ -18,6 +18,10 @@ export const GET_TRANSACTIONS_QUERY = gql`
           Tenant: {
             countryCode: { _eq: $cpoCountryCode }
             partyId: { _eq: $cpoPartyId }
+            TenantPartners: {
+              countryCode: { _eq: $mspCountryCode }
+              partyId: { _eq: $mspPartyId }
+            }
           }
         }
         updatedAt: { _gte: $dateFrom, _lte: $dateTo }
@@ -64,6 +68,10 @@ export const GET_TRANSACTIONS_QUERY = gql`
           Tenant: {
             countryCode: { _eq: $cpoCountryCode }
             partyId: { _eq: $cpoPartyId }
+            TenantPartners: {
+              countryCode: { _eq: $mspCountryCode }
+              partyId: { _eq: $mspPartyId }
+            }
           }
         }
         updatedAt: { _gte: $dateFrom, _lte: $dateTo }
