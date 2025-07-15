@@ -4,7 +4,6 @@ import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { Service, Token } from 'typedi';
 import { Transaction } from '@citrineos/data';
 import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
-import { TransactionQueryBuilder } from './TransactionQueryBuilder';
 import { GetTransactionsQuery } from '../graphql/types/graphql';
 
 export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
@@ -13,10 +12,7 @@ export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
 
 @Service(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
 export class TransactionFilterService implements ITransactionDatasource {
-  constructor(
-    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
-    private readonly transactionQueryBuilder: TransactionQueryBuilder,
-  ) {}
+  constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
 
   async getTransactions(
     cpoCountryCode: string,
@@ -29,32 +25,31 @@ export class TransactionFilterService implements ITransactionDatasource {
     limit?: number,
     endedOnly?: boolean,
   ): Promise<PaginatedResult<Transaction>> {
-    const baseQueryParams = {
-      dateFrom,
-      dateTo,
-      mspCountryCode,
-      mspPartyId,
+    const queryOptions = {
       cpoCountryCode,
       cpoPartyId,
+      mspCountryCode,
+      mspPartyId,
+      dateFrom,
+      dateTo,
+      offset,
+      limit,
     };
-
-    const queryOptions = this.transactionQueryBuilder.buildQuery(
-      {
-        ...baseQueryParams,
-        offset,
-        limit,
-      },
-      endedOnly,
-    );
-
     // Call GraphQL endpoint
     const response = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(
       GET_TRANSACTIONS_QUERY,
       queryOptions,
     );
-    const transactions = response.Transactions || [];
-    const total = response.Transactions_aggregate?.aggregate?.count || 0;
+    let transactions = response.Transactions || [];
+    let total = response.Transactions_aggregate?.aggregate?.count || 0;
 
+    if (endedOnly) {
+      // Filter transactions to include only those that have ended
+      transactions = transactions.filter(
+        (transaction) => transaction.totalKwh > 0,
+      );
+      total = transactions.length;
+    }
     const result: PaginatedResult<Transaction> =
       new PaginatedResult<Transaction>();
     result.data = transactions as unknown as Transaction[];

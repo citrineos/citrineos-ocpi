@@ -10,12 +10,16 @@ export const GET_TRANSACTIONS_QUERY = gql`
     $dateTo: timestamptz
     $offset: Int
     $limit: Int
-    $endedOnly: Boolean
   ) {
     Transactions(
       where: {
         stationId: { _is_null: false }
-        TransactionEvents: { IdToken: { Authorization: {} } }
+        ChargingStation: {
+          Tenant: {
+            countryCode: { _eq: $cpoCountryCode }
+            partyId: { _eq: $cpoPartyId }
+          }
+        }
         updatedAt: { _gte: $dateFrom, _lte: $dateTo }
       }
       offset: $offset
@@ -34,27 +38,34 @@ export const GET_TRANSACTIONS_QUERY = gql`
       totalCost
       createdAt
       updatedAt
-      Evse {
-        id
-      }
       TransactionEvents {
         id
         eventType
-      }
-      MeterValues {
-        id
+        Evse {
+          id
+        }
+        transactionInfo
       }
       StartTransaction {
-        id
+        timestamp
       }
       StopTransaction {
-        id
+        timestamp
+      }
+      MeterValues {
+        timestamp
+        sampledValue
       }
     }
     Transactions_aggregate(
       where: {
         stationId: { _is_null: false }
-        TransactionEvents: { IdToken: { Authorization: { IdToken: {} } } }
+        ChargingStation: {
+          Tenant: {
+            countryCode: { _eq: $cpoCountryCode }
+            partyId: { _eq: $cpoPartyId }
+          }
+        }
         updatedAt: { _gte: $dateFrom, _lte: $dateTo }
       }
     ) {

@@ -9,10 +9,15 @@ import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { GetTransactionsQuery } from '../graphql/types/graphql';
 import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
+import { SessionMapper } from '../mapper/SessionMapper';
+import { Transaction } from '@citrineos/data';
 
 @Service()
 export class SessionsService {
-  constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
+  constructor(
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
+    private readonly sessionMapper: SessionMapper,
+  ) {}
 
   public async getSessions(
     fromCountryCode: string,
@@ -23,6 +28,7 @@ export class SessionsService {
     dateTo?: Date,
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
+    endedOnly?: boolean,
   ): Promise<PaginatedSessionResponse> {
     const queryOptions = {
       cpoCountryCode: toCountryCode,
@@ -39,14 +45,22 @@ export class SessionsService {
       queryOptions,
     );
 
+    let mappedSessions = await this.sessionMapper.mapTransactionsToSessions(
+      result.Transactions as unknown as Transaction[],
+    );
+
+    if (endedOnly) {
+      mappedSessions = mappedSessions.filter((session) => session.kwh > 0);
+    }
+
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
       result.Transactions_aggregate.aggregate?.count || 0,
       limit,
       offset,
-      result.Transactions || [],
+      mappedSessions,
     );
 
-    return response as unknown as PaginatedSessionResponse;
+    return response as PaginatedSessionResponse;
   }
 }
