@@ -31,6 +31,8 @@ export const GET_LOCATIONS_QUERY = gql`
       postalCode
       state
       country
+      publishUpstream
+      timeZone
       coordinates
       createdAt
       updatedAt
@@ -38,23 +40,43 @@ export const GET_LOCATIONS_QUERY = gql`
         partyId
         countryCode
       }
-      ChargingStations {
+      chargingPool: ChargingStations {
         id
         isOnline
         protocol
+        chargePointVendor
+        chargePointModel
+        chargePointSerialNumber
+        chargeBoxSerialNumber
+        firmwareVersion
+        iccid
+        imsi
+        meterType
+        meterSerialNumber
+        locationId
         createdAt
         updatedAt
-        Evses: VariableAttributes(
-          distinct_on: evseDatabaseId
-          where: {
-            evseDatabaseId: { _is_null: false }
-            Evse: { connectorId: { _is_null: false } }
-          }
-        ) {
-          Evse {
-            databaseId
+        evses {
+          id
+          stationId
+          evseTypeId
+          evseId
+          physicalReference
+          removed
+          createdAt
+          updatedAt
+          connectors {
             id
+            stationId
+            evseId
             connectorId
+            evseTypeConnectorId
+            status
+            errorCode
+            timestamp
+            info
+            vendorId
+            vendorErrorCode
             createdAt
             updatedAt
           }
@@ -74,33 +96,52 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       postalCode
       state
       country
+      publishUpstream
+      timeZone
       coordinates
       createdAt
       updatedAt
-      ChargingStations {
+      Tenant {
+        partyId
+        countryCode
+      }
+      chargingPool: ChargingStations {
         id
         isOnline
         protocol
+        chargePointVendor
+        chargePointModel
+        chargePointSerialNumber
+        chargeBoxSerialNumber
+        firmwareVersion
+        iccid
+        imsi
+        meterType
+        meterSerialNumber
+        locationId
         createdAt
         updatedAt
-        Connectors {
+        evses {
           id
-          connectorId
-          status
-          info
           stationId
-        }
-        Evses: VariableAttributes(
-          distinct_on: evseDatabaseId
-          where: {
-            evseDatabaseId: { _is_null: false }
-            Evse: { connectorId: { _is_null: false } }
-          }
-        ) {
-          Evse {
-            databaseId
+          evseTypeId
+          evseId
+          physicalReference
+          removed
+          createdAt
+          updatedAt
+          connectors {
             id
+            stationId
+            evseId
             connectorId
+            evseTypeConnectorId
+            status
+            errorCode
+            timestamp
+            info
+            vendorId
+            vendorErrorCode
             createdAt
             updatedAt
           }
@@ -113,17 +154,16 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
 export const GET_EVSE_BY_ID_QUERY = gql`
   query GetEvseById($locationId: Int!, $stationId: String!, $evseId: Int!) {
     Locations(where: { id: { _eq: $locationId } }) {
-      id
-      ChargingStations(where: { id: { _eq: $stationId } }) {
-        id
-        Evses: VariableAttributes(where: { evseDatabaseId: { _eq: $evseId } }) {
-          Evse {
-            databaseId
-            id
-            connectorId
-            createdAt
-            updatedAt
-          }
+      chargingPool: ChargingStations(where: { id: { _eq: $stationId } }) {
+        evses(where: { evseId: { _eq: $evseId } }) {
+          id
+          stationId
+          evseTypeId
+          evseId
+          physicalReference
+          removed
+          createdAt
+          updatedAt
         }
       }
     }
@@ -138,23 +178,22 @@ export const GET_CONNECTOR_BY_ID_QUERY = gql`
     $connectorId: Int!
   ) {
     Locations(where: { id: { _eq: $locationId } }) {
-      id
-      ChargingStations(where: { id: { _eq: $stationId } }) {
-        id
-        Evses: VariableAttributes(where: { evseDatabaseId: { _eq: $evseId } }) {
-          Evse {
-            databaseId
+      chargingPool: ChargingStations(where: { id: { _eq: $stationId } }) {
+        evses(where: { evseId: { _eq: $evseId } }) {
+          connectors(where: { connectorId: { _eq: $connectorId } }) {
             id
+            stationId
+            evseId
             connectorId
+            evseTypeConnectorId
+            status
+            errorCode
+            timestamp
+            info
+            vendorId
+            vendorErrorCode
             createdAt
             updatedAt
-            Connectors: VariableAttributes(
-              where: { id: { _eq: $connectorId } }
-            ) {
-              id
-              createdAt
-              updatedAt
-            }
           }
         }
       }
