@@ -9,7 +9,6 @@
   ],
   "scripts": {
     "build": "tsc --build",
-    "generate-interfaces": "node json-schema-processor.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
