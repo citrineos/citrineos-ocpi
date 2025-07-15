@@ -5,38 +5,20 @@
 
 import { CdrsModuleApi } from './module/CdrsModuleApi';
 import { CacheWrapper, OcpiModule, OcpiConfig } from '@citrineos/ocpi-base';
-import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
-import { Service, Container } from 'typedi';
-import { CdrsOcppHandlers } from './module/CdrsOcppHandlers';
+import { Service } from 'typedi';
 
 export { CdrsModuleApi } from './module/CdrsModuleApi';
 export { ICdrsModuleApi } from './module/ICdrsModuleApi';
 
+// Cdr pushes are triggered by session updates in the Sessions module.
 @Service()
 export class CdrsModule implements OcpiModule {
-  handler!: IMessageHandler;
-  sender!: IMessageSender;
-
   constructor(
     readonly config: OcpiConfig,
     readonly cache: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
-
-  init(handler: IMessageHandler, sender: IMessageSender): void {
-    this.handler = handler;
-    this.sender = sender;
-    // Get the compatible ServerConfig from the container for legacy handlers
-    const serverConfig = Container.get('ServerConfig');
-    new CdrsOcppHandlers(
-      serverConfig as SystemConfig,
-      this.cache.cache,
-      this.sender,
-      this.handler,
-      this.logger,
-    );
-  }
 
   getController(): any {
     return CdrsModuleApi;

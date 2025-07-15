@@ -4,46 +4,20 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { TokensModuleApi } from './module/TokensModuleApi';
-import {
-  CacheWrapper,
-  OcpiModule,
-  OcpiConfig,
-  TokensService,
-} from '@citrineos/ocpi-base';
-import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
+import { CacheWrapper, OcpiModule, OcpiConfig } from '@citrineos/ocpi-base';
 import { ILogObj, Logger } from 'tslog';
-import { TokensHandlers } from './module/TokensHandlers';
-import { Container, Service } from 'typedi';
-import { RealTimeAuthorizer } from './module/authorizer/RealTimeAuthorizer';
+import { Service } from 'typedi';
 
 export { TokensModuleApi } from './module/TokensModuleApi';
 export { ITokensModuleApi } from './module/ITokensModuleApi';
-export { RealTimeAuthorizer } from './module/authorizer/RealTimeAuthorizer';
 
 @Service()
 export class TokensModule implements OcpiModule {
-  handler!: IMessageHandler;
-  sender!: IMessageSender;
-
   constructor(
     readonly config: OcpiConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
-
-  init(_handler: IMessageHandler, _sender: IMessageSender): void {
-    // Get the compatible ServerConfig from the container for legacy handlers
-    const serverConfig = Container.get('ServerConfig');
-    new TokensHandlers(
-      serverConfig as SystemConfig,
-      this.cacheWrapper.cache,
-      Container.get(TokensService),
-      this.sender,
-      this.handler,
-      this.logger,
-    );
-    Container.get(RealTimeAuthorizer);
-  }
 
   getController(): any {
     return TokensModuleApi;

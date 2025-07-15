@@ -17,10 +17,10 @@ import {
   DtoEventObjectType,
   IDtoPayload,
 } from './types';
-import { SystemConfig } from '@citrineos/base';
+import { OcpiConfig } from '..';
 
 export abstract class AbstractDtoModule implements IDtoModule {
-  protected _config: SystemConfig;
+  protected _config: OcpiConfig;
   protected readonly _receiver: IDtoEventReceiver;
   protected readonly _logger: Logger<ILogObj>;
 
@@ -29,7 +29,7 @@ export abstract class AbstractDtoModule implements IDtoModule {
   private startTime = Date.now();
 
   constructor(
-    config: SystemConfig,
+    config: OcpiConfig,
     receiver: IDtoEventReceiver,
     logger?: Logger<ILogObj>,
   ) {
@@ -57,16 +57,16 @@ export abstract class AbstractDtoModule implements IDtoModule {
     return this._receiver;
   }
 
-  get config(): SystemConfig {
+  get config(): OcpiConfig {
     return this._config;
   }
 
   /**
    * Sets the system configuration for the module.
    *
-   * @param {SystemConfig} config - The new configuration to set.
+   * @param {OcpiConfig} config - The new configuration to set.
    */
-  set config(config: SystemConfig) {
+  set config(config: OcpiConfig) {
     this._config = config;
     // Update all necessary settings for hot reload
     this._logger.info(

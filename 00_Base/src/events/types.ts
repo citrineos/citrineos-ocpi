@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { ICache, SystemConfig } from '@citrineos/base';
+import { OcpiConfig } from '..';
 
 /**
  *  Data Transfer Object (DTO) event types for operations.
@@ -103,7 +103,7 @@ export interface IDtoEventReceiver {
  * Base interface for Dto modules
  */
 export interface IDtoModule {
-  config: SystemConfig;
+  config: OcpiConfig;
   receiver: IDtoEventReceiver;
 
   /**
