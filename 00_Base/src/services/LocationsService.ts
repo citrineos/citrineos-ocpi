@@ -139,6 +139,7 @@ export class LocationsService {
       }
       const evse = EvseMapper.fromGraphql(
         response.Locations?.[0]?.chargingPool?.[0],
+        response.Locations?.[0]?.chargingPool?.[0].evses?.[0],
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
