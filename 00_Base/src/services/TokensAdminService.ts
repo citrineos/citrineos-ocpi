@@ -5,10 +5,8 @@
 
 import { Service } from 'typedi';
 import { OcpiLogger } from '../util/OcpiLogger';
-import { AsyncJobName, AsyncJobStatus } from '../model/AsyncJobStatus';
 import { TokensClientApi } from '../trigger/TokensClientApi';
 import { buildPaginatedOcpiParams } from '../trigger/param/PaginatedOcpiParams';
-import { AsyncJobStatusRepository } from '../repository/AsyncJobStatus';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { CredentialsService } from './CredentialsService';
@@ -18,10 +16,20 @@ import {
 } from '../model/ClientInformation';
 import { Op } from 'sequelize';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
-import { AsyncJobRequest } from '../model/AsyncJobRequest';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { UPDATE_TOKEN_MUTATION } from '../graphql/queries/token.queries';
 import { TokenDTO } from '../model/DTO/TokenDTO';
+
+// Import AsyncJob types from the base module exports which re-export from @citrineos/data
+import {
+  AsyncJobRequest,
+  AsyncJobStatus,
+  AsyncJobName,
+  SequelizeAsyncJobStatusRepository,
+} from '../index';
+
+// Type alias for the repository interface expected by the service
+type AsyncJobStatusRepository = SequelizeAsyncJobStatusRepository;
 
 @Service()
 export class TokensAdminService {
@@ -220,7 +228,7 @@ export class TokensAdminService {
   }
 
   async getFetchTokensJob(jobId: string): Promise<AsyncJobStatus | undefined> {
-    return await this.asyncJobStatusRepository.readByKey(jobId);
+    return await this.asyncJobStatusRepository.readByJobId(jobId);
   }
 
   async getFetchTokensJobs(
@@ -246,7 +254,7 @@ export class TokensAdminService {
         { stoppedAt: { [Op.not]: null } },
       ];
     }
-    return await this.asyncJobStatusRepository.readAllByQuery({
+    return await this.asyncJobStatusRepository.findAllByQuery({
       where: {
         ...query,
       },
@@ -256,7 +264,7 @@ export class TokensAdminService {
   async deleteFetchTokensJob(
     jobId: string,
   ): Promise<AsyncJobStatus | undefined> {
-    return await this.asyncJobStatusRepository.deleteByKey(jobId);
+    return await this.asyncJobStatusRepository.deleteByJobId(jobId);
   }
 
   private async updateTokens(tokens: TokenDTO[]) {

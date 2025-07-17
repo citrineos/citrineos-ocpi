@@ -34,7 +34,7 @@ import { OcpiReservation } from '../model/OcpiReservation';
 import { ResponseUrlCorrelationId } from '../model/ResponseUrlCorrelationId';
 import { OcpiTariff } from '../model/OcpiTariff';
 import { SessionChargingProfile } from '../model/SessionChargingProfile';
-import { AsyncJobStatus } from '../model/AsyncJobStatus';
+import { AsyncJobStatus } from '../index';
 import { OcpiConfig } from '../config/ocpi.types';
 import { ServerConfig, Env } from '../config/ServerConfig';
 
@@ -173,7 +173,7 @@ export class OcpiSequelizeInstance {
       OcpiTariff,
       SessionChargingProfile,
       OcpiToken,
-      AsyncJobStatus,
+      AsyncJobStatus as any,
       Authorization,
       IdToken, // todo make IdToken be directly exported from data
       IdTokenInfo, // todo make IdTokenInfo be directly exported from data

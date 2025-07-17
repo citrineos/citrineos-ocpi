@@ -206,9 +206,14 @@ export { TokensService } from './services/TokensService';
 export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
-export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
-export { AsyncJobAction } from './model/AsyncJobAction';
-export { AsyncJobRequest } from './model/AsyncJobRequest';
+export {
+  AsyncJobStatusDTO,
+  AsyncJobAction,
+  AsyncJobRequest,
+  AsyncJobStatus,
+  AsyncJobName,
+  SequelizeAsyncJobStatusRepository,
+} from '@citrineos/data';
 export { SessionsService } from './services/SessionsService';
 export { AdminLocationsService } from './services/AdminLocationsService';
 
