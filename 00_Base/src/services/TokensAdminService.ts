@@ -14,28 +14,28 @@ import {
   ClientInformation,
   ClientInformationProps,
 } from '../model/ClientInformation';
-import { Op } from 'sequelize';
-import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { UPDATE_TOKEN_MUTATION } from '../graphql/queries/token.queries';
+import {
+  CREATE_ASYNC_JOB_STATUS_MUTATION,
+  UPDATE_ASYNC_JOB_STATUS_MUTATION,
+  GET_ASYNC_JOB_STATUS_QUERY,
+  GET_ASYNC_JOB_STATUSES_QUERY,
+  DELETE_ASYNC_JOB_STATUS_MUTATION,
+} from '../graphql/queries/asyncJob.queries';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
-// Import AsyncJob types from the base module exports which re-export from @citrineos/data
+// Import AsyncJob types from local definitions
 import {
   AsyncJobRequest,
-  AsyncJobStatus,
+  AsyncJobStatusDTO,
   AsyncJobName,
-  SequelizeAsyncJobStatusRepository,
-} from '../index';
-
-// Type alias for the repository interface expected by the service
-type AsyncJobStatusRepository = SequelizeAsyncJobStatusRepository;
+} from '../types/asyncJob.types';
 
 @Service()
 export class TokensAdminService {
   constructor(
     private readonly logger: OcpiLogger,
-    private readonly asyncJobStatusRepository: AsyncJobStatusRepository,
     private readonly client: TokensClientApi,
     private readonly credentialsService: CredentialsService,
     private readonly ocpiGraphqlClient: OcpiGraphqlClient,
@@ -43,51 +43,46 @@ export class TokensAdminService {
 
   async startFetchTokensByParty(
     asyncJobRequest: AsyncJobRequest,
-  ): Promise<AsyncJobStatus> {
+  ): Promise<AsyncJobStatusDTO> {
     const existingJob = await this.getFetchTokensJobs(
-      asyncJobRequest.mspCountryCode,
-      asyncJobRequest.mspPartyId,
-      asyncJobRequest.cpoCountryCode,
-      asyncJobRequest.cpoPartyId,
-      true,
+      asyncJobRequest.tenantPartnerId,
     );
 
     if (existingJob && existingJob.length > 0) {
       throw new UnsuccessfulRequestException(
-        `Another job for MSP ${asyncJobRequest.mspCountryCode}-${asyncJobRequest.mspPartyId} + CPO  ${asyncJobRequest.cpoCountryCode}-${asyncJobRequest.cpoPartyId} is already in progress with ID ${existingJob[0].jobId}`,
+        `Another job for TenantPartner ${asyncJobRequest.tenantPartnerId} is already in progress with ID ${existingJob[0].jobId}`,
       );
     }
 
-    const clientCredentials =
-      await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(
-        asyncJobRequest.mspCountryCode,
-        asyncJobRequest.mspPartyId,
-      );
+    // TODO: Update this to get client credentials by tenantPartnerId
+    // const clientCredentials = await this.credentialsService.getClientInformationByTenantPartnerId(
+    //   asyncJobRequest.tenantPartnerId,
+    // );
 
-    let asyncJobStatus: AsyncJobStatus | undefined = AsyncJobStatus.build({
+    const asyncJobStatusInput = {
       jobName: AsyncJobName.FETCH_OCPI_TOKENS,
-      paginationParams: {
+      paginatedParams: {
         limit: asyncJobRequest.paginatedParams?.limit ?? 1000,
         offset: asyncJobRequest.paginatedParams?.offset ?? 0,
       },
-      mspCountryCode: asyncJobRequest.mspCountryCode,
-      mspPartyId: asyncJobRequest.mspPartyId,
-      cpoCountryCode: asyncJobRequest.cpoCountryCode,
-      cpoPartyId: asyncJobRequest.cpoPartyId,
+      tenantPartnerId: asyncJobRequest.tenantPartnerId,
       isFailed: false,
       stopScheduled: false,
-    });
+    };
 
-    asyncJobStatus =
-      await this.asyncJobStatusRepository.createAsyncJobStatus(asyncJobStatus);
+    const asyncJobStatus: any = await this.ocpiGraphqlClient.request(
+      CREATE_ASYNC_JOB_STATUS_MUTATION,
+      { asyncJobStatus: asyncJobStatusInput },
+    );
 
-    this.fetchTokens(asyncJobStatus, clientCredentials);
+    // TODO: Pass the tenant partner or client credentials when available
+    // this.fetchTokens(asyncJobStatus.createAsyncJobStatus, clientCredentials);
 
-    return asyncJobStatus;
+    return asyncJobStatus.createAsyncJobStatus;
   }
 
   async fetchTokens(
-    asyncJobStatus: AsyncJobStatus,
+    asyncJobStatus: AsyncJobStatusDTO,
     clientCredentials: ClientInformation,
   ) {
     try {
@@ -99,14 +94,14 @@ export class TokensAdminService {
       this.client.baseUrl = clientVersions[0].url;
 
       const params = buildPaginatedOcpiParams(
-        asyncJobStatus.mspCountryCode,
-        asyncJobStatus.mspPartyId,
-        asyncJobStatus.cpoCountryCode,
-        asyncJobStatus.cpoPartyId,
-        asyncJobStatus.paginationParams.offset,
-        asyncJobStatus.paginationParams.limit,
-        asyncJobStatus.paginationParams.dateFrom,
-        asyncJobStatus.paginationParams.dateTo,
+        asyncJobStatus.tenantPartner?.mspCountryCode ?? '',
+        asyncJobStatus.tenantPartner?.mspPartyId ?? '',
+        asyncJobStatus.tenantPartner?.cpoCountryCode ?? '',
+        asyncJobStatus.tenantPartner?.cpoPartyId ?? '',
+        asyncJobStatus.paginatedParams.offset,
+        asyncJobStatus.paginatedParams.limit,
+        asyncJobStatus.paginatedParams.dateFrom,
+        asyncJobStatus.paginatedParams.dateTo,
       );
       params.authorization = clientToken;
       params.version = clientVersions[0].version;
@@ -120,19 +115,20 @@ export class TokensAdminService {
         ) {
           await this.updateTokens(response.data);
 
-          asyncJobStatus =
-            await this.asyncJobStatusRepository.updateAsyncJobStatus({
-              jobId: asyncJobStatus.jobId,
-              paginationParams: {
-                limit: response.limit,
-                offset: response.offset
-                  ? response.offset
-                  : asyncJobStatus.paginationParams.offset,
-                dateFrom: asyncJobStatus.paginationParams.dateFrom,
-                dateTo: asyncJobStatus.paginationParams.dateTo,
+          const updateResult: any = await this.ocpiGraphqlClient.request(
+            UPDATE_ASYNC_JOB_STATUS_MUTATION,
+            {
+              asyncJobStatus: {
+                jobId: asyncJobStatus.jobId,
+                paginatedParams: {
+                  ...asyncJobStatus.paginatedParams,
+                  offset: params.offset,
+                },
               },
-              totalObjects: response.total!,
-            });
+            },
+          );
+
+          asyncJobStatus = updateResult.updateAsyncJobStatus;
 
           if (asyncJobStatus.stopScheduled) {
             finished = true;
@@ -162,109 +158,127 @@ export class TokensAdminService {
     }
 
     if (asyncJobStatus.stopScheduled) {
-      await this.asyncJobStatusRepository.updateAsyncJobStatus({
-        jobId: asyncJobStatus.jobId,
-        stoppedAt: new Date(),
-        isFailed: asyncJobStatus.isFailed,
+      await this.ocpiGraphqlClient.request(UPDATE_ASYNC_JOB_STATUS_MUTATION, {
+        asyncJobStatus: {
+          jobId: asyncJobStatus.jobId,
+          stoppedAt: new Date(),
+          isFailed: asyncJobStatus.isFailed,
+        },
       });
     } else {
-      await this.asyncJobStatusRepository.updateAsyncJobStatus({
-        jobId: asyncJobStatus.jobId,
-        finishedAt: new Date(),
-        isFailed: asyncJobStatus.isFailed,
+      await this.ocpiGraphqlClient.request(UPDATE_ASYNC_JOB_STATUS_MUTATION, {
+        asyncJobStatus: {
+          jobId: asyncJobStatus.jobId,
+          finishedAt: new Date(),
+          isFailed: asyncJobStatus.isFailed,
+        },
       });
     }
   }
 
-  async stopFetchTokens(jobId: string): Promise<AsyncJobStatus> {
-    let existingJob = await this.getFetchTokensJob(jobId);
+  async stopFetchTokens(jobId: string): Promise<AsyncJobStatusDTO> {
+    const existingJob = await this.getFetchTokensJob(jobId);
 
     if (!existingJob) {
-      throw new NotFoundError('Job not found');
-    }
-
-    if (existingJob.finishedAt) {
-      throw new BadRequestError('Job already finished');
-    }
-
-    existingJob = await this.asyncJobStatusRepository.updateAsyncJobStatus({
-      jobId: existingJob.jobId,
-      stopScheduled: true,
-    });
-
-    return existingJob;
-  }
-
-  async resumeFetchTokens(jobId: string): Promise<AsyncJobStatus> {
-    let existingJob = await this.getFetchTokensJob(jobId);
-
-    if (!existingJob) {
-      throw new NotFoundError('Job not found');
-    }
-
-    if (existingJob.finishedAt) {
-      throw new BadRequestError('Job already finished');
-    }
-
-    if (!existingJob.finishedAt && !existingJob.stoppedAt) {
-      throw new BadRequestError('Job already running');
-    }
-
-    const clientCredentials =
-      await this.credentialsService.getClientInformationByClientCountryCodeAndPartyId(
-        existingJob.mspCountryCode,
-        existingJob.mspPartyId,
+      throw new UnsuccessfulRequestException(
+        `No job found for job ID: ${jobId}`,
       );
+    }
 
-    existingJob = await this.asyncJobStatusRepository.updateAsyncJobStatus({
-      jobId: existingJob.jobId,
-      stopScheduled: false,
-      stoppedAt: null,
-    });
+    const result: any = await this.ocpiGraphqlClient.request(
+      UPDATE_ASYNC_JOB_STATUS_MUTATION,
+      {
+        asyncJobStatus: {
+          jobId: jobId,
+          stopScheduled: true,
+        },
+      },
+    );
 
-    this.fetchTokens(existingJob, clientCredentials);
-
-    return existingJob;
+    return result.updateAsyncJobStatus;
   }
 
-  async getFetchTokensJob(jobId: string): Promise<AsyncJobStatus | undefined> {
-    return await this.asyncJobStatusRepository.readByJobId(jobId);
+  async resumeFetchTokens(jobId: string): Promise<AsyncJobStatusDTO> {
+    const existingJob = await this.getFetchTokensJob(jobId);
+
+    if (!existingJob) {
+      throw new UnsuccessfulRequestException(
+        `No job found for job ID: ${jobId}`,
+      );
+    }
+
+    if (!existingJob.stopScheduled) {
+      throw new UnsuccessfulRequestException(
+        `Job ${jobId} is not stopped. Cannot resume.`,
+      );
+    }
+
+    // TODO: Update this to get client credentials by tenantPartnerId
+    // const clientCredentials = await this.credentialsService.getClientInformationByTenantPartnerId(
+    //   existingJob.tenantPartnerId,
+    // );
+
+    const result: any = await this.ocpiGraphqlClient.request(
+      UPDATE_ASYNC_JOB_STATUS_MUTATION,
+      {
+        asyncJobStatus: {
+          jobId: jobId,
+          stopScheduled: false,
+        },
+      },
+    );
+
+    // TODO: Pass the tenant partner or client credentials when available
+    // this.fetchTokens(result.updateAsyncJobStatus, clientCredentials);
+
+    return result.updateAsyncJobStatus;
+  }
+
+  async getFetchTokensJob(
+    jobId: string,
+  ): Promise<AsyncJobStatusDTO | undefined> {
+    const result: any = await this.ocpiGraphqlClient.request(
+      GET_ASYNC_JOB_STATUS_QUERY,
+      { jobId },
+    );
+    return result.asyncJobStatus;
   }
 
   async getFetchTokensJobs(
-    mspCountryCode: string,
-    mspPartyId: string,
-    cpoCountryCode: string,
-    cpoPartyId: string,
+    tenantPartnerId: number,
     active?: boolean,
-  ): Promise<AsyncJobStatus[]> {
-    const query: any = {
+  ): Promise<AsyncJobStatusDTO[]> {
+    const whereConditions: any = {
       jobName: AsyncJobName.FETCH_OCPI_TOKENS,
-      mspCountryCode: mspCountryCode,
-      mspPartyId: mspPartyId,
-      cpoCountryCode: cpoCountryCode,
-      cpoPartyId: cpoPartyId,
+      tenantPartnerId: tenantPartnerId,
     };
+
     if (active) {
-      query.finishedAt = { [Op.is]: null };
-      query.stoppedAt = { [Op.is]: null };
+      whereConditions.finishedAt = null;
+      whereConditions.stoppedAt = null;
     } else if (active === false) {
-      query[Op.or] = [
-        { finishedAt: { [Op.not]: null } },
-        { stoppedAt: { [Op.not]: null } },
+      // Either finished or stopped
+      whereConditions.OR = [
+        { finishedAt: { not: null } },
+        { stoppedAt: { not: null } },
       ];
     }
-    return await this.asyncJobStatusRepository.findAllByQuery({
-      where: {
-        ...query,
-      },
-    });
+
+    const result: any = await this.ocpiGraphqlClient.request(
+      GET_ASYNC_JOB_STATUSES_QUERY,
+      { where: whereConditions },
+    );
+    return result.asyncJobStatuses || [];
   }
 
   async deleteFetchTokensJob(
     jobId: string,
-  ): Promise<AsyncJobStatus | undefined> {
-    return await this.asyncJobStatusRepository.deleteByJobId(jobId);
+  ): Promise<AsyncJobStatusDTO | undefined> {
+    const result: any = await this.ocpiGraphqlClient.request(
+      DELETE_ASYNC_JOB_STATUS_MUTATION,
+      { jobId },
+    );
+    return result.deleteAsyncJobStatus;
   }
 
   private async updateTokens(tokens: TokenDTO[]) {
