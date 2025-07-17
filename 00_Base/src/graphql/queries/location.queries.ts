@@ -83,6 +83,13 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
         protocol
         createdAt
         updatedAt
+        Connectors {
+          id
+          connectorId
+          status
+          info
+          stationId
+        }
         Evses: VariableAttributes(
           distinct_on: evseDatabaseId
           where: {

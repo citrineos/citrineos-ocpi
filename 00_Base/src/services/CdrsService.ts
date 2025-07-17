@@ -2,10 +2,10 @@ import { Service } from 'typedi';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { PaginatedCdrResponse } from '../model/Cdr';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { CdrMapper } from '../mapper/CdrMapper';
 import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
 import { GetTransactionsQuery } from '../graphql/types/graphql';
-import { CdrMapper } from '../mapper/CdrMapper';
-import { Transaction } from '@citrineos/data';
+import { ITransactionDto } from '@citrineos/base';
 
 @Service()
 export class CdrsService {
@@ -39,7 +39,7 @@ export class CdrsService {
       variables,
     );
     const mappedCdr = await this.cdrMapper.mapTransactionsToCdrs(
-      result.Transactions as unknown as Transaction[],
+      result.Transactions as unknown as ITransactionDto[],
     );
 
     const response = new PaginatedCdrResponse();

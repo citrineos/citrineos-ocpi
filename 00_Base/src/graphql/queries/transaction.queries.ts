@@ -42,21 +42,40 @@ export const GET_TRANSACTIONS_QUERY = gql`
       totalCost
       createdAt
       updatedAt
-      TransactionEvents {
+      evse: Evse {
+        id
+      }
+      chargingStation: ChargingStation {
+        connectors: Connectors {
+          id
+          connectorId
+        }
+        location: Location {
+          id
+          name
+          address
+          city
+          postalCode
+          state
+          country
+          coordinates
+        }
+      }
+      transactionEvents: TransactionEvents {
         id
         eventType
-        Evse {
+        evse: Evse {
           id
         }
         transactionInfo
       }
-      StartTransaction {
+      startTransaction: StartTransaction {
         timestamp
       }
-      StopTransaction {
+      stopTransaction: StopTransaction {
         timestamp
       }
-      MeterValues {
+      meterValues: MeterValues {
         timestamp
         sampledValue
       }

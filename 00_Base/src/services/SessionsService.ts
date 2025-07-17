@@ -10,8 +10,7 @@ import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { GetTransactionsQuery } from '../graphql/types/graphql';
 import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
 import { SessionMapper } from '../mapper/SessionMapper';
-import { Transaction } from '@citrineos/data';
-
+import { ITransactionDto } from '@citrineos/base';
 @Service()
 export class SessionsService {
   constructor(
@@ -46,7 +45,7 @@ export class SessionsService {
     );
 
     let mappedSessions = await this.sessionMapper.mapTransactionsToSessions(
-      result.Transactions as unknown as Transaction[],
+      result.Transactions as unknown as ITransactionDto[],
     );
 
     if (endedOnly) {
