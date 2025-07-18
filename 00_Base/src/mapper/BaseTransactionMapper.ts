@@ -1,4 +1,4 @@
-import { Authorization, Tariff, TransactionEvent } from '@citrineos/data';
+import { Tariff, TransactionEvent } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
@@ -26,7 +26,9 @@ import {
   ITransactionDto,
   ITransactionEventDto,
   OCPP2_0_1,
+  ILocationDto,
 } from '@citrineos/base';
+import { LocationMapper } from './LocationMapper';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -56,21 +58,9 @@ export abstract class BaseTransactionMapper {
         continue;
       }
 
-      const locationDto: LocationDTO = {
-        id: location.id.toString(),
-        name: location.name,
-        address: location.address!,
-        city: location.city!,
-        postal_code: location.postalCode,
-        state: location.state,
-        country: location.country!,
-        coordinates: location.coordinates,
-        evses:
-          (location.ChargingStations?.[0]?.Evses?.map((evse) => ({
-            uid: evse.Evse?.id,
-            id: evse.Evse?.id,
-          })) as unknown as EvseDTO[]) || [],
-      } as LocationDTO;
+      const locationDto = LocationMapper.fromGraphql(
+        location as unknown as ILocationDto,
+      );
 
       transactionIdToLocationMap.set(transaction.transactionId!, locationDto);
     }
@@ -86,25 +76,13 @@ export abstract class BaseTransactionMapper {
       const startEvent = transaction.transactionEvents?.find(
         (event) => event.eventType === 'Started',
       );
-      const idTokenValue = startEvent?.transactionInfo?.idToken?.uid;
-      const idTokenType = startEvent?.transactionInfo?.idToken?.type;
 
-      if (idTokenValue && idTokenType) {
-        const result =
-          await this.ocpiGraphqlClient.request<GetAuthorizationByIdQuery>(
-            GET_AUTHORIZATION_BY_ID_QUERY,
-            { idToken: idTokenValue, idTokenType: idTokenType },
-          );
-        const authorization = result.Authorizations?.[0];
-
-        if (authorization) {
-          const tokenDto = await OcpiTokensMapper.toDto(
-            authorization as unknown as Authorization,
-            authorization as any,
-          );
-          if (tokenDto) {
-            transactionIdToTokenMap.set(transaction.transactionId!, tokenDto);
-          }
+      if (transaction.authorization) {
+        const tokenDto = await OcpiTokensMapper.toDto(
+          transaction.authorization,
+        );
+        if (tokenDto) {
+          transactionIdToTokenMap.set(transaction.transactionId!, tokenDto);
         }
       }
     }
