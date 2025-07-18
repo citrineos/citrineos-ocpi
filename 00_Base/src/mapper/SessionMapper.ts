@@ -18,7 +18,7 @@ import {
   ITransactionDto,
   ITransactionEventDto,
   IMeterValueDto,
-  OCPP2_0_1,
+  MeasurandEnumType,
 } from '@citrineos/base';
 
 @Service()
@@ -233,7 +233,7 @@ export class SessionMapper extends BaseTransactionMapper {
     const cdrDimensions: CdrDimension[] = [];
     for (const sampledValue of meterValue.sampledValue) {
       switch (sampledValue.measurand) {
-        case OCPP2_0_1.MeasurandEnumType.Current_Import:
+        case MeasurandEnumType.Current_Import:
           if (sampledValue.phase === 'N') {
             cdrDimensions.push({
               type: CdrDimensionType.CURRENT,
@@ -241,7 +241,7 @@ export class SessionMapper extends BaseTransactionMapper {
             });
           }
           break;
-        case OCPP2_0_1.MeasurandEnumType.Energy_Active_Import_Register:
+        case MeasurandEnumType.Energy_Active_Import_Register:
           if (!sampledValue.phase) {
             cdrDimensions.push({
               type: CdrDimensionType.ENERGY_IMPORT,
@@ -262,7 +262,7 @@ export class SessionMapper extends BaseTransactionMapper {
             }
           }
           break;
-        case OCPP2_0_1.MeasurandEnumType.SoC:
+        case MeasurandEnumType.SoC:
           cdrDimensions.push({
             type: CdrDimensionType.STATE_OF_CHARGE,
             volume: Number(sampledValue.value),
@@ -282,7 +282,7 @@ export class SessionMapper extends BaseTransactionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-            OCPP2_0_1.MeasurandEnumType.Energy_Active_Import_Register &&
+            MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );

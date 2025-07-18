@@ -46,7 +46,7 @@ export class TransactionFilterService implements ITransactionDatasource {
     if (endedOnly) {
       // Filter transactions to include only those that have ended
       transactions = transactions.filter(
-        (transaction) => transaction.totalKwh > 0,
+        (transaction) => transaction.isActive === false,
       );
       total = transactions.length;
     }

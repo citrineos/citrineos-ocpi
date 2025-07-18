@@ -11,22 +11,15 @@ import { OcpiTokensMapper } from './OcpiTokensMapper';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
   GetLocationByIdQuery,
-  GetAuthorizationByIdQuery,
-  GetTariffByIdQuery,
   GetTariffByCoreKeyQuery,
 } from '../graphql/types/graphql';
 import { GET_LOCATION_BY_ID_QUERY } from '../graphql/queries/location.queries';
-import { EvseDTO } from '../model/DTO/EvseDTO';
-import { GET_AUTHORIZATION_BY_ID_QUERY } from '../graphql/queries/token.queries';
-import {
-  GET_TARIFF_BY_CORE_KEY_QUERY,
-  GET_TARIFF_BY_ID_QUERY,
-} from '../graphql/queries/tariff.queries';
+import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
 import {
   ITransactionDto,
   ITransactionEventDto,
-  OCPP2_0_1,
   ILocationDto,
+  TransactionEventEnumType,
 } from '@citrineos/base';
 import { LocationMapper } from './LocationMapper';
 
@@ -73,10 +66,6 @@ export abstract class BaseTransactionMapper {
     const transactionIdToTokenMap: Map<string, TokenDTO> = new Map();
 
     for (const transaction of transactions) {
-      const startEvent = transaction.transactionEvents?.find(
-        (event) => event.eventType === 'Started',
-      );
-
       if (transaction.authorization) {
         const tokenDto = await OcpiTokensMapper.toDto(
           transaction.authorization,
@@ -94,26 +83,17 @@ export abstract class BaseTransactionMapper {
     transactions: ITransactionDto[],
   ): Promise<Map<string, Tariff>> {
     const transactionIdToTariffMap = new Map<string, Tariff>();
-    const uniqueStationIds = [...new Set(transactions.map((t) => t.stationId))];
-
-    for (const stationId of uniqueStationIds) {
-      const result = await this.ocpiGraphqlClient.request<GetTariffByIdQuery>(
-        GET_TARIFF_BY_ID_QUERY,
-        { stationId: stationId },
-      );
-      const tariff = result.Tariffs?.[0];
-      if (tariff) {
-        transactionIdToTariffMap.set(stationId!, tariff as unknown as Tariff);
-      }
-    }
-
     for (const transaction of transactions) {
-      const tariff = transactionIdToTariffMap.get(transaction.stationId!); // Use stationId to get the tariff
+      const tariff = transaction.connector?.tariffs?.find(
+        (tariff) => tariff.stationId == transaction.stationId,
+      );
       if (tariff) {
-        transactionIdToTariffMap.set(transaction.transactionId!, tariff);
+        transactionIdToTariffMap.set(
+          transaction.transactionId!,
+          tariff as unknown as Tariff,
+        );
       }
     }
-
     return transactionIdToTariffMap;
   }
 
@@ -159,7 +139,7 @@ export abstract class BaseTransactionMapper {
     transaction: ITransactionDto,
   ): [ITransactionEventDto, ITransactionEventDto | undefined] {
     let startEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === OCPP2_0_1.TransactionEventEnumType.Started,
+      (event) => event.eventType === TransactionEventEnumType.Started,
     );
     if (!startEvent) {
       this.logger.error("No 'Started' event found in transaction events");
@@ -167,7 +147,7 @@ export abstract class BaseTransactionMapper {
     }
 
     const endEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === OCPP2_0_1.TransactionEventEnumType.Ended,
+      (event) => event.eventType === TransactionEventEnumType.Ended,
     );
     return [startEvent, endEvent];
   }
