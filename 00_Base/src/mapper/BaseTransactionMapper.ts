@@ -79,14 +79,15 @@ export abstract class BaseTransactionMapper {
   ): Promise<Map<string, Tariff>> {
     const transactionIdToTariffMap = new Map<string, Tariff>();
     for (const transaction of transactions) {
-      const tariff = transaction.connector?.tariffs?.find(
-        (tariff) => tariff.stationId == transaction.stationId,
-      );
-      if (tariff) {
-        transactionIdToTariffMap.set(
-          transaction.transactionId!,
-          tariff as unknown as Tariff,
-        );
+      const tariffs = transaction?.connector?.tariffs;
+      if (tariffs && tariffs.length > 0) {
+        const tariff = tariffs[0];
+        if (tariff) {
+          transactionIdToTariffMap.set(
+            transaction.transactionId!,
+            tariff as unknown as Tariff,
+          );
+        }
       }
     }
     return transactionIdToTariffMap;

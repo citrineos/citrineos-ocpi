@@ -12,7 +12,7 @@ import { TokenDTO } from '../model/DTO/TokenDTO';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { LocationsService } from '../services/LocationsService';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { EXTRACT_EVSE_ID } from '../model/DTO/EvseDTO';
+import { EXTRACT_EVSE_ID, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
   ITransactionDto,
@@ -93,14 +93,16 @@ export class SessionMapper extends BaseTransactionMapper {
       country_code: location.country_code,
       party_id: location.party_id,
       id: transaction.transactionId!,
-      start_date_time: transaction.startTime ? new Date(transaction.startTime) : new Date(),
+      start_date_time: transaction.startTime
+        ? new Date(transaction.startTime)
+        : new Date(),
       end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
-      evse_uid: this.getEvseUid(transaction, location),
+      evse_uid: this.getEvseUid(transaction),
       connector_id: this.getConnectorId(transaction, location),
       currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
@@ -146,21 +148,8 @@ export class SessionMapper extends BaseTransactionMapper {
     return location.id ?? '';
   }
 
-  private getEvseUid(
-    transaction: ITransactionDto,
-    location: LocationDTO,
-  ): string {
-    const evseUid = location.evses?.find(
-      (evse) => EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id),
-    )?.uid;
-
-    if (!evseUid) {
-      this.logger.warn(
-        `Evse missing for ${transaction.transactionId} on location ${location.id}`,
-      );
-    }
-
-    return evseUid ?? '';
+  private getEvseUid(transaction: ITransactionDto): string {
+    return UID_FORMAT(transaction.stationId, transaction.evseId!);
   }
 
   private getConnectorId(
@@ -172,7 +161,7 @@ export class SessionMapper extends BaseTransactionMapper {
         (evse) => EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id),
       )
       ?.connectors?.find(
-        (connector) => connector.id === String(transaction.evse?.connectorId),
+        (connector) => connector.id === String(transaction.connectorId),
       )?.id;
 
     if (!connectorId) {
@@ -299,9 +288,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
   }
 
-  private getTransactionStatus(
-    transaction: ITransactionDto,
-  ): SessionStatus {
+  private getTransactionStatus(transaction: ITransactionDto): SessionStatus {
     // TODO: Implement other session status
     return transaction.endTime ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }
