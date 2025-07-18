@@ -94,10 +94,10 @@ export class TokensAdminService {
       this.client.baseUrl = clientVersions[0].url;
 
       const params = buildPaginatedOcpiParams(
-        asyncJobStatus.tenantPartner?.mspCountryCode ?? '',
-        asyncJobStatus.tenantPartner?.mspPartyId ?? '',
-        asyncJobStatus.tenantPartner?.cpoCountryCode ?? '',
-        asyncJobStatus.tenantPartner?.cpoPartyId ?? '',
+        asyncJobStatus.tenantPartner?.countryCode ?? '',
+        asyncJobStatus.tenantPartner?.partyId ?? '',
+        asyncJobStatus.tenantPartner?.tenant?.countryCode ?? '',
+        asyncJobStatus.tenantPartner?.tenant?.partyId ?? '',
         asyncJobStatus.paginatedParams.offset,
         asyncJobStatus.paginatedParams.limit,
         asyncJobStatus.paginatedParams.dateFrom,
