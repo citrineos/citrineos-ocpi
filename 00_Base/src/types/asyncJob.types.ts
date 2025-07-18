@@ -3,8 +3,9 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-// Temporary local definitions until @citrineos/data exports are fixed
+import type { IBaseDto } from '@citrineos/base';
 
+// AsyncJob enums
 export enum AsyncJobName {
   FETCH_OCPI_TOKENS = 'FETCH_OCPI_TOKENS',
 }
@@ -14,6 +15,7 @@ export enum AsyncJobAction {
   STOP = 'STOP',
 }
 
+// AsyncJob DTOs following @citrineos/base patterns
 export interface AsyncJobPaginatedParams {
   offset?: number;
   limit?: number;
@@ -21,19 +23,21 @@ export interface AsyncJobPaginatedParams {
   dateTo?: Date;
 }
 
-export interface AsyncJobStatusDTO {
+export interface AsyncJobStatusDTO extends IBaseDto {
   jobId: string;
   jobName: AsyncJobName;
   tenantPartnerId: number;
   tenantPartner?: {
     id: number;
     name?: string;
-    mspCountryCode?: string;
-    mspPartyId?: string;
-    cpoCountryCode?: string;
-    cpoPartyId?: string;
+    countryCode?: string; // MSP countryCode
+    partyId?: string; // MSP partyId
+    tenant?: {
+      id: number;
+      countryCode?: string; // CPO countryCode
+      partyId?: string; // CPO partyId
+    };
   };
-  createdAt: Date;
   finishedAt?: Date;
   stoppedAt?: Date | null;
   stopScheduled: boolean;
