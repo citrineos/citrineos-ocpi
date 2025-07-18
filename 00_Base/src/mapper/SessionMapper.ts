@@ -89,14 +89,12 @@ export class SessionMapper extends BaseTransactionMapper {
     token: TokenDTO,
     tariff: Tariff,
   ): Session {
-    const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
-
     return {
       country_code: location.country_code,
       party_id: location.party_id,
       id: transaction.transactionId!,
-      start_date_time: new Date(startEvent?.timestamp),
-      end_date_time: endEvent ? new Date(endEvent?.timestamp) : null,
+      start_date_time: transaction.startTime ? new Date(transaction.startTime) : new Date(),
+      end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
@@ -109,11 +107,11 @@ export class SessionMapper extends BaseTransactionMapper {
         transaction.meterValues,
         String(tariff?.id),
       ),
-      status: this.getTransactionStatus(endEvent),
+      status: this.getTransactionStatus(transaction),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
       // TODO: Fill in optional values
       authorization_reference: null,
-      total_cost: endEvent
+      total_cost: transaction.endTime
         ? this.calculateTotalCost(transaction.totalKwh || 0, tariff.pricePerKwh)
         : null,
       meter_id: null,
@@ -302,9 +300,9 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getTransactionStatus(
-    endEvent: ITransactionEventDto | undefined,
+    transaction: ITransactionDto,
   ): SessionStatus {
     // TODO: Implement other session status
-    return endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
+    return transaction.endTime ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }
 }

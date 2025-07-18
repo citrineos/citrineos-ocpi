@@ -1,4 +1,4 @@
-import { Tariff, TransactionEvent } from '@citrineos/data';
+import { Tariff } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
@@ -15,12 +15,7 @@ import {
 } from '../graphql/types/graphql';
 import { GET_LOCATION_BY_ID_QUERY } from '../graphql/queries/location.queries';
 import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
-import {
-  ITransactionDto,
-  ITransactionEventDto,
-  ILocationDto,
-  TransactionEventEnumType,
-} from '@citrineos/base';
+import { ITransactionDto, ILocationDto } from '@citrineos/base';
 import { LocationMapper } from './LocationMapper';
 
 export abstract class BaseTransactionMapper {
@@ -133,22 +128,5 @@ export abstract class BaseTransactionMapper {
     return {
       excl_vat: Math.floor(totalKwh * tariffCost * 100) / 100,
     };
-  }
-
-  protected getStartAndEndEvents(
-    transaction: ITransactionDto,
-  ): [ITransactionEventDto, ITransactionEventDto | undefined] {
-    let startEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === TransactionEventEnumType.Started,
-    );
-    if (!startEvent) {
-      this.logger.error("No 'Started' event found in transaction events");
-      startEvent = TransactionEvent.build() as unknown as ITransactionEventDto;
-    }
-
-    const endEvent = transaction.transactionEvents?.find(
-      (event) => event.eventType === TransactionEventEnumType.Ended,
-    );
-    return [startEvent, endEvent];
   }
 }
