@@ -3,7 +3,8 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import type { IBaseDto } from '@citrineos/base';
+// Temporarily define the types locally until the import issue is resolved
+// TODO: Import these from @citrineos/base once the build/link issue is fixed
 
 // AsyncJob enums
 export enum AsyncJobName {
@@ -15,7 +16,6 @@ export enum AsyncJobAction {
   STOP = 'STOP',
 }
 
-// AsyncJob DTOs following @citrineos/base patterns
 export interface AsyncJobPaginatedParams {
   offset?: number;
   limit?: number;
@@ -23,7 +23,13 @@ export interface AsyncJobPaginatedParams {
   dateTo?: Date;
 }
 
-export interface AsyncJobStatusDTO extends IBaseDto {
+export interface AsyncJobRequest {
+  tenantPartnerId: number;
+  paginatedParams: AsyncJobPaginatedParams;
+}
+
+// API Response types specific to citrineos-ocpi
+export interface AsyncJobStatusResponse {
   jobId: string;
   jobName: AsyncJobName;
   tenantPartnerId: number;
@@ -44,9 +50,6 @@ export interface AsyncJobStatusDTO extends IBaseDto {
   isFailed?: boolean;
   paginatedParams: AsyncJobPaginatedParams;
   totalObjects?: number;
-}
-
-export interface AsyncJobRequest {
-  tenantPartnerId: number;
-  paginatedParams: AsyncJobPaginatedParams;
+  createdAt: Date;
+  updatedAt: Date;
 }

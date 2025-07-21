@@ -211,7 +211,7 @@ export { AdminLocationsService } from './services/AdminLocationsService';
 
 // Export AsyncJob types
 export {
-  AsyncJobStatusDTO,
+  AsyncJobStatusResponse,
   AsyncJobAction,
   AsyncJobRequest,
   AsyncJobName,

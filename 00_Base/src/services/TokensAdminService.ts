@@ -28,7 +28,7 @@ import { TokenDTO } from '../model/DTO/TokenDTO';
 // Import AsyncJob types from local definitions
 import {
   AsyncJobRequest,
-  AsyncJobStatusDTO,
+  AsyncJobStatusResponse,
   AsyncJobName,
 } from '../types/asyncJob.types';
 
@@ -43,7 +43,7 @@ export class TokensAdminService {
 
   async startFetchTokensByParty(
     asyncJobRequest: AsyncJobRequest,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const existingJob = await this.getFetchTokensJobs(
       asyncJobRequest.tenantPartnerId,
     );
@@ -82,7 +82,7 @@ export class TokensAdminService {
   }
 
   async fetchTokens(
-    asyncJobStatus: AsyncJobStatusDTO,
+    asyncJobStatus: AsyncJobStatusResponse,
     clientCredentials: ClientInformation,
   ) {
     try {
@@ -176,7 +176,7 @@ export class TokensAdminService {
     }
   }
 
-  async stopFetchTokens(jobId: string): Promise<AsyncJobStatusDTO> {
+  async stopFetchTokens(jobId: string): Promise<AsyncJobStatusResponse> {
     const existingJob = await this.getFetchTokensJob(jobId);
 
     if (!existingJob) {
@@ -198,7 +198,7 @@ export class TokensAdminService {
     return result.updateAsyncJobStatus;
   }
 
-  async resumeFetchTokens(jobId: string): Promise<AsyncJobStatusDTO> {
+  async resumeFetchTokens(jobId: string): Promise<AsyncJobStatusResponse> {
     const existingJob = await this.getFetchTokensJob(jobId);
 
     if (!existingJob) {
@@ -236,7 +236,7 @@ export class TokensAdminService {
 
   async getFetchTokensJob(
     jobId: string,
-  ): Promise<AsyncJobStatusDTO | undefined> {
+  ): Promise<AsyncJobStatusResponse | undefined> {
     const result: any = await this.ocpiGraphqlClient.request(
       GET_ASYNC_JOB_STATUS_QUERY,
       { jobId },
@@ -247,7 +247,7 @@ export class TokensAdminService {
   async getFetchTokensJobs(
     tenantPartnerId: number,
     active?: boolean,
-  ): Promise<AsyncJobStatusDTO[]> {
+  ): Promise<AsyncJobStatusResponse[]> {
     const whereConditions: any = {
       jobName: AsyncJobName.FETCH_OCPI_TOKENS,
       tenantPartnerId: tenantPartnerId,
@@ -273,7 +273,7 @@ export class TokensAdminService {
 
   async deleteFetchTokensJob(
     jobId: string,
-  ): Promise<AsyncJobStatusDTO | undefined> {
+  ): Promise<AsyncJobStatusResponse | undefined> {
     const result: any = await this.ocpiGraphqlClient.request(
       DELETE_ASYNC_JOB_STATUS_MUTATION,
       { jobId },
