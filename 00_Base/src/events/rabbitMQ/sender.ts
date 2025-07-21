@@ -7,7 +7,12 @@ import { SystemConfig } from '@citrineos/base';
 import * as amqplib from 'amqplib';
 import { instanceToPlain } from 'class-transformer';
 import { ILogObj, Logger } from 'tslog';
-import { IDtoEventSender, AbstractDtoEventSender, IDtoEvent, IDtoPayload } from '..';
+import {
+  IDtoEventSender,
+  AbstractDtoEventSender,
+  IDtoEvent,
+  IDtoPayload,
+} from '..';
 
 /**
  * Implementation of a {@link IEventSender} using RabbitMQ as the underlying transport.
@@ -115,14 +120,10 @@ export class RabbitMqDtoSender
     if (!url) {
       throw new Error('RabbitMQ URL is not configured');
     }
-    while (true) {
-      if (abortSignal?.aborted) {
-        this._logger.warn('RabbitMQ reconnect aborted by signal.');
-        throw new Error('RabbitMQ reconnect aborted');
-      }
+    while (!abortSignal?.aborted) {
       try {
         const connection = await amqplib.connect(url);
-        this._connection = connection;
+        this._connection = connection.connection;
         const channel = await connection.createChannel();
         channel.on('error', (err) => {
           this._logger.error('AMQP channel error', err);
@@ -141,6 +142,8 @@ export class RabbitMqDtoSender
         );
       }
     }
+    this._logger.warn('RabbitMQ reconnect aborted by signal.');
+    throw new Error('RabbitMQ reconnect aborted');
   }
 
   /**

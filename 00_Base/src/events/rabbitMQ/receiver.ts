@@ -5,10 +5,7 @@
 
 import * as amqplib from 'amqplib';
 import { ILogObj, Logger } from 'tslog';
-import {
-  RetryMessageError,
-  SystemConfig,
-} from '@citrineos/base';
+import { RetryMessageError, SystemConfig } from '@citrineos/base';
 import { plainToInstance } from 'class-transformer';
 import {
   AbstractDtoEventReceiver,
@@ -126,14 +123,10 @@ export class RabbitMqDtoReceiver
     if (!url) {
       throw new Error('RabbitMQ URL is not configured');
     }
-    while (true) {
-      if (abortSignal?.aborted) {
-        this._logger.warn('RabbitMQ reconnect aborted by signal.');
-        throw new Error('RabbitMQ reconnect aborted');
-      }
+    while (!abortSignal?.aborted) {
       try {
         const connection = await amqplib.connect(url);
-        this._connection = connection;
+        this._connection = connection.connection;
         const channel = await connection.createChannel();
         channel.on('error', (err) => {
           this._logger.error('AMQP channel error', err);
@@ -152,6 +145,8 @@ export class RabbitMqDtoReceiver
         );
       }
     }
+    this._logger.warn('RabbitMQ reconnect aborted by signal.');
+    throw new Error('RabbitMQ reconnect aborted');
   }
 
   /**
