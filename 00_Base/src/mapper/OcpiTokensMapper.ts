@@ -5,10 +5,10 @@ import {
   IdTokenEnumType,
   IdTokenInfoType,
   IdTokenType,
+  IAuthorizationDto,
 } from '@citrineos/base';
 import { OcpiToken } from '../model/OcpiToken';
 import { TokenType } from '../model/TokenType';
-import { Authorization, IdToken } from '@citrineos/data';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 
 export class OcpiTokensMapper {
@@ -33,28 +33,19 @@ export class OcpiTokensMapper {
   }
 
   public static async toDto(
-    authorization: Authorization,
-    token: OcpiToken,
+    authorization: IAuthorizationDto,
   ): Promise<TokenDTO> {
     const tokenDto = new TokenDTO();
-
-    tokenDto.country_code = token.country_code;
-    tokenDto.party_id = token.party_id;
-    tokenDto.uid = (await authorization.$get('idToken'))!.idToken;
-    tokenDto.type = token.type;
+    tokenDto.country_code = authorization?.tenant?.countryCode ?? '';
+    tokenDto.party_id = authorization.tenant?.partyId ?? '';
+    tokenDto.uid = authorization.idToken;
+    tokenDto.type = authorization.idTokenType as TokenType;
     tokenDto.contract_id = await this.getContractId(authorization);
-    tokenDto.visual_number = token.visual_number;
-    tokenDto.issuer = token.issuer;
-    tokenDto.group_id = authorization.idTokenInfo?.groupIdToken?.idToken;
+    tokenDto.group_id = authorization.groupAuthorizationId?.toString();
     tokenDto.valid =
-      authorization.idTokenInfo?.status ===
+      authorization.additionalInfo?.status ===
       AuthorizationStatusEnumType.Accepted;
-    tokenDto.whitelist = token.whitelist;
-    tokenDto.language = authorization.idTokenInfo?.language1;
-    tokenDto.default_profile_type = token.default_profile_type;
-    tokenDto.energy_contract = token.energy_contract;
-    tokenDto.last_updated = token.last_updated;
-
+    tokenDto.language = authorization.language1;
     return tokenDto;
   }
 
@@ -106,45 +97,13 @@ export class OcpiTokensMapper {
   }
 
   public static async getContractId(
-    authorization: Authorization,
+    authorization: IAuthorizationDto,
   ): Promise<string> {
-    const idToken = await authorization.$get('idToken');
-    const additionalInfo = await (idToken! as IdToken).$get('additionalInfo');
+    const additionalInfo = authorization.additionalInfo;
 
     // TODO: filter by type eMAID
     return additionalInfo![0].additionalIdToken;
   }
-
-  public static mapTokenDTOToPartialAuthorization(
-    existingAuth: Authorization,
-    tokenDTO: Partial<TokenDTO>,
-  ): Partial<IdTokenInfoType> {
-    const idTokenInfo: Partial<IdTokenInfoType> = {
-      status: existingAuth.idTokenInfo?.status,
-    };
-
-    if (tokenDTO.valid !== undefined) {
-      idTokenInfo.status = tokenDTO.valid
-        ? AuthorizationStatusEnumType.Accepted
-        : AuthorizationStatusEnumType.Invalid;
-    }
-
-    if (tokenDTO.group_id) {
-      idTokenInfo.groupIdToken = {
-        idToken: tokenDTO.group_id,
-        type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-          tokenDTO.type!,
-        ),
-      };
-    }
-
-    if (tokenDTO.language) {
-      idTokenInfo.language1 = tokenDTO.language;
-    }
-
-    return idTokenInfo;
-  }
-
   public static fromGraphql(graphqlAuth: any): TokenDTO {
     const idTokenInfo = graphqlAuth.IdTokenInfo;
     const idToken = graphqlAuth.IdToken;

@@ -21,6 +21,7 @@ import { Hours } from '../Hours';
 import { EnergyMix } from '../EnergyMix';
 import { OcpiResponse } from '../OcpiResponse';
 import { PaginatedResponse } from '../PaginatedResponse';
+import { ParkingType } from '../ParkingType';
 
 export class LocationDTO {
   @MaxLength(2)
@@ -94,7 +95,7 @@ export class LocationDTO {
 
   @IsString()
   @Optional()
-  parking_type?: string | null;
+  parking_type?: ParkingType | null;
 
   @IsArray()
   @Optional()

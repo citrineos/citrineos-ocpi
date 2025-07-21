@@ -21,12 +21,11 @@ import {
   GET_LOCATION_BY_ID_QUERY,
   GET_LOCATIONS_QUERY,
 } from '../graphql/queries/location.queries';
-import type {
-  GetLocationsQuery,
-  GetLocationByIdQuery,
-  GetEvseByIdQuery,
-  GetConnectorByIdQuery,
-} from '../graphql/types/graphql';
+import {
+  LocationMapper,
+  EvseMapper,
+  ConnectorMapper,
+} from '../mapper/LocationMapper';
 
 @Service()
 export class LocationsService {
@@ -61,13 +60,14 @@ export class LocationsService {
       dateTo: dateTo ? dateTo.toISOString() : undefined,
     };
 
-    const response = await this.ocpiGraphqlClient.request<GetLocationsQuery>(GET_LOCATIONS_QUERY, variables);
+    const response = await this.ocpiGraphqlClient.request<any>(
+      GET_LOCATIONS_QUERY,
+      variables,
+    );
 
-    // Map GraphQL DTOs to OCPI DTOs (assuming a mapper exists)
-    const locations = response.Locations?.map((item) => {
-      // TODO: Implement the mapping logic from GraphQL DTO to OCPI DTO
-      return (global as any).LocationMapper.fromGraphql(item);
-    }) ?? [];
+    // Map GraphQL DTOs to OCPI DTOs
+    const locations =
+      response.Locations?.map(LocationMapper.fromGraphql) ?? [];
     const locationsTotal = locations.length;
 
     return buildOcpiPaginatedResponse(
@@ -84,12 +84,15 @@ export class LocationsService {
 
     try {
       const variables = { id: locationId };
-      const response = await this.ocpiGraphqlClient.request<GetLocationByIdQuery>(GET_LOCATION_BY_ID_QUERY, variables);
+      const response = await this.ocpiGraphqlClient.request<any>(
+        GET_LOCATION_BY_ID_QUERY,
+        variables,
+      );
       // response.Locations is an array, so pick the first
       if (response.Locations && response.Locations.length > 1) {
         this.logger.warn(`Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`);
       }
-      const location = (global as any).LocationMapper.fromGraphql(response.Locations?.[0]);
+      const location = LocationMapper.fromGraphql(response.Locations?.[0]);
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
         location,
@@ -117,16 +120,26 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId };
-      const response = await this.ocpiGraphqlClient.request<GetEvseByIdQuery>(GET_EVSE_BY_ID_QUERY, variables);
+      const response = await this.ocpiGraphqlClient.request<any>(
+        GET_EVSE_BY_ID_QUERY,
+        variables,
+      );
       // Traverse to the EVSE object
-      if (response.Locations?.[0]?.ChargingStations && response.Locations[0].ChargingStations.length > 1) {
-        this.logger.warn(`Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].ChargingStations)}`);
+      if (
+        response.Locations?.[0]?.chargingPool &&
+        response.Locations[0].chargingPool.length > 1
+      ) {
+        this.logger.warn(`Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool)}`);
       }
-      if (response.Locations?.[0]?.ChargingStations?.[0]?.Evses && response.Locations[0].ChargingStations[0].Evses.length > 1) {
-        this.logger.warn(`Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].ChargingStations[0].Evses)}`);
+      if (
+        response.Locations?.[0]?.chargingPool?.[0]?.evses &&
+        response.Locations[0].chargingPool[0].evses.length > 1
+      ) {
+        this.logger.warn(`Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses)}`);
       }
-      const evse = (global as any).EvseMapper.fromGraphql(
-        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse
+      const evse = EvseMapper.fromGraphql(
+        response.Locations?.[0]?.chargingPool?.[0],
+        response.Locations?.[0]?.chargingPool?.[0].evses?.[0],
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
@@ -153,13 +166,20 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId, connectorId };
-      const response = await this.ocpiGraphqlClient.request<GetConnectorByIdQuery>(GET_CONNECTOR_BY_ID_QUERY, variables);
+      const response = await this.ocpiGraphqlClient.request<any>(
+        GET_CONNECTOR_BY_ID_QUERY,
+        variables,
+      );
       // Traverse to the Connector object
-      if (response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse?.Connectors && response.Locations[0].ChargingStations[0].Evses[0].Evse.Connectors.length > 1) {
-        this.logger.warn(`Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].ChargingStations[0].Evses[0].Evse.Connectors)}`);
+      if (
+        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors &&
+        response.Locations[0].chargingPool[0].evses[0].connectors.length > 1
+      ) {
+        this.logger.warn(`Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses[0].connectors)}`);
       }
-      const connector = (global as any).ConnectorMapper.fromGraphql(
-        response.Locations?.[0]?.ChargingStations?.[0]?.Evses?.[0]?.Evse?.Connectors?.[0]
+      const connector = ConnectorMapper.fromGraphql(
+        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]
+          ?.connectors?.[0],
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

@@ -57,7 +57,7 @@ export class ConnectorDTO {
 
   @IsArray()
   @Optional()
-  tariff_ids?: null;
+  tariff_ids?: string[] | null;
 
   @IsString()
   @IsUrl({ require_tld: false })
