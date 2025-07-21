@@ -95,7 +95,10 @@ export class SessionMapper extends BaseTransactionMapper {
       id: transaction.transactionId!,
       start_date_time: transaction.startTime
         ? new Date(transaction.startTime)
-        : new Date(),
+        : (() => {
+            this.logger.error(`Transaction ${transaction.transactionId} has no startTime. Using createdAt as placeholder.`);
+            return new Date(transaction.createdAt);
+          })(),
       end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
