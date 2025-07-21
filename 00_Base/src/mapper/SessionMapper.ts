@@ -7,39 +7,33 @@ import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
 import { CdrToken } from '../model/CdrToken';
 import { SessionStatus } from '../model/SessionStatus';
-import { CredentialsService } from '../services/CredentialsService';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
 import { ILogObj, Logger } from 'tslog';
 import { CdrDimension } from '../model/CdrDimension';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { LocationsService } from '../services/LocationsService';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { TariffsDatasource } from '../datasources/TariffsDatasource';
-import { EXTRACT_EVSE_ID } from '../model/DTO/EvseDTO';
-import { TokensDatasource } from '../datasources/TokensDatasource';
+import { EXTRACT_EVSE_ID, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import {
+  ITransactionDto,
+  ITransactionEventDto,
+  IMeterValueDto,
+  MeasurandEnumType,
+} from '@citrineos/base';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
   constructor(
     protected logger: Logger<ILogObj>,
     protected locationsService: LocationsService,
-    protected ocpiLocationsRepository: OcpiLocationRepository,
-    protected tokensDatasource: TokensDatasource,
-    protected tariffsDatasource: TariffsDatasource,
-    readonly credentialsService: CredentialsService,
+    protected ocpiGraphqlClient: OcpiGraphqlClient,
   ) {
-    super(
-      logger,
-      locationsService,
-      ocpiLocationsRepository,
-      tokensDatasource,
-      tariffsDatasource,
-    );
+    super(logger, locationsService, ocpiGraphqlClient);
   }
 
   public async getLocationsTokensAndTariffsMapsForTransactions(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
   ): Promise<
     [Map<string, LocationDTO>, Map<string, TokenDTO>, Map<string, Tariff>]
   > {
@@ -51,7 +45,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   public async mapTransactionsToSessions(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
   ): Promise<Session[]> {
     const [
       transactionIdToLocationMap,
@@ -68,7 +62,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   public async mapTransactionsToSessionsHelper(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
     transactionIdToLocationMap: Map<string, LocationDTO>,
     transactionIdToTokenMap: Map<string, TokenDTO>,
     transactionIdToTariffMap: Map<string, Tariff>,
@@ -76,10 +70,10 @@ export class SessionMapper extends BaseTransactionMapper {
     const result: Session[] = [];
     for (const transaction of transactions) {
       const location = transactionIdToLocationMap.get(
-        transaction.transactionId,
+        transaction.transactionId!,
       );
-      const token = transactionIdToTokenMap.get(transaction.transactionId);
-      const tariff = transactionIdToTariffMap.get(transaction.transactionId);
+      const token = transactionIdToTokenMap.get(transaction.transactionId!);
+      const tariff = transactionIdToTariffMap.get(transaction.transactionId!);
 
       if (location && token && tariff) {
         result.push(
@@ -91,45 +85,48 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private mapTransactionToSession(
-    transaction: Transaction,
+    transaction: ITransactionDto,
     location: LocationDTO,
     token: TokenDTO,
     tariff: Tariff,
   ): Session {
-    const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
-
     return {
       country_code: location.country_code,
       party_id: location.party_id,
-      id: transaction.transactionId,
-      start_date_time: new Date(startEvent?.timestamp),
-      end_date_time: endEvent ? new Date(endEvent?.timestamp) : null,
+      id: transaction.transactionId!,
+      start_date_time: transaction.startTime
+        ? new Date(transaction.startTime)
+        : (() => {
+            this.logger.error(`Transaction ${transaction.transactionId} has no startTime. Using createdAt as placeholder.`);
+            return transaction.createdAt!;
+          })(),
+      end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
+
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
-      evse_uid: this.getEvseUid(transaction, location),
+      evse_uid: this.getEvseUid(transaction),
       connector_id: this.getConnectorId(transaction, location),
       currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
         String(tariff?.id),
+
       ),
-      status: this.getTransactionStatus(endEvent),
+      status: this.getTransactionStatus(transaction),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
       // TODO: Fill in optional values
       authorization_reference: null,
-      total_cost: endEvent
+      total_cost: transaction.endTime
         ? this.calculateTotalCost(transaction.totalKwh || 0, tariff.pricePerKwh)
         : null,
       meter_id: null,
     };
   }
 
-  private getLatestEvent(
-    transactionEvents: OCPP2_0_1.TransactionEventRequest[],
-  ): Date {
+  private getLatestEvent(transactionEvents: ITransactionEventDto[]): Date {
     return transactionEvents.reduce((latestDate, current) => {
       const currentDate = new Date(current.timestamp);
       if (!latestDate || currentDate > latestDate) {
@@ -157,22 +154,12 @@ export class SessionMapper extends BaseTransactionMapper {
     return location.id ?? '';
   }
 
-  private getEvseUid(transaction: Transaction, location: LocationDTO): string {
-    const evseUid = location.evses?.find(
-      (evse) => EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id),
-    )?.uid;
-
-    if (!evseUid) {
-      this.logger.warn(
-        `Evse missing for ${transaction.transactionId} on location ${location.id}`,
-      );
-    }
-
-    return evseUid ?? '';
+  private getEvseUid(transaction: ITransactionDto): string {
+    return UID_FORMAT(transaction.stationId, transaction.evseId!);
   }
 
   private getConnectorId(
-    transaction: Transaction,
+    transaction: ITransactionDto,
     location: LocationDTO,
   ): string {
     const connectorId = location.evses
@@ -180,7 +167,7 @@ export class SessionMapper extends BaseTransactionMapper {
         (evse) => EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id),
       )
       ?.connectors?.find(
-        (connector) => connector.id === String(transaction.evse?.connectorId),
+        (connector) => connector.id === String(transaction.connectorId),
       )?.id;
 
     if (!connectorId) {
@@ -201,7 +188,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getChargingPeriods(
-    meterValues: OCPP2_0_1.MeterValueType[] = [],
+    meterValues: IMeterValueDto[] = [],
     tariffId: string,
   ): ChargingPeriod[] {
     return meterValues
@@ -221,9 +208,9 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private mapMeterValueToChargingPeriod(
-    meterValue: OCPP2_0_1.MeterValueType,
+    meterValue: IMeterValueDto,
     tariffId: string,
-    previousMeterValue?: OCPP2_0_1.MeterValueType,
+    previousMeterValue?: IMeterValueDto,
   ): ChargingPeriod {
     return {
       start_date_time: new Date(meterValue.timestamp),
@@ -233,8 +220,8 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getCdrDimensions(
-    meterValue: OCPP2_0_1.MeterValueType,
-    previousMeterValue?: OCPP2_0_1.MeterValueType,
+    meterValue: IMeterValueDto,
+    previousMeterValue?: IMeterValueDto,
   ): CdrDimension[] {
     const cdrDimensions: CdrDimension[] = [];
     for (const sampledValue of meterValue.sampledValue) {
@@ -243,7 +230,7 @@ export class SessionMapper extends BaseTransactionMapper {
           if (sampledValue.phase === 'N') {
             cdrDimensions.push({
               type: CdrDimensionType.CURRENT,
-              volume: sampledValue.value,
+              volume: Number(sampledValue.value),
             });
           }
           break;
@@ -251,14 +238,19 @@ export class SessionMapper extends BaseTransactionMapper {
           if (!sampledValue.phase) {
             cdrDimensions.push({
               type: CdrDimensionType.ENERGY_IMPORT,
-              volume: sampledValue.value,
+              volume: Number(sampledValue.value),
             });
             const previousEnergyImport =
               this.getEnergyImportForMeterValue(previousMeterValue);
-            if (previousEnergyImport !== undefined) {
+            if (
+              previousEnergyImport !== undefined &&
+              !isNaN(Number(previousEnergyImport)) &&
+              !isNaN(Number(sampledValue.value))
+            ) {
               cdrDimensions.push({
                 type: CdrDimensionType.ENERGY,
-                volume: sampledValue.value - previousEnergyImport,
+                volume:
+                  Number(sampledValue.value) - Number(previousEnergyImport),
               });
             }
           }
@@ -266,7 +258,7 @@ export class SessionMapper extends BaseTransactionMapper {
         case OCPP2_0_1.MeasurandEnumType.SoC:
           cdrDimensions.push({
             type: CdrDimensionType.STATE_OF_CHARGE,
-            volume: sampledValue.value,
+            volume: Number(sampledValue.value),
           });
           break;
       }
@@ -278,7 +270,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return cdrDimensions;
   }
 
-  private getEnergyImportForMeterValue(meterValue?: OCPP2_0_1.MeterValueType) {
+  private getEnergyImportForMeterValue(meterValue?: IMeterValueDto) {
     return (
       meterValue?.sampledValue.find(
         (sampledValue) =>
@@ -290,8 +282,8 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getTimeElapsedForMeterValue(
-    meterValue: OCPP2_0_1.MeterValueType,
-    previousMeterValue?: OCPP2_0_1.MeterValueType,
+    meterValue: IMeterValueDto,
+    previousMeterValue?: IMeterValueDto,
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
@@ -302,10 +294,8 @@ export class SessionMapper extends BaseTransactionMapper {
     return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
   }
 
-  private getTransactionStatus(
-    endEvent: OCPP2_0_1.TransactionEventRequest | undefined,
-  ): SessionStatus {
+  private getTransactionStatus(transaction: ITransactionDto): SessionStatus {
     // TODO: Implement other session status
-    return endEvent ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
+    return transaction.endTime ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }
 }

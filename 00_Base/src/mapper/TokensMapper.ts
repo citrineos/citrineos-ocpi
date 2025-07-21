@@ -1,10 +1,9 @@
 import {
-  AdditionalInfo,
-  AuthorizationStatusEnumType,
-  IAuthorizationDto,
   IdTokenType,
+  IAuthorizationDto,
   OCPP2_0_1,
-  RealTimeAuthEnumType,
+  AuthorizationStatusType,
+  AuthorizationWhitelistType,
 } from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
 
@@ -25,8 +24,8 @@ export class TokensMapper {
     tokenDto.visual_number = TokensMapper.getVisualNumber(authorization);
     tokenDto.issuer = TokensMapper.getIssuer(authorization);
     tokenDto.group_id = authorization.groupAuthorization?.idToken;
-    tokenDto.valid =
-      authorization.status === OCPP2_0_1.AuthorizationStatusEnumType.Accepted;
+    tokenDto.valid = 
+      authorization.status === AuthorizationStatusType.Accepted;
     tokenDto.whitelist = TokensMapper.mapRealTimeEnumType(
       authorization.realTimeAuth,
     );
@@ -75,14 +74,14 @@ export class TokensMapper {
   }
 
   public static mapRealTimeEnumType(
-    type: RealTimeAuthEnumType | null | undefined,
+    type: AuthorizationWhitelistType | null | undefined,
   ): WhitelistType {
     switch (type) {
-      case RealTimeAuthEnumType.Allowed:
+      case AuthorizationWhitelistType.Allowed:
         return WhitelistType.ALLOWED;
-      case RealTimeAuthEnumType.AllowedOffline:
+      case AuthorizationWhitelistType.AllowedOffline:
         return WhitelistType.ALLOWED_OFFLINE;
-      case RealTimeAuthEnumType.Never:
+      case AuthorizationWhitelistType.Never:
         return WhitelistType.NEVER;
       default:
         return WhitelistType.ALWAYS;
@@ -119,9 +118,10 @@ export class TokensMapper {
       });
     }
 
-    const status: OCPP2_0_1.AuthorizationStatusEnumType = tokenDto.valid
-      ? OCPP2_0_1.AuthorizationStatusEnumType.Accepted
-      : OCPP2_0_1.AuthorizationStatusEnumType.Invalid;
+    const status: AuthorizationStatusType = tokenDto.valid
+      ? AuthorizationStatusType.Accepted
+      : AuthorizationStatusType.Invalid;
+
     const language1: string | undefined = tokenDto.language ?? undefined;
 
     if (tokenDto.group_id) {
@@ -224,8 +224,8 @@ export class TokensMapper {
     if (token.valid !== undefined) {
       set.IdTokenInfo = {
         status: token.valid
-          ? AuthorizationStatusEnumType.Accepted
-          : AuthorizationStatusEnumType.Invalid,
+          ? AuthorizationStatusType.Accepted
+          : AuthorizationStatusType.Invalid,
       };
     }
     //TODO: Add other fields as needed for update

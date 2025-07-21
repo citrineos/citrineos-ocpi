@@ -48,7 +48,9 @@ export class TokensService {
     }
 
     if (result.Authorizations.length > 1) {
-      this.logger.warn(`Multiple authorizations found for token uid ${tokenRequest.uid}, type ${tokenRequest.type}, country code ${tokenRequest.country_code}, and party id ${tokenRequest.party_id}. Returning the first one. All entries: ${JSON.stringify(result.Authorizations)}`);
+      this.logger.warn(
+        `Multiple authorizations found for token uid ${tokenRequest.uid}, type ${tokenRequest.type}, country code ${tokenRequest.country_code}, and party id ${tokenRequest.party_id}. Returning the first one. All entries: ${JSON.stringify(result.Authorizations)}`,
+      );
     }
     return TokensMapper.toDto(result.Authorizations[0] as unknown as IAuthorizationDto);
   }
@@ -74,7 +76,7 @@ export class TokensService {
         variables,
       );
     return result.update_Authorizations?.returning[0]
-      .IdToken as unknown as TokenDTO;
+      .idToken as unknown as TokenDTO;
   }
 
   async patchToken(
@@ -95,11 +97,16 @@ export class TokensService {
         READ_AUTHORIZATION,
         variables,
       );
-    if (!existingAuth.Authorizations || existingAuth.Authorizations.length === 0) {
+    if (
+      !existingAuth.Authorizations ||
+      existingAuth.Authorizations.length === 0
+    ) {
       throw new Error('Token not found');
     }
     if (existingAuth.Authorizations.length > 1) {
-      this.logger.warn(`Multiple authorizations found for token uid ${tokenUid}, type ${type}, country code ${countryCode}, and party id ${partyId}. Returning the first one. All entries: ${JSON.stringify(existingAuth.Authorizations)}`);
+      this.logger.warn(
+        `Multiple authorizations found for token uid ${tokenUid}, type ${type}, country code ${countryCode}, and party id ${partyId}. Returning the first one. All entries: ${JSON.stringify(existingAuth.Authorizations)}`,
+      );
     }
     const existingTokenDTO = TokensMapper.toDto(existingAuth.Authorizations[0] as unknown as IAuthorizationDto);
     // Merge existing token with patch
