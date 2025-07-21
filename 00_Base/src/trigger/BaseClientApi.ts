@@ -537,8 +537,8 @@ export class BaseClientApi {
         urlCountryCodeAndPartyIdList.push({
           clientUrl: matchingEndpoint.url,
           authToken: clientInformation.partnerProfile.credentials.token,
-          clientCountryCode: clientInformation.countryCode,
-          clientPartyId: clientInformation.partyId,
+          clientCountryCode: clientInformation.countryCode!,
+          clientPartyId: clientInformation.partyId!,
         });
       }
     }

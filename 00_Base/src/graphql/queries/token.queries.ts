@@ -1,11 +1,19 @@
 import { gql } from 'graphql-request';
 export const READ_AUTHORIZATION = gql`
-  query ReadAuthorizations($idToken: String, $type: String, $countryCode: String, $partyId: String) {
+  query ReadAuthorizations(
+    $idToken: String
+    $type: String
+    $countryCode: String
+    $partyId: String
+  ) {
     Authorizations(
       where: {
-        IdToken: { idToken: { _eq: $idToken }, type: { _eq: $type } },
-        Tenant: { countryCode: { _eq: $countryCode }, partyId: { _eq: $partyId } },
-        IdTokenInfo: { IdToken: { IdTokenAdditionalInfos: {} } }
+        idToken: { _eq: $idToken }
+        idTokenType: { _eq: $type }
+        Tenant: {
+          countryCode: { _eq: $countryCode }
+          partyId: { _eq: $partyId }
+        }
       }
     ) {
       id
@@ -17,58 +25,39 @@ export const READ_AUTHORIZATION = gql`
         countryCode
         partyId
       }
-      IdToken {
-        id
-        idToken
-        type
-      }
-      IdTokenInfo {
-        id
-        IdToken {
-          id
-          idToken
-          IdTokenAdditionalInfos {
-            AdditionalInfo {
-              id
-            },
-            IdToken {
-              id
-            },
-            Tenant {
-              id
-            },
-            additionalInfoId,
-            createdAt,
-            idTokenId,
-            tenantId,
-            updatedAt
-          }
-        }
-      }
+      idToken
+      idTokenType
     }
   }
-`
-
+`;
 
 export const UPDATE_TOKEN_MUTATION = gql`
-  mutation UpdateAuthorization($where: Authorizations_bool_exp!, $set: Authorizations_set_input!) {
+  mutation UpdateAuthorization(
+    $where: Authorizations_bool_exp!
+    $set: Authorizations_set_input!
+  ) {
     update_Authorizations(where: $where, _set: $set) {
       returning {
         id
-        IdToken {
-          idToken
-          type
-        }
-        IdTokenInfo {
-          status
-          language1
-          groupIdTokenId
-        }
+        idToken
+        idTokenType
         Tenant {
           countryCode
           partyId
         }
       }
+    }
+  }
+`;
+
+export const GET_AUTHORIZATION_BY_ID_QUERY = gql`
+  query GetAuthorizationById($idToken: String!, $idTokenType: String!) {
+    Authorizations(
+      where: { idToken: { _eq: $idToken }, idTokenType: { _eq: $idTokenType } }
+    ) {
+      id
+      idToken
+      idTokenType
     }
   }
 `;

@@ -480,8 +480,8 @@ export class CredentialsService {
       await this.unregisterClientInformation(
         clientInfo,
         VersionNumber.TWO_DOT_TWO_DOT_ONE,
-        partner.countryCode,
-        partner.partyId,
+        partner.countryCode!,
+        partner.partyId!,
         tenant.countryCode!,
         tenant.partyId!,
       );

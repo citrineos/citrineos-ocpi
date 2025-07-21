@@ -1,4 +1,9 @@
-import { AuthorizationStatusEnumType, IAuthorizationDto, IdTokenType, OCPP2_0_1 } from '@citrineos/base';
+
+import {
+  IdTokenType,
+  IAuthorizationDto,
+  OCPP2_0_1,
+} from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 

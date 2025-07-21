@@ -10,12 +10,20 @@ export const GET_TRANSACTIONS_QUERY = gql`
     $dateTo: timestamptz
     $offset: Int
     $limit: Int
-    $endedOnly: Boolean
   ) {
     Transactions(
       where: {
         stationId: { _is_null: false }
-        TransactionEvents: { IdToken: { Authorization: {} } }
+        ChargingStation: {
+          Tenant: {
+            countryCode: { _eq: $cpoCountryCode }
+            partyId: { _eq: $cpoPartyId }
+            TenantPartners: {
+              countryCode: { _eq: $mspCountryCode }
+              partyId: { _eq: $mspPartyId }
+            }
+          }
+        }
         updatedAt: { _gte: $dateFrom, _lte: $dateTo }
       }
       offset: $offset
@@ -34,27 +42,57 @@ export const GET_TRANSACTIONS_QUERY = gql`
       totalCost
       createdAt
       updatedAt
-      Evse {
+      evse: Evse {
         id
       }
-      TransactionEvents {
+      chargingStation: ChargingStation {
+        connectors: Connectors {
+          id
+          connectorId
+        }
+        location: Location {
+          id
+          name
+          address
+          city
+          postalCode
+          state
+          country
+          coordinates
+        }
+      }
+      transactionEvents: TransactionEvents {
         id
         eventType
+        evse: Evse {
+          id
+        }
+        transactionInfo
       }
-      MeterValues {
-        id
+      startTransaction: StartTransaction {
+        timestamp
       }
-      StartTransaction {
-        id
+      stopTransaction: StopTransaction {
+        timestamp
       }
-      StopTransaction {
-        id
+      meterValues: MeterValues {
+        timestamp
+        sampledValue
       }
     }
     Transactions_aggregate(
       where: {
         stationId: { _is_null: false }
-        TransactionEvents: { IdToken: { Authorization: { IdToken: {} } } }
+        ChargingStation: {
+          Tenant: {
+            countryCode: { _eq: $cpoCountryCode }
+            partyId: { _eq: $cpoPartyId }
+            TenantPartners: {
+              countryCode: { _eq: $mspCountryCode }
+              partyId: { _eq: $mspPartyId }
+            }
+          }
+        }
         updatedAt: { _gte: $dateFrom, _lte: $dateTo }
       }
     ) {
