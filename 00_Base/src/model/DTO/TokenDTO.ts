@@ -4,15 +4,20 @@ import { Optional } from '../../util/decorators/Optional';
 import { WhitelistType } from '../WhitelistType';
 import { TokenEnergyContract } from '../TokenEnergyContract';
 import {
+  IsArray,
   IsBoolean,
   IsDate,
   IsNotEmpty,
+  IsObject,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { OcpiResponse, OcpiResponseStatusCode } from '../..';
+import { PaginatedResponse } from '../PaginatedResponse';
 
 export class TokenDTO {
   @MaxLength(2)

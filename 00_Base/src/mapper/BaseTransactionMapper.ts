@@ -13,7 +13,6 @@ import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/LocationsService';
-import { OcpiTokensMapper } from './OcpiTokensMapper';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
   GetLocationByIdQuery,
@@ -23,6 +22,7 @@ import { GET_LOCATION_BY_ID_QUERY } from '../graphql/queries/location.queries';
 import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
 import { ITransactionDto, ILocationDto } from '@citrineos/base';
 import { LocationMapper } from './LocationMapper';
+import { TokensMapper } from './TokensMapper';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -68,7 +68,7 @@ export abstract class BaseTransactionMapper {
 
     for (const transaction of transactions) {
       if (transaction.authorization) {
-        const tokenDto = await OcpiTokensMapper.toDto(
+        const tokenDto = await TokensMapper.toDto(
           transaction.authorization,
         );
         if (tokenDto) {

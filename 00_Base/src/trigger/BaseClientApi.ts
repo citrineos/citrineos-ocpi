@@ -4,7 +4,7 @@ import { VersionNumber } from '../model/VersionNumber';
 import { OcpiRegistrationParams } from './util/OcpiRegistrationParams';
 import { OcpiParams } from './util/OcpiParams';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { HttpHeader } from '@citrineos/base';
+import { Endpoint, HttpHeader } from '@citrineos/base';
 import { OcpiHttpHeader } from '../util/OcpiHttpHeader';
 import { base64Encode } from '../util/Util';
 import { OcpiResponse } from '../model/OcpiResponse';
@@ -19,7 +19,6 @@ import {
   GetTenantPartnersByCpoAndModuleIdQuery,
   GetTenantPartnersByCpoClientAndModuleIdQuery,
 } from '../graphql/types/graphql';
-import { Endpoint } from '../model/Endpoint';
 import {
   GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID,
   GET_TENANT_PARTNERS_BY_CPO_AND_MODULE_ID_AND_CLIENT_CRED,

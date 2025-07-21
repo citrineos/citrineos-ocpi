@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
-import { ClientInformation } from '../model/ClientInformation';
 import { OcpiLogger } from '../util/OcpiLogger';
 import { VersionNumber } from '../model/VersionNumber';
 import { VersionsClientApi } from '../trigger/VersionsClientApi';
@@ -34,7 +33,6 @@ import {
   DELETE_TENANT_PARTNER_BY_ID,
 } from '../graphql/queries/clientInformation.queries';
 import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
-import { ClientVersion } from '../model/ClientVersion';
 import { Endpoint } from '../model/Endpoint';
 import {
   CREATE_TENANT,
@@ -52,9 +50,6 @@ import {
   GetClientInformationByServerTokenQuery,
   Tenants,
 } from '../graphql/types/graphql';
-import { CpoTenant } from '../model/CpoTenant';
-import { ClientCredentialsRole } from '../model/ClientCredentialsRole';
-import { ServerVersion } from '../model/ServerVersion';
 import { AdminUpdateCredentialsRequestDTO } from '../model/DTO/AdminUpdateCredentialsRequestDTO';
 import { buildPutCredentialsParams } from '../trigger/param/credentials/PutCredentialsParams';
 import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
