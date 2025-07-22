@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { TariffKey } from '../model/OcpiTariff';
+import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/PaginatedParams';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
@@ -17,17 +17,30 @@ import {
   GetTariffByKeyQuery,
   GetTariffsQuery,
 } from '../graphql/types/graphql';
+import { TariffMapper } from '../mapper/TariffMapper';
+import { ITariffDto } from '@citrineos/base';
 
 @Service()
 export class TariffsService {
-  constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
+  constructor(
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
+    private readonly tariffMapper: TariffMapper,
+  ) {}
 
   async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
     const result = await this.ocpiGraphqlClient.request<GetTariffByKeyQuery>(
       GET_TARIFF_BY_KEY_QUERY,
       key,
     );
-    return result.Tariffs?.[0] as unknown as TariffDTO | undefined;
+    const tariff = result.Tariffs?.[0];
+    if (tariff) {
+      const ocpiTariff = new OcpiTariff();
+      ocpiTariff.id = tariff.id;
+      ocpiTariff.countryCode = tariff.Tenant.countryCode!;
+      ocpiTariff.partyId = tariff.Tenant.partyId!;
+      return this.tariffMapper.map(tariff as unknown as ITariffDto, ocpiTariff);
+    }
+    return undefined;
   }
 
   async getTariffs(
@@ -52,8 +65,18 @@ export class TariffsService {
       GET_TARIFFS_QUERY,
       variables,
     );
+    const mappedTariffs: TariffDTO[] = [];
+    for (const tariff of result.Tariffs) {
+      const ocpiTariff = new OcpiTariff();
+      ocpiTariff.id = tariff.id;
+      ocpiTariff.countryCode = tariff.Tenant.countryCode!;
+      ocpiTariff.partyId = tariff.Tenant.partyId!;
+      mappedTariffs.push(
+        this.tariffMapper.map(tariff as unknown as ITariffDto, ocpiTariff),
+      );
+    }
     return {
-      data: result.Tariffs as unknown as TariffDTO[],
+      data: mappedTariffs,
       count: result.Tariffs_aggregate?.aggregate?.count || 0,
     };
   }

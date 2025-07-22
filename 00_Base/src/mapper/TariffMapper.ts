@@ -7,12 +7,13 @@ import { TariffElement } from '../model/TariffElement';
 import { TariffType } from '../model/TariffType';
 import { MINUTES_IN_HOUR } from '../util/Consts';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
+import { ITariffDto } from '@citrineos/base';
 
 @Service()
 export class TariffMapper {
   constructor() {}
 
-  public map(coreTariff: Tariff, ocpiTariff: OcpiTariff): TariffDTO {
+  public map(coreTariff: ITariffDto, ocpiTariff: OcpiTariff): TariffDTO {
     return {
       id: ocpiTariff.id,
       country_code: ocpiTariff.countryCode,
@@ -27,7 +28,7 @@ export class TariffMapper {
       energy_mix: undefined,
       start_date_time: undefined,
       end_date_time: undefined,
-      last_updated: coreTariff.updatedAt,
+      last_updated: coreTariff.updatedAt!,
     };
   }
 
@@ -55,7 +56,7 @@ export class TariffMapper {
     return [ocpiTariff, coreTariff];
   }
 
-  private getTariffElement(coreTariff: Tariff): TariffElement {
+  private getTariffElement(coreTariff: ITariffDto): TariffElement {
     return {
       price_components: [
         {
