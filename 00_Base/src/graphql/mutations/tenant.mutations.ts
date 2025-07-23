@@ -34,3 +34,11 @@ export const UPDATE_TENANT_PARTNER_PROFILE = gql`
     }
   }
 `;
+
+export const DELETE_TENANT_PARTNER_BY_ID = gql`
+  mutation DeleteTenantPartner($id: Int!) {
+    delete_TenantPartners(where: { id: { _eq: $id } }) {
+      affected_rows
+    }
+  }
+`;

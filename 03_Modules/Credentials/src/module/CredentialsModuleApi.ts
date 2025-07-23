@@ -68,11 +68,8 @@ export class CredentialsModuleApi
     @AuthToken() token: string,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
-    const clientInformation =
-      await this.credentialsService?.getClientInformationByServerToken(token);
-    const credentialsDto = toCredentialsDTO(
-      clientInformation.get({ plain: true }),
-    );
+    const credentialsDto =
+      await this.credentialsService.getClientCredentialsByServerToken(token);
     return CredentialsResponse.build(credentialsDto);
   }
 
@@ -94,14 +91,12 @@ export class CredentialsModuleApi
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
-    const clientInformation = await this.credentialsService?.postCredentials(
+    const serverCredentials = await this.credentialsService?.postCredentials(
       token,
       credentials,
       version,
     );
-    return CredentialsResponse.build(
-      toCredentialsDTO(clientInformation.get({ plain: true })),
-    );
+    return CredentialsResponse.build(serverCredentials);
   }
 
   @Put()
@@ -202,7 +197,8 @@ export class CredentialsModuleApi
     @Param('tenantId') tenantId: string,
   ): Promise<OcpiEmptyResponse> {
     this.logger.info('deleteTenant', tenantId);
-    await this.credentialsService?.deleteTenant(tenantId, versionNumber);
+    this.logger.warn('delete tenant not implemented');
+    // await this.credentialsService?.deleteTenant(tenantId);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
@@ -214,7 +210,7 @@ export class CredentialsModuleApi
     @Body() request: UnregisterClientRequestDTO,
   ): Promise<void> {
     this.logger.info('unregisterClient', request);
-    return this.credentialsService?.unregisterClient(request, versionNumber);
+    return this.credentialsService?.unregisterClient(request);
   }
 
   /**

@@ -1,13 +1,16 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsEnum,
   IsNotEmpty,
+  IsObject,
   IsString,
   IsUrl,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CredentialsRoleDTO } from './CredentialsRoleDTO';
+import { CountryCode } from '../..';
 
 export class AdminCredentialsRequestDTO {
   @IsString()
@@ -15,15 +18,29 @@ export class AdminCredentialsRequestDTO {
   @IsNotEmpty()
   url!: string; // version url of OCPI
 
-  @IsArray()
-  @ArrayMinSize(1)
+  @IsObject()
   @IsNotEmpty()
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => CredentialsRoleDTO)
-  roles!: CredentialsRoleDTO[];
+  role!: CredentialsRoleDTO;
 
-  constructor(url: string, roles: CredentialsRoleDTO[]) {
+  @IsEnum(CountryCode)
+  @IsNotEmpty()
+  mspCountryCode!: CountryCode;
+
+  @IsString()
+  @IsNotEmpty()
+  mspPartyId!: string;
+
+  constructor(
+    url: string,
+    role: CredentialsRoleDTO,
+    mspCountryCode: CountryCode,
+    mspPartyId: string,
+  ) {
     this.url = url;
-    this.roles = roles;
+    this.role = role;
+    this.mspCountryCode = mspCountryCode;
+    this.mspPartyId = mspPartyId;
   }
 }
