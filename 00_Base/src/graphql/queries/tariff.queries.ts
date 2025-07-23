@@ -21,6 +21,7 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
       pricePerSession
       stationId
       taxRate
+      tariffAltText
       updatedAt
       Tenant {
         countryCode
@@ -60,6 +61,7 @@ export const GET_TARIFFS_QUERY = gql`
       pricePerSession
       stationId
       taxRate
+      tariffAltText
       updatedAt
       Tenant {
         countryCode
