@@ -130,3 +130,37 @@ export const DELETE_TARIFF_MUTATION = gql`
     }
   }
 `;
+
+export const GET_TARIFF_BY_ID_QUERY = gql`
+  query GetTariffById($stationId: String!) {
+    Tariffs(where: { stationId: { _eq: $stationId } }) {
+      id
+      currency
+      pricePerKwh
+      stationId
+    }
+  }
+`;
+
+export const GET_TARIFF_BY_CORE_KEY_QUERY = gql`
+  query GetTariffByCoreKey(
+    $id: Int!
+    $countryCode: String!
+    $partyId: String!
+  ) {
+    Tariffs(
+      where: {
+        id: { _eq: $id }
+        Tenant: {
+          countryCode: { _eq: $countryCode }
+          partyId: { _eq: $partyId }
+        }
+      }
+    ) {
+      id
+      currency
+      pricePerKwh
+      stationId
+    }
+  }
+`;

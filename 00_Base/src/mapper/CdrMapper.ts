@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
-import { Tariff, Transaction } from '@citrineos/data';
+import { Tariff } from '@citrineos/data';
 import { SessionMapper } from './SessionMapper';
 import { CdrLocation } from '../model/CdrLocation';
 import { Price } from '../model/Price';
@@ -10,32 +10,23 @@ import { SignedData } from '../model/SignedData';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { LocationsService } from '../services/LocationsService';
-import { TariffsDatasource } from '../datasources/TariffsDatasource';
-import { TokensDatasource } from '../datasources/TokensDatasource';
+import { ITransactionDto } from '@citrineos/base';
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {
   constructor(
     protected logger: Logger<ILogObj>,
     protected locationsService: LocationsService,
-    protected ocpiLocationsRepository: OcpiLocationRepository,
-    protected tokensDatasource: TokensDatasource,
-    protected tariffsDatasource: TariffsDatasource,
+    protected ocpiGraphqlClient: OcpiGraphqlClient,
     readonly sessionMapper: SessionMapper,
   ) {
-    super(
-      logger,
-      locationsService,
-      ocpiLocationsRepository,
-      tokensDatasource,
-      tariffsDatasource,
-    );
+    super(logger, locationsService, ocpiGraphqlClient);
   }
 
   public async mapTransactionsToCdrs(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
   ): Promise<Cdr[]> {
     try {
       const validTransactions = this.getCompletedTransactions(transactions);
@@ -70,7 +61,7 @@ export class CdrMapper extends BaseTransactionMapper {
   }
 
   private async mapTransactionsToSessions(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
   ): Promise<Session[]> {
     return this.sessionMapper.mapTransactionsToSessions(transactions);
   }
@@ -289,14 +280,16 @@ export class CdrMapper extends BaseTransactionMapper {
     return undefined;
   }
 
-  private getCompletedTransactions(transactions: Transaction[]): Transaction[] {
+  private getCompletedTransactions(
+    transactions: ITransactionDto[],
+  ): ITransactionDto[] {
     return transactions.filter((transaction) =>
       this.hasValidDuration(transaction),
     );
   }
 
   // TODO try to move this into SQL if possible
-  private hasValidDuration(transaction: Transaction): boolean {
+  private hasValidDuration(transaction: ITransactionDto): boolean {
     const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
     if (startEvent && endEvent) {
       const duration =
