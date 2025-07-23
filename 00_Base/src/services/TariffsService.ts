@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
+import { TariffKey } from '../model/OcpiTariff';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/PaginatedParams';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
@@ -18,7 +18,7 @@ import {
   GetTariffsQuery,
 } from '../graphql/types/graphql';
 import { TariffMapper } from '../mapper/TariffMapper';
-import { ITariffDto } from '@citrineos/base';
+import { ITariffDto, ITenantDto } from '@citrineos/base';
 
 @Service()
 export class TariffsService {
@@ -34,11 +34,10 @@ export class TariffsService {
     );
     const tariff = result.Tariffs?.[0];
     if (tariff) {
-      const ocpiTariff = new OcpiTariff();
-      ocpiTariff.id = tariff.id;
-      ocpiTariff.countryCode = tariff.Tenant.countryCode!;
-      ocpiTariff.partyId = tariff.Tenant.partyId!;
-      return this.tariffMapper.map(tariff as unknown as ITariffDto, ocpiTariff);
+      return this.tariffMapper.map(
+        tariff as unknown as ITariffDto,
+        tariff.Tenant as unknown as ITenantDto,
+      );
     }
     return undefined;
   }
@@ -67,12 +66,11 @@ export class TariffsService {
     );
     const mappedTariffs: TariffDTO[] = [];
     for (const tariff of result.Tariffs) {
-      const ocpiTariff = new OcpiTariff();
-      ocpiTariff.id = tariff.id;
-      ocpiTariff.countryCode = tariff.Tenant.countryCode!;
-      ocpiTariff.partyId = tariff.Tenant.partyId!;
       mappedTariffs.push(
-        this.tariffMapper.map(tariff as unknown as ITariffDto, ocpiTariff),
+        this.tariffMapper.map(
+          tariff as unknown as ITariffDto,
+          tariff.Tenant as unknown as ITenantDto,
+        ),
       );
     }
     return {
