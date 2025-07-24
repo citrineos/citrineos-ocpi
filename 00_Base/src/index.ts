@@ -206,11 +206,17 @@ export { TokensService } from './services/TokensService';
 export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
-export { AsyncJobStatusDTO } from './model/AsyncJobStatus';
-export { AsyncJobAction } from './model/AsyncJobAction';
-export { AsyncJobRequest } from './model/AsyncJobRequest';
 export { SessionsService } from './services/SessionsService';
 export { AdminLocationsService } from './services/AdminLocationsService';
+
+// Export AsyncJob types
+export {
+  AsyncJobStatusResponse,
+  AsyncJobAction,
+  AsyncJobRequest,
+  AsyncJobName,
+  AsyncJobPaginatedParams,
+} from './types/asyncJob.types';
 
 export { TariffsService } from './services/TariffsService';
 export { TariffsBroadcaster } from './broadcaster/TariffsBroadcaster';
