@@ -23,7 +23,7 @@ import {
   AsOcpiFunctionalEndpoint,
   AsyncJobAction,
   AsyncJobRequest,
-  AsyncJobStatusDTO,
+  AsyncJobStatusResponse,
   BaseController,
   BodyWithExample,
   EnumQueryParam,
@@ -208,107 +208,64 @@ export class TokensModuleApi
    * Admin Endpoints
    **/
   @Post('/fetch')
-  @ResponseSchema(AsyncJobStatusDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(AsyncJobStatusDTO),
-    },
-  })
   async fetchTokens(
     @VersionNumberParam() version: VersionNumber,
     @Body() asyncJobRequest: AsyncJobRequest,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const jobStatus =
       await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
-    return jobStatus.toDTO();
+    return jobStatus;
   }
 
   @Post('/fetch/:jobId/:action')
-  @ResponseSchema(AsyncJobStatusDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(AsyncJobStatusDTO),
-    },
-  })
   async fetchTokensAction(
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
     @Param('action') action: AsyncJobAction,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     switch (action) {
       case AsyncJobAction.RESUME:
-        return (await this.tokensFetchService.resumeFetchTokens(jobId)).toDTO();
+        return await this.tokensFetchService.resumeFetchTokens(jobId);
       case AsyncJobAction.STOP:
-        return (await this.tokensFetchService.stopFetchTokens(jobId)).toDTO();
+        return await this.tokensFetchService.stopFetchTokens(jobId);
       default:
         throw new BadRequestError('Action not found');
     }
   }
 
   @Get('/fetch/:jobId')
-  @ResponseSchema(AsyncJobStatusDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(AsyncJobStatusDTO),
-    },
-  })
   async getFetchTokensJobStatus(
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const jobStatus = await this.tokensFetchService.getFetchTokensJob(jobId);
     if (!jobStatus) {
       throw new NotFoundError('Job not found');
     }
-    return jobStatus.toDTO();
+    return jobStatus;
   }
 
   @Get('/fetch')
-  @ResponseSchema(AsyncJobStatusDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(AsyncJobStatusDTO),
-    },
-  })
   async getActiveFetchTokensJobStatus(
     @VersionNumberParam() version: VersionNumber,
-    @QueryParam('mspCountryCode') mspCountryCode: string,
-    @QueryParam('mspPartyId') mspPartyId: string,
-    @QueryParam('cpoCountryCode') cpoCountryCode: string,
-    @QueryParam('cpoPartyId') cpoPartyId: string,
+    @QueryParam('tenantPartnerId') tenantPartnerId: number,
     @QueryParam('active', { required: false }) active: boolean,
-  ): Promise<AsyncJobStatusDTO[]> {
-    return (
-      await this.tokensFetchService.getFetchTokensJobs(
-        mspCountryCode,
-        mspPartyId,
-        cpoCountryCode,
-        cpoPartyId,
-        active,
-      )
-    ).map((job) => job.toDTO());
+  ): Promise<AsyncJobStatusResponse[]> {
+    return await this.tokensFetchService.getFetchTokensJobs(
+      tenantPartnerId,
+      active,
+    );
   }
 
   @Delete('/fetch/:jobId')
-  @ResponseSchema(AsyncJobStatusDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(AsyncJobStatusDTO),
-    },
-  })
   async deleteFetchTokensJobStatus(
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const jobStatus = await this.tokensFetchService.deleteFetchTokensJob(jobId);
     if (!jobStatus) {
       throw new NotFoundError('Job not found');
     }
-    return jobStatus.toDTO();
+    return jobStatus;
   }
 }

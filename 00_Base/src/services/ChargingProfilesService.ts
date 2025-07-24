@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { CommandExecutor } from '../util/CommandExecutor';
+// import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiResponse } from '../model/OcpiResponse';
 import { ChargingProfileResponse, ChargingProfileResultType } from '../model/ChargingProfileResponse';
 import { NotFoundException } from '../exception/NotFoundException';
@@ -11,7 +11,7 @@ import { ResponseGenerator } from '../util/response.generator';
 export class ChargingProfilesService {
   readonly TIMEOUT = 30;
 
-  constructor(private commandExecutor: CommandExecutor) {}
+  // constructor(private commandExecutor: CommandExecutor) {}
 
   async getActiveChargingProfile(
     sessionId: string,
@@ -19,11 +19,11 @@ export class ChargingProfilesService {
     responseUrl: string,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
     try {
-      await this.commandExecutor.executeGetActiveChargingProfile(
-        sessionId,
-        duration,
-        responseUrl,
-      );
+      // await this.commandExecutor.executeGetActiveChargingProfile(
+      //   sessionId,
+      //   duration,
+      //   responseUrl,
+      // );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
         timeout: this.TIMEOUT,
@@ -54,10 +54,10 @@ export class ChargingProfilesService {
     responseUrl: string,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
     try {
-      await this.commandExecutor.executeClearChargingProfile(
-        sessionId,
-        responseUrl,
-      );
+      // await this.commandExecutor.executeClearChargingProfile(
+      //   sessionId,
+      //   responseUrl,
+      // );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
         timeout: this.TIMEOUT,
@@ -88,10 +88,10 @@ export class ChargingProfilesService {
     setChargingProfile: SetChargingProfile,
   ): Promise<OcpiResponse<ChargingProfileResponse>> {
     try {
-      await this.commandExecutor.executePutChargingProfile(
-        sessionId,
-        setChargingProfile,
-      );
+      // await this.commandExecutor.executePutChargingProfile(
+      //   sessionId,
+      //   setChargingProfile,
+      // );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: ChargingProfileResultType.ACCEPTED,
         timeout: this.TIMEOUT,

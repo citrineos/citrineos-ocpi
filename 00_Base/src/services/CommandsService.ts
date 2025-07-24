@@ -6,7 +6,7 @@ import { StopSession } from '../model/StopSession';
 import { UnlockConnector } from '../model/UnlockConnector';
 import { CommandType } from '../model/CommandType';
 import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
-import { CommandExecutor } from '../util/CommandExecutor';
+// import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiResponse } from '../model/OcpiResponse';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ResponseGenerator } from '../util/response.generator';
@@ -15,7 +15,7 @@ import { ResponseGenerator } from '../util/response.generator';
 export class CommandsService {
   readonly TIMEOUT = 30;
 
-  constructor(private commandExecutor: CommandExecutor) {}
+  // constructor(private commandExecutor: CommandExecutor) {}
 
   async postCommand(
     commandType: CommandType,
@@ -65,11 +65,11 @@ export class CommandsService {
     fromPartyId: string,
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
-      await this.commandExecutor.executeCancelReservation(
-        cancelReservation,
-        fromCountryCode,
-        fromPartyId,
-      );
+      // await this.commandExecutor.executeCancelReservation(
+      //   cancelReservation,
+      //   fromCountryCode,
+      //   fromPartyId,
+      // );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,
@@ -104,11 +104,11 @@ export class CommandsService {
     fromPartyId: string,
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
-      await this.commandExecutor.executeReserveNow(
-        reserveNow,
-        fromCountryCode,
-        fromPartyId,
-      );
+      // await this.commandExecutor.executeReserveNow(
+      //   reserveNow,
+      //   fromCountryCode,
+      //   fromPartyId,
+      // );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,
@@ -150,7 +150,7 @@ export class CommandsService {
     startSession: StartSession,
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
-      await this.commandExecutor.executeStartSession(startSession);
+      // await this.commandExecutor.executeStartSession(startSession);
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,
@@ -183,7 +183,7 @@ export class CommandsService {
     stopSession: StopSession,
   ): Promise<OcpiResponse<CommandResponse>> {
     try {
-      await this.commandExecutor.executeStopSession(stopSession);
+      // await this.commandExecutor.executeStopSession(stopSession);
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
         timeout: this.TIMEOUT,

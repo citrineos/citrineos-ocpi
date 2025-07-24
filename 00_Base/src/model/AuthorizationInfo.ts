@@ -1,12 +1,12 @@
 import { LocationReferences } from './LocationReferences';
 import { DisplayText } from './DisplayText';
-import { OcpiToken } from './OcpiToken';
 import { AuthorizationInfoAllowed } from './AuthorizationInfoAllowed';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Optional } from '../util/decorators/Optional';
 import { Enum } from '../util/decorators/Enum';
 import { OcpiResponse } from './OcpiResponse';
+import { TokenDTO } from './DTO/TokenDTO';
 
 export class AuthorizationInfo {
   @Enum(AuthorizationInfoAllowed, 'AuthorizationInfoAllowed')
@@ -14,9 +14,9 @@ export class AuthorizationInfo {
   allowed!: AuthorizationInfoAllowed;
 
   @IsNotEmpty()
-  @Type(() => OcpiToken)
+  @Type(() => TokenDTO)
   @ValidateNested()
-  token!: OcpiToken;
+  token!: TokenDTO;
 
   @IsString()
   authorizationReference!: string;
