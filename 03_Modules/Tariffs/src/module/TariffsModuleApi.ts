@@ -34,8 +34,8 @@ import {
   PutTariffRequest,
   ResponseSchema,
   TariffDTO,
-  TariffKey,
-  TariffsBroadcaster,
+  // TariffKey,
+  // TariffsBroadcaster,
   TariffsService,
   versionIdParam,
   VersionNumber,
@@ -52,7 +52,7 @@ export class TariffsModuleApi
 {
   constructor(
     readonly tariffService: TariffsService,
-    readonly tariffsPublisher: TariffsBroadcaster,
+    // readonly tariffsPublisher: TariffsBroadcaster,
   ) {
     super();
   }
@@ -90,26 +90,26 @@ export class TariffsModuleApi
   }
 
   // TODO: auth & reorganize
-  @Post(`/tariff-broadcasts`)
-  async broadcastTariff(
-    @Body()
-    broadcastRequest: TariffKey & {
-      eventType: 'created' | 'updated' | 'deleted';
-    },
-  ): Promise<void> {
-    console.log(`POST /tariff-broadcasts ${JSON.stringify(broadcastRequest)}`);
+  // @Post(`/tariff-broadcasts`)
+  // async broadcastTariff(
+  //   @Body()
+  //   broadcastRequest: TariffKey & {
+  //     eventType: 'created' | 'updated' | 'deleted';
+  //   },
+  // ): Promise<void> {
+  //   console.log(`POST /tariff-broadcasts ${JSON.stringify(broadcastRequest)}`);
 
-    switch (broadcastRequest.eventType) {
-      case 'deleted':
-        return this.tariffsPublisher.broadcastDeletionByKey(broadcastRequest);
-      case 'updated':
-        return this.tariffsPublisher.broadcastByKey(broadcastRequest);
-      case 'created':
-        return this.tariffsPublisher.broadcastByKey(broadcastRequest);
-      default:
-        throw new Error(`Unsupported event type ${broadcastRequest.eventType}`);
-    }
-  }
+  //   switch (broadcastRequest.eventType) {
+  //     case 'deleted':
+  //       return this.tariffsPublisher.broadcastDeletionByKey(broadcastRequest);
+  //     case 'updated':
+  //       return this.tariffsPublisher.broadcastByKey(broadcastRequest);
+  //     case 'created':
+  //       return this.tariffsPublisher.broadcastByKey(broadcastRequest);
+  //     default:
+  //       throw new Error(`Unsupported event type ${broadcastRequest.eventType}`);
+  //   }
+  // }
 
   /**
    * Admin Endpoints

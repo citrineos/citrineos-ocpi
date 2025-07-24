@@ -74,8 +74,8 @@ export class ClientInformation {
   ): { version: VersionNumber; endpoints: Endpoint[] }[] {
     return this[ClientInformationProps.clientVersionDetails].flatMap(
       (clientVersion) => {
-        const endpoints = clientVersion.endpoints.filter((endpoint) =>
-          endpoint.isReceiverOf(module),
+        const endpoints = clientVersion.endpoints.filter(
+          (endpoint) => endpoint.identifier === module,
         );
         return endpoints.length > 0
           ? [{ version: clientVersion.version, endpoints }]

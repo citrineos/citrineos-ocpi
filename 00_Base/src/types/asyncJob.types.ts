@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
+import { ITenantPartnerDto } from '@citrineos/base';
+
 // Temporarily define the types locally until the import issue is resolved
 // TODO: Import these from @citrineos/base once the build/link issue is fixed
 
@@ -33,17 +35,7 @@ export interface AsyncJobStatusResponse {
   jobId: string;
   jobName: AsyncJobName;
   tenantPartnerId: number;
-  tenantPartner?: {
-    id: number;
-    name?: string;
-    countryCode?: string; // MSP countryCode
-    partyId?: string; // MSP partyId
-    tenant?: {
-      id: number;
-      countryCode?: string; // CPO countryCode
-      partyId?: string; // CPO partyId
-    };
-  };
+  tenantPartner?: ITenantPartnerDto;
   finishedAt?: Date;
   stoppedAt?: Date | null;
   stopScheduled: boolean;

@@ -60,11 +60,9 @@ export const fromBusinessDetailsDTO = (
     name: businessDetailsDTO.name,
     website: businessDetailsDTO.website,
   };
-  const businessDetails = BusinessDetails.build(record, {
-    include: [Image],
-  });
+  const businessDetails: BusinessDetails = record;
   if (businessDetailsDTO.logo) {
-    businessDetails.setDataValue('logo', fromImageDTO(businessDetailsDTO.logo));
+    businessDetails.logo = fromImageDTO(businessDetailsDTO.logo);
   }
   return businessDetails;
 };

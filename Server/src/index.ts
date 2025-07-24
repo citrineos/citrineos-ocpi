@@ -4,57 +4,25 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import {
-  type AbstractModule,
-  type AbstractModuleApi,
   Ajv,
   EventGroup,
   eventGroupFromString,
-  type IAuthenticator,
-  type ICache,
+  // type ICache,
   type IFileAccess,
-  type IMessageHandler,
-  type IMessageSender,
   type IModule,
   type IModuleApi,
-  SystemConfig,
 } from '@citrineos/base';
-import {
-  Authenticator,
-  CertificateAuthorityService,
-  DirectusUtil,
-  initSwagger,
-  MemoryCache,
-  RabbitMqReceiver,
-  RabbitMqSender,
-  RedisCache,
-  WebsocketNetworkConnection,
-} from '@citrineos/util';
 import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
 import addFormats from 'ajv-formats';
 import fastify, { type FastifyInstance } from 'fastify';
 import { type ILogObj, Logger } from 'tslog';
 import { getOcpiSystemConfig } from '@citrineos/ocpi-base';
-import { createServerConfigFromOcpiConfig } from './config/simpleConfigBridge';
-import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
-import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
-import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
-import { RepositoryStore, sequelize, Sequelize } from '@citrineos/data';
 import {
   type FastifyRouteSchemaDef,
   type FastifySchemaCompiler,
   type FastifyValidationResult,
 } from 'fastify/types/schema';
-import {
-  AdminApi,
-  MessageRouterImpl,
-  WebhookDispatcher,
-} from '@citrineos/ocpprouter';
-import {
-  Container,
-  OcpiServer,
-  ServerConfig,
-  OcpiConfig,
-} from '@citrineos/ocpi-base';
+import { OcpiServer, OcpiConfig } from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
@@ -63,13 +31,13 @@ import { SessionsModule } from '@citrineos/ocpi-sessions';
 import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { CdrsModule } from '@citrineos/ocpi-cdrs';
-import { RealTimeAuthorizer, TokensModule } from '@citrineos/ocpi-tokens';
+import { TokensModule } from '@citrineos/ocpi-tokens';
 
-interface ModuleConfig {
-  ModuleClass: new (...args: any[]) => AbstractModule;
-  ModuleApiClass: new (...args: any[]) => AbstractModuleApi<any>;
-  configModule: any; // todo type?
-}
+// interface ModuleConfig {
+//   ModuleClass: new (...args: any[]) => AbstractModule;
+//   ModuleApiClass: new (...args: any[]) => AbstractModuleApi<any>;
+//   configModule: any; // todo type?
+// }
 
 export class CitrineOSServer {
   /**
@@ -101,7 +69,7 @@ export class CitrineOSServer {
     ocpiConfig: OcpiConfig,
     server?: FastifyInstance,
     ajv?: Ajv,
-    cache?: ICache,
+    // cache?: ICache,
     _fileAccess?: IFileAccess,
   ) {
     // Set event group
@@ -314,7 +282,6 @@ export class CitrineOSServer {
       // this.initModule(moduleConfig);
     }
   }
-
 }
 
 // Load config using new OCPI config system
@@ -334,10 +301,7 @@ function getServerOcpiConfig() {
 
 const ocpiConfig = getOcpiSystemConfig(getServerOcpiConfig());
 
-new CitrineOSServer(
-  process.env.APP_NAME as EventGroup,
-  ocpiConfig,
-)
+new CitrineOSServer(process.env.APP_NAME as EventGroup, ocpiConfig)
   .run()
   .catch((error: any) => {
     console.error(error);

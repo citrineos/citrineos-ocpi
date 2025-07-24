@@ -36,7 +36,7 @@ export class ClientVersion implements IVersion {
   public toVersionDetailsDTO(): VersionDetailsDTO {
     const dto = new VersionDetailsDTO();
     dto.version = this.version;
-    dto.endpoints = this.endpoints.map((endpoint) => endpoint.toEndpointDTO());
+    dto.endpoints = this.endpoints;
     return dto;
   }
 }

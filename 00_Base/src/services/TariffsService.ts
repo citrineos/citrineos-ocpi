@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { TariffKey } from '../model/OcpiTariff';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { PaginatedParams } from '../controllers/param/PaginatedParams';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
@@ -27,7 +26,7 @@ export class TariffsService {
     private readonly tariffMapper: TariffMapper,
   ) {}
 
-  async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
+  async getTariffByKey(key: { id: string, countryCode: string, partyId: string }): Promise<TariffDTO | undefined> {
     const result = await this.ocpiGraphqlClient.request<GetTariffByKeyQuery>(
       GET_TARIFF_BY_KEY_QUERY,
       key,
@@ -36,7 +35,7 @@ export class TariffsService {
     if (tariff) {
       return this.tariffMapper.map(
         tariff as unknown as ITariffDto,
-        tariff.Tenant as unknown as ITenantDto,
+        (tariff as unknown as any).Tenant as ITenantDto,
       );
     }
     return undefined;
@@ -69,7 +68,7 @@ export class TariffsService {
       mappedTariffs.push(
         this.tariffMapper.map(
           tariff as unknown as ITariffDto,
-          tariff.Tenant as unknown as ITenantDto,
+          (tariff as unknown as any).Tenant as ITenantDto,
         ),
       );
     }

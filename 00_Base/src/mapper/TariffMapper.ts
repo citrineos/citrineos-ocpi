@@ -18,9 +18,9 @@ export class TariffMapper {
       party_id: tenant.partyId!,
       currency: coreTariff.currency,
       type: TariffType.AD_HOC_PAYMENT,
-      tariff_alt_text: coreTariff.tariffAltText
-        ? (coreTariff.tariffAltText[0] as any)?.text
-        : undefined,
+      // tariff_alt_text: coreTariff.tariffAltText
+      //   ? (coreTariff.tariffAltText[0] as any)?.text
+      //   : undefined,
       tariff_alt_url: undefined,
       min_price: undefined,
       max_price: undefined,

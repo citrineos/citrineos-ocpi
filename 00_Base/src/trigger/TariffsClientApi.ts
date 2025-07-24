@@ -1,64 +1,93 @@
 import { BaseClientApi } from './BaseClientApi';
-import { TariffResponse } from '../model/Tariff';
-import { GetTariffParams } from './param/tariffs/GetTariffParams';
-import { PutTariffParams } from './param/tariffs/PutTariffParams';
-import { DeleteTariffParams } from './param/tariffs/DeleteTariffParams';
-import { IHeaders } from 'typed-rest-client/Interfaces';
-import { ModuleId } from '../model/ModuleId';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+import { Tariff, TariffResponse } from '../model/Tariff';
 import { Service } from 'typedi';
+import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+import { ModuleId } from '../model/ModuleId';
+import { EndpointIdentifier } from '../model/EndpointIdentifier';
+import { OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class TariffsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tariffs;
 
-  constructor() {
-    super();
+  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+    const url = partnerProfile.endpoints?.find(
+      (value: OCPIRegistration.Endpoint) =>
+        value.identifier === EndpointIdentifier.TARIFFS_RECEIVER,
+    )?.url;
+    if (!url) {
+      throw new Error(
+        `No tariffs endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+      );
+    }
+    return url;
   }
 
-  async getTariff(params: GetTariffParams): Promise<TariffResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'tariffId');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get(TariffResponse, {
-      version: params.version,
-      path: '{countryCode}/{partyId}/{tariffId}'
-        .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-        .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-        .replace('{tariffId}', encodeURIComponent(params.tariffId)),
-      additionalHeaders,
-    });
-  }
-
-  async putTariff(params: PutTariffParams): Promise<TariffResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'tariffId', 'tariff');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
+  async getTariff(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    tariffId: string,
+  ): Promise<TariffResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${tariffId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      'get',
       TariffResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{tariffId}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{tariffId}', encodeURIComponent(params.tariffId)),
-        additionalHeaders,
-      },
-      params.tariff,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
     );
   }
 
-  async deleteTariff(params: DeleteTariffParams): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'tariffId');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.del(OcpiEmptyResponse, {
-      version: params.version,
-      path: '{countryCode}/{partyId}/{tariffId}'
-        .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-        .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-        .replace('{tariffId}', encodeURIComponent(params.tariffId)),
-      additionalHeaders,
-    });
+  async putTariff(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    tariffId: string,
+    tariff: Tariff,
+  ): Promise<TariffResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${tariffId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      'put',
+      TariffResponse,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      tariff,
+    );
+  }
+
+  async deleteTariff(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    tariffId: string,
+  ): Promise<OcpiEmptyResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${tariffId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      'delete',
+      OcpiEmptyResponse,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+    );
   }
 }

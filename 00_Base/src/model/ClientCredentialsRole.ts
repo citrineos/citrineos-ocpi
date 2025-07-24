@@ -10,7 +10,6 @@ import {
 } from './BusinessDetails';
 import { Exclude } from 'class-transformer';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
-import { Image } from './Image';
 
 export enum ClientCredentialsRoleProps {
   role = 'role',
@@ -52,19 +51,7 @@ export class ClientCredentialsRole implements ICredentialsRole {
   [ClientCredentialsRoleProps.cpoTenant]!: CpoTenant;
 
   static fromDto(credentialsRole: CredentialsRoleDTO) {
-    return ClientCredentialsRole.build(
-      {
-        ...(credentialsRole as Partial<ClientCredentialsRole>),
-      },
-      {
-        include: [
-          {
-            model: BusinessDetails,
-            include: [Image],
-          },
-        ],
-      },
-    );
+    return credentialsRole as Partial<ClientCredentialsRole>;
   }
 }
 
@@ -89,9 +76,7 @@ export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any => {
     party_id: role.party_id,
     country_code: role.country_code,
   };
-  const clientCredentialsRole = ClientCredentialsRole.build(record, {
-    include: [BusinessDetails],
-  });
+  const clientCredentialsRole = record;
   if (role.business_details) {
     clientCredentialsRole.setDataValue(
       'business_details',

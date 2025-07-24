@@ -32,7 +32,7 @@ export class CredentialsClientApi extends BaseClientApi {
     toPartyId: string,
     partnerProfile: OCPIRegistration.PartnerProfile,
   ): Promise<CredentialsResponse> {
-    return await this.request(
+    return this.request(
       fromCountryCode,
       fromPartyId,
       toCountryCode,
@@ -52,7 +52,7 @@ export class CredentialsClientApi extends BaseClientApi {
     partnerProfile: OCPIRegistration.PartnerProfile,
     body: CredentialsDTO,
   ): Promise<CredentialsResponse> {
-    return await this.request(
+    return this.request(
       fromCountryCode,
       fromPartyId,
       toCountryCode,
@@ -74,7 +74,7 @@ export class CredentialsClientApi extends BaseClientApi {
     partnerProfile: OCPIRegistration.PartnerProfile,
     body: CredentialsDTO,
   ): Promise<CredentialsResponse> {
-    return await this.request(
+    return this.request(
       fromCountryCode,
       fromPartyId,
       toCountryCode,
@@ -95,7 +95,7 @@ export class CredentialsClientApi extends BaseClientApi {
     toPartyId: string,
     partnerProfile: OCPIRegistration.PartnerProfile,
   ): Promise<OcpiEmptyResponse> {
-    return await this.request(
+    return this.request(
       fromCountryCode,
       fromPartyId,
       toCountryCode,

@@ -1,13 +1,19 @@
 import { KoaMiddlewareInterface } from 'routing-controllers';
-import { HttpHeader, HttpStatus } from '@citrineos/base';
+import {
+  HttpHeader,
+  HttpStatus,
+  ITenantPartnerDto,
+  UnauthorizedException,
+} from '@citrineos/base';
 import { Service } from 'typedi';
 import { extractToken } from '../decorators/AuthToken';
 import { OcpiHttpHeader } from '../OcpiHttpHeader';
 import { BaseMiddleware } from './BaseMiddleware';
-import { ClientInformationRepository } from '../../repository/ClientInformationRepository';
 import { ContentType } from '../ContentType';
 import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse';
 import { OcpiResponseStatusCode } from '../../model/OcpiResponse';
+import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
+import { GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT } from '../../graphql/queries/tenantPartner.queries';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
@@ -23,9 +29,7 @@ export class AuthMiddleware
   extends BaseMiddleware
   implements KoaMiddlewareInterface
 {
-  constructor(
-    readonly clientInformationRepository: ClientInformationRepository,
-  ) {
+  constructor(readonly ocpiGraphqlClient: OcpiGraphqlClient) {
     super();
   }
 
@@ -65,13 +69,25 @@ export class AuthMiddleware
           OcpiHttpHeader.OcpiToCountryCode,
         );
         const toPartyId = this.getHeader(context, OcpiHttpHeader.OcpiToPartyId);
-        await this.clientInformationRepository.authorizeToken(
-          token,
-          fromCountryCode,
-          fromPartyId,
-          toCountryCode,
-          toPartyId,
-        );
+
+        const tenantPartner: ITenantPartnerDto | undefined =
+          await this.ocpiGraphqlClient.request<ITenantPartnerDto>(
+            GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+            {
+              cpoCountryCode: fromCountryCode,
+              cpoPartyId: fromPartyId,
+              clientCountryCode: toCountryCode,
+              clientPartyId: toPartyId,
+            },
+          );
+        if (
+          !tenantPartner ||
+          token !== tenantPartner.partnerProfileOCPI?.serverCredentials.token
+        ) {
+          throw new UnauthorizedException(
+            'Credentials not found for given token',
+          );
+        }
       } catch (_error) {
         return this.throwError(context);
       }

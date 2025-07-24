@@ -35,12 +35,6 @@ export class Image {
   @IsInt()
   @Optional()
   height?: number | null;
-
-  @Exclude()
-  businessDetailsId!: number;
-
-  @Exclude()
-  businessDetails!: BusinessDetails;
 }
 
 export const toImageDTO = (image: Image) => {
@@ -54,12 +48,13 @@ export const toImageDTO = (image: Image) => {
   return imageDTO;
 };
 
-export const fromImageDTO = (imageDTO: ImageDTO) =>
-  Image.build({
+export const fromImageDTO = (imageDTO: ImageDTO) => {
+  return {
     url: imageDTO.url,
     thumbnail: imageDTO.thumbnail,
     category: imageDTO.category,
     type: imageDTO.type,
     width: imageDTO.width,
     height: imageDTO.height,
-  });
+  };
+};

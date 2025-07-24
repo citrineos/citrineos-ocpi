@@ -17,7 +17,7 @@ export class VersionsClientApi extends BaseClientApi {
       case VersionsInterface.VERSIONS:
         return partnerProfile.credentials!.versionsUrl;
       case VersionsInterface.DETAILS:
-        return partnerProfile.version.versionDetailsUrl;
+        return partnerProfile.version.versionDetailsUrl!;
     }
   }
   /**

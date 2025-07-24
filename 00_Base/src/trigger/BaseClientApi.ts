@@ -27,6 +27,7 @@ import {
   GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
   LIST_TENANT_PARTNERS_BY_CPO,
 } from '../graphql/queries/tenantPartner.queries';
+import { PaginatedParams } from './param/PaginatedParams';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -95,6 +96,8 @@ export abstract class BaseClientApi {
     routingHeaders = true,
     url?: string,
     body?: any,
+    paginatedParams?: PaginatedParams,
+    otherParams?: Record<string, string | number | (string | number)[]>,
   ): Promise<T> {
     if (!partnerProfile) {
       const partner = await this.ocpiGraphqlClient.request<ITenantPartnerDto>(
@@ -118,25 +121,54 @@ export abstract class BaseClientApi {
       additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] = toCountryCode;
       additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = toPartyId;
     }
+    const options: IRequestOptions = { additionalHeaders };
+    const queryParameters: IRequestQueryParams = {
+      params: otherParams || {},
+    };
+    if (
+      paginatedParams &&
+      (paginatedParams.offset ||
+        paginatedParams.limit ||
+        paginatedParams.date_from ||
+        paginatedParams.date_to)
+    ) {
+      if (paginatedParams.offset) {
+        queryParameters.params['offset'] = paginatedParams.offset;
+      }
+      if (paginatedParams.limit) {
+        queryParameters.params['limit'] = paginatedParams.limit;
+      }
+      if (paginatedParams.date_from) {
+        queryParameters.params['date_from'] = new Date(
+          paginatedParams.date_from,
+        ).toISOString();
+      }
+      if (paginatedParams.date_to) {
+        queryParameters.params['date_to'] = new Date(
+          paginatedParams.date_to,
+        ).toISOString();
+      }
+    }
+    options.queryParameters = queryParameters;
     switch (httpMethod) {
       case 'get':
-        return this.getRaw<T>(url, { additionalHeaders }).then((response) =>
+        return this.getRaw<T>(url, options).then((response) =>
           this.handleResponse(clazz, response),
         );
       case 'post':
-        return this.createRaw<T>(url, body, { additionalHeaders }).then((response) =>
+        return this.createRaw<T>(url, body, options).then((response) =>
           this.handleResponse(clazz, response),
         );
       case 'put':
-        return this.replaceRaw<T>(url, body, { additionalHeaders }).then((response) =>
+        return this.replaceRaw<T>(url, body, options).then((response) =>
           this.handleResponse(clazz, response),
         );
       case 'patch':
-        return this.updateRaw<T>(url, body, { additionalHeaders }).then((response) =>
+        return this.updateRaw<T>(url, body, options).then((response) =>
           this.handleResponse(clazz, response),
         );
       case 'delete':
-        return this.delRaw<T>(url, { additionalHeaders }).then((response) =>
+        return this.delRaw<T>(url, options).then((response) =>
           this.handleResponse(clazz, response),
         );
     }

@@ -23,7 +23,7 @@ import {
   AsOcpiFunctionalEndpoint,
   AsyncJobAction,
   AsyncJobRequest,
-  AsyncJobStatusDTO,
+  AsyncJobStatusResponse,
   BaseController,
   BodyWithExample,
   EnumQueryParam,
@@ -211,7 +211,7 @@ export class TokensModuleApi
   async fetchTokens(
     @VersionNumberParam() version: VersionNumber,
     @Body() asyncJobRequest: AsyncJobRequest,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const jobStatus =
       await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
     return jobStatus;
@@ -222,7 +222,7 @@ export class TokensModuleApi
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
     @Param('action') action: AsyncJobAction,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     switch (action) {
       case AsyncJobAction.RESUME:
         return await this.tokensFetchService.resumeFetchTokens(jobId);
@@ -237,7 +237,7 @@ export class TokensModuleApi
   async getFetchTokensJobStatus(
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const jobStatus = await this.tokensFetchService.getFetchTokensJob(jobId);
     if (!jobStatus) {
       throw new NotFoundError('Job not found');
@@ -250,7 +250,7 @@ export class TokensModuleApi
     @VersionNumberParam() version: VersionNumber,
     @QueryParam('tenantPartnerId') tenantPartnerId: number,
     @QueryParam('active', { required: false }) active: boolean,
-  ): Promise<AsyncJobStatusDTO[]> {
+  ): Promise<AsyncJobStatusResponse[]> {
     return await this.tokensFetchService.getFetchTokensJobs(
       tenantPartnerId,
       active,
@@ -261,7 +261,7 @@ export class TokensModuleApi
   async deleteFetchTokensJobStatus(
     @VersionNumberParam() version: VersionNumber,
     @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusDTO> {
+  ): Promise<AsyncJobStatusResponse> {
     const jobStatus = await this.tokensFetchService.deleteFetchTokensJob(jobId);
     if (!jobStatus) {
       throw new NotFoundError('Job not found');

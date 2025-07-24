@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { CpoTenant } from './CpoTenant';
 import { Exclude } from 'class-transformer';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
-import { BusinessDetails } from './BusinessDetails';
+import { BusinessDetails, toBusinessDetailsDTO } from './BusinessDetails';
 
 export enum ServerCredentialsRoleProps {
   role = 'role',
