@@ -1,13 +1,18 @@
-import { Tariff } from '@citrineos/data';
+import {
+  Authorization,
+  ChargingStation,
+  Tariff,
+  Transaction,
+  TransactionEvent,
+} from '@citrineos/data';
+import { OCPP2_0_1 } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
 import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
-import { TariffKey } from '../model/OcpiTariff';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/LocationsService';
-import { OcpiTokensMapper } from './OcpiTokensMapper';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
   GetLocationByIdQuery,
@@ -17,6 +22,7 @@ import { GET_LOCATION_BY_ID_QUERY } from '../graphql/queries/location.queries';
 import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
 import { ITransactionDto, ILocationDto } from '@citrineos/base';
 import { LocationMapper } from './LocationMapper';
+import { TokensMapper } from './TokensMapper';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -62,7 +68,7 @@ export abstract class BaseTransactionMapper {
 
     for (const transaction of transactions) {
       if (transaction.authorization) {
-        const tokenDto = await OcpiTokensMapper.toDto(
+        const tokenDto = await TokensMapper.toDto(
           transaction.authorization,
         );
         if (tokenDto) {
@@ -102,16 +108,16 @@ export abstract class BaseTransactionMapper {
       sessions
         .filter((session) => transactionIdToTariffMap.get(session.id))
         .map(async (session) => {
-          const tariffKey = {
+          const tariffVariables = {
             id: String(transactionIdToTariffMap.get(session.id)?.id),
             // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
             countryCode: session.country_code,
             partyId: session.party_id,
-          } as TariffKey;
+          };
           const result =
             await this.ocpiGraphqlClient.request<GetTariffByCoreKeyQuery>(
               GET_TARIFF_BY_CORE_KEY_QUERY,
-              tariffKey,
+              tariffVariables,
             );
           const tariff = result.Tariffs?.[0];
           if (tariff) {

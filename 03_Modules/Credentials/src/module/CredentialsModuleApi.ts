@@ -1,11 +1,9 @@
 import {
   AdminCredentialsRequestDTO,
-  AdminUpdateCredentialsRequestDTO,
   AsAdminEndpoint,
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
-  ClientInformation,
   CredentialsDTO,
   CredentialsResponse,
   CredentialsService,
@@ -15,7 +13,6 @@ import {
   OcpiLogger,
   OcpiResponseStatusCode,
   ResponseSchema,
-  toCredentialsDTO,
   UnregisterClientRequestDTO,
   versionIdParam,
   VersionNumber,
@@ -68,11 +65,8 @@ export class CredentialsModuleApi
     @AuthToken() token: string,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
-    const clientInformation =
-      await this.credentialsService?.getClientInformationByServerToken(token);
-    const credentialsDto = toCredentialsDTO(
-      clientInformation.get({ plain: true }),
-    );
+    const credentialsDto =
+      await this.credentialsService.getClientCredentialsByServerToken(token);
     return CredentialsResponse.build(credentialsDto);
   }
 
@@ -94,14 +88,12 @@ export class CredentialsModuleApi
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
-    const clientInformation = await this.credentialsService?.postCredentials(
+    const serverCredentials = await this.credentialsService?.postCredentials(
       token,
       credentials,
       version,
     );
-    return CredentialsResponse.build(
-      toCredentialsDTO(clientInformation.get({ plain: true })),
-    );
+    return CredentialsResponse.build(serverCredentials);
   }
 
   @Put()
@@ -122,13 +114,11 @@ export class CredentialsModuleApi
     @Body() credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
-    const clientInformation = await this.credentialsService?.putCredentials(
+    const serverCredentials = await this.credentialsService?.putCredentials(
       token,
       credentials,
     );
-    return CredentialsResponse.build(
-      toCredentialsDTO(clientInformation.get({ plain: true })),
-    );
+    return CredentialsResponse.build(serverCredentials);
   }
 
   @Delete()
@@ -175,15 +165,21 @@ export class CredentialsModuleApi
   })
   async registerCredentialsTokenA(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body() credentials: CredentialsDTO,
+    @Param('versionUrl') versionUrl: string, // CPO version url
+    @Param('cpoCountryCode') cpoCountryCode: string,
+    @Param('cpoPartyId') cpoPartyId: string,
+    @Body() credentials: CredentialsDTO, // Partner credentials
   ): Promise<CredentialsResponse> {
     this.logger.info('registerCredentialsTokenA', credentials);
-    const clientInformation: ClientInformation =
+    const serverCredentials: CredentialsDTO =
       await this.credentialsService?.registerCredentialsTokenA(
-        versionNumber,
+        cpoCountryCode,
+        cpoPartyId,
+        versionUrl,
         credentials,
+        versionNumber,
       );
-    return CredentialsResponse.build(toCredentialsDTO(clientInformation));
+    return CredentialsResponse.build(serverCredentials);
   }
 
   @Delete('/delete-tenant/:tenantId')
@@ -202,7 +198,8 @@ export class CredentialsModuleApi
     @Param('tenantId') tenantId: string,
   ): Promise<OcpiEmptyResponse> {
     this.logger.info('deleteTenant', tenantId);
-    await this.credentialsService?.deleteTenant(tenantId, versionNumber);
+    this.logger.warn('delete tenant not implemented');
+    // await this.credentialsService?.deleteTenant(tenantId);
     return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
@@ -214,7 +211,7 @@ export class CredentialsModuleApi
     @Body() request: UnregisterClientRequestDTO,
   ): Promise<void> {
     this.logger.info('unregisterClient', request);
-    return this.credentialsService?.unregisterClient(request, versionNumber);
+    return this.credentialsService?.unregisterClient(request);
   }
 
   /**
@@ -266,7 +263,7 @@ export class CredentialsModuleApi
   })
   async regenerateCredentialsToken(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body() credentialsRequest: AdminUpdateCredentialsRequestDTO,
+    @Body() credentialsRequest: AdminCredentialsRequestDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('regenerateCredentialsToken', credentialsRequest);
 

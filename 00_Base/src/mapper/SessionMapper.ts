@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { Tariff } from '@citrineos/data';
+import { OCPP2_0_1 } from '@citrineos/base';
+import { Tariff, Transaction } from '@citrineos/data';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
@@ -97,12 +98,13 @@ export class SessionMapper extends BaseTransactionMapper {
         ? new Date(transaction.startTime)
         : (() => {
             this.logger.error(`Transaction ${transaction.transactionId} has no startTime. Using createdAt as placeholder.`);
-            return new Date(transaction.createdAt);
+            return transaction.createdAt!;
           })(),
       end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
+
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction),
@@ -111,6 +113,7 @@ export class SessionMapper extends BaseTransactionMapper {
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
         String(tariff?.id),
+
       ),
       status: this.getTransactionStatus(transaction),
       last_updated: this.getLatestEvent(transaction.transactionEvents!),
@@ -223,7 +226,7 @@ export class SessionMapper extends BaseTransactionMapper {
     const cdrDimensions: CdrDimension[] = [];
     for (const sampledValue of meterValue.sampledValue) {
       switch (sampledValue.measurand) {
-        case MeasurandEnumType.Current_Import:
+        case OCPP2_0_1.MeasurandEnumType.Current_Import:
           if (sampledValue.phase === 'N') {
             cdrDimensions.push({
               type: CdrDimensionType.CURRENT,
@@ -231,7 +234,7 @@ export class SessionMapper extends BaseTransactionMapper {
             });
           }
           break;
-        case MeasurandEnumType.Energy_Active_Import_Register:
+        case OCPP2_0_1.MeasurandEnumType.Energy_Active_Import_Register:
           if (!sampledValue.phase) {
             cdrDimensions.push({
               type: CdrDimensionType.ENERGY_IMPORT,
@@ -252,7 +255,7 @@ export class SessionMapper extends BaseTransactionMapper {
             }
           }
           break;
-        case MeasurandEnumType.SoC:
+        case OCPP2_0_1.MeasurandEnumType.SoC:
           cdrDimensions.push({
             type: CdrDimensionType.STATE_OF_CHARGE,
             volume: Number(sampledValue.value),
@@ -272,7 +275,7 @@ export class SessionMapper extends BaseTransactionMapper {
       meterValue?.sampledValue.find(
         (sampledValue) =>
           sampledValue.measurand ===
-            MeasurandEnumType.Energy_Active_Import_Register &&
+            OCPP2_0_1.MeasurandEnumType.Energy_Active_Import_Register &&
           !sampledValue.phase,
       )?.value ?? undefined
     );

@@ -283,20 +283,6 @@ export class CdrMapper extends BaseTransactionMapper {
   private getCompletedTransactions(
     transactions: ITransactionDto[],
   ): ITransactionDto[] {
-    return transactions.filter((transaction) =>
-      this.hasValidDuration(transaction),
-    );
-  }
-
-  // TODO try to move this into SQL if possible
-  private hasValidDuration(transaction: ITransactionDto): boolean {
-    const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
-    if (startEvent && endEvent) {
-      const duration =
-        new Date(endEvent.timestamp).getTime() -
-        new Date(startEvent.timestamp).getTime();
-      return duration > 0;
-    }
-    return false;
+    return transactions.filter((transaction) => !transaction.isActive);
   }
 }

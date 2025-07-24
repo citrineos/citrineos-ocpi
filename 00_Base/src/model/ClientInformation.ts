@@ -1,12 +1,3 @@
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasMany,
-  Model,
-  Table,
-} from '@citrineos/data';
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import {
   ClientCredentialsRole,
@@ -17,7 +8,6 @@ import { CpoTenant } from './CpoTenant';
 import { Exclude } from 'class-transformer';
 import { ClientVersion } from './ClientVersion';
 import { ServerVersion } from './ServerVersion';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 import { ModuleId } from './ModuleId';
 import { Endpoint } from './Endpoint';
 import { VersionNumber } from './VersionNumber';
@@ -33,54 +23,32 @@ export enum ClientInformationProps {
   cpoTenant = 'cpoTenant',
 }
 
-@Table
-export class ClientInformation extends Model {
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
+export class ClientInformation {
   @IsString()
   @IsNotEmpty()
   [ClientInformationProps.clientToken]!: string;
 
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
   @IsString()
   @IsNotEmpty()
   [ClientInformationProps.serverToken]!: string;
 
-  @Column(DataType.BOOLEAN)
   @IsBoolean()
   @IsNotEmpty()
   [ClientInformationProps.registered]!: boolean;
 
   @Exclude()
-  @HasMany(() => ClientCredentialsRole, {
-    onDelete: ON_DELETE_CASCADE,
-  })
   [ClientInformationProps.clientCredentialsRoles]!: ClientCredentialsRole[];
 
   @Exclude()
-  @HasMany(() => ClientVersion, {
-    onDelete: ON_DELETE_CASCADE,
-  })
   [ClientInformationProps.clientVersionDetails]!: ClientVersion[];
 
   @Exclude()
-  @HasMany(() => ServerVersion, {
-    onDelete: ON_DELETE_CASCADE,
-  })
   [ClientInformationProps.serverVersionDetails]!: ServerVersion[];
 
   @Exclude()
-  @ForeignKey(() => CpoTenant)
-  @Column(DataType.INTEGER)
   [ClientInformationProps.cpoTenantId]!: number;
 
   @Exclude()
-  @BelongsTo(() => CpoTenant)
   [ClientInformationProps.cpoTenant]!: CpoTenant;
 
   static buildClientInformation(
@@ -106,8 +74,8 @@ export class ClientInformation extends Model {
   ): { version: VersionNumber; endpoints: Endpoint[] }[] {
     return this[ClientInformationProps.clientVersionDetails].flatMap(
       (clientVersion) => {
-        const endpoints = clientVersion.endpoints.filter((endpoint) =>
-          endpoint.isReceiverOf(module),
+        const endpoints = clientVersion.endpoints.filter(
+          (endpoint) => endpoint.identifier === module,
         );
         return endpoints.length > 0
           ? [{ version: clientVersion.version, endpoints }]

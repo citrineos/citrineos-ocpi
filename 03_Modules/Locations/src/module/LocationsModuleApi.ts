@@ -14,7 +14,7 @@ import {
 import { ILocationsModuleApi } from './ILocationsModuleApi';
 import {
   AdminLocationDTO,
-  AdminLocationsService,
+  // AdminLocationsService,
   AsAdminEndpoint,
   AsOcpiFunctionalEndpoint,
   BaseController,
@@ -67,7 +67,7 @@ export class LocationsModuleApi
    */
   constructor(
     readonly locationsService: LocationsService,
-    readonly adminLocationsService: AdminLocationsService,
+    // readonly adminLocationsService: AdminLocationsService,
   ) {
     super();
   }
@@ -159,19 +159,19 @@ export class LocationsModuleApi
    * Admin Endpoints
    **/
 
-  @Put('/admin')
-  @AsAdminEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-  })
-  async createLocation(
-    @QueryParam('broadcast') broadcast: boolean,
-    @Body() adminLocation: AdminLocationDTO,
-  ): Promise<LocationDTO> {
-    return await this.adminLocationsService.createOrUpdateLocation(
-      adminLocation,
-      broadcast,
-    );
-  }
+  // @Put('/admin')
+  // @AsAdminEndpoint()
+  // @ResponseSchema(OcpiEmptyResponse, {
+  //   statusCode: HttpStatus.OK,
+  //   description: 'Successful response',
+  // })
+  // async createLocation(
+  //   @QueryParam('broadcast') broadcast: boolean,
+  //   @Body() adminLocation: AdminLocationDTO,
+  // ): Promise<LocationDTO> {
+  //   return await this.adminLocationsService.createOrUpdateLocation(
+  //     adminLocation,
+  //     broadcast,
+  //   );
+  // }
 }

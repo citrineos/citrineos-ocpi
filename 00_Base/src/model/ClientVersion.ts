@@ -1,4 +1,3 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from '@citrineos/data';
 import { VersionNumber } from './VersionNumber';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import { Enum } from '../util/decorators/Enum';
@@ -8,33 +7,23 @@ import { ClientInformation } from './ClientInformation';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
 import { IVersion } from './Version';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 
-@Table
-export class ClientVersion extends Model implements IVersion {
-  @Column(DataType.ENUM(...Object.values(VersionNumber)))
+export class ClientVersion implements IVersion {
   @IsNotEmpty()
   @Enum(VersionNumber, 'VersionNumber')
   version!: VersionNumber;
 
-  @Column(DataType.STRING)
   @IsString()
   @IsUrl({ require_tld: false })
   url!: string;
 
   @Exclude()
-  @HasMany(() => Endpoint, {
-    onDelete: ON_DELETE_CASCADE,
-  })
   endpoints!: Endpoint[];
 
   @Exclude()
-  @ForeignKey(() => ClientInformation)
-  @Column(DataType.INTEGER)
   clientInformationId!: number;
 
   @Exclude()
-  @BelongsTo(() => ClientInformation)
   clientInformation!: ClientInformation;
 
   public toVersionDTO(): VersionDTO {
@@ -47,7 +36,7 @@ export class ClientVersion extends Model implements IVersion {
   public toVersionDetailsDTO(): VersionDetailsDTO {
     const dto = new VersionDetailsDTO();
     dto.version = this.version;
-    dto.endpoints = this.endpoints.map((endpoint) => endpoint.toEndpointDTO());
+    dto.endpoints = this.endpoints;
     return dto;
   }
 }

@@ -31,6 +31,7 @@ import {
   AsyncJobStatusResponse,
   AsyncJobName,
 } from '../types/asyncJob.types';
+import { buildPaginatedParams } from '../trigger/param/PaginatedParams';
 
 @Service()
 export class TokensAdminService {
@@ -86,30 +87,33 @@ export class TokensAdminService {
     clientCredentials: ClientInformation,
   ) {
     try {
-      const clientToken = clientCredentials[ClientInformationProps.clientToken];
-      const clientVersions = await clientCredentials.$get(
-        ClientInformationProps.clientVersionDetails,
-      );
+      // const clientToken = clientCredentials[ClientInformationProps.clientToken];
+      // const clientVersions = await clientCredentials.$get(
+      //   ClientInformationProps.clientVersionDetails,
+      // );
 
-      this.client.baseUrl = clientVersions[0].url;
+      // this.client.baseUrl = clientVersions[0].url;
 
-      const params = buildPaginatedOcpiParams(
-        asyncJobStatus.tenantPartner?.countryCode ?? '',
-        asyncJobStatus.tenantPartner?.partyId ?? '',
-        asyncJobStatus.tenantPartner?.tenant?.countryCode ?? '',
-        asyncJobStatus.tenantPartner?.tenant?.partyId ?? '',
+      const params = buildPaginatedParams(
         asyncJobStatus.paginatedParams.offset,
         asyncJobStatus.paginatedParams.limit,
         asyncJobStatus.paginatedParams.dateFrom,
         asyncJobStatus.paginatedParams.dateTo,
       );
-      params.authorization = clientToken;
-      params.version = clientVersions[0].version;
+      // params.authorization = clientToken;
+      // params.version = clientVersions[0].version;
 
       let finished = false;
 
       do {
-        const response = await this.client.getTokens(params);
+        const response = await this.client.getTokens(
+          asyncJobStatus.tenantPartner!.tenant!.countryCode!,
+          asyncJobStatus.tenantPartner!.tenant!.partyId!,
+          asyncJobStatus.tenantPartner!.countryCode!,
+          asyncJobStatus.tenantPartner!.partyId!,
+          asyncJobStatus.tenantPartner!.partnerProfileOCPI!,
+          params,
+        );
         if (
           response.status_code === OcpiResponseStatusCode.GenericSuccessCode
         ) {

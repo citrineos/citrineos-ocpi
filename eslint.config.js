@@ -20,6 +20,14 @@ module.exports = tseslint.config(
     },
   },
   {
+    files: ['**/migrations/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...require('globals').node,
+      },
+    },
+  },
+  {
     ignores: ['**/dist/**', '**/node_modules/**'],
   },
 );

@@ -15,7 +15,7 @@ import { PublishTokenType } from '../PublishTokenType';
 import { GeoLocation } from '../GeoLocation';
 import { AdditionalGeoLocation } from '../AdditionalGeoLocation';
 import { EvseDTO } from './EvseDTO';
-import { BusinessDetails } from '../BusinessDetails';
+import { BusinessDetailsDTO } from './BusinessDetailsDTO';
 import { Facilities } from '../Facilities';
 import { Hours } from '../Hours';
 import { EnergyMix } from '../EnergyMix';
@@ -108,17 +108,17 @@ export class LocationDTO {
   directions?: null;
 
   @Optional()
-  @Type(() => BusinessDetails)
+  @Type(() => BusinessDetailsDTO)
   @ValidateNested()
-  operator?: BusinessDetails | null;
+  operator?: BusinessDetailsDTO | null;
 
   @Optional()
-  @Type(() => BusinessDetails)
+  @Type(() => BusinessDetailsDTO)
   @ValidateNested()
-  suboperator?: BusinessDetails | null;
+  suboperator?: BusinessDetailsDTO | null;
 
   @Optional()
-  owner?: BusinessDetails | null;
+  owner?: BusinessDetailsDTO | null;
 
   @IsArray()
   @Optional()
