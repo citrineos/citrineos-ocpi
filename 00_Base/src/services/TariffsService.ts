@@ -17,17 +17,29 @@ import {
   GetTariffByKeyQuery,
   GetTariffsQuery,
 } from '../graphql/types/graphql';
+import { TariffMapper } from '../mapper/TariffMapper';
+import { ITariffDto, ITenantDto } from '@citrineos/base';
 
 @Service()
 export class TariffsService {
-  constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
+  constructor(
+    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
+    private readonly tariffMapper: TariffMapper,
+  ) {}
 
   async getTariffByKey(key: TariffKey): Promise<TariffDTO | undefined> {
     const result = await this.ocpiGraphqlClient.request<GetTariffByKeyQuery>(
       GET_TARIFF_BY_KEY_QUERY,
       key,
     );
-    return result.Tariffs?.[0] as unknown as TariffDTO | undefined;
+    const tariff = result.Tariffs?.[0];
+    if (tariff) {
+      return this.tariffMapper.map(
+        tariff as unknown as ITariffDto,
+        tariff.Tenant as unknown as ITenantDto,
+      );
+    }
+    return undefined;
   }
 
   async getTariffs(
@@ -52,8 +64,17 @@ export class TariffsService {
       GET_TARIFFS_QUERY,
       variables,
     );
+    const mappedTariffs: TariffDTO[] = [];
+    for (const tariff of result.Tariffs) {
+      mappedTariffs.push(
+        this.tariffMapper.map(
+          tariff as unknown as ITariffDto,
+          tariff.Tenant as unknown as ITenantDto,
+        ),
+      );
+    }
     return {
-      data: result.Tariffs as unknown as TariffDTO[],
+      data: mappedTariffs,
       count: result.Tariffs_aggregate?.aggregate?.count || 0,
     };
   }

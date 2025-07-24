@@ -1,25 +1,26 @@
 import { Service } from 'typedi';
 import { Tariff } from '@citrineos/data';
-import { OcpiTariff } from '../model/OcpiTariff';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { TariffDimensionType } from '../model/TariffDimensionType';
 import { TariffElement } from '../model/TariffElement';
 import { TariffType } from '../model/TariffType';
 import { MINUTES_IN_HOUR } from '../util/Consts';
-import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
+import { ITariffDto, ITenantDto } from '@citrineos/base';
 
 @Service()
 export class TariffMapper {
   constructor() {}
 
-  public map(coreTariff: Tariff, ocpiTariff: OcpiTariff): TariffDTO {
+  public map(coreTariff: ITariffDto, tenant: ITenantDto): TariffDTO {
     return {
-      id: ocpiTariff.id,
-      country_code: ocpiTariff.countryCode,
-      party_id: ocpiTariff.partyId,
+      id: coreTariff.id!.toString(),
+      country_code: tenant.countryCode!,
+      party_id: tenant.partyId!,
       currency: coreTariff.currency,
       type: TariffType.AD_HOC_PAYMENT,
-      tariff_alt_text: ocpiTariff.tariffAltText,
+      tariff_alt_text: coreTariff.tariffAltText
+        ? (coreTariff.tariffAltText[0] as any)?.text
+        : undefined,
       tariff_alt_url: undefined,
       min_price: undefined,
       max_price: undefined,
@@ -27,35 +28,10 @@ export class TariffMapper {
       energy_mix: undefined,
       start_date_time: undefined,
       end_date_time: undefined,
-      last_updated: coreTariff.updatedAt,
+      last_updated: coreTariff.updatedAt!,
     };
   }
-
-  public mapPutTariffRequestToEntities(
-    tariffRequest: PutTariffRequest,
-  ): [OcpiTariff, Tariff] {
-    const ocpiTariff = new OcpiTariff();
-    ocpiTariff.id = tariffRequest.id;
-    ocpiTariff.countryCode = tariffRequest.country_code;
-    ocpiTariff.partyId = tariffRequest.party_id;
-    ocpiTariff.tariffAltText = tariffRequest.tariff_alt_text;
-
-    const coreTariffInformation = this.mapTariffElementToCoreTariff(
-      tariffRequest.elements ?? [],
-    );
-
-    const coreTariff = new Tariff();
-    coreTariff.currency = tariffRequest.currency;
-    coreTariff.updatedAt = new Date();
-    coreTariff.pricePerKwh = coreTariffInformation.pricePerKwh!;
-    coreTariff.pricePerMin = coreTariffInformation.pricePerMin!;
-    coreTariff.pricePerSession = coreTariffInformation.pricePerSession!;
-    coreTariff.taxRate = coreTariffInformation.taxRate!;
-
-    return [ocpiTariff, coreTariff];
-  }
-
-  private getTariffElement(coreTariff: Tariff): TariffElement {
+  private getTariffElement(coreTariff: ITariffDto): TariffElement {
     return {
       price_components: [
         {
