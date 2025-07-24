@@ -46,7 +46,6 @@ export { VersionsClientApi } from './trigger/VersionsClientApi';
 export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
 export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { AdminCredentialsRequestDTO } from './model/DTO/AdminCredentialsRequestDTO';
-export { AdminUpdateCredentialsRequestDTO } from './model/DTO/AdminUpdateCredentialsRequestDTO';
 export { TokenDTO } from './model/DTO/TokenDTO';
 export { OcpiConfig, OcpiConfigInput } from './config/ocpi.types';
 export { defineOcpiConfig } from './config/defineOcpiConfig';
@@ -109,7 +108,7 @@ export {
   TEMPORARY_CONNECTOR_ID,
 } from './model/DTO/ConnectorDTO';
 export { LocationMapper } from './mapper/LocationMapper';
-export { OcpiTokensMapper } from './mapper/OcpiTokensMapper';
+export { TokensMapper } from './mapper/TokensMapper';
 export { SessionMapper } from './mapper/SessionMapper';
 export { AsOcpiFunctionalEndpoint } from './util/decorators/AsOcpiFunctionalEndpoint';
 export { MultipleTypes } from './util/decorators/MultipleTypes';
@@ -161,10 +160,17 @@ export { TokensService } from './services/TokensService';
 export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
-export { AsyncJobAction } from './model/AsyncJobAction';
-export { AsyncJobRequest } from './model/AsyncJobRequest';
 export { SessionsService } from './services/SessionsService';
 export { AdminLocationsService } from './services/AdminLocationsService';
+
+// Export AsyncJob types
+export {
+  AsyncJobStatusResponse,
+  AsyncJobAction,
+  AsyncJobRequest,
+  AsyncJobName,
+  AsyncJobPaginatedParams,
+} from './types/asyncJob.types';
 
 export { TariffsService } from './services/TariffsService';
 export { TariffsBroadcaster } from './broadcaster/TariffsBroadcaster';
@@ -236,7 +242,7 @@ export class OcpiServer extends KoaServer {
     this.initContainer();
     this.modules = this.modulesConfig.map((moduleConfig) => {
       const module = Container.get(moduleConfig.module);
-      module.init(moduleConfig.handler);
+      // module.init(moduleConfig.handler);
       return module;
     });
   }

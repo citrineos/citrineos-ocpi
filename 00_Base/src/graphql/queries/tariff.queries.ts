@@ -21,7 +21,12 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
       pricePerSession
       stationId
       taxRate
+      tariffAltText
       updatedAt
+      Tenant {
+        countryCode
+        partyId
+      }
     }
   }
 `;
@@ -56,7 +61,12 @@ export const GET_TARIFFS_QUERY = gql`
       pricePerSession
       stationId
       taxRate
+      tariffAltText
       updatedAt
+      Tenant {
+        countryCode
+        partyId
+      }
     }
     Tariffs_aggregate(
       where: {
@@ -105,6 +115,10 @@ export const CREATE_OR_UPDATE_TARIFF_MUTATION = gql`
       stationId
       taxRate
       updatedAt
+      Tenant {
+        countryCode
+        partyId
+      }
     }
   }
 `;
