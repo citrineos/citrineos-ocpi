@@ -5,11 +5,19 @@
 
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
+import {
+  LocationDTO,
+  LocationResponse,
+  PaginatedLocationResponse,
+} from '../model/DTO/LocationDTO';
 import { EvseResponse } from '../model/DTO/EvseDTO';
 import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/PaginatedParams';
-import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
 import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { buildOcpiErrorResponse } from '../model/OcpiErrorResponse';
 import { OcpiHeaders } from '../model/OcpiHeaders';
@@ -18,7 +26,10 @@ import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
   GET_EVSE_BY_ID_QUERY,
+  GET_LOCATION_BY_CONNECTOR_ID_QUERY,
+  GET_LOCATION_BY_EVSE_ID_QUERY,
   GET_LOCATION_BY_ID_QUERY,
+  GET_LOCATION_BY_STATION_ID_QUERY,
   GET_LOCATIONS_QUERY,
 } from '../graphql/queries/location.queries';
 import {
@@ -43,7 +54,9 @@ export class LocationsService {
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
     this.logger.debug(
-      `Getting all locations with headers ${JSON.stringify(ocpiHeaders)} and parameters ${JSON.stringify(paginatedParams)}`,
+      `Getting all locations with headers ${JSON.stringify(
+        ocpiHeaders,
+      )} and parameters ${JSON.stringify(paginatedParams)}`,
     );
 
     const dateFrom = paginatedParams?.dateFrom;
@@ -90,7 +103,11 @@ export class LocationsService {
       );
       // response.Locations is an array, so pick the first
       if (response.Locations && response.Locations.length > 1) {
-        this.logger.warn(`Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`);
+        this.logger.warn(
+          `Multiple locations found for id ${locationId}. Returning the first one. All entries: ${
+            JSON.stringify(response.Locations)
+          }`,
+        );
       }
       const location = LocationMapper.fromGraphql(response.Locations?.[0]);
       return buildOcpiResponse(
@@ -129,13 +146,21 @@ export class LocationsService {
         response.Locations?.[0]?.chargingPool &&
         response.Locations[0].chargingPool.length > 1
       ) {
-        this.logger.warn(`Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool)}`);
+        this.logger.warn(
+          `Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${
+            JSON.stringify(response.Locations[0].chargingPool)
+          }`,
+        );
       }
       if (
         response.Locations?.[0]?.chargingPool?.[0]?.evses &&
         response.Locations[0].chargingPool[0].evses.length > 1
       ) {
-        this.logger.warn(`Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses)}`);
+        this.logger.warn(
+          `Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${
+            JSON.stringify(response.Locations[0].chargingPool[0].evses)
+          }`,
+        );
       }
       const evse = EvseMapper.fromGraphql(
         response.Locations?.[0]?.chargingPool?.[0],
@@ -175,7 +200,13 @@ export class LocationsService {
         response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors &&
         response.Locations[0].chargingPool[0].evses[0].connectors.length > 1
       ) {
-        this.logger.warn(`Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses[0].connectors)}`);
+        this.logger.warn(
+          `Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${
+            JSON.stringify(
+              response.Locations[0].chargingPool[0].evses[0].connectors,
+            )
+          }`,
+        );
       }
       const connector = ConnectorMapper.fromGraphql(
         response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]
@@ -195,5 +226,65 @@ export class LocationsService {
         (e as Error).message,
       ) as ConnectorResponse;
     }
+  }
+
+  async getLocationByStationId(stationId: string): Promise<LocationDTO | null> {
+    this.logger.debug(`Getting location by station id ${stationId}`);
+    const variables = { stationId };
+    const response = await this.ocpiGraphqlClient.request<any>(
+      GET_LOCATION_BY_STATION_ID_QUERY,
+      variables,
+    );
+    if (response.Locations && response.Locations.length > 0) {
+      if (response.Locations.length > 1) {
+        this.logger.warn(
+          `Multiple locations found for station id ${stationId}. Returning the first one. All entries: ${
+            JSON.stringify(response.Locations)
+          }`,
+        );
+      }
+      return LocationMapper.fromGraphql(response.Locations[0]);
+    }
+    return null;
+  }
+
+  async getLocationByEvseId(evseId: number): Promise<LocationDTO | null> {
+    this.logger.debug(`Getting location by evse id ${evseId}`);
+    const variables = { evseId };
+    const response = await this.ocpiGraphqlClient.request<any>(
+      GET_LOCATION_BY_EVSE_ID_QUERY,
+      variables,
+    );
+    if (response.Locations && response.Locations.length > 0) {
+      if (response.Locations.length > 1) {
+        this.logger.warn(
+          `Multiple locations found for evse id ${evseId}. Returning the first one. All entries: ${
+            JSON.stringify(response.Locations)
+          }`,
+        );
+      }
+      return LocationMapper.fromGraphql(response.Locations[0]);
+    }
+    return null;
+  }
+
+  async getLocationByConnectorId(connectorId: number): Promise<LocationDTO | null> {
+    this.logger.debug(`Getting location by connector id ${connectorId}`);
+    const variables = { connectorId };
+    const response = await this.ocpiGraphqlClient.request<any>(
+      GET_LOCATION_BY_CONNECTOR_ID_QUERY,
+      variables,
+    );
+    if (response.Locations && response.Locations.length > 0) {
+      if (response.Locations.length > 1) {
+        this.logger.warn(
+          `Multiple locations found for connector id ${connectorId}. Returning the first one. All entries: ${
+            JSON.stringify(response.Locations)
+          }`,
+        );
+      }
+      return LocationMapper.fromGraphql(response.Locations[0]);
+    }
+    return null;
   }
 }

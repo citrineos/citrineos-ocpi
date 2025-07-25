@@ -5,11 +5,13 @@
 
 import {
   AbstractDtoModule,
+  AdminLocationsService,
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
   IDtoEventReceiver,
+  LocationsService,
   OcpiConfig,
   OcpiModule,
 } from '@citrineos/ocpi-base';
@@ -31,6 +33,8 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
     config: OcpiConfig,
     receiver: IDtoEventReceiver,
+    private readonly _locationsService: LocationsService,
+    private readonly _adminLocationsService: AdminLocationsService,
     logger?: Logger<ILogObj>,
   ) {
     super(config, receiver, logger);
@@ -59,6 +63,13 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
     this._logger.info(`Handling Location Insert: ${JSON.stringify(event)}`);
     // Inserts are Location PUT requests
+    const locationResponse = await this._locationsService.getLocationById(
+      event.data.id,
+    );
+    const locationDto = locationResponse.data
+      ? { ...locationResponse.data, ...event.data }
+      : event.data;
+    await this._adminLocationsService.createOrUpdateLocation(locationDto, true);
   }
 
   @AsDtoEventHandler(
@@ -71,6 +82,23 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Location Update: ${JSON.stringify(event)}`);
     // Updates are Location PATCH requests
+    if (!event.data.id) {
+      this._logger.error('Location update event does not contain an id.');
+      return;
+    }
+    const locationResponse = await this._locationsService.getLocationById(
+      event.data.id,
+    );
+    if (locationResponse.data) {
+      const patchedLocation = {
+        ...locationResponse.data,
+        ...event.data,
+      } as ILocationDto;
+      await this._adminLocationsService.createOrUpdateLocation(
+        patchedLocation,
+        true,
+      );
+    }
   }
 
   @AsDtoEventHandler(
@@ -85,6 +113,21 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
     );
     // Updates are Location/Evse PATCH requests
+    if (event.data.locationId) {
+      const locationResponse = await this._locationsService.getLocationById(
+        event.data.locationId,
+      );
+      if (locationResponse.data) {
+        const patchedLocation = {
+          ...locationResponse.data,
+          ...event.data,
+        } as ILocationDto;
+        await this._adminLocationsService.createOrUpdateLocation(
+          patchedLocation,
+          true,
+        );
+      }
+    }
   }
 
   @AsDtoEventHandler(
@@ -96,6 +139,17 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     this._logger.info(`Handling EVSE Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse PUT requests
     // Requires pulling the ChargingStation data from GraphQL
+    if (event.data.chargingStationId) {
+      const location = await this._locationsService.getLocationByStationId(
+        event.data.chargingStationId,
+      );
+      if (location) {
+        await this._adminLocationsService.createOrUpdateLocation(
+          location,
+          true,
+        );
+      }
+    }
   }
 
   @AsDtoEventHandler(
@@ -106,6 +160,17 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
     this._logger.info(`Handling EVSE Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse PATCH requests
+    if (event.data.id) {
+      const location = await this._locationsService.getLocationByEvseId(
+        event.data.id,
+      );
+      if (location) {
+        await this._adminLocationsService.createOrUpdateLocation(
+          location,
+          true,
+        );
+      }
+    }
   }
 
   @AsDtoEventHandler(
@@ -116,6 +181,17 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
     this._logger.info(`Handling Connector Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse/Connector PUT requests
+    if (event.data.evseId) {
+      const location = await this._locationsService.getLocationByEvseId(
+        event.data.evseId,
+      );
+      if (location) {
+        await this._adminLocationsService.createOrUpdateLocation(
+          location,
+          true,
+        );
+      }
+    }
   }
 
   @AsDtoEventHandler(
@@ -128,5 +204,16 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Connector Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse/Connector PATCH requests
+    if (event.data.id) {
+      const location = await this._locationsService.getLocationByConnectorId(
+        event.data.id,
+      );
+      if (location) {
+        await this._adminLocationsService.createOrUpdateLocation(
+          location,
+          true,
+        );
+      }
+    }
   }
 }
