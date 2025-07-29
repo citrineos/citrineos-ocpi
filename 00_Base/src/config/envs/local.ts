@@ -56,14 +56,12 @@ export function createLocalOcpiConfig(): OcpiConfigInput {
       memory: true,
     },
 
-    messageBroker: process.env.AMQP_URL
-      ? {
-          amqp: {
-            url: process.env.AMQP_URL,
-            exchange: process.env.AMQP_EXCHANGE || 'ocpi',
-          },
-        }
-      : undefined,
+    messageBroker: {
+      amqp: {
+        url: process.env.AMQP_URL || 'amqp://guest:guest@0.0.0.0:5672',
+        exchange: process.env.AMQP_EXCHANGE || 'ocpi',
+      },
+    },
 
     logLevel: parseInt(process.env.LOG_LEVEL || '2'),
     defaultPageLimit: 50,

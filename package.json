@@ -43,7 +43,7 @@
     "lint": "npx eslint ./",
     "lint-fix": "npm run prettier && npx eslint --fix ./",
     "prettier": "prettier --write .",
-    "fresh-and-install-all": "npm run fresh && npm run install-all",
+    "fi": "npm run fresh && npm run install-all",
     "generate": "graphql-codegen"
   },
   "workspaces": [

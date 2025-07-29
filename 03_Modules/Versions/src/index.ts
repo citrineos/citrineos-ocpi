@@ -3,8 +3,13 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { CacheWrapper, OcpiModule, OcpiConfig } from '@citrineos/ocpi-base';
-import { Service } from 'typedi';
+import {
+  CacheWrapper,
+  OcpiConfig,
+  OcpiConfigToken,
+  OcpiModule,
+} from '@citrineos/ocpi-base';
+import { Inject, Service } from 'typedi';
 import { VersionsModuleApi } from './module/VersionsModuleApi';
 import { ILogObj, Logger } from 'tslog';
 
@@ -14,7 +19,7 @@ export { IVersionsModuleApi } from './module/IVersionsModuleApi';
 @Service()
 export class VersionsModule implements OcpiModule {
   constructor(
-    readonly config: OcpiConfig,
+    @Inject(OcpiConfigToken) readonly config: OcpiConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}

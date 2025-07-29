@@ -9,14 +9,17 @@ import {
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
-  IDtoEventReceiver,
   OcpiConfig,
+  OcpiConfigToken,
   OcpiModule,
+  RabbitMqDtoReceiver,
+  SystemConfigToken,
 } from '@citrineos/ocpi-base';
 import { MeterValue, Transaction } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { SessionsModuleApi } from './module/SessionsModuleApi';
+import { SystemConfig } from '@citrineos/base';
 
 export { SessionsModuleApi } from './module/SessionsModuleApi';
 export { ISessionsModuleApi } from './module/ISessionsModuleApi';
@@ -24,11 +27,11 @@ export { ISessionsModuleApi } from './module/ISessionsModuleApi';
 @Service()
 export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
-    config: OcpiConfig,
-    receiver: IDtoEventReceiver,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    @Inject(SystemConfigToken) systemConfig: SystemConfig,
     logger?: Logger<ILogObj>,
   ) {
-    super(config, receiver, logger);
+    super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
   }
 
   getController(): any {

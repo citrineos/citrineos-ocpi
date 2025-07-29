@@ -8,14 +8,17 @@ import {
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
-  IDtoEventReceiver,
   OcpiConfig,
+  OcpiConfigToken,
   OcpiModule,
+  RabbitMqDtoReceiver,
+  SystemConfigToken,
 } from '@citrineos/ocpi-base';
 import { Tariff } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { TariffsModuleApi } from './module/TariffsModuleApi';
+import { SystemConfig } from '@citrineos/base';
 
 export { TariffsModuleApi } from './module/TariffsModuleApi';
 export { ITariffsModuleApi } from './module/ITariffsModuleApi';
@@ -23,11 +26,11 @@ export { ITariffsModuleApi } from './module/ITariffsModuleApi';
 @Service()
 export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
-    config: OcpiConfig,
-    receiver: IDtoEventReceiver,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    @Inject(SystemConfigToken) systemConfig: SystemConfig,
     logger?: Logger<ILogObj>,
   ) {
-    super(config, receiver, logger);
+    super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
   }
 
   getController(): any {

@@ -40,8 +40,8 @@ export class RabbitMqDtoReceiver
 
   constructor(
     config: SystemConfig,
-    module: IDtoModule,
     logger?: Logger<ILogObj>,
+    module?: IDtoModule,
   ) {
     super(config, logger, module);
   }

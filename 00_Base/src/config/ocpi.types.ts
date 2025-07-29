@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { z } from 'zod';
+import { Token } from 'typedi';
+import { SystemConfig } from '@citrineos/base';
 
 /**
  * OCPI Configuration Schema
@@ -270,3 +272,5 @@ export const ocpiConfigSchema = z.object({
 });
 
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;
+export const OcpiConfigToken = new Token<OcpiConfig>('ocpi.config');
+export const SystemConfigToken = new Token<SystemConfig>('system.config');

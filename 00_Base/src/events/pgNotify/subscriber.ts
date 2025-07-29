@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { SystemConfig } from '@citrineos/base';
 import { DtoEventType, IDtoEventSubscriber, IDtoPayload } from '..';
 import { Client } from 'pg';
 import { runner, RunnerOption } from 'node-pg-migrate';
 import path from 'path';
 import { ILogObj, Logger } from 'tslog';
+import { OcpiConfig } from '../../config/ocpi.types';
 
 interface IPgNotification {
   operation: DtoEventType;
@@ -18,19 +18,16 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
   protected _pgClient: Client;
   protected readonly _logger: Logger<ILogObj>;
 
-  constructor(
-    config: SystemConfig['data']['sequelize'],
-    logger?: Logger<ILogObj>,
-  ) {
+  constructor(config: OcpiConfig, logger?: Logger<ILogObj>) {
     this._logger = logger
       ? logger.getSubLogger({ name: this.constructor.name })
       : new Logger<ILogObj>({ name: this.constructor.name });
     this._pgClient = new Client({
-      host: config.host,
-      port: config.port,
-      user: config.username,
-      password: config.password,
-      database: config.database,
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.username,
+      password: config.database.password,
+      database: config.database.database,
     });
   }
 

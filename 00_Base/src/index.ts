@@ -3,14 +3,20 @@ import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
 import { KoaServer } from './util/KoaServer';
 import Koa from 'koa';
-import { ICache } from '@citrineos/base';
+import { ICache, SystemConfig } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 // import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
+// @ts-ignore-next-line
 import { version } from '../../package.json';
-import { OcpiConfig } from './config/ocpi.types';
-import { IDtoEventReceiver } from './events';
+import {
+  OcpiConfig,
+  OcpiConfigToken,
+  SystemConfigToken,
+} from './config/ocpi.types';
+import { IDtoModule, PgNotifyEventSubscriber } from './events';
+import { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 
 export { plainToClass } from './util/Util';
 export {
@@ -79,7 +85,6 @@ export { UnlockConnector } from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
 export { CredentialsResponse } from './model/CredentialsResponse';
-export { OcpiResponseStatusCode } from './model/OcpiResponse';
 export { OcpiEmptyResponse } from './model/OcpiEmptyResponse';
 export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
@@ -89,7 +94,7 @@ export { TokenType } from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
-export { OcpiResponse } from './model/OcpiResponse';
+export { OcpiResponse, OcpiResponseStatusCode } from './model/OcpiResponse';
 export { OcpiModule } from './model/OcpiModule';
 export { CommandResultType } from './model/CommandResult';
 export { EnumQueryParam } from './util/decorators/EnumQueryParam';
@@ -177,7 +182,6 @@ export {
 } from './types/asyncJob.types';
 
 export { TariffsService } from './services/TariffsService';
-// export { TariffsBroadcaster } from './broadcaster/TariffsBroadcaster';
 export { TariffMapper } from './mapper/TariffMapper';
 
 export { OcpiHttpHeader } from './util/OcpiHttpHeader';
@@ -185,9 +189,6 @@ export { OcpiHttpHeader } from './util/OcpiHttpHeader';
 export { CdrsService } from './services/CdrsService';
 export { PaginatedCdrResponse } from './model/Cdr';
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
-// export { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
-// export { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
-// export { LocationsBroadcaster } from './broadcaster/LocationsBroadcaster';
 export {
   PaginatedTariffResponse,
   TariffDTO,
@@ -217,48 +218,55 @@ export * from './events';
 useContainer(Container);
 
 export { Container } from 'typedi';
-
-export class OcpiModuleConfig {
-  module!: Constructable<OcpiModule>;
-  handler?: IDtoEventReceiver;
-}
+export { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
   private readonly ocpiConfig: OcpiConfig;
+  private readonly systemConfig: SystemConfig;
   private readonly cache: ICache;
   private readonly logger: Logger<ILogObj>;
-  private modules: OcpiModule[] = [];
-  private modulesConfig: OcpiModuleConfig[] = [];
+  private modules: (OcpiModule | IDtoModule)[] = [];
+  private moduleList: Constructable<OcpiModule | IDtoModule>[] = [];
+  private pgNotifyEventSubscriber: PgNotifyEventSubscriber;
 
   constructor(
     ocpiConfig: OcpiConfig,
     cache: ICache,
     logger: Logger<ILogObj>,
-    modulesConfig: OcpiModuleConfig[],
+    moduleList: Constructable<OcpiModule | IDtoModule>[],
   ) {
     super();
 
     this.ocpiConfig = ocpiConfig;
+    this.systemConfig = createServerConfigFromOcpiConfig(this.ocpiConfig);
     this.cache = cache;
     this.logger = logger;
-    this.modulesConfig = modulesConfig;
+    this.moduleList = moduleList;
     this.initContainer();
-    this.modules = this.modulesConfig.map((moduleConfig) => {
-      const module = Container.get(moduleConfig.module);
-      // module.init(moduleConfig.handler);
-      return module;
-    });
+    this.pgNotifyEventSubscriber = new PgNotifyEventSubscriber(this.ocpiConfig);
   }
 
   public async initialize() {
-    this.initServer();
+    for (let moduleListElement of this.moduleList) {
+      const constructedModule = Container.get(moduleListElement) as OcpiModule &
+        IDtoModule;
+      if (constructedModule) {
+        if (constructedModule.init) {
+          await constructedModule.init();
+        }
+        this.modules.push(constructedModule);
+      }
+    }
+    this.initKoaServer();
   }
 
-  private initServer() {
+  private initKoaServer() {
     try {
       this.koa = new Koa();
-      const controllers = this.modules.map((module) => module.getController());
+      const controllers = this.modules.map((module) =>
+        (module as OcpiModule).getController(),
+      );
       const options: RoutingControllersOptions = {
         controllers: [...controllers],
         routePrefix: '/ocpi',
@@ -278,6 +286,10 @@ export class OcpiServer extends KoaServer {
           },
         ],
       );
+      this.run(
+        this.ocpiConfig.ocpiServer.host,
+        this.ocpiConfig.ocpiServer.port,
+      );
     } catch (error) {
       console.error(error);
       process.exit(1);
@@ -285,11 +297,11 @@ export class OcpiServer extends KoaServer {
   }
 
   private initContainer() {
-    Container.set('OcpiConfig', this.ocpiConfig);
+    Container.set(OcpiConfigToken, this.ocpiConfig);
+    Container.set(SystemConfigToken, this.systemConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
-    // GraphQL client is optional for OCPI
-    // TODO: Remove this if not needed for OCPI functionality
+    Container.set(PgNotifyEventSubscriber, this.pgNotifyEventSubscriber);
     this.onContainerInitialized();
   }
 
@@ -298,3 +310,5 @@ export class OcpiServer extends KoaServer {
     // Container.get(CdrBroadcaster);
   }
 }
+
+export { OcpiConfigToken, SystemConfigToken };

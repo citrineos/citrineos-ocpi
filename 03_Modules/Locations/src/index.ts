@@ -9,9 +9,11 @@ import {
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
-  IDtoEventReceiver,
   OcpiConfig,
+  OcpiConfigToken,
   OcpiModule,
+  RabbitMqDtoReceiver,
+  SystemConfigToken,
 } from '@citrineos/ocpi-base';
 import { ILogObj, Logger } from 'tslog';
 import { LocationsModuleApi } from './module/LocationsModuleApi';
@@ -20,8 +22,9 @@ import {
   IConnectorDto,
   IEvseDto,
   ILocationDto,
+  SystemConfig,
 } from '@citrineos/base';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi';
 export { ILocationsModuleApi } from './module/ILocationsModuleApi';
@@ -29,11 +32,11 @@ export { ILocationsModuleApi } from './module/ILocationsModuleApi';
 @Service()
 export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
-    config: OcpiConfig,
-    receiver: IDtoEventReceiver,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    @Inject(SystemConfigToken) systemConfig: SystemConfig,
     logger?: Logger<ILogObj>,
   ) {
-    super(config, receiver, logger);
+    super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
   }
 
   getController(): any {

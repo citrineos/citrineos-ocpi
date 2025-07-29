@@ -16,7 +16,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OcpiResponse, OcpiResponseStatusCode } from '../..';
+import { OcpiResponse, OcpiResponseStatusCode } from '../OcpiResponse';
+
 import { PaginatedResponse } from '../PaginatedResponse';
 
 export class TokenDTO {

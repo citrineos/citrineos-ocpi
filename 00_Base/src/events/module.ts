@@ -10,11 +10,11 @@ import {
   IDtoEventHandlerDefinition,
 } from './AsDtoEventHandler';
 import {
-  IDtoModule,
+  DtoEventObjectType,
+  DtoEventType,
   IDtoEvent,
   IDtoEventReceiver,
-  DtoEventType,
-  DtoEventObjectType,
+  IDtoModule,
   IDtoPayload,
 } from './types';
 import { OcpiConfig } from '..';
