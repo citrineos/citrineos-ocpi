@@ -1,14 +1,8 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
+import { z } from 'zod';
 
-export class TokenEnergyContract {
-  @MaxLength(64)
-  @IsString()
-  @IsNotEmpty()
-  supplier_name!: string;
+export const TokenEnergyContractSchema = z.object({
+  supplier_name: z.string().max(64),
+  contract_id: z.string().max(64).nullable().optional(),
+});
 
-  @MaxLength(64)
-  @IsString()
-  @Optional()
-  contract_id?: string | null;
-}
+export type TokenEnergyContract = z.infer<typeof TokenEnergyContractSchema>;

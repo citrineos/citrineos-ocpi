@@ -1,59 +1,28 @@
 import { Role } from './Role';
-import { ICredentialsRole } from './BaseCredentialsRole';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { ClientInformation } from './ClientInformation';
 import { CpoTenant } from './CpoTenant';
 import {
-  BusinessDetails,
+  BusinessDetailsSchema,
   fromBusinessDetailsDTO,
   toBusinessDetailsDTO,
 } from './BusinessDetails';
-import { Exclude } from 'class-transformer';
 import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
 
-export enum ClientCredentialsRoleProps {
-  role = 'role',
-  partyId = 'party_id',
-  countryCode = 'country_code',
-  businessDetails = 'business_details',
-  clientInformationId = 'clientInformationId',
-  clientInformation = 'clientInformation',
-  cpoTenantId = 'cpoTenantId',
-  cpoTenant = 'cpoTenant',
-}
+import { z } from 'zod';
+import { CountryCode } from '../util/Util';
 
-export class ClientCredentialsRole implements ICredentialsRole {
-  [ClientCredentialsRoleProps.role] = Role.EMSP;
+export const ClientCredentialsRoleSchema = z.object({
+  role: z.literal(Role.EMSP),
+  party_id: z.string().length(3),
+  country_code: z.nativeEnum(CountryCode),
+  business_details: BusinessDetailsSchema,
+  clientInformationId: z.number(),
+  clientInformation: z.custom<ClientInformation>(),
+  cpoTenantId: z.number(),
+  cpoTenant: z.custom<CpoTenant>(),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(3, 3)
-  [ClientCredentialsRoleProps.partyId]!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Length(2, 2)
-  [ClientCredentialsRoleProps.countryCode]!: string; // todo should we use CountryCode enum?
-
-  @Exclude()
-  [ClientCredentialsRoleProps.businessDetails]!: BusinessDetails;
-
-  @Exclude()
-  [ClientCredentialsRoleProps.clientInformationId]!: number;
-
-  @Exclude()
-  [ClientCredentialsRoleProps.clientInformation]!: ClientInformation;
-
-  @Exclude()
-  [ClientCredentialsRoleProps.cpoTenantId]!: number;
-
-  @Exclude()
-  [ClientCredentialsRoleProps.cpoTenant]!: CpoTenant;
-
-  static fromDto(credentialsRole: CredentialsRoleDTO) {
-    return credentialsRole as Partial<ClientCredentialsRole>;
-  }
-}
+export type ClientCredentialsRole = z.infer<typeof ClientCredentialsRoleSchema>;
 
 export const toCredentialsRoleDTO = (
   clientCredentialsRole: ClientCredentialsRole,
@@ -70,7 +39,9 @@ export const toCredentialsRoleDTO = (
   return credentialsRoleDTO;
 };
 
-export const fromCredentialsRoleDTO = (role: CredentialsRoleDTO): any => {
+export const fromCredentialsRoleDTO = (
+  role: CredentialsRoleDTO,
+): ClientCredentialsRole => {
   const record: any = {
     role: role.role,
     party_id: role.party_id,

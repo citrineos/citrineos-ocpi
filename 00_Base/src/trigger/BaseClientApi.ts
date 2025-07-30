@@ -1,33 +1,27 @@
 import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
 import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { VersionNumber } from '../model/VersionNumber';
-import { OcpiRegistrationParams } from './util/OcpiRegistrationParams';
-import { OcpiParams } from './util/OcpiParams';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import {
   HttpHeader,
+  HttpMethod,
   ITenantPartnerDto,
   OCPIRegistration,
 } from '@citrineos/base';
 import { OcpiHttpHeader } from '../util/OcpiHttpHeader';
 import { base64Encode } from '../util/Util';
-import { OcpiResponse } from '../model/OcpiResponse';
-import { PaginatedResponse } from '../model/PaginatedResponse';
-import { Constructable, Inject } from 'typedi';
+import { Inject } from 'typedi';
 import { v4 as uuidv4 } from 'uuid';
 import { ModuleId } from '../model/ModuleId';
 import { ILogObj, Logger } from 'tslog';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
-  GetTenantPartnersByCpoAndModuleIdQuery,
-  GetTenantPartnersByCpoClientAndModuleIdQuery,
-} from '../graphql/types/graphql';
-import {
   GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
   LIST_TENANT_PARTNERS_BY_CPO,
 } from '../graphql/queries/tenantPartner.queries';
 import { PaginatedParams } from './param/PaginatedParams';
+import { ZodTypeAny } from 'zod';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -45,6 +39,20 @@ export class MissingRequiredParamException extends Error {
   ) {
     super(msg);
   }
+}
+
+export interface BroadcastParams<T extends ZodTypeAny> {
+  cpoCountryCode: string;
+  cpoPartyId: string;
+  moduleId: ModuleId;
+  interfaceRole: InterfaceRole;
+  httpMethod: HttpMethod;
+  schema: T;
+  routingHeaders: boolean;
+  url?: string;
+  body?: any;
+  paginatedParams?: PaginatedParams;
+  otherParams?: Record<string, string | number | (string | number)[]>;
 }
 
 export interface TriggerRequestOptions extends IRequestOptions {
@@ -85,20 +93,20 @@ export abstract class BaseClientApi {
     return headers;
   }
 
-  async request<T extends OcpiResponse<any>>(
+  async request<T extends ZodTypeAny>(
     fromCountryCode: string,
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    httpMethod: 'get' | 'post' | 'put' | 'patch' | 'delete',
-    clazz: Constructable<T>,
+    httpMethod: HttpMethod,
+    schema: T,
     partnerProfile?: OCPIRegistration.PartnerProfile,
     routingHeaders = true,
     url?: string,
     body?: any,
     paginatedParams?: PaginatedParams,
     otherParams?: Record<string, string | number | (string | number)[]>,
-  ): Promise<T> {
+  ): Promise<any> {
     if (!partnerProfile) {
       const partner = await this.ocpiGraphqlClient.request<ITenantPartnerDto>(
         GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
@@ -151,25 +159,25 @@ export abstract class BaseClientApi {
     }
     options.queryParameters = queryParameters;
     switch (httpMethod) {
-      case 'get':
+      case HttpMethod.Get:
         return this.getRaw<T>(url, options).then((response) =>
-          this.handleResponse(clazz, response),
+          this.handleResponse(schema, response),
         );
-      case 'post':
+      case HttpMethod.Post:
         return this.createRaw<T>(url, body, options).then((response) =>
-          this.handleResponse(clazz, response),
+          this.handleResponse(schema, response),
         );
-      case 'put':
+      case HttpMethod.Put:
         return this.replaceRaw<T>(url, body, options).then((response) =>
-          this.handleResponse(clazz, response),
+          this.handleResponse(schema, response),
         );
-      case 'patch':
+      case HttpMethod.Patch:
         return this.updateRaw<T>(url, body, options).then((response) =>
-          this.handleResponse(clazz, response),
+          this.handleResponse(schema, response),
         );
-      case 'delete':
+      case HttpMethod.Delete:
         return this.delRaw<T>(url, options).then((response) =>
-          this.handleResponse(clazz, response),
+          this.handleResponse(schema, response),
         );
     }
   }
@@ -221,14 +229,22 @@ export abstract class BaseClientApi {
     return 0;
   }
 
-  public async broadcastToClients<T extends OcpiResponse<any>>(
-    cpoCountryCode: string,
-    cpoPartyId: string,
-    moduleId: ModuleId,
-    interfaceRole: InterfaceRole,
-    httpMethod: 'get' | 'post' | 'put' | 'patch' | 'delete',
-    clazz: Constructable<T>,
+  public async broadcastToClients<T extends ZodTypeAny>(
+    params: BroadcastParams<T>,
   ): Promise<T[]> {
+    const {
+      cpoCountryCode,
+      cpoPartyId,
+      moduleId,
+      interfaceRole,
+      httpMethod,
+      schema,
+      routingHeaders = true,
+      url,
+      body,
+      paginatedParams,
+      otherParams,
+    } = params;
     const responses: T[] = [];
     const partners = await this.ocpiGraphqlClient.request<ITenantPartnerDto[]>(
       LIST_TENANT_PARTNERS_BY_CPO,
@@ -245,49 +261,57 @@ export abstract class BaseClientApi {
         partner.countryCode!,
         partner.partyId!,
         httpMethod,
-        clazz,
+        schema,
         partner.partnerProfileOCPI!,
+        routingHeaders,
+        url,
+        body,
+        paginatedParams,
+        otherParams,
       );
       responses.push(response);
     }
     return responses;
   }
 
-  protected handleResponse<T>(
-    clazz: Constructable<T>,
-    response: IRestResponse<T>,
+  protected handleResponse<T extends ZodTypeAny>(
+    schema: T,
+    response: IRestResponse<unknown>,
   ): T {
     if (response.statusCode >= 200 && response.statusCode <= 299) {
-      if (
-        Object.prototype.isPrototypeOf.call(
-          PaginatedResponse.prototype,
-          clazz.prototype,
-        )
-      ) {
+      let result = response.result;
+
+      // Check if this is a paginated response by checking expected shape or keys
+      const isPaginated =
+        result &&
+        typeof result === 'object' &&
+        'data' in result &&
+        Array.isArray((result as any).data);
+
+      if (isPaginated && response.headers) {
         const headers: any = response.headers;
-        const result = response.result as PaginatedResponse<any>;
-        if (headers) {
-          let link = headers[OcpiHttpHeader.Link.toLowerCase()];
-          const xTotalCount = headers[OcpiHttpHeader.XTotalCount.toLowerCase()];
-          const xLimit = headers[OcpiHttpHeader.XLimit.toLowerCase()];
-          if (xLimit) {
-            result.limit = parseInt(xLimit, 10);
-          }
-          if (xTotalCount) {
-            result.total = parseInt(xTotalCount, 10);
-          }
-          if (link) {
-            // Reference https://github.com/ocpi/ocpi/blob/d7d82b6524106e0454101d8cde472cd6f807d9c7/transport_and_format.asciidoc?plain=1#L181
-            // Link: <url>; rel="next"
-            link = link.substring(1, link.indexOf('>'));
-            result.link = link;
-            result.offset = this.getOffsetFromLink(link);
-          }
+
+        const link = headers[OcpiHttpHeader.Link.toLowerCase()];
+        const xTotalCount = headers[OcpiHttpHeader.XTotalCount.toLowerCase()];
+        const xLimit = headers[OcpiHttpHeader.XLimit.toLowerCase()];
+
+        if (xLimit) {
+          (result as any).limit = parseInt(xLimit, 10);
         }
-        return result as T;
-      } else {
-        return response.result as T;
+        if (xTotalCount) {
+          (result as any).total = parseInt(xTotalCount, 10);
+        }
+        if (link) {
+          // Reference https://github.com/ocpi/ocpi/blob/d7d82b6524106e0454101d8cde472cd6f807d9c7/transport_and_format.asciidoc?plain=1#L181
+          // Link: <url>; rel="next"
+          const cleanedLink = link.substring(1, link.indexOf('>'));
+          (result as any).link = cleanedLink;
+          (result as any).offset = this.getOffsetFromLink(cleanedLink);
+        }
       }
+
+      // Parse and validate using Zod
+      return schema.parse(result);
     } else {
       throw new UnsuccessfulRequestException(
         'Request did not return a successful status code',

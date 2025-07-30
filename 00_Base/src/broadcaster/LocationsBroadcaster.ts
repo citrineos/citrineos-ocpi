@@ -4,6 +4,11 @@ import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { ILogObj, Logger } from 'tslog';
 import { CredentialsService } from '../services/CredentialsService';
 import { LocationRepository } from '../repository/LocationRepository';
+import { LocationDTO, LocationResponse } from '../model/DTO/LocationDTO';
+import { PutLocationParams } from '../trigger/param/locations/PutLocationParams';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { HttpMethod } from '@citrineos/base';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -15,22 +20,26 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   ) {
     super();
   }
-  /*
   async broadcastOnLocationCreateOrUpdate(
     locationDto: LocationDTO,
   ): Promise<void> {
     this.logger.debug(`Broadcasting Location ${locationDto.id}`);
 
-    const params = PutLocationParams.build(Number(locationDto.id), locationDto);
+    const params: PutLocationParams = {
+      locationId: locationDto.id,
+    };
 
     try {
-      await this.locationsClientApi.broadcastToClients(
-        locationDto.country_code,
-        locationDto.party_id,
-        ModuleId.Locations,
-        params,
-        this.locationsClientApi.putLocation.bind(this.locationsClientApi),
-      );
+      await this.locationsClientApi.broadcastToClients({
+        cpoCountryCode: locationDto.country_code,
+        cpoPartyId: locationDto.party_id,
+        moduleId: ModuleId.Locations,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: HttpMethod.Put,
+        clazz: LocationResponse,
+        body: locationDto,
+        otherParams: params,
+      });
     } catch (e) {
       this.logger.debug(
         `Broadcast failed for Location ${locationDto.id} due to error`,
@@ -126,5 +135,5 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       params,
       this.locationsClientApi.patchConnector.bind(this.locationsClientApi),
     );
-  }*/
+  }
 }

@@ -1,17 +1,10 @@
-import { ArrayMinSize, IsArray, IsNotEmpty } from 'class-validator';
-import { Enum } from '../../util/decorators/Enum';
+import { z } from 'zod';
 import { VersionNumber } from '../VersionNumber';
-import { Type } from 'class-transformer';
-import { Endpoint } from '../Endpoint';
+import { EndpointSchema } from '../Endpoint';
 
-export class VersionDetailsDTO {
-  @IsNotEmpty()
-  @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+export const VersionDetailsDTOSchema = z.object({
+  version: z.nativeEnum(VersionNumber),
+  endpoints: z.array(EndpointSchema).min(1),
+});
 
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsNotEmpty()
-  @Type(() => Endpoint)
-  endpoints!: Endpoint[];
-}
+export type VersionDetailsDTO = z.infer<typeof VersionDetailsDTOSchema>;

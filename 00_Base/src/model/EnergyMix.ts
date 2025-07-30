@@ -1,33 +1,13 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsString, MaxLength, ValidateNested } from 'class-validator';
-import { EnergySources } from './EnergySources';
-import { EnvironmentalImpact } from './EnvironmentalImpact';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+import { z } from 'zod';
+import { EnergySourcesSchema } from './EnergySources';
+import { EnvironmentalImpactSchema } from './EnvironmentalImpact';
 
-export class EnergyMix {
-  @IsBoolean()
-  @IsNotEmpty()
-  is_green_energy!: boolean;
+export const EnergyMixSchema = z.object({
+  is_green_energy: z.boolean(),
+  energy_sources: z.array(EnergySourcesSchema).optional().nullable(),
+  environ_impact: z.array(EnvironmentalImpactSchema).optional().nullable(),
+  supplier_name: z.string().max(64).optional().nullable(),
+  energy_product_name: z.string().max(64).optional().nullable(),
+});
 
-  @IsArray()
-  @Optional()
-  @Type(() => EnergySources)
-  @ValidateNested({ each: true })
-  energy_sources?: EnergySources[] | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => EnvironmentalImpact)
-  @ValidateNested({ each: true })
-  environ_impact?: EnvironmentalImpact[] | null;
-
-  @MaxLength(64)
-  @IsString()
-  @Optional()
-  supplier_name?: string | null;
-
-  @MaxLength(64)
-  @IsString()
-  @Optional()
-  energy_product_name?: string | null;
-}
+export type EnergyMix = z.infer<typeof EnergyMixSchema>;

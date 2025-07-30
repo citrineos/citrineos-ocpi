@@ -1,12 +1,8 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
+import { z } from 'zod';
 
-export class Price {
-  @IsNumber()
-  @IsNotEmpty()
-  excl_vat!: number;
+export const PriceSchema = z.object({
+  excl_vat: z.number(),
+  incl_vat: z.number().nullable().optional(),
+});
 
-  @IsNumber()
-  @Optional()
-  incl_vat?: number | null;
-}
+export type Price = z.infer<typeof PriceSchema>;

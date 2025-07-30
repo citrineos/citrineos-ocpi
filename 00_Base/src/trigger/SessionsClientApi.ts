@@ -1,10 +1,17 @@
 import { BaseClientApi } from './BaseClientApi';
-import { Session, SessionResponse } from '../model/Session';
+import {
+  Session,
+  SessionResponse,
+  SessionResponseSchema,
+} from '../model/Session';
 import { Service } from 'typedi';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
 import { ModuleId } from '../model/ModuleId';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class SessionsClientApi extends BaseClientApi {
@@ -35,8 +42,8 @@ export class SessionsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      SessionResponse,
+      HttpMethod.Get,
+      SessionResponseSchema,
       partnerProfile,
     );
   }
@@ -54,8 +61,8 @@ export class SessionsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'patch',
-      OcpiEmptyResponse,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       undefined,
@@ -76,8 +83,8 @@ export class SessionsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'put',
-      OcpiEmptyResponse,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       undefined,

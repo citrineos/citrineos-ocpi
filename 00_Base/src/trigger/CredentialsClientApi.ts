@@ -1,9 +1,15 @@
 import { BaseClientApi, MissingRequiredParamException } from './BaseClientApi';
 import { ModuleId } from '../model/ModuleId';
-import { CredentialsResponse } from '../model/CredentialsResponse';
+import {
+  CredentialsResponse,
+  CredentialsResponseSchema,
+} from '../model/CredentialsResponse';
 import { Service } from 'typedi';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
-import { OCPIRegistration, PartnerProfile } from '@citrineos/base';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
+import { HttpMethod, OCPIRegistration, PartnerProfile } from '@citrineos/base';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
 import { CredentialsDTO } from '..';
 
@@ -36,8 +42,8 @@ export class CredentialsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      CredentialsResponse,
+      HttpMethod.Get,
+      CredentialsResponseSchema,
       partnerProfile,
       false,
     );
@@ -56,8 +62,8 @@ export class CredentialsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'post',
-      CredentialsResponse,
+      HttpMethod.Post,
+      CredentialsResponseSchema,
       partnerProfile,
       false,
       undefined,
@@ -78,8 +84,8 @@ export class CredentialsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'put',
-      CredentialsResponse,
+      HttpMethod.Put,
+      CredentialsResponseSchema,
       partnerProfile,
       false,
       undefined,
@@ -99,8 +105,8 @@ export class CredentialsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'delete',
-      OcpiEmptyResponse,
+      HttpMethod.Delete,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       false,
     );

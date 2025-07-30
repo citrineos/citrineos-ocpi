@@ -1,22 +1,11 @@
-import { IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { z } from 'zod';
 import { TariffDimensionType } from './TariffDimensionType';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
 
-export class PriceComponent {
-  @Enum(TariffDimensionType, 'TariffDimensionType')
-  @IsNotEmpty()
-  type!: TariffDimensionType;
+export const PriceComponentSchema = z.object({
+  type: z.nativeEnum(TariffDimensionType),
+  price: z.number(),
+  vat: z.number().nullable().optional(),
+  step_size: z.number().int(),
+});
 
-  @IsNumber()
-  @IsNotEmpty()
-  price!: number;
-
-  @IsNumber()
-  @Optional()
-  vat?: number | null;
-
-  @IsInt()
-  @IsNotEmpty()
-  step_size!: number;
-}
+export type PriceComponent = z.infer<typeof PriceComponentSchema>;

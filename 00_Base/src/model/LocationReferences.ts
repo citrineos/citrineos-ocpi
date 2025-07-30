@@ -1,11 +1,8 @@
-import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { z } from 'zod';
 
-export class LocationReferences {
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(36)
-  location_id!: string;
+export const LocationReferencesSchema = z.object({
+  location_id: z.string().max(36),
+  evse_uids: z.array(z.string()),
+});
 
-  @IsArray()
-  evse_uids!: string[];
-}
+export type LocationReferences = z.infer<typeof LocationReferencesSchema>;
