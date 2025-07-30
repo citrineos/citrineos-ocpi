@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { SystemConfig } from '@citrineos/base';
 import {
   DtoEvent,
   DtoEventObjectType,
@@ -11,19 +10,25 @@ import {
   IDtoEventSubscriber,
   IDtoPayload,
   IDtoRouter,
+  OcpiConfig,
+  OcpiConfigToken,
+  PgNotifyEventSubscriber,
+  RabbitMqDtoSender,
 } from '@citrineos/ocpi-base';
-import { Logger, ILogObj } from 'tslog';
+import { ILogObj, Logger } from 'tslog';
+import { Inject, Service } from 'typedi';
 
+@Service()
 export class DtoRouter implements IDtoRouter {
-  protected _config: SystemConfig;
-  protected readonly _sender: IDtoEventSender;
-  protected _subscriber: IDtoEventSubscriber;
+  protected _config: OcpiConfig;
+  protected readonly _sender: RabbitMqDtoSender;
+  protected _subscriber: PgNotifyEventSubscriber;
   protected readonly _logger: Logger<ILogObj>;
 
   constructor(
-    config: SystemConfig,
-    sender: IDtoEventSender,
-    subscriber: IDtoEventSubscriber,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    sender: RabbitMqDtoSender,
+    subscriber: PgNotifyEventSubscriber,
     logger?: Logger<ILogObj>,
   ) {
     this._logger = logger

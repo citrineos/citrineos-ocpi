@@ -61,6 +61,7 @@
     "./03_Modules/Cdrs",
     "./03_Modules/Tokens",
     "./03_Modules/Certificates",
+    "./03_Modules/DtoRouter",
     "./Server",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",

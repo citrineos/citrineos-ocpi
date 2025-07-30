@@ -13,8 +13,9 @@ import {
 } from '@citrineos/base';
 import { MemoryCache, RedisCache } from '@citrineos/util';
 import { type FastifyInstance } from 'fastify';
-import { type ILogObj, Logger } from 'tslog';
 import {
+  Container,
+  getDtoEventHandlerMetaData,
   getOcpiSystemConfig,
   IDtoModule,
   OcpiConfig,
@@ -30,6 +31,8 @@ import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { CdrsModule } from '@citrineos/ocpi-cdrs';
 import { TokensModule } from '@citrineos/ocpi-tokens';
+import { DtoRouter } from '@citrineos/dto-router';
+import { ILogObj, Logger } from 'tslog';
 
 export class CitrineOSServer {
   /**
@@ -150,6 +153,24 @@ export class CitrineOSServer {
       this.getOcpiModuleConfig(),
     );
     await this.ocpiServer.initialize();
+    await this.initDtoRouter();
+  }
+
+  private async initDtoRouter() {
+    const dtoRouter: DtoRouter = Container.get(DtoRouter);
+    for (let module of this.ocpiServer.modules) {
+      const eventHandlers = getDtoEventHandlerMetaData(module);
+      for (let eventHandler of eventHandlers) {
+        const subscribed = await dtoRouter.subscribe(
+          eventHandler.eventId,
+          eventHandler.eventType,
+          eventHandler.objectType,
+        );
+        this._logger?.info(
+          `Subscribed successfully (${subscribed}) to event: ${eventHandler.eventId} of type: ${eventHandler.eventType} for object: ${eventHandler.objectType}`,
+        );
+      }
+    }
   }
 }
 

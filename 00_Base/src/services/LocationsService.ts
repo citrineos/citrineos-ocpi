@@ -5,12 +5,22 @@
 
 import { ILogObj, Logger } from 'tslog';
 import { Service } from 'typedi';
-import { LocationResponse, PaginatedLocationResponse } from '../model/DTO/LocationDTO';
+import {
+  LocationResponse,
+  PaginatedLocationResponse,
+} from '../model/DTO/LocationDTO';
 import { EvseResponse } from '../model/DTO/EvseDTO';
 import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
 import { PaginatedParams } from '../controllers/param/PaginatedParams';
-import { buildOcpiPaginatedResponse, DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { buildOcpiResponse, OcpiResponseStatusCode } from '../model/OcpiResponse';
+import {
+  buildOcpiPaginatedResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../model/PaginatedResponse';
+import {
+  buildOcpiResponse,
+  OcpiResponseStatusCode,
+} from '../model/OcpiResponse';
 import { buildOcpiErrorResponse } from '../model/OcpiErrorResponse';
 import { OcpiHeaders } from '../model/OcpiHeaders';
 import { NotFoundException } from '../exception/NotFoundException';
@@ -66,8 +76,7 @@ export class LocationsService {
     );
 
     // Map GraphQL DTOs to OCPI DTOs
-    const locations =
-      response.Locations?.map(LocationMapper.fromGraphql) ?? [];
+    const locations = response.Locations?.map(LocationMapper.fromGraphql) ?? [];
     const locationsTotal = locations.length;
 
     return buildOcpiPaginatedResponse(
@@ -90,7 +99,9 @@ export class LocationsService {
       );
       // response.Locations is an array, so pick the first
       if (response.Locations && response.Locations.length > 1) {
-        this.logger.warn(`Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`);
+        this.logger.warn(
+          `Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`,
+        );
       }
       const location = LocationMapper.fromGraphql(response.Locations?.[0]);
       return buildOcpiResponse(
@@ -129,13 +140,17 @@ export class LocationsService {
         response.Locations?.[0]?.chargingPool &&
         response.Locations[0].chargingPool.length > 1
       ) {
-        this.logger.warn(`Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool)}`);
+        this.logger.warn(
+          `Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool)}`,
+        );
       }
       if (
         response.Locations?.[0]?.chargingPool?.[0]?.evses &&
         response.Locations[0].chargingPool[0].evses.length > 1
       ) {
-        this.logger.warn(`Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses)}`);
+        this.logger.warn(
+          `Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses)}`,
+        );
       }
       const evse = EvseMapper.fromGraphql(
         response.Locations?.[0]?.chargingPool?.[0],
@@ -175,11 +190,12 @@ export class LocationsService {
         response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors &&
         response.Locations[0].chargingPool[0].evses[0].connectors.length > 1
       ) {
-        this.logger.warn(`Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses[0].connectors)}`);
+        this.logger.warn(
+          `Multiple connectors found for location id ${locationId}, station id ${stationId}, EVSE id ${evseId}, and connector id ${connectorId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses[0].connectors)}`,
+        );
       }
       const connector = ConnectorMapper.fromGraphql(
-        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]
-          ?.connectors?.[0],
+        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors?.[0],
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

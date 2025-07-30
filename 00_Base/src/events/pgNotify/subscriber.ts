@@ -7,18 +7,23 @@ import { Client } from 'pg';
 import { runner, RunnerOption } from 'node-pg-migrate';
 import path from 'path';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiConfig } from '../../config/ocpi.types';
+import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
+import { Inject, Service } from 'typedi';
 
 interface IPgNotification {
   operation: DtoEventType;
   data: any;
 }
 
+@Service()
 export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
   protected _pgClient: Client;
   protected readonly _logger: Logger<ILogObj>;
 
-  constructor(config: OcpiConfig, logger?: Logger<ILogObj>) {
+  constructor(
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    logger?: Logger<ILogObj>,
+  ) {
     this._logger = logger
       ? logger.getSubLogger({ name: this.constructor.name })
       : new Logger<ILogObj>({ name: this.constructor.name });

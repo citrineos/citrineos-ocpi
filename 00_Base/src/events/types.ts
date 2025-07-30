@@ -109,7 +109,7 @@ export interface IDtoModule {
 
   /**
    * Handles incoming Dto events
-   * 
+   *
    * @returns A promise that resolves when the event is handled.
    */
   handle(event: IDtoEvent<IDtoPayload>): Promise<void>;
@@ -123,7 +123,7 @@ export interface IDtoModule {
 
   /**
    * Shuts down the module
-   * 
+   *
    * @returns A promise that resolves when the module is shut down.
    */
   shutdown(): Promise<void>;
@@ -150,7 +150,6 @@ export interface IDtoEventSender {
    */
   shutdown(): Promise<void>;
 }
-
 export interface IDtoEventSubscriber {
   /**
    * Initializes the Dto event subscriber.

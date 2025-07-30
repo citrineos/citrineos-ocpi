@@ -68,9 +68,7 @@ export abstract class BaseTransactionMapper {
 
     for (const transaction of transactions) {
       if (transaction.authorization) {
-        const tokenDto = await TokensMapper.toDto(
-          transaction.authorization,
-        );
+        const tokenDto = await TokensMapper.toDto(transaction.authorization);
         if (tokenDto) {
           transactionIdToTokenMap.set(transaction.transactionId!, tokenDto);
         }

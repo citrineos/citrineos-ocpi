@@ -3,8 +3,7 @@ import { ModuleId } from '../model/ModuleId';
 import { CredentialsResponse } from '../model/CredentialsResponse';
 import { Service } from 'typedi';
 import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
-import { PartnerProfile } from '@citrineos/base/dist/interfaces/dto/json/ocpi.registration';
-import { OCPIRegistration } from '@citrineos/base';
+import { OCPIRegistration, PartnerProfile } from '@citrineos/base';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
 import { CredentialsDTO } from '..';
 

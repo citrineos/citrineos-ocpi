@@ -14,6 +14,7 @@ import {
   IDtoPayload,
 } from './types';
 import { SystemConfig } from '@citrineos/base';
+import { OcpiConfig } from '../config/ocpi.types';
 
 /**
  * Abstract class implementing {@link IDtoEventReceiver}.
@@ -83,7 +84,7 @@ export abstract class AbstractDtoEventSender implements IDtoEventSender {
   /**
    * Fields
    */
-  protected _config: SystemConfig;
+  protected _config: OcpiConfig;
   protected _logger: Logger<ILogObj>;
 
   /**
@@ -92,7 +93,7 @@ export abstract class AbstractDtoEventSender implements IDtoEventSender {
    * @param config The system configuration.
    * @param logger [Optional] The logger to use.
    */
-  constructor(config: SystemConfig, logger?: Logger<ILogObj>) {
+  constructor(config: OcpiConfig, logger?: Logger<ILogObj>) {
     this._config = config;
     this._logger = logger
       ? logger.getSubLogger({ name: this.constructor.name })

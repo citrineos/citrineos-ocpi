@@ -3,9 +3,8 @@ import { Service } from 'typedi';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
-import { PartnerProfile } from '@citrineos/base/dist/interfaces/dto/json/ocpi.registration';
+import { OCPIRegistration, PartnerProfile } from '@citrineos/base';
 import { VersionsInterface } from '../model/EndpointIdentifier';
-import { OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class VersionsClientApi extends BaseClientApi {
@@ -41,7 +40,7 @@ export class VersionsClientApi extends BaseClientApi {
         VersionListResponseDTO,
         partnerProfile,
         false,
-        url
+        url,
       );
     } catch (e: any) {
       throw new UnsuccessfulRequestException(

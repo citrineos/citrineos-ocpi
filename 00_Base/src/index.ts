@@ -15,7 +15,7 @@ import {
   OcpiConfigToken,
   SystemConfigToken,
 } from './config/ocpi.types';
-import { IDtoModule, PgNotifyEventSubscriber } from './events';
+import { IDtoModule } from './events';
 import { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 
 export { plainToClass } from './util/Util';
@@ -219,6 +219,7 @@ useContainer(Container);
 
 export { Container } from 'typedi';
 export { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
+export { getDtoEventHandlerMetaData } from './events/AsDtoEventHandler';
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
@@ -226,9 +227,12 @@ export class OcpiServer extends KoaServer {
   private readonly systemConfig: SystemConfig;
   private readonly cache: ICache;
   private readonly logger: Logger<ILogObj>;
-  private modules: (OcpiModule | IDtoModule)[] = [];
+  private _modules: (OcpiModule | IDtoModule)[] = [];
+  get modules(): (OcpiModule | IDtoModule)[] {
+    return this._modules;
+  }
+
   private moduleList: Constructable<OcpiModule | IDtoModule>[] = [];
-  private pgNotifyEventSubscriber: PgNotifyEventSubscriber;
 
   constructor(
     ocpiConfig: OcpiConfig,
@@ -244,7 +248,6 @@ export class OcpiServer extends KoaServer {
     this.logger = logger;
     this.moduleList = moduleList;
     this.initContainer();
-    this.pgNotifyEventSubscriber = new PgNotifyEventSubscriber(this.ocpiConfig);
   }
 
   public async initialize() {
@@ -255,7 +258,7 @@ export class OcpiServer extends KoaServer {
         if (constructedModule.init) {
           await constructedModule.init();
         }
-        this.modules.push(constructedModule);
+        this._modules.push(constructedModule);
       }
     }
     this.initKoaServer();
@@ -264,7 +267,7 @@ export class OcpiServer extends KoaServer {
   private initKoaServer() {
     try {
       this.koa = new Koa();
-      const controllers = this.modules.map((module) =>
+      const controllers = this._modules.map((module) =>
         (module as OcpiModule).getController(),
       );
       const options: RoutingControllersOptions = {
@@ -301,7 +304,6 @@ export class OcpiServer extends KoaServer {
     Container.set(SystemConfigToken, this.systemConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
-    Container.set(PgNotifyEventSubscriber, this.pgNotifyEventSubscriber);
     this.onContainerInitialized();
   }
 
