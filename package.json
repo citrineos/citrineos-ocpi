@@ -44,7 +44,10 @@
     "lint-fix": "npm run prettier && npx eslint --fix ./",
     "prettier": "prettier --write .",
     "fi": "npm run fresh && npm run install-all",
-    "generate": "graphql-codegen"
+    "generate": "graphql-codegen",
+    "migrate:rename": "find dist/migrations -name '*.js' -exec bash -c 'mv \"$0\" \"${0%.js}.cjs\"' {} \\;",
+    "migrate:build": "tsc --project migrations/tsconfig.json && npm run migrate:rename",
+    "migrate": "npm run migrate:build && npx sequelize-cli db:migrate && echo migration completed successfully"
   },
   "workspaces": [
     "./00_Base",

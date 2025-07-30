@@ -49,6 +49,7 @@
     "pg": "8.11.3",
     "reflect-metadata": "0.1.13",
     "routing-controllers": "0.10.4",
+    "sequelize": "^6.37.7",
     "tslog": "4.9.2",
     "typed-rest-client": "2.0.2",
     "typedi": "0.10.0",

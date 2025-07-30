@@ -1,0 +1,17 @@
+{
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "outDir": "../dist/migrations",
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "sourceMap": true
+  }
+}
