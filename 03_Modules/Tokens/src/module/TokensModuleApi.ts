@@ -5,7 +5,6 @@
 
 import {
   BadRequestError,
-  Body,
   Delete,
   Get,
   JsonController,
@@ -22,15 +21,15 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   AsyncJobAction,
-  AsyncJobRequest,
   AsyncJobStatusResponse,
   BaseController,
+  Body,
   BodyWithExample,
   buildOcpiEmptyResponse,
   buildOcpiResponse,
   EnumQueryParam,
   FunctionalEndpointParams,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   InvalidParamException,
   ModuleId,
   OcpiEmptyResponse,
@@ -41,12 +40,15 @@ import {
   ResponseSchema,
   SingleTokenRequest,
   TokenDTO,
+  TokenDTOSchema,
+  TokenDTOSchemaName,
   TokenResponse,
   TokenResponseSchema,
   TokenResponseSchemaName,
   TokensAdminService,
   TokensService,
   TokenType,
+  TokenTypeSchemaName,
   UnknownTokenException,
   versionIdParam,
   VersionNumber,
@@ -55,6 +57,7 @@ import {
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './ITokensModuleApi';
+import { TokenTypeSchema } from '@citrineos/ocpi-base/dist/model/TokenType';
 
 const MockPutTokenBody = {
   country_code: 'MSP',
@@ -95,7 +98,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(
+      success: generateMockForSchema(
         TokenResponseSchema,
         TokenResponseSchemaName,
       ),
@@ -107,7 +110,8 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @EnumQueryParam('type', TokenType, 'type') type?: TokenType,
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
   ): Promise<TokenResponse | OcpiEmptyResponse> {
     console.log('getTokens', countryCode, partyId, tokenId, type);
     if (
@@ -140,7 +144,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(
+      success: generateMockForSchema(
         OcpiEmptyResponseSchema,
         OcpiEmptyResponseSchemaName,
       ),
@@ -152,8 +156,9 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @BodyWithExample(MockPutTokenBody) tokenDTO: TokenDTO,
-    @EnumQueryParam('type', TokenType, 'type') type?: TokenType,
+    @BodyWithExample(TokenDTOSchema, TokenTypeSchemaName) tokenDTO: TokenDTO, // tood use everywhere or in default?
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('putToken', countryCode, partyId, tokenId, tokenDTO, type);
     if (
@@ -180,7 +185,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(
+      success: generateMockForSchema(
         OcpiEmptyResponseSchema,
         OcpiEmptyResponseSchemaName,
       ),
@@ -192,8 +197,9 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenUid') tokenUid: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @Body() token: Partial<TokenDTO>,
-    @EnumQueryParam('type', TokenType, 'type') type?: TokenType,
+    @Body(TokenDTOSchema, TokenDTOSchemaName) token: Partial<TokenDTO>,
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('patchToken', countryCode, partyId, tokenUid, token, type);
     if (
@@ -219,15 +225,15 @@ export class TokensModuleApi
   /**
    * Admin Endpoints
    **/
-  @Post('/fetch')
-  async fetchTokens(
-    @VersionNumberParam() version: VersionNumber,
-    @Body() asyncJobRequest: AsyncJobRequest,
-  ): Promise<AsyncJobStatusResponse> {
-    const jobStatus =
-      await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
-    return jobStatus;
-  }
+  // @Post('/fetch')
+  // async fetchTokens(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Body(AsyncJobRequestSchema) asyncJobRequest: AsyncJobRequest,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   const jobStatus =
+  //     await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
+  //   return jobStatus;
+  // }
 
   @Post('/fetch/:jobId/:action')
   async fetchTokensAction(

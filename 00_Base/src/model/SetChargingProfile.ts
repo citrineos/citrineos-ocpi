@@ -5,5 +5,6 @@ export const SetChargingProfileSchema = z.object({
   charging_profile: ChargingProfileSchema,
   response_url: z.string().url(),
 });
+export const SetChargingProfileSchemaName = 'SetChargingProfile';
 
 export type SetChargingProfile = z.infer<typeof SetChargingProfileSchema>;

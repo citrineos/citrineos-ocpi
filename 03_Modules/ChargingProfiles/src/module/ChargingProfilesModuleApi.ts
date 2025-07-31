@@ -6,7 +6,6 @@
 import { IChargingProfilesModuleApi } from './IChargingProfilesModuleApi';
 
 import {
-  Body,
   Delete,
   Get,
   JsonController,
@@ -19,14 +18,17 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  Body,
   ChargingProfileResponse,
   ChargingProfileResponseSchema,
   ChargingProfileResponseSchemaName,
   ChargingProfilesService,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   ModuleId,
   ResponseSchema,
   SetChargingProfile,
+  SetChargingProfileSchema,
+  SetChargingProfileSchemaName,
   versionIdParam,
 } from '@citrineos/ocpi-base';
 
@@ -51,7 +53,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockOcpiResponse(
+        success: generateMockForSchema(
           ChargingProfileResponseSchema,
           ChargingProfileResponseSchemaName,
         ),
@@ -79,7 +81,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockOcpiResponse(
+        success: generateMockForSchema(
           ChargingProfileResponseSchema,
           ChargingProfileResponseSchemaName,
         ),
@@ -102,7 +104,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockOcpiResponse(
+        success: generateMockForSchema(
           ChargingProfileResponseSchema,
           ChargingProfileResponseSchemaName,
         ),
@@ -111,7 +113,8 @@ export class ChargingProfilesModuleApi
   )
   async updateChargingProfile(
     @Param('sessionId') sessionId: string,
-    @Body() payload: SetChargingProfile,
+    @Body(SetChargingProfileSchema, SetChargingProfileSchemaName)
+    payload: SetChargingProfile,
   ): Promise<ChargingProfileResponse> {
     return this.service.putChargingProfile(sessionId, payload);
   }

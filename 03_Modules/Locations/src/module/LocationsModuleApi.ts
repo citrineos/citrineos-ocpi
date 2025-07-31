@@ -16,8 +16,8 @@ import {
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
   FunctionalEndpointParams,
+  generateMockForSchema,
   generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
   LocationResponse,
   LocationResponseSchema,
   LocationResponseSchemaName,
@@ -43,15 +43,15 @@ const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_LOCATION = generateMockOcpiResponse(
+const MOCK_LOCATION = generateMockForSchema(
   LocationResponseSchema,
   LocationResponseSchemaName,
 );
-const MOCK_EVSE = generateMockOcpiResponse(
+const MOCK_EVSE = generateMockForSchema(
   EvseResponseSchema,
   EvseResponseSchemaName,
 );
-const MOCK_CONNECTOR = generateMockOcpiResponse(
+const MOCK_CONNECTOR = generateMockForSchema(
   ConnectorResponseSchema,
   ConnectorResponseSchemaName,
 );

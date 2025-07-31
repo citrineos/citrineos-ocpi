@@ -20,7 +20,7 @@ import {
   CommandType,
   EnumParam,
   FunctionalEndpointParams,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   ModuleId,
   MultipleTypes,
   OcpiCommandResponse,
@@ -63,7 +63,7 @@ export class CommandsModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(
+      success: generateMockForSchema(
         CommandResponseSchema,
         CommandResponseSchemaName,
       ),
@@ -72,7 +72,7 @@ export class CommandsModuleApi
   async postCommand(
     @EnumParam('commandType', CommandType, 'CommandType')
     commandType: CommandType,
-    @Body()
+    @Body() // todo use new @Body from ocpi-base
     @MultipleTypes(
       { schema: CancelReservationSchema, name: CancelReservationSchemaName },
       { schema: ReserveNowSchema, name: ReserveNowSchemaName },

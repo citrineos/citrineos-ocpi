@@ -8,6 +8,9 @@ export const AdminCredentialsRequestDTOSchema = z.object({
   mspCountryCode: z.nativeEnum(CountryCode),
   mspPartyId: z.string(),
 });
+export const AdminCredentialsRequestDTOSchemaName =
+  'AdminCredentialsRequestDTO';
+
 export type AdminCredentialsRequestDTO = z.infer<
   typeof AdminCredentialsRequestDTOSchema
 >;

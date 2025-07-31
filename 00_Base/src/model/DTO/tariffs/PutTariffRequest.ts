@@ -20,5 +20,6 @@ export const PutTariffRequestSchema = z.object({
   start_date_time: z.coerce.date().nullable().optional(),
   end_date_time: z.coerce.date().nullable().optional(),
 });
+export const PutTariffRequestSchemaName = 'PutTariffRequest';
 
 export type PutTariffRequest = z.infer<typeof PutTariffRequestSchema>;

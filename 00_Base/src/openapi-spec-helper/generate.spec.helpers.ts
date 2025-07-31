@@ -18,6 +18,7 @@ import { Constructable } from 'typedi';
 import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
 import { ContentType } from '../util/ContentType';
 import { ZodTypeAny } from 'zod';
+import { BODY_PARAM } from '../util/decorators/Body';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -131,7 +132,10 @@ function getParamSchema(
     method,
   )[index];
 
+  console.log('getParamSchema', explicitType, index, object, method);
+
   if (typeof type === 'function' && type.name === 'Array') {
+    console.log('returning array');
     const items = explicitType
       ? { $ref: '#/components/schemas/' + explicitType.name }
       : { type: 'object' as const };
@@ -145,12 +149,16 @@ function getParamSchema(
       type.prototype === String.prototype ||
       type.prototype === Symbol.prototype
     ) {
+      console.log('returning string');
       return { type: 'string' };
     } else if (type.prototype === Number.prototype) {
+      console.log('returning number');
       return { type: 'number' };
     } else if (type.prototype === Boolean.prototype) {
+      console.log('returning boolean');
       return { type: 'boolean' };
     } else if (type.name === 'Object') {
+      console.log('returning object');
       // try and see if @MultipleTypes is used
       const types = Reflect.getMetadata(
         MULTIPLE_TYPES,
@@ -160,11 +168,13 @@ function getParamSchema(
       if (types) {
         return {
           oneOf: types.map((tipe: { name: string; schema: ZodTypeAny }) => {
+            console.log('adding', tipe.name);
             SchemaStore.addToSchemaStore(tipe.schema, tipe.name);
             return { $ref: '#/components/schemas/' + tipe.name };
           }),
         };
       } else {
+        console.log('again here returning empty object');
         return {};
       }
     } else {
@@ -174,6 +184,7 @@ function getParamSchema(
     }
   }
 
+  console.log('returning empty object');
   return {};
 }
 
@@ -211,7 +222,12 @@ export function getHeaderParams(route: IRoute): oa.ParameterObject[] {
  * Return OpenAPI requestBody of given route, if it has one.
  */
 export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
-  const bodyParamMetas = route.params.filter((d) => d.type === 'body-param');
+  console.log('getRequestBody', route);
+  /*const bodyParamMetas = route.params.filter((d) => {
+    console.log('route.param', d);
+    return d.type === 'body';
+  });
+  console.log('bodyParamMetas', bodyParamMetas);
   const bodyParamsSchema: oa.SchemaObject | null =
     bodyParamMetas.length > 0
       ? bodyParamMetas.reduce(
@@ -227,42 +243,73 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
           }),
           { properties: {}, required: [], type: 'object' },
         )
-      : null;
+      : null;*/
 
   const bodyMeta = route.params.find((d) => d.type === 'body');
 
+  if (!bodyMeta) {
+    return undefined;
+  }
+
+  const content: any = {
+    [ContentType.JSON]: {},
+    required: isRequired(bodyMeta, route),
+  };
+
+  const example = Reflect.getMetadata(
+    BODY_WITH_EXAMPLE_PARAM,
+    bodyMeta.object,
+    bodyMeta.method,
+  );
+
+  if (example) {
+    content[ContentType.JSON]['example'] = example;
+  }
+
+  // return {
+  //   content,
+  //
+  // };
+
+  console.log('bodyMeta', bodyMeta);
   if (bodyMeta) {
-    const bodySchema = getParamSchema(bodyMeta);
-    // const ref =
-    //   'items' in bodySchema && bodySchema.items ? bodySchema.items : bodySchema;
-    // const $ref = { $ref: ref };
-
-    const content: any = {
-      [ContentType.JSON]: {
-        schema: bodyParamsSchema
-          ? { allOf: [bodySchema, bodyParamsSchema] }
-          : bodySchema,
-      },
-    };
-
-    const example = Reflect.getMetadata(
-      BODY_WITH_EXAMPLE_PARAM,
+    const bodyParam = Reflect.getMetadata(
+      BODY_PARAM,
       bodyMeta.object,
-      bodyMeta.method,
+      `${bodyMeta.method}.${bodyMeta.index}`,
     );
-
-    if (example) {
-      content[ContentType.JSON]['example'] = example;
+    if (!bodyParam) {
+      return undefined;
     }
-
+    const { schema, name: schemaName } = bodyParam;
+    SchemaStore.addToSchemaStore(schema, schemaName);
+    console.log('got schemaName', schemaName);
+    if (schema && schemaName) {
+      content[ContentType.JSON].schema = {
+        $ref: `${refPointerPrefix}${schemaName}`,
+      };
+    }
+    // const bodySchema = getParamSchema(bodyMeta);
+    // // const ref =
+    // //   'items' in bodySchema && bodySchema.items ? bodySchema.items : bodySchema;
+    // // const $ref = { $ref: ref };
+    //
+    // const content: any = {
+    //   [ContentType.JSON]: {
+    //     schema: bodyParamsSchema
+    //       ? { allOf: [bodySchema, bodyParamsSchema] }
+    //       : bodySchema,
+    //   },
+    // };
     return {
       content,
-      required: isRequired(bodyMeta, route),
     };
-  } else if (bodyParamsSchema) {
-    return {
-      content: { [ContentType.JSON]: { schema: bodyParamsSchema } },
-    };
+  } else {
+    return undefined;
+    // } else if (bodyParamsSchema) {
+    // return {
+    //   content: { [ContentType.JSON]: { schema: bodyParamsSchema } },
+    // };
   }
 }
 
@@ -347,18 +394,25 @@ export function getQueryParams(
     .filter((p) => p.type === 'query')
     .map((queryMeta) => {
       const schema = getParamSchema(queryMeta) as oa.SchemaObject;
-      const enumName = Reflect.getMetadata(
+      const enumQueryParam: {
+        name: string;
+        schema: ZodTypeAny;
+      } = Reflect.getMetadata(
         ENUM_QUERY_PARAM,
         queryMeta.object,
         `${queryMeta.method}.${queryMeta.name}`,
       );
-      if (enumName) {
+      if (enumQueryParam) {
+        SchemaStore.addToSchemaStore(
+          enumQueryParam.schema,
+          enumQueryParam.name,
+        );
         return {
           in: 'query' as oa.ParameterLocation,
           name: queryMeta.name || '',
           required: isRequired(queryMeta, route),
           schema: {
-            $ref: `${refPointerPrefix}${enumName}`,
+            $ref: `${refPointerPrefix}${enumQueryParam.name}`,
           },
         };
       } else {

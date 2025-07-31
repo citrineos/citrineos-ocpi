@@ -6,5 +6,6 @@ export const CredentialsDTOSchema = z.object({
   url: z.string().url(),
   roles: z.array(CredentialsRoleDTOSchema).min(1),
 });
+export const CredentialsDTOSchemaName = 'CredentialsDTO';
 
 export type CredentialsDTO = z.infer<typeof CredentialsDTOSchema>;

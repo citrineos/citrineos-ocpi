@@ -5,25 +5,19 @@
 
 import { ITariffsModuleApi } from './ITariffsModuleApi';
 
-import {
-  Body,
-  Delete,
-  Get,
-  JsonController,
-  Param,
-  Put,
-} from 'routing-controllers';
+import { Delete, Get, JsonController, Param, Put } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  Body,
   buildOcpiEmptyResponse,
   buildOcpiErrorResponse,
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   FunctionalEndpointParams,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   ModuleId,
   OcpiEmptyResponse,
   OcpiErrorResponse,
@@ -35,6 +29,8 @@ import {
   PaginatedTariffResponseSchema,
   PaginatedTariffResponseSchemaName,
   PutTariffRequest,
+  PutTariffRequestSchema,
+  PutTariffRequestSchemaName,
   ResponseSchema,
   TariffDTO,
   TariffsService,
@@ -67,7 +63,7 @@ export class TariffsModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockOcpiResponse(
+        success: generateMockForSchema(
           PaginatedTariffResponseSchema,
           PaginatedTariffResponseSchemaName,
         ),
@@ -124,7 +120,10 @@ export class TariffsModuleApi
    */
 
   @Put()
-  async updateTariff(@Body() tariffDto: PutTariffRequest): Promise<TariffDTO> {
+  async updateTariff(
+    @Body(PutTariffRequestSchema, PutTariffRequestSchemaName)
+    tariffDto: PutTariffRequest,
+  ): Promise<TariffDTO> {
     return await this.tariffService.createOrUpdateTariff(tariffDto);
   }
 

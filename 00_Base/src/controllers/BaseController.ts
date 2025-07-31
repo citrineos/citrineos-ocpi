@@ -4,20 +4,24 @@ import { PaginatedCdrResponse } from '../model/Cdr';
 import { PaginatedParams } from './param/PaginatedParams';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { zodToJsonSchema } from 'zod-to-json-schema';
+import { ZodTypeAny } from 'zod';
 
-export const generateMockOcpiResponse = (model: any, name: string): any => {
+export const generateMockForSchema = (
+  schema: ZodTypeAny,
+  name: string,
+): any => {
   (JSONSchemaFaker.format as any)('url', (url: any) => url);
   JSONSchemaFaker.option({
     useExamplesValue: true,
     useDefaultValue: true,
   });
 
-  const schema: any = zodToJsonSchema(model, name);
-  (schema as any).components = {
+  const jsonSchema: any = zodToJsonSchema(schema, name);
+  (jsonSchema as any).components = {
     schemas: getAllSchemas(),
   };
   try {
-    return JSONSchemaFaker.generate(schema);
+    return JSONSchemaFaker.generate(jsonSchema);
   } catch (err) {
     console.log('err', err);
     return null;
@@ -29,10 +33,7 @@ export const generateMockOcpiPaginatedResponse = (
   name: string,
   paginationParams?: PaginatedParams,
 ): any => {
-  const response = generateMockOcpiResponse(
-    schema,
-    name,
-  ) as PaginatedCdrResponse;
+  const response = generateMockForSchema(schema, name) as PaginatedCdrResponse;
   response.limit = paginationParams?.limit || DEFAULT_LIMIT;
   response.offset = paginationParams?.offset || DEFAULT_OFFSET;
   response.total = 50; // todo for now but will be set
@@ -41,7 +42,7 @@ export const generateMockOcpiPaginatedResponse = (
 
 export class BaseController {
   generateMockOcpiResponse = (model: any, name: string): any =>
-    generateMockOcpiResponse(model, name);
+    generateMockForSchema(model, name);
   generateMockOcpiPaginatedResponse = (
     model: any,
     name: string,

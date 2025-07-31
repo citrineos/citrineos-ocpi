@@ -18,6 +18,7 @@ import {
 import { IDtoModule } from './events';
 import { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 
+export { Body } from './util/decorators/Body';
 export { plainToClass } from './util/Util';
 export {
   OcpiErrorResponse,
@@ -35,7 +36,11 @@ export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/PaginatedOcpiParams';
 export { OcpiParams } from './trigger/util/OcpiParams';
-export { ChargingPreferences } from './model/ChargingPreferences';
+export {
+  ChargingPreferences,
+  ChargingPreferencesSchema,
+  ChargingPreferencesSchemaName,
+} from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/PaginatedParams';
 export { Paginated } from './util/decorators/Paginated';
 export {
@@ -59,8 +64,16 @@ export { AlreadyRegisteredException } from './exception/AlreadyRegisteredExcepti
 export { NotRegisteredException } from './exception/NotRegisteredException';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
 // export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
-export { CredentialsDTO } from './model/DTO/CredentialsDTO';
-export { AdminCredentialsRequestDTO } from './model/DTO/AdminCredentialsRequestDTO';
+export {
+  CredentialsDTO,
+  CredentialsDTOSchema,
+  CredentialsDTOSchemaName,
+} from './model/DTO/CredentialsDTO';
+export {
+  AdminCredentialsRequestDTO,
+  AdminCredentialsRequestDTOSchema,
+  AdminCredentialsRequestDTOSchemaName,
+} from './model/DTO/AdminCredentialsRequestDTO';
 export {
   SingleTokenRequest,
   SingleTokenRequestSchema,
@@ -69,7 +82,9 @@ export {
   TokenResponse,
   TokenResponseSchema,
   TokenResponseSchemaName,
+  TokenDTOSchemaName,
 } from './model/DTO/TokenDTO';
+
 export { OcpiConfig, OcpiConfigInput } from './config/ocpi.types';
 export { defineOcpiConfig } from './config/defineOcpiConfig';
 export { getOcpiSystemConfig } from './config/loader';
@@ -83,7 +98,7 @@ export { ChargingProfileResponse } from './model/ChargingProfileResponse';
 export { ChargingProfileResult } from './model/ChargingProfileResult';
 export { ChargingProfileResultType } from './model/ChargingProfileResult';
 export {
-  generateMockOcpiResponse,
+  generateMockForSchema,
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/BaseController';
@@ -103,7 +118,11 @@ export {
   ReserveNowSchema,
   ReserveNowSchemaName,
 } from './model/ReserveNow';
-export { SetChargingProfile } from './model/SetChargingProfile';
+export {
+  SetChargingProfile,
+  SetChargingProfileSchema,
+  SetChargingProfileSchemaName,
+} from './model/SetChargingProfile';
 export {
   StartSession,
   StartSessionSchema,
@@ -141,7 +160,11 @@ export {
   VersionListResponseDTOSchema,
   VersionListResponseDTOSchemaName,
 } from './model/DTO/VersionListResponseDTO';
-export { TokenType } from './model/TokenType';
+export {
+  TokenType,
+  TokenTypeSchema,
+  TokenTypeSchemaName,
+} from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
@@ -259,7 +282,11 @@ export {
   PaginatedTariffResponseSchemaName,
 } from './model/DTO/tariffs/TariffDTO';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
-export { PutTariffRequest } from './model/DTO/tariffs/PutTariffRequest';
+export {
+  PutTariffRequest,
+  PutTariffRequestSchema,
+  PutTariffRequestSchemaName,
+} from './model/DTO/tariffs/PutTariffRequest';
 export {
   AdminLocationDTO,
   AdminEvseDTO,
@@ -277,7 +304,11 @@ export {
   ConnectorVariableAttributes,
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
-export { UnregisterClientRequestDTO } from './model/UnregisterClientRequestDTO';
+export {
+  UnregisterClientRequestDTOSchema,
+  UnregisterClientRequestDTO,
+  UnregisterClientRequestDTOSchemaName,
+} from './model/UnregisterClientRequestDTO';
 export * from './events';
 
 useContainer(Container);

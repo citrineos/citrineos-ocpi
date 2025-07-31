@@ -20,7 +20,10 @@ export const SchemaStore = {
 
   addToSchemaStore(schema: ZodTypeAny, name: string) {
     if (!this.getSchema(name)) {
-      this.addSchema(name, zodToJsonSchema(schema, name));
+      this.addSchema(
+        name,
+        (zodToJsonSchema(schema, name) as any).definitions[name],
+      );
     }
   },
 };

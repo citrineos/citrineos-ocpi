@@ -5,18 +5,21 @@
 
 import { ISessionsModuleApi } from './ISessionsModuleApi';
 
-import { Body, Get, JsonController, Param, Put } from 'routing-controllers';
+import { Get, JsonController, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  Body,
   ChargingPreferences,
   ChargingPreferencesResponse,
   ChargingPreferencesResponseSchema,
   ChargingPreferencesResponseSchemaName,
+  ChargingPreferencesSchema,
+  ChargingPreferencesSchemaName,
   FunctionalEndpointParams,
+  generateMockForSchema,
   generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
   ModuleId,
   OcpiHeaders,
   Paginated,
@@ -38,7 +41,7 @@ const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
   PaginatedSessionResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
+const MOCK_CHARGING_PREFERENCES = generateMockForSchema(
   ChargingPreferencesResponseSchema,
   ChargingPreferencesResponseSchemaName,
 );
@@ -98,7 +101,8 @@ export class SessionsModuleApi
   )
   async updateChargingPreferences(
     @Param('sessionId') sessionId: string,
-    @Body() body: ChargingPreferences,
+    @Body(ChargingPreferencesSchema, ChargingPreferencesSchemaName)
+    body: ChargingPreferences,
   ): Promise<ChargingPreferencesResponse> {
     console.log('updateChargingPreferences', sessionId, body);
     return MOCK_CHARGING_PREFERENCES;

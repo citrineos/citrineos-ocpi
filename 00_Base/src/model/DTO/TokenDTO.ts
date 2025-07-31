@@ -21,6 +21,7 @@ export const TokenDTOSchema = z.object({
   energy_contract: TokenEnergyContractSchema.nullable().optional(),
   last_updated: z.coerce.date(),
 });
+export const TokenDTOSchemaName = 'TokenDTOSchema';
 
 export type TokenDTO = z.infer<typeof TokenDTOSchema>;
 
