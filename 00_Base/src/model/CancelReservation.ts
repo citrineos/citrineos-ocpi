@@ -1,9 +1,8 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { ResponseUrl } from './ResponseUrl';
+import { z } from 'zod';
+import { ResponseUrlSchema } from './ResponseUrl';
 
-export class CancelReservation extends ResponseUrl {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  reservation_id!: string;
-}
+export const CancelReservationSchema = ResponseUrlSchema.extend({
+  reservation_id: z.string().max(36),
+});
+
+export type CancelReservation = z.infer<typeof CancelReservationSchema>;

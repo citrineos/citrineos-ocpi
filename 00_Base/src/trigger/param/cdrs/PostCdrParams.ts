@@ -1,17 +1,8 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Cdr } from '../../../model/Cdr';
+import { z } from 'zod';
+import { CdrSchema } from '../../../model/Cdr';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class PostCdrParams extends OcpiParams {
-  @IsNotEmpty()
-  @Type(() => Cdr)
-  @ValidateNested()
-  cdr!: Cdr;
-
-  static build(cdr: Cdr) {
-    const params = new PostCdrParams();
-    params.cdr = cdr;
-    return params;
-  }
-}
+export const PostCdrParamsSchema = OcpiParamsSchema.extend({
+  cdr: CdrSchema,
+});
+export type PostCdrParams = z.infer<typeof PostCdrParamsSchema>;

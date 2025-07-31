@@ -1,22 +1,11 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { ActiveChargingProfile } from './ActiveChargingProfile';
-import { Type } from 'class-transformer';
+import { z } from 'zod';
+import { ActiveChargingProfileSchema } from './ActiveChargingProfile';
 
-export class ChargingprofilesActive {
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  start_date_time!: Date;
+export const ChargingprofilesActiveSchema = z.object({
+  start_date_time: z.coerce.date(),
+  charging_profile: ActiveChargingProfileSchema,
+});
 
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => ActiveChargingProfile)
-  @ValidateNested()
-  charging_profile!: ActiveChargingProfile;
-}
+export type ChargingprofilesActive = z.infer<
+  typeof ChargingprofilesActiveSchema
+>;

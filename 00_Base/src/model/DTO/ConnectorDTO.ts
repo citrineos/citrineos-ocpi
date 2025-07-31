@@ -3,6 +3,7 @@ import { ConnectorType } from '../ConnectorType';
 import { ConnectorFormat } from '../ConnectorFormat';
 import { PowerType } from '../PowerType';
 import { OcpiResponseSchema } from '../OcpiResponse';
+import { uidDelimiter } from './EvseDTO';
 
 export const ConnectorDTOSchema = z.object({
   id: z.string().max(36),
@@ -24,3 +25,10 @@ export const ConnectorListResponseSchema =
 export type ConnectorDTO = z.infer<typeof ConnectorDTOSchema>;
 export type ConnectorResponse = z.infer<typeof ConnectorResponseSchema>;
 export type ConnectorListResponse = z.infer<typeof ConnectorListResponseSchema>;
+
+export const TEMPORARY_CONNECTOR_ID = (
+  stationId: string,
+  evseId: number,
+  connectorId: number,
+): string =>
+  `${stationId}${uidDelimiter}${evseId}${uidDelimiter}${connectorId}`;

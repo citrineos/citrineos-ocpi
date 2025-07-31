@@ -1,8 +1,7 @@
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { z } from 'zod';
 
-export class ResponseUrl {
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  response_url!: string;
-}
+export const ResponseUrlSchema = z.object({
+  response_url: z.string().url(),
+});
+
+export type ResponseUrl = z.infer<typeof ResponseUrlSchema>;

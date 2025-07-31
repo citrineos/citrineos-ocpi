@@ -54,8 +54,11 @@ export { CredentialsDTO } from './model/DTO/CredentialsDTO';
 export { AdminCredentialsRequestDTO } from './model/DTO/AdminCredentialsRequestDTO';
 export {
   SingleTokenRequest,
+  SingleTokenRequestSchema,
   TokenDTO,
+  TokenDTOSchema,
   TokenResponse,
+  TokenResponseSchema,
 } from './model/DTO/TokenDTO';
 export { OcpiConfig, OcpiConfigInput } from './config/ocpi.types';
 export { defineOcpiConfig } from './config/defineOcpiConfig';
@@ -94,7 +97,10 @@ export { TokenType } from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
-export { OcpiResponse, OcpiResponseStatusCode } from './model/OcpiResponse';
+export {
+  OcpiResponseSchema,
+  OcpiResponseStatusCode,
+} from './model/OcpiResponse';
 export { OcpiModule } from './model/OcpiModule';
 export { CommandResultType } from './model/CommandResult';
 export { EnumQueryParam } from './util/decorators/EnumQueryParam';
@@ -220,6 +226,7 @@ useContainer(Container);
 export { Container } from 'typedi';
 export { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 export { getDtoEventHandlerMetaData } from './events/AsDtoEventHandler';
+export { LocationsBroadcaster } from './broadcaster/LocationsBroadcaster';
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;

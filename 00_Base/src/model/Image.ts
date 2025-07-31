@@ -16,14 +16,14 @@ export const ImageSchema = z.object({
 export type Image = z.infer<typeof ImageSchema>;
 
 export const toImageDTO = (image: Image) => {
-  const imageDTO = new ImageDTO();
-  imageDTO.url = image.url;
-  imageDTO.thumbnail = image.thumbnail;
-  imageDTO.category = image.category;
-  imageDTO.type = image.type;
-  imageDTO.width = image.width;
-  imageDTO.height = image.height;
-  return imageDTO;
+  return {
+    url: image.url,
+    thumbnail: image.thumbnail,
+    category: image.category,
+    type: image.type,
+    width: image.width,
+    height: image.height,
+  };
 };
 
 export const fromImageDTO = (imageDTO: ImageDTO): Image => {

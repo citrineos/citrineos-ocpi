@@ -1,12 +1,10 @@
 import { z } from 'zod';
 import { VersionDetailsDTOSchema } from './VersionDetailsDTO';
+import { OcpiResponseSchema } from '../OcpiResponse';
 
-export const VersionDetailsResponseDTOSchema = z.object({
-  data: VersionDetailsDTOSchema,
-  status_code: z.number(),
-  status_message: z.string().optional(),
-  timestamp: z.coerce.date(),
-});
+export const VersionDetailsResponseDTOSchema = OcpiResponseSchema(
+  VersionDetailsDTOSchema,
+);
 
 export type VersionDetailsResponseDTO = z.infer<
   typeof VersionDetailsResponseDTOSchema

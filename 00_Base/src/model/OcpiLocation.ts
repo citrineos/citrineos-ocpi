@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const OcpiLocationSchema = z.object({
-  coreLocationId: z.number(),
+  coreLocationId: z.number().int(),
   publish: z.boolean(),
-  lastUpdated: z.date(),
+  lastUpdated: z.coerce.date(),
   partyId: z.string().length(3),
   countryCode: z.string().length(2),
   timeZone: z.string(),

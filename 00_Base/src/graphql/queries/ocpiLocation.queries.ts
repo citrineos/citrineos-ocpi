@@ -16,3 +16,46 @@ export const OCPI_LOCATION_EDIT_MUTATION = gql`
     }
   }
 `;
+
+export const OCPI_LOCATION_EDIT_BY_CORE_ID_MUTATION = gql`
+  mutation OcpiLocationEditByCoreId(
+    $coreLocationId: Int!
+    $object: OcpiLocations_set_input!
+  ) {
+    update_OcpiLocations(
+      where: { coreLocationId: { _eq: $coreLocationId } }
+      _set: $object
+    ) {
+      returning {
+        id
+        name
+        address
+        city
+        postalCode
+        state
+        country
+        coordinates
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const GET_OCPI_LOCATION_BY_CORE_ID_QUERY = gql`
+  query OcpiLocationByCoreId($coreLocationId: Int!) {
+    OcpiLocations(where: { coreLocationId: { _eq: $coreLocationId } }) {
+      id
+      name
+      address
+      city
+      postalCode
+      state
+      country
+      coordinates
+      createdAt
+      updatedAt
+      coreLocationId
+    }
+  }
+`;

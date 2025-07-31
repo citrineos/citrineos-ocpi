@@ -1,9 +1,6 @@
-import { Enum } from '../util/decorators/Enum';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
-import { Type } from 'class-transformer';
-import { DisplayText } from './DisplayText';
-import { OcpiResponse } from './OcpiResponse';
+import { DisplayTextSchema } from './DisplayText';
+import { OcpiResponseSchema } from './OcpiResponse';
+import { z } from 'zod';
 
 export enum CommandResultType {
   ACCEPTED = 'ACCEPTED',
@@ -17,20 +14,13 @@ export enum CommandResultType {
   UNKNOWN_RESERVATION = 'UNKNOWN_RESERVATION',
 }
 
-export class CommandResult {
-  @Enum(CommandResultType, 'CommandResultType')
-  @IsNotEmpty()
-  result!: CommandResultType;
+export const CommandResultSchema = z.object({
+  result: z.nativeEnum(CommandResultType),
+  message: DisplayTextSchema.optional(),
+});
 
-  @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested()
-  message?: DisplayText;
-}
+export type CommandResult = z.infer<typeof CommandResultSchema>;
 
-export class OcpiCommandResult extends OcpiResponse<CommandResult> {
-  @IsNotEmpty()
-  @Type(() => CommandResult)
-  @ValidateNested()
-  data!: CommandResult;
-}
+export const OcpiCommandResultSchema = OcpiResponseSchema(CommandResultSchema);
+
+export type OcpiCommandResult = z.infer<typeof OcpiCommandResultSchema>;

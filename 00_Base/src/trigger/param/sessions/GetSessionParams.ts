@@ -1,9 +1,8 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class GetSessionParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  sessionId!: string;
-}
+export const GetSessionParamsSchema = OcpiParamsSchema.extend({
+  sessionId: z.string().length(36),
+});
+
+export type GetSessionParams = z.infer<typeof GetSessionParamsSchema>;

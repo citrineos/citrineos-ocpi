@@ -25,6 +25,7 @@ import {
   SystemConfig,
 } from '@citrineos/base';
 import { Inject, Service } from 'typedi';
+import { LocationsBroadcaster } from '@citrineos/ocpi-base/dist/broadcaster/LocationsBroadcaster';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi';
 export { ILocationsModuleApi } from './module/ILocationsModuleApi';
@@ -34,7 +35,8 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
     @Inject(SystemConfigToken) systemConfig: SystemConfig,
-    logger?: Logger<ILogObj>,
+    readonly logger: Logger<ILogObj>,
+    readonly locationsBroadcaster: LocationsBroadcaster,
   ) {
     super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
   }
@@ -61,7 +63,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
     this._logger.info(`Handling Location Insert: ${JSON.stringify(event)}`);
-    // Inserts are Location PUT requests
+    await this.locationsBroadcaster.broadcastPutLocation(event.payload);
   }
 
   @AsDtoEventHandler(
@@ -73,7 +75,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     event: IDtoEvent<Partial<ILocationDto>>,
   ): Promise<void> {
     this._logger.info(`Handling Location Update: ${JSON.stringify(event)}`);
-    // Updates are Location PATCH requests
+    await this.locationsBroadcaster.broadcastPatchLocation(event.payload);
   }
 
   @AsDtoEventHandler(
@@ -88,6 +90,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
     );
     // Updates are Location/Evse PATCH requests
+    // await this.locationsBroadcaster.broadcastPatchEvse(event.payload); // todo
   }
 
   @AsDtoEventHandler(
@@ -99,6 +102,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     this._logger.info(`Handling EVSE Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse PUT requests
     // Requires pulling the ChargingStation data from GraphQL
+    await this.locationsBroadcaster.broadcastPutEvse(event.payload);
   }
 
   @AsDtoEventHandler(
@@ -109,6 +113,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
     this._logger.info(`Handling EVSE Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse PATCH requests
+    await this.locationsBroadcaster.broadcastPatchEvse(event.payload);
   }
 
   @AsDtoEventHandler(
@@ -119,6 +124,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
     this._logger.info(`Handling Connector Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse/Connector PUT requests
+    await this.locationsBroadcaster.broadcastPutConnector(event.payload);
   }
 
   @AsDtoEventHandler(
@@ -131,5 +137,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Connector Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse/Connector PATCH requests
+    await this.locationsBroadcaster.broadcastPatchConnector(event.payload);
   }
 }

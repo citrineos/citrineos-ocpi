@@ -1,22 +1,9 @@
-import {
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUrl,
-  ValidateNested,
-} from 'class-validator';
-import { ChargingProfile } from './ChargingProfile';
-import { Type } from 'class-transformer';
+import { z } from 'zod';
+import { ChargingProfileSchema } from './ChargingProfile';
 
-export class SetChargingProfile {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => ChargingProfile)
-  @ValidateNested()
-  charging_profile!: ChargingProfile;
+export const SetChargingProfileSchema = z.object({
+  charging_profile: ChargingProfileSchema,
+  response_url: z.string().url(),
+});
 
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  response_url!: string;
-}
+export type SetChargingProfile = z.infer<typeof SetChargingProfileSchema>;

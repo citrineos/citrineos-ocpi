@@ -11,13 +11,11 @@ export const BusinessDetailsSchema = z.object({
 export type BusinessDetails = z.infer<typeof BusinessDetailsSchema>;
 
 export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {
-  const businessDetailsDTO = new BusinessDetailsDTO();
-  businessDetailsDTO.name = businessDetails.name;
-  businessDetailsDTO.website = businessDetails.website;
-  if (businessDetails.logo) {
-    businessDetailsDTO.logo = toImageDTO(businessDetails.logo);
-  }
-  return businessDetailsDTO;
+  return {
+    name: businessDetails.name,
+    website: businessDetails.website,
+    logo: businessDetails.logo ? toImageDTO(businessDetails.logo) : undefined,
+  };
 };
 
 export const fromBusinessDetailsDTO = (

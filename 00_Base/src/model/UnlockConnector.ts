@@ -1,19 +1,10 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { ResponseUrl } from './ResponseUrl';
+import { z } from 'zod';
+import { ResponseUrlSchema } from './ResponseUrl';
 
-export class UnlockConnector extends ResponseUrl {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  location_id!: string;
+export const UnlockConnectorSchema = ResponseUrlSchema.extend({
+  location_id: z.string().max(36).min(1),
+  evse_uid: z.string().max(36).min(1),
+  connector_id: z.string().max(36).min(1),
+});
 
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  evse_uid!: string;
-
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  connector_id!: string;
-}
+export type UnlockConnector = z.infer<typeof UnlockConnectorSchema>;

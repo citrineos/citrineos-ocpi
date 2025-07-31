@@ -6,30 +6,26 @@
 import { Service } from 'typedi';
 import { OcpiLogger } from '../util/OcpiLogger';
 import { TokensClientApi } from '../trigger/TokensClientApi';
-import { buildPaginatedOcpiParams } from '../trigger/param/PaginatedOcpiParams';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
 import { CredentialsService } from './CredentialsService';
-import {
-  ClientInformation,
-  ClientInformationProps,
-} from '../model/ClientInformation';
+import { ClientInformation } from '../model/ClientInformation';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { UPDATE_TOKEN_MUTATION } from '../graphql/queries/token.queries';
 import {
   CREATE_ASYNC_JOB_STATUS_MUTATION,
-  UPDATE_ASYNC_JOB_STATUS_MUTATION,
+  DELETE_ASYNC_JOB_STATUS_MUTATION,
   GET_ASYNC_JOB_STATUS_QUERY,
   GET_ASYNC_JOB_STATUSES_QUERY,
-  DELETE_ASYNC_JOB_STATUS_MUTATION,
+  UPDATE_ASYNC_JOB_STATUS_MUTATION,
 } from '../graphql/queries/asyncJob.queries';
-import { TokenDTO } from '../model/DTO/TokenDTO';
+import { PaginatedTokenResponse, TokenDTO } from '../model/DTO/TokenDTO';
 
 // Import AsyncJob types from local definitions
 import {
+  AsyncJobName,
   AsyncJobRequest,
   AsyncJobStatusResponse,
-  AsyncJobName,
 } from '../types/asyncJob.types';
 import { buildPaginatedParams } from '../trigger/param/PaginatedParams';
 
@@ -106,7 +102,7 @@ export class TokensAdminService {
       let finished = false;
 
       do {
-        const response = await this.client.getTokens(
+        const response: PaginatedTokenResponse = await this.client.getTokens(
           asyncJobStatus.tenantPartner!.tenant!.countryCode!,
           asyncJobStatus.tenantPartner!.tenant!.partyId!,
           asyncJobStatus.tenantPartner!.countryCode!,
@@ -117,7 +113,7 @@ export class TokensAdminService {
         if (
           response.status_code === OcpiResponseStatusCode.GenericSuccessCode
         ) {
-          await this.updateTokens(response.data);
+          await this.updateTokens([response?.data as any]);
 
           const updateResult: any = await this.ocpiGraphqlClient.request(
             UPDATE_ASYNC_JOB_STATUS_MUTATION,

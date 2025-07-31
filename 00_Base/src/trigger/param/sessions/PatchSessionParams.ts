@@ -1,19 +1,10 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { Session } from '../../../model/Session';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { SessionSchema } from '../../../model/Session';
 
-export class PatchSessionParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  sessionId!: string;
+export const PatchSessionParamsSchema = OcpiParamsSchema.extend({
+  sessionId: z.string().length(36),
+  requestBody: SessionSchema.partial(),
+});
 
-  requestBody!: Partial<Session>;
-
-  static build(sessionId: string, requestBody: Partial<Session>) {
-    const params = new PatchSessionParams();
-    params.sessionId = sessionId;
-    params.requestBody = requestBody;
-    return params;
-  }
-}
+export type PatchSessionParams = z.infer<typeof PatchSessionParamsSchema>;

@@ -1,7 +1,9 @@
 import { Service } from 'typedi';
 // import { CommandExecutor } from '../util/CommandExecutor';
-import { OcpiResponse } from '../model/OcpiResponse';
-import { ChargingProfileResponse, ChargingProfileResultType } from '../model/ChargingProfileResponse';
+import {
+  ChargingProfileResponse,
+  ChargingProfileResultType,
+} from '../model/ChargingProfileResponse';
 import { NotFoundException } from '../exception/NotFoundException';
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { NotFoundError } from 'routing-controllers';
@@ -17,7 +19,7 @@ export class ChargingProfilesService {
     sessionId: string,
     duration: number,
     responseUrl: string,
-  ): Promise<OcpiResponse<ChargingProfileResponse>> {
+  ): Promise<ChargingProfileResponse> {
     try {
       // await this.commandExecutor.executeGetActiveChargingProfile(
       //   sessionId,
@@ -44,7 +46,7 @@ export class ChargingProfilesService {
           timeout: this.TIMEOUT,
         },
         e.message,
-        e
+        e,
       );
     }
   }
@@ -52,7 +54,7 @@ export class ChargingProfilesService {
   async deleteChargingProfile(
     sessionId: string,
     responseUrl: string,
-  ): Promise<OcpiResponse<ChargingProfileResponse>> {
+  ): Promise<ChargingProfileResponse> {
     try {
       // await this.commandExecutor.executeClearChargingProfile(
       //   sessionId,
@@ -78,7 +80,7 @@ export class ChargingProfilesService {
           timeout: this.TIMEOUT,
         },
         e.message,
-        e
+        e,
       );
     }
   }
@@ -86,7 +88,7 @@ export class ChargingProfilesService {
   async putChargingProfile(
     sessionId: string,
     setChargingProfile: SetChargingProfile,
-  ): Promise<OcpiResponse<ChargingProfileResponse>> {
+  ): Promise<ChargingProfileResponse> {
     try {
       // await this.commandExecutor.executePutChargingProfile(
       //   sessionId,
@@ -112,7 +114,7 @@ export class ChargingProfilesService {
           timeout: this.TIMEOUT,
         },
         e.message,
-        e
+        e,
       );
     }
   }

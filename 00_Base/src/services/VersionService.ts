@@ -5,6 +5,7 @@ import { Service } from 'typedi';
 import { NotFoundError } from 'routing-controllers';
 import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 
 @Service()
 export class VersionService {
@@ -17,14 +18,12 @@ export class VersionService {
     );
     const tenants = response.tenants || [];
     const versions = tenants.flatMap((tenant: any) => tenant.versions || []);
-    return VersionListResponseDTO.build(
-      versions.map((version: any) => ({
-        version: version.version,
-        url:
-          version.endpoints.find((e: any) => e.identifier === 'versions')
-            ?.url || '',
-      })),
-    );
+    return versions.map((version: any) => ({
+      version: version.version,
+      url:
+        version.endpoints.find((e: any) => e.identifier === 'versions')?.url ||
+        '',
+    }));
   }
 
   async getVersionDetails(
@@ -41,9 +40,13 @@ export class VersionService {
     if (!tenantVersion) {
       throw new NotFoundError('Version not found');
     }
-    return VersionDetailsResponseDTO.build({
-      version: tenantVersion.version,
-      endpoints: tenantVersion.endpoints,
-    });
+    return {
+      data: {
+        version: tenantVersion.version,
+        endpoints: tenantVersion.endpoints,
+      },
+      status_code: OcpiResponseStatusCode.GenericSuccessCode,
+      timestamp: new Date(),
+    };
   }
 }

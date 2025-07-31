@@ -1,23 +1,10 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { Session } from '../../../model/Session';
-import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { SessionSchema } from '../../../model/Session';
 
-export class PutSessionParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  sessionId!: string;
+export const PutSessionParamsSchema = OcpiParamsSchema.extend({
+  sessionId: z.string().length(36),
+  session: SessionSchema,
+});
 
-  @IsNotEmpty()
-  @Type(() => Session)
-  @ValidateNested()
-  session!: Session;
-
-  static build(sessionId: string, session: Session) {
-    const params = new PutSessionParams();
-    params.sessionId = sessionId;
-    params.session = session;
-    return params;
-  }
-}
+export type PutSessionParams = z.infer<typeof PutSessionParamsSchema>;

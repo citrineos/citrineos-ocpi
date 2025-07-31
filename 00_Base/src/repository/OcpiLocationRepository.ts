@@ -1,7 +1,11 @@
 import { Service } from 'typedi';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiLocationDTO } from '../model/DTO/OcpiLocationDTO';
+import { OcpiLocation } from '../model/OcpiLocation';
+import {
+  GET_OCPI_LOCATION_BY_CORE_ID_QUERY,
+  OCPI_LOCATION_EDIT_BY_CORE_ID_MUTATION,
+} from '../graphql/queries/ocpiLocation.queries';
 
 @Service()
 export class OcpiLocationRepository {
@@ -10,26 +14,44 @@ export class OcpiLocationRepository {
     private readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
-  public async updateOcpiLocation(
-    ocpiLocation: OcpiLocationDTO,
-  ): Promise<OcpiLocationDTO | undefined> {
-    this.logger.debug(`Updating OCPI location ${ocpiLocation}`);
-    return undefined;
-
-    /*try {
-      const variables = { location: ocpiLocation };
+  public async readOcpiLocationByCoreLocationId(locationId: number) {
+    this.logger.debug(`Read OCPI location by locationid: ${locationId}`);
+    try {
+      const variables = { coreLocationId: locationId };
       const response = await this.ocpiGraphqlClient.request<{
-        ChargingStations: IChargingStationDto[];
-      }>(GET_CHARGING_STATION_BY_ID_QUERY, variables);
-      if (response.ChargingStations && response.ChargingStations.length > 1) {
+        Locations: OcpiLocation[];
+      }>(GET_OCPI_LOCATION_BY_CORE_ID_QUERY, variables);
+      if (response.Locations && response.Locations.length > 1) {
         this.logger.warn(
-          `Multiple charging stations found for id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.ChargingStations)}`,
+          `Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`,
         );
       }
-      return response.ChargingStations[0];
+      return response.Locations[0];
     } catch (e) {
       this.logger.error('Error while fetching charging station', e);
       return undefined;
-    }*/
+    }
+  }
+
+  public async updateOcpiLocationByCoreLocationId(
+    ocpiLocation: OcpiLocation,
+  ): Promise<OcpiLocation | undefined> {
+    this.logger.debug(
+      `updateOcpiLocationByCoreLocationId OCPI location ${ocpiLocation}`,
+    );
+    try {
+      const variables = {
+        coreLocationId: ocpiLocation.coreLocationId,
+        object: ocpiLocation,
+      };
+      const response = await this.ocpiGraphqlClient.request<{
+        update_OcpiLocations_by_pk: OcpiLocation;
+      }>(OCPI_LOCATION_EDIT_BY_CORE_ID_MUTATION, variables);
+      console.log('updateOcpiLocationByCoreLocationId response', response);
+      return response.update_OcpiLocations_by_pk;
+    } catch (e) {
+      this.logger.error('Error while fetching charging station', e);
+      return undefined;
+    }
   }
 }

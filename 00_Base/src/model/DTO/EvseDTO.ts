@@ -10,8 +10,10 @@ import { OcpiResponseSchema } from '../OcpiResponse';
 
 // TODO make dynamic
 export const uidDelimiter = '::';
-export const UID_FORMAT = (stationId: string, evseId: number): string =>
-  `${stationId}${uidDelimiter}${evseId}`;
+export const UID_FORMAT = (
+  stationId: string,
+  evseId: string | number,
+): string => `${stationId}${uidDelimiter}${evseId}`;
 
 export const EXTRACT_STATION_ID = (evseUid: string) => {
   const split = evseUid.split(uidDelimiter);

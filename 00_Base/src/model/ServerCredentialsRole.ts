@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { Role } from './Role';
-import { CpoTenant } from './CpoTenant';
 import { BusinessDetailsSchema } from './BusinessDetails';
 
 export const ServerCredentialsRoleSchema = z.object({
@@ -9,7 +8,6 @@ export const ServerCredentialsRoleSchema = z.object({
   country_code: z.string().length(2),
   business_details: BusinessDetailsSchema,
   cpoTenantId: z.number(),
-  cpoTenant: z.custom<CpoTenant>(),
 });
 
 export type ServerCredentialsRole = z.infer<typeof ServerCredentialsRoleSchema>;

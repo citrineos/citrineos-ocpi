@@ -48,7 +48,7 @@ export interface BroadcastParams<T extends ZodTypeAny> {
   interfaceRole: InterfaceRole;
   httpMethod: HttpMethod;
   schema: T;
-  routingHeaders: boolean;
+  routingHeaders?: boolean;
   url?: string;
   body?: any;
   paginatedParams?: PaginatedParams;

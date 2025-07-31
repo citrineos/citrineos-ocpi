@@ -22,7 +22,11 @@ export const TokenDTOSchema = z.object({
   last_updated: z.coerce.date(),
 });
 
+export type TokenDTO = z.infer<typeof TokenDTOSchema>;
+
 export const TokenResponseSchema = OcpiResponseSchema(TokenDTOSchema);
+
+export type TokenResponse = z.infer<typeof TokenResponseSchema>;
 
 export const PaginatedTokenResponseSchema =
   PaginatedResponseSchema(TokenDTOSchema);
@@ -37,3 +41,5 @@ export const SingleTokenRequestSchema = z.object({
   uid: z.string().max(36),
   type: z.nativeEnum(TokenType).optional(),
 });
+
+export type SingleTokenRequest = z.infer<typeof SingleTokenRequestSchema>;

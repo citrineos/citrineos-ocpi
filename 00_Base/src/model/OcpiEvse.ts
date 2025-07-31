@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const OcpiEvseSchema = z.object({
-  evseId: z.number(),
+  evseId: z.string(),
   stationId: z.string(),
   physicalReference: z.string().optional(),
   removed: z.boolean().optional(),

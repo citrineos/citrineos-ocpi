@@ -1,26 +1,11 @@
-import {
-  IsBoolean,
-  IsDate,
-  IsInt,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { z } from 'zod';
 
-export class OcpiLocationDTO {
-  @IsInt()
-  evseId!: number;
+export const OcpiLocationDTOSchema = z.object({
+  evseId: z.number().int(),
+  stationId: z.string(),
+  physicalReference: z.string().optional(),
+  removed: z.boolean().optional(),
+  lastUpdated: z.coerce.date(), // coerce allows strings to become Date
+});
 
-  @IsString()
-  stationId!: string;
-
-  @IsString()
-  @IsOptional()
-  physicalReference?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  removed?: boolean;
-
-  @IsDate()
-  lastUpdated!: Date;
-}
+export type OcpiLocationDTO = z.infer<typeof OcpiLocationDTOSchema>;

@@ -1,33 +1,11 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { EvseDTO } from '../../../model/DTO/EvseDTO';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { EvseDTOSchema } from '../../../model/DTO/EvseDTO';
 
-export class PutEvseParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  locationId!: string;
+export const PutEvseParamsSchema = OcpiParamsSchema.extend({
+  locationId: z.string().length(36),
+  evseUid: z.string().length(36),
+  evse: EvseDTOSchema,
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  evseUid!: string;
-
-  @IsNotEmpty()
-  @Type(() => EvseDTO)
-  @ValidateNested()
-  evse!: EvseDTO;
-
-  static build(
-    locationId: number,
-    evseUid: string,
-    evse: EvseDTO,
-  ): PutEvseParams {
-    const params = new PutEvseParams();
-    params.locationId = String(locationId);
-    params.evseUid = evseUid;
-    params.evse = evse;
-    return params;
-  }
-}
+export type PutEvseParams = z.infer<typeof PutEvseParamsSchema>;
