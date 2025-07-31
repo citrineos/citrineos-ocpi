@@ -9,5 +9,6 @@ export const StartSessionSchema = ResponseUrlSchema.extend({
   connector_id: z.string().max(36).nullable().optional(),
   authorization_reference: z.string().max(36).nullable().optional(),
 });
+export const StartSessionSchemaName = 'StartSession';
 
 export type StartSession = z.infer<typeof StartSessionSchema>;

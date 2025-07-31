@@ -9,6 +9,7 @@ export const OcpiEmptyResponseSchema = z.object({
   timestamp: z.coerce.date(),
   data: z.undefined().optional(),
 });
+export const OcpiEmptyResponseSchemaName = 'OcpiEmptyResponse';
 
 export type OcpiEmptyResponse = z.infer<typeof OcpiEmptyResponseSchema>;
 

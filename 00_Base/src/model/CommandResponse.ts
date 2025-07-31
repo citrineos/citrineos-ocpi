@@ -14,6 +14,7 @@ export const CommandResponseSchema = z.object({
   timeout: z.number().int().min(0),
   message: DisplayTextSchema.optional(),
 });
+export const CommandResponseSchemaName = 'CommandResponse';
 
 export type CommandResponse = z.infer<typeof CommandResponseSchema>;
 

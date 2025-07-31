@@ -19,6 +19,7 @@ export const ConnectorDTOSchema = z.object({
 });
 
 export const ConnectorResponseSchema = OcpiResponseSchema(ConnectorDTOSchema);
+export const ConnectorResponseSchemaName = 'ConnectorResponseSchema';
 export const ConnectorListResponseSchema =
   OcpiResponseSchema(ConnectorDTOSchema);
 

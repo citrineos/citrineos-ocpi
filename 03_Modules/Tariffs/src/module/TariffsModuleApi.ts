@@ -11,7 +11,6 @@ import {
   Get,
   JsonController,
   Param,
-  Post,
   Put,
 } from 'routing-controllers';
 
@@ -19,23 +18,25 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  buildOcpiEmptyResponse,
   buildOcpiErrorResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
   FunctionalEndpointParams,
   generateMockOcpiResponse,
   ModuleId,
   OcpiEmptyResponse,
   OcpiErrorResponse,
   OcpiHeaders,
-  OcpiResponse,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
   PaginatedTariffResponse,
+  PaginatedTariffResponseSchema,
+  PaginatedTariffResponseSchemaName,
   PutTariffRequest,
   ResponseSchema,
   TariffDTO,
-  // TariffKey,
-  // TariffsBroadcaster,
   TariffsService,
   versionIdParam,
   VersionNumber,
@@ -59,13 +60,20 @@ export class TariffsModuleApi
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedTariffResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(OcpiResponse<PaginatedTariffResponse>),
+  @ResponseSchema(
+    PaginatedTariffResponseSchema,
+    PaginatedTariffResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: generateMockOcpiResponse(
+          PaginatedTariffResponseSchema,
+          PaginatedTariffResponseSchemaName,
+        ),
+      },
     },
-  })
+  )
   async getTariffs(
     @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
@@ -82,8 +90,8 @@ export class TariffsModuleApi
     return {
       data: data,
       total: count,
-      offset: paginationParams?.offset,
-      limit: paginationParams?.limit,
+      offset: paginationParams?.offset || DEFAULT_OFFSET,
+      limit: paginationParams?.limit || DEFAULT_LIMIT,
       status_code: OcpiResponseStatusCode.GenericSuccessCode,
       timestamp: new Date(),
     };
@@ -132,6 +140,6 @@ export class TariffsModuleApi
     }
 
     await this.tariffService.deleteTariff(tariffId);
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 }

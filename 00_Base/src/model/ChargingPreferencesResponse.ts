@@ -12,6 +12,8 @@ export enum ChargingPreferencesResponseType {
 export const ChargingPreferencesResponseSchema = OcpiResponseSchema(
   z.nativeEnum(ChargingPreferencesResponseType),
 );
+export const ChargingPreferencesResponseSchemaName =
+  'ChargingPreferencesResponseSchema';
 
 export type ChargingPreferencesResponse = z.infer<
   typeof ChargingPreferencesResponseSchema

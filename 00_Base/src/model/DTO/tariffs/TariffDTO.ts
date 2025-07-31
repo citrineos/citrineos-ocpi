@@ -27,6 +27,8 @@ export type TariffDTO = z.infer<typeof TariffDTOSchema>;
 
 export const PaginatedTariffResponseSchema =
   PaginatedResponseSchema(TariffDTOSchema);
+export const PaginatedTariffResponseSchemaName =
+  'PaginatedTariffResponseSchema';
 
 export type PaginatedTariffResponse = z.infer<
   typeof PaginatedTariffResponseSchema

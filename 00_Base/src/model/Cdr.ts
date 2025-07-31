@@ -64,3 +64,4 @@ export const PaginatedCdrResponseSchema = z.object({
 });
 
 export type PaginatedCdrResponse = z.infer<typeof PaginatedCdrResponseSchema>;
+export const PaginatedCdrResponseSchemaName = 'PaginatedCdrResponse';

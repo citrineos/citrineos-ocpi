@@ -17,6 +17,7 @@ import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/Param
 import { Constructable } from 'typedi';
 import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
 import { ContentType } from '../util/ContentType';
+import { ZodTypeAny } from 'zod';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -158,8 +159,8 @@ function getParamSchema(
       );
       if (types) {
         return {
-          oneOf: types.map((tipe: Constructable<any>) => {
-            SchemaStore.addToSchemaStore(tipe);
+          oneOf: types.map((tipe: { name: string; schema: ZodTypeAny }) => {
+            SchemaStore.addToSchemaStore(tipe.schema, tipe.name);
             return { $ref: '#/components/schemas/' + tipe.name };
           }),
         };
@@ -167,7 +168,8 @@ function getParamSchema(
         return {};
       }
     } else {
-      SchemaStore.addToSchemaStore(type);
+      console.log('TODO: CHECK HERE', type);
+      // SchemaStore.addToSchemaStore(type, type.name);
       return { $ref: '#/components/schemas/' + type.name };
     }
   }

@@ -38,8 +38,17 @@ export { OcpiParams } from './trigger/util/OcpiParams';
 export { ChargingPreferences } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/PaginatedParams';
 export { Paginated } from './util/decorators/Paginated';
-export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
-export { PaginatedSessionResponse, Session } from './model/Session';
+export {
+  ChargingPreferencesResponse,
+  ChargingPreferencesResponseSchema,
+  ChargingPreferencesResponseSchemaName,
+} from './model/ChargingPreferencesResponse';
+export {
+  PaginatedSessionResponse,
+  Session,
+  PaginatedSessionResponseSchema,
+  PaginatedSessionResponseSchemaName,
+} from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
@@ -59,6 +68,7 @@ export {
   TokenDTOSchema,
   TokenResponse,
   TokenResponseSchema,
+  TokenResponseSchemaName,
 } from './model/DTO/TokenDTO';
 export { OcpiConfig, OcpiConfigInput } from './config/ocpi.types';
 export { defineOcpiConfig } from './config/defineOcpiConfig';
@@ -77,22 +87,60 @@ export {
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/BaseController';
-export { buildOcpiPaginatedResponse } from './model/PaginatedResponse';
+export {
+  buildOcpiPaginatedResponse,
+  DEFAULT_OFFSET,
+  DEFAULT_LIMIT,
+} from './model/PaginatedResponse';
 export { CommandType } from './model/CommandType';
-export { CancelReservation } from './model/CancelReservation';
-export { ReserveNow } from './model/ReserveNow';
+export {
+  CancelReservation,
+  CancelReservationSchema,
+  CancelReservationSchemaName,
+} from './model/CancelReservation';
+export {
+  ReserveNow,
+  ReserveNowSchema,
+  ReserveNowSchemaName,
+} from './model/ReserveNow';
 export { SetChargingProfile } from './model/SetChargingProfile';
-export { StartSession } from './model/StartSession';
-export { StopSession } from './model/StopSession';
-export { UnlockConnector } from './model/UnlockConnector';
+export {
+  StartSession,
+  StartSessionSchema,
+  StartSessionSchemaName,
+} from './model/StartSession';
+export {
+  StopSession,
+  StopSessionSchema,
+  StopSessionSchemaName,
+} from './model/StopSession';
+export {
+  UnlockConnector,
+  UnlockConnectorSchema,
+  UnlockConnectorSchemaName,
+} from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
-export { CredentialsResponse } from './model/CredentialsResponse';
-export { OcpiEmptyResponse } from './model/OcpiEmptyResponse';
+export {
+  CredentialsResponse,
+  CredentialsResponseSchema,
+  CredentialsResponseSchemaName,
+  buildCredentialsResponse,
+} from './model/CredentialsResponse';
+export {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
+  buildOcpiEmptyResponse,
+} from './model/OcpiEmptyResponse';
 export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
-export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
+export {
+  VersionListResponseDTO,
+  VersionListResponseDTOSchema,
+  VersionListResponseDTOSchemaName,
+} from './model/DTO/VersionListResponseDTO';
 export { TokenType } from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
@@ -100,6 +148,7 @@ export { VersionDTO } from './model/DTO/VersionDTO';
 export {
   OcpiResponseSchema,
   OcpiResponseStatusCode,
+  buildOcpiResponse,
 } from './model/OcpiResponse';
 export { OcpiModule } from './model/OcpiModule';
 export { CommandResultType } from './model/CommandResult';
@@ -109,6 +158,10 @@ export {
   LocationDTO,
   LocationResponse,
   PaginatedLocationResponse,
+  LocationResponseSchema,
+  LocationResponseSchemaName,
+  PaginatedLocationResponseSchema,
+  PaginatedLocationResponseSchemaName,
 } from './model/DTO/LocationDTO';
 export {
   EvseDTO,
@@ -116,11 +169,15 @@ export {
   UID_FORMAT,
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
+  EvseResponseSchema,
+  EvseResponseSchemaName,
 } from './model/DTO/EvseDTO';
 export {
   ConnectorDTO,
   ConnectorResponse,
   TEMPORARY_CONNECTOR_ID,
+  ConnectorResponseSchema,
+  ConnectorResponseSchemaName,
 } from './model/DTO/ConnectorDTO';
 export { LocationMapper } from './mapper/LocationMapper';
 export { TokensMapper } from './mapper/TokensMapper';
@@ -198,6 +255,8 @@ export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
 export {
   PaginatedTariffResponse,
   TariffDTO,
+  PaginatedTariffResponseSchema,
+  PaginatedTariffResponseSchemaName,
 } from './model/DTO/tariffs/TariffDTO';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
 export { PutTariffRequest } from './model/DTO/tariffs/PutTariffRequest';
@@ -321,3 +380,15 @@ export class OcpiServer extends KoaServer {
 }
 
 export { OcpiConfigToken, SystemConfigToken };
+
+export {
+  CommandResponseSchema,
+  CommandResponseSchemaName,
+} from './model/CommandResponse';
+export { ChargingProfileResponseSchemaName } from './model/ChargingProfileResponse';
+export { ChargingProfileResponseSchema } from './model/ChargingProfileResponse';
+
+export {
+  PaginatedCdrResponseSchema,
+  PaginatedCdrResponseSchemaName,
+} from './model/Cdr';

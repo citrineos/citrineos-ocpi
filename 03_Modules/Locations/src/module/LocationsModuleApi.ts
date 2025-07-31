@@ -3,36 +3,31 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import {
-  Body,
-  Get,
-  JsonController,
-  Param,
-  Put,
-  QueryParam,
-} from 'routing-controllers';
+import { Get, JsonController, Param } from 'routing-controllers';
 import { ILocationsModuleApi } from './ILocationsModuleApi';
 import {
-  AdminLocationDTO,
-  // AdminLocationsService,
-  AsAdminEndpoint,
   AsOcpiFunctionalEndpoint,
   BaseController,
   ConnectorResponse,
+  ConnectorResponseSchema,
+  ConnectorResponseSchemaName,
   EvseResponse,
+  EvseResponseSchema,
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
   FunctionalEndpointParams,
   generateMockOcpiPaginatedResponse,
   generateMockOcpiResponse,
-  LocationDTO,
   LocationResponse,
+  LocationResponseSchema,
+  LocationResponseSchemaName,
   LocationsService,
   ModuleId,
-  OcpiEmptyResponse,
   OcpiHeaders,
   Paginated,
   PaginatedLocationResponse,
+  PaginatedLocationResponseSchema,
+  PaginatedLocationResponseSchemaName,
   PaginatedParams,
   ResponseSchema,
   versionIdParam,
@@ -41,14 +36,25 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
+import { EvseResponseSchemaName } from '@citrineos/ocpi-base/dist/model/DTO/EvseDTO';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
-  PaginatedLocationResponse,
+  PaginatedLocationResponseSchema,
+  PaginatedLocationResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_LOCATION = generateMockOcpiResponse(LocationResponse);
-const MOCK_EVSE = generateMockOcpiResponse(EvseResponse);
-const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
+const MOCK_LOCATION = generateMockOcpiResponse(
+  LocationResponseSchema,
+  LocationResponseSchemaName,
+);
+const MOCK_EVSE = generateMockOcpiResponse(
+  EvseResponseSchema,
+  EvseResponseSchemaName,
+);
+const MOCK_CONNECTOR = generateMockOcpiResponse(
+  ConnectorResponseSchema,
+  ConnectorResponseSchemaName,
+);
 
 /**
  * Server API for the provisioning component.
@@ -74,13 +80,17 @@ export class LocationsModuleApi
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedLocationResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: MOCK_PAGINATED_LOCATION,
+  @ResponseSchema(
+    PaginatedLocationResponseSchema,
+    PaginatedLocationResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: MOCK_PAGINATED_LOCATION,
+      },
     },
-  })
+  )
   async getLocations(
     @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
@@ -91,7 +101,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(LocationResponse, {
+  @ResponseSchema(LocationResponseSchema, LocationResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -107,7 +117,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(EvseResponse, {
+  @ResponseSchema(EvseResponseSchema, EvseResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -131,7 +141,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid/:connector_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(ConnectorResponse, {
+  @ResponseSchema(ConnectorResponseSchema, ConnectorResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {

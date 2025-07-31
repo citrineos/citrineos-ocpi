@@ -35,6 +35,8 @@ export type SessionResponse = z.infer<typeof SessionResponseSchema>;
 
 export const PaginatedSessionResponseSchema =
   PaginatedResponseSchema(SessionSchema);
+export const PaginatedSessionResponseSchemaName =
+  'PaginatedSessionResponseSchema';
 export type PaginatedSessionResponse = z.infer<
   typeof PaginatedSessionResponseSchema
 >;

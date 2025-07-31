@@ -6,5 +6,6 @@ export const UnlockConnectorSchema = ResponseUrlSchema.extend({
   evse_uid: z.string().max(36).min(1),
   connector_id: z.string().max(36).min(1),
 });
+export const UnlockConnectorSchemaName = 'UnlockConnector';
 
 export type UnlockConnector = z.infer<typeof UnlockConnectorSchema>;

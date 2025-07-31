@@ -10,5 +10,6 @@ export const ReserveNowSchema = ResponseUrlSchema.extend({
   evse_uid: z.string().max(36).nullable().optional(),
   authorization_reference: z.string().max(36).nullable().optional(),
 });
+export const ReserveNowSchemaName = 'ReserveNow';
 
 export type ReserveNow = z.infer<typeof ReserveNowSchema>;

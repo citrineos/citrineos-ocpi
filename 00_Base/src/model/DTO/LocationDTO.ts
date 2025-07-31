@@ -42,9 +42,12 @@ export const LocationDTOSchema = z.object({
 });
 
 export const LocationResponseSchema = OcpiResponseSchema(LocationDTOSchema);
+export const LocationResponseSchemaName = 'LocationResponseSchema';
 
 export const PaginatedLocationResponseSchema =
   PaginatedResponseSchema(LocationDTOSchema);
+export const PaginatedLocationResponseSchemaName =
+  'PaginatedLocationResponseSchema';
 
 export type LocationDTO = z.infer<typeof LocationDTOSchema>;
 export type LocationResponse = z.infer<typeof LocationResponseSchema>;

@@ -26,18 +26,24 @@ import {
   AsyncJobStatusResponse,
   BaseController,
   BodyWithExample,
+  buildOcpiEmptyResponse,
+  buildOcpiResponse,
   EnumQueryParam,
   FunctionalEndpointParams,
   generateMockOcpiResponse,
   InvalidParamException,
   ModuleId,
   OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
   OcpiHeaders,
   OcpiResponseStatusCode,
   ResponseSchema,
   SingleTokenRequest,
   TokenDTO,
   TokenResponse,
+  TokenResponseSchema,
+  TokenResponseSchemaName,
   TokensAdminService,
   TokensService,
   TokenType,
@@ -85,11 +91,14 @@ export class TokensModuleApi
 
   @Get('/:countryCode/:partyId/:tokenId')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(TokenResponse, {
+  @ResponseSchema(TokenResponseSchema, TokenResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(TokenResponse),
+      success: generateMockOcpiResponse(
+        TokenResponseSchema,
+        TokenResponseSchemaName,
+      ),
     },
   })
   async getTokens(
@@ -109,12 +118,12 @@ export class TokensModuleApi
         'Client is trying to access wrong resource',
       );
     }
-    const tokenRequest = SingleTokenRequest.build(
-      countryCode,
-      partyId,
-      tokenId,
-      type ?? TokenType.RFID,
-    );
+    const tokenRequest: SingleTokenRequest = {
+      country_code: countryCode,
+      party_id: partyId,
+      uid: tokenId,
+      type: type ?? TokenType.RFID,
+    };
 
     const token = await this.tokensService.getToken(tokenRequest);
 
@@ -122,19 +131,19 @@ export class TokensModuleApi
       throw new UnknownTokenException('Token not found in the database');
     }
 
-    return TokenResponse.build(
-      OcpiResponseStatusCode.GenericSuccessCode,
-      token,
-    );
+    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, token);
   }
 
   @Put('/:countryCode/:partyId/:tokenId')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
+  @ResponseSchema(OcpiEmptyResponseSchema, OcpiEmptyResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(OcpiEmptyResponse),
+      success: generateMockOcpiResponse(
+        OcpiEmptyResponseSchema,
+        OcpiEmptyResponseSchemaName,
+      ),
     },
   })
   async putToken(
@@ -162,16 +171,19 @@ export class TokensModuleApi
     }
     await this.tokensService.updateToken(tokenDTO);
 
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   @Patch('/:countryCode/:partyId/:tokenUid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
+  @ResponseSchema(OcpiEmptyResponseSchema, OcpiEmptyResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(OcpiEmptyResponse),
+      success: generateMockOcpiResponse(
+        OcpiEmptyResponseSchema,
+        OcpiEmptyResponseSchemaName,
+      ),
     },
   })
   async patchToken(
@@ -201,7 +213,7 @@ export class TokensModuleApi
       token,
     );
 
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   /**

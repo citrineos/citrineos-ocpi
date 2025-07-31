@@ -25,6 +25,7 @@ export const TokenDTOSchema = z.object({
 export type TokenDTO = z.infer<typeof TokenDTOSchema>;
 
 export const TokenResponseSchema = OcpiResponseSchema(TokenDTOSchema);
+export const TokenResponseSchemaName = 'TokenResponseSchema';
 
 export type TokenResponse = z.infer<typeof TokenResponseSchema>;
 

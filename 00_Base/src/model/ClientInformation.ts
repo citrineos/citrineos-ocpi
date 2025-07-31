@@ -45,10 +45,18 @@ export const buildClientInformation = (
 export const getClientVersionDetailsByModuleId = (
   clientInformation: ClientInformation,
   moduleId: ModuleId,
-): Endpoint | undefined =>
-  clientInformation.clientVersionDetails[0]?.endpoints.find(
+): Endpoint | undefined => {
+  if (
+    !clientInformation ||
+    !clientInformation.clientVersionDetails[0] ||
+    !clientInformation.clientVersionDetails[0].endpoints
+  ) {
+    return undefined;
+  }
+  return clientInformation.clientVersionDetails[0].endpoints.find(
     (endpoint: Endpoint) => endpoint.identifier === moduleId,
   );
+};
 
 export const toCredentialsDTO = (
   clientInformation: ClientInformation,

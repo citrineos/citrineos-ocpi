@@ -11,10 +11,10 @@ export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(
     total: z.number().int().nonnegative(),
     offset: z.number().int().nonnegative().default(DEFAULT_OFFSET),
     limit: z.number().int().min(0).max(200).default(DEFAULT_LIMIT),
-    link: z.string(),
+    link: z.string().optional(),
   });
 
-export type PaginatedResponseSchemaType<T extends z.ZodTypeAny> = z.infer<
+export type PaginatedResponse<T extends z.ZodTypeAny> = z.infer<
   ReturnType<typeof PaginatedResponseSchema<T>>
 >;
 
@@ -25,7 +25,7 @@ export const buildOcpiPaginatedResponse = <T extends z.ZodTypeAny>(
   offset: number,
   data?: z.infer<T>[],
   status_message?: string,
-): PaginatedResponseSchemaType<T> => {
+): PaginatedResponse<T> => {
   return {
     status_code,
     status_message,

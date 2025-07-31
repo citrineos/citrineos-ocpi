@@ -4,12 +4,18 @@ import {
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
+  buildCredentialsResponse,
+  buildOcpiEmptyResponse,
   CredentialsDTO,
   CredentialsResponse,
+  CredentialsResponseSchema,
+  CredentialsResponseSchemaName,
   CredentialsService,
   generateMockOcpiResponse,
   ModuleId,
   OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
   OcpiLogger,
   OcpiResponseStatusCode,
   ResponseSchema,
@@ -32,8 +38,14 @@ import {
   Put,
 } from 'routing-controllers';
 
-const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(CredentialsResponse);
-const MOCK_EMPTY = generateMockOcpiResponse(OcpiEmptyResponse);
+const MOCK_CREDENTIALS_RESPONSE = generateMockOcpiResponse(
+  CredentialsResponseSchema,
+  CredentialsResponseSchemaName,
+);
+const MOCK_EMPTY = generateMockOcpiResponse(
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
+);
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Credentials}`)
 @Service()
@@ -50,7 +62,7 @@ export class CredentialsModuleApi
 
   @Get()
   @AsOcpiRegistrationEndpoint()
-  @ResponseSchema(CredentialsResponse, {
+  @ResponseSchema(CredentialsResponseSchema, CredentialsResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -67,12 +79,12 @@ export class CredentialsModuleApi
     this.logger.info('getCredentials', _version);
     const credentialsDto =
       await this.credentialsService.getClientCredentialsByServerToken(token);
-    return CredentialsResponse.build(credentialsDto);
+    return buildCredentialsResponse(credentialsDto);
   }
 
   @Post()
   @AsOcpiRegistrationEndpoint()
-  @ResponseSchema(CredentialsResponse, {
+  @ResponseSchema(CredentialsResponseSchema, CredentialsResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -93,12 +105,12 @@ export class CredentialsModuleApi
       credentials,
       version,
     );
-    return CredentialsResponse.build(serverCredentials);
+    return buildCredentialsResponse(serverCredentials);
   }
 
   @Put()
   @AsOcpiRegistrationEndpoint()
-  @ResponseSchema(CredentialsResponse, {
+  @ResponseSchema(CredentialsResponseSchema, CredentialsResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -118,12 +130,12 @@ export class CredentialsModuleApi
       token,
       credentials,
     );
-    return CredentialsResponse.build(serverCredentials);
+    return buildCredentialsResponse(serverCredentials);
   }
 
   @Delete()
   @AsOcpiRegistrationEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
+  @ResponseSchema(OcpiEmptyResponseSchema, OcpiEmptyResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -139,7 +151,7 @@ export class CredentialsModuleApi
   ): Promise<OcpiEmptyResponse> {
     this.logger.info('deleteCredentials', _version);
     await this.credentialsService?.deleteCredentials(token);
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   /**
@@ -153,7 +165,7 @@ export class CredentialsModuleApi
    */
   @Post('/register-credentials-token-a')
   @AsAdminEndpoint()
-  @ResponseSchema(CredentialsResponse, {
+  @ResponseSchema(CredentialsResponseSchema, CredentialsResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -179,12 +191,12 @@ export class CredentialsModuleApi
         credentials,
         versionNumber,
       );
-    return CredentialsResponse.build(serverCredentials);
+    return buildCredentialsResponse(serverCredentials);
   }
 
   @Delete('/delete-tenant/:tenantId')
   @AsAdminEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
+  @ResponseSchema(OcpiEmptyResponseSchema, OcpiEmptyResponseSchemaName, {
     description: 'Successful response',
     examples: {
       success: {
@@ -200,7 +212,7 @@ export class CredentialsModuleApi
     this.logger.info('deleteTenant', tenantId);
     this.logger.warn('delete tenant not implemented');
     // await this.credentialsService?.deleteTenant(tenantId);
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   @Delete('/unregister-client')
@@ -224,7 +236,7 @@ export class CredentialsModuleApi
    */
   @Post('/generate-credentials-token-a')
   @AsAdminEndpoint()
-  @ResponseSchema(CredentialsResponse, {
+  @ResponseSchema(CredentialsResponseSchema, CredentialsResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -246,12 +258,12 @@ export class CredentialsModuleApi
         versionNumber,
       );
 
-    return CredentialsResponse.build(createdCredentials);
+    return buildCredentialsResponse(createdCredentials);
   }
 
   @Put('/regenerate-credentials-token')
   @AsAdminEndpoint()
-  @ResponseSchema(CredentialsResponse, {
+  @ResponseSchema(CredentialsResponseSchema, CredentialsResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -273,6 +285,6 @@ export class CredentialsModuleApi
         versionNumber,
       );
 
-    return CredentialsResponse.build(createdCredentials);
+    return buildCredentialsResponse(createdCredentials);
   }
 }
