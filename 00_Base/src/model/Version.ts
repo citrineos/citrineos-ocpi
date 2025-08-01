@@ -5,6 +5,7 @@ import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
 
 export const VersionSchema = z.object({
+  id: z.number().optional(),
   version: z.nativeEnum(VersionNumber),
   url: z.string().url(),
   endpoints: z.array(EndpointSchema),

@@ -18,6 +18,7 @@ import {
 import { IDtoModule } from './events';
 import { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 
+export { Version } from './model/Version';
 export { Body } from './util/decorators/Body';
 export { plainToClass } from './util/Util';
 export {
@@ -354,6 +355,9 @@ export class OcpiServer extends KoaServer {
       if (constructedModule) {
         if (constructedModule.init) {
           await constructedModule.init();
+        }
+        if (constructedModule.initHandlers) {
+          await constructedModule.initHandlers();
         }
         this._modules.push(constructedModule);
       }

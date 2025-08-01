@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { DtoEventType, IDtoEventSubscriber, IDtoPayload } from '..';
-import { Client } from 'pg';
-import { runner, RunnerOption } from 'node-pg-migrate';
-import path from 'path';
+import { Client, Notification } from 'pg';
+// import { runner, RunnerOption } from 'node-pg-migrate';
+// import path from 'path';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
 import { Inject, Service } from 'typedi';
@@ -15,10 +15,18 @@ interface IPgNotification {
   data: any;
 }
 
+type EventHandler<T = any> = {
+  handleEvent: (event: { eventType: DtoEventType; payload: T }) => void;
+  handleError: (error: any) => void;
+  handleDisconnect?: () => void;
+};
+
 @Service()
 export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
   protected _pgClient: Client;
   protected readonly _logger: Logger<ILogObj>;
+  protected subscribedChannels = new Set<string>();
+  protected eventHandlers = new Map<string, EventHandler>();
 
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
@@ -27,6 +35,7 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
     this._logger = logger
       ? logger.getSubLogger({ name: this.constructor.name })
       : new Logger<ILogObj>({ name: this.constructor.name });
+
     this._pgClient = new Client({
       host: config.database.host,
       port: config.database.port,
@@ -38,8 +47,9 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
 
   async init(): Promise<void> {
     await this._pgClient.connect();
+    this._logger.info('Connected to PostgreSQL for notifications');
 
-    const runnerOptions: RunnerOption = {
+    /* const runnerOptions: RunnerOption = {
       dbClient: this._pgClient,
       migrationsTable: 'pgmigrations',
       dir: path.join(__dirname, 'migrations'),
@@ -50,17 +60,46 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
     this._logger.info(
       `Executed migrations: ${migrations.map((m) => m.name).join(', ')}`,
     );
+*/
+    this._pgClient.on('notification', (msg: Notification) => {
+      const handler = this.eventHandlers.get(msg.channel);
+      if (!handler) return;
 
-    // Reconnect logic
-    this._pgClient
-      .on('error', async (err) => {
-        console.error('Postgres connection error:', err);
-        // Attempt to reconnect
-      })
-      .on('end', async () => {
-        console.log('Postgres connection ended, reconnecting...');
-        // Attempt to reconnect
-      });
+      try {
+        const payload: IPgNotification = JSON.parse(msg.payload ?? '{}');
+        handler.handleEvent({
+          eventType: payload.operation,
+          payload: payload.data,
+        });
+      } catch (err) {
+        this._logger.error(`Failed to parse notification payload:`, err);
+        handler.handleError(err);
+      }
+    });
+
+    const callDisconnectHandlers = () => {
+      const called = new Set<Function>();
+      for (const { handleDisconnect } of this.eventHandlers.values()) {
+        if (handleDisconnect && !called.has(handleDisconnect)) {
+          called.add(handleDisconnect);
+          try {
+            handleDisconnect();
+          } catch (err) {
+            this._logger.warn('Error in handleDisconnect callback:', err);
+          }
+        }
+      }
+    };
+
+    this._pgClient.on('error', (err) => {
+      this._logger.error('Postgres client error:', err);
+      callDisconnectHandlers();
+    });
+
+    this._pgClient.on('end', () => {
+      this._logger.warn('Postgres client disconnected');
+      callDisconnectHandlers();
+    });
   }
 
   async subscribe<T extends IDtoPayload>(
@@ -70,41 +109,34 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
     handleDisconnect?: () => void,
   ): Promise<boolean> {
     try {
-      await this._pgClient.query(`LISTEN ${eventId}`);
-      this._pgClient
-        .on('notification', (msg) => {
-          if (msg.channel !== eventId) {
-            return;
-          }
-          try {
-            const notificationPayload: IPgNotification = JSON.parse(
-              msg.payload || '{}',
-            );
-            handleEvent({
-              eventType: notificationPayload.operation,
-              payload: notificationPayload.data,
-            });
-          } catch (error) {
-            console.error(`Error parsing event payload for ${eventId}:`, error);
-            handleError(error);
-          }
-        })
-        .on('error', async (err) => {
-          console.error('Postgres connection error:', err);
-          handleDisconnect?.();
-        })
-        .on('end', async () => {
-          console.log('Postgres connection ended, reconnecting...');
-          handleDisconnect?.();
-        });
+      if (!this.subscribedChannels.has(eventId)) {
+        await this._pgClient.query(`LISTEN "${eventId}"`);
+        this.subscribedChannels.add(eventId);
+        this._logger.info(`Subscribed to event channel "${eventId}"`);
+      }
+
+      this.eventHandlers.set(eventId, {
+        handleEvent,
+        handleError,
+        handleDisconnect,
+      });
+
       return true;
     } catch (error) {
-      console.error(`Failed to subscribe to event ${eventId}:`, error);
+      this._logger.error(`Failed to subscribe to "${eventId}":`, error);
+      handleError(error);
       return false;
     }
   }
 
   async shutdown(): Promise<void> {
-    this._pgClient.end();
+    try {
+      this.eventHandlers.clear();
+      this.subscribedChannels.clear();
+      await this._pgClient.end();
+      this._logger.info('Postgres client closed');
+    } catch (err) {
+      this._logger.error('Error shutting down pg client:', err);
+    }
   }
 }

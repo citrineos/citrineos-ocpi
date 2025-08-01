@@ -58,7 +58,7 @@ export function createLocalOcpiConfig(): OcpiConfigInput {
     messageBroker: process.env.AMQP_URL
       ? {
           amqp: {
-            url: process.env.AMQP_URL,
+            url: process.env.AMQP_URL || 'amqp://guest:guest@localhost:5672',
             exchange: process.env.AMQP_EXCHANGE || 'ocpi',
           },
         }

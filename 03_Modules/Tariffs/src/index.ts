@@ -28,9 +28,9 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
     @Inject(SystemConfigToken) systemConfig: SystemConfig,
-    logger?: Logger<ILogObj>,
+    logger: Logger<ILogObj>,
   ) {
-    super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
+    super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
   getController(): any {

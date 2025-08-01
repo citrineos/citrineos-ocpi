@@ -158,6 +158,7 @@ export class CitrineOSServer {
 
   private async initDtoRouter() {
     const dtoRouter: DtoRouter = Container.get(DtoRouter);
+    await dtoRouter.init();
     for (let module of this.ocpiServer.modules) {
       const eventHandlers = getDtoEventHandlerMetaData(module);
       for (let eventHandler of eventHandlers) {

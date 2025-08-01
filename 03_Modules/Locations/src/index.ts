@@ -38,7 +38,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     readonly logger: Logger<ILogObj>,
     readonly locationsBroadcaster: LocationsBroadcaster,
   ) {
-    super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
+    super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
   getController(): any {
@@ -63,7 +63,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
     this._logger.info(`Handling Location Insert: ${JSON.stringify(event)}`);
-    await this.locationsBroadcaster.broadcastPutLocation(event.payload);
+    await this.locationsBroadcaster.broadcastPutLocation(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -75,7 +75,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     event: IDtoEvent<Partial<ILocationDto>>,
   ): Promise<void> {
     this._logger.info(`Handling Location Update: ${JSON.stringify(event)}`);
-    await this.locationsBroadcaster.broadcastPatchLocation(event.payload);
+    await this.locationsBroadcaster.broadcastPatchLocation(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -90,7 +90,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
     );
     // Updates are Location/Evse PATCH requests
-    // await this.locationsBroadcaster.broadcastPatchEvse(event.payload); // todo
+    // await this.locationsBroadcaster.broadcastPatchEvse(event._payload); // todo
   }
 
   @AsDtoEventHandler(
@@ -102,7 +102,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     this._logger.info(`Handling EVSE Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse PUT requests
     // Requires pulling the ChargingStation data from GraphQL
-    await this.locationsBroadcaster.broadcastPutEvse(event.payload);
+    await this.locationsBroadcaster.broadcastPutEvse(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -113,7 +113,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
     this._logger.info(`Handling EVSE Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse PATCH requests
-    await this.locationsBroadcaster.broadcastPatchEvse(event.payload);
+    await this.locationsBroadcaster.broadcastPatchEvse(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -124,7 +124,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
     this._logger.info(`Handling Connector Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse/Connector PUT requests
-    await this.locationsBroadcaster.broadcastPutConnector(event.payload);
+    await this.locationsBroadcaster.broadcastPutConnector(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -137,6 +137,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Connector Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse/Connector PATCH requests
-    await this.locationsBroadcaster.broadcastPatchConnector(event.payload);
+    await this.locationsBroadcaster.broadcastPatchConnector(event._payload);
   }
 }

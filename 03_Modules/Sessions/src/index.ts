@@ -29,9 +29,9 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
     @Inject(SystemConfigToken) systemConfig: SystemConfig,
-    logger?: Logger<ILogObj>,
+    logger: Logger<ILogObj>,
   ) {
-    super(config, new RabbitMqDtoReceiver(systemConfig, logger), logger);
+    super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
   getController(): any {
@@ -69,8 +69,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Transaction Update: ${JSON.stringify(event)}`);
     // All updates are Session PATCH requests
-    if (event.payload.isActive === false) {
-      this._logger.info(`Transaction is no longer active: ${event.eventId}`);
+    if (event._payload.isActive === false) {
+      this._logger.info(`Transaction is no longer active: ${event._eventId}`);
       // This triggers a Cdr POST request
     }
   }
@@ -82,9 +82,9 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleMeterValueInsert(event: IDtoEvent<MeterValue>): Promise<void> {
     this._logger.info(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
-    if (event.payload.transactionDatabaseId) {
+    if (event._payload.transactionDatabaseId) {
       this._logger.info(
-        `Meter Value belongs to Transaction: ${event.payload.transactionDatabaseId}`,
+        `Meter Value belongs to Transaction: ${event._payload.transactionDatabaseId}`,
       );
       // The meter value should be converted to a charging period for a Session PATCH request
     }

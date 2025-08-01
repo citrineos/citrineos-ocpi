@@ -13,7 +13,6 @@ import {
   IDtoModule,
   IDtoPayload,
 } from './types';
-import { SystemConfig } from '@citrineos/base';
 import { OcpiConfig } from '../config/ocpi.types';
 
 /**
@@ -23,7 +22,7 @@ export abstract class AbstractDtoEventReceiver implements IDtoEventReceiver {
   /**
    * Fields
    */
-  protected _config: SystemConfig;
+  protected _config: OcpiConfig;
   protected _module?: IDtoModule;
   protected _logger: Logger<ILogObj>;
 
@@ -35,7 +34,7 @@ export abstract class AbstractDtoEventReceiver implements IDtoEventReceiver {
    * @param module [Optional] The module instance.
    */
   constructor(
-    config: SystemConfig,
+    config: OcpiConfig,
     logger?: Logger<ILogObj>,
     module?: IDtoModule,
   ) {

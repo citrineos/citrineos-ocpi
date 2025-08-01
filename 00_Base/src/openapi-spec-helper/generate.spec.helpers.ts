@@ -132,10 +132,7 @@ function getParamSchema(
     method,
   )[index];
 
-  console.log('getParamSchema', explicitType, index, object, method);
-
   if (typeof type === 'function' && type.name === 'Array') {
-    console.log('returning array');
     const items = explicitType
       ? { $ref: '#/components/schemas/' + explicitType.name }
       : { type: 'object' as const };
@@ -149,16 +146,12 @@ function getParamSchema(
       type.prototype === String.prototype ||
       type.prototype === Symbol.prototype
     ) {
-      console.log('returning string');
       return { type: 'string' };
     } else if (type.prototype === Number.prototype) {
-      console.log('returning number');
       return { type: 'number' };
     } else if (type.prototype === Boolean.prototype) {
-      console.log('returning boolean');
       return { type: 'boolean' };
     } else if (type.name === 'Object') {
-      console.log('returning object');
       // try and see if @MultipleTypes is used
       const types = Reflect.getMetadata(
         MULTIPLE_TYPES,
@@ -168,13 +161,11 @@ function getParamSchema(
       if (types) {
         return {
           oneOf: types.map((tipe: { name: string; schema: ZodTypeAny }) => {
-            console.log('adding', tipe.name);
             SchemaStore.addToSchemaStore(tipe.schema, tipe.name);
             return { $ref: '#/components/schemas/' + tipe.name };
           }),
         };
       } else {
-        console.log('again here returning empty object');
         return {};
       }
     } else {
@@ -184,7 +175,6 @@ function getParamSchema(
     }
   }
 
-  console.log('returning empty object');
   return {};
 }
 
@@ -222,7 +212,7 @@ export function getHeaderParams(route: IRoute): oa.ParameterObject[] {
  * Return OpenAPI requestBody of given route, if it has one.
  */
 export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
-  console.log('getRequestBody', route);
+  // console.log('getRequestBody', route);
   /*const bodyParamMetas = route.params.filter((d) => {
     console.log('route.param', d);
     return d.type === 'body';
@@ -271,7 +261,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
   //
   // };
 
-  console.log('bodyMeta', bodyMeta);
+  // console.log('bodyMeta', bodyMeta);
   if (bodyMeta) {
     const bodyParam = Reflect.getMetadata(
       BODY_PARAM,
@@ -283,7 +273,6 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     }
     const { schema, name: schemaName } = bodyParam;
     SchemaStore.addToSchemaStore(schema, schemaName);
-    console.log('got schemaName', schemaName);
     if (schema && schemaName) {
       content[ContentType.JSON].schema = {
         $ref: `${refPointerPrefix}${schemaName}`,

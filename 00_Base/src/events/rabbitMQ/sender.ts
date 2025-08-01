@@ -77,6 +77,12 @@ export class RabbitMqDtoSender
     if (!this._channel) {
       throw new Error('RabbitMQ is down. Cannot send message.');
     }
+    await this._channel.assertExchange(exchange, 'headers', { durable: false });
+    /*await channel.assertQueue(queueName, {
+      durable: false,
+      autoDelete: true,
+      exclusive: false,
+    });*/
     const channel = this._channel;
 
     this._logger.debug(`Publishing to ${exchange}:`, event);
@@ -89,8 +95,8 @@ export class RabbitMqDtoSender
         contentEncoding: 'utf-8',
         contentType: 'application/json',
         headers: {
-          ...event.context,
-          eventId: event.eventId,
+          ...event._context,
+          eventId: event._eventId,
         },
       },
     );

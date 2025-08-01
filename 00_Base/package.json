@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "tsc --build",
+    "copy-pgnotify-migrations": "cp -R src/events/pgNotify/migrations dist/events/pgNotify/migrations",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
