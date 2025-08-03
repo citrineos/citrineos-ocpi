@@ -14,7 +14,7 @@ import { Endpoint } from '../model/Endpoint';
 import {
   DELETE_TENANT_PARTNER_BY_ID,
   UPDATE_TENANT_PARTNER_PROFILE,
-} from '../graphql/mutations/tenant.mutations';
+} from '../graphql/queries/tenant.mutations';
 import { GetClientInformationByServerTokenQuery } from '../graphql/types/graphql';
 import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
 import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';

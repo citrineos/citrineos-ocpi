@@ -1,0 +1,20 @@
+overwrite: true
+generates:
+  ./00_Base/src/graphql/graphql.ts:
+    documents: './00_Base/src/graphql/queries/*.ts'
+    schema: 
+      - 'http://localhost:8090'
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+    config:
+      # Only generate what's actually used in your operations
+      onlyOperationTypes: true
+      # Don't generate the entire schema types
+      skipTypename: true
+      # More concise output
+      scalars:
+        timestamptz: string
+      # Only generate types that are actually referenced
+      purgeOutput: true
