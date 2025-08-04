@@ -1,33 +1,14 @@
-import { IsNotEmpty, IsObject, IsString, MaxLength, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { ResponseUrl } from './ResponseUrl';
-import { TokenDTO } from './DTO/TokenDTO';
+import { z } from 'zod';
+import { TokenDTOSchema } from './DTO/TokenDTO';
+import { ResponseUrlSchema } from './ResponseUrl';
 
-export class StartSession extends ResponseUrl {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => TokenDTO)
-  @ValidateNested()
-  token!: TokenDTO;
+export const StartSessionSchema = ResponseUrlSchema.extend({
+  token: TokenDTOSchema,
+  location_id: z.string().max(36),
+  evse_uid: z.string().max(36).nullable().optional(),
+  connector_id: z.string().max(36).nullable().optional(),
+  authorization_reference: z.string().max(36).nullable().optional(),
+});
+export const StartSessionSchemaName = 'StartSession';
 
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  location_id!: string;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  evse_uid?: string | null;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  connector_id?: string | null;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  authorization_reference?: string | null;
-}
+export type StartSession = z.infer<typeof StartSessionSchema>;

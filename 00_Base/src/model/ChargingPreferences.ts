@@ -1,20 +1,12 @@
-import { Enum } from '../util/decorators/Enum';
-import { IsBoolean, IsDateString, IsNumber } from 'class-validator';
+import { z } from 'zod';
 import { ProfileType } from './ProfileType';
-import { Optional } from '../util/decorators/Optional';
 
-export class ChargingPreferences {
-  @Enum(ProfileType, 'ProfileType')
-  profile_type!: ProfileType;
+export const ChargingPreferencesSchema = z.object({
+  profile_type: z.nativeEnum(ProfileType),
+  departure_time: z.coerce.date().optional(),
+  energy_need: z.number().optional(),
+  discharge_allowed: z.boolean().optional(),
+});
+export const ChargingPreferencesSchemaName = 'ChargingPreferences';
 
-  @IsDateString()
-  departure_time?: Date;
-
-  @IsNumber()
-  @Optional()
-  energy_need?: number;
-
-  @IsBoolean()
-  @Optional()
-  discharge_allowed?: boolean;
-}
+export type ChargingPreferences = z.infer<typeof ChargingPreferencesSchema>;

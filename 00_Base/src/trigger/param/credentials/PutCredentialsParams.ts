@@ -1,27 +1,23 @@
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CredentialsDTO } from '../../../model/DTO/CredentialsDTO';
+import { z } from 'zod';
 import { VersionNumber } from '../../../model/VersionNumber';
-import { OcpiRegistrationParams } from '../../util/OcpiRegistrationParams';
+import {
+  CredentialsDTO,
+  CredentialsDTOSchema,
+} from '../../../model/DTO/CredentialsDTO';
+import { OcpiRegistrationParamsSchema } from '../../util/OcpiRegistrationParams';
 
-export class PutCredentialsParams extends OcpiRegistrationParams {
-  @IsNotEmpty()
-  @Type(() => CredentialsDTO)
-  @ValidateNested()
-  credentials!: CredentialsDTO;
-}
+export const PutCredentialsParamsSchema = OcpiRegistrationParamsSchema.extend({
+  credentials: CredentialsDTOSchema,
+});
+
+export type PutCredentialsParams = z.infer<typeof PutCredentialsParamsSchema>;
 
 export const buildPutCredentialsParams = (
   version: VersionNumber,
   authorization: string,
   credentials: CredentialsDTO,
-): PutCredentialsParams => {
-  const ocpiParams = new OcpiRegistrationParams(
-    authorization,
-    undefined,
-    undefined,
-    version,
-  );
-  (ocpiParams as PutCredentialsParams).credentials = credentials;
-  return ocpiParams as PutCredentialsParams;
-};
+): PutCredentialsParams => ({
+  authorization,
+  version,
+  credentials,
+});

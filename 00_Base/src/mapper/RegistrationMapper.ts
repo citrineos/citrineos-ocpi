@@ -15,8 +15,8 @@ import { Endpoint } from '../model/Endpoint';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { ModuleId } from '../model/ModuleId';
 import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
 import { ImageDTO } from '../model/DTO/ImageDTO';
+import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
 
 export class RegistrationMapper {
   static tenantPartnerToCredentialsDto(
@@ -25,17 +25,17 @@ export class RegistrationMapper {
     const partnerProfile = partner.partnerProfileOCPI!;
     const tenant = partner.tenant!;
     const serverProfile = tenant.serverProfileOCPI!;
-    const credentials = new CredentialsDTO();
-    credentials.token = partnerProfile.serverCredentials.token!;
-    credentials.url = partnerProfile.serverCredentials.versionsUrl;
-    credentials.roles = [
-      RegistrationMapper.toCredentialsRoleDto(
-        tenant.countryCode!,
-        tenant.partyId!,
-        serverProfile.credentialsRole,
-      ),
-    ];
-    return credentials;
+    return {
+      token: partnerProfile.serverCredentials.token!,
+      url: partnerProfile.serverCredentials.versionsUrl,
+      roles: [
+        RegistrationMapper.toCredentialsRoleDto(
+          tenant.countryCode!,
+          tenant.partyId!,
+          serverProfile.credentialsRole,
+        ),
+      ],
+    };
   }
 
   static toCredentialsRoleDto(
@@ -43,14 +43,14 @@ export class RegistrationMapper {
     partyId: string,
     value: OCPIRegistration.CredentialRole,
   ): CredentialsRoleDTO {
-    const credentialsRole = new CredentialsRoleDTO();
-    credentialsRole.country_code = countryCode;
-    credentialsRole.party_id = partyId;
-    credentialsRole.role = RegistrationMapper.toRole(value.role);
-    credentialsRole.business_details = RegistrationMapper.toBusinessDetails(
-      value.businessDetails,
-    );
-    return credentialsRole;
+    return {
+      country_code: countryCode,
+      party_id: partyId,
+      role: RegistrationMapper.toRole(value.role),
+      business_details: RegistrationMapper.toBusinessDetails(
+        value.businessDetails,
+      ),
+    };
   }
 
   static toCredentialsRole(
@@ -58,18 +58,20 @@ export class RegistrationMapper {
   ): OCPIRegistration.CredentialRole {
     return {
       role: RegistrationMapper.toRoleString(value.role),
-      businessDetails: RegistrationMapper.toRegistrationBusinessDetails(value.business_details),
+      businessDetails: RegistrationMapper.toRegistrationBusinessDetails(
+        value.business_details,
+      ),
     };
   }
 
   static toBusinessDetails(
     value: OCPIRegistration.BusinessDetails,
   ): BusinessDetailsDTO {
-    const businessDetails = new BusinessDetailsDTO();
-    businessDetails.name = value.name;
-    businessDetails.website = value.website;
-    businessDetails.logo = value.logo && RegistrationMapper.toImage(value.logo);
-    return businessDetails;
+    return {
+      name: value.name,
+      website: value.website,
+      logo: value.logo && RegistrationMapper.toImage(value.logo),
+    };
   }
 
   static toRegistrationBusinessDetails(
@@ -85,22 +87,16 @@ export class RegistrationMapper {
   }
 
   static toImage(value: OCPIRegistration.Image): ImageDTO {
-    const image = new ImageDTO();
-    image.url = value.url;
-    image.type = RegistrationMapper.toImageType(value.type);
-    image.category = RegistrationMapper.toImageCategory(value.category);
-    image.height = value.height;
-    image.width = value.width;
-    return image;
+    return {
+      url: value.url,
+      type: RegistrationMapper.toImageType(value.type),
+      category: RegistrationMapper.toImageCategory(value.category),
+      height: value.height,
+      width: value.width,
+    };
   }
 
   static toRegistrationImage(value: ImageDTO): OCPIRegistration.Image {
-    const image = new ImageDTO();
-    image.url = value.url;
-    image.type = RegistrationMapper.toImageType(value.type);
-    image.category = RegistrationMapper.toImageCategory(value.category);
-    image.height = value.height;
-    image.width = value.width;
     return {
       url: value.url,
       type: value.type,

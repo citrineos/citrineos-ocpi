@@ -17,6 +17,8 @@ import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/Param
 import { Constructable } from 'typedi';
 import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
 import { ContentType } from '../util/ContentType';
+import { ZodTypeAny } from 'zod';
+import { BODY_PARAM } from '../util/decorators/Body';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {
@@ -158,8 +160,8 @@ function getParamSchema(
       );
       if (types) {
         return {
-          oneOf: types.map((tipe: Constructable<any>) => {
-            SchemaStore.addToSchemaStore(tipe);
+          oneOf: types.map((tipe: { name: string; schema: ZodTypeAny }) => {
+            SchemaStore.addToSchemaStore(tipe.schema, tipe.name);
             return { $ref: '#/components/schemas/' + tipe.name };
           }),
         };
@@ -167,7 +169,8 @@ function getParamSchema(
         return {};
       }
     } else {
-      SchemaStore.addToSchemaStore(type);
+      console.log('TODO: CHECK HERE', type);
+      // SchemaStore.addToSchemaStore(type, type.name);
       return { $ref: '#/components/schemas/' + type.name };
     }
   }
@@ -209,7 +212,12 @@ export function getHeaderParams(route: IRoute): oa.ParameterObject[] {
  * Return OpenAPI requestBody of given route, if it has one.
  */
 export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
-  const bodyParamMetas = route.params.filter((d) => d.type === 'body-param');
+  // console.log('getRequestBody', route);
+  /*const bodyParamMetas = route.params.filter((d) => {
+    console.log('route.param', d);
+    return d.type === 'body';
+  });
+  console.log('bodyParamMetas', bodyParamMetas);
   const bodyParamsSchema: oa.SchemaObject | null =
     bodyParamMetas.length > 0
       ? bodyParamMetas.reduce(
@@ -225,42 +233,72 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
           }),
           { properties: {}, required: [], type: 'object' },
         )
-      : null;
+      : null;*/
 
   const bodyMeta = route.params.find((d) => d.type === 'body');
 
+  if (!bodyMeta) {
+    return undefined;
+  }
+
+  const content: any = {
+    [ContentType.JSON]: {},
+    required: isRequired(bodyMeta, route),
+  };
+
+  const example = Reflect.getMetadata(
+    BODY_WITH_EXAMPLE_PARAM,
+    bodyMeta.object,
+    bodyMeta.method,
+  );
+
+  if (example) {
+    content[ContentType.JSON]['example'] = example;
+  }
+
+  // return {
+  //   content,
+  //
+  // };
+
+  // console.log('bodyMeta', bodyMeta);
   if (bodyMeta) {
-    const bodySchema = getParamSchema(bodyMeta);
-    // const ref =
-    //   'items' in bodySchema && bodySchema.items ? bodySchema.items : bodySchema;
-    // const $ref = { $ref: ref };
-
-    const content: any = {
-      [ContentType.JSON]: {
-        schema: bodyParamsSchema
-          ? { allOf: [bodySchema, bodyParamsSchema] }
-          : bodySchema,
-      },
-    };
-
-    const example = Reflect.getMetadata(
-      BODY_WITH_EXAMPLE_PARAM,
+    const bodyParam = Reflect.getMetadata(
+      BODY_PARAM,
       bodyMeta.object,
-      bodyMeta.method,
+      `${bodyMeta.method}.${bodyMeta.index}`,
     );
-
-    if (example) {
-      content[ContentType.JSON]['example'] = example;
+    if (!bodyParam) {
+      return undefined;
     }
-
+    const { schema, name: schemaName } = bodyParam;
+    SchemaStore.addToSchemaStore(schema, schemaName);
+    if (schema && schemaName) {
+      content[ContentType.JSON].schema = {
+        $ref: `${refPointerPrefix}${schemaName}`,
+      };
+    }
+    // const bodySchema = getParamSchema(bodyMeta);
+    // // const ref =
+    // //   'items' in bodySchema && bodySchema.items ? bodySchema.items : bodySchema;
+    // // const $ref = { $ref: ref };
+    //
+    // const content: any = {
+    //   [ContentType.JSON]: {
+    //     schema: bodyParamsSchema
+    //       ? { allOf: [bodySchema, bodyParamsSchema] }
+    //       : bodySchema,
+    //   },
+    // };
     return {
       content,
-      required: isRequired(bodyMeta, route),
     };
-  } else if (bodyParamsSchema) {
-    return {
-      content: { [ContentType.JSON]: { schema: bodyParamsSchema } },
-    };
+  } else {
+    return undefined;
+    // } else if (bodyParamsSchema) {
+    // return {
+    //   content: { [ContentType.JSON]: { schema: bodyParamsSchema } },
+    // };
   }
 }
 
@@ -345,18 +383,25 @@ export function getQueryParams(
     .filter((p) => p.type === 'query')
     .map((queryMeta) => {
       const schema = getParamSchema(queryMeta) as oa.SchemaObject;
-      const enumName = Reflect.getMetadata(
+      const enumQueryParam: {
+        name: string;
+        schema: ZodTypeAny;
+      } = Reflect.getMetadata(
         ENUM_QUERY_PARAM,
         queryMeta.object,
         `${queryMeta.method}.${queryMeta.name}`,
       );
-      if (enumName) {
+      if (enumQueryParam) {
+        SchemaStore.addToSchemaStore(
+          enumQueryParam.schema,
+          enumQueryParam.name,
+        );
         return {
           in: 'query' as oa.ParameterLocation,
           name: queryMeta.name || '',
           required: isRequired(queryMeta, route),
           schema: {
-            $ref: `${refPointerPrefix}${enumName}`,
+            $ref: `${refPointerPrefix}${enumQueryParam.name}`,
           },
         };
       } else {

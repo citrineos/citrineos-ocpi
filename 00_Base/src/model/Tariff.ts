@@ -1,116 +1,28 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsDateString,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUrl,
-  MaxLength,
-  MinLength,
-  ValidateNested,
-} from 'class-validator';
-import { Price } from './Price';
-import { TariffElement } from './TariffElement';
-import { EnergyMix } from './EnergyMix';
-import { DisplayText } from './DisplayText';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './OcpiResponse';
+import { z } from 'zod';
+import { DisplayTextSchema } from './DisplayText';
+import { PriceSchema } from './Price';
+import { TariffElementSchema } from './TariffElement';
+import { EnergyMixSchema } from './EnergyMix';
+import { OcpiResponseSchema } from './OcpiResponse';
 
-export class Tariff {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  id!: string;
+export const TariffSchema = z.object({
+  id: z.string().max(36),
+  country_code: z.string().min(2).max(2),
+  party_id: z.string().max(3),
+  currency: z.string().min(3).max(3),
+  type: z.string().nullable().optional(),
+  tariff_alt_text: z.array(DisplayTextSchema).nullable().optional(),
+  tariff_alt_url: z.string().url().nullable().optional(),
+  min_price: PriceSchema.nullable().optional(),
+  max_price: PriceSchema.nullable().optional(),
+  elements: z.array(TariffElementSchema).min(1),
+  energy_mix: EnergyMixSchema.nullable().optional(),
+  start_date_time: z.coerce.date().nullable().optional(),
+  end_date_time: z.coerce.date().nullable().optional(),
+  last_updated: z.coerce.date(),
+});
 
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  country_code!: string;
+export type Tariff = z.infer<typeof TariffSchema>;
 
-  @MaxLength(3)
-  @IsString()
-  @IsNotEmpty()
-  party_id!: string;
-
-  @MaxLength(3)
-  @MinLength(3)
-  @IsString()
-  @IsNotEmpty()
-  currency!: string;
-
-  @IsString()
-  @Optional()
-  type?: string | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested({ each: true })
-  tariff_alt_text?: DisplayText[] | null;
-
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @Optional()
-  tariff_alt_url?: string | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  min_price?: Price | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  max_price?: Price | null;
-
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => TariffElement)
-  @ValidateNested({ each: true })
-  elements!: TariffElement[];
-
-  @Optional()
-  @Type(() => EnergyMix)
-  @ValidateNested()
-  energy_mix?: EnergyMix | null;
-
-  @IsString()
-  @IsDateString()
-  @Optional()
-  @Type(() => Date)
-  start_date_time?: Date | null;
-
-  @IsString()
-  @IsDateString()
-  @Optional()
-  @Type(() => Date)
-  end_date_time?: Date | null;
-
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  last_updated!: Date;
-}
-
-export class TariffResponse extends OcpiResponse<Tariff> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => Tariff)
-  @ValidateNested()
-  data!: Tariff;
-}
-
-export class PaginatedTariffResponse extends PaginatedResponse<Tariff> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @Optional(false)
-  @Type(() => Tariff)
-  data!: Tariff[];
-}
+export const TariffResponseSchema = OcpiResponseSchema(TariffSchema);
+export type TariffResponse = z.infer<typeof TariffResponseSchema>;

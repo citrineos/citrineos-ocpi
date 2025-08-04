@@ -1,9 +1,9 @@
 import {
-  IdTokenType,
-  IAuthorizationDto,
-  OCPP2_0_1,
   AuthorizationStatusType,
   AuthorizationWhitelistType,
+  IAuthorizationDto,
+  IdTokenType,
+  OCPP2_0_1,
 } from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
 
@@ -12,27 +12,24 @@ import { WhitelistType } from '../model/WhitelistType';
 
 export class TokensMapper {
   public static toDto(authorization: IAuthorizationDto): TokenDTO {
-    const tokenDto = new TokenDTO();
-
-    tokenDto.country_code = authorization.tenant!.countryCode!;
-    tokenDto.party_id = authorization.tenant!.partyId!;
-    tokenDto.uid = authorization.idToken;
-    tokenDto.type = TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
-      authorization.idTokenType ? authorization.idTokenType : null,
-    );
-    tokenDto.contract_id = this.getContractId(authorization);
-    tokenDto.visual_number = TokensMapper.getVisualNumber(authorization);
-    tokenDto.issuer = TokensMapper.getIssuer(authorization);
-    tokenDto.group_id = authorization.groupAuthorization?.idToken;
-    tokenDto.valid = 
-      authorization.status === AuthorizationStatusType.Accepted;
-    tokenDto.whitelist = TokensMapper.mapRealTimeEnumType(
-      authorization.realTimeAuth,
-    );
-    tokenDto.language = authorization.language1;
-    // tokenDto.default_profile_type = token.default_profile_type;
-    // tokenDto.energy_contract = token.energy_contract;
-    tokenDto.last_updated = authorization.updatedAt!;
+    const tokenDto: TokenDTO = {
+      country_code: authorization.tenant!.countryCode!,
+      party_id: authorization.tenant!.partyId!,
+      uid: authorization.idToken,
+      type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
+        authorization.idTokenType ? authorization.idTokenType : null,
+      ),
+      contract_id: this.getContractId(authorization),
+      visual_number: TokensMapper.getVisualNumber(authorization),
+      issuer: TokensMapper.getIssuer(authorization),
+      group_id: authorization.groupAuthorization?.idToken,
+      valid: authorization.status === AuthorizationStatusType.Accepted,
+      whitelist: TokensMapper.mapRealTimeEnumType(authorization.realTimeAuth),
+      language: authorization.language1,
+      // default_profile_type: token.default_profile_type,
+      // energy_contract: token.energy_contract,
+      last_updated: authorization.updatedAt!,
+    };
 
     return tokenDto;
   }

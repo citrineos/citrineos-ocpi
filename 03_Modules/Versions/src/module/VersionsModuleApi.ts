@@ -6,6 +6,8 @@ import {
   VersionDetailsResponseDTO,
   versionIdParam,
   VersionListResponseDTO,
+  VersionListResponseDTOSchema,
+  VersionListResponseDTOSchemaName,
   VersionNumber,
   VersionNumberParam,
   VersionService,
@@ -27,22 +29,30 @@ export class VersionsModuleApi
 
   @Get()
   @AsOcpiRegistrationEndpoint()
-  @ResponseSchema(VersionListResponseDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    // examples: {}, // todo real example
-  })
+  @ResponseSchema(
+    VersionListResponseDTOSchema,
+    VersionListResponseDTOSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      // examples: {}, // todo real example
+    },
+  )
   async getVersions(): Promise<VersionListResponseDTO> {
     return this.versionService.getVersions();
   }
 
   @Get(`/:${versionIdParam}`)
   @AsOcpiRegistrationEndpoint()
-  @ResponseSchema(VersionDetailsResponseDTO, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    // examples: {}, // todo real example
-  })
+  @ResponseSchema(
+    VersionListResponseDTOSchema,
+    VersionListResponseDTOSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      // examples: {}, // todo real example
+    },
+  )
   async getVersionDetails(
     @VersionNumberParam() versionNumber: VersionNumber,
   ): Promise<VersionDetailsResponseDTO> {

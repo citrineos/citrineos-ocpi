@@ -5,21 +5,28 @@
 
 import { ISessionsModuleApi } from './ISessionsModuleApi';
 
-import { Body, Get, JsonController, Param, Put } from 'routing-controllers';
+import { Get, JsonController, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  Body,
   ChargingPreferences,
   ChargingPreferencesResponse,
+  ChargingPreferencesResponseSchema,
+  ChargingPreferencesResponseSchemaName,
+  ChargingPreferencesSchema,
+  ChargingPreferencesSchemaName,
   FunctionalEndpointParams,
+  generateMockForSchema,
   generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
   ModuleId,
   OcpiHeaders,
   Paginated,
   PaginatedParams,
   PaginatedSessionResponse,
+  PaginatedSessionResponseSchema,
+  PaginatedSessionResponseSchemaName,
   ResponseSchema,
   SessionsService,
   versionIdParam,
@@ -30,11 +37,13 @@ import {
 import { Service } from 'typedi';
 
 const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
-  PaginatedSessionResponse,
+  PaginatedSessionResponseSchema,
+  PaginatedSessionResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_CHARGING_PREFERENCES = generateMockOcpiResponse(
-  ChargingPreferencesResponse,
+const MOCK_CHARGING_PREFERENCES = generateMockForSchema(
+  ChargingPreferencesResponseSchema,
+  ChargingPreferencesResponseSchemaName,
 );
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Sessions}`)
@@ -49,13 +58,17 @@ export class SessionsModuleApi
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedSessionResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: MOCK_PAGINATED_SESSIONS,
+  @ResponseSchema(
+    PaginatedSessionResponseSchema,
+    PaginatedSessionResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: MOCK_PAGINATED_SESSIONS,
+      },
     },
-  })
+  )
   async getSessions(
     @VersionNumberParam() versionNumber: VersionNumber,
     @Paginated() paginatedParams?: PaginatedParams,
@@ -75,16 +88,21 @@ export class SessionsModuleApi
 
   @Put('/{sessionId}/charging_preferences')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(ChargingPreferencesResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: MOCK_CHARGING_PREFERENCES,
+  @ResponseSchema(
+    ChargingPreferencesResponseSchema,
+    ChargingPreferencesResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: MOCK_CHARGING_PREFERENCES,
+      },
     },
-  })
+  )
   async updateChargingPreferences(
     @Param('sessionId') sessionId: string,
-    @Body() body: ChargingPreferences,
+    @Body(ChargingPreferencesSchema, ChargingPreferencesSchemaName)
+    body: ChargingPreferences,
   ): Promise<ChargingPreferencesResponse> {
     console.log('updateChargingPreferences', sessionId, body);
     return MOCK_CHARGING_PREFERENCES;

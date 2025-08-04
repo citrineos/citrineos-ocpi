@@ -1,10 +1,13 @@
 import { BaseClientApi } from './BaseClientApi';
-import { Cdr, CdrResponse } from '../model/Cdr';
+import { Cdr, CdrResponse, CdrResponseSchema } from '../model/Cdr';
 import { Service } from 'typedi';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
 import { ModuleId } from '../model/ModuleId';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class CdrsClientApi extends BaseClientApi {
@@ -36,8 +39,8 @@ export class CdrsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      CdrResponse,
+      HttpMethod.Get,
+      CdrResponseSchema,
       partnerProfile,
       true,
       url,
@@ -57,8 +60,8 @@ export class CdrsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'post',
-      OcpiEmptyResponse,
+      HttpMethod.Post,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       undefined,

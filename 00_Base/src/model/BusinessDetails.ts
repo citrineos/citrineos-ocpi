@@ -1,61 +1,26 @@
-import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
-import { fromImageDTO, Image, toImageDTO } from './Image';
-import { Optional } from '../util/decorators/Optional';
-import { ClientCredentialsRole } from './ClientCredentialsRole';
-import { ServerCredentialsRole } from './ServerCredentialsRole';
-import { Exclude } from 'class-transformer';
+import { z } from 'zod';
 import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';
+import { fromImageDTO, ImageSchema, toImageDTO } from './Image';
 
-export enum BusinessDetailsProps {
-  name = 'name',
-  website = 'website',
-  logo = 'logo',
-  clientCredentialsRoleId = 'clientCredentialsRoleId',
-  clientCredentialsRole = 'clientCredentialsRole',
-  serverCredentialsRoleId = 'serverCredentialsRoleId',
-  serverCredentialsRole = 'serverCredentialsRole',
-}
+export const BusinessDetailsSchema = z.object({
+  name: z.string().max(100),
+  website: z.string().url().nullable().optional(),
+  logo: ImageSchema.nullable().optional(),
+});
 
-export class BusinessDetails {
-  @MaxLength(100)
-  @IsString()
-  @IsNotEmpty()
-  [BusinessDetailsProps.name]!: string;
-
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @Optional()
-  [BusinessDetailsProps.website]?: string | null;
-
-  @Exclude()
-  [BusinessDetailsProps.logo]?: Image | null;
-
-  @Exclude()
-  [BusinessDetailsProps.clientCredentialsRoleId]!: number;
-
-  @Exclude()
-  [BusinessDetailsProps.clientCredentialsRole]!: ClientCredentialsRole;
-
-  @Exclude()
-  [BusinessDetailsProps.serverCredentialsRoleId]!: number;
-
-  @Exclude()
-  [BusinessDetailsProps.serverCredentialsRole]!: ServerCredentialsRole;
-}
+export type BusinessDetails = z.infer<typeof BusinessDetailsSchema>;
 
 export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {
-  const businessDetailsDTO = new BusinessDetailsDTO();
-  businessDetailsDTO.name = businessDetails.name;
-  businessDetailsDTO.website = businessDetails.website;
-  if (businessDetails.logo) {
-    businessDetailsDTO.logo = toImageDTO(businessDetails.logo);
-  }
-  return businessDetailsDTO;
+  return {
+    name: businessDetails.name,
+    website: businessDetails.website,
+    logo: businessDetails.logo ? toImageDTO(businessDetails.logo) : undefined,
+  };
 };
 
 export const fromBusinessDetailsDTO = (
   businessDetailsDTO: BusinessDetailsDTO,
-) => {
+): BusinessDetails => {
   const record: any = {
     name: businessDetailsDTO.name,
     website: businessDetailsDTO.website,

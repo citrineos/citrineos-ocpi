@@ -1,13 +1,19 @@
-import { AuthorizationInfoResponse } from '../model/AuthorizationInfo';
 import { BaseClientApi } from './BaseClientApi';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
-import { OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
 import { PaginatedParams } from './param/PaginatedParams';
-import { PaginatedTokenResponse } from '../model/DTO/TokenDTO';
+import {
+  PaginatedTokenResponse,
+  PaginatedTokenResponseSchema,
+} from '../model/DTO/TokenDTO';
 import { TokenType } from '../model/TokenType';
 import { LocationReferences } from '../model/LocationReferences';
+import {
+  AuthorizationInfoResponse,
+  AuthorizationInfoResponseSchema,
+} from '../model/AuthorizationInfo';
 
 @Service()
 export class TokensClientApi extends BaseClientApi {
@@ -39,8 +45,8 @@ export class TokensClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      PaginatedTokenResponse,
+      HttpMethod.Get,
+      PaginatedTokenResponseSchema,
       partnerProfile,
       true,
       undefined,
@@ -68,8 +74,8 @@ export class TokensClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'post',
-      AuthorizationInfoResponse,
+      HttpMethod.Post,
+      AuthorizationInfoResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,

@@ -1,15 +1,14 @@
-import { IsNotEmpty, IsString, Matches, MaxLength } from 'class-validator';
+import { z } from 'zod';
 
-export class GeoLocation {
-  @MaxLength(10)
-  @Matches(/-?[0-9]{1,2}\.[0-9]{5,7}/)
-  @IsString()
-  @IsNotEmpty()
-  latitude!: string;
+export const GeoLocationSchema = z.object({
+  latitude: z
+    .string()
+    .max(10)
+    .regex(/-?[0-9]{1,2}\.[0-9]{5,7}/),
+  longitude: z
+    .string()
+    .max(11)
+    .regex(/-?[0-9]{1,3}\.[0-9]{5,7}/),
+});
 
-  @MaxLength(11)
-  @Matches(/-?[0-9]{1,3}\.[0-9]{5,7}/)
-  @IsString()
-  @IsNotEmpty()
-  longitude!: string;
-}
+export type GeoLocation = z.infer<typeof GeoLocationSchema>;

@@ -1,13 +1,9 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { z } from 'zod';
 import { CdrDimensionType } from './CdrDimensionType';
-import { Enum } from '../util/decorators/Enum';
 
-export class CdrDimension {
-  @Enum(CdrDimensionType, 'CdrDimensionType')
-  @IsNotEmpty()
-  type!: CdrDimensionType;
+export const CdrDimensionSchema = z.object({
+  type: z.nativeEnum(CdrDimensionType),
+  volume: z.number(),
+});
 
-  @IsNumber()
-  @IsNotEmpty()
-  volume!: number;
-}
+export type CdrDimension = z.infer<typeof CdrDimensionSchema>;

@@ -1,22 +1,27 @@
 import { JSONSchemaFaker } from 'json-schema-faker';
-import { classToJsonSchema } from '../openapi-spec-helper/class.validator';
 import { getAllSchemas } from '../openapi-spec-helper/schemas';
-import { SchemaObject } from 'openapi3-ts';
 import { PaginatedCdrResponse } from '../model/Cdr';
 import { PaginatedParams } from './param/PaginatedParams';
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import { ZodTypeAny } from 'zod';
 
-export const generateMockOcpiResponse = (model: any): any => {
+export const generateMockForSchema = (
+  schema: ZodTypeAny,
+  name: string,
+): any => {
   (JSONSchemaFaker.format as any)('url', (url: any) => url);
   JSONSchemaFaker.option({
     useExamplesValue: true,
     useDefaultValue: true,
   });
-  const schema: SchemaObject = classToJsonSchema(model);
-  (schema as any).components = {
+
+  const jsonSchema: any = zodToJsonSchema(schema, name);
+  (jsonSchema as any).components = {
     schemas: getAllSchemas(),
   };
   try {
-    return JSONSchemaFaker.generate(schema as any);
+    return JSONSchemaFaker.generate(jsonSchema);
   } catch (err) {
     console.log('err', err);
     return null;
@@ -24,21 +29,23 @@ export const generateMockOcpiResponse = (model: any): any => {
 };
 
 export const generateMockOcpiPaginatedResponse = (
-  model: any,
+  schema: any,
+  name: string,
   paginationParams?: PaginatedParams,
 ): any => {
-  const response = generateMockOcpiResponse(model) as PaginatedCdrResponse;
-  response.limit = paginationParams?.limit;
-  response.offset = paginationParams?.offset;
+  const response = generateMockForSchema(schema, name) as PaginatedCdrResponse;
+  response.limit = paginationParams?.limit || DEFAULT_LIMIT;
+  response.offset = paginationParams?.offset || DEFAULT_OFFSET;
   response.total = 50; // todo for now but will be set
   return response;
 };
 
 export class BaseController {
-  generateMockOcpiResponse = (model: any): any =>
-    generateMockOcpiResponse(model);
+  generateMockOcpiResponse = (model: any, name: string): any =>
+    generateMockForSchema(model, name);
   generateMockOcpiPaginatedResponse = (
     model: any,
+    name: string,
     paginationParams?: PaginatedParams,
-  ): any => generateMockOcpiPaginatedResponse(model, paginationParams);
+  ): any => generateMockOcpiPaginatedResponse(model, name, paginationParams);
 }

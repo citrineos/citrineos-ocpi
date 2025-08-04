@@ -1,45 +1,39 @@
-import { OcpiResponse, OcpiResponseStatusCode } from './OcpiResponse';
-import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { z } from 'zod';
+import { OcpiResponseSchema, OcpiResponseStatusCode } from './OcpiResponse';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;
 
-export class PaginatedResponse<T> extends OcpiResponse<T[]> {
-  @IsInt()
-  @IsNotEmpty()
-  total?: number;
+export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(
+  itemSchema: T,
+) =>
+  OcpiResponseSchema(z.array(itemSchema)).extend({
+    total: z.number().int().nonnegative(),
+    offset: z.number().int().nonnegative().default(DEFAULT_OFFSET),
+    limit: z.number().int().min(0).max(200).default(DEFAULT_LIMIT),
+    link: z.string().optional(),
+  });
 
-  @IsInt()
-  @IsNotEmpty()
-  @Min(0)
-  offset?: number = DEFAULT_OFFSET;
+export type PaginatedResponse<T extends z.ZodTypeAny> = z.infer<
+  ReturnType<typeof PaginatedResponseSchema<T>>
+>;
 
-  @IsInt()
-  @IsNotEmpty()
-  @Min(0)
-  @Max(200) // todo should this setting be in a config??
-  limit?: number = DEFAULT_LIMIT;
-
-  @IsString()
-  @IsNotEmpty()
-  link?: string;
-}
-
-export const buildOcpiPaginatedResponse = <T>(
+export const buildOcpiPaginatedResponse = <T extends z.ZodTypeAny>(
   status_code: OcpiResponseStatusCode,
   total: number,
   limit: number,
   offset: number,
-  data?: T[],
+  data?: z.infer<T>[],
   status_message?: string,
-) => {
-  const response = new PaginatedResponse<T>();
-  response.total = total;
-  response.limit = limit;
-  response.offset = offset;
-  response.status_code = status_code;
-  response.status_message = status_message;
-  response.data = data;
-  response.timestamp = new Date();
-  return response;
+): PaginatedResponse<T> => {
+  return {
+    status_code,
+    status_message,
+    timestamp: new Date(),
+    data,
+    total,
+    limit,
+    offset,
+    link: '', // default or you can make this an arg
+  };
 };

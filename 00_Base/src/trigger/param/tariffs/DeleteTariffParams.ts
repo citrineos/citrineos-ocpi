@@ -1,15 +1,8 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class DeleteTariffParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  tariffId!: string;
+export const DeleteTariffParamsSchema = OcpiParamsSchema.extend({
+  tariffId: z.string().length(36),
+});
 
-  static build(tariffId: string) {
-    const params = new DeleteTariffParams();
-    params.tariffId = tariffId;
-    return params;
-  }
-}
+export type DeleteTariffParams = z.infer<typeof DeleteTariffParamsSchema>;

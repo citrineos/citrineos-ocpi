@@ -39,12 +39,15 @@
     "clean-dist": "find . -type d -name dist -not -path '*/node_modules/*' -exec rm -rf {} +",
     "clean": "npm run clean-dist && npm run clean-tsbuildinfo",
     "build": "tsc --build --verbose",
-    "postbuild": "npm run copy-assets --prefix ./Server",
+    "postbuild": "npm run copy-assets --prefix ./Server && npm run copy-pgnotify-migrations --prefix ./00_Base",
     "lint": "npx eslint ./",
     "lint-fix": "npm run prettier && npx eslint --fix ./",
     "prettier": "prettier --write .",
-    "fresh-and-install-all": "npm run fresh && npm run install-all",
-    "generate": "graphql-codegen"
+    "fi": "npm run fresh && npm run install-all",
+    "generate": "graphql-codegen",
+    "migrate:rename": "find dist/migrations -name '*.js' -exec bash -c 'mv \"$0\" \"${0%.js}.cjs\"' {} \\;",
+    "migrate:build": "tsc --project migrations/tsconfig.json && npm run migrate:rename",
+    "migrate": "npm run migrate:build && npx sequelize-cli db:migrate && echo migration completed successfully"
   },
   "workspaces": [
     "./00_Base",
@@ -58,6 +61,7 @@
     "./03_Modules/Cdrs",
     "./03_Modules/Tokens",
     "./03_Modules/Certificates",
+    "./03_Modules/DtoRouter",
     "./Server",
     "../citrineos-core/00_Base",
     "../citrineos-core/01_Data",

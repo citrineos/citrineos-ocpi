@@ -10,11 +10,11 @@ import {
   IDtoEventHandlerDefinition,
 } from './AsDtoEventHandler';
 import {
-  IDtoModule,
+  DtoEventObjectType,
+  DtoEventType,
   IDtoEvent,
   IDtoEventReceiver,
-  DtoEventType,
-  DtoEventObjectType,
+  IDtoModule,
   IDtoPayload,
 } from './types';
 import { OcpiConfig } from '..';
@@ -88,16 +88,16 @@ export abstract class AbstractDtoModule implements IDtoModule {
    */
   async handle(message: IDtoEvent<IDtoPayload>): Promise<void> {
     try {
-      const handlerDefinition = (
-        Reflect.getMetadata(
-          AS_DTO_EVENT_HANDLER_METADATA,
-          this.constructor,
-        ) as Array<IDtoEventHandlerDefinition>
-      )
+      const metadata = Reflect.getMetadata(
+        AS_DTO_EVENT_HANDLER_METADATA,
+        this.constructor,
+      ) as Array<IDtoEventHandlerDefinition>;
+      this._logger.info(`message._context ${JSON.stringify(message._context)}`);
+      const handlerDefinition = metadata
         .filter(
           (h) =>
-            h.eventType === message.context.eventType &&
-            h.objectType === message.context.objectType,
+            h.eventType === message._context.eventType &&
+            h.objectType === message._context.objectType,
         )
         .pop();
 
@@ -105,7 +105,7 @@ export abstract class AbstractDtoModule implements IDtoModule {
         await handlerDefinition.method.call(this, message);
       } else {
         this._logger.warn(
-          `No handler found for eventType: ${message.context.eventType} and objectType: ${message.context.objectType} at module ${this.constructor.name}`,
+          `No handler found for eventType: ${message._context.eventType} and objectType: ${message._context.objectType} at module ${this.constructor.name}`,
         );
       }
     } catch (error) {

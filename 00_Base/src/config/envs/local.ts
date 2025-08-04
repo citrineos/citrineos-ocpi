@@ -46,24 +46,21 @@ export function createLocalOcpiConfig(): OcpiConfigInput {
     database: {
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'ocpi',
-      username: process.env.DB_USER || 'ocpi',
-      password: process.env.DB_PASS || '',
-      sync: process.env.DB_SYNC === 'true',
+      database: process.env.DB_NAME || 'citrine',
+      username: process.env.DB_USER || 'citrine',
+      password: process.env.DB_PASS || 'citrine',
     },
 
     cache: {
       memory: true,
     },
 
-    messageBroker: process.env.AMQP_URL
-      ? {
-          amqp: {
-            url: process.env.AMQP_URL,
-            exchange: process.env.AMQP_EXCHANGE || 'ocpi',
-          },
-        }
-      : undefined,
+    messageBroker: {
+      amqp: {
+        url: process.env.AMQP_URL || 'amqp://guest:guest@0.0.0.0:5672',
+        exchange: process.env.AMQP_EXCHANGE || 'ocpi',
+      },
+    },
 
     logLevel: parseInt(process.env.LOG_LEVEL || '2'),
     defaultPageLimit: 50,

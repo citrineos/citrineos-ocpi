@@ -1,24 +1,13 @@
-import { IsString, IsNotEmpty, IsUrl } from "class-validator";
-import { Enum } from "../util/decorators/Enum";
-import { InterfaceRole } from "./InterfaceRole";
-import { ModuleId } from "./ModuleId";
-import { VersionNumber } from "./VersionNumber";
+import { z } from 'zod';
+import { ModuleId } from './ModuleId';
+import { InterfaceRole } from './InterfaceRole';
+import { VersionNumber } from './VersionNumber';
 
-export class Endpoint {
-  @IsString()
-  @IsNotEmpty()
-  identifier!: ModuleId;
+export const EndpointSchema = z.object({
+  identifier: z.nativeEnum(ModuleId),
+  role: z.nativeEnum(InterfaceRole),
+  url: z.string().url(),
+  version: z.nativeEnum(VersionNumber),
+});
 
-  @Enum(InterfaceRole, 'InterfaceRole')
-  @IsNotEmpty()
-  role!: InterfaceRole;
-
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  url!: string;
-
-  @Enum(VersionNumber, 'VersionNumber')
-  @IsNotEmpty()
-  version!: string;
-}
+export type Endpoint = z.infer<typeof EndpointSchema>;

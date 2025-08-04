@@ -1,8 +1,5 @@
-import {
-  defaultClassValidatorJsonSchemaOptions,
-  nestedClassToJsonSchema,
-} from './class.validator';
-import { Constructable } from 'typedi';
+import { ZodTypeAny } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export const SchemaStore = {
   components: {
@@ -21,14 +18,11 @@ export const SchemaStore = {
     return this.components.schemas;
   },
 
-  addToSchemaStore(type: Constructable<any>) {
-    if (!this.getSchema(type.name)) {
+  addToSchemaStore(schema: ZodTypeAny, name: string) {
+    if (!this.getSchema(name)) {
       this.addSchema(
-        type.name,
-        nestedClassToJsonSchema(
-          type as any,
-          defaultClassValidatorJsonSchemaOptions,
-        ),
+        name,
+        (zodToJsonSchema(schema, name) as any).definitions[name],
       );
     }
   },

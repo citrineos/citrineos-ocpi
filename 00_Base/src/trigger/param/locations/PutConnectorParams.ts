@@ -1,40 +1,12 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ConnectorDTO } from '../../../model/DTO/ConnectorDTO';
+import { z } from 'zod';
+import { ConnectorDTOSchema } from '../../../model/DTO/ConnectorDTO';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class PutConnectorParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  locationId!: string;
+export const PutConnectorParamsSchema = OcpiParamsSchema.extend({
+  locationId: z.string().length(36),
+  evseUid: z.string().length(36),
+  connectorId: z.string().length(36),
+  connector: ConnectorDTOSchema,
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  evseUid!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  connectorId!: string;
-
-  @IsNotEmpty()
-  @Type(() => ConnectorDTO)
-  @ValidateNested()
-  connector!: ConnectorDTO;
-
-  static build(
-    locationId: number,
-    evseUid: string,
-    connectorId: number,
-    connector: ConnectorDTO,
-  ): PutConnectorParams {
-    const params = new PutConnectorParams();
-    params.locationId = String(locationId);
-    params.evseUid = evseUid;
-    params.connectorId = String(connectorId);
-    params.connector = connector;
-    return params;
-  }
-}
+export type PutConnectorParams = z.infer<typeof PutConnectorParamsSchema>;

@@ -1,10 +1,13 @@
 import { BaseClientApi } from './BaseClientApi';
-import { Tariff, TariffResponse } from '../model/Tariff';
+import { Tariff, TariffResponse, TariffResponseSchema } from '../model/Tariff';
 import { Service } from 'typedi';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
 import { ModuleId } from '../model/ModuleId';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class TariffsClientApi extends BaseClientApi {
@@ -37,8 +40,8 @@ export class TariffsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      TariffResponse,
+      HttpMethod.Get,
+      TariffResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -60,8 +63,8 @@ export class TariffsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'put',
-      TariffResponse,
+      HttpMethod.Put,
+      TariffResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -83,8 +86,8 @@ export class TariffsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'delete',
-      OcpiEmptyResponse,
+      HttpMethod.Delete,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,

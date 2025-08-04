@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "tsc --build",
+    "copy-pgnotify-migrations": "cp -R src/events/pgNotify/migrations dist/events/pgNotify/migrations",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -22,7 +23,7 @@
     "@types/lodash.capitalize": "4.2.9",
     "@types/lodash.merge": "4.6.9",
     "@types/lodash.startcase": "4.4.9",
-    "@types/pg": "^8.15.4",
+    "@types/pg": "8.15.4",
     "@types/uuid": "9.0.3",
     "@types/validator": "13.11.1",
     "json-schema-to-typescript": "12.0.0",
@@ -33,15 +34,11 @@
   "dependencies": {
     "@citrineos/base": "~1.8.0",
     "@citrineos/util": "~1.8.0",
+    "amqplib": "0.10.8",
     "class-transformer": "0.5.1",
-    "json-schema-faker": "0.5.6",
-    "typed-rest-client": "2.0.2",
-    "reflect-metadata": "0.1.13",
-    "tslog": "4.9.2",
-    "uuid": "9.0.0",
-    "zod": "3.22.3",
     "class-validator": "0.14.1",
     "class-validator-jsonschema": "5.0.0",
+    "json-schema-faker": "0.5.6",
     "koa": "2.16.1",
     "koa-bodyparser": "4.4.1",
     "koa-logger": "3.2.1",
@@ -50,8 +47,15 @@
     "lodash.merge": "4.6.2",
     "lodash.startcase": "4.4.0",
     "node-pg-migrate": "^7.9.1",
-    "pg": "^8.11.3",
+    "pg": "8.11.3",
+    "reflect-metadata": "0.1.13",
     "routing-controllers": "0.10.4",
-    "typedi": "0.10.0"
+    "sequelize": "^6.37.7",
+    "tslog": "4.9.2",
+    "typed-rest-client": "2.0.2",
+    "typedi": "0.10.0",
+    "uuid": "9.0.0",
+    "zod": "3.24.1",
+    "zod-to-json-schema": "3.24.6"
   }
 }

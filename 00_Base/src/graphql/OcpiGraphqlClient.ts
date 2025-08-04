@@ -1,5 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
+import { Service } from 'typedi';
 
+@Service()
 export class OcpiGraphqlClient {
   private client: GraphQLClient;
 
@@ -11,4 +13,3 @@ export class OcpiGraphqlClient {
     return this.client.request<T>(query, variables);
   }
 }
-

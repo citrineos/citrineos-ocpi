@@ -230,7 +230,7 @@ export class CredentialsService {
       tenantPartner.partnerProfileOCPI!,
       RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner),
     );
-    return credentialsResponse.data;
+    return credentialsResponse.data as CredentialsDTO;
   }
 
   // async deleteTenant(tenantId: string): Promise<void> {
@@ -320,11 +320,11 @@ export class CredentialsService {
         );
 
       tenantPartner.partnerProfileOCPI!.credentials = {
-        versionsUrl: putCredentialsResponse.data.url,
-        token: putCredentialsResponse.data.token,
+        versionsUrl: putCredentialsResponse?.data?.url!,
+        token: putCredentialsResponse?.data?.token,
       };
       tenantPartner.partnerProfileOCPI!.roles =
-        putCredentialsResponse.data.roles.map((value: CredentialsRoleDTO) =>
+        putCredentialsResponse?.data?.roles.map((value: CredentialsRoleDTO) =>
           RegistrationMapper.toCredentialsRole(value),
         );
 

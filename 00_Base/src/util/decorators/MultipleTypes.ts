@@ -1,3 +1,5 @@
+import { ZodTypeAny } from 'zod';
+
 export const MULTIPLE_TYPES = 'MultipleTypes';
 
 /**
@@ -9,7 +11,9 @@ export const MULTIPLE_TYPES = 'MultipleTypes';
  * @constructor
  * @param types
  */
-export const MultipleTypes = (...types: any[]) =>
+export const MultipleTypes = (
+  ...types: { name: string; schema: ZodTypeAny }[]
+) =>
   function (object: NonNullable<unknown>, methodName: string, index: number) {
     // Add custom metadata for additional use cases
     Reflect.defineMetadata(

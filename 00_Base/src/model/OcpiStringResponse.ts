@@ -1,9 +1,6 @@
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { OcpiResponse } from './OcpiResponse';
+import { z } from 'zod';
+import { OcpiResponseSchema } from './OcpiResponse';
 
-export class OcpiStringResponse extends OcpiResponse<string> {
-  @IsString()
-  @IsNotEmpty()
-  @ValidateNested() // needed for json schema
-  data!: string;
-}
+export const OcpiStringResponseSchema = OcpiResponseSchema(z.string());
+
+export type OcpiStringResponse = z.infer<typeof OcpiStringResponseSchema>;

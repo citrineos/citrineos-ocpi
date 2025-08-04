@@ -2,7 +2,11 @@ import { KoaMiddlewareInterface } from 'routing-controllers';
 import { Context } from 'vm';
 import { Service } from 'typedi';
 import { BaseMiddleware } from './BaseMiddleware';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET, PaginatedResponse } from '../../model/PaginatedResponse';
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+  PaginatedResponse,
+} from '../../model/PaginatedResponse';
 import { OcpiHttpHeader } from '../OcpiHttpHeader';
 
 /**
@@ -24,9 +28,9 @@ export class PaginatedMiddleware
     }
     context.response.set(OcpiHttpHeader.XTotalCount, paginatedResponse.total);
     context.response.set(OcpiHttpHeader.XLimit, paginatedResponse.limit);
-    delete paginatedResponse.limit;
-    delete paginatedResponse.offset;
-    delete paginatedResponse.total;
+    delete (paginatedResponse as any).limit;
+    delete (paginatedResponse as any).offset;
+    delete (paginatedResponse as any).total;
   }
 
   private createLink(

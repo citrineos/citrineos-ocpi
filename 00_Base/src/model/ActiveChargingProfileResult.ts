@@ -1,17 +1,12 @@
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { ActiveChargingProfile } from './ActiveChargingProfile';
+import { z } from 'zod';
 import { ChargingProfileResultType } from './ChargingProfileResult';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
+import { ActiveChargingProfileSchema } from './ActiveChargingProfile';
 
-export class ActiveChargingProfileResult {
-  @Enum(ChargingProfileResultType, 'ChargingProfileResultType')
-  @IsNotEmpty()
-  result!: ChargingProfileResultType;
+export const ActiveChargingProfileResultSchema = z.object({
+  result: z.nativeEnum(ChargingProfileResultType),
+  profile: ActiveChargingProfileSchema.nullish(),
+});
 
-  @Optional()
-  @Type(() => ActiveChargingProfile)
-  @ValidateNested()
-  profile?: ActiveChargingProfile | null;
-}
+export type ActiveChargingProfileResult = z.infer<
+  typeof ActiveChargingProfileResultSchema
+>;

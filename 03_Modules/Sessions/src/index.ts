@@ -9,14 +9,17 @@ import {
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
-  IDtoEventReceiver,
   OcpiConfig,
+  OcpiConfigToken,
   OcpiModule,
+  RabbitMqDtoReceiver,
+  SystemConfigToken,
 } from '@citrineos/ocpi-base';
 import { MeterValue, Transaction } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { SessionsModuleApi } from './module/SessionsModuleApi';
+import { SystemConfig } from '@citrineos/base';
 
 export { SessionsModuleApi } from './module/SessionsModuleApi';
 export { ISessionsModuleApi } from './module/ISessionsModuleApi';
@@ -24,11 +27,11 @@ export { ISessionsModuleApi } from './module/ISessionsModuleApi';
 @Service()
 export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
-    config: OcpiConfig,
-    receiver: IDtoEventReceiver,
-    logger?: Logger<ILogObj>,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    @Inject(SystemConfigToken) systemConfig: SystemConfig,
+    logger: Logger<ILogObj>,
   ) {
-    super(config, receiver, logger);
+    super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
   getController(): any {
@@ -66,8 +69,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Transaction Update: ${JSON.stringify(event)}`);
     // All updates are Session PATCH requests
-    if (event.payload.isActive === false) {
-      this._logger.info(`Transaction is no longer active: ${event.eventId}`);
+    if (event._payload.isActive === false) {
+      this._logger.info(`Transaction is no longer active: ${event._eventId}`);
       // This triggers a Cdr POST request
     }
   }
@@ -79,9 +82,9 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleMeterValueInsert(event: IDtoEvent<MeterValue>): Promise<void> {
     this._logger.info(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
-    if (event.payload.transactionDatabaseId) {
+    if (event._payload.transactionDatabaseId) {
       this._logger.info(
-        `Meter Value belongs to Transaction: ${event.payload.transactionDatabaseId}`,
+        `Meter Value belongs to Transaction: ${event._payload.transactionDatabaseId}`,
       );
       // The meter value should be converted to a charging period for a Session PATCH request
     }

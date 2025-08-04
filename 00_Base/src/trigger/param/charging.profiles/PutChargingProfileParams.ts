@@ -1,18 +1,21 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ActiveChargingProfile } from '../../../model/ActiveChargingProfile';
+import { z } from 'zod';
+import {
+  ActiveChargingProfile,
+  ActiveChargingProfileSchema,
+} from '../../../model/ActiveChargingProfile';
 
-export class PutChargingProfileParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  sessionId!: string;
+export const PutChargingProfileParamsSchema = z.object({
+  sessionId: z.string().min(1),
+  activeChargingProfile: ActiveChargingProfileSchema,
+  fromCountryCode: z.string().length(2),
+  fromPartyId: z.string().length(3),
+  toCountryCode: z.string().length(2),
+  toPartyId: z.string().length(3),
+});
 
-  @IsNotEmpty()
-  @Type(() => ActiveChargingProfile)
-  @ValidateNested()
-  activeChargingProfile!: ActiveChargingProfile;
-}
+export type PutChargingProfileParams = z.infer<
+  typeof PutChargingProfileParamsSchema
+>;
 
 export const buildPutChargingProfileParams = (
   sessionId: string,
@@ -21,15 +24,11 @@ export const buildPutChargingProfileParams = (
   fromPartyId: string,
   toCountryCode: string,
   toPartyId: string,
-): PutChargingProfileParams => {
-  const ocpiParams = new OcpiParams(
-    fromCountryCode,
-    fromPartyId,
-    toCountryCode,
-    toPartyId,
-  );
-  (ocpiParams as PutChargingProfileParams).sessionId = sessionId;
-  (ocpiParams as PutChargingProfileParams).activeChargingProfile =
-    activeChargingProfile;
-  return ocpiParams as PutChargingProfileParams;
-};
+): PutChargingProfileParams => ({
+  sessionId,
+  activeChargingProfile,
+  fromCountryCode,
+  fromPartyId,
+  toCountryCode,
+  toPartyId,
+});

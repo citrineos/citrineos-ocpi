@@ -1,7 +1,5 @@
-import { IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
-import { Enum } from '../util/decorators/Enum';
-import { OcpiResponse } from './OcpiResponse';
-import { Type } from 'class-transformer';
+import { z } from 'zod';
+import { OcpiResponseSchema } from './OcpiResponse';
 
 export enum ChargingProfileResultType {
   ACCEPTED = 'ACCEPTED',
@@ -9,16 +7,15 @@ export enum ChargingProfileResultType {
   UNKNOWN = 'UNKNOWN',
 }
 
-export class ChargingProfileResult {
-  @Enum(ChargingProfileResultType, 'ChargingProfileResultType')
-  @IsNotEmpty()
-  result!: ChargingProfileResultType;
-}
+export const ChargingProfileResultSchema = z.object({
+  result: z.nativeEnum(ChargingProfileResultType),
+});
 
-export class ChargingProfileResultResponse extends OcpiResponse<ChargingProfileResult> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => ChargingProfileResult)
-  @ValidateNested()
-  data!: ChargingProfileResult;
-}
+export const ChargingProfileResultResponseSchema = OcpiResponseSchema(
+  ChargingProfileResultSchema,
+);
+
+export type ChargingProfileResult = z.infer<typeof ChargingProfileResultSchema>;
+export type ChargingProfileResultResponse = z.infer<
+  typeof ChargingProfileResultResponseSchema
+>;

@@ -9,9 +9,11 @@ import {
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
-  IDtoEventReceiver,
   OcpiConfig,
+  OcpiConfigToken,
   OcpiModule,
+  RabbitMqDtoReceiver,
+  SystemConfigToken,
 } from '@citrineos/ocpi-base';
 import { ILogObj, Logger } from 'tslog';
 import { LocationsModuleApi } from './module/LocationsModuleApi';
@@ -20,8 +22,10 @@ import {
   IConnectorDto,
   IEvseDto,
   ILocationDto,
+  SystemConfig,
 } from '@citrineos/base';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
+import { LocationsBroadcaster } from '@citrineos/ocpi-base/dist/broadcaster/LocationsBroadcaster';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi';
 export { ILocationsModuleApi } from './module/ILocationsModuleApi';
@@ -29,11 +33,12 @@ export { ILocationsModuleApi } from './module/ILocationsModuleApi';
 @Service()
 export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
-    config: OcpiConfig,
-    receiver: IDtoEventReceiver,
-    logger?: Logger<ILogObj>,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    @Inject(SystemConfigToken) systemConfig: SystemConfig,
+    readonly logger: Logger<ILogObj>,
+    readonly locationsBroadcaster: LocationsBroadcaster,
   ) {
-    super(config, receiver, logger);
+    super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
   getController(): any {
@@ -58,7 +63,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
     this._logger.info(`Handling Location Insert: ${JSON.stringify(event)}`);
-    // Inserts are Location PUT requests
+    await this.locationsBroadcaster.broadcastPutLocation(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -70,7 +75,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     event: IDtoEvent<Partial<ILocationDto>>,
   ): Promise<void> {
     this._logger.info(`Handling Location Update: ${JSON.stringify(event)}`);
-    // Updates are Location PATCH requests
+    await this.locationsBroadcaster.broadcastPatchLocation(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -85,6 +90,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
     );
     // Updates are Location/Evse PATCH requests
+    // await this.locationsBroadcaster.broadcastPatchEvse(event._payload); // todo
   }
 
   @AsDtoEventHandler(
@@ -96,6 +102,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     this._logger.info(`Handling EVSE Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse PUT requests
     // Requires pulling the ChargingStation data from GraphQL
+    await this.locationsBroadcaster.broadcastPutEvse(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -106,6 +113,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
     this._logger.info(`Handling EVSE Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse PATCH requests
+    await this.locationsBroadcaster.broadcastPatchEvse(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -116,6 +124,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
     this._logger.info(`Handling Connector Insert: ${JSON.stringify(event)}`);
     // Inserts are Location/Evse/Connector PUT requests
+    await this.locationsBroadcaster.broadcastPutConnector(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -128,5 +137,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.info(`Handling Connector Update: ${JSON.stringify(event)}`);
     // Updates are Location/Evse/Connector PATCH requests
+    await this.locationsBroadcaster.broadcastPatchConnector(event._payload);
   }
 }
