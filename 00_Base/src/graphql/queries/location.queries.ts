@@ -28,13 +28,16 @@ export const GET_LOCATIONS_QUERY = gql`
       name
       address
       city
-      postalCode
-      state
-      country
-      publishUpstream
-      timeZone
       coordinates
+      country
       createdAt
+      facilities
+      openingHours
+      parkingType
+      postalCode
+      publishUpstream
+      state
+      timeZone
       updatedAt
       Tenant {
         partyId
@@ -44,15 +47,19 @@ export const GET_LOCATIONS_QUERY = gql`
         id
         isOnline
         protocol
+        capabilities
         chargePointVendor
         chargePointModel
         chargePointSerialNumber
         chargeBoxSerialNumber
+        coordinates
         firmwareVersion
+        floorLevel
         iccid
         imsi
         meterType
         meterSerialNumber
+        parkingRestrictions
         locationId
         createdAt
         updatedAt
@@ -71,6 +78,13 @@ export const GET_LOCATIONS_QUERY = gql`
             evseId
             connectorId
             evseTypeConnectorId
+            format
+            maximumAmperage
+            maximumPowerWatts
+            maximumVoltage
+            powerType
+            termsAndConditionsUrl
+            type
             status
             errorCode
             timestamp
@@ -93,13 +107,16 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       name
       address
       city
-      postalCode
-      state
-      country
-      publishUpstream
-      timeZone
       coordinates
+      country
       createdAt
+      facilities
+      openingHours
+      parkingType
+      postalCode
+      publishUpstream
+      state
+      timeZone
       updatedAt
       Tenant {
         partyId
@@ -109,15 +126,19 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
         id
         isOnline
         protocol
+        capabilities
         chargePointVendor
         chargePointModel
         chargePointSerialNumber
         chargeBoxSerialNumber
+        coordinates
         firmwareVersion
+        floorLevel
         iccid
         imsi
         meterType
         meterSerialNumber
+        parkingRestrictions
         locationId
         createdAt
         updatedAt
@@ -136,6 +157,13 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
             evseId
             connectorId
             evseTypeConnectorId
+            format
+            maximumAmperage
+            maximumPowerWatts
+            maximumVoltage
+            powerType
+            termsAndConditionsUrl
+            type
             status
             errorCode
             timestamp
@@ -164,6 +192,27 @@ export const GET_EVSE_BY_ID_QUERY = gql`
           removed
           createdAt
           updatedAt
+          ChargingStation {
+            id
+            isOnline
+            protocol
+            capabilities
+            chargePointVendor
+            chargePointModel
+            chargePointSerialNumber
+            chargeBoxSerialNumber
+            coordinates
+            firmwareVersion
+            floorLevel
+            iccid
+            imsi
+            meterType
+            meterSerialNumber
+            parkingRestrictions
+            locationId
+            createdAt
+            updatedAt
+          }
         }
       }
     }
@@ -186,6 +235,13 @@ export const GET_CONNECTOR_BY_ID_QUERY = gql`
             evseId
             connectorId
             evseTypeConnectorId
+            format
+            maximumAmperage
+            maximumPowerWatts
+            maximumVoltage
+            powerType
+            termsAndConditionsUrl
+            type
             status
             errorCode
             timestamp

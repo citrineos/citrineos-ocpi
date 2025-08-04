@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+
 export const READ_AUTHORIZATION = gql`
   query ReadAuthorizations(
     $idToken: String
@@ -50,14 +51,14 @@ export const UPDATE_TOKEN_MUTATION = gql`
   }
 `;
 
-export const GET_AUTHORIZATION_BY_ID_QUERY = gql`
-  query GetAuthorizationById($idToken: String!, $idTokenType: String!) {
-    Authorizations(
-      where: { idToken: { _eq: $idToken }, idTokenType: { _eq: $idTokenType } }
-    ) {
-      id
-      idToken
-      idTokenType
-    }
-  }
-`;
+// export const GET_AUTHORIZATION_BY_ID_QUERY = gql`
+//   query GetAuthorizationById($idToken: String!, $idTokenType: String!) {
+//     Authorizations(
+//       where: { idToken: { _eq: $idToken }, idTokenType: { _eq: $idTokenType } }
+//     ) {
+//       id
+//       idToken
+//       idTokenType
+//     }
+//   }
+// `;

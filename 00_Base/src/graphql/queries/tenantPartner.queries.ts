@@ -102,15 +102,15 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
   }
 `;
 
-export const UPDATE_TENANT_PARTNER_MUTATION = gql`
-  mutation UpdateTenantPartner(
-    $id: Int!
-    $set: TenantPartners_set_input!
-  ) {
-    update_TenantPartners_by_pk(pk_columns: {id: 10}, _set: $set) {
-      returning {
-        id
-      }
-    }
-  }
-`;
+// export const UPDATE_TENANT_PARTNER_MUTATION = gql`
+//   mutation UpdateTenantPartner(
+//     $id: Int!
+//     $set: TenantPartners_set_input!
+//   ) {
+//     update_TenantPartners_by_pk(pk_columns: {id: 10}, _set: $set) {
+//       returning {
+//         id
+//       }
+//     }
+//   }
+// `;

@@ -124,22 +124,9 @@ export class LocationsService {
         GET_EVSE_BY_ID_QUERY,
         variables,
       );
-      // Traverse to the EVSE object
-      if (
-        response.Locations?.[0]?.chargingPool &&
-        response.Locations[0].chargingPool.length > 1
-      ) {
-        this.logger.warn(`Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool)}`);
-      }
-      if (
-        response.Locations?.[0]?.chargingPool?.[0]?.evses &&
-        response.Locations[0].chargingPool[0].evses.length > 1
-      ) {
-        this.logger.warn(`Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses)}`);
-      }
       const evse = EvseMapper.fromGraphql(
-        response.Locations?.[0]?.chargingPool?.[0],
-        response.Locations?.[0]?.chargingPool?.[0].evses?.[0],
+        response.ChargingStation,
+        response,
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
