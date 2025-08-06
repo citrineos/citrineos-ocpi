@@ -253,7 +253,7 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 export { CommandsService } from './services/CommandsService';
 export { CredentialsService } from './services/CredentialsService';
 export { TokensService } from './services/TokensService';
-export { TokensAdminService } from './services/TokensAdminService';
+// export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
 export { SessionsService } from './services/SessionsService';
@@ -349,7 +349,7 @@ export class OcpiServer extends KoaServer {
   }
 
   public async initialize() {
-    for (let moduleListElement of this.moduleList) {
+    for (const moduleListElement of this.moduleList) {
       const constructedModule = Container.get(moduleListElement) as OcpiModule &
         IDtoModule;
       if (constructedModule) {

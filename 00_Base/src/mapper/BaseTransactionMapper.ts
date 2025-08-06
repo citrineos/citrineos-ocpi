@@ -4,6 +4,7 @@ import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
 import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
+import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/LocationsService';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
@@ -78,12 +79,9 @@ export abstract class BaseTransactionMapper {
   ): Promise<Map<string, ITariffDto>> {
     const transactionIdToTariffMap = new Map<string, ITariffDto>();
     for (const transaction of transactions) {
-      const tariffs = transaction?.connector?.tariffs;
-      if (tariffs && tariffs.length > 0) {
-        const tariff = tariffs[0];
-        if (tariff) {
-          transactionIdToTariffMap.set(transaction.transactionId!, tariff);
-        }
+      const tariff = transaction.tariff;
+      if (tariff) {
+        transactionIdToTariffMap.set(transaction.transactionId!, tariff);
       }
     }
     return transactionIdToTariffMap;

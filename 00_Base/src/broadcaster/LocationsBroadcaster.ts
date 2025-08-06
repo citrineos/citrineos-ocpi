@@ -140,7 +140,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     if (!evseId) {
       throw new Error('EVSE ID missing in Connector data');
     }
-    const locationId = connectorData.chargingStation!.locationId;
+    const locationId = connectorData.chargingStation!.locationId!;
 
     const params: PatchConnectorParams = {
       locationId,

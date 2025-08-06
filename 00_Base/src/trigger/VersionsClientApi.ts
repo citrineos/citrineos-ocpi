@@ -6,13 +6,13 @@ import {
   VersionDetailsResponseDTOSchema,
 } from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
-import { HttpMethod, OCPIRegistration, PartnerProfile } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 import { VersionsInterface } from '../model/EndpointIdentifier';
 
 @Service()
 export class VersionsClientApi extends BaseClientApi {
   getUrl(
-    partnerProfile: PartnerProfile,
+    partnerProfile: OCPIRegistration.PartnerProfile,
     versionInterface = VersionsInterface.VERSIONS,
   ): string {
     switch (versionInterface) {

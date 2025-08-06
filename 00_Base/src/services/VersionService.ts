@@ -46,12 +46,11 @@ export class VersionService {
     >(GET_TENANT_BY_ID, { id: tenantId });
     const tenant = response.Tenants[0] as ITenantDto;
     const tenantVersion: OCPIRegistration.Version | undefined =
-      tenant.serverProfileOCPI?.versionDetails
-        .keys()
-        .find(
-          (value: OCPIRegistration.Version) =>
-            value.version === RegistrationMapper.toOCPIVersionNumber(version),
-        );
+      tenant.serverProfileOCPI?.versionDetails &&
+      Array.from(tenant.serverProfileOCPI?.versionDetails.keys()).find(
+        (value: OCPIRegistration.Version) =>
+          value.version === RegistrationMapper.toOCPIVersionNumber(version),
+      );
     if (!tenantVersion) {
       throw new NotFoundError('Version not found');
     }

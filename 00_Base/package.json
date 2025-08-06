@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc --build",
-    "copy-pgnotify-migrations": "cp -R src/events/pgNotify/migrations dist/events/pgNotify/migrations",
+    "copy-pgnotify-migrations": "cpy 'src/events/pgNotify/migrations/**' 'dist/events/pgNotify/migrations' --parents",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -26,6 +26,7 @@
     "@types/pg": "8.15.4",
     "@types/uuid": "9.0.3",
     "@types/validator": "13.11.1",
+    "cpy-cli": "5.0.0",
     "json-schema-to-typescript": "12.0.0",
     "json-schema-to-zod": "1.1.1",
     "ts-node": "10.9.1",
