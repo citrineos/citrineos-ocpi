@@ -80,25 +80,5 @@ export const GET_TRANSACTIONS_QUERY = gql`
         sampledValue
       }
     }
-    Transactions_aggregate(
-      where: {
-        stationId: { _is_null: false }
-        ChargingStation: {
-          Tenant: {
-            countryCode: { _eq: $cpoCountryCode }
-            partyId: { _eq: $cpoPartyId }
-            TenantPartners: {
-              countryCode: { _eq: $mspCountryCode }
-              partyId: { _eq: $mspPartyId }
-            }
-          }
-        }
-        updatedAt: { _gte: $dateFrom, _lte: $dateTo }
-      }
-    ) {
-      aggregate {
-        count
-      }
-    }
   }
 `;

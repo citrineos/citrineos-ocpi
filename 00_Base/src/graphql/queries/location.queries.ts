@@ -39,7 +39,7 @@ export const GET_LOCATIONS_QUERY = gql`
       state
       timeZone
       updatedAt
-      Tenant {
+      tenant: Tenant {
         partyId
         countryCode
       }
@@ -63,7 +63,7 @@ export const GET_LOCATIONS_QUERY = gql`
         locationId
         createdAt
         updatedAt
-        Evses {
+        evses: Evses {
           id
           stationId
           evseTypeId
@@ -72,7 +72,7 @@ export const GET_LOCATIONS_QUERY = gql`
           removed
           createdAt
           updatedAt
-          Connectors {
+          connectors: Connectors {
             id
             stationId
             evseId
@@ -118,7 +118,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       state
       timeZone
       updatedAt
-      Tenant {
+      tenant: Tenant {
         partyId
         countryCode
       }
@@ -142,7 +142,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
         locationId
         createdAt
         updatedAt
-        Evses {
+        evses: Evses {
           id
           stationId
           evseTypeId
@@ -151,7 +151,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
           removed
           createdAt
           updatedAt
-          Connectors {
+          connectors: Connectors {
             id
             stationId
             evseId
@@ -183,7 +183,26 @@ export const GET_EVSE_BY_ID_QUERY = gql`
   query GetEvseById($locationId: Int!, $stationId: String!, $evseId: Int!) {
     Locations(where: { id: { _eq: $locationId } }) {
       chargingPool: ChargingStations(where: { id: { _eq: $stationId } }) {
-        Evses(where: { id: { _eq: $evseId } }) {
+        id
+        isOnline
+        protocol
+        capabilities
+        chargePointVendor
+        chargePointModel
+        chargePointSerialNumber
+        chargeBoxSerialNumber
+        coordinates
+        firmwareVersion
+        floorLevel
+        iccid
+        imsi
+        meterType
+        meterSerialNumber
+        parkingRestrictions
+        locationId
+        createdAt
+        updatedAt
+        evses: Evses(where: { id: { _eq: $evseId } }) {
           id
           stationId
           evseTypeId
@@ -192,27 +211,6 @@ export const GET_EVSE_BY_ID_QUERY = gql`
           removed
           createdAt
           updatedAt
-          ChargingStation {
-            id
-            isOnline
-            protocol
-            capabilities
-            chargePointVendor
-            chargePointModel
-            chargePointSerialNumber
-            chargeBoxSerialNumber
-            coordinates
-            firmwareVersion
-            floorLevel
-            iccid
-            imsi
-            meterType
-            meterSerialNumber
-            parkingRestrictions
-            locationId
-            createdAt
-            updatedAt
-          }
         }
       }
     }
@@ -228,8 +226,10 @@ export const GET_CONNECTOR_BY_ID_QUERY = gql`
   ) {
     Locations(where: { id: { _eq: $locationId } }) {
       chargingPool: ChargingStations(where: { id: { _eq: $stationId } }) {
-        Evses(where: { id: { _eq: $evseId } }) {
-          Connectors(where: { connectorId: { _eq: $connectorId } }) {
+        evses: Evses(where: { id: { _eq: $evseId } }) {
+          connectors: Connectors(
+            where: { connectorId: { _eq: $connectorId } }
+          ) {
             id
             stationId
             evseId

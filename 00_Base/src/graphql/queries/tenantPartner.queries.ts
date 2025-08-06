@@ -13,7 +13,7 @@ export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
       countryCode
       partyId
       partnerProfileOCPI
-      Tenant {
+      tenant: Tenant {
         id
         countryCode
         partyId
@@ -58,7 +58,7 @@ export const GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT = gql`
       countryCode
       partyId
       partnerProfileOCPI
-      Tenant {
+      tenant: Tenant {
         id
         countryCode
         partyId
@@ -89,26 +89,11 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
       countryCode
       partyId
       partnerProfileOCPI
-      Tenant {
+      tenant: Tenant {
         id
         countryCode
         partyId
         serverProfileOCPI
-      }
-    }
-    TenantPartners_aggregate(
-      where: {
-        Tenant: {
-          countryCode: { _eq: $cpoCountryCode }
-          partyId: { _eq: $cpoPartyId }
-        }
-        partnerProfileOCPI: {
-          _contains: { endpoints: { identifier: $endpointIdentifier } }
-        }
-      }
-    ) {
-      aggregate {
-        count
       }
     }
   }

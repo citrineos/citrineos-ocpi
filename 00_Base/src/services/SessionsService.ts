@@ -7,10 +7,13 @@ import {
 } from '../model/PaginatedResponse';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GetTransactionsQuery } from '../graphql/types/graphql';
 import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
 import { SessionMapper } from '../mapper/SessionMapper';
 import { ITransactionDto } from '@citrineos/base';
+import {
+  GetTransactionsQueryResult,
+  GetTransactionsQueryVariables,
+} from '../graphql/operations';
 @Service()
 export class SessionsService {
   constructor(
@@ -39,13 +42,13 @@ export class SessionsService {
       offset,
       limit,
     };
-    const result = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(
-      GET_TRANSACTIONS_QUERY,
-      queryOptions,
-    );
+    const result = await this.ocpiGraphqlClient.request<
+      GetTransactionsQueryResult,
+      GetTransactionsQueryVariables
+    >(GET_TRANSACTIONS_QUERY, queryOptions);
 
     let mappedSessions = await this.sessionMapper.mapTransactionsToSessions(
-      result.Transactions as unknown as ITransactionDto[],
+      result.Transactions as ITransactionDto[],
     );
 
     if (endedOnly) {
@@ -54,7 +57,7 @@ export class SessionsService {
 
     const response = buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
-      result.Transactions_aggregate.aggregate?.count || 0,
+      result.Transactions.length,
       limit,
       offset,
       mappedSessions,

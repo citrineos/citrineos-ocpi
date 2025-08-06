@@ -23,7 +23,7 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
       taxRate
       tariffAltText
       updatedAt
-      Tenant {
+      tenant: Tenant {
         countryCode
         partyId
       }
@@ -63,22 +63,9 @@ export const GET_TARIFFS_QUERY = gql`
       taxRate
       tariffAltText
       updatedAt
-      Tenant {
+      tenant: Tenant {
         countryCode
         partyId
-      }
-    }
-    Tariffs_aggregate(
-      where: {
-        Tenant: {
-          countryCode: { _eq: $countryCode }
-          partyId: { _eq: $partyId }
-        }
-        updatedAt: { _gte: $dateFrom, _lte: $dateTo }
-      }
-    ) {
-      aggregate {
-        count
       }
     }
   }

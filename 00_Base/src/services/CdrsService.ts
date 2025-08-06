@@ -3,9 +3,12 @@ import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { CdrMapper } from '../mapper/CdrMapper';
 import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
-import { GetTransactionsQuery } from '../graphql/types/graphql';
 import { ITransactionDto } from '@citrineos/base';
 import { PaginatedCdrResponse } from '../model/Cdr';
+import {
+  GetTransactionsQueryResult,
+  GetTransactionsQueryVariables,
+} from '../graphql/operations';
 
 @Service()
 export class CdrsService {
@@ -34,17 +37,17 @@ export class CdrsService {
       offset,
       limit,
     };
-    const result = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(
-      GET_TRANSACTIONS_QUERY,
-      variables,
-    );
+    const result = await this.ocpiGraphqlClient.request<
+      GetTransactionsQueryResult,
+      GetTransactionsQueryVariables
+    >(GET_TRANSACTIONS_QUERY, variables);
     const mappedCdr = await this.cdrMapper.mapTransactionsToCdrs(
-      result.Transactions as unknown as ITransactionDto[],
+      result.Transactions as ITransactionDto[],
     );
 
     return {
       data: mappedCdr,
-      total: result.Transactions_aggregate.aggregate?.count || 0,
+      total: result.Transactions.length,
       offset: offset,
       limit: limit,
     } as PaginatedCdrResponse;

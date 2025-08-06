@@ -14,6 +14,11 @@ import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse';
 import { OcpiResponseStatusCode } from '../../model/OcpiResponse';
 import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
 import { GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT } from '../../graphql/queries/tenantPartner.queries';
+import {
+  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
+  GetTenantPartnerByServerTokenQueryResult,
+} from '../../graphql/operations';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 
@@ -70,16 +75,16 @@ export class AuthMiddleware
         );
         const toPartyId = this.getHeader(context, OcpiHttpHeader.OcpiToPartyId);
 
-        const tenantPartner: ITenantPartnerDto | undefined =
-          await this.ocpiGraphqlClient.request<ITenantPartnerDto>(
-            GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
-            {
-              cpoCountryCode: fromCountryCode,
-              cpoPartyId: fromPartyId,
-              clientCountryCode: toCountryCode,
-              clientPartyId: toPartyId,
-            },
-          );
+        const response = await this.ocpiGraphqlClient.request<
+          GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+          GetTenantPartnerByCpoClientAndModuleIdQueryVariables
+        >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+          cpoCountryCode: fromCountryCode,
+          cpoPartyId: fromPartyId,
+          clientCountryCode: toCountryCode,
+          clientPartyId: toPartyId,
+        });
+        const tenantPartner = response.TenantPartners[0];
         if (
           !tenantPartner ||
           token !== tenantPartner.partnerProfileOCPI?.serverCredentials.token

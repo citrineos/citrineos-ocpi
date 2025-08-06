@@ -21,12 +21,12 @@ export const READ_AUTHORIZATION = gql`
       createdAt
       updatedAt
       tenantId
-      TenantPartner {
+      tenantPartner: TenantPartner {
         id
         countryCode
         partyId
       }
-      GroupAuthorization {
+      groupAuthorization: GroupAuthorization {
         idToken
       }
       idToken
@@ -45,33 +45,36 @@ export const UPDATE_TOKEN_MUTATION = gql`
     $type: String
     $countryCode: String
     $partyId: String
-    $additionalInfo: jsonb,
-    $status: String,
-    $language1: String,
+    $additionalInfo: jsonb
+    $status: String
+    $language1: String
   ) {
-    update_Authorizations(where: {
+    update_Authorizations(
+      where: {
         idToken: { _eq: $idToken }
         idTokenType: { _eq: $type }
         TenantPartner: {
           countryCode: { _eq: $countryCode }
           partyId: { _eq: $partyId }
         }
-      }, _set: {
+      }
+      _set: {
         additionalInfo: $additionalInfo
         status: $status
-        $language1: $language1
-      }) {
+        language1: $language1
+      }
+    ) {
       returning {
         id
         createdAt
         updatedAt
         tenantId
-        TenantPartner {
+        tenantPartner: TenantPartner {
           id
           countryCode
           partyId
         }
-        GroupAuthorization {
+        groupAuthorization: GroupAuthorization {
           idToken
         }
         idToken

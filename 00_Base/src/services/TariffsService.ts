@@ -6,37 +6,36 @@ import { PaginatedParams } from '../controllers/param/PaginatedParams';
 import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
-  CREATE_OR_UPDATE_TARIFF_MUTATION,
-  DELETE_TARIFF_MUTATION,
+  // CREATE_OR_UPDATE_TARIFF_MUTATION,
+  // DELETE_TARIFF_MUTATION,
   GET_TARIFF_BY_KEY_QUERY,
   GET_TARIFFS_QUERY,
 } from '../graphql/queries/tariff.queries';
-import {
-  CreateOrUpdateTariffMutation,
-  GetTariffByKeyQuery,
-  GetTariffsQuery,
-} from '../graphql/types/graphql';
 import { TariffMapper } from '../mapper/TariffMapper';
 import { ITariffDto, ITenantDto } from '@citrineos/base';
+import {
+  GetTariffByKeyQueryResult,
+  GetTariffByKeyQueryVariables,
+  GetTariffsQueryResult,
+  GetTariffsQueryVariables,
+} from '../graphql/operations';
 
 @Service()
 export class TariffsService {
-  constructor(
-    private readonly ocpiGraphqlClient: OcpiGraphqlClient,
-    private readonly tariffMapper: TariffMapper,
-  ) {}
+  constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
 
-  async getTariffByKey(key: { id: string, countryCode: string, partyId: string }): Promise<TariffDTO | undefined> {
-    const result = await this.ocpiGraphqlClient.request<GetTariffByKeyQuery>(
-      GET_TARIFF_BY_KEY_QUERY,
-      key,
-    );
+  async getTariffByKey(key: {
+    id: number;
+    countryCode: string;
+    partyId: string;
+  }): Promise<TariffDTO | undefined> {
+    const result = await this.ocpiGraphqlClient.request<
+      GetTariffByKeyQueryResult,
+      GetTariffByKeyQueryVariables
+    >(GET_TARIFF_BY_KEY_QUERY, key);
     const tariff = result.Tariffs?.[0];
     if (tariff) {
-      return this.tariffMapper.map(
-        tariff as unknown as ITariffDto,
-        (tariff as unknown as any).Tenant as ITenantDto,
-      );
+      return TariffMapper.map(tariff as ITariffDto);
     }
     return undefined;
   }
@@ -59,22 +58,17 @@ export class TariffsService {
       countryCode: ocpiHeaders.toCountryCode,
       partyId: ocpiHeaders.toPartyId,
     };
-    const result = await this.ocpiGraphqlClient.request<GetTariffsQuery>(
-      GET_TARIFFS_QUERY,
-      variables,
-    );
+    const result = await this.ocpiGraphqlClient.request<
+      GetTariffsQueryResult,
+      GetTariffsQueryVariables
+    >(GET_TARIFFS_QUERY, variables);
     const mappedTariffs: TariffDTO[] = [];
     for (const tariff of result.Tariffs) {
-      mappedTariffs.push(
-        this.tariffMapper.map(
-          tariff as unknown as ITariffDto,
-          (tariff as unknown as any).Tenant as ITenantDto,
-        ),
-      );
+      mappedTariffs.push(TariffMapper.map(tariff as ITariffDto));
     }
     return {
       data: mappedTariffs,
-      count: result.Tariffs_aggregate?.aggregate?.count || 0,
+      count: result.Tariffs.length,
     };
   }
 

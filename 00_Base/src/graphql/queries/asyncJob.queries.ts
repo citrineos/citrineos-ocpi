@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { gql } from 'graphql-request';
+// import { gql } from 'graphql-request';
 
 // export const CREATE_ASYNC_JOB_STATUS_MUTATION = gql`
 //   mutation CreateAsyncJobStatus($asyncJobStatus: AsyncJobStatusInput!) {

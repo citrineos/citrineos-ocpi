@@ -48,10 +48,14 @@ export type Scalars = {
         'typescript-operations',
       ],
       config: {
-        // extractAllFieldsToTypes: true,
-        // onlyOperationTypes: true,
-        // preResolveTypes: true,
         skipTypename: true,
+        operationResultSuffix: 'Result',
+        printFieldsOnNewLines: true,
+        // extractAllFieldsToTypes: true,
+        // inlineFragmentTypes: 'combine'
+        // mergeFragmentTypes: true,
+        // flattenGeneratedTypes: true,
+        // flattenGeneratedTypesIncludeFragments: true,
       },
     },
   },

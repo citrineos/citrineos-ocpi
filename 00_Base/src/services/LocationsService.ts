@@ -36,6 +36,22 @@ import {
   EvseMapper,
   ConnectorMapper,
 } from '../mapper/LocationMapper';
+import {
+  GetConnectorByIdQueryResult,
+  GetConnectorByIdQueryVariables,
+  GetEvseByIdQueryResult,
+  GetEvseByIdQueryVariables,
+  GetLocationByIdQueryResult,
+  GetLocationByIdQueryVariables,
+  GetLocationsQueryResult,
+  GetLocationsQueryVariables,
+} from '../graphql/operations';
+import {
+  IChargingStationDto,
+  IConnectorDto,
+  IEvseDto,
+  ILocationDto,
+} from '@citrineos/base';
 
 @Service()
 export class LocationsService {
@@ -70,13 +86,16 @@ export class LocationsService {
       dateTo: dateTo ? dateTo.toISOString() : undefined,
     };
 
-    const response = await this.ocpiGraphqlClient.request<any>(
-      GET_LOCATIONS_QUERY,
-      variables,
-    );
+    const response = await this.ocpiGraphqlClient.request<
+      GetLocationsQueryResult,
+      GetLocationsQueryVariables
+    >(GET_LOCATIONS_QUERY, variables);
 
     // Map GraphQL DTOs to OCPI DTOs
-    const locations = response.Locations?.map(LocationMapper.fromGraphql) ?? [];
+    const locations =
+      response.Locations.map((value) =>
+        LocationMapper.fromGraphql(value as ILocationDto),
+      ) ?? [];
     const locationsTotal = locations.length;
 
     return buildOcpiPaginatedResponse(
@@ -93,17 +112,19 @@ export class LocationsService {
 
     try {
       const variables = { id: locationId };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        GET_LOCATION_BY_ID_QUERY,
-        variables,
-      );
+      const response = await this.ocpiGraphqlClient.request<
+        GetLocationByIdQueryResult,
+        GetLocationByIdQueryVariables
+      >(GET_LOCATION_BY_ID_QUERY, variables);
       // response.Locations is an array, so pick the first
       if (response.Locations && response.Locations.length > 1) {
         this.logger.warn(
           `Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`,
         );
       }
-      const location = LocationMapper.fromGraphql(response.Locations?.[0]);
+      const location = LocationMapper.fromGraphql(
+        response.Locations[0] as ILocationDto,
+      );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
         location,
@@ -131,13 +152,13 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        GET_EVSE_BY_ID_QUERY,
-        variables,
-      );
+      const response = await this.ocpiGraphqlClient.request<
+        GetEvseByIdQueryResult,
+        GetEvseByIdQueryVariables
+      >(GET_EVSE_BY_ID_QUERY, variables);
       const evse = EvseMapper.fromGraphql(
-        response.ChargingStation,
-        response,
+        response.Locations[0].chargingPool[0] as IChargingStationDto,
+        response.Locations[0].chargingPool[0].evses[0] as IEvseDto,
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
@@ -164,10 +185,10 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId, connectorId };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        GET_CONNECTOR_BY_ID_QUERY,
-        variables,
-      );
+      const response = await this.ocpiGraphqlClient.request<
+        GetConnectorByIdQueryResult,
+        GetConnectorByIdQueryVariables
+      >(GET_CONNECTOR_BY_ID_QUERY, variables);
       // Traverse to the Connector object
       if (
         response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors &&
@@ -178,7 +199,8 @@ export class LocationsService {
         );
       }
       const connector = ConnectorMapper.fromGraphql(
-        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors?.[0],
+        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]
+          ?.connectors?.[0] as IConnectorDto,
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

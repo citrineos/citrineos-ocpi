@@ -1,9 +1,3 @@
-import {
-  GetLocationsQuery,
-  GetLocationByIdQuery,
-  GetEvseByIdQuery,
-  GetConnectorByIdQuery,
-} from '../graphql/types/graphql';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
 import { ConnectorDTO } from '../model/DTO/ConnectorDTO';

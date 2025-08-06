@@ -12,12 +12,14 @@ import {
   UPDATE_TOKEN_MUTATION,
   READ_AUTHORIZATION,
 } from '../graphql/queries/token.queries';
-import {
-  ReadAuthorizationsQuery,
-  UpdateAuthorizationMutation,
-} from '../graphql/types/graphql';
 import { TokensMapper } from '../mapper/TokensMapper';
 import { IAuthorizationDto } from '@citrineos/base';
+import {
+  ReadAuthorizationsQueryResult,
+  ReadAuthorizationsQueryVariables,
+  UpdateAuthorizationMutationResult,
+  UpdateAuthorizationMutationVariables,
+} from '../graphql/operations';
 
 @Service()
 export class TokensService {
@@ -37,11 +39,10 @@ export class TokensService {
       countryCode: tokenRequest.country_code,
       partyId: tokenRequest.party_id,
     };
-    const result =
-      await this.ocpiGraphqlClient.request<ReadAuthorizationsQuery>(
-        READ_AUTHORIZATION,
-        variables,
-      );
+    const result = await this.ocpiGraphqlClient.request<
+      ReadAuthorizationsQueryResult,
+      ReadAuthorizationsQueryVariables
+    >(READ_AUTHORIZATION, variables);
 
     if (!result.Authorizations || result.Authorizations.length === 0) {
       return undefined;
@@ -52,9 +53,7 @@ export class TokensService {
         `Multiple authorizations found for token uid ${tokenRequest.uid}, type ${tokenRequest.type}, country code ${tokenRequest.country_code}, and party id ${tokenRequest.party_id}. Returning the first one. All entries: ${JSON.stringify(result.Authorizations)}`,
       );
     }
-    return TokensMapper.toDto(
-      result.Authorizations[0] as unknown as IAuthorizationDto,
-    );
+    return TokensMapper.toDto(result.Authorizations[0] as IAuthorizationDto);
   }
 
   async updateToken(token: TokenDTO): Promise<TokenDTO> {
@@ -69,14 +68,12 @@ export class TokensService {
       status: authorization.status,
       language1: authorization.language1,
     };
-    const result =
-      await this.ocpiGraphqlClient.request<UpdateAuthorizationMutation>(
-        UPDATE_TOKEN_MUTATION,
-        variables,
-      );
+    const result = await this.ocpiGraphqlClient.request<
+      UpdateAuthorizationMutationResult,
+      UpdateAuthorizationMutationVariables
+    >(UPDATE_TOKEN_MUTATION, variables);
     return TokensMapper.toDto(
-      result.update_Authorizations
-        ?.returning[0] as unknown as IAuthorizationDto,
+      result.update_Authorizations?.returning[0] as IAuthorizationDto,
     );
   }
 
@@ -98,14 +95,12 @@ export class TokensService {
       status: authorization.status,
       language1: authorization.language1,
     };
-    const result =
-      await this.ocpiGraphqlClient.request<UpdateAuthorizationMutation>(
-        UPDATE_TOKEN_MUTATION,
-        updateVariables,
-      );
+    const result = await this.ocpiGraphqlClient.request<
+      UpdateAuthorizationMutationResult,
+      UpdateAuthorizationMutationVariables
+    >(UPDATE_TOKEN_MUTATION, updateVariables);
     return TokensMapper.toDto(
-      result.update_Authorizations
-        ?.returning[0] as unknown as IAuthorizationDto,
+      result.update_Authorizations?.returning[0] as IAuthorizationDto,
     );
   }
 }
