@@ -28,6 +28,8 @@ import {
   AsyncJobStatusResponse,
 } from '../types/asyncJob.types';
 import { buildPaginatedParams } from '../trigger/param/PaginatedParams';
+import { Authorization } from '@citrineos/data';
+import { TokensMapper } from '../mapper/TokensMapper';
 
 @Service()
 export class TokensAdminService {
@@ -284,7 +286,17 @@ export class TokensAdminService {
   private async updateTokens(tokens: TokenDTO[]) {
     for (const token of tokens) {
       try {
-        const variables = { token };
+        const authorization =
+          TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token);
+        const variables = {
+          idToken: authorization.idToken,
+          type: authorization.idTokenType,
+          countryCode: token.country_code,
+          partyId: token.party_id,
+          additionalInfo: authorization.additionalInfo,
+          status: authorization.status,
+          language1: authorization.language1,
+        };
         const result = await this.ocpiGraphqlClient.request<any>(
           UPDATE_TOKEN_MUTATION,
           variables,

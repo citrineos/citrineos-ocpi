@@ -15,7 +15,7 @@ import {
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
 import { IVersionsModuleApi } from './IVersionsModuleApi';
-import { Get, JsonController } from 'routing-controllers';
+import { Get, JsonController, Param } from 'routing-controllers';
 
 @JsonController(`/${ModuleId.Versions}`)
 @Service()
@@ -27,7 +27,7 @@ export class VersionsModuleApi
     super();
   }
 
-  @Get()
+  @Get('/:tenant_id')
   @AsOcpiRegistrationEndpoint()
   @ResponseSchema(
     VersionListResponseDTOSchema,
@@ -38,11 +38,13 @@ export class VersionsModuleApi
       // examples: {}, // todo real example
     },
   )
-  async getVersions(): Promise<VersionListResponseDTO> {
-    return this.versionService.getVersions();
+  async getVersions(
+    @Param('tenant_id') tenantId: number,
+  ): Promise<VersionListResponseDTO> {
+    return this.versionService.getVersions(tenantId);
   }
 
-  @Get(`/:${versionIdParam}`)
+  @Get(`/:tenant_id/:${versionIdParam}`)
   @AsOcpiRegistrationEndpoint()
   @ResponseSchema(
     VersionListResponseDTOSchema,
@@ -54,8 +56,9 @@ export class VersionsModuleApi
     },
   )
   async getVersionDetails(
+    @Param('tenant_id') tenantId: number,
     @VersionNumberParam() versionNumber: VersionNumber,
   ): Promise<VersionDetailsResponseDTO> {
-    return this.versionService.getVersionDetails(versionNumber);
+    return this.versionService.getVersionDetails(tenantId, versionNumber);
   }
 }

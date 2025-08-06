@@ -28,7 +28,7 @@ export const UPDATE_TENANT_PARTNER_PROFILE = gql`
   mutation UpdateTenantPartnerProfile($partnerId: Int!, $input: jsonb!) {
     update_TenantPartners(
       where: { id: { _eq: $partnerId } }
-      _set: { partnerProfile: $input }
+      _set: { partnerProfileOCPI: $input }
     ) {
       affected_rows
     }
@@ -36,7 +36,7 @@ export const UPDATE_TENANT_PARTNER_PROFILE = gql`
 `;
 
 export const DELETE_TENANT_PARTNER_BY_ID = gql`
-  mutation DeleteTenantPartner($id: Int!) {
+  mutation DeleteTenantPartnerById($id: Int!) {
     delete_TenantPartners(where: { id: { _eq: $id } }) {
       affected_rows
     }

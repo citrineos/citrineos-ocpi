@@ -18,7 +18,7 @@ export interface IVersionsModuleApi {
    * Get list of supported OCPI versions
    * @returns Promise resolving to version list response
    */
-  getVersions(): Promise<VersionListResponseDTO>;
+  getVersions(tenantId: number): Promise<VersionListResponseDTO>;
 
   /**
    * Get details for a specific OCPI version
@@ -26,6 +26,7 @@ export interface IVersionsModuleApi {
    * @returns Promise resolving to version details response
    */
   getVersionDetails(
+    tenantId: number,
     versionNumber: VersionNumber,
   ): Promise<VersionDetailsResponseDTO>;
 }

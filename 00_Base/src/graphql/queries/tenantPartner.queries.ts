@@ -2,9 +2,11 @@ import { gql } from 'graphql-request';
 
 export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
   query GetTenantPartnerByServerToken($serverToken: String!) {
-    TenantPartner(
+    TenantPartners(
       where: {
-        partnerProfileOCPI: { _contains: { serverCredentials: { token: $serverToken } } } }
+        partnerProfileOCPI: {
+          _contains: { serverCredentials: { token: $serverToken } }
+        }
       }
     ) {
       id
@@ -22,10 +24,14 @@ export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
 `;
 
 export const DELETE_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
-  mutation DeleteTenantPartner($serverToken: String!) {
-    delete_TenantPartners(where: {
-        partnerProfileOCPI: { _contains: { serverCredentials: { token: $serverToken } } } }
-      }) {
+  mutation DeleteTenantPartnerByServerToken($serverToken: String!) {
+    delete_TenantPartners(
+      where: {
+        partnerProfileOCPI: {
+          _contains: { serverCredentials: { token: $serverToken } }
+        }
+      }
+    ) {
       affected_rows
     }
   }
@@ -38,7 +44,7 @@ export const GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT = gql`
     $clientCountryCode: String
     $clientPartyId: String
   ) {
-    TenantPartner(
+    TenantPartners(
       where: {
         Tenant: {
           countryCode: { _eq: $cpoCountryCode }
@@ -74,7 +80,9 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
           countryCode: { _eq: $cpoCountryCode }
           partyId: { _eq: $cpoPartyId }
         }
-        partnerProfileOCPI: { _contains: { endpoints: { identifier: $endpointIdentifier } } }
+        partnerProfileOCPI: {
+          _contains: { endpoints: { identifier: $endpointIdentifier } }
+        }
       }
     ) {
       id
@@ -88,13 +96,17 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
         serverProfileOCPI
       }
     }
-    TenantPartners_aggregate(where: {
+    TenantPartners_aggregate(
+      where: {
         Tenant: {
           countryCode: { _eq: $cpoCountryCode }
           partyId: { _eq: $cpoPartyId }
         }
-        partnerProfileOCPI: { _contains: { endpoints: { identifier: $endpointIdentifier } } }
-      }) {
+        partnerProfileOCPI: {
+          _contains: { endpoints: { identifier: $endpointIdentifier } }
+        }
+      }
+    ) {
       aggregate {
         count
       }

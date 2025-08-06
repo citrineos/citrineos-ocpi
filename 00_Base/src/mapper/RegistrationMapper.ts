@@ -254,4 +254,41 @@ export class RegistrationMapper {
       `Unknown role for module ${value.identifier}: ${value.role}`,
     );
   }
+
+  static toModuleAndRole(value: OCPIRegistration.Endpoint): { identifier: ModuleId, role: InterfaceRole } {
+    switch (value.identifier) {
+      case EndpointIdentifier.CREDENTIALS:
+        return { identifier: ModuleId.Credentials, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.CDRS_SENDER:
+        return { identifier: ModuleId.Cdrs, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.CDRS_RECEIVER:
+        return { identifier: ModuleId.Cdrs, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.LOCATIONS_SENDER:
+        return { identifier: ModuleId.Locations, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.LOCATIONS_RECEIVER:
+        return { identifier: ModuleId.Locations, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.SESSIONS_SENDER:
+        return { identifier: ModuleId.Sessions, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.SESSIONS_RECEIVER:
+        return { identifier: ModuleId.Sessions, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.TARIFFS_SENDER:
+        return { identifier: ModuleId.Tariffs, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.TARIFFS_RECEIVER:
+        return { identifier: ModuleId.Tariffs, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.TOKENS_SENDER:
+        return { identifier: ModuleId.Tokens, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.TOKENS_RECEIVER:
+        return { identifier: ModuleId.Tokens, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.COMMANDS_SENDER:
+        return { identifier: ModuleId.Commands, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.COMMANDS_RECEIVER:
+        return { identifier: ModuleId.Commands, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.CHARGING_PROFILES_SENDER:
+        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.CHARGING_PROFILES_RECEIVER:
+        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.RECEIVER };
+      default:
+        throw new Error(`Unknown endpoint identifier: ${value.identifier}`);
+    }
+  }
 }

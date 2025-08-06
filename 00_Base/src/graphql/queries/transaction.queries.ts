@@ -64,7 +64,7 @@ export const GET_TRANSACTIONS_QUERY = gql`
       transactionEvents: TransactionEvents {
         id
         eventType
-        evse: Evse {
+        EvseType {
           id
         }
         transactionInfo

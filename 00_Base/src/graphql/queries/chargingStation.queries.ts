@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 
 export const GET_CHARGING_STATIONS_QUERY = gql`
-  query GeChargingStations(
+  query GetChargingStations(
     $limit: Int
     $offset: Int
     $countryCode: String
@@ -56,7 +56,7 @@ export const GET_CHARGING_STATIONS_QUERY = gql`
         locationId
         createdAt
         updatedAt
-        evses {
+        Evses {
           id
           stationId
           evseTypeId
@@ -65,7 +65,7 @@ export const GET_CHARGING_STATIONS_QUERY = gql`
           removed
           createdAt
           updatedAt
-          connectors {
+          Connectors {
             id
             stationId
             evseId
@@ -87,7 +87,7 @@ export const GET_CHARGING_STATIONS_QUERY = gql`
 `;
 
 export const GET_CHARGING_STATION_BY_ID_QUERY = gql`
-  query GeChargingStationById($id: Int!) {
+  query GetChargingStationById($id: String!) {
     ChargingStations(where: { id: { _eq: $id } }) {
       id
       isOnline
@@ -104,7 +104,7 @@ export const GET_CHARGING_STATION_BY_ID_QUERY = gql`
       locationId
       createdAt
       updatedAt
-      evses {
+      Evses {
         id
         stationId
         evseTypeId
@@ -113,7 +113,7 @@ export const GET_CHARGING_STATION_BY_ID_QUERY = gql`
         removed
         createdAt
         updatedAt
-        connectors {
+        Connectors {
           id
           stationId
           evseId

@@ -11,7 +11,7 @@ export const READ_AUTHORIZATION = gql`
       where: {
         idToken: { _eq: $idToken }
         idTokenType: { _eq: $type }
-        Tenant: {
+        TenantPartner: {
           countryCode: { _eq: $countryCode }
           partyId: { _eq: $partyId }
         }
@@ -21,31 +21,65 @@ export const READ_AUTHORIZATION = gql`
       createdAt
       updatedAt
       tenantId
-      Tenant {
+      TenantPartner {
         id
         countryCode
         partyId
       }
+      GroupAuthorization {
+        idToken
+      }
       idToken
       idTokenType
+      additionalInfo
+      status
+      realTimeAuth
+      language1
     }
   }
 `;
 
 export const UPDATE_TOKEN_MUTATION = gql`
   mutation UpdateAuthorization(
-    $where: Authorizations_bool_exp!
-    $set: Authorizations_set_input!
+    $idToken: String
+    $type: String
+    $countryCode: String
+    $partyId: String
+    $additionalInfo: jsonb,
+    $status: String,
+    $language1: String,
   ) {
-    update_Authorizations(where: $where, _set: $set) {
+    update_Authorizations(where: {
+        idToken: { _eq: $idToken }
+        idTokenType: { _eq: $type }
+        TenantPartner: {
+          countryCode: { _eq: $countryCode }
+          partyId: { _eq: $partyId }
+        }
+      }, _set: {
+        additionalInfo: $additionalInfo
+        status: $status
+        $language1: $language1
+      }) {
       returning {
         id
-        idToken
-        idTokenType
-        Tenant {
+        createdAt
+        updatedAt
+        tenantId
+        TenantPartner {
+          id
           countryCode
           partyId
         }
+        GroupAuthorization {
+          idToken
+        }
+        idToken
+        idTokenType
+        additionalInfo
+        status
+        realTimeAuth
+        language1
       }
     }
   }

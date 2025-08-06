@@ -78,21 +78,21 @@ export class TariffsService {
     };
   }
 
-  async createOrUpdateTariff(
-    tariffRequest: PutTariffRequest,
-  ): Promise<TariffDTO> {
-    const variables = { tariff: tariffRequest };
-    const result =
-      await this.ocpiGraphqlClient.request<CreateOrUpdateTariffMutation>(
-        CREATE_OR_UPDATE_TARIFF_MUTATION,
-        variables,
-      );
-    return result.insert_Tariffs_one as unknown as TariffDTO;
-  }
+  // async createOrUpdateTariff(
+  //   tariffRequest: PutTariffRequest,
+  // ): Promise<TariffDTO> {
+  //   const variables = { tariff: tariffRequest };
+  //   const result =
+  //     await this.ocpiGraphqlClient.request<CreateOrUpdateTariffMutation>(
+  //       CREATE_OR_UPDATE_TARIFF_MUTATION,
+  //       variables,
+  //     );
+  //   return result.insert_Tariffs_one as unknown as TariffDTO;
+  // }
 
-  async deleteTariff(tariffId: number): Promise<void> {
-    await this.ocpiGraphqlClient.request<any>(DELETE_TARIFF_MUTATION, {
-      tariffId,
-    });
-  }
+  // async deleteTariff(tariffId: number): Promise<void> {
+  //   await this.ocpiGraphqlClient.request<any>(DELETE_TARIFF_MUTATION, {
+  //     tariffId,
+  //   });
+  // }
 }

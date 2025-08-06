@@ -63,7 +63,7 @@ export const GET_LOCATIONS_QUERY = gql`
         locationId
         createdAt
         updatedAt
-        evses {
+        Evses {
           id
           stationId
           evseTypeId
@@ -72,7 +72,7 @@ export const GET_LOCATIONS_QUERY = gql`
           removed
           createdAt
           updatedAt
-          connectors {
+          Connectors {
             id
             stationId
             evseId
@@ -142,7 +142,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
         locationId
         createdAt
         updatedAt
-        evses {
+        Evses {
           id
           stationId
           evseTypeId
@@ -151,7 +151,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
           removed
           createdAt
           updatedAt
-          connectors {
+          Connectors {
             id
             stationId
             evseId
@@ -183,7 +183,7 @@ export const GET_EVSE_BY_ID_QUERY = gql`
   query GetEvseById($locationId: Int!, $stationId: String!, $evseId: Int!) {
     Locations(where: { id: { _eq: $locationId } }) {
       chargingPool: ChargingStations(where: { id: { _eq: $stationId } }) {
-        evses(where: { evseId: { _eq: $evseId } }) {
+        Evses(where: { id: { _eq: $evseId } }) {
           id
           stationId
           evseTypeId
@@ -228,8 +228,8 @@ export const GET_CONNECTOR_BY_ID_QUERY = gql`
   ) {
     Locations(where: { id: { _eq: $locationId } }) {
       chargingPool: ChargingStations(where: { id: { _eq: $stationId } }) {
-        evses(where: { evseId: { _eq: $evseId } }) {
-          connectors(where: { connectorId: { _eq: $connectorId } }) {
+        Evses(where: { id: { _eq: $evseId } }) {
+          Connectors(where: { connectorId: { _eq: $connectorId } }) {
             id
             stationId
             evseId

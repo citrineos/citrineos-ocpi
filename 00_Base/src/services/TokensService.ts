@@ -52,31 +52,32 @@ export class TokensService {
         `Multiple authorizations found for token uid ${tokenRequest.uid}, type ${tokenRequest.type}, country code ${tokenRequest.country_code}, and party id ${tokenRequest.party_id}. Returning the first one. All entries: ${JSON.stringify(result.Authorizations)}`,
       );
     }
-    return TokensMapper.toDto(result.Authorizations[0] as unknown as IAuthorizationDto);
+    return TokensMapper.toDto(
+      result.Authorizations[0] as unknown as IAuthorizationDto,
+    );
   }
 
   async updateToken(token: TokenDTO): Promise<TokenDTO> {
-    const where = {
-      IdToken: {
-        idToken: { _eq: token.uid },
-        type: {
-          _eq: TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(token.type),
-        },
-      },
-      Tenant: {
-        countryCode: { _eq: token.country_code },
-        partyId: { _eq: token.party_id },
-      },
+    const authorization =
+      TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token);
+    const variables = {
+      idToken: authorization.idToken,
+      type: authorization.idTokenType,
+      countryCode: token.country_code,
+      partyId: token.party_id,
+      additionalInfo: authorization.additionalInfo,
+      status: authorization.status,
+      language1: authorization.language1,
     };
-
-    const variables = { where, set: token };
     const result =
       await this.ocpiGraphqlClient.request<UpdateAuthorizationMutation>(
         UPDATE_TOKEN_MUTATION,
         variables,
       );
-    return result.update_Authorizations?.returning[0]
-      .idToken as unknown as TokenDTO;
+    return TokensMapper.toDto(
+      result.update_Authorizations
+        ?.returning[0] as unknown as IAuthorizationDto,
+    );
   }
 
   async patchToken(
@@ -86,39 +87,25 @@ export class TokensService {
     type: TokenType,
     token: Partial<TokenDTO>,
   ): Promise<TokenDTO> {
-    const variables = {
+    const authorization =
+      TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token);
+    const updateVariables = {
       idToken: tokenUid,
       type: TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(type),
-      countryCode,
-      partyId,
+      countryCode: countryCode,
+      partyId: partyId,
+      additionalInfo: authorization.additionalInfo,
+      status: authorization.status,
+      language1: authorization.language1,
     };
-    const existingAuth =
-      await this.ocpiGraphqlClient.request<ReadAuthorizationsQuery>(
-        READ_AUTHORIZATION,
-        variables,
-      );
-    if (
-      !existingAuth.Authorizations ||
-      existingAuth.Authorizations.length === 0
-    ) {
-      throw new Error('Token not found');
-    }
-    if (existingAuth.Authorizations.length > 1) {
-      this.logger.warn(
-        `Multiple authorizations found for token uid ${tokenUid}, type ${type}, country code ${countryCode}, and party id ${partyId}. Returning the first one. All entries: ${JSON.stringify(existingAuth.Authorizations)}`,
-      );
-    }
-    const existingTokenDTO = TokensMapper.toDto(existingAuth.Authorizations[0] as unknown as IAuthorizationDto);
-    // Merge existing token with patch
-    const updatedToken: TokenDTO = { ...existingTokenDTO, ...token };
-    const where = TokensMapper.toGraphqlWhere(updatedToken);
-    const set = TokensMapper.toGraphqlSet(updatedToken);
-    const updateVariables = { where, set };
     const result =
       await this.ocpiGraphqlClient.request<UpdateAuthorizationMutation>(
         UPDATE_TOKEN_MUTATION,
         updateVariables,
       );
-    return TokensMapper.toDto(result.update_Authorizations?.returning[0] as unknown as IAuthorizationDto);
+    return TokensMapper.toDto(
+      result.update_Authorizations
+        ?.returning[0] as unknown as IAuthorizationDto,
+    );
   }
 }
