@@ -22,6 +22,37 @@ export type Scalars = {
   numeric: { input: any; output: any; }
   timestamptz: { input: any; output: any; }
 };
+export type Locations_Bool_Exp = {
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Tariffs_Bool_Exp = {
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Transactions_Bool_Exp = {
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Authorization?: InputMaybe<Authorizations_Bool_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Authorizations_Bool_Exp = {
+  TenantPartner?: InputMaybe<TenantPartners_Bool_Exp>;
+};
+export type Timestamptz_Comparison_Exp = {
+  _gte?: InputMaybe<Scalars['timestamptz']['input']>;
+  _lte?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+export type Tenants_Bool_Exp = {
+  countryCode?: InputMaybe<String_Comparison_Exp>;
+  partyId?: InputMaybe<String_Comparison_Exp>;
+};
+export type TenantPartners_Bool_Exp = {
+  countryCode?: InputMaybe<String_Comparison_Exp>;
+  partyId?: InputMaybe<String_Comparison_Exp>;
+};
+export type String_Comparison_Exp = {
+  _eq?: InputMaybe<Scalars['String']['input']>;
+};
 export type GetChargingStationByIdQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
@@ -82,10 +113,7 @@ export type GetChargingStationByIdQueryResult = {
 export type GetLocationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  countryCode?: InputMaybe<Scalars['String']['input']>;
-  partyId?: InputMaybe<Scalars['String']['input']>;
-  dateFrom?: InputMaybe<Scalars['timestamptz']['input']>;
-  dateTo?: InputMaybe<Scalars['timestamptz']['input']>;
+  where: Locations_Bool_Exp;
 }>;
 
 
@@ -361,10 +389,7 @@ export type GetTariffByKeyQueryResult = {
 export type GetTariffsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  dateFrom?: InputMaybe<Scalars['timestamptz']['input']>;
-  dateTo?: InputMaybe<Scalars['timestamptz']['input']>;
-  countryCode?: InputMaybe<Scalars['String']['input']>;
-  partyId?: InputMaybe<Scalars['String']['input']>;
+  where: Tariffs_Bool_Exp;
 }>;
 
 
@@ -569,14 +594,9 @@ export type UpdateAuthorizationMutationResult = {
 };
 
 export type GetTransactionsQueryVariables = Exact<{
-  cpoCountryCode?: InputMaybe<Scalars['String']['input']>;
-  cpoPartyId?: InputMaybe<Scalars['String']['input']>;
-  mspCountryCode?: InputMaybe<Scalars['String']['input']>;
-  mspPartyId?: InputMaybe<Scalars['String']['input']>;
-  dateFrom?: InputMaybe<Scalars['timestamptz']['input']>;
-  dateTo?: InputMaybe<Scalars['timestamptz']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  where: Transactions_Bool_Exp;
 }>;
 
 

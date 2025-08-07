@@ -42,6 +42,37 @@ export type Scalars = {
   jsonb: { input: any; output: any; }
   numeric: { input: any; output: any; }
   timestamptz: { input: any; output: any; }
+};
+export type Locations_Bool_Exp = {
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Tariffs_Bool_Exp = {
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Transactions_Bool_Exp = {
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Authorization?: InputMaybe<Authorizations_Bool_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Authorizations_Bool_Exp = {
+  TenantPartner?: InputMaybe<TenantPartners_Bool_Exp>;
+};
+export type Timestamptz_Comparison_Exp = {
+  _gte?: InputMaybe<Scalars['timestamptz']['input']>;
+  _lte?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+export type Tenants_Bool_Exp = {
+  countryCode?: InputMaybe<String_Comparison_Exp>;
+  partyId?: InputMaybe<String_Comparison_Exp>;
+};
+export type TenantPartners_Bool_Exp = {
+  countryCode?: InputMaybe<String_Comparison_Exp>;
+  partyId?: InputMaybe<String_Comparison_Exp>;
+};
+export type String_Comparison_Exp = {
+  _eq?: InputMaybe<Scalars['String']['input']>;
 };`,
           },
         },

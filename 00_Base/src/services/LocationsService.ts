@@ -45,6 +45,7 @@ import {
   GetLocationByIdQueryVariables,
   GetLocationsQueryResult,
   GetLocationsQueryVariables,
+  Locations_Bool_Exp,
 } from '../graphql/operations';
 import {
   IChargingStationDto,
@@ -71,19 +72,26 @@ export class LocationsService {
     this.logger.debug(
       `Getting all locations with headers ${JSON.stringify(ocpiHeaders)} and parameters ${JSON.stringify(paginatedParams)}`,
     );
-
-    const dateFrom = paginatedParams?.dateFrom;
-    const dateTo = paginatedParams?.dateTo;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
-
+    const where: Locations_Bool_Exp = {
+      Tenant: {
+        countryCode: { _eq: ocpiHeaders.toCountryCode },
+        partyId: { _eq: ocpiHeaders.toPartyId },
+      },
+    };
+    const dateFilters: any = {};
+    if (paginatedParams?.dateFrom)
+      dateFilters._gte = paginatedParams.dateFrom.toISOString();
+    if (paginatedParams?.dateTo)
+      dateFilters._lte = paginatedParams?.dateTo.toISOString();
+    if (Object.keys(dateFilters).length > 0) {
+      where.updatedAt = dateFilters;
+    }
     const variables = {
       limit,
       offset,
-      countryCode: ocpiHeaders.toCountryCode,
-      partyId: ocpiHeaders.toPartyId,
-      dateFrom: dateFrom ? dateFrom.toISOString() : undefined,
-      dateTo: dateTo ? dateTo.toISOString() : undefined,
+      where,
     };
 
     const response = await this.ocpiGraphqlClient.request<

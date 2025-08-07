@@ -18,6 +18,7 @@ import {
   GetTariffByKeyQueryVariables,
   GetTariffsQueryResult,
   GetTariffsQueryVariables,
+  Tariffs_Bool_Exp,
 } from '../graphql/operations';
 
 @Service()
@@ -46,17 +47,24 @@ export class TariffsService {
   ): Promise<{ data: TariffDTO[]; count: number }> {
     const limit = paginationParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginationParams?.offset ?? DEFAULT_OFFSET;
+    const where: Tariffs_Bool_Exp = {
+      Tenant: {
+        countryCode: { _eq: ocpiHeaders.toCountryCode },
+        partyId: { _eq: ocpiHeaders.toPartyId },
+      },
+    };
+    const dateFilters: any = {};
+    if (paginationParams?.dateFrom)
+      dateFilters._gte = paginationParams.dateFrom.toISOString();
+    if (paginationParams?.dateTo)
+      dateFilters._lte = paginationParams?.dateTo.toISOString();
+    if (Object.keys(dateFilters).length > 0) {
+      where.updatedAt = dateFilters;
+    }
     const variables = {
       limit,
       offset,
-      dateFrom: paginationParams?.dateFrom
-        ? paginationParams.dateFrom.toISOString()
-        : undefined,
-      dateTo: paginationParams?.dateTo
-        ? paginationParams.dateTo.toISOString()
-        : undefined,
-      countryCode: ocpiHeaders.toCountryCode,
-      partyId: ocpiHeaders.toPartyId,
+      where,
     };
     const result = await this.ocpiGraphqlClient.request<
       GetTariffsQueryResult,

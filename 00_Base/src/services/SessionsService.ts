@@ -13,6 +13,7 @@ import { ITransactionDto } from '@citrineos/base';
 import {
   GetTransactionsQueryResult,
   GetTransactionsQueryVariables,
+  Transactions_Bool_Exp,
 } from '../graphql/operations';
 @Service()
 export class SessionsService {
@@ -32,15 +33,28 @@ export class SessionsService {
     limit: number = DEFAULT_LIMIT,
     endedOnly?: boolean,
   ): Promise<PaginatedSessionResponse> {
+    const where: Transactions_Bool_Exp = {
+      Tenant: {
+        countryCode: { _eq: toCountryCode },
+        partyId: { _eq: toPartyId },
+      },
+      Authorization: {
+        TenantPartner: {
+          countryCode: { _eq: fromCountryCode },
+          partyId: { _eq: fromPartyId },
+        },
+      },
+    };
+    const dateFilters: any = {};
+    if (dateFrom) dateFilters._gte = dateFrom.toISOString();
+    if (dateTo) dateFilters._lte = dateTo.toISOString();
+    if (Object.keys(dateFilters).length > 0) {
+      where.updatedAt = dateFilters;
+    }
     const queryOptions = {
-      cpoCountryCode: toCountryCode,
-      cpoPartyId: toPartyId,
-      mspCountryCode: fromCountryCode,
-      mspPartyId: fromPartyId,
-      dateFrom,
-      dateTo,
       offset,
       limit,
+      where,
     };
     const result = await this.ocpiGraphqlClient.request<
       GetTransactionsQueryResult,

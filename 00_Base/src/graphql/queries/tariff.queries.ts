@@ -35,21 +35,13 @@ export const GET_TARIFFS_QUERY = gql`
   query GetTariffs(
     $limit: Int
     $offset: Int
-    $dateFrom: timestamptz
-    $dateTo: timestamptz
-    $countryCode: String
-    $partyId: String
+    $where: Tariffs_bool_exp!
   ) {
     Tariffs(
       limit: $limit
       offset: $offset
-      where: {
-        Tenant: {
-          countryCode: { _eq: $countryCode }
-          partyId: { _eq: $partyId }
-        }
-        updatedAt: { _gte: $dateFrom, _lte: $dateTo }
-      }
+      order_by: { createdAt: asc }
+      where: $where
     ) {
       authorizationAmount
       createdAt

@@ -4,25 +4,13 @@ export const GET_LOCATIONS_QUERY = gql`
   query GetLocations(
     $limit: Int
     $offset: Int
-    $countryCode: String
-    $partyId: String
-    $dateFrom: timestamptz
-    $dateTo: timestamptz
+    $where: Locations_bool_exp!
   ) {
     Locations(
       offset: $offset
       limit: $limit
       order_by: { createdAt: asc }
-      where: {
-        Tenant: {
-          countryCode: { _eq: $countryCode }
-          partyId: { _eq: $partyId }
-        }
-        _and: [
-          { updatedAt: { _gte: $dateFrom } }
-          { updatedAt: { _lte: $dateTo } }
-        ]
-      }
+      where: $where
     ) {
       id
       name

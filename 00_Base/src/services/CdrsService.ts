@@ -8,6 +8,7 @@ import { PaginatedCdrResponse } from '../model/Cdr';
 import {
   GetTransactionsQueryResult,
   GetTransactionsQueryVariables,
+  Transactions_Bool_Exp,
 } from '../graphql/operations';
 
 @Service()
@@ -27,15 +28,28 @@ export class CdrsService {
     offset: number = DEFAULT_OFFSET,
     limit: number = DEFAULT_LIMIT,
   ): Promise<PaginatedCdrResponse> {
+    const where: Transactions_Bool_Exp = {
+      Tenant: {
+        countryCode: { _eq: toCountryCode },
+        partyId: { _eq: toPartyId },
+      },
+      Authorization: {
+        TenantPartner: {
+          countryCode: { _eq: fromCountryCode },
+          partyId: { _eq: fromPartyId },
+        },
+      },
+    };
+    const dateFilters: any = {};
+    if (dateFrom) dateFilters._gte = dateFrom.toISOString();
+    if (dateTo) dateFilters._lte = dateTo.toISOString();
+    if (Object.keys(dateFilters).length > 0) {
+      where.updatedAt = dateFilters;
+    }
     const variables = {
-      cpoCountryCode: toCountryCode,
-      cpoPartyId: toPartyId,
-      mspCountryCode: fromCountryCode,
-      mspPartyId: fromPartyId,
-      dateFrom: dateFrom ? dateFrom.toISOString() : undefined,
-      dateTo: dateTo ? dateTo.toISOString() : undefined,
       offset,
       limit,
+      where,
     };
     const result = await this.ocpiGraphqlClient.request<
       GetTransactionsQueryResult,
