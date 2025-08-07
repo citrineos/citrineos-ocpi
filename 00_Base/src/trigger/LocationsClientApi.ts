@@ -1,12 +1,27 @@
 import { BaseClientApi } from './BaseClientApi';
-import { ConnectorDTO, ConnectorResponse } from '../model/DTO/ConnectorDTO';
-import { LocationDTO, LocationResponse } from '../model/DTO/LocationDTO';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
-import { EvseDTO, EvseResponse } from '../model/DTO/EvseDTO';
+import {
+  ConnectorDTO,
+  ConnectorResponse,
+  ConnectorResponseSchema,
+} from '../model/DTO/ConnectorDTO';
+import {
+  LocationDTO,
+  LocationResponse,
+  LocationResponseSchema,
+} from '../model/DTO/LocationDTO';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
+import {
+  EvseDTO,
+  EvseResponse,
+  EvseResponseSchema,
+} from '../model/DTO/EvseDTO';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
@@ -41,8 +56,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      ConnectorResponse,
+      HttpMethod.Get,
+      ConnectorResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -64,8 +79,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      EvseResponse,
+      HttpMethod.Get,
+      EvseResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -86,8 +101,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'get',
-      LocationResponse,
+      HttpMethod.Get,
+      LocationResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -111,8 +126,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'patch',
-      OcpiEmptyResponse,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -136,8 +151,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'patch',
-      OcpiEmptyResponse,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -160,8 +175,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'patch',
-      OcpiEmptyResponse,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -186,8 +201,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'put',
-      OcpiEmptyResponse,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -211,8 +226,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'put',
-      OcpiEmptyResponse,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
@@ -235,8 +250,8 @@ export class LocationsClientApi extends BaseClientApi {
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'put',
-      OcpiEmptyResponse,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       `${this.getUrl(partnerProfile)}/${path}`,

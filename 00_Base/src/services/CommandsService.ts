@@ -5,9 +5,12 @@ import { StartSession } from '../model/StartSession';
 import { StopSession } from '../model/StopSession';
 import { UnlockConnector } from '../model/UnlockConnector';
 import { CommandType } from '../model/CommandType';
-import { CommandResponse, CommandResponseType } from '../model/CommandResponse';
+import {
+  CommandResponse,
+  CommandResponseType,
+  OcpiCommandResponse,
+} from '../model/CommandResponse';
 // import { CommandExecutor } from '../util/CommandExecutor';
-import { OcpiResponse } from '../model/OcpiResponse';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ResponseGenerator } from '../util/response.generator';
 
@@ -27,7 +30,7 @@ export class CommandsService {
       | UnlockConnector,
     fromCountryCode: string,
     fromPartyId: string,
-  ): Promise<OcpiResponse<CommandResponse>> {
+  ): Promise<OcpiCommandResponse> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
         return this.handleCancelReservation(
@@ -63,7 +66,7 @@ export class CommandsService {
     cancelReservation: CancelReservation,
     fromCountryCode: string,
     fromPartyId: string,
-  ): Promise<OcpiResponse<CommandResponse>> {
+  ): Promise<OcpiCommandResponse> {
     try {
       // await this.commandExecutor.executeCancelReservation(
       //   cancelReservation,
@@ -102,7 +105,7 @@ export class CommandsService {
     reserveNow: ReserveNow,
     fromCountryCode: string,
     fromPartyId: string,
-  ): Promise<OcpiResponse<CommandResponse>> {
+  ): Promise<OcpiCommandResponse> {
     try {
       // await this.commandExecutor.executeReserveNow(
       //   reserveNow,
@@ -148,7 +151,7 @@ export class CommandsService {
 
   private async handleStartSession(
     startSession: StartSession,
-  ): Promise<OcpiResponse<CommandResponse>> {
+  ): Promise<OcpiCommandResponse> {
     try {
       // await this.commandExecutor.executeStartSession(startSession);
       return ResponseGenerator.buildGenericSuccessResponse({
@@ -181,7 +184,7 @@ export class CommandsService {
 
   private async handleStopSession(
     stopSession: StopSession,
-  ): Promise<OcpiResponse<CommandResponse>> {
+  ): Promise<OcpiCommandResponse> {
     try {
       // await this.commandExecutor.executeStopSession(stopSession);
       return ResponseGenerator.buildGenericSuccessResponse({
@@ -211,7 +214,7 @@ export class CommandsService {
 
   private handleUnlockConnector(
     _unlockConnector: UnlockConnector,
-  ): OcpiResponse<CommandResponse> {
+  ): OcpiCommandResponse {
     return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
       timeout: this.TIMEOUT,

@@ -1,30 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { z } from 'zod';
 import { TokenType } from './TokenType';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
 
-export class CdrToken {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  uid!: string;
+export const CdrTokenSchema = z.object({
+  uid: z.string().max(36),
+  type: z.nativeEnum(TokenType).nullable().optional(),
+  contract_id: z.string().max(36),
+  country_code: z.string().max(2),
+  party_id: z.string().max(3),
+});
 
-  @Enum(TokenType, 'TokenType')
-  @Optional()
-  type?: TokenType | null;
-
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  contract_id!: string;
-
-  @MaxLength(2)
-  @IsString()
-  @IsNotEmpty()
-  country_code!: string;
-
-  @MaxLength(3)
-  @IsString()
-  @IsNotEmpty()
-  party_id!: string;
-}
+export type CdrToken = z.infer<typeof CdrTokenSchema>;

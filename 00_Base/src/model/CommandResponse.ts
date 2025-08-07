@@ -1,9 +1,6 @@
-import { IsInt, IsNotEmpty, ValidateNested } from 'class-validator';
-import { DisplayText } from './DisplayText';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
-import { OcpiResponse } from './OcpiResponse';
+import { DisplayTextSchema } from './DisplayText';
+import { z } from 'zod';
+import { OcpiResponseSchema } from './OcpiResponse';
 
 export enum CommandResponseType {
   NOT_SUPPORTED = 'NOT_SUPPORTED',
@@ -12,24 +9,17 @@ export enum CommandResponseType {
   UNKNOWN_SESSION = 'UNKNOWN_SESSION',
 }
 
-export class CommandResponse {
-  @Enum(CommandResponseType, 'CommandResponseType')
-  @IsNotEmpty()
-  result!: CommandResponseType;
+export const CommandResponseSchema = z.object({
+  result: z.nativeEnum(CommandResponseType),
+  timeout: z.number().int().min(0),
+  message: DisplayTextSchema.optional(),
+});
+export const CommandResponseSchemaName = 'CommandResponse';
 
-  @IsInt()
-  @IsNotEmpty()
-  timeout!: number;
+export type CommandResponse = z.infer<typeof CommandResponseSchema>;
 
-  @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested()
-  message?: DisplayText;
-}
+export const OcpiCommandResponseSchema = OcpiResponseSchema(
+  CommandResponseSchema,
+);
 
-export class OcpiCommandResponse extends OcpiResponse<CommandResponse> {
-  @IsNotEmpty()
-  @Type(() => CommandResponse)
-  @ValidateNested()
-  data!: CommandResponse;
-}
+export type OcpiCommandResponse = z.infer<typeof OcpiCommandResponseSchema>;

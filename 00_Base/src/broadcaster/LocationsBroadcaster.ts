@@ -1,146 +1,169 @@
-// import { BaseBroadcaster } from './BaseBroadcaster';
-// import { Service } from 'typedi';
-// import { SequelizeLocationRepository } from '@citrineos/data';
-// import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
-// import { OcpiEvse } from '../model/OcpiEvse';
-// import { OcpiLocation, OcpiLocationProps } from '../model/OcpiLocation';
-// import { PatchEvseParams } from '../trigger/param/locations/PatchEvseParams';
-// import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
-// import { OcpiConnector } from '../model/OcpiConnector';
-// import { PatchConnectorParams } from '../trigger/param/locations/PatchConnectorParams';
-// import { LocationsClientApi } from '../trigger/LocationsClientApi';
-// import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
-// import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
-// import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
-// import { ILogObj, Logger } from 'tslog';
-// import { CredentialsService } from '../services/CredentialsService';
-// import { ModuleId } from '../model/ModuleId';
-// import { LocationDTO } from '../model/DTO/LocationDTO';
-// import { PutLocationParams } from '../trigger/param/locations/PutLocationParams';
+import { BaseBroadcaster } from './BaseBroadcaster';
+import { Service } from 'typedi';
+import { LocationsClientApi } from '../trigger/LocationsClientApi';
+import { ILogObj, Logger } from 'tslog';
+import { CredentialsService } from '../services/CredentialsService';
+import { LocationRepository } from '../repository/LocationRepository';
+import { LocationResponseSchema } from '../model/DTO/LocationDTO';
+import { PutLocationParams } from '../trigger/param/locations/PutLocationParams';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import {
+  HttpMethod,
+  IConnectorDto,
+  IEvseDto,
+  ILocationDto,
+} from '@citrineos/base';
+import { UID_FORMAT } from '../model/DTO/EvseDTO';
+import { PatchEvseParams } from '../trigger/param/locations/PatchEvseParams';
+import { PatchConnectorParams } from '../trigger/param/locations/PatchConnectorParams';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
 
-// @Service()
-// export class LocationsBroadcaster extends BaseBroadcaster {
-//   constructor(
-//     readonly logger: Logger<ILogObj>,
-//     readonly credentialsService: CredentialsService,
-//     private locationRepository: SequelizeLocationRepository,
-//     private ocpiLocationRepository: OcpiLocationRepository,
-//     private ocpiEvseRepository: OcpiEvseRepository,
-//     private ocpiConnectorRepository: OcpiConnectorRepository,
-//     private locationsClientApi: LocationsClientApi,
-//   ) {
-//     super();
-//   }
+@Service()
+export class LocationsBroadcaster extends BaseBroadcaster {
+  constructor(
+    readonly logger: Logger<ILogObj>,
+    readonly credentialsService: CredentialsService,
+    readonly locationsClientApi: LocationsClientApi,
+  ) {
+    super();
+  }
 
-//   async broadcastOnLocationCreateOrUpdate(
-//     locationDto: LocationDTO,
-//   ): Promise<void> {
-//     this.logger.debug(`Broadcasting Location ${locationDto.id}`);
+  async broadcastPutLocation(locationDto: ILocationDto): Promise<void> {
+    await this.broadcastLocation(locationDto, HttpMethod.Put);
+  }
 
-//     const params = PutLocationParams.build(Number(locationDto.id), locationDto);
+  async broadcastPatchLocation(
+    locationDto: Partial<ILocationDto>,
+  ): Promise<void> {
+    await this.broadcastLocation(locationDto, HttpMethod.Patch);
+  }
 
-//     try {
-//       await this.locationsClientApi.broadcastToClients(
-//         locationDto.country_code,
-//         locationDto.party_id,
-//         ModuleId.Locations,
-//         params,
-//         this.locationsClientApi.putLocation.bind(this.locationsClientApi),
-//       );
-//     } catch (e) {
-//       this.logger.debug(
-//         `Broadcast failed for Location ${locationDto.id} due to error`,
-//         e,
-//       );
-//     }
-//   }
+  private async broadcastLocation(
+    locationDto: Partial<ILocationDto>,
+    method: HttpMethod,
+  ): Promise<void> {
+    const locationId = locationDto.id;
+    if (!locationId) throw new Error('Location ID missing');
 
-//   async broadcastOnEvseUpdate(
-//     stationId: string,
-//     evseId: number,
-//     partialEvse: Partial<EvseDTO>,
-//   ): Promise<void> {
-//     const chargingStation =
-//       await this.locationRepository.readChargingStationByStationId(stationId);
+    const params: PutLocationParams = { locationId };
 
-//     if (!chargingStation || !chargingStation.locationId) {
-//       throw new Error(`Charging Station ${stationId} does not exist!`);
-//     }
+    try {
+      await this.locationsClientApi.broadcastToClients({
+        cpoCountryCode: locationDto.tenant!.countryCode!,
+        cpoPartyId: locationDto.tenant!.partyId!,
+        moduleId: ModuleId.Locations,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: method,
+        schema: LocationResponseSchema,
+        body: locationDto,
+        otherParams: params,
+      });
+    } catch (e) {
+      this.logger.error(
+        `broadcast${method}Location failed for Location ${locationId}`,
+        e,
+      );
+    }
+  }
 
-//     const locationId = chargingStation.locationId;
-//     const lastUpdated = partialEvse.last_updated ?? new Date();
+  async broadcastPutEvse(evse: Partial<IEvseDto>): Promise<void> {
+    await this.broadcastEvse(evse, HttpMethod.Put);
+  }
 
-//     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-//       OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
-//     );
+  async broadcastPatchEvse(partialEvse: Partial<IEvseDto>): Promise<void> {
+    await this.broadcastEvse(partialEvse, HttpMethod.Patch);
+  }
 
-//     const ocpiLocation = await this.ocpiLocationRepository.updateOcpiLocation(
-//       OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
-//     );
+  private async broadcastEvse(
+    evseData: Partial<IEvseDto>,
+    method: HttpMethod,
+  ): Promise<void> {
+    const stationId = evseData.stationId;
+    if (!stationId) {
+      throw new Error('Station ID missing in Evse data');
+    }
+    const evseId = evseData.evseId;
+    if (!evseId) {
+      throw new Error('EVSE ID missing in Evse data');
+    }
 
-//     const params = PatchEvseParams.build(
-//       locationId,
-//       UID_FORMAT(stationId, evseId),
-//       partialEvse,
-//     );
+    const params: PatchEvseParams = {
+      locationId: evseData.chargingStation!.locationId!,
+      evseUid: UID_FORMAT(stationId, evseId),
+    };
 
-//     await this.locationsClientApi.broadcastToClients(
-//       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
-//       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
-//       ModuleId.Locations,
-//       params,
-//       this.locationsClientApi.patchEvse.bind(this.locationsClientApi),
-//     );
-//   }
+    try {
+      await this.locationsClientApi.broadcastToClients({
+        cpoCountryCode: evseData.tenant!.countryCode!,
+        cpoPartyId: evseData.tenant!.partyId!,
+        moduleId: ModuleId.Locations,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: method,
+        schema: LocationResponseSchema,
+        body: evseData,
+        otherParams: params,
+      });
+    } catch (e) {
+      this.logger.error(
+        `broadcast${method}Evse failed for Location ${evseData.chargingStation!.locationId!}`,
+        e,
+      );
+    }
+  }
 
-//   // TODO based on whether the database created or updated the connector
-//   // choose PUT or PATCH connector respectively
-//   async broadcastOnConnectorUpdate(
-//     stationId: string,
-//     evseId: number,
-//     connectorId: number,
-//     partialConnector: Partial<ConnectorDTO>,
-//   ): Promise<void> {
-//     const chargingStation =
-//       await this.locationRepository.readChargingStationByStationId(stationId);
+  async broadcastPutConnector(
+    connector: Partial<IConnectorDto>,
+  ): Promise<void> {
+    await this.broadcastConnector(connector, HttpMethod.Put);
+  }
 
-//     if (!chargingStation || !chargingStation.locationId) {
-//       throw new Error(`Charging Station ${stationId} does not exist!`);
-//     }
+  async broadcastPatchConnector(
+    partialConnector: Partial<IConnectorDto>,
+  ): Promise<void> {
+    await this.broadcastConnector(partialConnector, HttpMethod.Patch);
+  }
 
-//     const locationId = chargingStation.locationId;
-//     const lastUpdated = partialConnector.last_updated ?? new Date();
+  private async broadcastConnector(
+    connectorData: Partial<IConnectorDto>,
+    method: HttpMethod,
+  ): Promise<void> {
+    const connectorId = connectorData.connectorId;
+    if (!connectorId) {
+      throw new Error('Connector ID missing in Connector data');
+    }
+    const stationId = connectorData.stationId;
+    if (!stationId) {
+      throw new Error('Station ID missing in Connector data');
+    }
+    const evseId = connectorData.evseId;
+    if (!evseId) {
+      throw new Error('EVSE ID missing in Connector data');
+    }
+    const locationId = connectorData.chargingStation!.locationId!;
 
-//     await this.ocpiConnectorRepository.createOrUpdateOcpiConnector(
-//       OcpiConnector.buildWithLastUpdated(
-//         connectorId,
-//         evseId,
-//         stationId,
-//         lastUpdated,
-//       ),
-//     );
+    const params: PatchConnectorParams = {
+      locationId,
+      evseUid: UID_FORMAT(stationId, evseId),
+      connectorId,
+    };
 
-//     await this.ocpiEvseRepository.createOrUpdateOcpiEvse(
-//       OcpiEvse.buildWithLastUpdated(evseId, stationId, lastUpdated),
-//     );
-
-//     const ocpiLocation = await this.ocpiLocationRepository.updateOcpiLocation(
-//       OcpiLocation.buildWithLastUpdated(locationId, lastUpdated),
-//     );
-
-//     const params = PatchConnectorParams.build(
-//       locationId,
-//       UID_FORMAT(stationId, evseId),
-//       connectorId,
-//       partialConnector,
-//     );
-
-//     await this.locationsClientApi.broadcastToClients(
-//       ocpiLocation ? ocpiLocation[OcpiLocationProps.countryCode] : 'US',
-//       ocpiLocation ? ocpiLocation[OcpiLocationProps.partyId] : 'CPO',
-//       ModuleId.Locations,
-//       params,
-//       this.locationsClientApi.patchConnector.bind(this.locationsClientApi),
-//     );
-//   }
-// }
+    try {
+      await this.locationsClientApi.broadcastToClients({
+        cpoCountryCode: connectorData.tenant!.countryCode!,
+        cpoPartyId: connectorData.tenant!.partyId!,
+        moduleId: ModuleId.Locations,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: method,
+        schema: OcpiEmptyResponseSchema,
+        body: connectorData,
+        otherParams: params,
+      });
+    } catch (e) {
+      this.logger.error(
+        `broadcast${method}Connector failed for Location ${locationId}`,
+        e,
+      );
+    }
+  }
+}

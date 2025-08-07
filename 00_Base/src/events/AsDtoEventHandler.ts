@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache 2.0
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
-import { DtoEventType, DtoEventObjectType } from './types';
+import { DtoEventObjectType, DtoEventType } from './types';
 
 /**
  * Handler definition for Dto subscriptions
@@ -68,4 +68,17 @@ export const AsDtoEventHandler = function (
     );
     return descriptor;
   };
+};
+
+export const getDtoEventHandlerMetaData = (
+  target: any,
+): IDtoEventHandlerDefinition[] => {
+  const metadata = Reflect.getMetadata(
+    AS_DTO_EVENT_HANDLER_METADATA,
+    target.constructor,
+  );
+  if (!metadata) {
+    return [];
+  }
+  return metadata as IDtoEventHandlerDefinition[];
 };

@@ -1,19 +1,10 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
-import { PriceComponent } from './PriceComponent';
-import { TariffRestrictions } from './TariffRestrictions';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+import { z } from 'zod';
+import { PriceComponentSchema } from './PriceComponent';
+import { TariffRestrictionsSchema } from './TariffRestrictions';
 
-export class TariffElement {
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => PriceComponent)
-  @ValidateNested({ each: true })
-  price_components!: PriceComponent[];
+export const TariffElementSchema = z.object({
+  price_components: z.array(PriceComponentSchema).min(1),
+  restrictions: TariffRestrictionsSchema.nullable().optional(),
+});
 
-  @Optional()
-  @Type(() => TariffRestrictions)
-  @ValidateNested()
-  restrictions?: TariffRestrictions | null;
-}
+export type TariffElement = z.infer<typeof TariffElementSchema>;

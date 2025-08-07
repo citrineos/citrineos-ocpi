@@ -46,10 +46,9 @@ export function createDockerOcpiConfig(): OcpiConfigInput {
     database: {
       host: process.env.DB_HOST || 'postgres',
       port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'ocpi',
-      username: process.env.DB_USER || 'ocpi',
-      password: process.env.DB_PASS || 'ocpi',
-      sync: process.env.DB_SYNC === 'true',
+      database: process.env.DB_NAME || 'citrine',
+      username: process.env.DB_USER || 'citrine',
+      password: process.env.DB_PASS || 'citrine',
     },
 
     cache: {
@@ -57,6 +56,10 @@ export function createDockerOcpiConfig(): OcpiConfigInput {
         host: process.env.REDIS_HOST || 'redis',
         port: parseInt(process.env.REDIS_PORT || '6379'),
       },
+    },
+
+    graphql: {
+      endpoint: process.env.GRAPHQL_ENDPOINT || 'http://graphql-engine:8080/v1/graphql',
     },
 
     messageBroker: {

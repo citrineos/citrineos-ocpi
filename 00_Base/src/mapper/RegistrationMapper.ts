@@ -15,8 +15,8 @@ import { Endpoint } from '../model/Endpoint';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { ModuleId } from '../model/ModuleId';
 import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
 import { ImageDTO } from '../model/DTO/ImageDTO';
+import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
 
 export class RegistrationMapper {
   static tenantPartnerToCredentialsDto(
@@ -25,17 +25,17 @@ export class RegistrationMapper {
     const partnerProfile = partner.partnerProfileOCPI!;
     const tenant = partner.tenant!;
     const serverProfile = tenant.serverProfileOCPI!;
-    const credentials = new CredentialsDTO();
-    credentials.token = partnerProfile.serverCredentials.token!;
-    credentials.url = partnerProfile.serverCredentials.versionsUrl;
-    credentials.roles = [
-      RegistrationMapper.toCredentialsRoleDto(
-        tenant.countryCode!,
-        tenant.partyId!,
-        serverProfile.credentialsRole,
-      ),
-    ];
-    return credentials;
+    return {
+      token: partnerProfile.serverCredentials.token!,
+      url: partnerProfile.serverCredentials.versionsUrl,
+      roles: [
+        RegistrationMapper.toCredentialsRoleDto(
+          tenant.countryCode!,
+          tenant.partyId!,
+          serverProfile.credentialsRole,
+        ),
+      ],
+    };
   }
 
   static toCredentialsRoleDto(
@@ -43,14 +43,14 @@ export class RegistrationMapper {
     partyId: string,
     value: OCPIRegistration.CredentialRole,
   ): CredentialsRoleDTO {
-    const credentialsRole = new CredentialsRoleDTO();
-    credentialsRole.country_code = countryCode;
-    credentialsRole.party_id = partyId;
-    credentialsRole.role = RegistrationMapper.toRole(value.role);
-    credentialsRole.business_details = RegistrationMapper.toBusinessDetails(
-      value.businessDetails,
-    );
-    return credentialsRole;
+    return {
+      country_code: countryCode,
+      party_id: partyId,
+      role: RegistrationMapper.toRole(value.role),
+      business_details: RegistrationMapper.toBusinessDetails(
+        value.businessDetails,
+      ),
+    };
   }
 
   static toCredentialsRole(
@@ -58,18 +58,20 @@ export class RegistrationMapper {
   ): OCPIRegistration.CredentialRole {
     return {
       role: RegistrationMapper.toRoleString(value.role),
-      businessDetails: RegistrationMapper.toRegistrationBusinessDetails(value.business_details),
+      businessDetails: RegistrationMapper.toRegistrationBusinessDetails(
+        value.business_details,
+      ),
     };
   }
 
   static toBusinessDetails(
     value: OCPIRegistration.BusinessDetails,
   ): BusinessDetailsDTO {
-    const businessDetails = new BusinessDetailsDTO();
-    businessDetails.name = value.name;
-    businessDetails.website = value.website;
-    businessDetails.logo = value.logo && RegistrationMapper.toImage(value.logo);
-    return businessDetails;
+    return {
+      name: value.name,
+      website: value.website,
+      logo: value.logo && RegistrationMapper.toImage(value.logo),
+    };
   }
 
   static toRegistrationBusinessDetails(
@@ -85,22 +87,16 @@ export class RegistrationMapper {
   }
 
   static toImage(value: OCPIRegistration.Image): ImageDTO {
-    const image = new ImageDTO();
-    image.url = value.url;
-    image.type = RegistrationMapper.toImageType(value.type);
-    image.category = RegistrationMapper.toImageCategory(value.category);
-    image.height = value.height;
-    image.width = value.width;
-    return image;
+    return {
+      url: value.url,
+      type: RegistrationMapper.toImageType(value.type),
+      category: RegistrationMapper.toImageCategory(value.category),
+      height: value.height,
+      width: value.width,
+    };
   }
 
   static toRegistrationImage(value: ImageDTO): OCPIRegistration.Image {
-    const image = new ImageDTO();
-    image.url = value.url;
-    image.type = RegistrationMapper.toImageType(value.type);
-    image.category = RegistrationMapper.toImageCategory(value.category);
-    image.height = value.height;
-    image.width = value.width;
     return {
       url: value.url,
       type: value.type,
@@ -257,5 +253,42 @@ export class RegistrationMapper {
     throw new Error(
       `Unknown role for module ${value.identifier}: ${value.role}`,
     );
+  }
+
+  static toModuleAndRole(value: OCPIRegistration.Endpoint): { identifier: ModuleId, role: InterfaceRole } {
+    switch (value.identifier) {
+      case EndpointIdentifier.CREDENTIALS:
+        return { identifier: ModuleId.Credentials, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.CDRS_SENDER:
+        return { identifier: ModuleId.Cdrs, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.CDRS_RECEIVER:
+        return { identifier: ModuleId.Cdrs, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.LOCATIONS_SENDER:
+        return { identifier: ModuleId.Locations, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.LOCATIONS_RECEIVER:
+        return { identifier: ModuleId.Locations, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.SESSIONS_SENDER:
+        return { identifier: ModuleId.Sessions, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.SESSIONS_RECEIVER:
+        return { identifier: ModuleId.Sessions, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.TARIFFS_SENDER:
+        return { identifier: ModuleId.Tariffs, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.TARIFFS_RECEIVER:
+        return { identifier: ModuleId.Tariffs, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.TOKENS_SENDER:
+        return { identifier: ModuleId.Tokens, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.TOKENS_RECEIVER:
+        return { identifier: ModuleId.Tokens, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.COMMANDS_SENDER:
+        return { identifier: ModuleId.Commands, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.COMMANDS_RECEIVER:
+        return { identifier: ModuleId.Commands, role: InterfaceRole.RECEIVER };
+      case EndpointIdentifier.CHARGING_PROFILES_SENDER:
+        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.SENDER };
+      case EndpointIdentifier.CHARGING_PROFILES_RECEIVER:
+        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.RECEIVER };
+      default:
+        throw new Error(`Unknown endpoint identifier: ${value.identifier}`);
+    }
   }
 }

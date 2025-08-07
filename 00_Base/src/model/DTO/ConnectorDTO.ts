@@ -1,22 +1,31 @@
-import {
-  IsArray,
-  IsDateString,
-  IsInt,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUrl,
-  MaxLength,
-  ValidateNested,
-} from 'class-validator';
+import { z } from 'zod';
 import { ConnectorType } from '../ConnectorType';
 import { ConnectorFormat } from '../ConnectorFormat';
 import { PowerType } from '../PowerType';
-import { Type } from 'class-transformer';
-import { Optional } from '../../util/decorators/Optional';
-import { Enum } from '../../util/decorators/Enum';
-import { OcpiResponse } from '../OcpiResponse';
+import { OcpiResponseSchema } from '../OcpiResponse';
 import { uidDelimiter } from './EvseDTO';
+
+export const ConnectorDTOSchema = z.object({
+  id: z.string().max(36),
+  standard: z.nativeEnum(ConnectorType),
+  format: z.nativeEnum(ConnectorFormat),
+  power_type: z.nativeEnum(PowerType),
+  max_voltage: z.number().int(),
+  max_amperage: z.number().int(),
+  max_electric_power: z.number().int().nullable().optional(),
+  tariff_ids: z.array(z.string()).nullable().optional(),
+  terms_and_conditions: z.string().url().nullable().optional(),
+  last_updated: z.coerce.date(),
+});
+
+export const ConnectorResponseSchema = OcpiResponseSchema(ConnectorDTOSchema);
+export const ConnectorResponseSchemaName = 'ConnectorResponseSchema';
+export const ConnectorListResponseSchema =
+  OcpiResponseSchema(ConnectorDTOSchema);
+
+export type ConnectorDTO = z.infer<typeof ConnectorDTOSchema>;
+export type ConnectorResponse = z.infer<typeof ConnectorResponseSchema>;
+export type ConnectorListResponse = z.infer<typeof ConnectorListResponseSchema>;
 
 export const TEMPORARY_CONNECTOR_ID = (
   stationId: string,
@@ -24,64 +33,3 @@ export const TEMPORARY_CONNECTOR_ID = (
   connectorId: number,
 ): string =>
   `${stationId}${uidDelimiter}${evseId}${uidDelimiter}${connectorId}`;
-
-export class ConnectorDTO {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  id!: string;
-
-  @Enum(ConnectorType, 'ConnectorType')
-  @IsNotEmpty()
-  standard!: ConnectorType;
-
-  @Enum(ConnectorFormat, 'ConnectorFormat')
-  @IsNotEmpty()
-  format!: ConnectorFormat;
-
-  @Enum(PowerType, 'PowerType')
-  @IsNotEmpty()
-  power_type!: PowerType;
-
-  @IsInt()
-  @IsNotEmpty()
-  max_voltage!: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  max_amperage!: number;
-
-  @IsInt()
-  @Optional()
-  max_electric_power?: number | null;
-
-  @IsArray()
-  @Optional()
-  tariff_ids?: string[] | null;
-
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @Optional()
-  terms_and_conditions?: string | null;
-
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  last_updated!: Date;
-}
-
-export class ConnectorResponse extends OcpiResponse<ConnectorDTO> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => ConnectorDTO)
-  @ValidateNested()
-  data?: ConnectorDTO | undefined;
-}
-
-export class ConnectorListResponse extends OcpiResponse<ConnectorDTO[]> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ConnectorDTO)
-  data!: ConnectorDTO[];
-}

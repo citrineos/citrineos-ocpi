@@ -48,20 +48,17 @@ export interface IDtoEvent<T extends IDtoPayload> {
   /**
    * The event identifier
    */
-  get eventId(): string;
-  set eventId(value: string);
+  _eventId: string;
 
   /**
    * The context of the event
    */
-  get context(): IDtoEventContext;
-  set context(value: IDtoEventContext);
+  _context: IDtoEventContext;
 
   /**
    * The payload of the event
    */
-  get payload(): T;
-  set payload(value: T);
+  _payload: T;
 }
 
 /**
@@ -109,7 +106,7 @@ export interface IDtoModule {
 
   /**
    * Handles incoming Dto events
-   * 
+   *
    * @returns A promise that resolves when the event is handled.
    */
   handle(event: IDtoEvent<IDtoPayload>): Promise<void>;
@@ -123,10 +120,17 @@ export interface IDtoModule {
 
   /**
    * Shuts down the module
-   * 
+   *
    * @returns A promise that resolves when the module is shut down.
    */
   shutdown(): Promise<void>;
+
+  /**
+   * Initializes the handlers for the module.
+   *
+   * @returns A promise that resolves when the handlers are initialized.
+   */
+  initHandlers(): Promise<void>;
 }
 
 /**
@@ -150,7 +154,6 @@ export interface IDtoEventSender {
    */
   shutdown(): Promise<void>;
 }
-
 export interface IDtoEventSubscriber {
   /**
    * Initializes the Dto event subscriber.
@@ -217,9 +220,9 @@ export class DtoEvent<T extends IDtoPayload> implements IDtoEvent<T> {
   /**
    * Fields
    */
-  protected _eventId: string;
-  protected _context: IDtoEventContext;
-  protected _payload: T;
+  _eventId: string;
+  _context: IDtoEventContext;
+  _payload: T;
 
   /**
    * Constructs a new instance of DtoEvent.

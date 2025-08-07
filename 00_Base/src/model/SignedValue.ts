@@ -1,18 +1,9 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { z } from 'zod';
 
-export class SignedValue {
-  @MaxLength(32)
-  @IsString()
-  @IsNotEmpty()
-  nature!: string;
+export const SignedValueSchema = z.object({
+  nature: z.string().max(32),
+  plain_data: z.string().max(512),
+  signed_data: z.string().max(5000),
+});
 
-  @MaxLength(512)
-  @IsString()
-  @IsNotEmpty()
-  plain_data!: string;
-
-  @MaxLength(5000)
-  @IsString()
-  @IsNotEmpty()
-  signed_data!: string;
-}
+export type SignedValue = z.infer<typeof SignedValueSchema>;

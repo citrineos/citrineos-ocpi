@@ -5,7 +5,6 @@
 
 import {
   BadRequestError,
-  Body,
   Delete,
   Get,
   JsonController,
@@ -22,25 +21,34 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   AsyncJobAction,
-  AsyncJobRequest,
   AsyncJobStatusResponse,
   BaseController,
+  Body,
   BodyWithExample,
+  buildOcpiEmptyResponse,
+  buildOcpiResponse,
   EnumQueryParam,
   FunctionalEndpointParams,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   InvalidParamException,
   ModuleId,
   OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
   OcpiHeaders,
   OcpiResponseStatusCode,
   ResponseSchema,
   SingleTokenRequest,
   TokenDTO,
+  TokenDTOSchema,
+  TokenDTOSchemaName,
   TokenResponse,
-  TokensAdminService,
+  TokenResponseSchema,
+  TokenResponseSchemaName,
+  // TokensAdminService,
   TokensService,
   TokenType,
+  TokenTypeSchemaName,
   UnknownTokenException,
   versionIdParam,
   VersionNumber,
@@ -49,6 +57,7 @@ import {
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './ITokensModuleApi';
+import { TokenTypeSchema } from '@citrineos/ocpi-base/dist/model/TokenType';
 
 const MockPutTokenBody = {
   country_code: 'MSP',
@@ -78,18 +87,21 @@ export class TokensModuleApi
 {
   constructor(
     readonly tokensService: TokensService,
-    readonly tokensFetchService: TokensAdminService,
+    // readonly tokensFetchService: TokensAdminService,
   ) {
     super();
   }
 
   @Get('/:countryCode/:partyId/:tokenId')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(TokenResponse, {
+  @ResponseSchema(TokenResponseSchema, TokenResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(TokenResponse),
+      success: generateMockForSchema(
+        TokenResponseSchema,
+        TokenResponseSchemaName,
+      ),
     },
   })
   async getTokens(
@@ -98,7 +110,8 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @EnumQueryParam('type', TokenType, 'type') type?: TokenType,
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
   ): Promise<TokenResponse | OcpiEmptyResponse> {
     console.log('getTokens', countryCode, partyId, tokenId, type);
     if (
@@ -109,12 +122,12 @@ export class TokensModuleApi
         'Client is trying to access wrong resource',
       );
     }
-    const tokenRequest = SingleTokenRequest.build(
-      countryCode,
-      partyId,
-      tokenId,
-      type ?? TokenType.RFID,
-    );
+    const tokenRequest: SingleTokenRequest = {
+      country_code: countryCode,
+      party_id: partyId,
+      uid: tokenId,
+      type: type ?? TokenType.RFID,
+    };
 
     const token = await this.tokensService.getToken(tokenRequest);
 
@@ -122,19 +135,19 @@ export class TokensModuleApi
       throw new UnknownTokenException('Token not found in the database');
     }
 
-    return TokenResponse.build(
-      OcpiResponseStatusCode.GenericSuccessCode,
-      token,
-    );
+    return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, token);
   }
 
   @Put('/:countryCode/:partyId/:tokenId')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
+  @ResponseSchema(OcpiEmptyResponseSchema, OcpiEmptyResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(OcpiEmptyResponse),
+      success: generateMockForSchema(
+        OcpiEmptyResponseSchema,
+        OcpiEmptyResponseSchemaName,
+      ),
     },
   })
   async putToken(
@@ -143,8 +156,9 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @BodyWithExample(MockPutTokenBody) tokenDTO: TokenDTO,
-    @EnumQueryParam('type', TokenType, 'type') type?: TokenType,
+    @BodyWithExample(TokenDTOSchema, TokenTypeSchemaName) tokenDTO: TokenDTO, // tood use everywhere or in default?
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('putToken', countryCode, partyId, tokenId, tokenDTO, type);
     if (
@@ -162,16 +176,19 @@ export class TokensModuleApi
     }
     await this.tokensService.updateToken(tokenDTO);
 
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   @Patch('/:countryCode/:partyId/:tokenUid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
+  @ResponseSchema(OcpiEmptyResponseSchema, OcpiEmptyResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(OcpiEmptyResponse),
+      success: generateMockForSchema(
+        OcpiEmptyResponseSchema,
+        OcpiEmptyResponseSchemaName,
+      ),
     },
   })
   async patchToken(
@@ -180,8 +197,9 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenUid') tokenUid: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @Body() token: Partial<TokenDTO>,
-    @EnumQueryParam('type', TokenType, 'type') type?: TokenType,
+    @Body(TokenDTOSchema, TokenDTOSchemaName) token: Partial<TokenDTO>,
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
   ): Promise<OcpiEmptyResponse> {
     console.log('patchToken', countryCode, partyId, tokenUid, token, type);
     if (
@@ -201,71 +219,71 @@ export class TokensModuleApi
       token,
     );
 
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
   /**
    * Admin Endpoints
    **/
-  @Post('/fetch')
-  async fetchTokens(
-    @VersionNumberParam() version: VersionNumber,
-    @Body() asyncJobRequest: AsyncJobRequest,
-  ): Promise<AsyncJobStatusResponse> {
-    const jobStatus =
-      await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
-    return jobStatus;
-  }
+  // @Post('/fetch')
+  // async fetchTokens(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Body(AsyncJobRequestSchema) asyncJobRequest: AsyncJobRequest,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   const jobStatus =
+  //     await this.tokensFetchService.startFetchTokensByParty(asyncJobRequest);
+  //   return jobStatus;
+  // }
 
-  @Post('/fetch/:jobId/:action')
-  async fetchTokensAction(
-    @VersionNumberParam() version: VersionNumber,
-    @Param('jobId') jobId: string,
-    @Param('action') action: AsyncJobAction,
-  ): Promise<AsyncJobStatusResponse> {
-    switch (action) {
-      case AsyncJobAction.RESUME:
-        return await this.tokensFetchService.resumeFetchTokens(jobId);
-      case AsyncJobAction.STOP:
-        return await this.tokensFetchService.stopFetchTokens(jobId);
-      default:
-        throw new BadRequestError('Action not found');
-    }
-  }
+  // @Post('/fetch/:jobId/:action')
+  // async fetchTokensAction(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Param('jobId') jobId: string,
+  //   @Param('action') action: AsyncJobAction,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   switch (action) {
+  //     case AsyncJobAction.RESUME:
+  //       return await this.tokensFetchService.resumeFetchTokens(jobId);
+  //     case AsyncJobAction.STOP:
+  //       return await this.tokensFetchService.stopFetchTokens(jobId);
+  //     default:
+  //       throw new BadRequestError('Action not found');
+  //   }
+  // }
 
-  @Get('/fetch/:jobId')
-  async getFetchTokensJobStatus(
-    @VersionNumberParam() version: VersionNumber,
-    @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusResponse> {
-    const jobStatus = await this.tokensFetchService.getFetchTokensJob(jobId);
-    if (!jobStatus) {
-      throw new NotFoundError('Job not found');
-    }
-    return jobStatus;
-  }
+  // @Get('/fetch/:jobId')
+  // async getFetchTokensJobStatus(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Param('jobId') jobId: string,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   const jobStatus = await this.tokensFetchService.getFetchTokensJob(jobId);
+  //   if (!jobStatus) {
+  //     throw new NotFoundError('Job not found');
+  //   }
+  //   return jobStatus;
+  // }
 
-  @Get('/fetch')
-  async getActiveFetchTokensJobStatus(
-    @VersionNumberParam() version: VersionNumber,
-    @QueryParam('tenantPartnerId') tenantPartnerId: number,
-    @QueryParam('active', { required: false }) active: boolean,
-  ): Promise<AsyncJobStatusResponse[]> {
-    return await this.tokensFetchService.getFetchTokensJobs(
-      tenantPartnerId,
-      active,
-    );
-  }
+  // @Get('/fetch')
+  // async getActiveFetchTokensJobStatus(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @QueryParam('tenantPartnerId') tenantPartnerId: number,
+  //   @QueryParam('active', { required: false }) active: boolean,
+  // ): Promise<AsyncJobStatusResponse[]> {
+  //   return await this.tokensFetchService.getFetchTokensJobs(
+  //     tenantPartnerId,
+  //     active,
+  //   );
+  // }
 
-  @Delete('/fetch/:jobId')
-  async deleteFetchTokensJobStatus(
-    @VersionNumberParam() version: VersionNumber,
-    @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusResponse> {
-    const jobStatus = await this.tokensFetchService.deleteFetchTokensJob(jobId);
-    if (!jobStatus) {
-      throw new NotFoundError('Job not found');
-    }
-    return jobStatus;
-  }
+  // @Delete('/fetch/:jobId')
+  // async deleteFetchTokensJobStatus(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Param('jobId') jobId: string,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   const jobStatus = await this.tokensFetchService.deleteFetchTokensJob(jobId);
+  //   if (!jobStatus) {
+  //     throw new NotFoundError('Job not found');
+  //   }
+  //   return jobStatus;
+  // }
 }

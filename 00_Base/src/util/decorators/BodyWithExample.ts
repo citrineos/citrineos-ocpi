@@ -1,10 +1,13 @@
-import { Body } from 'routing-controllers';
+import { ZodTypeAny } from 'zod';
+import { Body } from './Body';
+import { generateMockForSchema } from '../../controllers/BaseController';
 
 export const BODY_WITH_EXAMPLE_PARAM = 'BodyWithExample';
 
-export const BodyWithExample = (example: any) =>
+export const BodyWithExample = (schema: ZodTypeAny, name: string) =>
   function (object: NonNullable<unknown>, methodName: string, index: number) {
-    Body()(object, methodName, index);
+    const example = generateMockForSchema(schema, name);
+    Body(schema, name)(object, methodName, index);
 
     // Add custom metadata for additional use cases
     Reflect.defineMetadata(

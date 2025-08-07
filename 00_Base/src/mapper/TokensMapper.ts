@@ -1,9 +1,9 @@
 import {
-  IdTokenType,
-  IAuthorizationDto,
-  OCPP2_0_1,
   AuthorizationStatusType,
   AuthorizationWhitelistType,
+  IAuthorizationDto,
+  IdTokenType,
+  OCPP2_0_1,
 } from '@citrineos/base';
 import { TokenType } from '../model/TokenType';
 
@@ -12,27 +12,24 @@ import { WhitelistType } from '../model/WhitelistType';
 
 export class TokensMapper {
   public static toDto(authorization: IAuthorizationDto): TokenDTO {
-    const tokenDto = new TokenDTO();
-
-    tokenDto.country_code = authorization.tenant!.countryCode!;
-    tokenDto.party_id = authorization.tenant!.partyId!;
-    tokenDto.uid = authorization.idToken;
-    tokenDto.type = TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
-      authorization.idTokenType ? authorization.idTokenType : null,
-    );
-    tokenDto.contract_id = this.getContractId(authorization);
-    tokenDto.visual_number = TokensMapper.getVisualNumber(authorization);
-    tokenDto.issuer = TokensMapper.getIssuer(authorization);
-    tokenDto.group_id = authorization.groupAuthorization?.idToken;
-    tokenDto.valid = 
-      authorization.status === AuthorizationStatusType.Accepted;
-    tokenDto.whitelist = TokensMapper.mapRealTimeEnumType(
-      authorization.realTimeAuth,
-    );
-    tokenDto.language = authorization.language1;
-    // tokenDto.default_profile_type = token.default_profile_type;
-    // tokenDto.energy_contract = token.energy_contract;
-    tokenDto.last_updated = authorization.updatedAt!;
+    const tokenDto: TokenDTO = {
+      country_code: authorization.tenantPartner!.countryCode!,
+      party_id: authorization.tenantPartner!.partyId!,
+      uid: authorization.idToken,
+      type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
+        authorization.idTokenType ? authorization.idTokenType : null,
+      ),
+      contract_id: this.getContractId(authorization),
+      visual_number: TokensMapper.getVisualNumber(authorization),
+      issuer: TokensMapper.getIssuer(authorization),
+      group_id: authorization.groupAuthorization?.idToken,
+      valid: authorization.status === AuthorizationStatusType.Accepted,
+      whitelist: TokensMapper.mapRealTimeEnumType(authorization.realTimeAuth),
+      language: authorization.language1,
+      // default_profile_type: token.default_profile_type,
+      // energy_contract: token.energy_contract,
+      last_updated: authorization.updatedAt!,
+    };
 
     return tokenDto;
   }
@@ -138,6 +135,56 @@ export class TokensMapper {
     };
   }
 
+  public static mapOcpiTokenToPartialOcppAuthorization(
+    tokenDto: Partial<TokenDTO>,
+  ): Partial<IAuthorizationDto> {
+    const tenantId = 0; // TODO: Handle linking to tenantPartner with tokenDto.country_code and tokenDto.party_id
+
+    const idToken: string | undefined = tokenDto.uid;
+    const idTokenType: IdTokenType | undefined = tokenDto.type &&
+      TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
+    const partialAdditionalInfo:
+      OCPP2_0_1.AdditionalInfoType[] | undefined = (tokenDto.contract_id ?
+      [{
+        additionalIdToken: tokenDto.contract_id,
+        type: OCPP2_0_1.IdTokenEnumType.eMAID,
+      }] : []);
+    if (tokenDto.visual_number) {
+      partialAdditionalInfo.push({
+        additionalIdToken: tokenDto.visual_number,
+        type: 'visual_number',
+      });
+    }
+    if (tokenDto.issuer) {
+      partialAdditionalInfo.push({
+        additionalIdToken: tokenDto.issuer,
+        type: 'issuer',
+      });
+    }
+
+    const additionalInfo: [OCPP2_0_1.AdditionalInfoType, ...OCPP2_0_1.AdditionalInfoType[]] | undefined =
+      partialAdditionalInfo.length > 0 ? partialAdditionalInfo as [OCPP2_0_1.AdditionalInfoType, ...OCPP2_0_1.AdditionalInfoType[]] : undefined;
+
+    const status: AuthorizationStatusType = tokenDto.valid
+      ? AuthorizationStatusType.Accepted
+      : AuthorizationStatusType.Invalid;
+
+    const language1: string | undefined = tokenDto.language ?? undefined;
+
+    if (tokenDto.group_id) {
+      // TODO: Handle linking to group authorization with tokenDto.group_id
+    }
+
+    return {
+      tenantId,
+      additionalInfo,
+      idToken,
+      idTokenType,
+      status,
+      language1,
+    };
+  }
+
   public static getContractId(authorization: IAuthorizationDto): string {
     const contractId = authorization.additionalInfo!.find(
       (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
@@ -206,13 +253,11 @@ export class TokensMapper {
 
   public static toGraphqlWhere(token: TokenDTO): any {
     return {
-      IdToken: {
-        idToken: { _eq: token.uid },
-        type: {
-          _eq: TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(token.type),
-        },
+      idToken: { _eq: token.uid },
+      IdTokenType: {
+        _eq: TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(token.type),
       },
-      Tenant: {
+      TenantPartner: {
         countryCode: { _eq: token.country_code },
         partyId: { _eq: token.party_id },
       },
@@ -220,15 +265,7 @@ export class TokensMapper {
   }
 
   public static toGraphqlSet(token: Partial<TokenDTO>): any {
-    const set: any = {};
-    if (token.valid !== undefined) {
-      set.IdTokenInfo = {
-        status: token.valid
-          ? AuthorizationStatusType.Accepted
-          : AuthorizationStatusType.Invalid,
-      };
-    }
-    //TODO: Add other fields as needed for update
+    const set: any = TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token)
     return set;
   }
 }

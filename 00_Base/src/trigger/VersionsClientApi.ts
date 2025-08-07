@@ -1,16 +1,18 @@
 import { BaseClientApi } from './BaseClientApi';
 import { Service } from 'typedi';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
+import {
+  VersionDetailsResponseDTO,
+  VersionDetailsResponseDTOSchema,
+} from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
-import { PartnerProfile } from '@citrineos/base/dist/interfaces/dto/json/ocpi.registration';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 import { VersionsInterface } from '../model/EndpointIdentifier';
-import { OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class VersionsClientApi extends BaseClientApi {
   getUrl(
-    partnerProfile: PartnerProfile,
+    partnerProfile: OCPIRegistration.PartnerProfile,
     versionInterface = VersionsInterface.VERSIONS,
   ): string {
     switch (versionInterface) {
@@ -37,11 +39,11 @@ export class VersionsClientApi extends BaseClientApi {
         fromPartyId,
         toCountryCode,
         toPartyId,
-        'get',
-        VersionListResponseDTO,
+        HttpMethod.Get,
+        VersionDetailsResponseDTOSchema,
         partnerProfile,
         false,
-        url
+        url,
       );
     } catch (e: any) {
       throw new UnsuccessfulRequestException(
@@ -65,8 +67,8 @@ export class VersionsClientApi extends BaseClientApi {
         fromPartyId,
         toCountryCode,
         toPartyId,
-        'get',
-        VersionDetailsResponseDTO,
+        HttpMethod.Get,
+        VersionDetailsResponseDTOSchema,
         partnerProfile,
         false,
         url,

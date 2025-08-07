@@ -1,14 +1,9 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class GetEvseParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  locationId!: string;
+export const GetEvseParamsSchema = OcpiParamsSchema.extend({
+  locationId: z.string().length(36),
+  evseUid: z.string().length(36),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  evseUid!: string;
-}
+export type GetEvseParams = z.infer<typeof GetEvseParamsSchema>;

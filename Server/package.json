@@ -46,6 +46,7 @@
     "@citrineos/ocpi-cdrs": "2.0.0",
     "@citrineos/ocpi-charging-profiles": "2.0.0",
     "@citrineos/ocpi-tokens": "2.0.0",
+    "@citrineos/dto-router": "2.0.0",
     "@citrineos/ocpprouter": "~1.8.0",
     "@citrineos/certificates": "~1.8.0",
     "@citrineos/configuration": "~1.8.0",

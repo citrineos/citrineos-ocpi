@@ -1,29 +1,12 @@
-import { IsArray, IsBoolean, IsNotEmpty, ValidateNested } from 'class-validator';
-import { RegularHours } from './RegularHours';
-import { ExceptionalPeriod } from './ExceptionalPeriod';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+import { z } from 'zod';
+import { RegularHoursSchema } from './RegularHours';
+import { ExceptionalPeriodSchema } from './ExceptionalPeriod';
 
-export class Hours {
-  @IsArray()
-  @Optional()
-  @Type(() => RegularHours)
-  @ValidateNested({ each: true })
-  regular_hours?: RegularHours[] | null;
+export const HoursSchema = z.object({
+  regular_hours: z.array(RegularHoursSchema).nullable().optional(),
+  twentyfourseven: z.boolean(),
+  exceptional_openings: z.array(ExceptionalPeriodSchema).nullable().optional(),
+  exceptional_closings: z.array(ExceptionalPeriodSchema).nullable().optional(),
+});
 
-  @IsBoolean()
-  @IsNotEmpty()
-  twentyfourseven!: boolean;
-
-  @IsArray()
-  @Optional()
-  @Type(() => ExceptionalPeriod)
-  @ValidateNested({ each: true })
-  exceptional_openings?: ExceptionalPeriod[] | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => ExceptionalPeriod)
-  @ValidateNested({ each: true })
-  exceptional_closings?: ExceptionalPeriod[] | null;
-}
+export type Hours = z.infer<typeof HoursSchema>;

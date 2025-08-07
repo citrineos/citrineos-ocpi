@@ -8,14 +8,15 @@ import {
   DtoEventObjectType,
   DtoEventType,
   IDtoEvent,
-  IDtoEventReceiver,
   OcpiConfig,
+  OcpiConfigToken,
   OcpiModule,
+  RabbitMqDtoReceiver,
 } from '@citrineos/ocpi-base';
-import { Tariff } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { TariffsModuleApi } from './module/TariffsModuleApi';
+import { ITariffDto } from '@citrineos/base';
 
 export { TariffsModuleApi } from './module/TariffsModuleApi';
 export { ITariffsModuleApi } from './module/ITariffsModuleApi';
@@ -23,11 +24,10 @@ export { ITariffsModuleApi } from './module/ITariffsModuleApi';
 @Service()
 export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
-    config: OcpiConfig,
-    receiver: IDtoEventReceiver,
-    logger?: Logger<ILogObj>,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    logger: Logger<ILogObj>,
   ) {
-    super(config, receiver, logger);
+    super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
   getController(): any {
@@ -50,7 +50,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Tariff,
     'TariffNotification',
   )
-  async handleTariffInsert(event: IDtoEvent<Tariff>): Promise<void> {
+  async handleTariffInsert(event: IDtoEvent<ITariffDto>): Promise<void> {
     this._logger.info(`Handling Tariff Insert: ${JSON.stringify(event)}`);
     // Inserts are Tariff PUT requests
   }
@@ -60,7 +60,9 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Tariff,
     'TariffNotification',
   )
-  async handleTariffUpdate(event: IDtoEvent<Partial<Tariff>>): Promise<void> {
+  async handleTariffUpdate(
+    event: IDtoEvent<Partial<ITariffDto>>,
+  ): Promise<void> {
     this._logger.info(`Handling Tariff Update: ${JSON.stringify(event)}`);
     // Updates are Tariff PUT requests
   }
@@ -70,7 +72,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Tariff,
     'TariffNotification',
   )
-  async handleTariffDelete(event: IDtoEvent<Tariff>): Promise<void> {
+  async handleTariffDelete(event: IDtoEvent<ITariffDto>): Promise<void> {
     this._logger.info(`Handling Tariff Delete: ${JSON.stringify(event)}`);
     // Deletes are Tariff DELETE requests
   }

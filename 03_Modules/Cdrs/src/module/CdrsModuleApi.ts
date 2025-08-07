@@ -17,6 +17,8 @@ import {
   OcpiHeaders,
   Paginated,
   PaginatedCdrResponse,
+  PaginatedCdrResponseSchema,
+  PaginatedCdrResponseSchemaName,
   PaginatedParams,
   ResponseSchema,
   versionIdParam,
@@ -25,7 +27,8 @@ import {
 import { Service } from 'typedi';
 
 const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
-  PaginatedCdrResponse,
+  PaginatedCdrResponseSchema,
+  PaginatedCdrResponseSchemaName,
   new PaginatedParams(),
 );
 
@@ -38,7 +41,7 @@ export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedCdrResponse, {
+  @ResponseSchema(PaginatedCdrResponseSchema, PaginatedCdrResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {

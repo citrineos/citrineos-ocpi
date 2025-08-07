@@ -1,46 +1,16 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUrl,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { CredentialsRoleDTO } from './CredentialsRoleDTO';
-import { CountryCode } from '../..';
+import { z } from 'zod';
+import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO';
+import { CountryCode } from '../../util/Util';
 
-export class AdminCredentialsRequestDTO {
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  url!: string; // version url of OCPI
+export const AdminCredentialsRequestDTOSchema = z.object({
+  url: z.string().url(),
+  role: CredentialsRoleDTOSchema,
+  mspCountryCode: z.nativeEnum(CountryCode),
+  mspPartyId: z.string(),
+});
+export const AdminCredentialsRequestDTOSchemaName =
+  'AdminCredentialsRequestDTO';
 
-  @IsObject()
-  @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => CredentialsRoleDTO)
-  role!: CredentialsRoleDTO;
-
-  @IsEnum(CountryCode)
-  @IsNotEmpty()
-  mspCountryCode!: CountryCode;
-
-  @IsString()
-  @IsNotEmpty()
-  mspPartyId!: string;
-
-  constructor(
-    url: string,
-    role: CredentialsRoleDTO,
-    mspCountryCode: CountryCode,
-    mspPartyId: string,
-  ) {
-    this.url = url;
-    this.role = role;
-    this.mspCountryCode = mspCountryCode;
-    this.mspPartyId = mspPartyId;
-  }
-}
+export type AdminCredentialsRequestDTO = z.infer<
+  typeof AdminCredentialsRequestDTOSchema
+>;

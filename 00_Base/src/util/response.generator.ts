@@ -1,81 +1,67 @@
 import { NotFoundException } from '../exception/NotFoundException';
-import { OcpiResponse, OcpiResponseStatusCode } from '../model/OcpiResponse';
+import {
+  buildOcpiResponse,
+  OcpiResponseStatusCode,
+} from '../model/OcpiResponse';
 
 export class ResponseGenerator {
-  static buildGenericSuccessResponse<T>(
-    data?: T,
-    message?: string,
-  ): OcpiResponse<T> {
-    const response: OcpiResponse<T> = new OcpiResponse<T>();
-    response.status_code = OcpiResponseStatusCode.GenericSuccessCode;
-    response.status_message = message ?? 'Success';
-    response.data = data;
-    response.timestamp = new Date();
-    return response;
+  static buildGenericSuccessResponse<T>(data?: T, message?: string) {
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      data,
+      message ?? 'Success',
+    );
   }
 
   static buildGenericServerErrorResponse<T>(
     data?: T,
     message?: string,
     error?: Error,
-  ): OcpiResponse<T> {
-    const response: OcpiResponse<T> = new OcpiResponse<T>();
-    response.status_code = OcpiResponseStatusCode.ServerGenericError;
-    response.status_message = message ?? error?.message;
-    response.data = data;
-    response.timestamp = new Date();
-    return response;
+  ) {
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.ServerGenericError,
+      data,
+      message ?? error?.message,
+    );
   }
 
   static buildGenericClientErrorResponse<T>(
     data?: T,
     message?: string,
     error?: Error,
-  ): OcpiResponse<T> {
-    const response: OcpiResponse<T> = new OcpiResponse<T>();
-    response.status_code = OcpiResponseStatusCode.ClientGenericError;
-    response.status_message = message ?? error?.message;
-    response.data = data;
-    response.timestamp = new Date();
-    return response;
+  ) {
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.ClientGenericError,
+      data,
+      message ?? error?.message,
+    );
   }
 
   static buildUnknownLocationResponse<T>(
     data?: T,
     message?: string,
     error?: Error,
-  ): OcpiResponse<T> {
-    const response: OcpiResponse<T> = this.buildGenericServerErrorResponse(
+  ) {
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.ClientUnknownLocation,
       data,
-      message,
-      error,
+      message ?? error?.message,
     );
-    response.status_code = OcpiResponseStatusCode.ClientUnknownLocation;
-    return response;
   }
 
   static buildInvalidOrMissingParametersResponse<T>(
     data?: T,
     message?: string,
     error?: Error,
-  ): OcpiResponse<T> {
-    const response: OcpiResponse<T> = new OcpiResponse<T>();
-    response.status_code =
-      OcpiResponseStatusCode.ClientInvalidOrMissingParameters;
-    response.status_message = message ?? error?.message;
-    response.data = data;
-    response.timestamp = new Date();
-    return response;
+  ) {
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+      data,
+      message ?? error?.message,
+    );
   }
 
-  static buildUnknownSessionResponse<T>(
-    data: T,
-    error: NotFoundException,
-  ): OcpiResponse<T> {
-    return ResponseGenerator.buildGenericClientErrorResponse(
-      data,
-      error.message,
-      error,
-    );
+  static buildUnknownSessionResponse<T>(data: T, error: NotFoundException) {
+    return this.buildGenericClientErrorResponse(data, error.message, error);
   }
 }

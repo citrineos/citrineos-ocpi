@@ -1,29 +1,19 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsDateString,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  MaxLength,
-  ValidateNested,
-} from 'class-validator';
-import { Optional } from '../../util/decorators/Optional';
-import { Enum } from '../../util/decorators/Enum';
 import { EvseStatus } from '../EvseStatus';
-import { Type } from 'class-transformer';
-import { EvseStatusSchedule } from '../EvseStatusSchedule';
+import { z } from 'zod';
+import { EvseStatusScheduleSchema } from '../EvseStatusSchedule';
 import { Capability } from '../Capability';
-import { ConnectorDTO } from './ConnectorDTO';
-import { GeoLocation } from '../GeoLocation';
-import { DisplayText } from '../DisplayText';
+import { ConnectorDTOSchema } from './ConnectorDTO';
+import { GeoLocationSchema } from '../GeoLocation';
+import { DisplayTextSchema } from '../DisplayText';
 import { ParkingRestriction } from '../ParkingRestriction';
-import { OcpiResponse } from '../OcpiResponse';
+import { OcpiResponseSchema } from '../OcpiResponse';
 
 // TODO make dynamic
 export const uidDelimiter = '::';
-export const UID_FORMAT = (stationId: string, evseId: number): string =>
-  `${stationId}${uidDelimiter}${evseId}`;
+export const UID_FORMAT = (
+  stationId: string,
+  evseId: string | number,
+): string => `${stationId}${uidDelimiter}${evseId}`;
 
 export const EXTRACT_STATION_ID = (evseUid: string) => {
   const split = evseUid.split(uidDelimiter);
@@ -35,89 +25,29 @@ export const EXTRACT_EVSE_ID = (evseUid: string) => {
   return split.length > 1 ? split[split.length - 1] : '';
 };
 
-export class EvseDTO {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  uid!: string;
+export const EvseDTOSchema = z.object({
+  uid: z.string().max(36),
+  evse_id: z.string().max(48).nullable().optional(),
+  status: z.nativeEnum(EvseStatus),
+  status_schedule: z.array(EvseStatusScheduleSchema).nullable().optional(),
+  capabilities: z.array(z.nativeEnum(Capability)).nullable().optional(),
+  connectors: z.array(ConnectorDTOSchema).min(1),
+  floor_level: z.string().max(4).nullable().optional(),
+  coordinates: GeoLocationSchema.nullable().optional(),
+  physical_reference: z.string().max(16).nullable().optional(),
+  directions: z.array(DisplayTextSchema).nullable().optional(),
+  parking_restrictions: z
+    .array(z.nativeEnum(ParkingRestriction))
+    .nullable()
+    .optional(),
+  images: z.null().optional(),
+  last_updated: z.coerce.date(),
+});
 
-  @MaxLength(48)
-  @IsString()
-  @Optional()
-  evse_id?: string | null;
+export const EvseResponseSchema = OcpiResponseSchema(EvseDTOSchema);
+export const EvseResponseSchemaName = 'EvseResponseSchema';
+export const EvseListResponseSchema = OcpiResponseSchema(EvseDTOSchema);
 
-  @Enum(EvseStatus, 'EvseStatus')
-  @IsNotEmpty()
-  status!: EvseStatus;
-
-  @IsArray()
-  @Optional()
-  @Type(() => EvseStatusSchedule)
-  @ValidateNested({ each: true })
-  status_schedule?: EvseStatusSchedule[] | null;
-
-  @IsArray()
-  @Optional()
-  // @Type(() => Capability) // todo handle array of enum
-  @ValidateNested({ each: true })
-  capabilities?: Capability[] | null;
-
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => ConnectorDTO)
-  @ValidateNested({ each: true })
-  connectors!: ConnectorDTO[];
-
-  @MaxLength(4)
-  @IsString()
-  @Optional()
-  floor_level?: string | null;
-
-  @Optional()
-  @Type(() => GeoLocation)
-  @ValidateNested()
-  coordinates?: GeoLocation | null;
-
-  @MaxLength(16)
-  @IsString()
-  @Optional()
-  physical_reference?: string | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested()
-  directions?: DisplayText[] | null;
-
-  @IsArray()
-  @Optional()
-  // @Type(() => ParkingRestriction) // todo handle array of enum
-  @ValidateNested()
-  parking_restrictions?: ParkingRestriction[] | null;
-
-  @IsArray()
-  @Optional()
-  images?: null;
-
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  last_updated!: Date;
-}
-
-export class EvseResponse extends OcpiResponse<EvseDTO> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => EvseDTO)
-  @ValidateNested()
-  data?: EvseDTO | undefined;
-}
-
-export class EvseListResponse extends OcpiResponse<EvseDTO[]> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EvseDTO)
-  data!: EvseDTO[];
-}
+export type EvseDTO = z.infer<typeof EvseDTOSchema>;
+export type EvseResponse = z.infer<typeof EvseResponseSchema>;
+export type EvseListResponse = z.infer<typeof EvseListResponseSchema>;

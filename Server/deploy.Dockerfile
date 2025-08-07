@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18 as build
+FROM --platform=linux/amd64 node:22 as build
 
 WORKDIR /usr/local/apps
 
@@ -13,12 +13,9 @@ RUN npm run install-all
 # BUILD
 RUN npm run build
 
-# FIX bcrypt and deasync
-RUN npm rebuild bcrypt --build-from-source && npm rebuild deasync --build-from-source
-
 # The final stage, which copies built files and prepares the run environment
-# Using a slim image to reduce the final image size
-FROM --platform=linux/amd64 node:18-slim
+# Using alpine image to reduce the final image size
+FROM --platform=linux/amd64 node:22-alpine
 COPY --from=build /usr/local/apps /usr/local/apps
 
 WORKDIR /usr/local/apps

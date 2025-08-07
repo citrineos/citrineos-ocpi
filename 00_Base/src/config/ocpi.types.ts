@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { z } from 'zod';
+import { Token } from 'typedi';
 
 /**
  * OCPI Configuration Schema
@@ -82,7 +83,6 @@ export const ocpiConfigInputSchema = z.object({
     database: z.string().default('ocpi').optional(),
     username: z.string().default('ocpi').optional(),
     password: z.string().default('').optional(),
-    sync: z.boolean().default(false).optional(),
   }),
 
   // Cache configuration (required for OCPI token caching)
@@ -135,6 +135,11 @@ export const ocpiConfigInputSchema = z.object({
       exposeMessage: z.boolean().default(true).optional(),
     })
     .optional(),
+
+  graphql: z.object({
+    endpoint: z.string(),
+    headers: z.record(z.string()).optional(),
+  }),
 
   // OCPI-specific settings
   logLevel: z.number().min(0).max(6).default(2).optional(),
@@ -217,7 +222,6 @@ export const ocpiConfigSchema = z.object({
     database: z.string(),
     username: z.string(),
     password: z.string(),
-    sync: z.boolean(),
   }),
 
   cache: z.object({
@@ -228,6 +232,11 @@ export const ocpiConfigSchema = z.object({
         port: z.number().int().positive(),
       })
       .optional(),
+  }),
+
+  graphql: z.object({
+    endpoint: z.string(),
+    headers: z.record(z.string()).optional(),
   }),
 
   messageBroker: z
@@ -270,3 +279,4 @@ export const ocpiConfigSchema = z.object({
 });
 
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;
+export const OcpiConfigToken = new Token<OcpiConfig>('ocpi.config');

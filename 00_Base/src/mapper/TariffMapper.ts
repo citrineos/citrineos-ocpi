@@ -1,21 +1,19 @@
 import { Service } from 'typedi';
-import { Tariff } from '@citrineos/data';
 import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { TariffDimensionType } from '../model/TariffDimensionType';
 import { TariffElement } from '../model/TariffElement';
 import { TariffType } from '../model/TariffType';
 import { MINUTES_IN_HOUR } from '../util/Consts';
-import { ITariffDto, ITenantDto } from '@citrineos/base';
+import { ITariffDto } from '@citrineos/base';
 
-@Service()
 export class TariffMapper {
   constructor() {}
 
-  public map(coreTariff: ITariffDto, tenant: ITenantDto): TariffDTO {
+  public static map(coreTariff: ITariffDto): TariffDTO {
     return {
       id: coreTariff.id!.toString(),
-      country_code: tenant.countryCode!,
-      party_id: tenant.partyId!,
+      country_code: coreTariff.tenant!.countryCode!,
+      party_id: coreTariff.tenant!.partyId!,
       currency: coreTariff.currency,
       type: TariffType.AD_HOC_PAYMENT,
       // tariff_alt_text: coreTariff.tariffAltText
@@ -24,14 +22,14 @@ export class TariffMapper {
       tariff_alt_url: undefined,
       min_price: undefined,
       max_price: undefined,
-      elements: [this.getTariffElement(coreTariff)],
+      elements: [TariffMapper.getTariffElement(coreTariff)],
       energy_mix: undefined,
       start_date_time: undefined,
       end_date_time: undefined,
       last_updated: coreTariff.updatedAt!,
     };
   }
-  private getTariffElement(coreTariff: ITariffDto): TariffElement {
+  private static getTariffElement(coreTariff: ITariffDto): TariffElement {
     return {
       price_components: [
         {
@@ -68,7 +66,7 @@ export class TariffMapper {
   // TODO make flexible for more complicated tariffs
   private mapTariffElementToCoreTariff(
     tariffElements: TariffElement[],
-  ): Partial<Tariff> {
+  ): Partial<ITariffDto> {
     const tariffElement = tariffElements[0];
     const priceComponents = tariffElement.price_components ?? [];
     const pricePerKwh =

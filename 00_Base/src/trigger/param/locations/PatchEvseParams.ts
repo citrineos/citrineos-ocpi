@@ -1,29 +1,8 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { EvseDTO } from '../../../model/DTO/EvseDTO';
+import { z } from 'zod';
 
-export class PatchEvseParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  locationId!: string;
+export const PatchEvseParamsSchema = z.object({
+  locationId: z.number(),
+  evseUid: z.string().length(36),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  evseUid!: string;
-
-  requestBody!: Partial<EvseDTO>;
-
-  static build(
-    locationId: number,
-    evseUid: string,
-    evse: Partial<EvseDTO>,
-  ): PatchEvseParams {
-    const params = new PatchEvseParams();
-    params.locationId = String(locationId);
-    params.evseUid = evseUid;
-    params.requestBody = evse;
-    return params;
-  }
-}
+export type PatchEvseParams = z.infer<typeof PatchEvseParamsSchema>;

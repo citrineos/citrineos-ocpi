@@ -3,20 +3,22 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { SystemConfig } from '@citrineos/base';
 import * as amqplib from 'amqplib';
 import { instanceToPlain } from 'class-transformer';
 import { ILogObj, Logger } from 'tslog';
 import {
-  IDtoEventSender,
   AbstractDtoEventSender,
   IDtoEvent,
+  IDtoEventSender,
   IDtoPayload,
 } from '..';
+import { Inject, Service } from 'typedi';
+import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
 
 /**
  * Implementation of a {@link IEventSender} using RabbitMQ as the underlying transport.
  */
+@Service()
 export class RabbitMqDtoSender
   extends AbstractDtoEventSender
   implements IDtoEventSender
@@ -38,10 +40,13 @@ export class RabbitMqDtoSender
   /**
    * Constructor for the class.
    *
-   * @param {SystemConfig} config - The system configuration.
+   * @param {OcpiConfig} config - The system configuration.
    * @param {Logger<ILogObj>} [logger] - The logger object.
    */
-  constructor(config: SystemConfig, logger?: Logger<ILogObj>) {
+  constructor(
+    @Inject(OcpiConfigToken) config: OcpiConfig,
+    logger?: Logger<ILogObj>,
+  ) {
     super(config, logger);
   }
 
@@ -67,10 +72,16 @@ export class RabbitMqDtoSender
    * @throws {Error} If the RabbitMQ channel is not available.
    */
   async sendEvent(event: IDtoEvent<IDtoPayload>): Promise<boolean> {
-    const exchange = this._config.util.messageBroker.amqp?.exchange as string;
+    const exchange = this._config.messageBroker?.amqp?.exchange as string;
     if (!this._channel) {
       throw new Error('RabbitMQ is down. Cannot send message.');
     }
+    await this._channel.assertExchange(exchange, 'headers', { durable: false });
+    /*await channel.assertQueue(queueName, {
+      durable: false,
+      autoDelete: true,
+      exclusive: false,
+    });*/
     const channel = this._channel;
 
     this._logger.debug(`Publishing to ${exchange}:`, event);
@@ -83,8 +94,8 @@ export class RabbitMqDtoSender
         contentEncoding: 'utf-8',
         contentType: 'application/json',
         headers: {
-          ...event.context,
-          eventId: event.eventId,
+          ...event._context,
+          eventId: event._eventId,
         },
       },
     );
@@ -116,7 +127,7 @@ export class RabbitMqDtoSender
     abortSignal?: AbortSignal,
   ): Promise<amqplib.Channel> {
     let reconnectAttempts = 0;
-    const url = this._config.util.messageBroker.amqp?.url;
+    const url = this._config.messageBroker?.amqp?.url;
     if (!url) {
       throw new Error('RabbitMQ URL is not configured');
     }

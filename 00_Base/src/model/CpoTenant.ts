@@ -1,26 +1,10 @@
-import { ClientInformation } from './ClientInformation';
-import { ServerCredentialsRole } from './ServerCredentialsRole';
-import { Exclude } from 'class-transformer';
+import { z } from 'zod';
+import { ServerCredentialsRoleSchema } from './ServerCredentialsRole';
+import { ClientInformationSchema } from './ClientInformation';
 
-export enum CpoTenantProps {
-  serverCredentialsRoles = 'serverCredentialsRoles',
-  clientInformation = 'clientInformation',
-}
+export const CpoTenantSchema = z.object({
+  serverCredentialsRoles: z.array(ServerCredentialsRoleSchema),
+  clientInformation: z.array(ClientInformationSchema),
+});
 
-export class CpoTenant {
-  @Exclude()
-  [CpoTenantProps.serverCredentialsRoles]!: ServerCredentialsRole[];
-
-  @Exclude()
-  [CpoTenantProps.clientInformation]!: ClientInformation[];
-
-  static buildCpoTenant(
-    serverCredentialsRoles: ServerCredentialsRole[],
-    clientInformation: ClientInformation[],
-  ) {
-    const cpoTenant = new CpoTenant();
-    cpoTenant.serverCredentialsRoles = serverCredentialsRoles;
-    cpoTenant.clientInformation = clientInformation;
-    return cpoTenant;
-  }
-}
+export type CpoTenant = z.infer<typeof CpoTenantSchema>;

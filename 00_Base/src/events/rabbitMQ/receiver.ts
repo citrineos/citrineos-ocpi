@@ -5,17 +5,16 @@
 
 import * as amqplib from 'amqplib';
 import { ILogObj, Logger } from 'tslog';
-import { RetryMessageError, SystemConfig } from '@citrineos/base';
-import { plainToInstance } from 'class-transformer';
+import { RetryMessageError } from '@citrineos/base';
 import {
   AbstractDtoEventReceiver,
-  DtoEvent,
   DtoEventObjectType,
   DtoEventType,
   IDtoEventReceiver,
   IDtoModule,
-  IDtoPayload,
 } from '..';
+import { Inject } from 'typedi';
+import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
 
 /**
  * Implementation of a {@link IEventHandler} using RabbitMQ as the underlying transport.
@@ -39,9 +38,9 @@ export class RabbitMqDtoReceiver
   private _abortReconnectController?: AbortController;
 
   constructor(
-    config: SystemConfig,
-    module: IDtoModule,
+    @Inject(OcpiConfigToken) config: OcpiConfig,
     logger?: Logger<ILogObj>,
+    module?: IDtoModule,
   ) {
     super(config, logger, module);
   }
@@ -62,7 +61,7 @@ export class RabbitMqDtoReceiver
     objectType: DtoEventObjectType,
     filter?: { [k: string]: string },
   ): Promise<boolean> {
-    const exchange = this._config.util.messageBroker.amqp?.exchange as string;
+    const exchange = this._config.messageBroker?.amqp?.exchange as string;
     const queueName = `${RabbitMqDtoReceiver.QUEUE_PREFIX}${eventType}_${objectType}_${Date.now()}`;
 
     // Ensure that filter includes the x-match header set to all
@@ -119,7 +118,7 @@ export class RabbitMqDtoReceiver
     abortSignal?: AbortSignal,
   ): Promise<amqplib.Channel> {
     let reconnectAttempts = 0;
-    const url = this._config.util.messageBroker.amqp?.url;
+    const url = this._config.messageBroker?.amqp?.url;
     if (!url) {
       throw new Error('RabbitMQ URL is not configured');
     }
@@ -217,10 +216,7 @@ export class RabbitMqDtoReceiver
           message.properties,
           message.content.toString(),
         );
-        const parsed = plainToInstance(
-          DtoEvent,
-          <DtoEvent<IDtoPayload>>JSON.parse(message.content.toString()),
-        );
+        const parsed = JSON.parse(message.content.toString());
         await this.handle(parsed);
       } catch (error) {
         if (error instanceof RetryMessageError) {

@@ -8,10 +8,14 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 // import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
+// @ts-ignore-next-line
 import { version } from '../../package.json';
-import { OcpiConfig } from './config/ocpi.types';
-import { IDtoEventReceiver } from './events';
+import { OcpiConfig, OcpiConfigToken } from './config/ocpi.types';
+import { IDtoModule } from './events';
+import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
 
+export { Version } from './model/Version';
+export { Body } from './util/decorators/Body';
 export { plainToClass } from './util/Util';
 export {
   OcpiErrorResponse,
@@ -29,11 +33,24 @@ export { NotFoundException } from './exception/NotFoundException';
 export { FunctionalEndpointParams } from './util/decorators/FunctionEndpointParams';
 export { PaginatedOcpiParams } from './trigger/param/PaginatedOcpiParams';
 export { OcpiParams } from './trigger/util/OcpiParams';
-export { ChargingPreferences } from './model/ChargingPreferences';
+export {
+  ChargingPreferences,
+  ChargingPreferencesSchema,
+  ChargingPreferencesSchemaName,
+} from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/PaginatedParams';
 export { Paginated } from './util/decorators/Paginated';
-export { ChargingPreferencesResponse } from './model/ChargingPreferencesResponse';
-export { PaginatedSessionResponse, Session } from './model/Session';
+export {
+  ChargingPreferencesResponse,
+  ChargingPreferencesResponseSchema,
+  ChargingPreferencesResponseSchemaName,
+} from './model/ChargingPreferencesResponse';
+export {
+  PaginatedSessionResponse,
+  Session,
+  PaginatedSessionResponseSchema,
+  PaginatedSessionResponseSchemaName,
+} from './model/Session';
 export { Role } from './model/Role';
 export { ImageCategory } from './model/ImageCategory';
 export { ImageType } from './model/ImageType';
@@ -44,13 +61,27 @@ export { AlreadyRegisteredException } from './exception/AlreadyRegisteredExcepti
 export { NotRegisteredException } from './exception/NotRegisteredException';
 export { VersionsClientApi } from './trigger/VersionsClientApi';
 // export { ChargingProfilesClientApi } from './trigger/ChargingProfilesClientApi';
-export { CredentialsDTO } from './model/DTO/CredentialsDTO';
-export { AdminCredentialsRequestDTO } from './model/DTO/AdminCredentialsRequestDTO';
+export {
+  CredentialsDTO,
+  CredentialsDTOSchema,
+  CredentialsDTOSchemaName,
+} from './model/DTO/CredentialsDTO';
+export {
+  AdminCredentialsRequestDTO,
+  AdminCredentialsRequestDTOSchema,
+  AdminCredentialsRequestDTOSchemaName,
+} from './model/DTO/AdminCredentialsRequestDTO';
 export {
   SingleTokenRequest,
+  SingleTokenRequestSchema,
   TokenDTO,
+  TokenDTOSchema,
   TokenResponse,
+  TokenResponseSchema,
+  TokenResponseSchemaName,
+  TokenDTOSchemaName,
 } from './model/DTO/TokenDTO';
+
 export { OcpiConfig, OcpiConfigInput } from './config/ocpi.types';
 export { defineOcpiConfig } from './config/defineOcpiConfig';
 export { getOcpiSystemConfig } from './config/loader';
@@ -64,32 +95,81 @@ export { ChargingProfileResponse } from './model/ChargingProfileResponse';
 export { ChargingProfileResult } from './model/ChargingProfileResult';
 export { ChargingProfileResultType } from './model/ChargingProfileResult';
 export {
-  generateMockOcpiResponse,
+  generateMockForSchema,
   generateMockOcpiPaginatedResponse,
   BaseController,
 } from './controllers/BaseController';
-export { buildOcpiPaginatedResponse } from './model/PaginatedResponse';
+export {
+  buildOcpiPaginatedResponse,
+  DEFAULT_OFFSET,
+  DEFAULT_LIMIT,
+} from './model/PaginatedResponse';
 export { CommandType } from './model/CommandType';
-export { CancelReservation } from './model/CancelReservation';
-export { ReserveNow } from './model/ReserveNow';
-export { SetChargingProfile } from './model/SetChargingProfile';
-export { StartSession } from './model/StartSession';
-export { StopSession } from './model/StopSession';
-export { UnlockConnector } from './model/UnlockConnector';
+export {
+  CancelReservation,
+  CancelReservationSchema,
+  CancelReservationSchemaName,
+} from './model/CancelReservation';
+export {
+  ReserveNow,
+  ReserveNowSchema,
+  ReserveNowSchemaName,
+} from './model/ReserveNow';
+export {
+  SetChargingProfile,
+  SetChargingProfileSchema,
+  SetChargingProfileSchemaName,
+} from './model/SetChargingProfile';
+export {
+  StartSession,
+  StartSessionSchema,
+  StartSessionSchemaName,
+} from './model/StartSession';
+export {
+  StopSession,
+  StopSessionSchema,
+  StopSessionSchemaName,
+} from './model/StopSession';
+export {
+  UnlockConnector,
+  UnlockConnectorSchema,
+  UnlockConnectorSchemaName,
+} from './model/UnlockConnector';
 export { OcpiCommandResponse } from './model/CommandResponse';
 export { ModuleId } from './model/ModuleId';
-export { CredentialsResponse } from './model/CredentialsResponse';
-export { OcpiResponseStatusCode } from './model/OcpiResponse';
-export { OcpiEmptyResponse } from './model/OcpiEmptyResponse';
+export {
+  CredentialsResponse,
+  CredentialsResponseSchema,
+  CredentialsResponseSchemaName,
+  buildCredentialsResponse,
+} from './model/CredentialsResponse';
+export {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
+  buildOcpiEmptyResponse,
+} from './model/OcpiEmptyResponse';
 export { OcpiStringResponse } from './model/OcpiStringResponse';
 export { VersionNumber } from './model/VersionNumber';
 export { VersionDetailsResponseDTO } from './model/DTO/VersionDetailsResponseDTO';
-export { VersionListResponseDTO } from './model/DTO/VersionListResponseDTO';
-export { TokenType } from './model/TokenType';
+export {
+  VersionListResponseDTO,
+  VersionListResponseDTOSchema,
+  VersionListResponseDTOSchemaName,
+} from './model/DTO/VersionListResponseDTO';
+export {
+  TokenType,
+  TokenTypeSchema,
+  TokenTypeSchemaName,
+} from './model/TokenType';
 export { WhitelistType } from './model/WhitelistType';
 export { VersionDetailsDTO } from './model/DTO/VersionDetailsDTO';
 export { VersionDTO } from './model/DTO/VersionDTO';
-export { OcpiResponse } from './model/OcpiResponse';
+export {
+  OcpiResponseSchema,
+  OcpiResponseStatusCode,
+  buildOcpiResponse,
+} from './model/OcpiResponse';
 export { OcpiModule } from './model/OcpiModule';
 export { CommandResultType } from './model/CommandResult';
 export { EnumQueryParam } from './util/decorators/EnumQueryParam';
@@ -98,6 +178,10 @@ export {
   LocationDTO,
   LocationResponse,
   PaginatedLocationResponse,
+  LocationResponseSchema,
+  LocationResponseSchemaName,
+  PaginatedLocationResponseSchema,
+  PaginatedLocationResponseSchemaName,
 } from './model/DTO/LocationDTO';
 export {
   EvseDTO,
@@ -105,11 +189,15 @@ export {
   UID_FORMAT,
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
+  EvseResponseSchema,
+  EvseResponseSchemaName,
 } from './model/DTO/EvseDTO';
 export {
   ConnectorDTO,
   ConnectorResponse,
   TEMPORARY_CONNECTOR_ID,
+  ConnectorResponseSchema,
+  ConnectorResponseSchemaName,
 } from './model/DTO/ConnectorDTO';
 export { LocationMapper } from './mapper/LocationMapper';
 export { TokensMapper } from './mapper/TokensMapper';
@@ -161,7 +249,7 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 export { CommandsService } from './services/CommandsService';
 export { CredentialsService } from './services/CredentialsService';
 export { TokensService } from './services/TokensService';
-export { TokensAdminService } from './services/TokensAdminService';
+// export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
 export { SessionsService } from './services/SessionsService';
@@ -177,7 +265,6 @@ export {
 } from './types/asyncJob.types';
 
 export { TariffsService } from './services/TariffsService';
-// export { TariffsBroadcaster } from './broadcaster/TariffsBroadcaster';
 export { TariffMapper } from './mapper/TariffMapper';
 
 export { OcpiHttpHeader } from './util/OcpiHttpHeader';
@@ -185,15 +272,18 @@ export { OcpiHttpHeader } from './util/OcpiHttpHeader';
 export { CdrsService } from './services/CdrsService';
 export { PaginatedCdrResponse } from './model/Cdr';
 export { BaseBroadcaster } from './broadcaster/BaseBroadcaster';
-// export { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
-// export { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
-// export { LocationsBroadcaster } from './broadcaster/LocationsBroadcaster';
 export {
   PaginatedTariffResponse,
   TariffDTO,
+  PaginatedTariffResponseSchema,
+  PaginatedTariffResponseSchemaName,
 } from './model/DTO/tariffs/TariffDTO';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
-export { PutTariffRequest } from './model/DTO/tariffs/PutTariffRequest';
+export {
+  PutTariffRequest,
+  PutTariffRequestSchema,
+  PutTariffRequestSchemaName,
+} from './model/DTO/tariffs/PutTariffRequest';
 export {
   AdminLocationDTO,
   AdminEvseDTO,
@@ -211,54 +301,69 @@ export {
   ConnectorVariableAttributes,
   CONSTRUCT_CONNECTOR_VARIABLE_ATTRIBUTES_QUERY,
 } from './model/variableattributes/ConnectorVariableAttributes';
-export { UnregisterClientRequestDTO } from './model/UnregisterClientRequestDTO';
+export {
+  UnregisterClientRequestDTOSchema,
+  UnregisterClientRequestDTO,
+  UnregisterClientRequestDTOSchemaName,
+} from './model/UnregisterClientRequestDTO';
 export * from './events';
 
 useContainer(Container);
 
 export { Container } from 'typedi';
-
-export class OcpiModuleConfig {
-  module!: Constructable<OcpiModule>;
-  handler?: IDtoEventReceiver;
-}
+export { getDtoEventHandlerMetaData } from './events/AsDtoEventHandler';
+export { LocationsBroadcaster } from './broadcaster/LocationsBroadcaster';
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
   private readonly ocpiConfig: OcpiConfig;
   private readonly cache: ICache;
   private readonly logger: Logger<ILogObj>;
-  private modules: OcpiModule[] = [];
-  private modulesConfig: OcpiModuleConfig[] = [];
+  private _modules: (OcpiModule | IDtoModule)[] = [];
+  get modules(): (OcpiModule | IDtoModule)[] {
+    return this._modules;
+  }
+
+  private moduleList: Constructable<OcpiModule | IDtoModule>[] = [];
 
   constructor(
     ocpiConfig: OcpiConfig,
     cache: ICache,
     logger: Logger<ILogObj>,
-    modulesConfig: OcpiModuleConfig[],
+    moduleList: Constructable<OcpiModule | IDtoModule>[],
   ) {
     super();
 
     this.ocpiConfig = ocpiConfig;
     this.cache = cache;
     this.logger = logger;
-    this.modulesConfig = modulesConfig;
+    this.moduleList = moduleList;
     this.initContainer();
-    this.modules = this.modulesConfig.map((moduleConfig) => {
-      const module = Container.get(moduleConfig.module);
-      // module.init(moduleConfig.handler);
-      return module;
-    });
   }
 
   public async initialize() {
-    this.initServer();
+    for (const moduleListElement of this.moduleList) {
+      const constructedModule = Container.get(moduleListElement) as OcpiModule &
+        IDtoModule;
+      if (constructedModule) {
+        if (constructedModule.init) {
+          await constructedModule.init();
+        }
+        if (constructedModule.initHandlers) {
+          await constructedModule.initHandlers();
+        }
+        this._modules.push(constructedModule);
+      }
+    }
+    this.initKoaServer();
   }
 
-  private initServer() {
+  private initKoaServer() {
     try {
       this.koa = new Koa();
-      const controllers = this.modules.map((module) => module.getController());
+      const controllers = this._modules.map((module) =>
+        (module as OcpiModule).getController(),
+      );
       const options: RoutingControllersOptions = {
         controllers: [...controllers],
         routePrefix: '/ocpi',
@@ -278,6 +383,10 @@ export class OcpiServer extends KoaServer {
           },
         ],
       );
+      this.run(
+        this.ocpiConfig.ocpiServer.host,
+        this.ocpiConfig.ocpiServer.port,
+      );
     } catch (error) {
       console.error(error);
       process.exit(1);
@@ -285,11 +394,18 @@ export class OcpiServer extends KoaServer {
   }
 
   private initContainer() {
-    Container.set('OcpiConfig', this.ocpiConfig);
+    Container.set(OcpiConfigToken, this.ocpiConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
-    // GraphQL client is optional for OCPI
-    // TODO: Remove this if not needed for OCPI functionality
+
+    Container.set(
+      OcpiGraphqlClient,
+      new OcpiGraphqlClient(
+        this.ocpiConfig.graphql.endpoint,
+        this.ocpiConfig.graphql.headers,
+      ),
+    );
+
     this.onContainerInitialized();
   }
 
@@ -298,3 +414,17 @@ export class OcpiServer extends KoaServer {
     // Container.get(CdrBroadcaster);
   }
 }
+
+export { OcpiConfigToken };
+
+export {
+  CommandResponseSchema,
+  CommandResponseSchemaName,
+} from './model/CommandResponse';
+export { ChargingProfileResponseSchemaName } from './model/ChargingProfileResponse';
+export { ChargingProfileResponseSchema } from './model/ChargingProfileResponse';
+
+export {
+  PaginatedCdrResponseSchema,
+  PaginatedCdrResponseSchemaName,
+} from './model/Cdr';

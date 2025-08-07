@@ -1,57 +1,34 @@
+import { z } from 'zod';
 import { VersionNumber } from './VersionNumber';
-import { Endpoint } from './Endpoint';
-import { ClientInformation } from './ClientInformation';
+import { Endpoint, EndpointSchema } from './Endpoint';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../util/decorators/Enum';
 
-export interface IVersion {
-  id?: number;
-  version: VersionNumber;
-  url: string;
-  endpoints: Endpoint[];
-  clientInformationId: number;
-  clientInformation: ClientInformation;
-  toVersionDTO: () => VersionDTO;
-  toVersionDetailsDTO: () => VersionDetailsDTO;
-}
+export const VersionSchema = z.object({
+  id: z.number().optional(),
+  version: z.nativeEnum(VersionNumber),
+  url: z.string().url(),
+  endpoints: z.array(EndpointSchema),
+});
 
-export class Version {
-  @IsNotEmpty()
-  @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+export type Version = z.infer<typeof VersionSchema>;
 
-  @IsString()
-  @IsUrl({ require_tld: false })
-  url!: string;
+export const buildVersion = (
+  version: VersionNumber,
+  url: string,
+  endpoints: Endpoint[],
+): Version => ({
+  version,
+  url,
+  endpoints,
+});
 
-  endpoints!: Endpoint[];
+export const toVersionDTO = (v: Version): VersionDTO => ({
+  version: v.version,
+  url: v.url,
+});
 
-  static buildVersion(
-    version: VersionNumber,
-    url: string,
-    endpoints: Endpoint[],
-
-  ): Version {
-    const v = new Version();
-    v.version = version;
-    v.url = url;
-    v.endpoints = endpoints;
-    return v;
-  }
-
-  public toVersionDTO(): VersionDTO {
-    const dto = new VersionDTO();
-    dto.version = this.version;
-    dto.url = this.url;
-    return dto;
-  }
-
-  public toVersionDetailsDTO(): VersionDetailsDTO {
-    const dto = new VersionDetailsDTO();
-    dto.version = this.version;
-    dto.endpoints = this.endpoints;
-    return dto;
-  }
-}
+export const toVersionDetailsDTO = (v: Version): VersionDetailsDTO => ({
+  version: v.version,
+  endpoints: v.endpoints,
+});

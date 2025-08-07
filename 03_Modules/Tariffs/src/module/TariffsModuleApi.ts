@@ -5,37 +5,34 @@
 
 import { ITariffsModuleApi } from './ITariffsModuleApi';
 
-import {
-  Body,
-  Delete,
-  Get,
-  JsonController,
-  Param,
-  Post,
-  Put,
-} from 'routing-controllers';
+import { Delete, Get, JsonController, Param, Put } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  Body,
+  buildOcpiEmptyResponse,
   buildOcpiErrorResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
   FunctionalEndpointParams,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   ModuleId,
   OcpiEmptyResponse,
   OcpiErrorResponse,
   OcpiHeaders,
-  OcpiResponse,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
   PaginatedTariffResponse,
+  PaginatedTariffResponseSchema,
+  PaginatedTariffResponseSchemaName,
   PutTariffRequest,
+  PutTariffRequestSchema,
+  PutTariffRequestSchemaName,
   ResponseSchema,
   TariffDTO,
-  // TariffKey,
-  // TariffsBroadcaster,
   TariffsService,
   versionIdParam,
   VersionNumber,
@@ -59,13 +56,20 @@ export class TariffsModuleApi
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedTariffResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: generateMockOcpiResponse(OcpiResponse<PaginatedTariffResponse>),
+  @ResponseSchema(
+    PaginatedTariffResponseSchema,
+    PaginatedTariffResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: generateMockForSchema(
+          PaginatedTariffResponseSchema,
+          PaginatedTariffResponseSchemaName,
+        ),
+      },
     },
-  })
+  )
   async getTariffs(
     @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
@@ -82,8 +86,8 @@ export class TariffsModuleApi
     return {
       data: data,
       total: count,
-      offset: paginationParams?.offset,
-      limit: paginationParams?.limit,
+      offset: paginationParams?.offset || DEFAULT_OFFSET,
+      limit: paginationParams?.limit || DEFAULT_LIMIT,
       status_code: OcpiResponseStatusCode.GenericSuccessCode,
       timestamp: new Date(),
     };
@@ -115,23 +119,26 @@ export class TariffsModuleApi
    * Admin Endpoints
    */
 
-  @Put()
-  async updateTariff(@Body() tariffDto: PutTariffRequest): Promise<TariffDTO> {
-    return await this.tariffService.createOrUpdateTariff(tariffDto);
-  }
+  // @Put()
+  // async updateTariff(
+  //   @Body(PutTariffRequestSchema, PutTariffRequestSchemaName)
+  //   tariffDto: PutTariffRequest,
+  // ): Promise<TariffDTO> {
+  //   return await this.tariffService.createOrUpdateTariff(tariffDto);
+  // }
 
-  @Delete('/:tariffId')
-  async deleteTariff(
-    @Param('tariffId') tariffId: number,
-  ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
-    if (!tariffId) {
-      return buildOcpiErrorResponse(
-        OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
-        'No tariff id provided',
-      );
-    }
+  // @Delete('/:tariffId')
+  // async deleteTariff(
+  //   @Param('tariffId') tariffId: number,
+  // ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
+  //   if (!tariffId) {
+  //     return buildOcpiErrorResponse(
+  //       OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+  //       'No tariff id provided',
+  //     );
+  //   }
 
-    await this.tariffService.deleteTariff(tariffId);
-    return OcpiEmptyResponse.build(OcpiResponseStatusCode.GenericSuccessCode);
-  }
+  //   await this.tariffService.deleteTariff(tariffId);
+  //   return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
+  // }
 }

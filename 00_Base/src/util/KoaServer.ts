@@ -10,19 +10,31 @@ import KoaLogger from 'koa-logger';
 import { routingControllersToSpec } from '../openapi-spec-helper';
 import { getAllSchemas } from '../openapi-spec-helper/schemas';
 import { koaSwagger } from 'koa2-swagger-ui';
+import { Server } from 'http';
 
 export class KoaServer {
   koa!: Koa;
   app!: Koa;
   storage!: MetadataArgsStorage;
   spec!: OpenAPIObject;
+  server!: Server;
 
   public run(host: string, port: number) {
     this.app.on('error', (err, _ctx) => {
       console.log('Error intercepted by Koa:', err.message);
     });
-    this.app.listen(port, host);
+    this.server = this.app.listen(port, host);
     console.log(`Server started on port ${port}`);
+  }
+
+  public shutdown() {
+    if (this.server) {
+      this.server.close(() => {
+        console.log('Koa server closed');
+      });
+    } else {
+      console.log('No server to close');
+    }
   }
 
   protected initLogger() {

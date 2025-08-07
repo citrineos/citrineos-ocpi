@@ -1,14 +1,8 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { z } from 'zod';
 
-export class DisplayText {
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  language!: string;
+export const DisplayTextSchema = z.object({
+  language: z.string().min(2).max(2),
+  text: z.string().max(512),
+});
 
-  @MaxLength(512)
-  @IsString()
-  @IsNotEmpty()
-  text!: string;
-}
+export type DisplayText = z.infer<typeof DisplayTextSchema>;

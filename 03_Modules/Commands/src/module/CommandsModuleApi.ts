@@ -7,31 +7,38 @@ import { ICommandsModuleApi } from './ICommandsModuleApi';
 
 import { Body, JsonController, Post } from 'routing-controllers';
 
-import { plainToInstance } from 'class-transformer';
-
-import { validate } from 'class-validator';
-
 import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   CancelReservation,
-  CommandResponse,
+  CancelReservationSchema,
+  CancelReservationSchemaName,
+  CommandResponseSchema,
+  CommandResponseSchemaName,
   CommandsService,
   CommandType,
   EnumParam,
   FunctionalEndpointParams,
-  generateMockOcpiResponse,
+  generateMockForSchema,
   ModuleId,
   MultipleTypes,
+  OcpiCommandResponse,
   OcpiHeaders,
-  OcpiResponse,
   ReserveNow,
+  ReserveNowSchema,
+  ReserveNowSchemaName,
   ResponseGenerator,
   ResponseSchema,
   StartSession,
+  StartSessionSchema,
+  StartSessionSchemaName,
   StopSession,
+  StopSessionSchema,
+  StopSessionSchemaName,
   UnlockConnector,
+  UnlockConnectorSchema,
+  UnlockConnectorSchemaName,
   versionIdParam,
 } from '@citrineos/ocpi-base';
 
@@ -52,23 +59,26 @@ export class CommandsModuleApi
 
   @Post('/:commandType')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(OcpiResponse<CommandResponse>, {
+  @ResponseSchema(CommandResponseSchema, CommandResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockOcpiResponse(OcpiResponse<CommandResponse>),
+      success: generateMockForSchema(
+        CommandResponseSchema,
+        CommandResponseSchemaName,
+      ),
     },
   })
   async postCommand(
     @EnumParam('commandType', CommandType, 'CommandType')
     commandType: CommandType,
-    @Body()
+    @Body() // todo use new @Body from ocpi-base
     @MultipleTypes(
-      CancelReservation,
-      ReserveNow,
-      StartSession,
-      StopSession,
-      UnlockConnector,
+      { schema: CancelReservationSchema, name: CancelReservationSchemaName },
+      { schema: ReserveNowSchema, name: ReserveNowSchemaName },
+      { schema: StartSessionSchema, name: StartSessionSchemaName },
+      { schema: StopSessionSchema, name: StopSessionSchemaName },
+      { schema: UnlockConnectorSchema, name: UnlockConnectorSchemaName },
     )
     payload:
       | CancelReservation
@@ -77,48 +87,54 @@ export class CommandsModuleApi
       | StopSession
       | UnlockConnector,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-  ): Promise<OcpiResponse<CommandResponse | undefined>> {
+  ): Promise<OcpiCommandResponse> {
     console.log('postCommand', commandType, payload);
+    let validationResult:
+      | ReturnType<typeof CancelReservationSchema.safeParse>
+      | ReturnType<typeof ReserveNowSchema.safeParse>
+      | ReturnType<typeof StartSessionSchema.safeParse>
+      | ReturnType<typeof StopSessionSchema.safeParse>
+      | ReturnType<typeof UnlockConnectorSchema.safeParse>;
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
-        payload = plainToInstance(CancelReservation, payload);
+        validationResult = CancelReservationSchema.safeParse(payload);
         break;
       case CommandType.RESERVE_NOW:
-        payload = plainToInstance(ReserveNow, payload);
+        validationResult = ReserveNowSchema.safeParse(payload);
         break;
       case CommandType.START_SESSION:
-        payload = plainToInstance(StartSession, payload);
+        validationResult = StartSessionSchema.safeParse(payload);
         break;
       case CommandType.STOP_SESSION:
-        payload = plainToInstance(StopSession, payload);
+        validationResult = StopSessionSchema.safeParse(payload);
         break;
       case CommandType.UNLOCK_CONNECTOR:
-        payload = plainToInstance(UnlockConnector, payload);
+        validationResult = UnlockConnectorSchema.safeParse(payload);
         break;
       default:
         return ResponseGenerator.buildGenericClientErrorResponse(
           undefined,
           'Unknown command type: ' + commandType,
           undefined,
-        );
+        ) as any;
     }
 
-    return await validate(payload).then(async (errors) => {
-      if (errors.length > 0) {
-        const errorString = errors.map((error) => error.toString()).join(', ');
-        return ResponseGenerator.buildGenericClientErrorResponse(
-          undefined,
-          errorString,
-          undefined,
-        );
-      } else {
-        return await this.commandsService.postCommand(
-          commandType,
-          payload,
-          ocpiHeader.fromCountryCode,
-          ocpiHeader.fromPartyId,
-        );
-      }
-    });
+    if (!validationResult.success) {
+      const errorString = validationResult.error.errors
+        .map((error) => `${error.path.join('.')}: ${error.message}`)
+        .join(', ');
+
+      return ResponseGenerator.buildGenericClientErrorResponse(
+        undefined,
+        errorString,
+      ) as any;
+    }
+
+    return await this.commandsService.postCommand(
+      commandType,
+      validationResult.data,
+      ocpiHeader.fromCountryCode,
+      ocpiHeader.fromPartyId,
+    );
   }
 }

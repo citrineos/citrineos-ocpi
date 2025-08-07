@@ -1,22 +1,10 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { LocationDTO } from '../../../model/DTO/LocationDTO';
+import { z } from 'zod';
+import { LocationDTOSchema } from '../../../model/DTO/LocationDTO';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class PatchLocationParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  locationId!: string;
+export const PatchLocationParamsSchema = OcpiParamsSchema.extend({
+  locationId: z.string().length(36),
+  requestBody: LocationDTOSchema.partial(),
+});
 
-  requestBody!: Partial<LocationDTO>;
-
-  static build(
-    locationId: number,
-    location: Partial<LocationDTO>,
-  ): PatchLocationParams {
-    const params = new PatchLocationParams();
-    params.locationId = String(locationId);
-    params.requestBody = location;
-    return params;
-  }
-}
+export type PatchLocationParams = z.infer<typeof PatchLocationParamsSchema>;

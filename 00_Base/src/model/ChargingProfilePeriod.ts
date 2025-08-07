@@ -1,11 +1,13 @@
-import { IsInt, IsNotEmpty, IsNumber } from 'class-validator';
+import { z } from 'zod';
 
-export class ChargingProfilePeriod {
-  @IsInt()
-  @IsNotEmpty()
-  start_period!: number;
+export const ChargingProfilePeriodSchema = z.object({
+  start_period: z.number().int(),
+  limit: z
+    .number()
+    .max(999999)
+    .refine((val) => Number.isFinite(val), {
+      message: 'limit must be a number with at most 1 decimal place',
+    }),
+});
 
-  @IsNumber({ maxDecimalPlaces: 1 })
-  @IsNotEmpty()
-  limit!: number;
-}
+export type ChargingProfilePeriod = z.infer<typeof ChargingProfilePeriodSchema>;

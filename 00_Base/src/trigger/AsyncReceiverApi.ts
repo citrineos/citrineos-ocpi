@@ -1,8 +1,10 @@
 import { BaseClientApi } from './BaseClientApi';
-import { OcpiResponse } from '../model/OcpiResponse';
 import { Service } from 'typedi';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
-import { OCPIRegistration } from '@citrineos/base';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class AsyncReceiverApi extends BaseClientApi {
@@ -18,14 +20,14 @@ export class AsyncReceiverApi extends BaseClientApi {
     partnerProfile: OCPIRegistration.PartnerProfile,
     url: string,
     body: any,
-  ): Promise<OcpiResponse<void> | null> {
+  ): Promise<OcpiEmptyResponse> {
     return this.request(
       fromCountryCode,
       fromPartyId,
       toCountryCode,
       toPartyId,
-      'post',
-      OcpiEmptyResponse,
+      HttpMethod.Post,
+      OcpiEmptyResponseSchema,
       partnerProfile,
       true,
       url,

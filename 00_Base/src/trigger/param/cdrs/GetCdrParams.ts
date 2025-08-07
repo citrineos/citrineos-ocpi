@@ -1,8 +1,6 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-import { OcpiParams } from '../../util/OcpiParams';
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-export class GetCdrParams extends OcpiParams {
-  @IsNotEmpty()
-  @IsString()
-  url!: string;
-}
+export const GetCdrParamsSchema = OcpiParamsSchema.extend({
+  url: z.string().url(),
+});

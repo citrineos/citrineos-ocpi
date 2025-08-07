@@ -1,4 +1,3 @@
-version: '3'
 services:
   # amqp-broker:
   #   image: rabbitmq:3-management
@@ -31,56 +30,54 @@ services:
   #     timeout: 10s
   #     retries: 5
 
-  citrine:
+  citrineos-ocpi:
     build:
       context: ../
       dockerfile: ./Server/deploy.Dockerfile
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
+      DB_HOST: 'ocpp-db'
+      AMQP_URL: 'amqp://guest:guest@amqp-broker:5672'
+      AMQP_EXCHANGE: 'citrineos'
     # depends_on:
     #   ocpp-db:
     #     condition: service_healthy
     #   amqp-broker:
     #     condition: service_healthy
     ports:
-      - 8080:8080
-      - 8081:8081
-      - 8082:8082
       - 8085:8085
-      - 8443:8443
-      - 8444:8444
-      - 9229:9229
+      # - 9229:9229
 
-  directus:
-    image: ghcr.io/citrineos/citrineos-directus:latest
-    ports:
-      - 8055:8055
-    volumes:
-      - ./data/directus/uploads:/directus/uploads
-      - ./directus-env-config.cjs:/directus/config.cjs
-    depends_on:
-      ocpp-db:
-        condition: service_healthy
-    environment:
-      APP_NAME: 'all'
-      KEY: '1234567890'
-      SECRET: '0987654321'
-      ADMIN_EMAIL: 'admin@citrineos.com'
-      ADMIN_PASSWORD: 'CitrineOS!'
-      CONFIG_PATH: '/directus/config.cjs'
-      EXTENSIONS_AUTO_RELOAD: 'true'
-      EXTENSIONS_CACHE_TTL: '1s'
-      DB_CLIENT: 'pg'
-      DB_HOST: ocpp-db
-      DB_PORT: 5432
-      DB_DATABASE: 'citrine'
-      DB_USER: 'citrine'
-      DB_PASSWORD: 'citrine'
-      WEBSOCKETS_ENABLED: 'true'
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8055/server/health || exit 1
-      start_period: 15s
-      interval: 15s
-      timeout: 15s
-      retries: 3
+  # directus:
+  #   image: ghcr.io/citrineos/citrineos-directus:latest
+  #   ports:
+  #     - 8055:8055
+  #   volumes:
+  #     - ./data/directus/uploads:/directus/uploads
+  #     - ./directus-env-config.cjs:/directus/config.cjs
+  #   depends_on:
+  #     ocpp-db:
+  #       condition: service_healthy
+  #   environment:
+  #     APP_NAME: 'all'
+  #     KEY: '1234567890'
+  #     SECRET: '0987654321'
+  #     ADMIN_EMAIL: 'admin@citrineos.com'
+  #     ADMIN_PASSWORD: 'CitrineOS!'
+  #     CONFIG_PATH: '/directus/config.cjs'
+  #     EXTENSIONS_AUTO_RELOAD: 'true'
+  #     EXTENSIONS_CACHE_TTL: '1s'
+  #     DB_CLIENT: 'pg'
+  #     DB_HOST: ocpp-db
+  #     DB_PORT: 5432
+  #     DB_DATABASE: 'citrine'
+  #     DB_USER: 'citrine'
+  #     DB_PASSWORD: 'citrine'
+  #     WEBSOCKETS_ENABLED: 'true'
+  #   healthcheck:
+  #     test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8055/server/health || exit 1
+  #     start_period: 15s
+  #     interval: 15s
+  #     timeout: 15s
+  #     retries: 3
