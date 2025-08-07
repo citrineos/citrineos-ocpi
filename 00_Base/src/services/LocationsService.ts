@@ -36,6 +36,23 @@ import {
   EvseMapper,
   ConnectorMapper,
 } from '../mapper/LocationMapper';
+import {
+  GetConnectorByIdQueryResult,
+  GetConnectorByIdQueryVariables,
+  GetEvseByIdQueryResult,
+  GetEvseByIdQueryVariables,
+  GetLocationByIdQueryResult,
+  GetLocationByIdQueryVariables,
+  GetLocationsQueryResult,
+  GetLocationsQueryVariables,
+  Locations_Bool_Exp,
+} from '../graphql/operations';
+import {
+  IChargingStationDto,
+  IConnectorDto,
+  IEvseDto,
+  ILocationDto,
+} from '@citrineos/base';
 
 @Service()
 export class LocationsService {
@@ -55,28 +72,38 @@ export class LocationsService {
     this.logger.debug(
       `Getting all locations with headers ${JSON.stringify(ocpiHeaders)} and parameters ${JSON.stringify(paginatedParams)}`,
     );
-
-    const dateFrom = paginatedParams?.dateFrom;
-    const dateTo = paginatedParams?.dateTo;
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
-
+    const where: Locations_Bool_Exp = {
+      Tenant: {
+        countryCode: { _eq: ocpiHeaders.toCountryCode },
+        partyId: { _eq: ocpiHeaders.toPartyId },
+      },
+    };
+    const dateFilters: any = {};
+    if (paginatedParams?.dateFrom)
+      dateFilters._gte = paginatedParams.dateFrom.toISOString();
+    if (paginatedParams?.dateTo)
+      dateFilters._lte = paginatedParams?.dateTo.toISOString();
+    if (Object.keys(dateFilters).length > 0) {
+      where.updatedAt = dateFilters;
+    }
     const variables = {
       limit,
       offset,
-      countryCode: ocpiHeaders.toCountryCode,
-      partyId: ocpiHeaders.toPartyId,
-      dateFrom: dateFrom ? dateFrom.toISOString() : undefined,
-      dateTo: dateTo ? dateTo.toISOString() : undefined,
+      where,
     };
 
-    const response = await this.ocpiGraphqlClient.request<any>(
-      GET_LOCATIONS_QUERY,
-      variables,
-    );
+    const response = await this.ocpiGraphqlClient.request<
+      GetLocationsQueryResult,
+      GetLocationsQueryVariables
+    >(GET_LOCATIONS_QUERY, variables);
 
     // Map GraphQL DTOs to OCPI DTOs
-    const locations = response.Locations?.map(LocationMapper.fromGraphql) ?? [];
+    const locations =
+      response.Locations.map((value) =>
+        LocationMapper.fromGraphql(value as ILocationDto),
+      ) ?? [];
     const locationsTotal = locations.length;
 
     return buildOcpiPaginatedResponse(
@@ -93,17 +120,19 @@ export class LocationsService {
 
     try {
       const variables = { id: locationId };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        GET_LOCATION_BY_ID_QUERY,
-        variables,
-      );
+      const response = await this.ocpiGraphqlClient.request<
+        GetLocationByIdQueryResult,
+        GetLocationByIdQueryVariables
+      >(GET_LOCATION_BY_ID_QUERY, variables);
       // response.Locations is an array, so pick the first
       if (response.Locations && response.Locations.length > 1) {
         this.logger.warn(
           `Multiple locations found for id ${locationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations)}`,
         );
       }
-      const location = LocationMapper.fromGraphql(response.Locations?.[0]);
+      const location = LocationMapper.fromGraphql(
+        response.Locations[0] as ILocationDto,
+      );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
         location,
@@ -131,30 +160,13 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        GET_EVSE_BY_ID_QUERY,
-        variables,
-      );
-      // Traverse to the EVSE object
-      if (
-        response.Locations?.[0]?.chargingPool &&
-        response.Locations[0].chargingPool.length > 1
-      ) {
-        this.logger.warn(
-          `Multiple charging stations found for location id ${locationId} and station id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool)}`,
-        );
-      }
-      if (
-        response.Locations?.[0]?.chargingPool?.[0]?.evses &&
-        response.Locations[0].chargingPool[0].evses.length > 1
-      ) {
-        this.logger.warn(
-          `Multiple EVSEs found for location id ${locationId}, station id ${stationId}, and EVSE id ${evseId}. Returning the first one. All entries: ${JSON.stringify(response.Locations[0].chargingPool[0].evses)}`,
-        );
-      }
+      const response = await this.ocpiGraphqlClient.request<
+        GetEvseByIdQueryResult,
+        GetEvseByIdQueryVariables
+      >(GET_EVSE_BY_ID_QUERY, variables);
       const evse = EvseMapper.fromGraphql(
-        response.Locations?.[0]?.chargingPool?.[0],
-        response.Locations?.[0]?.chargingPool?.[0].evses?.[0],
+        response.Locations[0].chargingPool[0] as IChargingStationDto,
+        response.Locations[0].chargingPool[0].evses[0] as IEvseDto,
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
@@ -181,10 +193,10 @@ export class LocationsService {
 
     try {
       const variables = { locationId, stationId, evseId, connectorId };
-      const response = await this.ocpiGraphqlClient.request<any>(
-        GET_CONNECTOR_BY_ID_QUERY,
-        variables,
-      );
+      const response = await this.ocpiGraphqlClient.request<
+        GetConnectorByIdQueryResult,
+        GetConnectorByIdQueryVariables
+      >(GET_CONNECTOR_BY_ID_QUERY, variables);
       // Traverse to the Connector object
       if (
         response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors &&
@@ -195,7 +207,8 @@ export class LocationsService {
         );
       }
       const connector = ConnectorMapper.fromGraphql(
-        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]?.connectors?.[0],
+        response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]
+          ?.connectors?.[0] as IConnectorDto,
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

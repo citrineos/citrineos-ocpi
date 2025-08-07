@@ -32,6 +32,8 @@ import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { CdrsModule } from '@citrineos/ocpi-cdrs';
 import { TokensModule } from '@citrineos/ocpi-tokens';
 import { DtoRouter } from '@citrineos/dto-router';
+import { createLocalOcpiConfig } from './config/envs/local';
+import { createDockerOcpiConfig } from './config/envs/docker';
 import { ILogObj, Logger } from 'tslog';
 
 export class CitrineOSServer {
@@ -97,7 +99,13 @@ export class CitrineOSServer {
   }
 
   async initConfig() {
-    this.ocpiConfig = getOcpiSystemConfig();
+    switch (process.env.APP_ENV) {
+      case 'docker':
+        this.ocpiConfig = getOcpiSystemConfig(createDockerOcpiConfig());
+        break;
+      default:
+        this.ocpiConfig = getOcpiSystemConfig(createLocalOcpiConfig());
+    }
   }
 
   async run(): Promise<void> {
@@ -159,9 +167,9 @@ export class CitrineOSServer {
   private async initDtoRouter() {
     const dtoRouter: DtoRouter = Container.get(DtoRouter);
     await dtoRouter.init();
-    for (let module of this.ocpiServer.modules) {
+    for (const module of this.ocpiServer.modules) {
       const eventHandlers = getDtoEventHandlerMetaData(module);
-      for (let eventHandler of eventHandlers) {
+      for (const eventHandler of eventHandlers) {
         const subscribed = await dtoRouter.subscribe(
           eventHandler.eventId,
           eventHandler.eventType,

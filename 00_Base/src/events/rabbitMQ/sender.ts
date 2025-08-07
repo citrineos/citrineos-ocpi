@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache 2.0
 
-import { SystemConfig } from '@citrineos/base';
 import * as amqplib from 'amqplib';
 import { instanceToPlain } from 'class-transformer';
 import { ILogObj, Logger } from 'tslog';
@@ -41,7 +40,7 @@ export class RabbitMqDtoSender
   /**
    * Constructor for the class.
    *
-   * @param {SystemConfig} config - The system configuration.
+   * @param {OcpiConfig} config - The system configuration.
    * @param {Logger<ILogObj>} [logger] - The logger object.
    */
   constructor(

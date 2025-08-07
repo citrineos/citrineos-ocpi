@@ -1,28 +1,26 @@
-import {
-  Authorization,
-  ChargingStation,
-  Tariff,
-  Transaction,
-  TransactionEvent,
-} from '@citrineos/data';
-import { OCPP2_0_1 } from '@citrineos/base';
+import { ITariffDto, OCPP2_0_1 } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
 import { Session } from '../model/Session';
 import { Tariff as OcpiTariff } from '../model/Tariff';
+import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { LocationsService } from '../services/LocationsService';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import {
-  GetLocationByIdQuery,
-  GetTariffByCoreKeyQuery,
-} from '../graphql/types/graphql';
 import { GET_LOCATION_BY_ID_QUERY } from '../graphql/queries/location.queries';
-import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
+// import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
 import { ITransactionDto, ILocationDto } from '@citrineos/base';
 import { LocationMapper } from './LocationMapper';
 import { TokensMapper } from './TokensMapper';
+import {
+  GetLocationByIdQueryResult,
+  GetLocationByIdQueryVariables,
+  GetTariffByKeyQueryResult,
+  GetTariffByKeyQueryVariables,
+} from '../graphql/operations';
+import { GET_TARIFF_BY_KEY_QUERY } from '../graphql/queries/tariff.queries';
+import { TariffMapper } from './TariffMapper';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -42,19 +40,17 @@ export abstract class BaseTransactionMapper {
         continue;
       }
 
-      const result = await this.ocpiGraphqlClient.request<GetLocationByIdQuery>(
-        GET_LOCATION_BY_ID_QUERY,
-        { id: locationId },
-      );
-      const location = result.Locations?.[0];
+      const result = await this.ocpiGraphqlClient.request<
+        GetLocationByIdQueryResult,
+        GetLocationByIdQueryVariables
+      >(GET_LOCATION_BY_ID_QUERY, { id: locationId });
+      const location = result.Locations[0] as ILocationDto;
 
       if (!location) {
         continue;
       }
 
-      const locationDto = LocationMapper.fromGraphql(
-        location as unknown as ILocationDto,
-      );
+      const locationDto = LocationMapper.fromGraphql(location);
 
       transactionIdToLocationMap.set(transaction.transactionId!, locationDto);
     }
@@ -80,18 +76,12 @@ export abstract class BaseTransactionMapper {
 
   protected async getTariffsForTransactions(
     transactions: ITransactionDto[],
-  ): Promise<Map<string, Tariff>> {
-    const transactionIdToTariffMap = new Map<string, Tariff>();
+  ): Promise<Map<string, ITariffDto>> {
+    const transactionIdToTariffMap = new Map<string, ITariffDto>();
     for (const transaction of transactions) {
-      const tariffs = transaction?.connector?.tariffs;
-      if (tariffs && tariffs.length > 0) {
-        const tariff = tariffs[0];
-        if (tariff) {
-          transactionIdToTariffMap.set(
-            transaction.transactionId!,
-            tariff as unknown as Tariff,
-          );
-        }
+      const tariff = transaction.tariff;
+      if (tariff) {
+        transactionIdToTariffMap.set(transaction.transactionId!, tariff);
       }
     }
     return transactionIdToTariffMap;
@@ -99,7 +89,7 @@ export abstract class BaseTransactionMapper {
 
   protected async getOcpiTariffsForTransactions(
     sessions: Session[],
-    transactionIdToTariffMap: Map<string, Tariff>,
+    transactionIdToTariffMap: Map<string, ITariffDto>,
   ): Promise<Map<string, OcpiTariff>> {
     const transactionIdToOcpiTariffMap = new Map<string, OcpiTariff>();
     await Promise.all(
@@ -107,21 +97,20 @@ export abstract class BaseTransactionMapper {
         .filter((session) => transactionIdToTariffMap.get(session.id))
         .map(async (session) => {
           const tariffVariables = {
-            id: String(transactionIdToTariffMap.get(session.id)?.id),
+            id: transactionIdToTariffMap.get(session.id)!.id!,
             // TODO: Ensure CPO Country Code, Party ID exists for the tariff in question
             countryCode: session.country_code,
             partyId: session.party_id,
           };
-          const result =
-            await this.ocpiGraphqlClient.request<GetTariffByCoreKeyQuery>(
-              GET_TARIFF_BY_CORE_KEY_QUERY,
-              tariffVariables,
-            );
-          const tariff = result.Tariffs?.[0];
+          const result = await this.ocpiGraphqlClient.request<
+            GetTariffByKeyQueryResult,
+            GetTariffByKeyQueryVariables
+          >(GET_TARIFF_BY_KEY_QUERY, tariffVariables);
+          const tariff = result.Tariffs[0] as ITariffDto;
           if (tariff) {
             transactionIdToOcpiTariffMap.set(
               session.id,
-              tariff as unknown as OcpiTariff,
+              TariffMapper.map(tariff),
             );
           }
         }),

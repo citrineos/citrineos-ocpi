@@ -18,20 +18,12 @@ import { UID_FORMAT } from '../model/DTO/EvseDTO';
 import { PatchEvseParams } from '../trigger/param/locations/PatchEvseParams';
 import { PatchConnectorParams } from '../trigger/param/locations/PatchConnectorParams';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
-import { OcpiEvseRepository } from '../repository/OcpiEvseRepository';
-import { OcpiLocation } from '../model/OcpiLocation';
-import { OcpiConnectorRepository } from '../repository/OcpiConnectorRepository';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly credentialsService: CredentialsService,
-    readonly locationRepository: LocationRepository,
-    readonly ocpiLocationRepository: OcpiLocationRepository,
-    readonly ocpiEvseRepository: OcpiEvseRepository,
-    readonly ocpiConnectorRepository: OcpiConnectorRepository,
     readonly locationsClientApi: LocationsClientApi,
   ) {
     super();
@@ -56,20 +48,10 @@ export class LocationsBroadcaster extends BaseBroadcaster {
 
     const params: PutLocationParams = { locationId };
 
-    const ocpiLocation =
-      await this.ocpiLocationRepository.readOcpiLocationByCoreLocationId(
-        locationId,
-      );
-
-    if (!ocpiLocation) {
-      // todo what to do here if ocpiLocation not found?
-      throw new Error(`Ocpi Location not found ${locationId} does not exist!`);
-    }
-
     try {
       await this.locationsClientApi.broadcastToClients({
-        cpoCountryCode: ocpiLocation.countryCode ?? 'US',
-        cpoPartyId: ocpiLocation.partyId ?? 'CPO',
+        cpoCountryCode: locationDto.tenant!.countryCode!,
+        cpoPartyId: locationDto.tenant!.partyId!,
         moduleId: ModuleId.Locations,
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,
@@ -105,36 +87,16 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     if (!evseId) {
       throw new Error('EVSE ID missing in Evse data');
     }
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-    if (!chargingStation?.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-    const lastUpdated = evseData.updatedAt ?? new Date();
-
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse({
-      evseId: evseId,
-      stationId: stationId,
-      lastUpdated: lastUpdated ?? new Date(),
-    });
-
-    const ocpiLocation =
-      await this.ocpiLocationRepository.updateOcpiLocationByCoreLocationId({
-        coreLocationId: locationId,
-        lastUpdated,
-      } as OcpiLocation);
 
     const params: PatchEvseParams = {
-      locationId,
+      locationId: evseData.chargingStation!.locationId!,
       evseUid: UID_FORMAT(stationId, evseId),
     };
 
     try {
       await this.locationsClientApi.broadcastToClients({
-        cpoCountryCode: ocpiLocation?.countryCode ?? 'US',
-        cpoPartyId: ocpiLocation?.partyId ?? 'CPO',
+        cpoCountryCode: evseData.tenant!.countryCode!,
+        cpoPartyId: evseData.tenant!.partyId!,
         moduleId: ModuleId.Locations,
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,
@@ -144,7 +106,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       });
     } catch (e) {
       this.logger.error(
-        `broadcast${method}Evse failed for Location ${locationId}`,
+        `broadcast${method}Evse failed for Location ${evseData.chargingStation!.locationId!}`,
         e,
       );
     }
@@ -178,33 +140,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     if (!evseId) {
       throw new Error('EVSE ID missing in Connector data');
     }
-    const chargingStation =
-      await this.locationRepository.readChargingStationByStationId(stationId);
-    if (!chargingStation?.locationId) {
-      throw new Error(`Charging Station ${stationId} does not exist!`);
-    }
-
-    const locationId = chargingStation.locationId;
-    const lastUpdated = connectorData.updatedAt ?? new Date();
-
-    await this.ocpiConnectorRepository.createOrUpdateOcpiConnector({
-      connectorId,
-      evseId,
-      stationId,
-      lastUpdated,
-    });
-
-    await this.ocpiEvseRepository.createOrUpdateOcpiEvse({
-      evseId,
-      stationId,
-      lastUpdated,
-    });
-
-    const ocpiLocation =
-      await this.ocpiLocationRepository.updateOcpiLocationByCoreLocationId({
-        coreLocationId: locationId,
-        lastUpdated,
-      } as OcpiLocation);
+    const locationId = connectorData.chargingStation!.locationId!;
 
     const params: PatchConnectorParams = {
       locationId,
@@ -214,8 +150,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
 
     try {
       await this.locationsClientApi.broadcastToClients({
-        cpoCountryCode: ocpiLocation?.countryCode ?? 'US',
-        cpoPartyId: ocpiLocation?.partyId ?? 'CPO',
+        cpoCountryCode: connectorData.tenant!.countryCode!,
+        cpoPartyId: connectorData.tenant!.partyId!,
         moduleId: ModuleId.Locations,
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,

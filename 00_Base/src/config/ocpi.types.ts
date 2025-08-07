@@ -4,7 +4,6 @@
 
 import { z } from 'zod';
 import { Token } from 'typedi';
-import { SystemConfig } from '@citrineos/base';
 
 /**
  * OCPI Configuration Schema
@@ -137,6 +136,11 @@ export const ocpiConfigInputSchema = z.object({
     })
     .optional(),
 
+  graphql: z.object({
+    endpoint: z.string(),
+    headers: z.record(z.string()).optional(),
+  }),
+
   // OCPI-specific settings
   logLevel: z.number().min(0).max(6).default(2).optional(),
   defaultPageLimit: z.number().int().positive().default(50).optional(),
@@ -230,6 +234,11 @@ export const ocpiConfigSchema = z.object({
       .optional(),
   }),
 
+  graphql: z.object({
+    endpoint: z.string(),
+    headers: z.record(z.string()).optional(),
+  }),
+
   messageBroker: z
     .object({
       amqp: z
@@ -271,4 +280,3 @@ export const ocpiConfigSchema = z.object({
 
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;
 export const OcpiConfigToken = new Token<OcpiConfig>('ocpi.config');
-export const SystemConfigToken = new Token<SystemConfig>('system.config');

@@ -9,7 +9,7 @@ import {
   OcpiEmptyResponse,
   OcpiEmptyResponseSchema,
 } from '../model/OcpiEmptyResponse';
-import { HttpMethod, OCPIRegistration, PartnerProfile } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 import { EndpointIdentifier } from '../model/EndpointIdentifier';
 import { CredentialsDTO } from '..';
 
@@ -17,7 +17,7 @@ import { CredentialsDTO } from '..';
 export class CredentialsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Credentials;
 
-  getUrl(partnerProfile: PartnerProfile): string {
+  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
       (value: OCPIRegistration.Endpoint) =>
         value.identifier === EndpointIdentifier.CREDENTIALS,

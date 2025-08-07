@@ -45,7 +45,7 @@ import {
   TokenResponse,
   TokenResponseSchema,
   TokenResponseSchemaName,
-  TokensAdminService,
+  // TokensAdminService,
   TokensService,
   TokenType,
   TokenTypeSchemaName,
@@ -87,7 +87,7 @@ export class TokensModuleApi
 {
   constructor(
     readonly tokensService: TokensService,
-    readonly tokensFetchService: TokensAdminService,
+    // readonly tokensFetchService: TokensAdminService,
   ) {
     super();
   }
@@ -235,55 +235,55 @@ export class TokensModuleApi
   //   return jobStatus;
   // }
 
-  @Post('/fetch/:jobId/:action')
-  async fetchTokensAction(
-    @VersionNumberParam() version: VersionNumber,
-    @Param('jobId') jobId: string,
-    @Param('action') action: AsyncJobAction,
-  ): Promise<AsyncJobStatusResponse> {
-    switch (action) {
-      case AsyncJobAction.RESUME:
-        return await this.tokensFetchService.resumeFetchTokens(jobId);
-      case AsyncJobAction.STOP:
-        return await this.tokensFetchService.stopFetchTokens(jobId);
-      default:
-        throw new BadRequestError('Action not found');
-    }
-  }
+  // @Post('/fetch/:jobId/:action')
+  // async fetchTokensAction(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Param('jobId') jobId: string,
+  //   @Param('action') action: AsyncJobAction,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   switch (action) {
+  //     case AsyncJobAction.RESUME:
+  //       return await this.tokensFetchService.resumeFetchTokens(jobId);
+  //     case AsyncJobAction.STOP:
+  //       return await this.tokensFetchService.stopFetchTokens(jobId);
+  //     default:
+  //       throw new BadRequestError('Action not found');
+  //   }
+  // }
 
-  @Get('/fetch/:jobId')
-  async getFetchTokensJobStatus(
-    @VersionNumberParam() version: VersionNumber,
-    @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusResponse> {
-    const jobStatus = await this.tokensFetchService.getFetchTokensJob(jobId);
-    if (!jobStatus) {
-      throw new NotFoundError('Job not found');
-    }
-    return jobStatus;
-  }
+  // @Get('/fetch/:jobId')
+  // async getFetchTokensJobStatus(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Param('jobId') jobId: string,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   const jobStatus = await this.tokensFetchService.getFetchTokensJob(jobId);
+  //   if (!jobStatus) {
+  //     throw new NotFoundError('Job not found');
+  //   }
+  //   return jobStatus;
+  // }
 
-  @Get('/fetch')
-  async getActiveFetchTokensJobStatus(
-    @VersionNumberParam() version: VersionNumber,
-    @QueryParam('tenantPartnerId') tenantPartnerId: number,
-    @QueryParam('active', { required: false }) active: boolean,
-  ): Promise<AsyncJobStatusResponse[]> {
-    return await this.tokensFetchService.getFetchTokensJobs(
-      tenantPartnerId,
-      active,
-    );
-  }
+  // @Get('/fetch')
+  // async getActiveFetchTokensJobStatus(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @QueryParam('tenantPartnerId') tenantPartnerId: number,
+  //   @QueryParam('active', { required: false }) active: boolean,
+  // ): Promise<AsyncJobStatusResponse[]> {
+  //   return await this.tokensFetchService.getFetchTokensJobs(
+  //     tenantPartnerId,
+  //     active,
+  //   );
+  // }
 
-  @Delete('/fetch/:jobId')
-  async deleteFetchTokensJobStatus(
-    @VersionNumberParam() version: VersionNumber,
-    @Param('jobId') jobId: string,
-  ): Promise<AsyncJobStatusResponse> {
-    const jobStatus = await this.tokensFetchService.deleteFetchTokensJob(jobId);
-    if (!jobStatus) {
-      throw new NotFoundError('Job not found');
-    }
-    return jobStatus;
-  }
+  // @Delete('/fetch/:jobId')
+  // async deleteFetchTokensJobStatus(
+  //   @VersionNumberParam() version: VersionNumber,
+  //   @Param('jobId') jobId: string,
+  // ): Promise<AsyncJobStatusResponse> {
+  //   const jobStatus = await this.tokensFetchService.deleteFetchTokensJob(jobId);
+  //   if (!jobStatus) {
+  //     throw new NotFoundError('Job not found');
+  //   }
+  //   return jobStatus;
+  // }
 }

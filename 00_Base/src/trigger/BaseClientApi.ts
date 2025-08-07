@@ -22,6 +22,12 @@ import {
 } from '../graphql/queries/tenantPartner.queries';
 import { PaginatedParams } from './param/PaginatedParams';
 import { ZodTypeAny } from 'zod';
+import {
+  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
+  TenantPartnersListQueryResult,
+  TenantPartnersListQueryVariables,
+} from '../graphql/operations';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -108,15 +114,16 @@ export abstract class BaseClientApi {
     otherParams?: Record<string, string | number | (string | number)[]>,
   ): Promise<any> {
     if (!partnerProfile) {
-      const partner = await this.ocpiGraphqlClient.request<ITenantPartnerDto>(
-        GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
-        {
-          cpoCountryCode: fromCountryCode,
-          cpoPartyId: fromPartyId,
-          clientCountryCode: toCountryCode,
-          clientPartyId: toPartyId,
-        },
-      );
+      const response = await this.ocpiGraphqlClient.request<
+        GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+        GetTenantPartnerByCpoClientAndModuleIdQueryVariables
+      >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+        cpoCountryCode: fromCountryCode,
+        cpoPartyId: fromPartyId,
+        clientCountryCode: toCountryCode,
+        clientPartyId: toPartyId,
+      });
+      const partner = response.TenantPartners[0] as ITenantPartnerDto;
       partnerProfile = partner.partnerProfileOCPI!;
     }
     if (!url) {
@@ -246,14 +253,15 @@ export abstract class BaseClientApi {
       otherParams,
     } = params;
     const responses: T[] = [];
-    const partners = await this.ocpiGraphqlClient.request<ITenantPartnerDto[]>(
-      LIST_TENANT_PARTNERS_BY_CPO,
-      {
-        cpoCountryCode,
-        cpoPartyId,
-        endpointIdentifier: `${moduleId}_${interfaceRole}`,
-      },
-    );
+    const response = await this.ocpiGraphqlClient.request<
+      TenantPartnersListQueryResult,
+      TenantPartnersListQueryVariables
+    >(LIST_TENANT_PARTNERS_BY_CPO, {
+      cpoCountryCode,
+      cpoPartyId,
+      endpointIdentifier: `${moduleId}_${interfaceRole}`,
+    });
+    const partners = response.TenantPartners as ITenantPartnerDto[];
     for (const partner of partners) {
       const response = await this.request(
         cpoCountryCode,
@@ -279,7 +287,7 @@ export abstract class BaseClientApi {
     response: IRestResponse<unknown>,
   ): T {
     if (response.statusCode >= 200 && response.statusCode <= 299) {
-      let result = response.result;
+      const result = response.result;
 
       // Check if this is a paginated response by checking expected shape or keys
       const isPaginated =

@@ -1,49 +1,74 @@
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GET_TENANT_VERSION_ENDPOINTS } from '../graphql/queries/tenantVersionEndpoints.queries';
+import { GET_TENANT_BY_ID } from '../graphql/queries/tenantVersionEndpoints.queries';
 import { VersionNumber } from '../model/VersionNumber';
 import { Service } from 'typedi';
 import { NotFoundError } from 'routing-controllers';
 import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse';
+import { ITenantDto, OCPIRegistration } from '@citrineos/base';
+import { RegistrationMapper } from '../mapper/RegistrationMapper';
+import {
+  GetTenantByIdQueryResult,
+  GetTenantByIdQueryVariables,
+} from '../graphql/operations';
 
 @Service()
 export class VersionService {
   constructor(private ocpiGraphqlClient: OcpiGraphqlClient) {}
 
-  async getVersions(): Promise<VersionListResponseDTO> {
-    const response = await this.ocpiGraphqlClient.request<any>(
-      GET_TENANT_VERSION_ENDPOINTS,
-      { version: undefined }, // fetch all versions
+  async getVersions(tenantId: number): Promise<VersionListResponseDTO> {
+    const response = await this.ocpiGraphqlClient.request<
+      GetTenantByIdQueryResult,
+      GetTenantByIdQueryVariables
+    >(GET_TENANT_BY_ID, { id: tenantId });
+    const tenant = response.Tenants[0] as ITenantDto;
+    const versions: OCPIRegistration.Version[] = Array.from(
+      tenant.serverProfileOCPI?.versionDetails.keys() || [],
     );
-    const tenants = response.tenants || [];
-    const versions = tenants.flatMap((tenant: any) => tenant.versions || []);
-    return versions.map((version: any) => ({
-      version: version.version,
-      url:
-        version.endpoints.find((e: any) => e.identifier === 'versions')?.url ||
-        '',
-    }));
+    return {
+      data: versions.map((version: OCPIRegistration.Version) => ({
+        version: RegistrationMapper.toVersionNumber(version.version),
+        url: version.versionDetailsUrl!,
+      })),
+      status_code: OcpiResponseStatusCode.GenericSuccessCode,
+      timestamp: new Date(),
+    };
   }
 
   async getVersionDetails(
+    tenantId: number,
     version: VersionNumber,
   ): Promise<VersionDetailsResponseDTO> {
-    const response = await this.ocpiGraphqlClient.request<any>(
-      GET_TENANT_VERSION_ENDPOINTS,
-      { version },
-    );
-    const tenants = response.tenants || [];
-    const tenantVersion = tenants
-      .flatMap((tenant: any) => tenant.versions || [])
-      .find((v: any) => v.version === version);
+    const response = await this.ocpiGraphqlClient.request<
+      GetTenantByIdQueryResult,
+      GetTenantByIdQueryVariables
+    >(GET_TENANT_BY_ID, { id: tenantId });
+    const tenant = response.Tenants[0] as ITenantDto;
+    const tenantVersion: OCPIRegistration.Version | undefined =
+      tenant.serverProfileOCPI?.versionDetails &&
+      Array.from(tenant.serverProfileOCPI?.versionDetails.keys()).find(
+        (value: OCPIRegistration.Version) =>
+          value.version === RegistrationMapper.toOCPIVersionNumber(version),
+      );
     if (!tenantVersion) {
       throw new NotFoundError('Version not found');
     }
     return {
       data: {
-        version: tenantVersion.version,
-        endpoints: tenantVersion.endpoints,
+        version: RegistrationMapper.toVersionNumber(tenantVersion.version),
+        endpoints:
+          tenant.serverProfileOCPI?.versionDetails
+            .get(tenantVersion)
+            ?.map((value: OCPIRegistration.Endpoint) => {
+              const { identifier, role } =
+                RegistrationMapper.toModuleAndRole(value);
+              return {
+                identifier,
+                role,
+                url: value.url,
+              };
+            }) || [],
       },
       status_code: OcpiResponseStatusCode.GenericSuccessCode,
       timestamp: new Date(),

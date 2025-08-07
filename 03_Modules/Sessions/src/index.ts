@@ -13,13 +13,11 @@ import {
   OcpiConfigToken,
   OcpiModule,
   RabbitMqDtoReceiver,
-  SystemConfigToken,
 } from '@citrineos/ocpi-base';
-import { MeterValue, Transaction } from '@citrineos/data';
 import { ILogObj, Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 import { SessionsModuleApi } from './module/SessionsModuleApi';
-import { SystemConfig } from '@citrineos/base';
+import { IMeterValueDto, ITransactionDto } from '@citrineos/base';
 
 export { SessionsModuleApi } from './module/SessionsModuleApi';
 export { ISessionsModuleApi } from './module/ISessionsModuleApi';
@@ -28,7 +26,6 @@ export { ISessionsModuleApi } from './module/ISessionsModuleApi';
 export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
-    @Inject(SystemConfigToken) systemConfig: SystemConfig,
     logger: Logger<ILogObj>,
   ) {
     super(config, new RabbitMqDtoReceiver(config, logger), logger);
@@ -54,7 +51,9 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Transaction,
     'TransactionNotification',
   )
-  async handleTransactionInsert(event: IDtoEvent<Transaction>): Promise<void> {
+  async handleTransactionInsert(
+    event: IDtoEvent<ITransactionDto>,
+  ): Promise<void> {
     this._logger.info(`Handling Transaction Insert: ${JSON.stringify(event)}`);
     // Inserts are Session PUT requests
   }
@@ -65,7 +64,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     'TransactionNotification',
   )
   async handleTransactionUpdate(
-    event: IDtoEvent<Partial<Transaction>>,
+    event: IDtoEvent<Partial<ITransactionDto>>,
   ): Promise<void> {
     this._logger.info(`Handling Transaction Update: ${JSON.stringify(event)}`);
     // All updates are Session PATCH requests
@@ -80,7 +79,9 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.MeterValue,
     'MeterValueNotification',
   )
-  async handleMeterValueInsert(event: IDtoEvent<MeterValue>): Promise<void> {
+  async handleMeterValueInsert(
+    event: IDtoEvent<IMeterValueDto>,
+  ): Promise<void> {
     this._logger.info(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
     if (event._payload.transactionDatabaseId) {
       this._logger.info(

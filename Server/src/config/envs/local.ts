@@ -55,6 +55,10 @@ export function createLocalOcpiConfig(): OcpiConfigInput {
       memory: true,
     },
 
+    graphql: {
+      endpoint: process.env.GRAPHQL_ENDPOINT || 'http://localhost:8090/v1/graphql',
+    },
+
     messageBroker: process.env.AMQP_URL
       ? {
           amqp: {

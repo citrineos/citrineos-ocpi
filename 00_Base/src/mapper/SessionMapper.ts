@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import { Session } from '../model/Session';
-import { OCPP2_0_1 } from '@citrineos/base';
-import { Tariff, Transaction } from '@citrineos/data';
+import { ITariffDto, OCPP2_0_1 } from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod';
 import { ChargingPeriod } from '../model/ChargingPeriod';
 import { CdrDimensionType } from '../model/CdrDimensionType';
@@ -21,6 +20,7 @@ import {
   IMeterValueDto,
   MeasurandEnumType,
 } from '@citrineos/base';
+import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -35,7 +35,7 @@ export class SessionMapper extends BaseTransactionMapper {
   public async getLocationsTokensAndTariffsMapsForTransactions(
     transactions: ITransactionDto[],
   ): Promise<
-    [Map<string, LocationDTO>, Map<string, TokenDTO>, Map<string, Tariff>]
+    [Map<string, LocationDTO>, Map<string, TokenDTO>, Map<string, ITariffDto>]
   > {
     return await Promise.all([
       this.getLocationDTOsForTransactions(transactions),
@@ -65,7 +65,7 @@ export class SessionMapper extends BaseTransactionMapper {
     transactions: ITransactionDto[],
     transactionIdToLocationMap: Map<string, LocationDTO>,
     transactionIdToTokenMap: Map<string, TokenDTO>,
-    transactionIdToTariffMap: Map<string, Tariff>,
+    transactionIdToTariffMap: Map<string, ITariffDto>,
   ): Promise<Session[]> {
     const result: Session[] = [];
     for (const transaction of transactions) {
@@ -88,7 +88,7 @@ export class SessionMapper extends BaseTransactionMapper {
     transaction: ITransactionDto,
     location: LocationDTO,
     token: TokenDTO,
-    tariff: Tariff,
+    tariff: ITariffDto,
   ): Session {
     return {
       country_code: location.country_code,

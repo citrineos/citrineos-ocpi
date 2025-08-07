@@ -1,33 +1,33 @@
-import { gql } from 'graphql-request';
+// import { gql } from 'graphql-request';
 
-export const CREATE_OR_UPDATE_LOCATION_MUTATION = gql`
-  mutation CreateOrUpdateLocation($object: Locations_insert_input!) {
-    insert_Locations_one(
-      object: $object
-      on_conflict: {
-        constraint: Locations_pkey
-        update_columns: [
-          name
-          address
-          city
-          postalCode
-          state
-          country
-          coordinates
-          updatedAt
-        ]
-      }
-    ) {
-      id
-      name
-      address
-      city
-      postalCode
-      state
-      country
-      coordinates
-      createdAt
-      updatedAt
-    }
-  }
-`;
+// export const CREATE_OR_UPDATE_LOCATION_MUTATION = gql`
+//   mutation CreateOrUpdateLocation($object: Locations_insert_input!) {
+//     insert_Locations_one(
+//       object: $object
+//       on_conflict: {
+//         constraint: Locations_pkey
+//         update_columns: [
+//           name
+//           address
+//           city
+//           postalCode
+//           state
+//           country
+//           coordinates
+//           updatedAt
+//         ]
+//       }
+//     ) {
+//       id
+//       name
+//       address
+//       city
+//       postalCode
+//       state
+//       country
+//       coordinates
+//       createdAt
+//       updatedAt
+//     }
+//   }
+// `;

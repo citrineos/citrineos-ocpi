@@ -28,6 +28,13 @@ module.exports = tseslint.config(
     },
   },
   {
+    files: ['./00_Base/src/graphql/queries/*.ts'],
+    plugins: {
+      '@graphql-eslint': require('@graphql-eslint/eslint-plugin'),
+    },
+    processor: '@graphql-eslint/graphql',
+  },
+  {
     ignores: ['**/dist/**', '**/node_modules/**'],
   },
 );

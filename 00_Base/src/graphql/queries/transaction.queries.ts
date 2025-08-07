@@ -2,33 +2,15 @@ import { gql } from 'graphql-request';
 
 export const GET_TRANSACTIONS_QUERY = gql`
   query GetTransactions(
-    $cpoCountryCode: String
-    $cpoPartyId: String
-    $mspCountryCode: String
-    $mspPartyId: String
-    $dateFrom: timestamptz
-    $dateTo: timestamptz
     $offset: Int
     $limit: Int
+    $where: Transactions_bool_exp!
   ) {
     Transactions(
-      where: {
-        stationId: { _is_null: false }
-        ChargingStation: {
-          Tenant: {
-            countryCode: { _eq: $cpoCountryCode }
-            partyId: { _eq: $cpoPartyId }
-            TenantPartners: {
-              countryCode: { _eq: $mspCountryCode }
-              partyId: { _eq: $mspPartyId }
-            }
-          }
-        }
-        updatedAt: { _gte: $dateFrom, _lte: $dateTo }
-      }
       offset: $offset
       limit: $limit
       order_by: { createdAt: asc }
+      where: $where
     ) {
       id
       stationId
@@ -64,7 +46,7 @@ export const GET_TRANSACTIONS_QUERY = gql`
       transactionEvents: TransactionEvents {
         id
         eventType
-        evse: Evse {
+        EvseType {
           id
         }
         transactionInfo
@@ -78,26 +60,6 @@ export const GET_TRANSACTIONS_QUERY = gql`
       meterValues: MeterValues {
         timestamp
         sampledValue
-      }
-    }
-    Transactions_aggregate(
-      where: {
-        stationId: { _is_null: false }
-        ChargingStation: {
-          Tenant: {
-            countryCode: { _eq: $cpoCountryCode }
-            partyId: { _eq: $cpoPartyId }
-            TenantPartners: {
-              countryCode: { _eq: $mspCountryCode }
-              partyId: { _eq: $mspPartyId }
-            }
-          }
-        }
-        updatedAt: { _gte: $dateFrom, _lte: $dateTo }
-      }
-    ) {
-      aggregate {
-        count
       }
     }
   }

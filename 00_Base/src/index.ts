@@ -3,20 +3,16 @@ import { Constructable, Container } from 'typedi';
 import { OcpiModule } from './model/OcpiModule';
 import { KoaServer } from './util/KoaServer';
 import Koa from 'koa';
-import { ICache, SystemConfig } from '@citrineos/base';
+import { ICache } from '@citrineos/base';
 import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 // import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
 // @ts-ignore-next-line
 import { version } from '../../package.json';
-import {
-  OcpiConfig,
-  OcpiConfigToken,
-  SystemConfigToken,
-} from './config/ocpi.types';
+import { OcpiConfig, OcpiConfigToken } from './config/ocpi.types';
 import { IDtoModule } from './events';
-import { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
+import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
 
 export { Version } from './model/Version';
 export { Body } from './util/decorators/Body';
@@ -253,7 +249,7 @@ export { LocationsClientApi } from './trigger/LocationsClientApi';
 export { CommandsService } from './services/CommandsService';
 export { CredentialsService } from './services/CredentialsService';
 export { TokensService } from './services/TokensService';
-export { TokensAdminService } from './services/TokensAdminService';
+// export { TokensAdminService } from './services/TokensAdminService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
 export { SessionsService } from './services/SessionsService';
@@ -315,14 +311,12 @@ export * from './events';
 useContainer(Container);
 
 export { Container } from 'typedi';
-export { createServerConfigFromOcpiConfig } from './util/simpleConfigBridge';
 export { getDtoEventHandlerMetaData } from './events/AsDtoEventHandler';
 export { LocationsBroadcaster } from './broadcaster/LocationsBroadcaster';
 
 export class OcpiServer extends KoaServer {
   koa!: Koa;
   private readonly ocpiConfig: OcpiConfig;
-  private readonly systemConfig: SystemConfig;
   private readonly cache: ICache;
   private readonly logger: Logger<ILogObj>;
   private _modules: (OcpiModule | IDtoModule)[] = [];
@@ -341,7 +335,6 @@ export class OcpiServer extends KoaServer {
     super();
 
     this.ocpiConfig = ocpiConfig;
-    this.systemConfig = createServerConfigFromOcpiConfig(this.ocpiConfig);
     this.cache = cache;
     this.logger = logger;
     this.moduleList = moduleList;
@@ -349,7 +342,7 @@ export class OcpiServer extends KoaServer {
   }
 
   public async initialize() {
-    for (let moduleListElement of this.moduleList) {
+    for (const moduleListElement of this.moduleList) {
       const constructedModule = Container.get(moduleListElement) as OcpiModule &
         IDtoModule;
       if (constructedModule) {
@@ -402,9 +395,17 @@ export class OcpiServer extends KoaServer {
 
   private initContainer() {
     Container.set(OcpiConfigToken, this.ocpiConfig);
-    Container.set(SystemConfigToken, this.systemConfig);
     Container.set(CacheWrapper, new CacheWrapper(this.cache));
     Container.set(Logger, this.logger);
+
+    Container.set(
+      OcpiGraphqlClient,
+      new OcpiGraphqlClient(
+        this.ocpiConfig.graphql.endpoint,
+        this.ocpiConfig.graphql.headers,
+      ),
+    );
+
     this.onContainerInitialized();
   }
 
@@ -414,7 +415,7 @@ export class OcpiServer extends KoaServer {
   }
 }
 
-export { OcpiConfigToken, SystemConfigToken };
+export { OcpiConfigToken };
 
 export {
   CommandResponseSchema,

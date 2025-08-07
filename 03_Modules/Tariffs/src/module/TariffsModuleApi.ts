@@ -119,26 +119,26 @@ export class TariffsModuleApi
    * Admin Endpoints
    */
 
-  @Put()
-  async updateTariff(
-    @Body(PutTariffRequestSchema, PutTariffRequestSchemaName)
-    tariffDto: PutTariffRequest,
-  ): Promise<TariffDTO> {
-    return await this.tariffService.createOrUpdateTariff(tariffDto);
-  }
+  // @Put()
+  // async updateTariff(
+  //   @Body(PutTariffRequestSchema, PutTariffRequestSchemaName)
+  //   tariffDto: PutTariffRequest,
+  // ): Promise<TariffDTO> {
+  //   return await this.tariffService.createOrUpdateTariff(tariffDto);
+  // }
 
-  @Delete('/:tariffId')
-  async deleteTariff(
-    @Param('tariffId') tariffId: number,
-  ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
-    if (!tariffId) {
-      return buildOcpiErrorResponse(
-        OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
-        'No tariff id provided',
-      );
-    }
+  // @Delete('/:tariffId')
+  // async deleteTariff(
+  //   @Param('tariffId') tariffId: number,
+  // ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
+  //   if (!tariffId) {
+  //     return buildOcpiErrorResponse(
+  //       OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+  //       'No tariff id provided',
+  //     );
+  //   }
 
-    await this.tariffService.deleteTariff(tariffId);
-    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
-  }
+  //   await this.tariffService.deleteTariff(tariffId);
+  //   return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
+  // }
 }

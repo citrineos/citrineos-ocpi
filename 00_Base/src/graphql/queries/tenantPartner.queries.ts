@@ -2,16 +2,18 @@ import { gql } from 'graphql-request';
 
 export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
   query GetTenantPartnerByServerToken($serverToken: String!) {
-    TenantPartner(
+    TenantPartners(
       where: {
-        partnerProfileOCPI: { _contains: { serverCredentials: { token: $serverToken } } } }
+        partnerProfileOCPI: {
+          _contains: { serverCredentials: { token: $serverToken } }
+        }
       }
     ) {
       id
       countryCode
       partyId
       partnerProfileOCPI
-      Tenant {
+      tenant: Tenant {
         id
         countryCode
         partyId
@@ -22,10 +24,14 @@ export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
 `;
 
 export const DELETE_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
-  mutation DeleteTenantPartner($serverToken: String!) {
-    delete_TenantPartners(where: {
-        partnerProfileOCPI: { _contains: { serverCredentials: { token: $serverToken } } } }
-      }) {
+  mutation DeleteTenantPartnerByServerToken($serverToken: String!) {
+    delete_TenantPartners(
+      where: {
+        partnerProfileOCPI: {
+          _contains: { serverCredentials: { token: $serverToken } }
+        }
+      }
+    ) {
       affected_rows
     }
   }
@@ -38,7 +44,7 @@ export const GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT = gql`
     $clientCountryCode: String
     $clientPartyId: String
   ) {
-    TenantPartner(
+    TenantPartners(
       where: {
         Tenant: {
           countryCode: { _eq: $cpoCountryCode }
@@ -52,7 +58,7 @@ export const GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT = gql`
       countryCode
       partyId
       partnerProfileOCPI
-      Tenant {
+      tenant: Tenant {
         id
         countryCode
         partyId
@@ -74,43 +80,34 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
           countryCode: { _eq: $cpoCountryCode }
           partyId: { _eq: $cpoPartyId }
         }
-        partnerProfileOCPI: { _contains: { endpoints: { identifier: $endpointIdentifier } } }
+        partnerProfileOCPI: {
+          _contains: { endpoints: { identifier: $endpointIdentifier } }
+        }
       }
     ) {
       id
       countryCode
       partyId
       partnerProfileOCPI
-      Tenant {
+      tenant: Tenant {
         id
         countryCode
         partyId
         serverProfileOCPI
       }
     }
-    TenantPartners_aggregate(where: {
-        Tenant: {
-          countryCode: { _eq: $cpoCountryCode }
-          partyId: { _eq: $cpoPartyId }
-        }
-        partnerProfileOCPI: { _contains: { endpoints: { identifier: $endpointIdentifier } } }
-      }) {
-      aggregate {
-        count
-      }
-    }
   }
 `;
 
-export const UPDATE_TENANT_PARTNER_MUTATION = gql`
-  mutation UpdateTenantPartner(
-    $id: Int!
-    $set: TenantPartners_set_input!
-  ) {
-    update_TenantPartners_by_pk(pk_columns: {id: 10}, _set: $set) {
-      returning {
-        id
-      }
-    }
-  }
-`;
+// export const UPDATE_TENANT_PARTNER_MUTATION = gql`
+//   mutation UpdateTenantPartner(
+//     $id: Int!
+//     $set: TenantPartners_set_input!
+//   ) {
+//     update_TenantPartners_by_pk(pk_columns: {id: 10}, _set: $set) {
+//       returning {
+//         id
+//       }
+//     }
+//   }
+// `;
