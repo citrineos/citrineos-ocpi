@@ -58,6 +58,10 @@ export function createDockerOcpiConfig(): OcpiConfigInput {
       },
     },
 
+    graphql: {
+      endpoint: process.env.GRAPHQL_ENDPOINT || 'http://graphql-engine:8080/v1/graphql',
+    },
+
     messageBroker: {
       amqp: {
         url: process.env.AMQP_URL || 'amqp://guest:guest@rabbitmq:5672',

@@ -29,6 +29,8 @@
     "03_Modules/Cdrs/**/*.json",
     "03_Modules/Tokens/**/*.ts",
     "03_Modules/Tokens/**/*.json",
+    "03_Modules/DtoRouter/**/*.ts",
+    "03_Modules/DtoRouter/**/*.json",
     "mock-client/**/*.ts",
     "mock-client/**/*.json",
     "seeders/**/*.ts",

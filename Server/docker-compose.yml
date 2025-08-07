@@ -32,24 +32,22 @@ services:
 
   citrineos-ocpi:
     build:
-      context: ../
-      dockerfile: ./Server/deploy.Dockerfile
+      context: ../../
+      dockerfile: ./citrineos-ocpi/Server/deploy.Dockerfile
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
+      DB_HOST: 'ocpp-db'
+      AMQP_URL: 'amqp://guest:guest@amqp-broker:5672'
+      AMQP_EXCHANGE: 'citrineos'
     # depends_on:
     #   ocpp-db:
     #     condition: service_healthy
     #   amqp-broker:
     #     condition: service_healthy
     ports:
-      - 8080:8080
-      - 8081:8081
-      - 8082:8082
       - 8085:8085
-      - 8443:8443
-      - 8444:8444
-      - 9229:9229
+      # - 9229:9229
 
   # directus:
   #   image: ghcr.io/citrineos/citrineos-directus:latest
