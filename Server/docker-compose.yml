@@ -32,8 +32,8 @@ services:
 
   citrineos-ocpi:
     build:
-      context: ../../
-      dockerfile: ./citrineos-ocpi/Server/deploy.Dockerfile
+      context: ../
+      dockerfile: ./Server/deploy.Dockerfile
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
