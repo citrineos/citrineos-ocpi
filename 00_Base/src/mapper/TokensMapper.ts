@@ -85,70 +85,39 @@ export class TokensMapper {
     }
   }
 
-  public static mapOcpiTokenToOcppAuthorization(
-    tokenDto: TokenDTO,
-  ): IAuthorizationDto {
-    const tenantId = 0; // TODO: Handle linking to tenant with tokenDto.country_code and tokenDto.party_id
-
-    const idToken: string = tokenDto.uid;
-    const idTokenType: IdTokenType | null =
-      TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
-    const additionalInfo: [
-      OCPP2_0_1.AdditionalInfoType,
-      ...OCPP2_0_1.AdditionalInfoType[],
-    ] = [
-      {
-        additionalIdToken: tokenDto.contract_id,
-        type: OCPP2_0_1.IdTokenEnumType.eMAID,
-      },
-    ];
-    if (tokenDto.visual_number) {
-      additionalInfo.push({
-        additionalIdToken: tokenDto.visual_number,
-        type: 'visual_number',
-      });
+  public static mapWhitelistType(
+    whitelist: WhitelistType | undefined,
+  ): AuthorizationWhitelistType | null | undefined {
+    switch(whitelist) {
+      case WhitelistType.ALLOWED:
+        return AuthorizationWhitelistType.Allowed;
+      case WhitelistType.ALLOWED_OFFLINE:
+        return AuthorizationWhitelistType.AllowedOffline;
+      case WhitelistType.NEVER:
+        return AuthorizationWhitelistType.Never;
+      case WhitelistType.ALWAYS:
+        return null;
+      default:
+        return undefined;
     }
-    if (tokenDto.issuer) {
-      additionalInfo.push({
-        additionalIdToken: tokenDto.issuer,
-        type: 'issuer',
-      });
-    }
-
-    const status: AuthorizationStatusType = tokenDto.valid
-      ? AuthorizationStatusType.Accepted
-      : AuthorizationStatusType.Invalid;
-
-    const language1: string | undefined = tokenDto.language ?? undefined;
-
-    if (tokenDto.group_id) {
-      // TODO: Handle linking to group authorization with tokenDto.group_id
-    }
-
-    return {
-      tenantId,
-      additionalInfo,
-      idToken,
-      idTokenType,
-      status,
-      language1,
-    };
   }
 
   public static mapOcpiTokenToPartialOcppAuthorization(
     tokenDto: Partial<TokenDTO>,
   ): Partial<IAuthorizationDto> {
-    const tenantId = 0; // TODO: Handle linking to tenantPartner with tokenDto.country_code and tokenDto.party_id
-
     const idToken: string | undefined = tokenDto.uid;
-    const idTokenType: IdTokenType | undefined = tokenDto.type &&
+    const idTokenType: IdTokenType | undefined =
+      tokenDto.type &&
       TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
-    const partialAdditionalInfo:
-      OCPP2_0_1.AdditionalInfoType[] | undefined = (tokenDto.contract_id ?
-      [{
+
+    const partialAdditionalInfo: OCPP2_0_1.AdditionalInfoType[] = [];
+
+    if (tokenDto.contract_id) {
+      partialAdditionalInfo.push({
         additionalIdToken: tokenDto.contract_id,
         type: OCPP2_0_1.IdTokenEnumType.eMAID,
-      }] : []);
+      });
+    }
     if (tokenDto.visual_number) {
       partialAdditionalInfo.push({
         additionalIdToken: tokenDto.visual_number,
@@ -162,8 +131,15 @@ export class TokensMapper {
       });
     }
 
-    const additionalInfo: [OCPP2_0_1.AdditionalInfoType, ...OCPP2_0_1.AdditionalInfoType[]] | undefined =
-      partialAdditionalInfo.length > 0 ? partialAdditionalInfo as [OCPP2_0_1.AdditionalInfoType, ...OCPP2_0_1.AdditionalInfoType[]] : undefined;
+    const additionalInfo:
+      | [OCPP2_0_1.AdditionalInfoType, ...OCPP2_0_1.AdditionalInfoType[]]
+      | undefined =
+      partialAdditionalInfo.length > 0
+        ? (partialAdditionalInfo as [
+            OCPP2_0_1.AdditionalInfoType,
+            ...OCPP2_0_1.AdditionalInfoType[],
+          ])
+        : undefined;
 
     const status: AuthorizationStatusType = tokenDto.valid
       ? AuthorizationStatusType.Accepted
@@ -171,17 +147,16 @@ export class TokensMapper {
 
     const language1: string | undefined = tokenDto.language ?? undefined;
 
-    if (tokenDto.group_id) {
-      // TODO: Handle linking to group authorization with tokenDto.group_id
-    }
+    const realTimeAuth: AuthorizationWhitelistType | null | undefined =
+      TokensMapper.mapWhitelistType(tokenDto.whitelist);
 
     return {
-      tenantId,
       additionalInfo,
       idToken,
       idTokenType,
       status,
       language1,
+      realTimeAuth,
     };
   }
 
@@ -265,7 +240,7 @@ export class TokensMapper {
   }
 
   public static toGraphqlSet(token: Partial<TokenDTO>): any {
-    const set: any = TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token)
+    const set: any = TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token);
     return set;
   }
 }

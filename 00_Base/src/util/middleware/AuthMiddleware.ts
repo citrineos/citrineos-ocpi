@@ -1,11 +1,7 @@
 import { KoaMiddlewareInterface } from 'routing-controllers';
-import {
-  HttpHeader,
-  HttpStatus,
-  ITenantPartnerDto,
-  UnauthorizedException,
-} from '@citrineos/base';
-import { Service } from 'typedi';
+import { HttpHeader, HttpStatus, UnauthorizedException } from '@citrineos/base';
+import Container, { Service } from 'typedi';
+import { Logger } from 'tslog';
 import { extractToken } from '../decorators/AuthToken';
 import { OcpiHttpHeader } from '../OcpiHttpHeader';
 import { BaseMiddleware } from './BaseMiddleware';
@@ -17,7 +13,6 @@ import { GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT } from '../../graphql/queries/
 import {
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
-  GetTenantPartnerByServerTokenQueryResult,
 } from '../../graphql/operations';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
@@ -50,18 +45,16 @@ export class AuthMiddleware
   }
 
   async use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
-    console.debug(
-      `AuthMiddleware executed for ${context.request.method} ${context.request.url}`,
-    );
+    const logger = Container.get(Logger);
 
     const authHeader =
       context.request.headers[HttpHeader.Authorization.toLowerCase()];
 
     if (!permittedRoutes.includes(context.request.originalUrl)) {
-      console.debug('Route requires authentication');
-
       if (!authHeader) {
-        console.debug('No authorization header found - throwing error');
+        logger.debug(
+          `No authorization header found for ${context.request.method} ${context.request.url}`,
+        );
         return this.throwError(context);
       }
 
@@ -82,11 +75,6 @@ export class AuthMiddleware
         );
         const toPartyId = this.getHeader(context, OcpiHttpHeader.OcpiToPartyId);
 
-        console.debug(
-          `OCPI headers - From: ${fromCountryCode}/${fromPartyId}, To: ${toCountryCode}/${toPartyId}`,
-        );
-
-        console.debug('Making GraphQL request for tenant partner...');
         const response = await this.ocpiGraphqlClient.request<
           GetTenantPartnerByCpoClientAndModuleIdQueryResult,
           GetTenantPartnerByCpoClientAndModuleIdQueryVariables
@@ -97,32 +85,28 @@ export class AuthMiddleware
           clientPartyId: fromPartyId,
         });
 
-        console.debug(
-          `GraphQL response received, tenant partners count: ${response.TenantPartners?.length || 0}`,
-        );
-
         const tenantPartner = response.TenantPartners[0];
 
         if (
           !tenantPartner ||
           token !== tenantPartner.partnerProfileOCPI?.serverCredentials.token
         ) {
-          console.debug(
-            'Authorization failed - tenant partner not found or token mismatch',
+          logger.debug(
+            `Authorization failed - ${!tenantPartner ? 'tenant partner not found' : 'token mismatch'}`,
           );
           throw new UnauthorizedException(
             'Credentials not found for given token',
           );
         }
 
-        console.debug('Authorization successful');
-      } catch (error) {
-        console.debug(`Authorization error: ${error}`);
-        console.debug(`Error json: ${JSON.stringify(error)}`);
+        context.state.tenantId = tenantPartner.tenant.id;
+        context.state.tenantPartnerId = tenantPartner.id;
+      } catch (error: any) {
+        logger.debug(`Authorization error: ${error.message}`);
         return this.throwError(context);
       }
     } else {
-      console.debug('Route is permitted, skipping authentication');
+      logger.debug('Route is permitted, skipping authentication');
     }
     return await next();
   }

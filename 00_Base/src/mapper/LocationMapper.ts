@@ -164,8 +164,8 @@ export class EvseMapper {
     station: IChargingStationDto,
     evse: IEvseDto,
   ): EvseDTO | undefined {
-    const connectors = evse.connectors
-      ?.map(ConnectorMapper.fromGraphql)
+    const connectors = evse
+      .connectors!.map(ConnectorMapper.fromGraphql)
       .filter((c) => c !== undefined);
     if (!connectors || connectors.length === 0) {
       const logger = Container.get(Logger);
@@ -304,6 +304,7 @@ export class EvseMapper {
 
 export class ConnectorMapper {
   static fromGraphql(connector: IConnectorDto): ConnectorDTO | undefined {
+    const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
       id: connector.id?.toString(),
       standard: ConnectorMapper.mapConnectorType(connector.type),
@@ -319,11 +320,13 @@ export class ConnectorMapper {
     if (ConnectorMapper.validatePartialConnector(partialConnector)) {
       return partialConnector as ConnectorDTO;
     }
+    logger.warn(`Invalid connector: ${JSON.stringify(partialConnector)}`);
   }
 
   static mapConnectorType(
     connectorType: ConnectorTypeEnum | null | undefined,
   ): ConnectorType | undefined {
+    const logger = Container.get(Logger);
     switch (connectorType) {
       case ConnectorTypeEnum.CHAdeMO:
         return ConnectorType.CHADEMO;
@@ -398,6 +401,7 @@ export class ConnectorMapper {
       case ConnectorTypeEnum.TeslaS:
         return ConnectorType.TESLA_S;
       default:
+        logger.warn(`Unknown ConnectorType ${connectorType}`);
         return undefined;
     }
   }
@@ -405,12 +409,14 @@ export class ConnectorMapper {
   static mapConnectorFormat(
     connectorFormat: ConnectorFormatEnum | null | undefined,
   ): ConnectorFormat | undefined {
+    const logger = Container.get(Logger);
     switch (connectorFormat) {
       case ConnectorFormatEnum.Cable:
         return ConnectorFormat.CABLE;
       case ConnectorFormatEnum.Socket:
         return ConnectorFormat.SOCKET;
       default:
+        logger.warn(`Unknown Format ${connectorFormat}`);
         return undefined;
     }
   }
@@ -418,6 +424,7 @@ export class ConnectorMapper {
   static mapConnectorPowerType(
     connectorPowerType: ConnectorPowerType | null | undefined,
   ): PowerType | undefined {
+    const logger = Container.get(Logger);
     switch (connectorPowerType) {
       case ConnectorPowerType.AC1Phase:
         return PowerType.AC_1_PHASE;
@@ -430,6 +437,7 @@ export class ConnectorMapper {
       case ConnectorPowerType.DC:
         return PowerType.DC;
       default:
+        logger.warn(`Unknown PowerType ${connectorPowerType}`);
         return undefined;
     }
   }
@@ -450,5 +458,6 @@ export class ConnectorMapper {
       });
       return false;
     }
+    return true;
   }
 }

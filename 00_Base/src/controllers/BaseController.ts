@@ -5,6 +5,8 @@ import { PaginatedParams } from './param/PaginatedParams';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { ZodTypeAny } from 'zod';
+import Container from 'typedi';
+import { Logger } from 'tslog';
 
 export const generateMockForSchema = (
   schema: ZodTypeAny,
@@ -41,6 +43,7 @@ export const generateMockOcpiPaginatedResponse = (
 };
 
 export class BaseController {
+  protected logger = Container.get(Logger);
   generateMockOcpiResponse = (model: any, name: string): any =>
     generateMockForSchema(model, name);
   generateMockOcpiPaginatedResponse = (
