@@ -1,10 +1,5 @@
 import { KoaMiddlewareInterface } from 'routing-controllers';
-import {
-  HttpHeader,
-  HttpStatus,
-  ITenantPartnerDto,
-  UnauthorizedException,
-} from '@citrineos/base';
+import { HttpHeader, HttpStatus, UnauthorizedException } from '@citrineos/base';
 import Container, { Service } from 'typedi';
 import { Logger } from 'tslog';
 import { extractToken } from '../decorators/AuthToken';
@@ -18,7 +13,6 @@ import { GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT } from '../../graphql/queries/
 import {
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
-  GetTenantPartnerByServerTokenQueryResult,
 } from '../../graphql/operations';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
@@ -104,6 +98,9 @@ export class AuthMiddleware
             'Credentials not found for given token',
           );
         }
+
+        context.state.tenantId = tenantPartner.tenant.id;
+        context.state.tenantPartnerId = tenantPartner.id;
       } catch (error: any) {
         logger.debug(`Authorization error: ${error.message}`);
         return this.throwError(context);

@@ -41,28 +41,18 @@ export const READ_AUTHORIZATION = gql`
 
 export const UPDATE_TOKEN_MUTATION = gql`
   mutation UpdateAuthorization(
-    $idToken: String
-    $type: String
-    $countryCode: String
-    $partyId: String
-    $additionalInfo: jsonb
-    $status: String
-    $language1: String
+    $idToken: String!
+    $type: String!
+    $tenantPartnerId: Int!
+    $set: Authorizations_set_input
   ) {
     update_Authorizations(
       where: {
         idToken: { _eq: $idToken }
         idTokenType: { _eq: $type }
-        TenantPartner: {
-          countryCode: { _eq: $countryCode }
-          partyId: { _eq: $partyId }
-        }
+        tenantPartnerId: { _eq: $tenantPartnerId }
       }
-      _set: {
-        additionalInfo: $additionalInfo
-        status: $status
-        language1: $language1
-      }
+      _set: $set
     ) {
       returning {
         id
@@ -83,19 +73,97 @@ export const UPDATE_TOKEN_MUTATION = gql`
         status
         realTimeAuth
         language1
+        groupAuthorizationId
       }
     }
   }
 `;
 
-// export const GET_AUTHORIZATION_BY_ID_QUERY = gql`
-//   query GetAuthorizationById($idToken: String!, $idTokenType: String!) {
-//     Authorizations(
-//       where: { idToken: { _eq: $idToken }, idTokenType: { _eq: $idTokenType } }
-//     ) {
-//       id
-//       idToken
-//       idTokenType
-//     }
-//   }
-// `;
+export const GET_AUTHORIZATION_BY_TOKEN = gql`
+  query GetAuthorizationByToken(
+    $idToken: String!
+    $idTokenType: String!
+    $tenantPartnerId: Int!
+  ) {
+    Authorizations(
+      where: {
+        idToken: { _eq: $idToken }
+        idTokenType: { _eq: $idTokenType }
+        tenantPartnerId: { _eq: $tenantPartnerId }
+      }
+    ) {
+      id
+      idToken
+      idTokenType
+      tenantPartnerId
+      additionalInfo
+      groupAuthorizationId
+    }
+  }
+`;
+
+export const CREATE_AUTHORIZATION_MUTATION = gql`
+  mutation CreateAuthorization(
+    $tenantId: Int!
+    $tenantPartnerId: Int!
+    $idToken: String!
+    $idTokenType: String!
+    $additionalInfo: jsonb
+    $status: String!
+    $language1: String
+    $groupAuthorizationId: Int
+    $createdAt: timestamptz!
+    $updatedAt: timestamptz!
+  ) {
+    insert_Authorizations_one(
+      object: {
+        tenantId: $tenantId
+        tenantPartnerId: $tenantPartnerId
+        idToken: $idToken
+        idTokenType: $idTokenType
+        additionalInfo: $additionalInfo
+        status: $status
+        language1: $language1
+        groupAuthorizationId: $groupAuthorizationId
+        createdAt: $createdAt
+        updatedAt: $updatedAt
+      }
+    ) {
+      id
+      createdAt
+      updatedAt
+      tenantId
+      tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      groupAuthorization: GroupAuthorization {
+        idToken
+      }
+      idToken
+      idTokenType
+      additionalInfo
+      status
+      realTimeAuth
+      language1
+      groupAuthorizationId
+    }
+  }
+`;
+
+export const GET_GROUP_AUTHORIZATION = gql`
+  query GetGroupAuthorization($groupId: String!, $tenantPartnerId: Int!) {
+    Authorizations(
+      where: {
+        idToken: { _eq: $groupId }
+        idTokenType: { _eq: "Central" }
+        tenantPartnerId: { _eq: $tenantPartnerId }
+      }
+    ) {
+      id
+      idToken
+      idTokenType
+    }
+  }
+`;

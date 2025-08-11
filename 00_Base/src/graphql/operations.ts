@@ -22,6 +22,14 @@ export type Scalars = {
   numeric: { input: any; output: any; }
   timestamptz: { input: any; output: any; }
 };
+export type Authorizations_Set_Input = {
+  additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  language1?: InputMaybe<Scalars['String']['input']>;
+  groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
+  realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  updatedAt: Scalars['timestamptz']['input'];
+};
 export type Locations_Bool_Exp = {
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
@@ -558,13 +566,10 @@ export type ReadAuthorizationsQueryResult = {
 };
 
 export type UpdateAuthorizationMutationVariables = Exact<{
-  idToken?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  countryCode?: InputMaybe<Scalars['String']['input']>;
-  partyId?: InputMaybe<Scalars['String']['input']>;
-  additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  language1?: InputMaybe<Scalars['String']['input']>;
+  idToken: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  set?: InputMaybe<Authorizations_Set_Input>;
 }>;
 
 
@@ -581,6 +586,7 @@ export type UpdateAuthorizationMutationResult = {
       status?: string | null,
       realTimeAuth?: string | null,
       language1?: string | null,
+      groupAuthorizationId?: number | null,
       tenantPartner?: {
         id: number,
         countryCode?: string | null,
@@ -591,6 +597,76 @@ export type UpdateAuthorizationMutationResult = {
       } | null
     }>
   } | null
+};
+
+export type GetAuthorizationByTokenQueryVariables = Exact<{
+  idToken: Scalars['String']['input'];
+  idTokenType: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetAuthorizationByTokenQueryResult = {
+  Authorizations: Array<{
+    id: number,
+    idToken?: string | null,
+    idTokenType?: string | null,
+    tenantPartnerId?: number | null,
+    additionalInfo?: any | null,
+    groupAuthorizationId?: number | null
+  }>
+};
+
+export type CreateAuthorizationMutationVariables = Exact<{
+  tenantId: Scalars['Int']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  idToken: Scalars['String']['input'];
+  idTokenType: Scalars['String']['input'];
+  additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
+  status: Scalars['String']['input'];
+  language1?: InputMaybe<Scalars['String']['input']>;
+  groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
+  createdAt: Scalars['timestamptz']['input'];
+  updatedAt: Scalars['timestamptz']['input'];
+}>;
+
+
+export type CreateAuthorizationMutationResult = {
+  insert_Authorizations_one?: {
+    id: number,
+    createdAt: any,
+    updatedAt: any,
+    tenantId: number,
+    idToken?: string | null,
+    idTokenType?: string | null,
+    additionalInfo?: any | null,
+    status?: string | null,
+    realTimeAuth?: string | null,
+    language1?: string | null,
+    groupAuthorizationId?: number | null,
+    tenantPartner?: {
+      id: number,
+      countryCode?: string | null,
+      partyId?: string | null
+    } | null,
+    groupAuthorization?: {
+      idToken?: string | null
+    } | null
+  } | null
+};
+
+export type GetGroupAuthorizationQueryVariables = Exact<{
+  groupId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetGroupAuthorizationQueryResult = {
+  Authorizations: Array<{
+    id: number,
+    idToken?: string | null,
+    idTokenType?: string | null
+  }>
 };
 
 export type GetTransactionsQueryVariables = Exact<{

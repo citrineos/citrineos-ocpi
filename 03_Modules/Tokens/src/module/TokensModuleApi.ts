@@ -5,6 +5,7 @@
 
 import {
   BadRequestError,
+  Ctx,
   Delete,
   Get,
   JsonController,
@@ -113,7 +114,7 @@ export class TokensModuleApi
     @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
     type?: TokenType,
   ): Promise<TokenResponse | OcpiEmptyResponse> {
-    console.log('getTokens', countryCode, partyId, tokenId, type);
+    this.logger.info('getTokens', countryCode, partyId, tokenId, type);
     if (
       ocpiHeader.fromCountryCode !== countryCode ||
       ocpiHeader.fromPartyId !== partyId
@@ -156,11 +157,13 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenId') tokenId: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @BodyWithExample(TokenDTOSchema, TokenTypeSchemaName) tokenDTO: TokenDTO, // tood use everywhere or in default?
+    @BodyWithExample(TokenDTOSchema, TokenTypeSchemaName) tokenDTO: TokenDTO,
     @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
     type?: TokenType,
+    @Ctx() ctx?: any,
   ): Promise<OcpiEmptyResponse> {
-    console.log('putToken', countryCode, partyId, tokenId, tokenDTO, type);
+    this.logger.info('putToken', countryCode, partyId, tokenId, tokenDTO, type);
+
     if (
       ocpiHeader.fromCountryCode !== countryCode ||
       ocpiHeader.fromPartyId !== partyId
@@ -169,12 +172,21 @@ export class TokensModuleApi
         'Client is trying to access wrong resource',
       );
     }
+
     if (tokenId !== tokenDTO.uid) {
       throw new InvalidParamException(
         'Path token_uid and body token_uid must match',
       );
     }
-    await this.tokensService.updateToken(tokenDTO);
+
+    const tenantId = ctx?.state?.tenantId;
+    const tenantPartnerId = ctx?.state?.tenantPartnerId;
+
+    if (tenantId === undefined || tenantPartnerId === undefined) {
+      throw new InvalidParamException('Tenant information not available');
+    }
+
+    await this.tokensService.upsertToken(tokenDTO, tenantId, tenantPartnerId);
 
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
@@ -200,8 +212,9 @@ export class TokensModuleApi
     @Body(TokenDTOSchema, TokenDTOSchemaName) token: Partial<TokenDTO>,
     @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
     type?: TokenType,
+    @Ctx() ctx?: any,
   ): Promise<OcpiEmptyResponse> {
-    console.log('patchToken', countryCode, partyId, tokenUid, token, type);
+    this.logger.info('patchToken', countryCode, partyId, tokenUid, token, type);
     if (
       ocpiHeader.fromCountryCode !== countryCode ||
       ocpiHeader.fromPartyId !== partyId
@@ -211,12 +224,19 @@ export class TokensModuleApi
       );
     }
 
+    const tenantId = ctx?.state?.tenantId;
+    const tenantPartnerId = ctx?.state?.tenantPartnerId;
+
+    if (tenantId === undefined || tenantPartnerId === undefined) {
+      throw new InvalidParamException('Tenant information not available');
+    }
+
     await this.tokensService.patchToken(
-      countryCode,
-      partyId,
       tokenUid,
       type ?? TokenType.RFID,
       token,
+      tenantId,
+      tenantPartnerId,
     );
 
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
