@@ -9,13 +9,19 @@ import { ContentType } from '../ContentType';
 import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse';
 import { OcpiResponseStatusCode } from '../../model/OcpiResponse';
 import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
-import { GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT } from '../../graphql/queries/tenantPartner.queries';
+import {
+  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_SERVER_TOKEN,
+} from '../../graphql/queries/tenantPartner.queries';
 import {
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
+  GetTenantPartnerByServerTokenQueryResult,
+  GetTenantPartnerByServerTokenQueryVariables,
 } from '../../graphql/operations';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
+const registrationModules: string[] = ['versions', 'credentials'];
 
 /**
  * AuthMiddleware is applied via the {@link AsOcpiEndpoint} and {@link AsOcpiOpenRoutingEndpoint} decorators. Endpoints
@@ -61,46 +67,58 @@ export class AuthMiddleware
       try {
         const token = extractToken(authHeader);
 
-        const fromCountryCode = this.getHeader(
-          context,
-          OcpiHttpHeader.OcpiFromCountryCode,
-        );
-        const fromPartyId = this.getHeader(
-          context,
-          OcpiHttpHeader.OcpiFromPartyId,
-        );
-        const toCountryCode = this.getHeader(
-          context,
-          OcpiHttpHeader.OcpiToCountryCode,
-        );
-        const toPartyId = this.getHeader(context, OcpiHttpHeader.OcpiToPartyId);
-
         const response = await this.ocpiGraphqlClient.request<
-          GetTenantPartnerByCpoClientAndModuleIdQueryResult,
-          GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-        >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
-          cpoCountryCode: toCountryCode,
-          cpoPartyId: toPartyId,
-          clientCountryCode: fromCountryCode,
-          clientPartyId: fromPartyId,
-        });
+          GetTenantPartnerByServerTokenQueryResult,
+          GetTenantPartnerByServerTokenQueryVariables
+        >(GET_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
 
         const tenantPartner = response.TenantPartners[0];
-
-        if (
-          !tenantPartner ||
-          token !== tenantPartner.partnerProfileOCPI?.serverCredentials.token
-        ) {
+        if (!tenantPartner) {
           logger.debug(
-            `Authorization failed - ${!tenantPartner ? 'tenant partner not found' : 'token mismatch'}`,
+            `Authorization failed - tenant partner not found for token`,
           );
           throw new UnauthorizedException(
             'Credentials not found for given token',
           );
         }
 
-        context.state.tenantId = tenantPartner.tenant.id;
-        context.state.tenantPartnerId = tenantPartner.id;
+        if (
+          !registrationModules.some((value) =>
+            (context.request.originalUrl as string).includes(value),
+          )
+        ) {
+          const fromCountryCode = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiFromCountryCode,
+          );
+          const fromPartyId = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiFromPartyId,
+          );
+          const toCountryCode = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiToCountryCode,
+          );
+          const toPartyId = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiToPartyId,
+          );
+          if (
+            tenantPartner.countryCode !== fromCountryCode ||
+            tenantPartner.partyId !== fromPartyId ||
+            tenantPartner.tenant.countryCode !== toCountryCode ||
+            tenantPartner.tenant.partyId !== toPartyId
+          ) {
+            logger.debug(
+              `String token matched tenantPartner with incorrect routing headers - ${tenantPartner.countryCode}:${fromCountryCode}, ${tenantPartner.partyId}:${fromPartyId}, ${tenantPartner.tenant.countryCode}:${toCountryCode}, ${tenantPartner.tenant.partyId}:${toPartyId}`,
+            );
+            throw new UnauthorizedException(
+              'Credentials not found for given token',
+            );
+          }
+        }
+
+        context.state.tenantPartner = tenantPartner;
       } catch (error: any) {
         logger.debug(`Authorization error: ${error.message}`);
         return this.throwError(context);

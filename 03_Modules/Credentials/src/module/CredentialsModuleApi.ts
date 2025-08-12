@@ -31,10 +31,11 @@ import {
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import { HttpStatus } from '@citrineos/base';
+import { HttpStatus, ITenantPartnerDto } from '@citrineos/base';
 import { Service } from 'typedi';
 import { ICredentialsModuleApi } from './ICredentialsModuleApi';
 import {
+  Ctx,
   Delete,
   Get,
   JsonController,
@@ -80,11 +81,12 @@ export class CredentialsModuleApi
   })
   async getCredentials(
     @VersionNumberParam() _version: VersionNumber,
-    @AuthToken() token: string,
+    @Ctx() ctx: any,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
+    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
     const credentialsDto =
-      await this.credentialsService.getClientCredentialsByServerToken(token);
+      await this.credentialsService.getCredentials(tenantPartner);
     return buildCredentialsResponse(credentialsDto);
   }
 
@@ -102,13 +104,14 @@ export class CredentialsModuleApi
   })
   async postCredentials(
     @VersionNumberParam() version: VersionNumber,
-    @AuthToken() token: string,
+    @Ctx() ctx: any,
     @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
+    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
     const serverCredentials = await this.credentialsService?.postCredentials(
-      token,
+      tenantPartner,
       credentials,
       version,
     );
@@ -129,13 +132,14 @@ export class CredentialsModuleApi
   })
   async putCredentials(
     @VersionNumberParam() version: VersionNumber,
-    @AuthToken() token: string,
+    @Ctx() ctx: any,
     @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
+    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
     const serverCredentials = await this.credentialsService?.putCredentials(
-      token,
+      tenantPartner,
       credentials,
     );
     return buildCredentialsResponse(serverCredentials);

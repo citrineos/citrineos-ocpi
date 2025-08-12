@@ -179,8 +179,8 @@ export class TokensModuleApi
       );
     }
 
-    const tenantId = ctx?.state?.tenantId;
-    const tenantPartnerId = ctx?.state?.tenantPartnerId;
+    const tenantId = ctx?.state?.tenantPartner?.tenant?.id;
+    const tenantPartnerId = ctx?.state?.tenantPartner?.id;
 
     if (tenantId === undefined || tenantPartnerId === undefined) {
       throw new InvalidParamException('Tenant information not available');
@@ -224,8 +224,8 @@ export class TokensModuleApi
       );
     }
 
-    const tenantId = ctx?.state?.tenantId;
-    const tenantPartnerId = ctx?.state?.tenantPartnerId;
+    const tenantId = ctx?.state?.tenantPartner?.tenant?.id;
+    const tenantPartnerId = ctx?.state?.tenantPartner?.id;
 
     if (tenantId === undefined || tenantPartnerId === undefined) {
       throw new InvalidParamException('Tenant information not available');

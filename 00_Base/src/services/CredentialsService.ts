@@ -77,27 +77,17 @@ export class CredentialsService {
   //   return clientInfo.clientToken;
   // }
 
-  async getClientCredentialsByServerToken(
-    token: string,
+  async getCredentials(
+    tenantPartner: ITenantPartnerDto,
   ): Promise<CredentialsDTO> {
-    const response = await this.ocpiGraphqlClient.request<
-      GetTenantPartnerByServerTokenQueryResult,
-      GetTenantPartnerByServerTokenQueryVariables
-    >(GET_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
-    const partner = response.TenantPartners[0] as ITenantPartnerDto;
-    return RegistrationMapper.tenantPartnerToCredentialsDto(partner);
+    return RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner);
   }
 
   async postCredentials(
-    token: string,
+    partner: ITenantPartnerDto,
     credentials: CredentialsDTO,
     versionNumber: VersionNumber,
   ): Promise<CredentialsDTO> {
-    const response = await this.ocpiGraphqlClient.request<
-      GetTenantPartnerByServerTokenQueryResult,
-      GetTenantPartnerByServerTokenQueryVariables
-    >(GET_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
-    const partner = response.TenantPartners[0] as ITenantPartnerDto;
     if (partner.partnerProfileOCPI?.credentials) {
       throw new AlreadyRegisteredException();
     }
@@ -139,14 +129,9 @@ export class CredentialsService {
   }
 
   async putCredentials(
-    token: string,
+    tenantPartner: ITenantPartnerDto,
     credentials: CredentialsDTO,
   ): Promise<CredentialsDTO> {
-    const response = await this.ocpiGraphqlClient.request<
-      GetTenantPartnerByServerTokenQueryResult,
-      GetTenantPartnerByServerTokenQueryVariables
-    >(GET_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
-    const tenantPartner = response.TenantPartners[0] as ITenantPartnerDto;
     if (!tenantPartner.partnerProfileOCPI?.credentials) {
       throw new NotRegisteredException();
     }
