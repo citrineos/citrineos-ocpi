@@ -689,16 +689,18 @@ export type GetTransactionsQueryResult = {
     stoppedReason?: string | null,
     remoteStartId?: number | null,
     totalCost?: any | null,
+    startTime?: any | null,
+    endTime?: any | null,
     createdAt: any,
     updatedAt: any,
     evse?: {
       id: number
     } | null,
+    connector?: {
+      id: number,
+      connectorId: number
+    } | null,
     chargingStation?: {
-      connectors: Array<{
-        id: number,
-        connectorId: number
-      }>,
       location?: {
         id: number,
         name?: string | null,
@@ -727,6 +729,44 @@ export type GetTransactionsQueryResult = {
     meterValues: Array<{
       timestamp?: any | null,
       sampledValue?: any | null
-    }>
+    }>,
+    authorization?: {
+      id: number,
+      createdAt: any,
+      updatedAt: any,
+      tenantId: number,
+      idToken?: string | null,
+      idTokenType?: string | null,
+      additionalInfo?: any | null,
+      status?: string | null,
+      realTimeAuth?: string | null,
+      language1?: string | null,
+      tenantPartner?: {
+        id: number,
+        countryCode?: string | null,
+        partyId?: string | null
+      } | null,
+      groupAuthorization?: {
+        idToken?: string | null
+      } | null
+    } | null,
+    tariff?: {
+      authorizationAmount?: any | null,
+      createdAt: any,
+      currency: any,
+      id: number,
+      paymentFee?: any | null,
+      pricePerKwh: any,
+      pricePerMin?: any | null,
+      pricePerSession?: any | null,
+      stationId?: string | null,
+      taxRate?: any | null,
+      tariffAltText?: any | null,
+      updatedAt: any,
+      tenant: {
+        countryCode?: string | null,
+        partyId?: string | null
+      }
+    } | null
   }>
 };

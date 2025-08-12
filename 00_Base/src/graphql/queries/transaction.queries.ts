@@ -22,16 +22,18 @@ export const GET_TRANSACTIONS_QUERY = gql`
       stoppedReason
       remoteStartId
       totalCost
+      startTime
+      endTime
       createdAt
       updatedAt
       evse: Evse {
         id
       }
+      connector: Connector {
+        id
+        connectorId
+      }
       chargingStation: ChargingStation {
-        connectors: Connectors {
-          id
-          connectorId
-        }
         location: Location {
           id
           name
@@ -60,6 +62,44 @@ export const GET_TRANSACTIONS_QUERY = gql`
       meterValues: MeterValues {
         timestamp
         sampledValue
+      }
+      authorization: Authorization {
+        id
+        createdAt
+        updatedAt
+        tenantId
+        tenantPartner: TenantPartner {
+          id
+          countryCode
+          partyId
+        }
+        groupAuthorization: GroupAuthorization {
+          idToken
+        }
+        idToken
+        idTokenType
+        additionalInfo
+        status
+        realTimeAuth
+        language1
+      }
+      tariff: Tariff {
+        authorizationAmount
+        createdAt
+        currency
+        id
+        paymentFee
+        pricePerKwh
+        pricePerMin
+        pricePerSession
+        stationId
+        taxRate
+        tariffAltText
+        updatedAt
+        tenant: Tenant {
+          countryCode
+          partyId
+        }
       }
     }
   }

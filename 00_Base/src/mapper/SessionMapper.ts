@@ -79,6 +79,8 @@ export class SessionMapper extends BaseTransactionMapper {
         result.push(
           this.mapTransactionToSession(transaction, location, token, tariff),
         );
+      } else {
+        this.logger.debug(`Skipped transaction ${transaction.transactionId}`);
       }
     }
     return result;
@@ -97,7 +99,9 @@ export class SessionMapper extends BaseTransactionMapper {
       start_date_time: transaction.startTime
         ? new Date(transaction.startTime)
         : (() => {
-            this.logger.error(`Transaction ${transaction.transactionId} has no startTime. Using createdAt as placeholder.`);
+            this.logger.error(
+              `Transaction ${transaction.transactionId} has no startTime. Using createdAt as placeholder.`,
+            );
             return transaction.createdAt!;
           })(),
       end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
@@ -108,15 +112,14 @@ export class SessionMapper extends BaseTransactionMapper {
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction),
-      connector_id: this.getConnectorId(transaction, location),
+      connector_id: transaction.connector!.connectorId.toString(),
       currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
         String(tariff?.id),
-
       ),
       status: this.getTransactionStatus(transaction),
-      last_updated: this.getLatestEvent(transaction.transactionEvents!),
+      last_updated: transaction.updatedAt!,
       // TODO: Fill in optional values
       authorization_reference: null,
       total_cost: transaction.endTime
@@ -155,28 +158,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getEvseUid(transaction: ITransactionDto): string {
-    return UID_FORMAT(transaction.stationId, transaction.evseId!);
-  }
-
-  private getConnectorId(
-    transaction: ITransactionDto,
-    location: LocationDTO,
-  ): string {
-    const connectorId = location.evses
-      ?.find(
-        (evse) => EXTRACT_EVSE_ID(evse.uid) === String(transaction.evse?.id),
-      )
-      ?.connectors?.find(
-        (connector) => connector.id === String(transaction.connectorId),
-      )?.id;
-
-    if (!connectorId) {
-      this.logger.warn(
-        `Connector missing for ${transaction.transactionId} on location ${location.id}`,
-      );
-    }
-
-    return connectorId ?? '';
+    return UID_FORMAT(transaction.stationId, transaction.evse!.id!);
   }
 
   private getCurrency(location: LocationDTO): string {
