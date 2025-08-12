@@ -112,6 +112,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
     $status: String!
     $language1: String
     $groupAuthorizationId: Int
+    $realTimeAuth: String
     $createdAt: timestamptz!
     $updatedAt: timestamptz!
   ) {
@@ -125,6 +126,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
         status: $status
         language1: $language1
         groupAuthorizationId: $groupAuthorizationId
+        realTimeAuth: $realTimeAuth
         createdAt: $createdAt
         updatedAt: $updatedAt
       }

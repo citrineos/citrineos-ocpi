@@ -134,6 +134,7 @@ export class TokensService {
         status: authorization.status!,
         language1: authorization.language1,
         groupAuthorizationId,
+        realTimeAuth: authorization.realTimeAuth,
         createdAt: timestamp,
         updatedAt: timestamp,
       });

@@ -626,6 +626,7 @@ export type CreateAuthorizationMutationVariables = Exact<{
   status: Scalars['String']['input'];
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
+  realTimeAuth?: InputMaybe<Scalars['String']['input']>;
   createdAt: Scalars['timestamptz']['input'];
   updatedAt: Scalars['timestamptz']['input'];
 }>;
