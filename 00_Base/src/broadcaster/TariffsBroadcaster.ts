@@ -1,81 +1,85 @@
-// import { Service } from 'typedi';
-// import { DeleteTariffParams } from '../trigger/param/tariffs/DeleteTariffParams';
-// import { CredentialsService } from '../services/CredentialsService';
-// import { ModuleId } from '../model/ModuleId';
-// import { PutTariffParams } from '../trigger/param/tariffs/PutTariffParams';
-// import { TariffKey } from '../model/OcpiTariff';
-// import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
-// import { TariffsService } from '../services/TariffsService';
-// import { TariffsClientApi } from '../trigger/TariffsClientApi';
-// import { BaseBroadcaster } from './BaseBroadcaster';
-// import { ILogObj, Logger } from 'tslog';
+import { BaseBroadcaster } from './BaseBroadcaster';
+import { Service } from 'typedi';
+import { TariffsClientApi } from '../trigger/TariffsClientApi';
+import { ILogObj, Logger } from 'tslog';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { HttpMethod, ITariffDto } from '@citrineos/base';
+import { PutTariffParams } from '../trigger/param/tariffs/PutTariffParams';
+import { DeleteTariffParams } from '../trigger/param/tariffs/DeleteTariffParams';
+import { TariffResponseSchema } from '../model/Tariff';
 
-// @Service()
-// export class TariffsBroadcaster extends BaseBroadcaster {
-//   constructor(
-//     readonly logger: Logger<ILogObj>,
-//     readonly credentialsService: CredentialsService,
-//     private readonly tariffService: TariffsService,
-//     private readonly tariffsClientApi: TariffsClientApi,
-//   ) {
-//     super();
-//   }
+@Service()
+export class TariffsBroadcaster extends BaseBroadcaster {
+  constructor(
+    readonly logger: Logger<ILogObj>,
+    readonly tariffsClientApi: TariffsClientApi,
+  ) {
+    super();
+  }
 
-//   public async broadcastByKey(key: TariffKey) {
-//     const tariff = await this.tariffService.getTariffByKey(key);
-//     if (tariff === undefined) {
-//       throw new Error(
-//         `Tariff ${key.countryCode}:${key.partyId}:${key.id} not found`,
-//       );
-//     }
-//     return this.broadcastTariff(tariff);
-//   }
+  async broadcastPutTariff(tariffDto: ITariffDto): Promise<void> {
+    await this.broadcastTariff(tariffDto, HttpMethod.Put);
+  }
 
-//   public async broadcastDeletionByKeys(keys: TariffKey[]) {
-//     keys.forEach((key) => this.broadcastDeletionByKey(key));
-//   }
+  async broadcastPatchTariff(tariffDto: Partial<ITariffDto>): Promise<void> {
+    await this.broadcastTariff(tariffDto, HttpMethod.Patch);
+  }
 
-//   public async broadcastDeletionByKey(key: TariffKey) {
-//     const tariff = await this.tariffService.getTariffByKey(key);
-//     if (tariff !== undefined) {
-//       throw new Error(
-//         `Tariff ${key.countryCode}:${key.partyId}:${key.id} exists`,
-//       );
-//     }
-//     return this.broadcastTariffDeletion(key);
-//   }
+  private async broadcastTariff(
+    tariffDto: Partial<ITariffDto>,
+    method: HttpMethod,
+  ): Promise<void> {
+    const tariffId = tariffDto.id;
+    if (!tariffId) throw new Error('Tariff ID missing');
 
-//   private async broadcastTariff(tariff: TariffDTO) {
-//     try {
-//       const params = PutTariffParams.build(tariff.id, tariff);
-//       await this.tariffsClientApi.broadcastToClients(
-//         tariff.country_code,
-//         tariff.party_id,
-//         ModuleId.Tariffs,
-//         params,
-//         this.tariffsClientApi.putTariff,
-//       );
-//     } catch (_error) {
-//       console.log(`Failed to broadcast ${tariff.id} tariff`);
-//     }
-//   }
+    const params: PutTariffParams = {
+      tariffId,
+    } as unknown as PutTariffParams;
 
-//   private async broadcastTariffDeletion({
-//     id,
-//     countryCode,
-//     partyId,
-//   }: TariffKey): Promise<void> {
-//     try {
-//       const params = DeleteTariffParams.build(id);
-//       await this.tariffsClientApi.broadcastToClients(
-//         countryCode,
-//         partyId,
-//         ModuleId.Tariffs,
-//         params,
-//         this.tariffsClientApi.deleteTariff,
-//       );
-//     } catch (_error) {
-//       console.error(`Failed to broadcast deletion of ${id} tariff`);
-//     }
-//   }
-// }
+    try {
+      await this.tariffsClientApi.broadcastToClients({
+        cpoCountryCode: tariffDto.tenant?.countryCode!,
+        cpoPartyId: tariffDto.tenant?.partyId!,
+        moduleId: ModuleId.Tariffs,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: method,
+        schema: TariffResponseSchema,
+        body: tariffDto,
+        otherParams: params,
+      });
+    } catch (e) {
+      this.logger.error(
+        `broadcast${method}Tariff failed for Tariff ${tariffId}`,
+        e,
+      );
+    }
+  }
+
+  async broadcastTariffDeletion(tariffDto: ITariffDto): Promise<void> {
+    const tariffId = tariffDto.id;
+    if (!tariffId) throw new Error('Tariff ID missing');
+
+    const params: DeleteTariffParams = {
+      tariffId,
+    } as unknown as DeleteTariffParams;
+
+    try {
+      await this.tariffsClientApi.broadcastToClients({
+        cpoCountryCode: tariffDto.tenant?.countryCode!,
+        cpoPartyId: tariffDto.tenant?.partyId!,
+        moduleId: ModuleId.Tariffs,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: HttpMethod.Delete,
+        schema: TariffResponseSchema,
+        body: tariffDto,
+        otherParams: params,
+      });
+    } catch (e) {
+      this.logger.error(
+        `broadcastDeleteTariff failed for Tariff ${tariffId}`,
+        e,
+      );
+    }
+  }
+}
