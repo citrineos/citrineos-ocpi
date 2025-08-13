@@ -4,51 +4,29 @@ import { TariffsClientApi } from '../trigger/TariffsClientApi';
 import { ILogObj, Logger } from 'tslog';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
-import { HttpMethod, ITariffDto, ITenantDto } from '@citrineos/base';
-import { PutTariffParams } from '../trigger/param/tariffs/PutTariffParams';
-import { DeleteTariffParams } from '../trigger/param/tariffs/DeleteTariffParams';
+import { HttpMethod, ITariffDto } from '@citrineos/base';
 import { TariffResponseSchema } from '../model/Tariff';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import {
-  GetTenantByIdQueryResult,
-  GetTenantByIdQueryVariables,
-} from '../graphql/operations';
-import { GET_TENANT_BY_ID } from '../graphql/queries/tenantVersionEndpoints.queries';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly tariffsClientApi: TariffsClientApi,
-    private ocpiGraphqlClient: OcpiGraphqlClient,
   ) {
     super();
-  }
-
-  private async getTenant(tenantId: number): Promise<ITenantDto | null> {
-    try {
-      const response = await this.ocpiGraphqlClient.request<
-        GetTenantByIdQueryResult,
-        GetTenantByIdQueryVariables
-      >(GET_TENANT_BY_ID, { id: tenantId });
-      return response.Tenants[0] as ITenantDto;
-    } catch (e) {
-      this.logger.error(`Failed to fetch tenant for tenantId ${tenantId}`, e);
-      return null;
-    }
   }
 
   private async broadcast(
     tariffDto: Partial<ITariffDto>,
     method: HttpMethod,
-    params: PutTariffParams | DeleteTariffParams,
     action: string,
   ): Promise<void> {
     const tariffId = tariffDto.id;
     if (!tariffId) throw new Error('Tariff ID missing');
-    if (!tariffDto.tenantId) {
+    const tenant = tariffDto.tenant;
+    if (!tenant) {
       this.logger.error(
-        `Tariff ${tariffId} has no tenantId, cannot broadcast ${action}.`,
+        `Tenant data missing in notification for Tariff ${tariffId}, cannot broadcast ${action}.`,
       );
       return;
     }
@@ -57,12 +35,10 @@ export class TariffsBroadcaster extends BaseBroadcaster {
       `[TariffsBroadcaster] Raw payload for ${action}:`,
       tariffDto,
     );
-    const tenant = await this.getTenant(tariffDto.tenantId);
-    if (!tenant) {
-      this.logger.error(`Tenant not found for tenantId ${tariffDto.tenantId}`);
-      return;
-    }
     try {
+      const params = {
+        tariffId: tariffDto.id as number,
+      };
       await this.tariffsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
@@ -79,23 +55,14 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutTariff(tariffDto: ITariffDto): Promise<void> {
-    const params: PutTariffParams = {
-      tariffId: tariffDto.id,
-    } as unknown as PutTariffParams;
-    await this.broadcast(tariffDto, HttpMethod.Put, params, 'PutTariff');
+    await this.broadcast(tariffDto, HttpMethod.Put, 'PutTariff');
   }
 
   async broadcastPatchTariff(tariffDto: Partial<ITariffDto>): Promise<void> {
-    const params: PutTariffParams = {
-      tariffId: tariffDto.id,
-    } as unknown as PutTariffParams;
-    await this.broadcast(tariffDto, HttpMethod.Patch, params, 'PatchTariff');
+    await this.broadcast(tariffDto, HttpMethod.Patch, 'PatchTariff');
   }
 
   async broadcastTariffDeletion(tariffDto: ITariffDto): Promise<void> {
-    const params: DeleteTariffParams = {
-      tariffId: tariffDto.id,
-    } as unknown as DeleteTariffParams;
-    await this.broadcast(tariffDto, HttpMethod.Delete, params, 'DeleteTariff');
+    await this.broadcast(tariffDto, HttpMethod.Delete, 'DeleteTariff');
   }
 }
