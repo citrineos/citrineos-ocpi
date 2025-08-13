@@ -24,7 +24,7 @@ export = {
           WHERE key = ANY(requiredFields);
 
           -- Add changed fields
-          SELECT jsonb_object_agg(key, n.value) INTO changedData
+          SELECT jsonb_object_agg(n.key, n.value) INTO changedData
           FROM jsonb_each(to_jsonb(NEW)) n
           JOIN jsonb_each(to_jsonb(OLD)) o ON n.key = o.key
           WHERE n.value IS DISTINCT FROM o.value
