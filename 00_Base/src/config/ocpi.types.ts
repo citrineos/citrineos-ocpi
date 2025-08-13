@@ -141,6 +141,12 @@ export const ocpiConfigInputSchema = z.object({
     headers: z.record(z.string()).optional(),
   }),
 
+  commands: z.object({
+    timeout: z.number().int().positive().default(30).optional(),
+    ocpiBaseUrl: z.string().default('http://localhost:8085/ocpi').optional(),
+    coreHeaders: z.record(z.string()).optional(),
+  }),
+
   // OCPI-specific settings
   logLevel: z.number().min(0).max(6).default(2).optional(),
   defaultPageLimit: z.number().int().positive().default(50).optional(),
@@ -272,6 +278,18 @@ export const ocpiConfigSchema = z.object({
       exposeMessage: z.boolean(),
     })
     .optional(),
+
+  commands: z.object({
+    timeout: z.number().int().positive(),
+    ocpiBaseUrl: z.string(),
+    coreHeaders: z.record(z.string()).optional(),
+    ocpp1_6: z.object({
+      remoteStartTransactionRequestUrl: z.string(),
+    }),
+    ocpp2_0_1: z.object({
+      requestStartTransactionUrl: z.string(),
+    }),
+  }),
 
   logLevel: z.number().min(0).max(6),
   defaultPageLimit: z.number().int().positive(),

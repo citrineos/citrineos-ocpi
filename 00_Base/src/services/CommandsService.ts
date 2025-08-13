@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { CancelReservation } from '../model/CancelReservation';
 import { ReserveNow } from '../model/ReserveNow';
 import { StartSession } from '../model/StartSession';
@@ -13,14 +13,32 @@ import {
 // import { CommandExecutor } from '../util/CommandExecutor';
 import { BadRequestError, NotFoundError } from 'routing-controllers';
 import { ResponseGenerator } from '../util/response.generator';
+import { CommandExecutor } from '../util/CommandExecutor';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { ILogObj, Logger } from 'tslog';
+import { OcpiConfig, OcpiConfigToken } from '../config/ocpi.types';
+import { IChargingStationDto, ITenantPartnerDto, OCPP1_6 } from '@citrineos/base';
+import {
+  GetChargingStationByIdQueryResult,
+  GetChargingStationByIdQueryVariables,
+} from '../graphql/operations';
+import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
+import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
 
 @Service()
 export class CommandsService {
-  readonly TIMEOUT = 30;
+  @Inject()
+  protected logger!: Logger<ILogObj>;
 
-  // constructor(private commandExecutor: CommandExecutor) {}
+  @Inject()
+  protected ocpiGraphqlClient!: OcpiGraphqlClient;
 
-  async postCommand(
+  @Inject()
+  protected commandExecutor!: CommandExecutor;
+
+  constructor(@Inject(OcpiConfigToken) readonly config: OcpiConfig) {}
+
+  public async postCommand(
     commandType: CommandType,
     payload:
       | CancelReservation
@@ -28,24 +46,18 @@ export class CommandsService {
       | StartSession
       | StopSession
       | UnlockConnector,
-    fromCountryCode: string,
-    fromPartyId: string,
+    tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
         return this.handleCancelReservation(
           payload as CancelReservation,
-          fromCountryCode,
-          fromPartyId,
+          tenantPartner,
         );
       case CommandType.RESERVE_NOW:
-        return this.handleReserveNow(
-          payload as ReserveNow,
-          fromCountryCode,
-          fromPartyId,
-        );
+        return this.handleReserveNow(payload as ReserveNow, tenantPartner);
       case CommandType.START_SESSION:
-        return this.handleStartSession(payload as StartSession);
+        return this.handleStartSession(payload as StartSession, tenantPartner);
       case CommandType.STOP_SESSION:
         return this.handleStopSession(payload as StopSession);
       case CommandType.UNLOCK_CONNECTOR:
@@ -54,7 +66,7 @@ export class CommandsService {
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.NOT_SUPPORTED,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           'Unknown command type: ' + commandType,
           undefined,
@@ -62,27 +74,33 @@ export class CommandsService {
     }
   }
 
+  public handleRemoteStartTransactionResponse(
+    response: OCPP1_6.RemoteStartTransactionResponse,
+    commandId: string,
+  ): void {
+    // Handle the response for the RemoteStartTransaction command
+  }
+
   private async handleCancelReservation(
     cancelReservation: CancelReservation,
-    fromCountryCode: string,
-    fromPartyId: string,
+    tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     try {
-      // await this.commandExecutor.executeCancelReservation(
-      //   cancelReservation,
-      //   fromCountryCode,
-      //   fromPartyId,
-      // );
+      this.commandExecutor.executeCancelReservation(
+        cancelReservation,
+        fromCountryCode,
+        fromPartyId,
+      );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
-        timeout: this.TIMEOUT,
+        timeout: this.config.commands.timeout,
       });
     } catch (e) {
       if (e instanceof NotFoundError) {
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           e.message,
           e as NotFoundError,
@@ -92,7 +110,7 @@ export class CommandsService {
         return ResponseGenerator.buildGenericServerErrorResponse(
           {
             result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           undefined,
           e as Error,
@@ -103,8 +121,7 @@ export class CommandsService {
 
   private async handleReserveNow(
     reserveNow: ReserveNow,
-    fromCountryCode: string,
-    fromPartyId: string,
+    tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     try {
       // await this.commandExecutor.executeReserveNow(
@@ -114,14 +131,14 @@ export class CommandsService {
       // );
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
-        timeout: this.TIMEOUT,
+        timeout: this.config.commands.timeout,
       });
     } catch (e) {
       if (e instanceof NotFoundError) {
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           e.message,
           e as NotFoundError,
@@ -130,7 +147,7 @@ export class CommandsService {
         return ResponseGenerator.buildInvalidOrMissingParametersResponse(
           {
             result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           e.message,
           e as BadRequestError,
@@ -140,7 +157,7 @@ export class CommandsService {
         return ResponseGenerator.buildGenericServerErrorResponse(
           {
             result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           undefined,
           e as Error,
@@ -151,35 +168,94 @@ export class CommandsService {
 
   private async handleStartSession(
     startSession: StartSession,
+    tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
-    try {
-      // await this.commandExecutor.executeStartSession(startSession);
-      return ResponseGenerator.buildGenericSuccessResponse({
-        result: CommandResponseType.ACCEPTED,
-        timeout: this.TIMEOUT,
-      });
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        return ResponseGenerator.buildUnknownLocationResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
-          },
-          undefined,
-          e as NotFoundError,
-        );
-      } else {
-        console.error(e);
-        return ResponseGenerator.buildGenericServerErrorResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.TIMEOUT,
-          },
-          undefined,
-          e as Error,
-        );
-      }
+    if (!startSession.evse_uid) {
+      this.logger.error('EVSE UID is required for StartSession command');
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'EVSE UID required by this CPO',
+      );
     }
+    if (
+      tenantPartner.countryCode !== startSession.token.country_code ||
+      tenantPartner.partyId !== startSession.token.party_id
+    ) {
+      this.logger.error('Token information does not match credentials');
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Token information does not match credentials',
+      );
+    }
+    const chargingStationResponse = await this.ocpiGraphqlClient.request<
+      GetChargingStationByIdQueryResult,
+      GetChargingStationByIdQueryVariables
+    >(GET_CHARGING_STATION_BY_ID_QUERY, {
+      id: EXTRACT_STATION_ID(startSession.evse_uid!),
+    });
+    if (
+      !chargingStationResponse.ChargingStations[0] ||
+      chargingStationResponse.ChargingStations[0].locationId?.toString() !==
+        startSession.location_id
+    ) {
+      this.logger.error('Charging station not found for evse_uid', {
+        evseUid: startSession.evse_uid,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Unknown charging station',
+      );
+    }
+    const chargingStation = chargingStationResponse
+      .ChargingStations[0] as IChargingStationDto;
+    if (!chargingStation.isOnline) {
+      this.logger.error('Charging station is offline', {
+        stationId: chargingStation.id,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Charging station is offline',
+      );
+    }
+    if (
+      startSession.connector_id &&
+      !Array.from(chargingStation.connectors || []).some(
+        (value) => value.id?.toString() === startSession.connector_id,
+      )
+    ) {
+      this.logger.error('Connector not found for StartSession command', {
+        stationId: chargingStation.id,
+        connectorId: startSession.connector_id,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Unknown connector',
+      );
+    }
+    this.commandExecutor.executeStartSession(
+      startSession,
+      tenantPartner,
+      chargingStation,
+    );
+    return ResponseGenerator.buildGenericSuccessResponse({
+      result: CommandResponseType.ACCEPTED,
+      timeout: this.config.commands.timeout,
+    });
   }
 
   private async handleStopSession(
@@ -189,14 +265,14 @@ export class CommandsService {
       // await this.commandExecutor.executeStopSession(stopSession);
       return ResponseGenerator.buildGenericSuccessResponse({
         result: CommandResponseType.ACCEPTED,
-        timeout: this.TIMEOUT,
+        timeout: this.config.commands.timeout,
       });
     } catch (e) {
       if (e instanceof NotFoundError) {
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
             result: CommandResponseType.UNKNOWN_SESSION,
-            timeout: this.TIMEOUT,
+            timeout: this.config.commands.timeout,
           },
           undefined,
           e as NotFoundError,
@@ -217,7 +293,7 @@ export class CommandsService {
   ): OcpiCommandResponse {
     return ResponseGenerator.buildGenericClientErrorResponse({
       result: CommandResponseType.NOT_SUPPORTED,
-      timeout: this.TIMEOUT,
+      timeout: this.config.commands.timeout,
     });
   }
 }
