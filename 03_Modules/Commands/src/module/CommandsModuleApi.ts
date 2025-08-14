@@ -5,7 +5,6 @@
 
 import { ICommandsModuleApi } from './ICommandsModuleApi';
 import {
-  BadRequestError,
   Body,
   Ctx,
   JsonController,
@@ -13,12 +12,8 @@ import {
   Post,
 } from 'routing-controllers';
 import {
-  CallAction,
   HttpStatus,
   ITenantPartnerDto,
-  OCPP1_6,
-  OCPP1_6_CALL_SCHEMA_MAP,
-  OCPP1_6_CallAction,
   OCPPVersion,
 } from '@citrineos/base';
 import {
@@ -37,8 +32,6 @@ import {
   ModuleId,
   MultipleTypes,
   OcpiCommandResponse,
-  OCPP_COMMAND_HANDLER,
-  OCPPCommandHandler,
   ReserveNow,
   ReserveNowSchema,
   ReserveNowSchemaName,

@@ -500,6 +500,7 @@ export class CommandExecutor {
         command,
         responseUrl,
         response,
+        commandId,
       );
     }
   }

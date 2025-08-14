@@ -481,6 +481,7 @@ export type GetTenantPartnerByServerTokenQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -501,6 +502,7 @@ export type GetTenantPartnerByIdQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -535,6 +537,7 @@ export type GetTenantPartnerByCpoClientAndModuleIdQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -557,6 +560,7 @@ export type TenantPartnersListQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -746,6 +750,109 @@ export type GetTransactionsQueryResult = {
       connectorId: number
     } | null,
     chargingStation?: {
+      location?: {
+        id: number,
+        name?: string | null,
+        address?: string | null,
+        city?: string | null,
+        postalCode?: string | null,
+        state?: string | null,
+        country?: string | null,
+        coordinates?: any | null
+      } | null
+    } | null,
+    transactionEvents: Array<{
+      id: number,
+      eventType?: string | null,
+      transactionInfo?: any | null,
+      EvseType?: {
+        id?: number | null
+      } | null
+    }>,
+    startTransaction?: {
+      timestamp?: any | null
+    } | null,
+    stopTransaction?: {
+      timestamp?: any | null
+    } | null,
+    meterValues: Array<{
+      timestamp?: any | null,
+      sampledValue?: any | null
+    }>,
+    authorization?: {
+      id: number,
+      createdAt: any,
+      updatedAt: any,
+      tenantId: number,
+      idToken?: string | null,
+      idTokenType?: string | null,
+      additionalInfo?: any | null,
+      status?: string | null,
+      realTimeAuth?: string | null,
+      language1?: string | null,
+      tenantPartner?: {
+        id: number,
+        countryCode?: string | null,
+        partyId?: string | null
+      } | null,
+      groupAuthorization?: {
+        idToken?: string | null
+      } | null
+    } | null,
+    tariff?: {
+      authorizationAmount?: any | null,
+      createdAt: any,
+      currency: any,
+      id: number,
+      paymentFee?: any | null,
+      pricePerKwh: any,
+      pricePerMin?: any | null,
+      pricePerSession?: any | null,
+      stationId?: string | null,
+      taxRate?: any | null,
+      tariffAltText?: any | null,
+      updatedAt: any,
+      tenant: {
+        countryCode?: string | null,
+        partyId?: string | null
+      }
+    } | null
+  }>
+};
+
+export type GetTransactionByTransactionIdQueryVariables = Exact<{
+  transactionId: Scalars['String']['input'];
+}>;
+
+
+export type GetTransactionByTransactionIdQueryResult = {
+  Transactions: Array<{
+    id: number,
+    stationId?: string | null,
+    transactionId?: string | null,
+    isActive?: boolean | null,
+    chargingState?: string | null,
+    timeSpentCharging?: any | null,
+    totalKwh?: any | null,
+    stoppedReason?: string | null,
+    remoteStartId?: number | null,
+    totalCost?: any | null,
+    startTime?: any | null,
+    endTime?: any | null,
+    createdAt: any,
+    updatedAt: any,
+    evse?: {
+      id: number
+    } | null,
+    connector?: {
+      id: number,
+      connectorId: number
+    } | null,
+    chargingStation?: {
+      id: string,
+      tenantId: number,
+      isOnline?: boolean | null,
+      protocol?: string | null,
       location?: {
         id: number,
         name?: string | null,

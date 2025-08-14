@@ -17,16 +17,21 @@ import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiConfig, OcpiConfigToken } from '../config/ocpi.types';
-import {
-  IChargingStationDto,
-  ITenantPartnerDto,
-} from '@citrineos/base';
+import { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
 import {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
+  GetTransactionByIdQueryResult,
+  GetTransactionByIdQueryVariables,
+  GetTransactionByTransactionIdQueryResult,
+  GetTransactionByTransactionIdQueryVariables,
 } from '../graphql/operations';
 import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
 import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
+import {
+  GET_TRANSACTION_BY_ID_QUERY,
+  GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
+} from '../graphql/queries/transaction.queries';
 
 @Service()
 export class CommandsService {
@@ -40,7 +45,6 @@ export class CommandsService {
   protected commandExecutor!: CommandExecutor;
 
   @Inject(OcpiConfigToken) readonly config!: OcpiConfig;
-
 
   public async postCommand(
     commandType: CommandType,
@@ -257,32 +261,76 @@ export class CommandsService {
 
   private async handleStopSession(
     stopSession: StopSession,
+    tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
-    try {
-      // await this.commandExecutor.executeStopSession(stopSession);
-      return ResponseGenerator.buildGenericSuccessResponse({
-        result: CommandResponseType.ACCEPTED,
-        timeout: this.config.commands.timeout,
+    const transactionResponse = await this.ocpiGraphqlClient.request<
+      GetTransactionByTransactionIdQueryResult,
+      GetTransactionByTransactionIdQueryVariables
+    >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+      transactionId: stopSession.session_id,
+    });
+    if (!transactionResponse.Transactions[0]) {
+      this.logger.error('Unknown transaction', {
+        transactionId: stopSession.session_id,
       });
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        return ResponseGenerator.buildGenericClientErrorResponse(
-          {
-            result: CommandResponseType.UNKNOWN_SESSION,
-            timeout: this.config.commands.timeout,
-          },
-          undefined,
-          e as NotFoundError,
-        );
-      } else {
-        console.error(e);
-        return ResponseGenerator.buildGenericServerErrorResponse(
-          {} as CommandResponse,
-          undefined,
-          e as Error,
-        );
-      }
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.UNKNOWN_SESSION,
+          timeout: this.config.commands.timeout,
+        },
+        'Session not found',
+      );
     }
+    const transaction = transactionResponse.Transactions[0];
+    if (
+      tenantPartner.countryCode !==
+        transaction.authorization!.tenantPartner!.countryCode! ||
+      tenantPartner.partyId !==
+        transaction.authorization!.tenantPartner!.partyId!
+    ) {
+      this.logger.error('Token information does not match credentials');
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Token information does not match credentials',
+      );
+    }
+    if (!transaction.isActive) {
+      this.logger.error('Stop session transaction is not active', {
+        transactionId: transaction.id,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Session is already stopped',
+      );
+    }
+    const chargingStation = transaction.chargingStation as IChargingStationDto;
+    if (!chargingStation.isOnline) {
+      this.logger.error('Charging station is offline', {
+        stationId: chargingStation.id,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Charging station is offline',
+      );
+    }
+    this.commandExecutor.executeStopSession(
+      stopSession,
+      tenantPartner,
+      chargingStation,
+    );
+    return ResponseGenerator.buildGenericSuccessResponse({
+      result: CommandResponseType.ACCEPTED,
+      timeout: this.config.commands.timeout,
+    });
   }
 
   private handleUnlockConnector(

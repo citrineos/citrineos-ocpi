@@ -47,7 +47,7 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
     queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
     queryParameters.params['callbackUrl'] =
       this.config.commands.ocpiBaseUrl +
-      `/2.2.1/commands/callback/${OCPPVersion.OCPP2_0_1}/RequestStartTransaction/${commandId}`;
+      `/2.2.1/commands/callback/${tenantPartner.id}/${this.supportedVersion}/${CommandType.START_SESSION}/${commandId}`;
     options.queryParameters = queryParameters;
 
     const sequenceResponse = await this.ocpiGraphqlClient.request<
@@ -83,7 +83,7 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
         evseId: Number(EXTRACT_EVSE_ID(startSession.evse_uid!)),
       };
     await this.sendOCPPMessage(
-      this.config.commands.ocpp2_0_1.requestStartTransactionUrl,
+      this.config.commands.ocpp2_0_1.requestStartTransactionRequestUrl,
       requestStartTransactionRequest,
       options,
       tenantPartner,
@@ -98,7 +98,31 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
     chargingStation: IChargingStationDto,
     commandId: string,
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    const options: IRequestOptions = {
+      additionalHeaders: this.config.commands.coreHeaders,
+    };
+    const queryParameters: IRequestQueryParams = {
+      params: {},
+    };
+    queryParameters.params['identifier'] = chargingStation.id;
+    queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
+    queryParameters.params['callbackUrl'] =
+      this.config.commands.ocpiBaseUrl +
+      `/2.2.1/commands/callback/${tenantPartner.id}/${this.supportedVersion}/${CommandType.STOP_SESSION}/${commandId}`;
+    options.queryParameters = queryParameters;
+
+    const requestStopTransactionRequest: OCPP2_0_1.RequestStopTransactionRequest =
+      {
+        transactionId: stopSession.session_id,
+      };
+    await this.sendOCPPMessage(
+      this.config.commands.ocpp2_0_1.requestStopTransactionRequestUrl,
+      requestStopTransactionRequest,
+      options,
+      tenantPartner,
+      stopSession.response_url,
+      commandId,
+    );
   }
 
   public async handleAsyncCommandResponse(
@@ -111,6 +135,13 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
     switch (command) {
       case CommandType.START_SESSION:
         return this.handleRequestStartTransactionResponse(
+          tenantPartner,
+          responseUrl,
+          response,
+          commandId,
+        );
+      case CommandType.STOP_SESSION:
+        return this.handleRequestStopTransactionResponse(
           tenantPartner,
           responseUrl,
           response,
@@ -169,6 +200,62 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
             message: {
               language: 'en',
               text: 'Charging station already in use',
+            },
+          },
+          commandId,
+        );
+        return;
+    }
+  }
+
+  private async handleRequestStopTransactionResponse(
+    tenantPartner: ITenantPartnerDto,
+    responseUrl: string,
+    response: any,
+    commandId: string,
+  ): Promise<void> {
+    const validatedResponse =
+      this.validate<OCPP2_0_1.RequestStopTransactionResponse>(
+        this.supportedVersion,
+        OCPP2_0_1.RequestStopTransactionResponseSchema,
+        response,
+      );
+
+    switch (validatedResponse.status) {
+      case OCPP2_0_1.RequestStartStopStatusEnumType.Accepted:
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.ACCEPTED,
+            message: {
+              language: 'en',
+              text: 'Charging station stop session successful',
+            },
+          },
+          commandId,
+        );
+        return;
+      case OCPP2_0_1.RequestStartStopStatusEnumType.Rejected:
+        this.logger.warn(`Stop session rejected by charging station`, {
+          statusInfo: validatedResponse.statusInfo,
+        });
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.EVSE_OCCUPIED,
+            message: {
+              language: 'en',
+              text: 'Charging station rejected stop session',
             },
           },
           commandId,
