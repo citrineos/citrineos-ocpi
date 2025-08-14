@@ -286,10 +286,12 @@ export const ocpiConfigSchema = z.object({
     ocpp1_6: z.object({
       remoteStartTransactionRequestUrl: z.string(),
       remoteStopTransactionRequestUrl: z.string(),
+      unlockConnectorRequestUrl: z.string(),
     }),
     ocpp2_0_1: z.object({
       requestStartTransactionRequestUrl: z.string(),
       requestStopTransactionRequestUrl: z.string(),
+      unlockConnectorRequestUrl: z.string(),
     }),
   }),
 

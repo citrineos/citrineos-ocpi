@@ -17,6 +17,7 @@ import {
   CommandType,
   OcpiConfig,
   OcpiConfigToken,
+  UnlockConnector,
 } from '..';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
@@ -122,43 +123,37 @@ export class CommandExecutor {
       this.logger.warn('StopSession failed');
     }
     return;
+  }
 
-    // const transaction = await this.transactionRepo.findByTransactionId(
-    //   stopSession.session_id,
-    // );
-    // if (!transaction) {
-    //   throw new NotFoundError('Transaction not found');
-    // }
-    // const session = (
-    //   await this.sessionMapper.mapTransactionsToSessions([transaction])
-    // )[0];
-    // if (!session) {
-    //   throw new NotFoundError('Session not found');
-    // }
-    // const correlationId = uuidv4();
-    // await this.responseUrlRepo.saveResponseUrl(
-    //   correlationId,
-    //   stopSession.response_url,
-    //   new OcpiParams(
-    //     session.country_code,
-    //     session.party_id,
-    //     session.cdr_token.country_code,
-    //     session.cdr_token.party_id,
-    //   ),
-    // );
-    // const request = {
-    //   transactionId: stopSession.session_id,
-    // } as OCPP2_0_1.RequestStopTransactionRequest;
-    // await this.abstractModule.sendCall(
-    //   transaction.stationId,
-    //   'tenantId',
-    //   OCPPVersion.OCPP2_0_1,
-    //   OCPP2_0_1_CallAction.RequestStopTransaction,
-    //   request,
-    //   undefined,
-    //   correlationId,
-    //   MessageOrigin.ChargingStationManagementSystem,
-    // );
+  public async executeUnlockConnector(
+    unlockConnector: UnlockConnector,
+    tenantPartner: ITenantPartnerDto,
+    chargingStation: IChargingStationDto,
+  ): Promise<void> {
+    this.logger.info('Executing UnlockConnector command', { unlockConnector });
+
+    const commandId = await this.generateCommandId(
+      unlockConnector.response_url,
+      tenantPartner,
+    );
+
+    const commandHandler = this.getCommandHandler(
+      chargingStation.protocol || undefined,
+      tenantPartner,
+      unlockConnector.response_url,
+      commandId,
+    );
+    if (commandHandler) {
+      await commandHandler.sendUnlockConnectorCommand(
+        unlockConnector,
+        tenantPartner,
+        chargingStation,
+        commandId,
+      );
+    } else {
+      this.logger.warn('UnlockConnector failed');
+    }
+    return;
   }
 
   public async executeGetActiveChargingProfile(

@@ -12,6 +12,7 @@ import {
   OcpiConfigToken,
   StartSession,
   StopSession,
+  UnlockConnector,
 } from '../..';
 import { IRequestOptions, RestClient } from 'typed-rest-client';
 import { Logger, ILogObj } from 'tslog';
@@ -57,6 +58,13 @@ export abstract class OCPPCommandHandler {
 
   abstract sendStopSessionCommand(
     stopSession: StopSession,
+    tenantPartner: ITenantPartnerDto,
+    chargingStation: IChargingStationDto,
+    commandId: string,
+  ): Promise<void>;
+
+  abstract sendUnlockConnectorCommand(
+    unlockConnector: UnlockConnector,
     tenantPartner: ITenantPartnerDto,
     chargingStation: IChargingStationDto,
     commandId: string,

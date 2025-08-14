@@ -25,7 +25,7 @@ import { TokensMapper } from '../../mapper/TokensMapper';
 import { EXTRACT_EVSE_ID } from '../../model/DTO/EvseDTO';
 import { CommandType } from '../../model/CommandType';
 import { StopSession } from '../../model/StopSession';
-import { CommandResultType } from '../..';
+import { CommandResultType, UnlockConnector } from '../..';
 
 @Service({ id: OCPP_COMMAND_HANDLER, multiple: true })
 export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
@@ -125,6 +125,69 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
     );
   }
 
+  public async sendUnlockConnectorCommand(
+    unlockConnector: UnlockConnector,
+    tenantPartner: ITenantPartnerDto,
+    chargingStation: IChargingStationDto,
+    commandId: string,
+  ): Promise<void> {
+    const options: IRequestOptions = {
+      additionalHeaders: this.config.commands.coreHeaders,
+    };
+    const queryParameters: IRequestQueryParams = {
+      params: {},
+    };
+    queryParameters.params['identifier'] = chargingStation.id;
+    queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
+    queryParameters.params['callbackUrl'] =
+      this.config.commands.ocpiBaseUrl +
+      `/2.2.1/commands/callback/${tenantPartner.id}/${this.supportedVersion}/${CommandType.UNLOCK_CONNECTOR}/${commandId}`;
+    options.queryParameters = queryParameters;
+
+    const evseTypeId = Array.from(chargingStation.evses || []).find(
+      (evse) => evse.id === Number(EXTRACT_EVSE_ID(unlockConnector.evse_uid)),
+    )?.evseTypeId;
+    const evseTypeConnectorId = Array.from(
+      chargingStation.connectors || [],
+    ).find(
+      (connector) => connector.id === Number(unlockConnector.connector_id),
+    )?.evseTypeConnectorId;
+    if (evseTypeId === undefined || evseTypeConnectorId === undefined) {
+      this.logger.error('UnlockConnector failed, EVSE or Connector not found', {
+        unlockConnector,
+      });
+      this.commandsClientApi.postCommandResult(
+        tenantPartner.countryCode!,
+        tenantPartner.partyId!,
+        tenantPartner.tenant!.countryCode!,
+        tenantPartner.tenant!.partyId!,
+        tenantPartner.partnerProfileOCPI!,
+        unlockConnector.response_url,
+        {
+          result: CommandResultType.FAILED,
+          message: {
+            language: 'en',
+            text: 'Charging station communication failed',
+          },
+        },
+        commandId,
+      );
+      return;
+    }
+    const unlockConnectorRequest: OCPP2_0_1.UnlockConnectorRequest = {
+      evseId: evseTypeId,
+      connectorId: evseTypeConnectorId,
+    };
+    await this.sendOCPPMessage(
+      this.config.commands.ocpp2_0_1.unlockConnectorRequestUrl,
+      unlockConnectorRequest,
+      options,
+      tenantPartner,
+      unlockConnector.response_url,
+      commandId,
+    );
+  }
+
   public async handleAsyncCommandResponse(
     tenantPartner: ITenantPartnerDto,
     command: CommandType,
@@ -142,6 +205,13 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
         );
       case CommandType.STOP_SESSION:
         return this.handleRequestStopTransactionResponse(
+          tenantPartner,
+          responseUrl,
+          response,
+          commandId,
+        );
+      case CommandType.UNLOCK_CONNECTOR:
+        return this.handleUnlockConnectorResponse(
           tenantPartner,
           responseUrl,
           response,
@@ -261,6 +331,102 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
           commandId,
         );
         return;
+    }
+  }
+
+  private async handleUnlockConnectorResponse(
+    tenantPartner: ITenantPartnerDto,
+    responseUrl: string,
+    response: any,
+    commandId: string,
+  ): Promise<void> {
+    const validatedResponse = this.validate<OCPP2_0_1.UnlockConnectorResponse>(
+      this.supportedVersion,
+      OCPP2_0_1.UnlockConnectorResponseSchema,
+      response,
+    );
+
+    switch (validatedResponse.status) {
+      case OCPP2_0_1.UnlockStatusEnumType.Unlocked:
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.ACCEPTED,
+            message: {
+              language: 'en',
+              text: 'Charging station unlock connector successful',
+            },
+          },
+          commandId,
+        );
+        return;
+      case OCPP2_0_1.UnlockStatusEnumType.OngoingAuthorizedTransaction:
+        this.logger.warn(`Unlock connector ongoing authorized transaction`, {
+          statusInfo: validatedResponse.statusInfo,
+        });
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.EVSE_OCCUPIED,
+            message: {
+              language: 'en',
+              text: 'Charging station already in use',
+            },
+          },
+          commandId,
+        );
+        return;
+      case OCPP2_0_1.UnlockStatusEnumType.UnknownConnector:
+        this.logger.warn(`Unlock connector unknown connector`, {
+          statusInfo: validatedResponse.statusInfo,
+        });
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.REJECTED,
+            message: {
+              language: 'en',
+              text: 'Charging station unknown connector',
+            },
+          },
+          commandId,
+        );
+        return;
+      case OCPP2_0_1.UnlockStatusEnumType.UnlockFailed:
+        this.logger.warn(`Unlock connector failed`, {
+          statusInfo: validatedResponse.statusInfo,
+        });
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station unlock connector failed',
+            },
+          },
+          commandId,
+        );
     }
   }
 }

@@ -11,7 +11,7 @@ import { StartSession } from '../../model/StartSession';
 import { IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { CommandType } from '../../model/CommandType';
 import { StopSession } from '../../model/StopSession';
-import { CommandResultType } from '../..';
+import { CommandResultType, UnlockConnector } from '../..';
 
 @Service({ id: OCPP_COMMAND_HANDLER, multiple: true })
 export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
@@ -83,6 +83,65 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
     );
   }
 
+  public async sendUnlockConnectorCommand(
+    unlockConnector: UnlockConnector,
+    tenantPartner: ITenantPartnerDto,
+    chargingStation: IChargingStationDto,
+    commandId: string,
+  ): Promise<void> {
+    const options: IRequestOptions = {
+      additionalHeaders: this.config.commands.coreHeaders,
+    };
+    const queryParameters: IRequestQueryParams = {
+      params: {},
+    };
+    queryParameters.params['identifier'] = chargingStation.id;
+    queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
+    queryParameters.params['callbackUrl'] =
+      this.config.commands.ocpiBaseUrl +
+      `/2.2.1/commands/callback/${tenantPartner.id}/${this.supportedVersion}/${CommandType.UNLOCK_CONNECTOR}/${commandId}`;
+    options.queryParameters = queryParameters;
+
+    const ocpp1_6ConnectorId = Array.from(
+      chargingStation.connectors || [],
+    ).find(
+      (connector) => connector.id === Number(unlockConnector.connector_id),
+    )?.connectorId;
+    if (ocpp1_6ConnectorId === undefined) {
+      this.logger.error('UnlockConnector failed, Connector not found', {
+        unlockConnector,
+      });
+      this.commandsClientApi.postCommandResult(
+        tenantPartner.countryCode!,
+        tenantPartner.partyId!,
+        tenantPartner.tenant!.countryCode!,
+        tenantPartner.tenant!.partyId!,
+        tenantPartner.partnerProfileOCPI!,
+        unlockConnector.response_url,
+        {
+          result: CommandResultType.FAILED,
+          message: {
+            language: 'en',
+            text: 'Charging station communication failed',
+          },
+        },
+        commandId,
+      );
+      return;
+    }
+    const unlockConnectorRequest: OCPP1_6.UnlockConnectorRequest = {
+      connectorId: ocpp1_6ConnectorId,
+    };
+    await this.sendOCPPMessage(
+      this.config.commands.ocpp1_6.unlockConnectorRequestUrl,
+      unlockConnectorRequest,
+      options,
+      tenantPartner,
+      unlockConnector.response_url,
+      commandId,
+    );
+  }
+
   public async handleAsyncCommandResponse(
     tenantPartner: ITenantPartnerDto,
     command: CommandType,
@@ -100,6 +159,13 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
         );
       case CommandType.STOP_SESSION:
         return this.handleRemoteStopTransactionResponse(
+          tenantPartner,
+          responseUrl,
+          response,
+          commandId,
+        );
+      case CommandType.UNLOCK_CONNECTOR:
+        return this.handleUnlockConnectorResponse(
           tenantPartner,
           responseUrl,
           response,
@@ -211,6 +277,76 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
           },
           commandId,
         );
+    }
+  }
+
+  private async handleUnlockConnectorResponse(
+    tenantPartner: ITenantPartnerDto,
+    responseUrl: string,
+    response: any,
+    commandId: string,
+  ): Promise<void> {
+    const validatedResponse = this.validate<OCPP1_6.UnlockConnectorResponse>(
+      this.supportedVersion,
+      OCPP1_6.UnlockConnectorResponseSchema,
+      response,
+    );
+
+    switch (validatedResponse.status) {
+      case OCPP1_6.UnlockConnectorResponseStatus.Unlocked:
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.ACCEPTED,
+            message: {
+              language: 'en',
+              text: 'Charging station unlock connector successful',
+            },
+          },
+          commandId,
+        );
+        return;
+      case OCPP1_6.UnlockConnectorResponseStatus.NotSupported:
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.NOT_SUPPORTED,
+            message: {
+              language: 'en',
+              text: 'Charging station does not support unlocking connectors',
+            },
+          },
+          commandId,
+        );
+        return;
+      case OCPP1_6.UnlockConnectorResponseStatus.UnlockFailed:
+        await this.commandsClientApi.postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station failed to unlock connector',
+            },
+          },
+          commandId,
+        );
+        return;
     }
   }
 }

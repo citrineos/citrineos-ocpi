@@ -6,7 +6,6 @@ import { StopSession } from '../model/StopSession';
 import { UnlockConnector } from '../model/UnlockConnector';
 import { CommandType } from '../model/CommandType';
 import {
-  CommandResponse,
   CommandResponseType,
   OcpiCommandResponse,
 } from '../model/CommandResponse';
@@ -21,15 +20,12 @@ import { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
 import {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
-  GetTransactionByIdQueryResult,
-  GetTransactionByIdQueryVariables,
   GetTransactionByTransactionIdQueryResult,
   GetTransactionByTransactionIdQueryVariables,
 } from '../graphql/operations';
 import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
 import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
 import {
-  GET_TRANSACTION_BY_ID_QUERY,
   GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
 } from '../graphql/queries/transaction.queries';
 
@@ -333,11 +329,71 @@ export class CommandsService {
     });
   }
 
-  private handleUnlockConnector(
-    _unlockConnector: UnlockConnector,
-  ): OcpiCommandResponse {
-    return ResponseGenerator.buildGenericClientErrorResponse({
-      result: CommandResponseType.NOT_SUPPORTED,
+  private async handleUnlockConnector(
+    unlockConnector: UnlockConnector,
+    tenantPartner: ITenantPartnerDto,
+  ): Promise<OcpiCommandResponse> {
+    const chargingStationResponse = await this.ocpiGraphqlClient.request<
+      GetChargingStationByIdQueryResult,
+      GetChargingStationByIdQueryVariables
+    >(GET_CHARGING_STATION_BY_ID_QUERY, {
+      id: EXTRACT_STATION_ID(unlockConnector.evse_uid!),
+    });
+    if (
+      !chargingStationResponse.ChargingStations[0] ||
+      chargingStationResponse.ChargingStations[0].locationId?.toString() !==
+        unlockConnector.location_id
+    ) {
+      this.logger.error('Charging station not found for evse_uid', {
+        evseUid: unlockConnector.evse_uid,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Unknown charging station',
+      );
+    }
+    const chargingStation = chargingStationResponse
+      .ChargingStations[0] as IChargingStationDto;
+    if (!chargingStation.isOnline) {
+      this.logger.error('Charging station is offline', {
+        stationId: chargingStation.id,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Charging station is offline',
+      );
+    }
+    if (
+      unlockConnector.connector_id &&
+      !Array.from(chargingStation.connectors || []).some(
+        (value) => value.id?.toString() === unlockConnector.connector_id,
+      )
+    ) {
+      this.logger.error('Connector not found for UnlockConnector command', {
+        stationId: chargingStation.id,
+        connectorId: unlockConnector.connector_id,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Unknown connector',
+      );
+    }
+    this.commandExecutor.executeUnlockConnector(
+      unlockConnector,
+      tenantPartner,
+      chargingStation,
+    );
+    return ResponseGenerator.buildGenericSuccessResponse({
+      result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,
     });
   }
