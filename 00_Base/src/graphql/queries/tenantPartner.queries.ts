@@ -13,6 +13,25 @@ export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
       countryCode
       partyId
       partnerProfileOCPI
+      tenantId
+      tenant: Tenant {
+        id
+        countryCode
+        partyId
+        serverProfileOCPI
+      }
+    }
+  }
+`;
+
+export const GET_TENANT_PARTNER_BY_ID = gql`
+  query GetTenantPartnerById($id: Int!) {
+    TenantPartners_by_pk(id: $id) {
+      id
+      countryCode
+      partyId
+      partnerProfileOCPI
+      tenantId
       tenant: Tenant {
         id
         countryCode
@@ -58,6 +77,7 @@ export const GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT = gql`
       countryCode
       partyId
       partnerProfileOCPI
+      tenantId
       tenant: Tenant {
         id
         countryCode
@@ -89,6 +109,7 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
       countryCode
       partyId
       partnerProfileOCPI
+      tenantId
       tenant: Tenant {
         id
         countryCode
@@ -98,16 +119,3 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
     }
   }
 `;
-
-// export const UPDATE_TENANT_PARTNER_MUTATION = gql`
-//   mutation UpdateTenantPartner(
-//     $id: Int!
-//     $set: TenantPartners_set_input!
-//   ) {
-//     update_TenantPartners_by_pk(pk_columns: {id: 10}, _set: $set) {
-//       returning {
-//         id
-//       }
-//     }
-//   }
-// `;

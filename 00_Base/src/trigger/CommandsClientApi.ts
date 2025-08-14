@@ -1,17 +1,22 @@
 import { BaseClientApi, MissingRequiredParamException } from './BaseClientApi';
-import { Cdr, CdrResponse, CdrResponseSchema } from '../model/Cdr';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import {
   OcpiEmptyResponse,
   OcpiEmptyResponseSchema,
 } from '../model/OcpiEmptyResponse';
 import { ModuleId } from '../model/ModuleId';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, ICache, OCPIRegistration } from '@citrineos/base';
 import { CommandResult } from '../model/CommandResult';
+import {
+  COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+  COMMAND_RESPONSE_URL_CACHE_RESOLVED,
+} from '../util/CommandExecutor';
 
 @Service()
 export class CommandsClientApi extends BaseClientApi {
+  @Inject()
+  protected cache!: ICache;
+
   CONTROLLER_PATH = ModuleId.Commands;
 
   getUrl(): string {
@@ -26,7 +31,15 @@ export class CommandsClientApi extends BaseClientApi {
     partnerProfile: OCPIRegistration.PartnerProfile,
     url: string, // Provided in the command
     body: CommandResult,
+    commandId: string,
   ): Promise<OcpiEmptyResponse> {
+    await this.cache.set(
+      commandId,
+      COMMAND_RESPONSE_URL_CACHE_RESOLVED,
+      COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+      5, // Flush the resolution after a few seconds so that it doesn't stay in cache indefinitely
+    );
+
     return this.request(
       fromCountryCode,
       fromPartyId,

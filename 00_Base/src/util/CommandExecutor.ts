@@ -2,14 +2,11 @@ import { StartSession } from '../model/StartSession';
 import {
   ICache,
   IChargingStationDto,
-  IMessageConfirmation,
   ITenantPartnerDto,
-  OCPP1_6,
   OCPP2_0_1,
   OCPPVersion,
 } from '@citrineos/base';
-import { OCPP2_0_1_Mapper } from '@citrineos/data';
-import { Inject, Service } from 'typedi';
+import { Inject, InjectMany, Service } from 'typedi';
 import { StopSession } from '../model/StopSession';
 import { SetChargingProfile } from '../model/SetChargingProfile';
 import { ChargingProfile } from '../model/ChargingProfile';
@@ -17,20 +14,30 @@ import { ReserveNow } from '../model/ReserveNow';
 import { CancelReservation } from '../model/CancelReservation';
 import {
   CommandResultType,
-  EXTRACT_EVSE_ID,
-  ModuleId,
+  CommandType,
   OcpiConfig,
   OcpiConfigToken,
-  TokensMapper,
 } from '..';
-import { IRequestOptions, RestClient } from 'typed-rest-client';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { CommandsClientApi } from '../trigger/CommandsClientApi';
 import { v4 as uuidv4 } from 'uuid';
-import { IRequestQueryParams } from 'typed-rest-client/Interfaces';
+import {
+  OCPP_COMMAND_HANDLER,
+  OCPPCommandHandler,
+} from './ocppCommandHandlers';
+import {
+  GetTenantPartnerByIdQueryResult,
+  GetTenantPartnerByIdQueryVariables,
+} from '../graphql/operations';
+import { GET_TENANT_PARTNER_BY_ID } from '../graphql/queries/tenantPartner.queries';
 
 export const COMMAND_RESPONSE_URL_CACHE_NAMESPACE = 'commands';
+/**
+ * Used to replace response url in cache so that the timeout handler knows the command
+ * was resolved instead of timed out and doesn't attempt to send a command result.
+ */
+export const COMMAND_RESPONSE_URL_CACHE_RESOLVED = 'resolved';
 
 @Service()
 export class CommandExecutor {
@@ -45,10 +52,14 @@ export class CommandExecutor {
   @Inject(OcpiConfigToken)
   protected config!: OcpiConfig;
 
-  private restClient!: RestClient;
+  private handlerRegistry = new Map<OCPPVersion, OCPPCommandHandler>();
 
-  constructor() {
-    this.restClient = new RestClient(`CitrineOS OCPI ${ModuleId.Commands}`);
+  constructor(
+    @InjectMany(OCPP_COMMAND_HANDLER) handlers: OCPPCommandHandler[],
+  ) {
+    handlers.forEach((handler) => {
+      this.handlerRegistry.set(handler.supportedVersion, handler);
+    });
   }
 
   public async executeStartSession(
@@ -58,163 +69,60 @@ export class CommandExecutor {
   ): Promise<void> {
     this.logger.info('Executing StartSession command', { startSession });
 
-    const commandId = uuidv4();
-    this.cache.set(
+    const commandId = await this.generateCommandId(
+      startSession.response_url,
+      tenantPartner,
+    );
+
+    const commandHandler = this.getCommandHandler(
+      chargingStation.protocol || undefined,
+      tenantPartner,
+      startSession.response_url,
       commandId,
-      startSession.response_url,
-      COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
-      this.config.commands.timeout,
     );
-
-    switch (chargingStation.protocol) {
-      case OCPPVersion.OCPP1_6:
-        this.sendRemoteStartTransactionRequest(
-          startSession,
-          tenantPartner,
-          chargingStation,
-          commandId,
-        );
-        return;
-      case OCPPVersion.OCPP2_0_1:
-        this.sendRequestStartTransactionRequest(
-          startSession,
-          tenantPartner,
-          chargingStation,
-          commandId,
-        );
-        return;
-      default:
-        this.logger.warn('Unsupported OCPP version for StartSession command', {
-          protocol: chargingStation.protocol,
-        });
-        this.commandsClientApi.postCommandResult(
-          tenantPartner.countryCode!,
-          tenantPartner.partyId!,
-          tenantPartner.tenant!.countryCode!,
-          tenantPartner.tenant!.partyId!,
-          tenantPartner.partnerProfileOCPI!,
-          startSession.response_url,
-          {
-            result: CommandResultType.FAILED,
-            message: {
-              language: 'en',
-              text: 'Charging station communication failed',
-            },
-          },
-        );
-        return;
+    if (commandHandler) {
+      await commandHandler.sendStartSessionCommand(
+        startSession,
+        tenantPartner,
+        chargingStation,
+        commandId,
+      );
+    } else {
+      this.logger.warn('StartSession failed');
     }
-
-    // TODO: update to handle optional evse uid.
-    // const evse = await this.ocpiEvseEntityRepo.getOcpiEvseByEvseUid(
-    //   startSession.evse_uid!,
-    // );
-    // if (!evse) {
-    //   throw new NotFoundError('EVSE not found');
-    // }
-    // if (!startSession.token) {
-    //   throw new BadRequestError('Missing token');
-    // }
-    // const correlationId = uuidv4();
-    // const responseUrlEntity = await this.responseUrlRepo.saveResponseUrl(
-    //   correlationId,
-    //   startSession.response_url,
-    // );
-    // const request = {
-    //   remoteStartId: responseUrlEntity.id,
-    //   idToken: {
-    //     idToken: startSession.token.uid,
-    //     type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-    //       startSession.token.type,
-    //     ),
-    //   },
-    //   evseId: evse.evseId,
-    // } as OCPP2_0_1.RequestStartTransactionRequest;
-    // await this.abstractModule.sendCall(
-    //   evse.stationId,
-    //   'tenantId',
-    //   OCPPVersion.OCPP2_0_1,
-    //   OCPP2_0_1_CallAction.RequestStartTransaction,
-    //   request,
-    //   undefined,
-    //   correlationId,
-    //   MessageOrigin.ChargingStationManagementSystem,
-    // );
+    return;
   }
 
-  private async sendRemoteStartTransactionRequest(
-    startSession: StartSession,
+  public async executeStopSession(
+    stopSession: StopSession,
     tenantPartner: ITenantPartnerDto,
     chargingStation: IChargingStationDto,
-    commandId: string,
-  ) {
-    const options: IRequestOptions = {
-      additionalHeaders: this.config.commands.coreHeaders,
-    };
-    const queryParameters: IRequestQueryParams = {
-      params: {},
-    };
-    queryParameters.params['identifier'] = chargingStation.id;
-    queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
-    queryParameters.params['callbackUrl'] =
-      this.config.commands.ocpiBaseUrl +
-      `/2.2.1/commands/callback/${OCPPVersion.OCPP1_6}/RemoteStartTransaction/${commandId}`;
-    options.queryParameters = queryParameters;
-    const remoteStartTransactionRequest: OCPP1_6.RemoteStartTransactionRequest =
-      {
-        connectorId: Number(startSession.connector_id),
-        idTag: startSession.token.uid,
-      };
-    await this.sendOCPPMessage(
-      this.config.commands.ocpp1_6.remoteStartTransactionRequestUrl,
-      remoteStartTransactionRequest,
-      options,
-      tenantPartner,
-      startSession.response_url,
-    );
-  }
+  ): Promise<void> {
+    this.logger.info('Executing StopSession command', { stopSession });
 
-  private async sendRequestStartTransactionRequest(
-    startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
-    commandId: string,
-  ) {
-    const options: IRequestOptions = {
-      additionalHeaders: this.config.commands.coreHeaders,
-    };
-    const queryParameters: IRequestQueryParams = {
-      params: {},
-    };
-    queryParameters.params['identifier'] = chargingStation.id;
-    queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
-    queryParameters.params['callbackUrl'] =
-      this.config.commands.ocpiBaseUrl +
-      `/2.2.1/commands/callback/${OCPPVersion.OCPP2_0_1}/RequestStartTransaction/${commandId}`;
-    options.queryParameters = queryParameters;
-    const requestStartTransactionRequest: OCPP2_0_1.RequestStartTransactionRequest =
-      {
-        //   remoteStartId: responseUrlEntity.id,
-        idToken: {
-          idToken: startSession.token.uid,
-          type: OCPP2_0_1_Mapper.AuthorizationMapper.toIdTokenEnumType(
-            TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-              startSession.token.type,
-            ),
-          ),
-        },
-        evseId: Number(EXTRACT_EVSE_ID(startSession.evse_uid!)),
-      };
-    await this.sendOCPPMessage(
-      this.config.commands.ocpp2_0_1.requestStartTransactionUrl,
-      requestStartTransactionRequest,
-      options,
+    const commandId = await this.generateCommandId(
+      stopSession.response_url,
       tenantPartner,
-      startSession.response_url,
     );
-  }
 
-  public async executeStopSession(stopSession: StopSession): Promise<void> {
+    const commandHandler = this.getCommandHandler(
+      chargingStation.protocol || undefined,
+      tenantPartner,
+      stopSession.response_url,
+      commandId,
+    );
+    if (commandHandler) {
+      await commandHandler.sendStopSessionCommand(
+        stopSession,
+        tenantPartner,
+        chargingStation,
+        commandId,
+      );
+    } else {
+      this.logger.warn('StopSession failed');
+    }
+    return;
+
     // const transaction = await this.transactionRepo.findByTransactionId(
     //   stopSession.session_id,
     // );
@@ -536,26 +444,125 @@ export class CommandExecutor {
     // );
   }
 
-  private async sendOCPPMessage(
-    url: string,
-    payload: any,
-    options: IRequestOptions,
+  public async handleAsyncCommandResponse(
+    tenantPartnerId: number,
+    ocppVersion: OCPPVersion,
+    command: CommandType,
+    commandId: string,
+    response: any,
+  ): Promise<void> {
+    const responseUrl: string | null = await this.cache.get(
+      commandId,
+      COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+    );
+    if (!responseUrl) {
+      this.logger.error('Response URL not found in cache', {
+        commandId,
+      });
+      return;
+    }
+
+    const tenantPartnerResponse = await this.ocpiGraphqlClient.request<
+      GetTenantPartnerByIdQueryResult,
+      GetTenantPartnerByIdQueryVariables
+    >(GET_TENANT_PARTNER_BY_ID, {
+      id: tenantPartnerId,
+    });
+    if (!tenantPartnerResponse.TenantPartners_by_pk) {
+      this.logger.error(
+        'Tenant partner not found, unable to complete command',
+        {
+          tenantPartnerId,
+          command,
+          commandId,
+        },
+      );
+      return;
+    }
+    const tenantPartner =
+      tenantPartnerResponse.TenantPartners_by_pk as ITenantPartnerDto;
+
+    const commandHandler = this.getCommandHandler(
+      ocppVersion,
+      tenantPartner,
+      responseUrl,
+      commandId,
+    );
+    if (!commandHandler) {
+      this.logger.warn('Command handler not found for command', {
+        ocppVersion,
+        command,
+      });
+      return;
+    } else {
+      await commandHandler.handleAsyncCommandResponse(
+        tenantPartner,
+        command,
+        responseUrl,
+        response,
+      );
+    }
+  }
+
+  private async generateCommandId(
+    responseUrl: string,
+    tenantPartner: ITenantPartnerDto,
+  ): Promise<string> {
+    const commandId = uuidv4();
+    await this.cache.set(
+      commandId,
+      responseUrl,
+      COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+      this.config.commands.timeout,
+    );
+
+    this.cache
+      .onChange(
+        commandId,
+        this.config.commands.timeout,
+        COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+      )
+      .then((value) => {
+        if (value !== COMMAND_RESPONSE_URL_CACHE_RESOLVED) {
+          this.logger.warn('Command timed out', {
+            commandId,
+          });
+          this.commandsClientApi.postCommandResult(
+            tenantPartner.countryCode!,
+            tenantPartner.partyId!,
+            tenantPartner.tenant!.countryCode!,
+            tenantPartner.tenant!.partyId!,
+            tenantPartner.partnerProfileOCPI!,
+            responseUrl,
+            {
+              result: CommandResultType.TIMEOUT,
+              message: {
+                language: 'en',
+                text: 'Charging station communication failed',
+              },
+            },
+            commandId,
+          );
+        }
+      });
+
+    return commandId;
+  }
+
+  private getCommandHandler(
+    ocppVersion: OCPPVersion | undefined,
     tenantPartner: ITenantPartnerDto,
     responseUrl: string,
-  ) {
-    const messageConfirmation = await this.restClient.create<
-      IMessageConfirmation[]
-    >(url, payload, options);
-    if (
-      messageConfirmation.statusCode !== 200 ||
-      !messageConfirmation.result?.[0].success
-    ) {
-      this.logger.warn('Failed to send OCPP request', {
-        url,
-        statusCode: messageConfirmation.statusCode,
-        response: messageConfirmation.result,
+    commandId: string,
+  ): OCPPCommandHandler | undefined {
+    const commandHandler = ocppVersion && this.handlerRegistry.get(ocppVersion);
+    if (commandHandler) {
+      return commandHandler;
+    } else {
+      this.logger.warn('Unsupported OCPP version for command', {
+        protocol: ocppVersion,
       });
-      await this.commandsClientApi.postCommandResult(
+      this.commandsClientApi.postCommandResult(
         tenantPartner.countryCode!,
         tenantPartner.partyId!,
         tenantPartner.tenant!.countryCode!,
@@ -569,6 +576,7 @@ export class CommandExecutor {
             text: 'Charging station communication failed',
           },
         },
+        commandId,
       );
     }
   }

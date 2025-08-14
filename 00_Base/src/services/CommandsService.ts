@@ -17,7 +17,10 @@ import { CommandExecutor } from '../util/CommandExecutor';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { ILogObj, Logger } from 'tslog';
 import { OcpiConfig, OcpiConfigToken } from '../config/ocpi.types';
-import { IChargingStationDto, ITenantPartnerDto, OCPP1_6 } from '@citrineos/base';
+import {
+  IChargingStationDto,
+  ITenantPartnerDto,
+} from '@citrineos/base';
 import {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
@@ -36,7 +39,8 @@ export class CommandsService {
   @Inject()
   protected commandExecutor!: CommandExecutor;
 
-  constructor(@Inject(OcpiConfigToken) readonly config: OcpiConfig) {}
+  @Inject(OcpiConfigToken) readonly config!: OcpiConfig;
+
 
   public async postCommand(
     commandType: CommandType,
@@ -72,13 +76,6 @@ export class CommandsService {
           undefined,
         );
     }
-  }
-
-  public handleRemoteStartTransactionResponse(
-    response: OCPP1_6.RemoteStartTransactionResponse,
-    commandId: string,
-  ): void {
-    // Handle the response for the RemoteStartTransaction command
   }
 
   private async handleCancelReservation(

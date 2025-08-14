@@ -11,7 +11,7 @@ export const GET_SEQUENCE = gql`
 `;
 
 export const UPSERT_SEQUENCE = gql`
-  mutation UpsertSequence($stationId: String!, $type: String!, $value: Int!) {
+  mutation UpsertSequence($stationId: String!, $type: String!, $value: bigint!) {
     insert_ChargingStationSequences_one(
       object: { stationId: $stationId, type: $type, value: $value }
       on_conflict: {
@@ -19,9 +19,7 @@ export const UPSERT_SEQUENCE = gql`
         update_columns: value
       }
     ) {
-      returning {
-        value
-      }
+      value
     }
   }
 `;

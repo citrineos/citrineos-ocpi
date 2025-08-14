@@ -27,6 +27,7 @@ import {
   CancelReservation,
   CancelReservationSchema,
   CancelReservationSchemaName,
+  CommandExecutor,
   CommandResponseSchema,
   CommandResponseSchemaName,
   CommandsService,
@@ -36,6 +37,8 @@ import {
   ModuleId,
   MultipleTypes,
   OcpiCommandResponse,
+  OCPP_COMMAND_HANDLER,
+  OCPPCommandHandler,
   ReserveNow,
   ReserveNowSchema,
   ReserveNowSchemaName,
@@ -52,9 +55,7 @@ import {
   UnlockConnectorSchemaName,
   versionIdParam,
 } from '@citrineos/ocpi-base';
-import { Service } from 'typedi';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import { Inject, Service } from 'typedi';
 
 /**
  * Server API for the provisioning component.
@@ -65,20 +66,11 @@ export class CommandsModuleApi
   extends BaseController
   implements ICommandsModuleApi
 {
-  private ajv: Ajv;
-  
+  @Inject()
+  private commandsExecutor!: CommandExecutor;
+
   constructor(readonly commandsService: CommandsService) {
     super();
-    this.ajv = new Ajv({
-      removeAdditional: 'all',
-      useDefaults: true,
-      coerceTypes: 'array',
-      strict: false,
-    });
-    addFormats(this.ajv, {
-      mode: 'fast',
-      formats: ['date-time'],
-    });
   }
 
   @Post('/:commandType')
@@ -161,55 +153,20 @@ export class CommandsModuleApi
     );
   }
 
-  @Post('/callback/:ocppVersion/:action/:commandId')
+  @Post('/callback/:tenantPartnerId/:ocppVersion/:command/:commandId')
   async postAsynchronousResponse(
+    @Param('tenantPartnerId') tenantPartnerId: number,
     @Param('ocppVersion') ocppVersion: OCPPVersion,
-    @Param('action') action: CallAction,
+    @Param('command') command: CommandType,
     @Param('commandId') commandId: string,
     @Body() response: any,
   ): Promise<void> {
-    let validatedResponse;
-    switch (ocppVersion) {
-      case OCPPVersion.OCPP1_6:
-        switch (action) {
-          case OCPP1_6_CallAction.RemoteStartTransaction:
-            validatedResponse =
-              this.validate<OCPP1_6.RemoteStartTransactionResponse>(
-                ocppVersion,
-                OCPP1_6_CALL_SCHEMA_MAP.get(action),
-                response,
-              );
-            this.commandsService.handleRemoteStartTransactionResponse(
-              validatedResponse,
-              commandId,
-            );
-            return;
-          default:
-            throw new BadRequestError('Invalid action for OCPP 2.0.1');
-        }
-
-      case OCPPVersion.OCPP2_0_1:
-        return;
-      default:
-        throw new BadRequestError('OCPP version not found');
-    }
-  }
-
-  private validate<T>(protocol: string, schema: any, data: unknown): T {
-    let validate = this.ajv.getSchema(schema['$id']);
-    if (!validate) {
-      schema['$id'] = `${protocol}-${schema['$id']}`;
-      this.logger.debug(`Updated call result schema id: ${schema['$id']}`);
-      validate = this.ajv.compile(schema);
-    }
-
-    if (!validate(data)) {
-      const errors = validate.errors
-        ?.map((err) => `${err.instancePath} ${err.message}`)
-        .join(', ');
-      throw new Error(`Validation failed: ${errors}`);
-    }
-
-    return data as T;
+    await this.commandsExecutor.handleAsyncCommandResponse(
+      tenantPartnerId,
+      ocppVersion,
+      command,
+      commandId,
+      response,
+    );
   }
 }

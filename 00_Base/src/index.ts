@@ -279,6 +279,7 @@ export {
   PaginatedTariffResponseSchemaName,
 } from './model/DTO/tariffs/TariffDTO';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
+export { CommandExecutor } from './util/CommandExecutor';
 export {
   PutTariffRequest,
   PutTariffRequestSchema,
@@ -307,6 +308,9 @@ export {
   UnregisterClientRequestDTOSchemaName,
 } from './model/UnregisterClientRequestDTO';
 export * from './events';
+
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
 useContainer(Container);
 
@@ -405,6 +409,18 @@ export class OcpiServer extends KoaServer {
         this.ocpiConfig.graphql.headers,
       ),
     );
+
+    const ajv = new Ajv({
+      removeAdditional: 'all',
+      useDefaults: true,
+      coerceTypes: 'array',
+      strict: false,
+    });
+    addFormats(ajv, {
+      mode: 'fast',
+      formats: ['date-time'],
+    });
+    Container.set(Ajv, ajv);
 
     this.onContainerInitialized();
   }

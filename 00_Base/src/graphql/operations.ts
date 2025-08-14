@@ -93,29 +93,54 @@ export type GetChargingStationByIdQueryResult = {
       physicalReference?: string | null,
       removed?: boolean | null,
       createdAt: any,
-      updatedAt: any,
-      connectors: Array<{
-        id: number,
-        tenantId: number,
-        stationId: string,
-        evseId: number,
-        connectorId: number,
-        evseTypeConnectorId: number,
-        status?: string | null,
-        errorCode?: string | null,
-        timestamp?: any | null,
-        info?: string | null,
-        vendorId?: string | null,
-        vendorErrorCode?: string | null,
-        createdAt: any,
-        updatedAt: any
-      }>
+      updatedAt: any
+    }>,
+    connectors: Array<{
+      id: number,
+      tenantId: number,
+      stationId: string,
+      evseId: number,
+      connectorId: number,
+      evseTypeConnectorId: number,
+      status?: string | null,
+      errorCode?: string | null,
+      timestamp?: any | null,
+      info?: string | null,
+      vendorId?: string | null,
+      vendorErrorCode?: string | null,
+      createdAt: any,
+      updatedAt: any
     }>,
     tenant: {
       partyId?: string | null,
       countryCode?: string | null
     }
   }>
+};
+
+export type GetSequenceQueryVariables = Exact<{
+  stationId: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+}>;
+
+
+export type GetSequenceQueryResult = {
+  ChargingStationSequences: Array<{
+    value: any
+  }>
+};
+
+export type UpsertSequenceMutationVariables = Exact<{
+  stationId: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+  value: Scalars['bigint']['input'];
+}>;
+
+
+export type UpsertSequenceMutationResult = {
+  insert_ChargingStationSequences_one?: {
+    value: any
+  } | null
 };
 
 export type GetLocationsQueryVariables = Exact<{
@@ -463,6 +488,26 @@ export type GetTenantPartnerByServerTokenQueryResult = {
       serverProfileOCPI?: any | null
     }
   }>
+};
+
+export type GetTenantPartnerByIdQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type GetTenantPartnerByIdQueryResult = {
+  TenantPartners_by_pk?: {
+    id: number,
+    countryCode?: string | null,
+    partyId?: string | null,
+    partnerProfileOCPI?: any | null,
+    tenant: {
+      id: number,
+      countryCode?: string | null,
+      partyId?: string | null,
+      serverProfileOCPI?: any | null
+    }
+  } | null
 };
 
 export type DeleteTenantPartnerByServerTokenMutationVariables = Exact<{
