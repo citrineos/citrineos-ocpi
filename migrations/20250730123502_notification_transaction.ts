@@ -12,26 +12,25 @@ export = {
         requiredData jsonb;
         changedData jsonb;
         notificationData jsonb;
+        tenantData jsonb;
       BEGIN
+        -- Fetch tenant object
+        SELECT to_jsonb(t) INTO tenantData FROM "Tenants" t WHERE t."id" = COALESCE(NEW."tenantId", OLD."tenantId");
+
         IF TG_OP = 'INSERT' THEN
-          -- For INSERT: include all fields
-          notificationData := to_jsonb(NEW);
-
+          notificationData := to_jsonb(NEW) || jsonb_build_object('tenant', tenantData);
         ELSIF TG_OP = 'UPDATE' THEN
-          -- Start with required fields
-          SELECT jsonb_object_agg(key, value) INTO requiredData
-          FROM jsonb_each(to_jsonb(NEW))
-          WHERE key = ANY(requiredFields);
+          SELECT jsonb_object_agg(n.key, n.value) INTO requiredData
+          FROM jsonb_each(to_jsonb(NEW)) n
+          WHERE n.key = ANY(requiredFields);
 
-          -- Add changed fields
-          SELECT jsonb_object_agg(key, n.value) INTO changedData
+          SELECT jsonb_object_agg(n.key, n.value) INTO changedData
           FROM jsonb_each(to_jsonb(NEW)) n
           JOIN jsonb_each(to_jsonb(OLD)) o ON n.key = o.key
           WHERE n.value IS DISTINCT FROM o.value
-          AND n.key != ALL(requiredFields); -- Don't duplicate required fields
+          AND n.key != ALL(requiredFields);
 
-          -- Merge required and changed fields
-          notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
+          notificationData := requiredData || COALESCE(changedData, '{}'::jsonb) || jsonb_build_object('tenant', tenantData);
         END IF;
 
         PERFORM pg_notify(
