@@ -1,55 +1,42 @@
-// import { Service } from 'typedi';
-// import { SequelizeTransactionEventRepository, Transaction } from '@citrineos/data';
-// import { CredentialsService } from '../services/CredentialsService';
-// import { ILogObj, Logger } from 'tslog';
-// import { BaseBroadcaster } from './BaseBroadcaster';
-// import { ModuleId } from '../model/ModuleId';
-// import { CdrMapper } from '../mapper/CdrMapper';
-// import { Cdr } from '../model/Cdr';
-// import { CdrsClientApi } from '../trigger/CdrsClientApi';
-// import { PostCdrParams } from '../trigger/param/cdrs/PostCdrParams';
+import { BaseBroadcaster } from './BaseBroadcaster';
+import { Service } from 'typedi';
+import { CdrsClientApi } from '../trigger/CdrsClientApi';
+import { ILogObj, Logger } from 'tslog';
+import { CredentialsService } from '../services/CredentialsService';
+import { Cdr, CdrResponseSchema } from '../model/Cdr';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { HttpMethod } from '@citrineos/base';
 
-// @Service()
-// export class CdrBroadcaster extends BaseBroadcaster {
-//   constructor(
-//     readonly logger: Logger<ILogObj>,
-//     readonly transactionRepository: SequelizeTransactionEventRepository,
-//     readonly cdrMapper: CdrMapper,
-//     readonly cdrsClientApi: CdrsClientApi,
-//     readonly credentialsService: CredentialsService,
-//   ) {
-//     super();
-//     this.transactionRepository.transaction.on('updated', (transactions) =>
-//       this.broadcast(
-//         transactions.filter(
-//           (transaction) =>
-//             transaction.transactionEvents?.some(
-//               (event) => event.eventType === 'Ended',
-//             ) ?? false,
-//         ),
-//       ),
-//     );
-//   }
+@Service()
+export class CdrBroadcaster extends BaseBroadcaster {
+  constructor(
+    readonly logger: Logger<ILogObj>,
+    readonly credentialsService: CredentialsService,
+    readonly cdrsClientApi: CdrsClientApi,
+  ) {
+    super();
+  }
 
-//   private async broadcast(transactions: Transaction[]) {
-//     const cdrs: Cdr[] =
-//       await this.cdrMapper.mapTransactionsToCdrs(transactions);
+  async broadcastPostCdr(cdrDto: Cdr): Promise<void> {
+    const cdrId = cdrDto.id;
+    if (!cdrId) throw new Error('CDR ID missing');
 
-//     for (const cdr of cdrs) {
-//       await this.sendCdrToClients(cdr);
-//     }
-//   }
+    const params = { cdrId };
 
-//   private async sendCdrToClients(cdr: Cdr): Promise<void> {
-//     const params = PostCdrParams.build(cdr);
-//     const cpoCountryCode = cdr.country_code;
-//     const cpoPartyId = cdr.party_id;
-//     await this.cdrsClientApi.broadcastToClients(
-//       cpoCountryCode,
-//       cpoPartyId,
-//       ModuleId.Cdrs,
-//       params,
-//       this.cdrsClientApi.postCdr.bind(this.cdrsClientApi),
-//     );
-//   }
-// }
+    try {
+      await this.cdrsClientApi.broadcastToClients({
+        cpoCountryCode: cdrDto.country_code!,
+        cpoPartyId: cdrDto.party_id!,
+        moduleId: ModuleId.Cdrs,
+        interfaceRole: InterfaceRole.SENDER,
+        httpMethod: HttpMethod.Post,
+        schema: CdrResponseSchema,
+        body: cdrDto,
+        otherParams: params,
+      });
+    } catch (e) {
+      this.logger.error(`broadcastPostCdr failed for CDR ${cdrId}`, e);
+    }
+  }
+}

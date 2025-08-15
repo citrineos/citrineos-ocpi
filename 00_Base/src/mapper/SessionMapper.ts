@@ -169,7 +169,7 @@ export class SessionMapper extends BaseTransactionMapper {
     }
   }
 
-  private getChargingPeriods(
+  public getChargingPeriods(
     meterValues: IMeterValueDto[] = [],
     tariffId: string,
   ): ChargingPeriod[] {
