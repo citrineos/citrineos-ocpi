@@ -11,60 +11,54 @@ export = {
           role: 'EMSP',
           businessDetails: {
             logo: {
-              url: 'https://www.greencharge-mobility.com/assets/brand/logo.svg',
-              type: 'image/svg+xml',
+              url: 'https://www.test-mobility.com/assets/brand/logo.svg',
+              type: 'svg',
               width: 150,
               height: 60,
               category: 'OPERATOR',
             },
-            name: 'GreenChargeMobilitySolutions',
-            website: 'https://www.greencharge-mobility.com',
-          },
-        },
-        {
-          role: 'HUB',
-          businessDetails: {
-            name: 'EVHubServices',
-            website: 'https://www.evhub-services.com',
+            name: 'TestMobilitySolutions',
+            website: 'https://www.test-mobility.com',
           },
         },
       ],
       version: {
         version: '2.2.1',
-        versionDetailsUrl: 'https://partner-api.emobility.com/ocpi/versions/2.2.1',
+        versionDetailsUrl:
+          'http://host.docker.internal:8083/ocpi/versions/2.2.1',
       },
       endpoints: [
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/credentials',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/credentials',
           identifier: 'credentials',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/locations',
-          identifier: 'locations',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/locations',
+          identifier: 'locations_RECEIVER',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/tariffs',
-          identifier: 'tariffs',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/tariffs',
+          identifier: 'tariffs_RECEIVER',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/sessions',
-          identifier: 'sessions',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/sessions',
+          identifier: 'sessions_RECEIVER',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/cdrs',
-          identifier: 'cdrs',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/cdrs',
+          identifier: 'cdrs_RECEIVER',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/tokens',
-          identifier: 'tokens',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/tokens',
+          identifier: 'tokens_SENDER',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/commands',
-          identifier: 'commands',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/commands',
+          identifier: 'commands_SENDER',
         },
         {
-          url: 'https://partner-api.emobility.com/ocpi/2.2.1/emsp/chargingprofiles',
-          identifier: 'chargingprofiles',
+          url: 'http://host.docker.internal:8083/ocpi/2.2.1/emsp/chargingprofiles',
+          identifier: 'chargingprofiles_RECEIVER',
         },
       ],
       credentials: {
@@ -73,13 +67,13 @@ export = {
       },
       serverCredentials: {
         token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9eyJzdWIiOiJwYXJ0bmVyIn0',
-        versionsUrl: 'https://partner-api.emobility.com/ocpi/versions',
+        versionsUrl: 'http://host.docker.internal:8083/ocpi/versions',
       },
     };
 
     const tenantPartner = {
       id: 1,
-      tenantId: 0,
+      tenantId: 1,
       partyId: 'TST',
       countryCode: 'US',
       partnerProfileOCPI: JSON.stringify(partnerProfileOCPI),

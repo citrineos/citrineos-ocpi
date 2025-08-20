@@ -6,7 +6,13 @@ import { QueryInterface, QueryOptions } from 'sequelize';
 export = {
   up: async (queryInterface: QueryInterface) => {
     const serverProfileOCPI = {
-      versionDetails: {
+      versionDetails: [
+        {
+          version: '2.2.1',
+          versionDetailsUrl: 'http://localhost:8085/ocpi/versions/0/2.2.1',
+        },
+      ],
+      versionEndpoints: {
         '2.2.1': [
           {
             url: `http://localhost:8085/ocpi/2.2.1/credentials`,
@@ -14,27 +20,27 @@ export = {
           },
           {
             url: `http://localhost:8085/ocpi/2.2.1/locations`,
-            identifier: 'locations',
+            identifier: 'locations_SENDER',
           },
           {
             url: `http://localhost:8085/ocpi/2.2.1/tariffs`,
-            identifier: 'tariffs',
+            identifier: 'tariffs_SENDER',
           },
           {
             url: `http://localhost:8085/ocpi/2.2.1/sessions`,
-            identifier: 'sessions',
+            identifier: 'sessions_SENDER',
           },
           {
             url: `http://localhost:8085/ocpi/2.2.1/cdrs`,
-            identifier: 'cdrs',
+            identifier: 'cdrs_SENDER',
           },
           {
             url: `http://localhost:8085/ocpi/2.2.1/tokens`,
-            identifier: 'tokens',
+            identifier: 'tokens_RECEIVER',
           },
           {
             url: `http://localhost:8085/ocpi/2.2.1/commands`,
-            identifier: 'commands',
+            identifier: 'commands_RECEIVER',
           },
         ],
       },
@@ -42,20 +48,20 @@ export = {
         role: 'CPO',
         businessDetails: {
           logo: {
-            url: 'https://www.citrineos.com/assets/logo.png',
-            type: 'image/png',
+            url: 'https://citrineos.github.io/latest/assets/img/Icon.svg',
+            type: 'svg',
             width: 200,
             height: 80,
             category: 'OPERATOR',
           },
           name: 'CitrineOSElectricVehicleSolutions',
-          website: 'https://www.citrineos.com',
+          website: 'https://citrineos.github.io',
         },
       },
     };
 
     const tenant = {
-      id: 0,
+      id: 1,
       name: 'default tenant',
       partyId: 'S44',
       countryCode: 'US',
@@ -67,6 +73,6 @@ export = {
   },
 
   down: async (queryInterface: QueryInterface) => {
-    await queryInterface.bulkDelete('Tenants', { id: 0 }, {} as QueryOptions);
+    await queryInterface.bulkDelete('Tenants', { id: 1 }, {} as QueryOptions);
   },
 };
