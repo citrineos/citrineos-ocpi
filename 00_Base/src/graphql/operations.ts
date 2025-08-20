@@ -93,29 +93,57 @@ export type GetChargingStationByIdQueryResult = {
       physicalReference?: string | null,
       removed?: boolean | null,
       createdAt: any,
-      updatedAt: any,
-      connectors: Array<{
-        id: number,
-        tenantId: number,
-        stationId: string,
-        evseId: number,
-        connectorId: number,
-        evseTypeConnectorId: number,
-        status?: string | null,
-        errorCode?: string | null,
-        timestamp?: any | null,
-        info?: string | null,
-        vendorId?: string | null,
-        vendorErrorCode?: string | null,
-        createdAt: any,
-        updatedAt: any
-      }>
+      updatedAt: any
+    }>,
+    connectors: Array<{
+      id: number,
+      tenantId: number,
+      stationId: string,
+      evseId: number,
+      connectorId: number,
+      evseTypeConnectorId: number,
+      status?: string | null,
+      errorCode?: string | null,
+      timestamp?: any | null,
+      info?: string | null,
+      vendorId?: string | null,
+      vendorErrorCode?: string | null,
+      createdAt: any,
+      updatedAt: any
     }>,
     tenant: {
       partyId?: string | null,
       countryCode?: string | null
     }
   }>
+};
+
+export type GetSequenceQueryVariables = Exact<{
+  tenantId: Scalars['Int']['input'];
+  stationId: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+}>;
+
+
+export type GetSequenceQueryResult = {
+  ChargingStationSequences: Array<{
+    value: any
+  }>
+};
+
+export type UpsertSequenceMutationVariables = Exact<{
+  tenantId: Scalars['Int']['input'];
+  stationId: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+  value: Scalars['bigint']['input'];
+  createdAt: Scalars['timestamptz']['input'];
+}>;
+
+
+export type UpsertSequenceMutationResult = {
+  insert_ChargingStationSequences_one?: {
+    value: any
+  } | null
 };
 
 export type GetLocationsQueryVariables = Exact<{
@@ -456,6 +484,7 @@ export type GetTenantPartnerByServerTokenQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -463,6 +492,27 @@ export type GetTenantPartnerByServerTokenQueryResult = {
       serverProfileOCPI?: any | null
     }
   }>
+};
+
+export type GetTenantPartnerByIdQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type GetTenantPartnerByIdQueryResult = {
+  TenantPartners_by_pk?: {
+    id: number,
+    countryCode?: string | null,
+    partyId?: string | null,
+    partnerProfileOCPI?: any | null,
+    tenantId: number,
+    tenant: {
+      id: number,
+      countryCode?: string | null,
+      partyId?: string | null,
+      serverProfileOCPI?: any | null
+    }
+  } | null
 };
 
 export type DeleteTenantPartnerByServerTokenMutationVariables = Exact<{
@@ -490,6 +540,7 @@ export type GetTenantPartnerByCpoClientAndModuleIdQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -512,6 +563,7 @@ export type TenantPartnersListQueryResult = {
     countryCode?: string | null,
     partyId?: string | null,
     partnerProfileOCPI?: any | null,
+    tenantId: number,
     tenant: {
       id: number,
       countryCode?: string | null,
@@ -701,6 +753,109 @@ export type GetTransactionsQueryResult = {
       connectorId: number
     } | null,
     chargingStation?: {
+      location?: {
+        id: number,
+        name?: string | null,
+        address?: string | null,
+        city?: string | null,
+        postalCode?: string | null,
+        state?: string | null,
+        country?: string | null,
+        coordinates?: any | null
+      } | null
+    } | null,
+    transactionEvents: Array<{
+      id: number,
+      eventType?: string | null,
+      transactionInfo?: any | null,
+      EvseType?: {
+        id?: number | null
+      } | null
+    }>,
+    startTransaction?: {
+      timestamp?: any | null
+    } | null,
+    stopTransaction?: {
+      timestamp?: any | null
+    } | null,
+    meterValues: Array<{
+      timestamp?: any | null,
+      sampledValue?: any | null
+    }>,
+    authorization?: {
+      id: number,
+      createdAt: any,
+      updatedAt: any,
+      tenantId: number,
+      idToken?: string | null,
+      idTokenType?: string | null,
+      additionalInfo?: any | null,
+      status?: string | null,
+      realTimeAuth?: string | null,
+      language1?: string | null,
+      tenantPartner?: {
+        id: number,
+        countryCode?: string | null,
+        partyId?: string | null
+      } | null,
+      groupAuthorization?: {
+        idToken?: string | null
+      } | null
+    } | null,
+    tariff?: {
+      authorizationAmount?: any | null,
+      createdAt: any,
+      currency: any,
+      id: number,
+      paymentFee?: any | null,
+      pricePerKwh: any,
+      pricePerMin?: any | null,
+      pricePerSession?: any | null,
+      stationId?: string | null,
+      taxRate?: any | null,
+      tariffAltText?: any | null,
+      updatedAt: any,
+      tenant: {
+        countryCode?: string | null,
+        partyId?: string | null
+      }
+    } | null
+  }>
+};
+
+export type GetTransactionByTransactionIdQueryVariables = Exact<{
+  transactionId: Scalars['String']['input'];
+}>;
+
+
+export type GetTransactionByTransactionIdQueryResult = {
+  Transactions: Array<{
+    id: number,
+    stationId?: string | null,
+    transactionId?: string | null,
+    isActive?: boolean | null,
+    chargingState?: string | null,
+    timeSpentCharging?: any | null,
+    totalKwh?: any | null,
+    stoppedReason?: string | null,
+    remoteStartId?: number | null,
+    totalCost?: any | null,
+    startTime?: any | null,
+    endTime?: any | null,
+    createdAt: any,
+    updatedAt: any,
+    evse?: {
+      id: number
+    } | null,
+    connector?: {
+      id: number,
+      connectorId: number
+    } | null,
+    chargingStation?: {
+      id: string,
+      tenantId: number,
+      isOnline?: boolean | null,
+      protocol?: string | null,
       location?: {
         id: number,
         name?: string | null,

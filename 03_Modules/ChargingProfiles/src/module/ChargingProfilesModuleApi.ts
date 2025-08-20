@@ -18,7 +18,7 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  Body,
+  BodyWithSchema,
   ChargingProfileResponse,
   ChargingProfileResponseSchema,
   ChargingProfileResponseSchemaName,
@@ -113,7 +113,7 @@ export class ChargingProfilesModuleApi
   )
   async updateChargingProfile(
     @Param('sessionId') sessionId: string,
-    @Body(SetChargingProfileSchema, SetChargingProfileSchemaName)
+    @BodyWithSchema(SetChargingProfileSchema, SetChargingProfileSchemaName)
     payload: SetChargingProfile,
   ): Promise<ChargingProfileResponse> {
     return this.service.putChargingProfile(sessionId, payload);

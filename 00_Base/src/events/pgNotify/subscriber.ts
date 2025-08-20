@@ -78,7 +78,7 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
     });
 
     const callDisconnectHandlers = () => {
-      const called = new Set<Function>();
+      const called = new Set<() => void>();
       for (const { handleDisconnect } of this.eventHandlers.values()) {
         if (handleDisconnect && !called.has(handleDisconnect)) {
           called.add(handleDisconnect);

@@ -29,22 +29,22 @@ export const GET_CHARGING_STATION_BY_ID_QUERY = gql`
         removed
         createdAt
         updatedAt
-        connectors: Connectors {
-          id
-          tenantId
-          stationId
-          evseId
-          connectorId
-          evseTypeConnectorId
-          status
-          errorCode
-          timestamp
-          info
-          vendorId
-          vendorErrorCode
-          createdAt
-          updatedAt
-        }
+      }
+      connectors: Connectors {
+        id
+        tenantId
+        stationId
+        evseId
+        connectorId
+        evseTypeConnectorId
+        status
+        errorCode
+        timestamp
+        info
+        vendorId
+        vendorErrorCode
+        createdAt
+        updatedAt
       }
       tenant: Tenant {
         partyId

@@ -6,7 +6,7 @@ import {
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
-  Body,
+  BodyWithSchema,
   buildCredentialsResponse,
   buildOcpiEmptyResponse,
   CredentialsDTO,
@@ -105,7 +105,7 @@ export class CredentialsModuleApi
   async postCredentials(
     @VersionNumberParam() version: VersionNumber,
     @Ctx() ctx: any,
-    @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
+    @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
@@ -133,7 +133,7 @@ export class CredentialsModuleApi
   async putCredentials(
     @VersionNumberParam() version: VersionNumber,
     @Ctx() ctx: any,
-    @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
+    @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
@@ -192,7 +192,7 @@ export class CredentialsModuleApi
     @Param('versionUrl') versionUrl: string, // CPO version url
     @Param('cpoCountryCode') cpoCountryCode: string,
     @Param('cpoPartyId') cpoPartyId: string,
-    @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
+    @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO, // Partner credentials
   ): Promise<CredentialsResponse> {
     this.logger.info('registerCredentialsTokenA', credentials);
@@ -233,7 +233,7 @@ export class CredentialsModuleApi
   @AsAdminEndpoint()
   async unregisterClient(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body(
+    @BodyWithSchema(
       UnregisterClientRequestDTOSchema,
       UnregisterClientRequestDTOSchemaName,
     )
@@ -265,7 +265,7 @@ export class CredentialsModuleApi
   })
   async generateCredentialsTokenA(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body(
+    @BodyWithSchema(
       AdminCredentialsRequestDTOSchema,
       AdminCredentialsRequestDTOSchemaName,
     )
@@ -296,7 +296,7 @@ export class CredentialsModuleApi
   })
   async regenerateCredentialsToken(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body(
+    @BodyWithSchema(
       AdminCredentialsRequestDTOSchema,
       AdminCredentialsRequestDTOSchemaName,
     )
