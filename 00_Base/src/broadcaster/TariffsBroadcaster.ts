@@ -19,26 +19,20 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   private async broadcast(
     tariffDto: Partial<ITariffDto>,
     method: HttpMethod,
-    action: string,
   ): Promise<void> {
     const tariffId = tariffDto.id;
     if (!tariffId) throw new Error('Tariff ID missing');
     const tenant = tariffDto.tenant;
     if (!tenant) {
       this.logger.error(
-        `Tenant data missing in notification for Tariff ${tariffId}, cannot broadcast ${action}.`,
+        `Tenant data missing in notification for Tariff ${tariffId}, cannot broadcast ${method}.`,
       );
       return;
     }
-    // Debug log for raw payload
-    this.logger.debug(
-      `[TariffsBroadcaster] Raw payload for ${action}:`,
-      tariffDto,
-    );
+
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffId}`;
+
     try {
-      const params = {
-        tariffId: tariffDto.id as number,
-      };
       await this.tariffsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
@@ -47,22 +41,22 @@ export class TariffsBroadcaster extends BaseBroadcaster {
         httpMethod: method,
         schema: TariffResponseSchema,
         body: tariffDto,
-        otherParams: params,
+        path: path,
       });
     } catch (e) {
-      this.logger.error(`broadcast${action} failed for Tariff ${tariffId}`, e);
+      this.logger.error(`broadcast${method} failed for Tariff ${tariffId}`, e);
     }
   }
 
   async broadcastPutTariff(tariffDto: ITariffDto): Promise<void> {
-    await this.broadcast(tariffDto, HttpMethod.Put, 'PutTariff');
+    await this.broadcast(tariffDto, HttpMethod.Put);
   }
 
   async broadcastPatchTariff(tariffDto: Partial<ITariffDto>): Promise<void> {
-    await this.broadcast(tariffDto, HttpMethod.Patch, 'PatchTariff');
+    await this.broadcast(tariffDto, HttpMethod.Patch);
   }
 
   async broadcastTariffDeletion(tariffDto: ITariffDto): Promise<void> {
-    await this.broadcast(tariffDto, HttpMethod.Delete, 'DeleteTariff');
+    await this.broadcast(tariffDto, HttpMethod.Delete);
   }
 }
