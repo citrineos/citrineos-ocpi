@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Module Integration](#module-integration)
 - [Release Information](#release-information)
 - [Getting Started](#getting-started)
 - [Running database seeders](#running-database-seeders)
@@ -19,17 +18,7 @@
 
 ## Overview
 
-CitrineOS OCPI is a set of modules designed to integrate seamlessly with the CitrineOS Core repository. These modules are intended to work in conjunction with other modules that persist relevant data, rather than being spun up independently. Independent deployment of CitrineOS OCPI modules is achievable with mocks for testing purposes. Each group of combined ocpi + core/payment modules can be deployed as an independent microservice to facilitate horizontal scaling.
-
-## Module Integration
-
-The modules in CitrineOS OCPI integrate with modules in CitrineOS Core and CitrineOS Payment as follows:
-
-- **Credentials and Versions** work alongside Core's Tenant module.
-- **Sessions, CDRs, and Locations** work alongside Core's Transaction module.
-- **Charging Profiles** work alongside Core's Smart Charging module.
-- **Commands and Tokens** work alongside Core's EVDriver module.
-- **Tariffs** work alongside CitrineOS Payment's Payment module.
+CitrineOS OCPI is a set of modules designed to integrate seamlessly with the CitrineOS Core repository. These modules use CitrineOS Core's GraphQL API for data access and manipulation, and integrate with the PostgresQL database for LISTEN/NOTIFY events in order to trigger push updates.
 
 ## Release Information
 
@@ -41,9 +30,8 @@ This release provides full OCPI 2.2.1 CPO functionality. The features included a
 
 - **Registration**: Full Credentials & Versions implementation. Register with new eMSP partners via `CREDENTIALS_TOKEN_A` as the sender through an Admin endpoint. Create a `CREDENTIALS_TOKEN_A` through Admin endpoint. Un-register or refresh client credentials through Admin endpoints.
 - **Sender Interface Endpoints**: Sessions, CDRs, Tariffs, and Locations.
-- **Receiver Interface Endpoints**: Charging Profiles, Commands, and Tokens.
+- **Receiver Interface Endpoints**: Commands, and Tokens.
 - **Pushes all data to MSPs**
-- **Other Admin Endpoints**: Refresh Token cache from an MSP, Publish or update Locations & Tariffs~~~~
 
 ## Getting Started
 
@@ -53,9 +41,13 @@ To get started with CitrineOS OCPI, you will need to:
 1. `cd citrineos-ocpi/Server`
 1. `docker compose build && docker compose up -d`
 
+If working with a local version of CitrineOS Core, such as a release candidate branch, make sure it is in the same parent folder as `citrineos-ocpi`, then use the following command instead:
+
+1. `docker compose -f docker-compose-local.yml build && docker compose -f docker-compose-local.yml up -d`
+
 ## Generating GraphQL Types
 
-Before building or running the project, you must generate the GraphQL types using codegen. Run the following command from the project root:
+You can generate the GraphQL types using codegen, and should do so after making any changes to your GraphQL schema or queries in 00_Base/src/graphql/queries. Run the following command from the project root:
 
 ```sh
 npm run generate
@@ -65,24 +57,9 @@ This will use [GraphQL Code Generator](https://www.graphql-code-generator.com/) 
 
 ## Running database seeders:
 
-The following commands were created to initialize the DB tables:
+The following command was created to initialize the DB tables:
 
-`npm run sync-db` - ORM creates / updates DB tables to align with the models defined in the code
-`npm run seed-db` - creates seed data
-
-## Running CORE with OCPI (NPM)
-
-You should be able to run CORE with OCPI by running `npm run start` command. This will run `nodemon` which
-will watch for local file changes and rebuild and re-run the app when changes are detected. The debugger port
-is also available on port `9229`.
-
-## Running CORE with OCPI (Docker)
-
-You should be able to run `npm run start-docker-compose` which will use the `./Server/docker-compose.yml`
-configuration to `docker compose up`. This configuration will ensure that `citrineos-core` and `citrineos-ocoi`
-directories are mounted ensuring the same hot code reloading capabilities. We also ensure that any locally
-generated `dist`, `node_modules`, `package-lock.json`, etc. are ignored by the docker container to
-prevent any conflicts.
+`npm run seed-db` - creates seed data: a default tenant and a default tenant partner, to act as an eMSP.
 
 ## Attaching Debugger (optional)
 
@@ -108,7 +85,7 @@ which will wait for the debugger to attach before proceeding with execution.
 
 ## Usage
 
-You can now connect your OCPP 2.0.1 compliant charging stations to the CitrineOS server. Make sure to configure the
+You can now connect your OCPP compliant charging stations to the CitrineOS server. Make sure to configure the
 charging stations to point to the server's IP address and port as specified in the config.json file.
 
 ## Testing with EVerest
