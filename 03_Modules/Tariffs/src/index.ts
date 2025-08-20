@@ -17,6 +17,7 @@ import { ILogObj, Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 import { TariffsModuleApi } from './module/TariffsModuleApi';
 import { ITariffDto } from '@citrineos/base';
+import { TariffsBroadcaster } from '@citrineos/ocpi-base/dist/broadcaster/TariffsBroadcaster';
 
 export { TariffsModuleApi } from './module/TariffsModuleApi';
 export { ITariffsModuleApi } from './module/ITariffsModuleApi';
@@ -26,6 +27,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
     logger: Logger<ILogObj>,
+    readonly tariffsBroadcaster: TariffsBroadcaster,
   ) {
     super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
@@ -52,7 +54,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleTariffInsert(event: IDtoEvent<ITariffDto>): Promise<void> {
     this._logger.info(`Handling Tariff Insert: ${JSON.stringify(event)}`);
-    // Inserts are Tariff PUT requests
+    await this.tariffsBroadcaster.broadcastPutTariff(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -64,7 +66,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     event: IDtoEvent<Partial<ITariffDto>>,
   ): Promise<void> {
     this._logger.info(`Handling Tariff Update: ${JSON.stringify(event)}`);
-    // Updates are Tariff PUT requests
+    await this.tariffsBroadcaster.broadcastPatchTariff(event._payload);
   }
 
   @AsDtoEventHandler(
@@ -74,6 +76,6 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleTariffDelete(event: IDtoEvent<ITariffDto>): Promise<void> {
     this._logger.info(`Handling Tariff Delete: ${JSON.stringify(event)}`);
-    // Deletes are Tariff DELETE requests
+    await this.tariffsBroadcaster.broadcastTariffDeletion(event._payload);
   }
 }

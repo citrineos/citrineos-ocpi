@@ -73,7 +73,7 @@ export class DtoRouter implements IDtoRouter {
         );
         const dtoEvent = new DtoEvent(
           eventId,
-          { eventType, objectType },
+          { eventType: event.eventType, objectType },
           event.payload,
         );
 

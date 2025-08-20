@@ -3,9 +3,7 @@ import { Service } from 'typedi';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { ILogObj, Logger } from 'tslog';
 import { CredentialsService } from '../services/CredentialsService';
-import { LocationRepository } from '../repository/LocationRepository';
 import { LocationResponseSchema } from '../model/DTO/LocationDTO';
-import { PutLocationParams } from '../trigger/param/locations/PutLocationParams';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import {
@@ -15,8 +13,6 @@ import {
   ILocationDto,
 } from '@citrineos/base';
 import { UID_FORMAT } from '../model/DTO/EvseDTO';
-import { PatchEvseParams } from '../trigger/param/locations/PatchEvseParams';
-import { PatchConnectorParams } from '../trigger/param/locations/PatchConnectorParams';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
 
 @Service()
@@ -45,8 +41,10 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   ): Promise<void> {
     const locationId = locationDto.id;
     if (!locationId) throw new Error('Location ID missing');
+    const partyId = locationDto.tenant!.partyId!;
+    const countryCode = locationDto.tenant!.countryCode!;
 
-    const params: PutLocationParams = { locationId };
+    const path = `/${countryCode}/${partyId}/${locationId}`;
 
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -57,7 +55,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         httpMethod: method,
         schema: LocationResponseSchema,
         body: locationDto,
-        otherParams: params,
+        path: path,
       });
     } catch (e) {
       this.logger.error(
@@ -87,11 +85,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     if (!evseId) {
       throw new Error('EVSE ID missing in Evse data');
     }
+    const locationId = evseData.chargingStation!.locationId!;
+    const partyId = evseData.tenant!.partyId!;
+    const countryCode = evseData.tenant!.countryCode!;
 
-    const params: PatchEvseParams = {
-      locationId: evseData.chargingStation!.locationId!,
-      evseUid: UID_FORMAT(stationId, evseId),
-    };
+    const path = `/${countryCode}/${partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}`;
 
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -102,7 +100,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         httpMethod: method,
         schema: LocationResponseSchema,
         body: evseData,
-        otherParams: params,
+        path: path,
       });
     } catch (e) {
       this.logger.error(
@@ -141,12 +139,10 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       throw new Error('EVSE ID missing in Connector data');
     }
     const locationId = connectorData.chargingStation!.locationId!;
+    const partyId = connectorData.tenant!.partyId!;
+    const countryCode = connectorData.tenant!.countryCode!;
 
-    const params: PatchConnectorParams = {
-      locationId,
-      evseUid: UID_FORMAT(stationId, evseId),
-      connectorId,
-    };
+    const path = `/${countryCode}/${partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}/${connectorId}`;
 
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -157,7 +153,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         httpMethod: method,
         schema: OcpiEmptyResponseSchema,
         body: connectorData,
-        otherParams: params,
+        path: path,
       });
     } catch (e) {
       this.logger.error(

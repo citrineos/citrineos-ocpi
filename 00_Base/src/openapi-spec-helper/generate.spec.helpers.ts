@@ -18,7 +18,7 @@ import { Constructable } from 'typedi';
 import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
 import { ContentType } from '../util/ContentType';
 import { ZodTypeAny } from 'zod';
-import { BODY_PARAM } from '../util/decorators/Body';
+import { BODY_PARAM } from '../util/decorators/BodyWithSchema';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {

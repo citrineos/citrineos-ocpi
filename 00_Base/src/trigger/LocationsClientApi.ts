@@ -34,7 +34,7 @@ export class LocationsClientApi extends BaseClientApi {
     )?.url;
     if (!url) {
       throw new Error(
-        `No locations endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+        `No Locations endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
       );
     }
     return url;

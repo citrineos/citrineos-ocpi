@@ -59,6 +59,7 @@ export interface BroadcastParams<T extends ZodTypeAny> {
   body?: any;
   paginatedParams?: PaginatedParams;
   otherParams?: Record<string, string | number | (string | number)[]>;
+  path?: string;
 }
 
 export interface TriggerRequestOptions extends IRequestOptions {
@@ -112,6 +113,7 @@ export abstract class BaseClientApi {
     body?: any,
     paginatedParams?: PaginatedParams,
     otherParams?: Record<string, string | number | (string | number)[]>,
+    path?: string
   ): Promise<any> {
     if (!partnerProfile) {
       const response = await this.ocpiGraphqlClient.request<
@@ -128,6 +130,9 @@ export abstract class BaseClientApi {
     }
     if (!url) {
       url = this.getUrl(partnerProfile);
+    }
+    if (path) {
+      url += path;
     }
     const additionalHeaders = this.getHeaders(partnerProfile);
     if (routingHeaders) {
@@ -251,6 +256,7 @@ export abstract class BaseClientApi {
       body,
       paginatedParams,
       otherParams,
+      path,
     } = params;
     const responses: T[] = [];
     const response = await this.ocpiGraphqlClient.request<
@@ -276,6 +282,7 @@ export abstract class BaseClientApi {
         body,
         paginatedParams,
         otherParams,
+        path,
       );
       responses.push(response);
     }
