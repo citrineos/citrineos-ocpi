@@ -9,10 +9,17 @@ export = {
       RETURNS trigger AS $$
       DECLARE
         notificationData jsonb;
+        tenantData jsonb;
       BEGIN
         IF TG_OP = 'INSERT' AND NEW."transactionDatabaseId" IS NOT NULL THEN
-          -- For INSERT: include all fields
-          notificationData := to_jsonb(NEW);
+          -- Get tenant data
+          SELECT to_jsonb(t) INTO tenantData 
+          FROM "Tenants" t 
+          WHERE t."id" = NEW."tenantId";
+
+          -- Merge all MeterValues fields, and tenant
+          notificationData := to_jsonb(NEW)
+            || jsonb_build_object('tenant', tenantData);
         END IF;
 
         PERFORM pg_notify(

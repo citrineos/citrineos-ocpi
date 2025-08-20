@@ -844,6 +844,10 @@ export type GetTransactionByTransactionIdQueryResult = {
     endTime?: any | null,
     createdAt: any,
     updatedAt: any,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
     evse?: {
       id: number
     } | null,

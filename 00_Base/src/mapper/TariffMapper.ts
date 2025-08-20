@@ -9,12 +9,12 @@ import { ITariffDto } from '@citrineos/base';
 export class TariffMapper {
   constructor() {}
 
-  public static map(coreTariff: ITariffDto): TariffDTO {
+  public static map(coreTariff: Partial<ITariffDto>): TariffDTO {
     return {
       id: coreTariff.id!.toString(),
       country_code: coreTariff.tenant!.countryCode!,
       party_id: coreTariff.tenant!.partyId!,
-      currency: coreTariff.currency,
+      currency: coreTariff.currency!,
       type: TariffType.AD_HOC_PAYMENT,
       // tariff_alt_text: coreTariff.tariffAltText
       //   ? (coreTariff.tariffAltText[0] as any)?.text
@@ -29,12 +29,14 @@ export class TariffMapper {
       last_updated: coreTariff.updatedAt!,
     };
   }
-  private static getTariffElement(coreTariff: ITariffDto): TariffElement {
+  private static getTariffElement(
+    coreTariff: Partial<ITariffDto>,
+  ): TariffElement {
     return {
       price_components: [
         {
           type: TariffDimensionType.ENERGY,
-          price: coreTariff.pricePerKwh,
+          price: coreTariff.pricePerKwh!,
           vat: coreTariff.taxRate,
           step_size: 1,
         },

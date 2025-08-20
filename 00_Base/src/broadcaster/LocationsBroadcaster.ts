@@ -3,7 +3,12 @@ import { Service } from 'typedi';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { ILogObj, Logger } from 'tslog';
 import { CredentialsService } from '../services/CredentialsService';
-import { LocationResponseSchema } from '../model/DTO/LocationDTO';
+import { LocationDTO, LocationResponseSchema } from '../model/DTO/LocationDTO';
+import { EvseDTO, EvseResponseSchema } from '../model/DTO/EvseDTO';
+import {
+  ConnectorDTO,
+  ConnectorResponseSchema,
+} from '../model/DTO/ConnectorDTO';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import {
@@ -11,9 +16,14 @@ import {
   IConnectorDto,
   IEvseDto,
   ILocationDto,
+  ITenantDto,
 } from '@citrineos/base';
 import { UID_FORMAT } from '../model/DTO/EvseDTO';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import {
+  ConnectorMapper,
+  EvseMapper,
+  LocationMapper,
+} from '../mapper/LocationMapper';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -25,141 +35,140 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     super();
   }
 
-  async broadcastPutLocation(locationDto: ILocationDto): Promise<void> {
-    await this.broadcastLocation(locationDto, HttpMethod.Put);
+  async broadcastPutLocation(
+    tenant: ITenantDto,
+    locationDto: ILocationDto,
+  ): Promise<void> {
+    const location = LocationMapper.fromGraphql(locationDto);
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${location.id}`;
+    await this.broadcastLocation(tenant, location, HttpMethod.Put, path);
   }
 
   async broadcastPatchLocation(
+    tenant: ITenantDto,
     locationDto: Partial<ILocationDto>,
-  ): Promise<void> {
-    await this.broadcastLocation(locationDto, HttpMethod.Patch);
-  }
-
-  private async broadcastLocation(
-    locationDto: Partial<ILocationDto>,
-    method: HttpMethod,
   ): Promise<void> {
     const locationId = locationDto.id;
     if (!locationId) throw new Error('Location ID missing');
-    const partyId = locationDto.tenant!.partyId!;
-    const countryCode = locationDto.tenant!.countryCode!;
+    const location = LocationMapper.fromPartialGraphql(locationDto);
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}`;
+    await this.broadcastLocation(tenant, location, HttpMethod.Patch, path);
+  }
 
-    const path = `/${countryCode}/${partyId}/${locationId}`;
-
+  private async broadcastLocation(
+    tenant: ITenantDto,
+    location: Partial<LocationDTO>,
+    method: HttpMethod,
+    path: string,
+  ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
-        cpoCountryCode: locationDto.tenant!.countryCode!,
-        cpoPartyId: locationDto.tenant!.partyId!,
+        cpoCountryCode: tenant.countryCode!,
+        cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Locations,
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,
         schema: LocationResponseSchema,
-        body: locationDto,
+        body: location,
         path: path,
       });
     } catch (e) {
       this.logger.error(
-        `broadcast${method}Location failed for Location ${locationId}`,
+        `broadcast${method}Location failed for Location ${path}`,
         e,
       );
     }
   }
 
-  async broadcastPutEvse(evse: Partial<IEvseDto>): Promise<void> {
-    await this.broadcastEvse(evse, HttpMethod.Put);
+  async broadcastPutEvse(tenant: ITenantDto, evseDto: IEvseDto): Promise<void> {
+    const locationId = evseDto.chargingStation?.locationId;
+    if (!locationId) throw new Error('Location ID missing in EVSE data');
+    const evse = EvseMapper.fromGraphql(evseDto.chargingStation!, evseDto);
+    if (!evse) throw new Error('Failed to map EVSE data');
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId, evseDto.id!)}`;
+    await this.broadcastEvse(tenant, evse, HttpMethod.Put, path);
   }
 
-  async broadcastPatchEvse(partialEvse: Partial<IEvseDto>): Promise<void> {
-    await this.broadcastEvse(partialEvse, HttpMethod.Patch);
+  async broadcastPatchEvse(
+    tenant: ITenantDto,
+    evseDto: Partial<IEvseDto>,
+  ): Promise<void> {
+    const locationId = evseDto.chargingStation?.locationId;
+    if (!locationId) throw new Error('Location ID missing in EVSE data');
+    const evse = EvseMapper.fromPartialGraphql(
+      evseDto.chargingStation!,
+      evseDto,
+    );
+    if (!evse) throw new Error('Failed to map EVSE data');
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
+    await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
   }
 
   private async broadcastEvse(
-    evseData: Partial<IEvseDto>,
+    tenant: ITenantDto,
+    evseData: Partial<EvseDTO>,
     method: HttpMethod,
+    path: string,
   ): Promise<void> {
-    const stationId = evseData.stationId;
-    if (!stationId) {
-      throw new Error('Station ID missing in Evse data');
-    }
-    const evseId = evseData.evseId;
-    if (!evseId) {
-      throw new Error('EVSE ID missing in Evse data');
-    }
-    const locationId = evseData.chargingStation!.locationId!;
-    const partyId = evseData.tenant!.partyId!;
-    const countryCode = evseData.tenant!.countryCode!;
-
-    const path = `/${countryCode}/${partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}`;
-
     try {
       await this.locationsClientApi.broadcastToClients({
-        cpoCountryCode: evseData.tenant!.countryCode!,
-        cpoPartyId: evseData.tenant!.partyId!,
+        cpoCountryCode: tenant.countryCode!,
+        cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Locations,
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,
-        schema: LocationResponseSchema,
+        schema: EvseResponseSchema,
         body: evseData,
         path: path,
       });
     } catch (e) {
-      this.logger.error(
-        `broadcast${method}Evse failed for Location ${evseData.chargingStation!.locationId!}`,
-        e,
-      );
+      this.logger.error(`broadcast${method}Evse failed for ${path}`, e);
     }
   }
 
   async broadcastPutConnector(
-    connector: Partial<IConnectorDto>,
+    tenant: ITenantDto,
+    connectorDto: IConnectorDto,
   ): Promise<void> {
-    await this.broadcastConnector(connector, HttpMethod.Put);
+    const locationId = connectorDto.chargingStation?.locationId;
+    if (!locationId) throw new Error('Location ID missing in Connector data');
+    const connector = ConnectorMapper.fromGraphql(connectorDto);
+    if (!connector) throw new Error('Failed to map Connector data');
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(connectorDto.stationId, connectorDto.evseId)}/${connectorDto.id}`;
+    await this.broadcastConnector(tenant, connector, HttpMethod.Put, path);
   }
 
   async broadcastPatchConnector(
-    partialConnector: Partial<IConnectorDto>,
+    tenant: ITenantDto,
+    connectorDto: Partial<IConnectorDto>,
   ): Promise<void> {
-    await this.broadcastConnector(partialConnector, HttpMethod.Patch);
+    const locationId = connectorDto.chargingStation?.locationId;
+    if (!locationId) throw new Error('Location ID missing in Connector data');
+    const connector = ConnectorMapper.fromPartialGraphql(connectorDto);
+    if (!connector) throw new Error('Failed to map Connector data');
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(connectorDto.stationId!, connectorDto.evseId!)}/${connectorDto.id}`;
+    await this.broadcastConnector(tenant, connector, HttpMethod.Patch, path);
   }
 
   private async broadcastConnector(
-    connectorData: Partial<IConnectorDto>,
+    tenant: ITenantDto,
+    connectorData: Partial<ConnectorDTO>,
     method: HttpMethod,
+    path: string,
   ): Promise<void> {
-    const connectorId = connectorData.connectorId;
-    if (!connectorId) {
-      throw new Error('Connector ID missing in Connector data');
-    }
-    const stationId = connectorData.stationId;
-    if (!stationId) {
-      throw new Error('Station ID missing in Connector data');
-    }
-    const evseId = connectorData.evseId;
-    if (!evseId) {
-      throw new Error('EVSE ID missing in Connector data');
-    }
-    const locationId = connectorData.chargingStation!.locationId!;
-    const partyId = connectorData.tenant!.partyId!;
-    const countryCode = connectorData.tenant!.countryCode!;
-
-    const path = `/${countryCode}/${partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}/${connectorId}`;
-
     try {
       await this.locationsClientApi.broadcastToClients({
-        cpoCountryCode: connectorData.tenant!.countryCode!,
-        cpoPartyId: connectorData.tenant!.partyId!,
+        cpoCountryCode: tenant.countryCode!,
+        cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Locations,
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,
-        schema: OcpiEmptyResponseSchema,
+        schema: ConnectorResponseSchema,
         body: connectorData,
         path: path,
       });
     } catch (e) {
-      this.logger.error(
-        `broadcast${method}Connector failed for Location ${locationId}`,
-        e,
-      );
+      this.logger.error(`broadcast${method}Connector failed for ${path}`, e);
     }
   }
 }

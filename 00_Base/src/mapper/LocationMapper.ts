@@ -63,6 +63,37 @@ export class LocationMapper {
     };
   }
 
+  static fromPartialGraphql(location: Partial<ILocationDto>): Partial<LocationDTO> {
+    return {
+      publish: location.publishUpstream,
+      name: location.name,
+      address: location.address,
+      city: location.city,
+      postal_code: location.postalCode,
+      state: location.state,
+      country: location.country,
+      coordinates: location.coordinates && {
+        longitude: location.coordinates.coordinates[0].toString(),
+        latitude: location.coordinates.coordinates[1].toString(),
+      },
+      time_zone: location.timeZone,
+      evses: location.chargingPool && location.chargingPool
+        .map((station) =>
+          station.evses!.map((evse) => EvseMapper.fromGraphql(station, evse)),
+        )
+        .flat()
+        .filter((evse) => evse !== undefined),
+      parking_type: LocationMapper.mapLocationParkingType(location.parkingType),
+      facilities: location.facilities
+        ?.map(LocationMapper.mapLocationFacility)
+        .filter((f) => f !== null),
+      opening_times: location.openingHours
+        ? LocationMapper.mapLocationHours(location.openingHours)
+        : undefined,
+      last_updated: location.updatedAt!,
+    };
+  }
+
   static mapLocationParkingType(
     parkingType: LocationParkingType | null | undefined,
   ): ParkingType | null {
@@ -180,6 +211,40 @@ export class EvseMapper {
       uid: UID_FORMAT(station.id, evse.id!),
       evse_id: evse.evseId,
       status: EvseMapper.mapEvseStatusFromConnectors(
+        evse.connectors!.filter((c) =>
+          connectors.some((con) => con!.id === c.id!.toString()),
+        ),
+      ),
+      capabilities: station.capabilities
+        ?.map((c) => EvseMapper.mapEvseCapabilities(c))
+        .filter((c) => c !== null),
+      physical_reference: evse.physicalReference,
+      coordinates: station.coordinates
+        ? {
+            longitude: station.coordinates.coordinates[0].toString(),
+            latitude: station.coordinates.coordinates[1].toString(),
+          }
+        : undefined,
+      parking_restrictions: station.parkingRestrictions
+        ?.map((r) => EvseMapper.mapEvseParkingRestrictions(r))
+        .filter((r) => r !== null),
+      connectors: connectors,
+      floor_level: station.floorLevel,
+      last_updated: evse.updatedAt!,
+    };
+  }
+
+  static fromPartialGraphql(
+    station: Partial<IChargingStationDto>,
+    evse: Partial<IEvseDto>,
+  ): Partial<EvseDTO> {
+    const connectors = evse
+      .connectors?.map(ConnectorMapper.fromGraphql)
+      .filter((c) => c !== undefined);
+
+    return {
+      evse_id: evse.evseId,
+      status: connectors && EvseMapper.mapEvseStatusFromConnectors(
         evse.connectors!.filter((c) =>
           connectors.some((con) => con!.id === c.id!.toString()),
         ),
@@ -321,6 +386,22 @@ export class ConnectorMapper {
       return partialConnector as ConnectorDTO;
     }
     logger.warn(`Invalid connector: ${JSON.stringify(partialConnector)}`);
+  }
+
+  static fromPartialGraphql(connector: Partial<IConnectorDto>): Partial<ConnectorDTO> {
+    const logger = Container.get(Logger);
+    const partialConnector: Partial<ConnectorDTO> = {
+      standard: ConnectorMapper.mapConnectorType(connector.type),
+      format: ConnectorMapper.mapConnectorFormat(connector.format),
+      power_type: ConnectorMapper.mapConnectorPowerType(connector.powerType),
+      max_voltage: connector.maximumVoltage || undefined,
+      max_amperage: connector.maximumAmperage || undefined,
+      max_electric_power: connector.maximumPowerWatts || undefined,
+      tariff_ids: connector.tariffs?.map((t) => t.id!.toString()),
+      terms_and_conditions: connector.termsAndConditionsUrl,
+      last_updated: connector.updatedAt!,
+    };
+    return partialConnector;
   }
 
   static mapConnectorType(

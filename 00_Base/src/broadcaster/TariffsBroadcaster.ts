@@ -4,8 +4,9 @@ import { TariffsClientApi } from '../trigger/TariffsClientApi';
 import { ILogObj, Logger } from 'tslog';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
-import { HttpMethod, ITariffDto } from '@citrineos/base';
-import { TariffResponseSchema } from '../model/Tariff';
+import { HttpMethod, ITariffDto, ITenantDto } from '@citrineos/base';
+import { Tariff, TariffResponseSchema } from '../model/Tariff';
+import { TariffMapper } from '../mapper/TariffMapper';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {
@@ -17,21 +18,11 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcast(
-    tariffDto: Partial<ITariffDto>,
+    tenant: ITenantDto,
     method: HttpMethod,
+    path: string,
+    tariff?: Partial<Tariff>,
   ): Promise<void> {
-    const tariffId = tariffDto.id;
-    if (!tariffId) throw new Error('Tariff ID missing');
-    const tenant = tariffDto.tenant;
-    if (!tenant) {
-      this.logger.error(
-        `Tenant data missing in notification for Tariff ${tariffId}, cannot broadcast ${method}.`,
-      );
-      return;
-    }
-
-    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffId}`;
-
     try {
       await this.tariffsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
@@ -40,23 +31,22 @@ export class TariffsBroadcaster extends BaseBroadcaster {
         interfaceRole: InterfaceRole.SENDER,
         httpMethod: method,
         schema: TariffResponseSchema,
-        body: tariffDto,
+        body: tariff,
         path: path,
       });
     } catch (e) {
-      this.logger.error(`broadcast${method} failed for Tariff ${tariffId}`, e);
+      this.logger.error(`broadcast${method} failed for Tariff ${path}`, e);
     }
   }
 
-  async broadcastPutTariff(tariffDto: ITariffDto): Promise<void> {
-    await this.broadcast(tariffDto, HttpMethod.Put);
+  async broadcastPutTariff(tenant: ITenantDto, tariffDto: Partial<ITariffDto>): Promise<void> {
+    const tariff = TariffMapper.map(tariffDto);
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariff.id}`;
+    await this.broadcast(tenant, HttpMethod.Put, path, tariff);
   }
 
-  async broadcastPatchTariff(tariffDto: Partial<ITariffDto>): Promise<void> {
-    await this.broadcast(tariffDto, HttpMethod.Patch);
-  }
-
-  async broadcastTariffDeletion(tariffDto: ITariffDto): Promise<void> {
-    await this.broadcast(tariffDto, HttpMethod.Delete);
+  async broadcastTariffDeletion(tenant: ITenantDto, tariffDto: ITariffDto): Promise<void> {
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffDto.id}`;
+    await this.broadcast(tenant, HttpMethod.Delete, path);
   }
 }
