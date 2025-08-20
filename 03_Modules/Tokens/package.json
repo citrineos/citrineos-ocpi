@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@citrineos/ocpi-base": "2.0.0",
+    "@citrineos/util": "~1.8.0",
     "deasync-promise": "1.0.1",
     "tslog": "4.9.2"
   }

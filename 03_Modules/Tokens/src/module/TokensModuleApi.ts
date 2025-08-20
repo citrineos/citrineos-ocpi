@@ -5,6 +5,7 @@
 
 import {
   BadRequestError,
+  Body,
   Ctx,
   Delete,
   Get,
@@ -20,11 +21,15 @@ import { Service } from 'typedi';
 
 import { HttpStatus } from '@citrineos/base';
 import {
+  RealTimeAuthorizationRequestBody,
+  RealTimeAuthorizationResponse,
+} from '@citrineos/util';
+import {
   AsOcpiFunctionalEndpoint,
   AsyncJobAction,
   AsyncJobStatusResponse,
   BaseController,
-  Body,
+  BodyWithSchema,
   BodyWithExample,
   buildOcpiEmptyResponse,
   buildOcpiResponse,
@@ -49,6 +54,7 @@ import {
   // TokensAdminService,
   TokensService,
   TokenType,
+  TokenTypeSchema,
   TokenTypeSchemaName,
   UnknownTokenException,
   versionIdParam,
@@ -58,7 +64,6 @@ import {
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './ITokensModuleApi';
-import { TokenTypeSchema } from '@citrineos/ocpi-base/dist/model/TokenType';
 
 const MockPutTokenBody = {
   country_code: 'MSP',
@@ -209,7 +214,8 @@ export class TokensModuleApi
     @Param('partyId') partyId: string,
     @Param('tokenUid') tokenUid: string,
     @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
-    @Body(TokenDTOSchema, TokenDTOSchemaName) token: Partial<TokenDTO>,
+    @BodyWithSchema(TokenDTOSchema, TokenDTOSchemaName)
+    token: Partial<TokenDTO>,
     @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
     type?: TokenType,
     @Ctx() ctx?: any,
@@ -240,6 +246,15 @@ export class TokensModuleApi
     );
 
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  @Post('/realTimeAuth')
+  async realTimeAuthorization(
+    @VersionNumberParam() _version: VersionNumber,
+    @Body() realTimeAuthRequest: RealTimeAuthorizationRequestBody,
+  ): Promise<RealTimeAuthorizationResponse> {
+    this.logger.info('realTimeAuthorization', realTimeAuthRequest);
+    return this.tokensService.realTimeAuthorization(realTimeAuthRequest);
   }
 
   /**

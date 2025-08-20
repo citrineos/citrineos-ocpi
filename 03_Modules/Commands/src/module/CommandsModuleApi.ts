@@ -4,27 +4,34 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { ICommandsModuleApi } from './ICommandsModuleApi';
-
-import { Body, JsonController, Post } from 'routing-controllers';
-
-import { HttpStatus } from '@citrineos/base';
+import {
+  Body,
+  Ctx,
+  JsonController,
+  Param,
+  Post,
+} from 'routing-controllers';
+import {
+  HttpStatus,
+  ITenantPartnerDto,
+  OCPPVersion,
+} from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   CancelReservation,
   CancelReservationSchema,
   CancelReservationSchemaName,
+  CommandExecutor,
   CommandResponseSchema,
   CommandResponseSchemaName,
   CommandsService,
   CommandType,
   EnumParam,
-  FunctionalEndpointParams,
   generateMockForSchema,
   ModuleId,
   MultipleTypes,
   OcpiCommandResponse,
-  OcpiHeaders,
   ReserveNow,
   ReserveNowSchema,
   ReserveNowSchemaName,
@@ -41,8 +48,7 @@ import {
   UnlockConnectorSchemaName,
   versionIdParam,
 } from '@citrineos/ocpi-base';
-
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 
 /**
  * Server API for the provisioning component.
@@ -53,6 +59,9 @@ export class CommandsModuleApi
   extends BaseController
   implements ICommandsModuleApi
 {
+  @Inject()
+  private commandsExecutor!: CommandExecutor;
+
   constructor(readonly commandsService: CommandsService) {
     super();
   }
@@ -86,9 +95,9 @@ export class CommandsModuleApi
       | StartSession
       | StopSession
       | UnlockConnector,
-    @FunctionalEndpointParams() ocpiHeader: OcpiHeaders,
+    @Ctx() ctx: any,
   ): Promise<OcpiCommandResponse> {
-    console.log('postCommand', commandType, payload);
+    this.logger.debug('postCommand', commandType, payload);
     let validationResult:
       | ReturnType<typeof CancelReservationSchema.safeParse>
       | ReturnType<typeof ReserveNowSchema.safeParse>
@@ -133,8 +142,24 @@ export class CommandsModuleApi
     return await this.commandsService.postCommand(
       commandType,
       validationResult.data,
-      ocpiHeader.fromCountryCode,
-      ocpiHeader.fromPartyId,
+      ctx!.state!.tenantPartner as ITenantPartnerDto,
+    );
+  }
+
+  @Post('/callback/:tenantPartnerId/:ocppVersion/:command/:commandId')
+  async postAsynchronousResponse(
+    @Param('tenantPartnerId') tenantPartnerId: number,
+    @Param('ocppVersion') ocppVersion: OCPPVersion,
+    @Param('command') command: CommandType,
+    @Param('commandId') commandId: string,
+    @Body() response: any,
+  ): Promise<void> {
+    await this.commandsExecutor.handleAsyncCommandResponse(
+      tenantPartnerId,
+      ocppVersion,
+      command,
+      commandId,
+      response,
     );
   }
 }

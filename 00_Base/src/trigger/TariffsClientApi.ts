@@ -20,7 +20,7 @@ export class TariffsClientApi extends BaseClientApi {
     )?.url;
     if (!url) {
       throw new Error(
-        `No tariffs endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+        `No Tariffs endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
       );
     }
     return url;

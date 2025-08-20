@@ -10,7 +10,7 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  Body,
+  BodyWithSchema,
   ChargingPreferences,
   ChargingPreferencesResponse,
   ChargingPreferencesResponseSchema,
@@ -101,7 +101,7 @@ export class SessionsModuleApi
   )
   async updateChargingPreferences(
     @Param('sessionId') sessionId: string,
-    @Body(ChargingPreferencesSchema, ChargingPreferencesSchemaName)
+    @BodyWithSchema(ChargingPreferencesSchema, ChargingPreferencesSchemaName)
     body: ChargingPreferences,
   ): Promise<ChargingPreferencesResponse> {
     console.log('updateChargingPreferences', sessionId, body);
