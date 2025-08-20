@@ -8,14 +8,13 @@ import { ILogObj, Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper';
 // import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
-// @ts-ignore-next-line
 import { version } from '../../package.json';
 import { OcpiConfig, OcpiConfigToken } from './config/ocpi.types';
 import { IDtoModule } from './events';
 import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
 
 export { Version } from './model/Version';
-export { Body } from './util/decorators/Body';
+export { BodyWithSchema } from './util/decorators/BodyWithSchema';
 export { plainToClass } from './util/Util';
 export {
   OcpiErrorResponse,
@@ -40,6 +39,12 @@ export {
 } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/PaginatedParams';
 export { Paginated } from './util/decorators/Paginated';
+export {
+  OCPP_COMMAND_HANDLER,
+  OCPPCommandHandler,
+  OCPP1_6_CommandHandler,
+  OCPP2_0_1_CommandHandler,
+} from './util/ocppCommandHandlers';
 export {
   ChargingPreferencesResponse,
   ChargingPreferencesResponseSchema,
@@ -279,6 +284,7 @@ export {
   PaginatedTariffResponseSchemaName,
 } from './model/DTO/tariffs/TariffDTO';
 export { BodyWithExample } from './util/decorators/BodyWithExample';
+export { CommandExecutor } from './util/CommandExecutor';
 export {
   PutTariffRequest,
   PutTariffRequestSchema,
@@ -307,6 +313,9 @@ export {
   UnregisterClientRequestDTOSchemaName,
 } from './model/UnregisterClientRequestDTO';
 export * from './events';
+
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
 useContainer(Container);
 
@@ -405,6 +414,18 @@ export class OcpiServer extends KoaServer {
         this.ocpiConfig.graphql.headers,
       ),
     );
+
+    const ajv = new Ajv({
+      removeAdditional: 'all',
+      useDefaults: true,
+      coerceTypes: 'array',
+      strict: false,
+    });
+    addFormats(ajv, {
+      mode: 'fast',
+      formats: ['date-time'],
+    });
+    Container.set(Ajv, ajv);
 
     this.onContainerInitialized();
   }

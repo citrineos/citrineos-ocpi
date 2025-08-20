@@ -11,7 +11,7 @@ import { HttpStatus } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  Body,
+  BodyWithSchema,
   buildOcpiEmptyResponse,
   buildOcpiErrorResponse,
   DEFAULT_LIMIT,

@@ -36,7 +36,10 @@ export abstract class BaseTransactionMapper {
     for (const transaction of transactions) {
       const locationId = transaction.chargingStation?.location?.id;
 
-      if (!locationId) {
+      if (locationId === undefined) {
+        this.logger.debug(
+          `Skipping transaction ${transaction.id} location ${transaction.chargingStation?.location?.id}`,
+        );
         continue;
       }
 
@@ -47,6 +50,9 @@ export abstract class BaseTransactionMapper {
       const location = result.Locations[0] as ILocationDto;
 
       if (!location) {
+        this.logger.debug(
+          `Skipping transaction ${transaction.id} location ${transaction.chargingStation?.location?.id}`,
+        );
         continue;
       }
 
@@ -67,7 +73,11 @@ export abstract class BaseTransactionMapper {
         const tokenDto = await TokensMapper.toDto(transaction.authorization);
         if (tokenDto) {
           transactionIdToTokenMap.set(transaction.transactionId!, tokenDto);
+        } else {
+          this.logger.debug(`Unmapped token for transaction ${transaction.id}`);
         }
+      } else {
+        this.logger.debug(`No token for transaction ${transaction.id}`);
       }
     }
 
@@ -82,6 +92,8 @@ export abstract class BaseTransactionMapper {
       const tariff = transaction.tariff;
       if (tariff) {
         transactionIdToTariffMap.set(transaction.transactionId!, tariff);
+      } else {
+        this.logger.debug(`No tariff for ${transaction.id}`);
       }
     }
     return transactionIdToTariffMap;

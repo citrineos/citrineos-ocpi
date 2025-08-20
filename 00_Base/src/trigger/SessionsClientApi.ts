@@ -24,7 +24,7 @@ export class SessionsClientApi extends BaseClientApi {
     )?.url;
     if (!url) {
       throw new Error(
-        `No session endpoint available for patnerProfile ${JSON.stringify(partnerProfile)}`,
+        `No Session endpoint available for patnerProfile ${JSON.stringify(partnerProfile)}`,
       );
     }
     return url;

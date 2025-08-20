@@ -24,7 +24,7 @@ export class VersionService {
     >(GET_TENANT_BY_ID, { id: tenantId });
     const tenant = response.Tenants[0] as ITenantDto;
     const versions: OCPIRegistration.Version[] = Array.from(
-      tenant.serverProfileOCPI?.versionDetails.keys() || [],
+      tenant.serverProfileOCPI?.versionDetails || [],
     );
     return {
       data: versions.map((version: OCPIRegistration.Version) => ({
@@ -45,30 +45,27 @@ export class VersionService {
       GetTenantByIdQueryVariables
     >(GET_TENANT_BY_ID, { id: tenantId });
     const tenant = response.Tenants[0] as ITenantDto;
-    const tenantVersion: OCPIRegistration.Version | undefined =
-      tenant.serverProfileOCPI?.versionDetails &&
-      Array.from(tenant.serverProfileOCPI?.versionDetails.keys()).find(
-        (value: OCPIRegistration.Version) =>
-          value.version === RegistrationMapper.toOCPIVersionNumber(version),
-      );
-    if (!tenantVersion) {
+    const tenantVersionEndpoints: OCPIRegistration.Endpoint[] | undefined =
+      tenant.serverProfileOCPI?.versionEndpoints &&
+      tenant.serverProfileOCPI.versionEndpoints[
+        RegistrationMapper.toOCPIVersionNumber(version)
+      ];
+    if (!tenantVersionEndpoints) {
       throw new NotFoundError('Version not found');
     }
     return {
       data: {
-        version: RegistrationMapper.toVersionNumber(tenantVersion.version),
+        version: version,
         endpoints:
-          tenant.serverProfileOCPI?.versionDetails
-            .get(tenantVersion)
-            ?.map((value: OCPIRegistration.Endpoint) => {
-              const { identifier, role } =
-                RegistrationMapper.toModuleAndRole(value);
-              return {
-                identifier,
-                role,
-                url: value.url,
-              };
-            }) || [],
+          tenantVersionEndpoints.map((value: OCPIRegistration.Endpoint) => {
+            const { identifier, role } =
+              RegistrationMapper.toModuleAndRole(value);
+            return {
+              identifier,
+              role,
+              url: value.url,
+            };
+          }) || [],
       },
       status_code: OcpiResponseStatusCode.GenericSuccessCode,
       timestamp: new Date(),

@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import Container, { Service } from 'typedi';
 import { PaginatedSessionResponse } from '../model/Session';
 import {
   buildOcpiPaginatedResponse,
@@ -15,6 +15,7 @@ import {
   GetTransactionsQueryVariables,
   Transactions_Bool_Exp,
 } from '../graphql/operations';
+import { Logger } from 'tslog';
 @Service()
 export class SessionsService {
   constructor(

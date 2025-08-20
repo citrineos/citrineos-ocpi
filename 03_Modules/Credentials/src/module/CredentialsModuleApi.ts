@@ -6,7 +6,7 @@ import {
   AsOcpiRegistrationEndpoint,
   AuthToken,
   BaseController,
-  Body,
+  BodyWithSchema,
   buildCredentialsResponse,
   buildOcpiEmptyResponse,
   CredentialsDTO,
@@ -31,10 +31,11 @@ import {
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import { HttpStatus } from '@citrineos/base';
+import { HttpStatus, ITenantPartnerDto } from '@citrineos/base';
 import { Service } from 'typedi';
 import { ICredentialsModuleApi } from './ICredentialsModuleApi';
 import {
+  Ctx,
   Delete,
   Get,
   JsonController,
@@ -80,11 +81,12 @@ export class CredentialsModuleApi
   })
   async getCredentials(
     @VersionNumberParam() _version: VersionNumber,
-    @AuthToken() token: string,
+    @Ctx() ctx: any,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
+    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
     const credentialsDto =
-      await this.credentialsService.getClientCredentialsByServerToken(token);
+      await this.credentialsService.getCredentials(tenantPartner);
     return buildCredentialsResponse(credentialsDto);
   }
 
@@ -102,13 +104,14 @@ export class CredentialsModuleApi
   })
   async postCredentials(
     @VersionNumberParam() version: VersionNumber,
-    @AuthToken() token: string,
-    @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
+    @Ctx() ctx: any,
+    @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
+    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
     const serverCredentials = await this.credentialsService?.postCredentials(
-      token,
+      tenantPartner,
       credentials,
       version,
     );
@@ -129,13 +132,14 @@ export class CredentialsModuleApi
   })
   async putCredentials(
     @VersionNumberParam() version: VersionNumber,
-    @AuthToken() token: string,
-    @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
+    @Ctx() ctx: any,
+    @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
+    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
     const serverCredentials = await this.credentialsService?.putCredentials(
-      token,
+      tenantPartner,
       credentials,
     );
     return buildCredentialsResponse(serverCredentials);
@@ -188,7 +192,7 @@ export class CredentialsModuleApi
     @Param('versionUrl') versionUrl: string, // CPO version url
     @Param('cpoCountryCode') cpoCountryCode: string,
     @Param('cpoPartyId') cpoPartyId: string,
-    @Body(CredentialsDTOSchema, CredentialsDTOSchemaName)
+    @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO, // Partner credentials
   ): Promise<CredentialsResponse> {
     this.logger.info('registerCredentialsTokenA', credentials);
@@ -229,7 +233,7 @@ export class CredentialsModuleApi
   @AsAdminEndpoint()
   async unregisterClient(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body(
+    @BodyWithSchema(
       UnregisterClientRequestDTOSchema,
       UnregisterClientRequestDTOSchemaName,
     )
@@ -261,7 +265,7 @@ export class CredentialsModuleApi
   })
   async generateCredentialsTokenA(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body(
+    @BodyWithSchema(
       AdminCredentialsRequestDTOSchema,
       AdminCredentialsRequestDTOSchemaName,
     )
@@ -292,7 +296,7 @@ export class CredentialsModuleApi
   })
   async regenerateCredentialsToken(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Body(
+    @BodyWithSchema(
       AdminCredentialsRequestDTOSchema,
       AdminCredentialsRequestDTOSchemaName,
     )
