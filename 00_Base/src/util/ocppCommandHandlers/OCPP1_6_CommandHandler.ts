@@ -6,7 +6,7 @@ import {
 } from '@citrineos/base';
 import { IRequestOptions } from 'typed-rest-client';
 import { Service } from 'typedi';
-import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from '.';
+import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from './base';
 import { StartSession } from '../../model/StartSession';
 import { IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { CommandType } from '../../model/CommandType';

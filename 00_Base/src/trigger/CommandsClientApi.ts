@@ -10,12 +10,17 @@ import { CommandResult } from '../model/CommandResult';
 import {
   COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
   COMMAND_RESPONSE_URL_CACHE_RESOLVED,
-} from '../util/CommandExecutor';
+} from '../util/Consts';
+import { CacheWrapper } from '../util/CacheWrapper';
 
 @Service()
 export class CommandsClientApi extends BaseClientApi {
-  @Inject()
   protected cache!: ICache;
+
+  constructor(@Inject() cacheWrapper: CacheWrapper) {
+    super();
+    this.cache = cacheWrapper.cache;
+  }
 
   CONTROLLER_PATH = ModuleId.Commands;
 

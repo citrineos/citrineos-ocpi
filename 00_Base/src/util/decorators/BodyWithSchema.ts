@@ -1,11 +1,11 @@
-import { Body as RcBody } from 'routing-controllers';
-import { ZodTypeAny } from 'zod';
+import { Body } from 'routing-controllers';
+import { z } from 'zod';
 
 export const BODY_PARAM = 'BodyParam';
-export const Body = (schema: ZodTypeAny, name: string) =>
+export const BodyWithSchema = (schema: z.ZodSchema<any>, name: string) =>
   function (object: NonNullable<unknown>, methodName: string, index: number) {
     // Apply the standard @Params() decorator
-    RcBody()(object, methodName, index);
+    Body()(object, methodName, index);
 
     // Add custom metadata for additional use cases
     Reflect.defineMetadata(

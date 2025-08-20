@@ -19,6 +19,7 @@ import { TokensMapper } from '../mapper/TokensMapper';
 import {
   AuthorizationStatusType,
   IAuthorizationDto,
+  IChargingStationDto,
   IdTokenType,
 } from '@citrineos/base';
 import {
@@ -27,8 +28,12 @@ import {
   CreateAuthorizationMutationVariables,
   GetAuthorizationByTokenQueryResult,
   GetAuthorizationByTokenQueryVariables,
+  GetChargingStationByIdQueryResult,
+  GetChargingStationByIdQueryVariables,
   GetGroupAuthorizationQueryResult,
   GetGroupAuthorizationQueryVariables,
+  GetTenantPartnerByIdQueryResult,
+  GetTenantPartnerByIdQueryVariables,
   ReadAuthorizationsQueryResult,
   ReadAuthorizationsQueryVariables,
   UpdateAuthorizationMutationResult,
@@ -37,12 +42,24 @@ import {
 import { UnknownTokenException } from '../exception/UnknownTokenException';
 import { AdditionalInfoType } from '@citrineos/base/dist/ocpp/model/2.0.1';
 import { MissingParamException } from '../exception/MissingParamException';
+import {
+  RealTimeAuthorizationRequestBody,
+  RealTimeAuthorizationResponse,
+} from '@citrineos/util';
+import { TokensClientApi } from '../trigger/TokensClientApi';
+import { InvalidParamException } from '../exception/InvalidParamException';
+import { GET_TENANT_PARTNER_BY_ID } from '../graphql/queries/tenantPartner.queries';
+import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
+import { LocationReferences } from '../model/LocationReferences';
+import { UID_FORMAT } from '../model/DTO/EvseDTO';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse';
 
 @Service()
 export class TokensService {
   constructor(
     private readonly logger: OcpiLogger,
     private readonly ocpiGraphqlClient: OcpiGraphqlClient,
+    private readonly tokensClientApi: TokensClientApi,
   ) {}
 
   async getToken(
@@ -210,6 +227,79 @@ export class TokensService {
     return TokensMapper.toDto(
       result.update_Authorizations?.returning[0] as IAuthorizationDto,
     );
+  }
+
+  async realTimeAuthorization(
+    realTimeAuthRequest: RealTimeAuthorizationRequestBody,
+  ): Promise<RealTimeAuthorizationResponse> {
+    const tenantPartnerResponse = await this.ocpiGraphqlClient.request<
+      GetTenantPartnerByIdQueryResult,
+      GetTenantPartnerByIdQueryVariables
+    >(GET_TENANT_PARTNER_BY_ID, { id: realTimeAuthRequest.tenantPartnerId });
+    if (!tenantPartnerResponse.TenantPartners_by_pk) {
+      throw new InvalidParamException(
+        `Unknown tenant partner ${realTimeAuthRequest.tenantPartnerId}`,
+      );
+    }
+
+    let locationReferences: LocationReferences | undefined;
+    if (realTimeAuthRequest.locationId && realTimeAuthRequest.stationId) {
+      const chargingStationResponse = await this.ocpiGraphqlClient.request<
+        GetChargingStationByIdQueryResult,
+        GetChargingStationByIdQueryVariables
+      >(GET_CHARGING_STATION_BY_ID_QUERY, {
+        id: realTimeAuthRequest.stationId,
+      });
+      if (
+        !chargingStationResponse.ChargingStations[0] ||
+        realTimeAuthRequest.locationId !==
+          chargingStationResponse.ChargingStations[0].locationId?.toString()
+      ) {
+        throw new InvalidParamException(
+          `Unknown charging station ${realTimeAuthRequest.stationId} at location ${realTimeAuthRequest.locationId}`,
+        );
+      }
+      const chargingStation = chargingStationResponse
+        .ChargingStations[0] as IChargingStationDto;
+      locationReferences = {
+        location_id: realTimeAuthRequest.locationId.toString(),
+        evse_uids: chargingStation.evses!.map((evse) =>
+          UID_FORMAT(chargingStation.id, evse.id!),
+        ),
+      };
+    }
+
+    const tenantPartner = tenantPartnerResponse.TenantPartners_by_pk;
+    this.logger.info('getting real time auth response');
+    const postTokenResult = await this.tokensClientApi.postToken(
+      tenantPartner.tenant.countryCode!,
+      tenantPartner.tenant.partyId!,
+      tenantPartner.countryCode!,
+      tenantPartner.partyId!,
+      tenantPartner.partnerProfileOCPI!,
+      realTimeAuthRequest.idToken,
+      TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
+        realTimeAuthRequest.idTokenType,
+      ),
+      locationReferences,
+    );
+    this.logger.debug(`Real Time Auth response`, postTokenResult.data?.allowed);
+
+    if (
+      postTokenResult.status_code !== OcpiResponseStatusCode.GenericSuccessCode
+    ) {
+      throw new InvalidParamException(
+        `Failed to authorize token ${realTimeAuthRequest.idToken}`,
+      );
+    }
+
+    return {
+      timestamp: postTokenResult.timestamp.toISOString(),
+      data: {
+        allowed: postTokenResult.data!.allowed,
+        reason: postTokenResult.data!.info?.text,
+      },
+    };
   }
 
   private async handleGroupAuthorization(

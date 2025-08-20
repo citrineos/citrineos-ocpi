@@ -7,7 +7,7 @@ import {
 } from '@citrineos/base';
 import { IRequestOptions } from 'typed-rest-client';
 import { Service } from 'typedi';
-import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from '.';
+import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from './base';
 import { StartSession } from '../../model/StartSession';
 import { IRequestQueryParams } from 'typed-rest-client/Interfaces';
 import { OCPP2_0_1_Mapper } from '@citrineos/data';
@@ -28,7 +28,7 @@ import { StopSession } from '../../model/StopSession';
 import { CommandResultType, UnlockConnector } from '../..';
 
 @Service({ id: OCPP_COMMAND_HANDLER, multiple: true })
-export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
+export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
   public readonly supportedVersion = OCPPVersion.OCPP2_0_1;
 
   public async sendStartSessionCommand(
@@ -54,6 +54,7 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
       GetSequenceQueryResult,
       GetSequenceQueryVariables
     >(GET_SEQUENCE, {
+      tenantId: tenantPartner.tenant!.id!,
       stationId: chargingStation.id,
       type: ChargingStationSequenceType.remoteStartId,
     });
@@ -64,9 +65,11 @@ export class OCP2_0_1_CommandHandler extends OCPPCommandHandler {
       UpsertSequenceMutationResult,
       UpsertSequenceMutationVariables
     >(UPSERT_SEQUENCE, {
+      tenantId: tenantPartner.tenant!.id!,
       stationId: chargingStation.id,
       type: ChargingStationSequenceType.remoteStartId,
       value: remoteStartId,
+      createdAt: new Date().toISOString(),
     });
 
     const requestStartTransactionRequest: OCPP2_0_1.RequestStartTransactionRequest =

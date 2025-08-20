@@ -3,16 +3,15 @@ import {
   ICache,
   IChargingStationDto,
   ITenantPartnerDto,
-  OCPP2_0_1,
   OCPPVersion,
 } from '@citrineos/base';
 import { Inject, InjectMany, Service } from 'typedi';
 import { StopSession } from '../model/StopSession';
 import { SetChargingProfile } from '../model/SetChargingProfile';
-import { ChargingProfile } from '../model/ChargingProfile';
 import { ReserveNow } from '../model/ReserveNow';
 import { CancelReservation } from '../model/CancelReservation';
 import {
+  CacheWrapper,
   CommandResultType,
   CommandType,
   OcpiConfig,
@@ -32,13 +31,10 @@ import {
   GetTenantPartnerByIdQueryVariables,
 } from '../graphql/operations';
 import { GET_TENANT_PARTNER_BY_ID } from '../graphql/queries/tenantPartner.queries';
-
-export const COMMAND_RESPONSE_URL_CACHE_NAMESPACE = 'commands';
-/**
- * Used to replace response url in cache so that the timeout handler knows the command
- * was resolved instead of timed out and doesn't attempt to send a command result.
- */
-export const COMMAND_RESPONSE_URL_CACHE_RESOLVED = 'resolved';
+import {
+  COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+  COMMAND_RESPONSE_URL_CACHE_RESOLVED,
+} from './Consts';
 
 @Service()
 export class CommandExecutor {
@@ -48,16 +44,17 @@ export class CommandExecutor {
   protected ocpiGraphqlClient!: OcpiGraphqlClient;
   @Inject()
   protected commandsClientApi!: CommandsClientApi;
-  @Inject()
-  protected cache!: ICache;
   @Inject(OcpiConfigToken)
   protected config!: OcpiConfig;
 
+  protected cache!: ICache;
   private handlerRegistry = new Map<OCPPVersion, OCPPCommandHandler>();
 
   constructor(
+    @Inject() cacheWrapper: CacheWrapper,
     @InjectMany(OCPP_COMMAND_HANDLER) handlers: OCPPCommandHandler[],
   ) {
+    this.cache = cacheWrapper.cache;
     handlers.forEach((handler) => {
       this.handlerRegistry.set(handler.supportedVersion, handler);
     });
@@ -157,9 +154,9 @@ export class CommandExecutor {
   }
 
   public async executeGetActiveChargingProfile(
-    sessionId: string,
-    duration: number,
-    responseUrl: string,
+    _sessionId: string,
+    _duration: number,
+    _responseUrl: string,
   ) {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
@@ -202,8 +199,8 @@ export class CommandExecutor {
   }
 
   public async executeClearChargingProfile(
-    sessionId: string,
-    responseUrl: string,
+    _sessionId: string,
+    _responseUrl: string,
   ) {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
@@ -254,8 +251,8 @@ export class CommandExecutor {
   }
 
   public async executePutChargingProfile(
-    sessionId: string,
-    setChargingProfile: SetChargingProfile,
+    _sessionId: string,
+    _setChargingProfile: SetChargingProfile,
   ) {
     // based on the current assumption, transactionId is equal to sessionId
     // If this map assumption changes, this needs to be changed
@@ -315,9 +312,9 @@ export class CommandExecutor {
   }
 
   public async executeReserveNow(
-    reserveNow: ReserveNow,
-    countryCode: string,
-    partyId: string,
+    _reserveNow: ReserveNow,
+    _countryCode: string,
+    _partyId: string,
   ): Promise<void> {
     // Currently, it rejects the request if the evse_uid is missing
     // When we have the solution to handle the optional evse_uid, we should change this
@@ -383,9 +380,9 @@ export class CommandExecutor {
   }
 
   public async executeCancelReservation(
-    cancelReservation: CancelReservation,
-    countryCode: string,
-    partyId: string,
+    _cancelReservation: CancelReservation,
+    _countryCode: string,
+    _partyId: string,
   ): Promise<void> {
     // const existingOcpiReservation =
     //   await this.ocpiReservationRepo.readOnlyOneByQuery({
@@ -577,65 +574,65 @@ export class CommandExecutor {
     }
   }
 
-  private async mapSetChargingProfileRequest(
-    chargingProfile: ChargingProfile,
-    evseId: number,
-    sessionId: string,
-    stationId: string,
-  ): Promise<OCPP2_0_1.SetChargingProfileRequest> {
-    // const startDateTime = chargingProfile.start_date_time
-    //   ? new Date(chargingProfile.start_date_time)
-    //   : undefined;
-    // const duration = chargingProfile.duration;
-    // let endDateTime;
-    // if (startDateTime && duration) {
-    //   endDateTime = new Date(startDateTime);
-    //   endDateTime.setSeconds(endDateTime.getSeconds() + duration);
-    // }
-    // // Charging profile periods are required in OCPP SetChargingProfileRequest
-    // if (!chargingProfile.charging_profile_period) {
-    //   throw new BadRequestError(
-    //     'Validation failed: Missing charging_profile_period',
-    //   );
-    // }
-    // const scheduleId =
-    //   await this.chargingProfileRepo.getNextChargingScheduleId(stationId);
-    // const chargingSchedule = {
-    //   id: scheduleId,
-    //   startSchedule: startDateTime?.toISOString(),
-    //   duration: duration,
-    //   chargingRateUnit: chargingProfile.charging_rate_unit.toUpperCase(),
-    //   minChargingRate: chargingProfile.min_charging_rate,
-    //   chargingSchedulePeriod: chargingProfile.charging_profile_period.map(
-    //     (period) => ({
-    //       startPeriod: period.start_period,
-    //       limit: period.limit,
-    //     }),
-    //   ),
-    // } as OCPP2_0_1.ChargingScheduleType;
-    // const profileId =
-    //   await this.chargingProfileRepo.getNextChargingProfileId(stationId);
-    // const setChargingProfileRequest = {
-    //   evseId,
-    //   chargingProfile: {
-    //     id: profileId,
-    //     stackLevel: 0,
-    //     chargingProfilePurpose:
-    //       OCPP2_0_1.ChargingProfilePurposeEnumType.TxProfile,
-    //     chargingProfileKind: startDateTime
-    //       ? OCPP2_0_1.ChargingProfileKindEnumType.Absolute
-    //       : OCPP2_0_1.ChargingProfileKindEnumType.Relative,
-    //     validFrom: startDateTime?.toISOString(),
-    //     validTo: endDateTime?.toISOString(),
-    //     chargingSchedule: [chargingSchedule],
-    //     transactionId: sessionId,
-    //   } as OCPP2_0_1.ChargingProfileType,
-    // } as OCPP2_0_1.SetChargingProfileRequest;
-    // console.log(
-    //   `Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`,
-    // );
-    // return setChargingProfileRequest;
-  }
+  // private async mapSetChargingProfileRequest(
+  //   chargingProfile: ChargingProfile,
+  //   evseId: number,
+  //   sessionId: string,
+  //   stationId: string,
+  // ): Promise<OCPP2_0_1.SetChargingProfileRequest> {
+  // const startDateTime = chargingProfile.start_date_time
+  //   ? new Date(chargingProfile.start_date_time)
+  //   : undefined;
+  // const duration = chargingProfile.duration;
+  // let endDateTime;
+  // if (startDateTime && duration) {
+  //   endDateTime = new Date(startDateTime);
+  //   endDateTime.setSeconds(endDateTime.getSeconds() + duration);
+  // }
+  // // Charging profile periods are required in OCPP SetChargingProfileRequest
+  // if (!chargingProfile.charging_profile_period) {
+  //   throw new BadRequestError(
+  //     'Validation failed: Missing charging_profile_period',
+  //   );
+  // }
+  // const scheduleId =
+  //   await this.chargingProfileRepo.getNextChargingScheduleId(stationId);
+  // const chargingSchedule = {
+  //   id: scheduleId,
+  //   startSchedule: startDateTime?.toISOString(),
+  //   duration: duration,
+  //   chargingRateUnit: chargingProfile.charging_rate_unit.toUpperCase(),
+  //   minChargingRate: chargingProfile.min_charging_rate,
+  //   chargingSchedulePeriod: chargingProfile.charging_profile_period.map(
+  //     (period) => ({
+  //       startPeriod: period.start_period,
+  //       limit: period.limit,
+  //     }),
+  //   ),
+  // } as OCPP2_0_1.ChargingScheduleType;
+  // const profileId =
+  //   await this.chargingProfileRepo.getNextChargingProfileId(stationId);
+  // const setChargingProfileRequest = {
+  //   evseId,
+  //   chargingProfile: {
+  //     id: profileId,
+  //     stackLevel: 0,
+  //     chargingProfilePurpose:
+  //       OCPP2_0_1.ChargingProfilePurposeEnumType.TxProfile,
+  //     chargingProfileKind: startDateTime
+  //       ? OCPP2_0_1.ChargingProfileKindEnumType.Absolute
+  //       : OCPP2_0_1.ChargingProfileKindEnumType.Relative,
+  //     validFrom: startDateTime?.toISOString(),
+  //     validTo: endDateTime?.toISOString(),
+  //     chargingSchedule: [chargingSchedule],
+  //     transactionId: sessionId,
+  //   } as OCPP2_0_1.ChargingProfileType,
+  // } as OCPP2_0_1.SetChargingProfileRequest;
+  // console.log(
+  //   `Mapped SetChargingProfileRequest: ${JSON.stringify(setChargingProfileRequest)}`,
+  // );
+  // return setChargingProfileRequest;
+  // }
 
   /**
    * Create and store reservation related objects, including the core reservation, the ocpi reservation and the
@@ -647,69 +644,69 @@ export class CommandExecutor {
    * @param partyId - MSP party id
    * @returns [reserveNowRequest, coreReservationDatabaseId]
    */
-  private async createAndStoreReservations(
-    reserveNow: ReserveNow,
-    stationId: string,
-    evseId: number,
-    countryCode: string,
-    partyId: string,
-  ): Promise<[OCPP2_0_1.ReserveNowRequest, number]> {
-    // const existingOcpiReservation =
-    //   await this.ocpiReservationRepo.readOnlyOneByQuery({
-    //     where: {
-    //       // unique constraint
-    //       [OcpiReservationProps.reservationId]: reserveNow.reservation_id,
-    //       [OcpiReservationProps.countryCode]: countryCode,
-    //       [OcpiReservationProps.partyId]: partyId,
-    //     },
-    //     include: [Reservation],
-    //   });
-    // let coreReservationId;
-    // if (!existingOcpiReservation) {
-    //   // Based on OCPI 2.1.1, The reservation_id sent by the Sender (eMSP) to the Receiver (CPO) SHALL NOT be sent
-    //   // directly to a Charge Point. The CPO SHALL make sure the Reservation ID sent to the Charge Point is unique and
-    //   // is not used by another Sender(eMSP).
-    //   coreReservationId =
-    //     await this.coreReservationRepo.getNextReservationId(stationId);
-    // } else {
-    //   coreReservationId = existingOcpiReservation.coreReservation.id;
-    // }
-    // if (!coreReservationId) {
-    //   throw new Error('Could not get core reservation id.');
-    // }
-    // const request = {
-    //   id: coreReservationId,
-    //   expiryDateTime: reserveNow.expiry_date.toISOString(),
-    //   idToken: {
-    //     idToken: reserveNow.token.uid,
-    //     type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
-    //       reserveNow.token.type,
-    //     ),
-    //   },
-    //   evseId,
-    // } as OCPP2_0_1.ReserveNowRequest;
-    // const storedCoreReservation =
-    //   await this.coreReservationRepo.createOrUpdateReservation(
-    //     request,
-    //     stationId,
-    //     false,
-    //   );
-    // if (!storedCoreReservation) {
-    //   throw new Error('Could not create or update reservation in core.');
-    // }
-    // await this.ocpiReservationRepo.createOrUpdateReservation(
-    //   OcpiReservation.build({
-    //     [OcpiReservationProps.coreReservationId]:
-    //       storedCoreReservation.databaseId,
-    //     [OcpiReservationProps.reservationId]: reserveNow.reservation_id,
-    //     [OcpiReservationProps.countryCode]: countryCode,
-    //     [OcpiReservationProps.partyId]: partyId,
-    //     [OcpiReservationProps.locationId]: reserveNow.location_id,
-    //     [OcpiReservationProps.evseUid]: reserveNow.evse_uid ?? null,
-    //     [OcpiReservationProps.authorizationReference]:
-    //       reserveNow.authorization_reference ?? null,
-    //   }),
-    // );
-    // return [request, storedCoreReservation.databaseId];
-  }
+  // private async createAndStoreReservations(
+  //   reserveNow: ReserveNow,
+  //   stationId: string,
+  //   evseId: number,
+  //   countryCode: string,
+  //   partyId: string,
+  // ): Promise<[OCPP2_0_1.ReserveNowRequest, number]> {
+  // const existingOcpiReservation =
+  //   await this.ocpiReservationRepo.readOnlyOneByQuery({
+  //     where: {
+  //       // unique constraint
+  //       [OcpiReservationProps.reservationId]: reserveNow.reservation_id,
+  //       [OcpiReservationProps.countryCode]: countryCode,
+  //       [OcpiReservationProps.partyId]: partyId,
+  //     },
+  //     include: [Reservation],
+  //   });
+  // let coreReservationId;
+  // if (!existingOcpiReservation) {
+  //   // Based on OCPI 2.1.1, The reservation_id sent by the Sender (eMSP) to the Receiver (CPO) SHALL NOT be sent
+  //   // directly to a Charge Point. The CPO SHALL make sure the Reservation ID sent to the Charge Point is unique and
+  //   // is not used by another Sender(eMSP).
+  //   coreReservationId =
+  //     await this.coreReservationRepo.getNextReservationId(stationId);
+  // } else {
+  //   coreReservationId = existingOcpiReservation.coreReservation.id;
+  // }
+  // if (!coreReservationId) {
+  //   throw new Error('Could not get core reservation id.');
+  // }
+  // const request = {
+  //   id: coreReservationId,
+  //   expiryDateTime: reserveNow.expiry_date.toISOString(),
+  //   idToken: {
+  //     idToken: reserveNow.token.uid,
+  //     type: OcpiTokensMapper.mapOcpiTokenTypeToOcppIdTokenType(
+  //       reserveNow.token.type,
+  //     ),
+  //   },
+  //   evseId,
+  // } as OCPP2_0_1.ReserveNowRequest;
+  // const storedCoreReservation =
+  //   await this.coreReservationRepo.createOrUpdateReservation(
+  //     request,
+  //     stationId,
+  //     false,
+  //   );
+  // if (!storedCoreReservation) {
+  //   throw new Error('Could not create or update reservation in core.');
+  // }
+  // await this.ocpiReservationRepo.createOrUpdateReservation(
+  //   OcpiReservation.build({
+  //     [OcpiReservationProps.coreReservationId]:
+  //       storedCoreReservation.databaseId,
+  //     [OcpiReservationProps.reservationId]: reserveNow.reservation_id,
+  //     [OcpiReservationProps.countryCode]: countryCode,
+  //     [OcpiReservationProps.partyId]: partyId,
+  //     [OcpiReservationProps.locationId]: reserveNow.location_id,
+  //     [OcpiReservationProps.evseUid]: reserveNow.evse_uid ?? null,
+  //     [OcpiReservationProps.authorizationReference]:
+  //       reserveNow.authorization_reference ?? null,
+  //   }),
+  // );
+  // return [request, storedCoreReservation.databaseId];
+  // }
 }

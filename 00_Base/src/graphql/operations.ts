@@ -119,6 +119,7 @@ export type GetChargingStationByIdQueryResult = {
 };
 
 export type GetSequenceQueryVariables = Exact<{
+  tenantId: Scalars['Int']['input'];
   stationId: Scalars['String']['input'];
   type: Scalars['String']['input'];
 }>;
@@ -131,9 +132,11 @@ export type GetSequenceQueryResult = {
 };
 
 export type UpsertSequenceMutationVariables = Exact<{
+  tenantId: Scalars['Int']['input'];
   stationId: Scalars['String']['input'];
   type: Scalars['String']['input'];
   value: Scalars['bigint']['input'];
+  createdAt: Scalars['timestamptz']['input'];
 }>;
 
 

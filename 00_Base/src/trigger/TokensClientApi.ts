@@ -26,7 +26,7 @@ export class TokensClientApi extends BaseClientApi {
     )?.url;
     if (!url) {
       throw new Error(
-        `No CDR endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+        `No Tokens endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
       );
     }
     return url;

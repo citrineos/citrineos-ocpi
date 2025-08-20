@@ -25,9 +25,7 @@ import {
 } from '../graphql/operations';
 import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
 import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
-import {
-  GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
-} from '../graphql/queries/transaction.queries';
+import { GET_TRANSACTION_BY_TRANSACTION_ID_QUERY } from '../graphql/queries/transaction.queries';
 
 @Service()
 export class CommandsService {
@@ -63,9 +61,12 @@ export class CommandsService {
       case CommandType.START_SESSION:
         return this.handleStartSession(payload as StartSession, tenantPartner);
       case CommandType.STOP_SESSION:
-        return this.handleStopSession(payload as StopSession);
+        return this.handleStopSession(payload as StopSession, tenantPartner);
       case CommandType.UNLOCK_CONNECTOR:
-        return this.handleUnlockConnector(payload as UnlockConnector);
+        return this.handleUnlockConnector(
+          payload as UnlockConnector,
+          tenantPartner,
+        );
       default:
         return ResponseGenerator.buildGenericClientErrorResponse(
           {
@@ -79,88 +80,23 @@ export class CommandsService {
   }
 
   private async handleCancelReservation(
-    cancelReservation: CancelReservation,
-    tenantPartner: ITenantPartnerDto,
+    _cancelReservation: CancelReservation,
+    _tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
-    try {
-      this.commandExecutor.executeCancelReservation(
-        cancelReservation,
-        fromCountryCode,
-        fromPartyId,
-      );
-      return ResponseGenerator.buildGenericSuccessResponse({
-        result: CommandResponseType.ACCEPTED,
-        timeout: this.config.commands.timeout,
-      });
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        return ResponseGenerator.buildGenericClientErrorResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.config.commands.timeout,
-          },
-          e.message,
-          e as NotFoundError,
-        );
-      } else {
-        console.error(e);
-        return ResponseGenerator.buildGenericServerErrorResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.config.commands.timeout,
-          },
-          undefined,
-          e as Error,
-        );
-      }
-    }
+    return ResponseGenerator.buildGenericSuccessResponse({
+      result: CommandResponseType.NOT_SUPPORTED,
+      timeout: this.config.commands.timeout,
+    });
   }
 
   private async handleReserveNow(
-    reserveNow: ReserveNow,
-    tenantPartner: ITenantPartnerDto,
+    _reserveNow: ReserveNow,
+    _tenantPartner: ITenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
-    try {
-      // await this.commandExecutor.executeReserveNow(
-      //   reserveNow,
-      //   fromCountryCode,
-      //   fromPartyId,
-      // );
-      return ResponseGenerator.buildGenericSuccessResponse({
-        result: CommandResponseType.ACCEPTED,
-        timeout: this.config.commands.timeout,
-      });
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        return ResponseGenerator.buildGenericClientErrorResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.config.commands.timeout,
-          },
-          e.message,
-          e as NotFoundError,
-        );
-      } else if (e instanceof BadRequestError) {
-        return ResponseGenerator.buildInvalidOrMissingParametersResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.config.commands.timeout,
-          },
-          e.message,
-          e as BadRequestError,
-        );
-      } else {
-        console.error(e);
-        return ResponseGenerator.buildGenericServerErrorResponse(
-          {
-            result: CommandResponseType.REJECTED,
-            timeout: this.config.commands.timeout,
-          },
-          undefined,
-          e as Error,
-        );
-      }
-    }
+    return ResponseGenerator.buildGenericSuccessResponse({
+      result: CommandResponseType.NOT_SUPPORTED,
+      timeout: this.config.commands.timeout,
+    });
   }
 
   private async handleStartSession(

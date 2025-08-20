@@ -15,7 +15,7 @@ import { IDtoModule } from './events';
 import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
 
 export { Version } from './model/Version';
-export { Body } from './util/decorators/Body';
+export { BodyWithSchema } from './util/decorators/BodyWithSchema';
 export { plainToClass } from './util/Util';
 export {
   OcpiErrorResponse,
@@ -40,6 +40,12 @@ export {
 } from './model/ChargingPreferences';
 export { PaginatedParams } from './controllers/param/PaginatedParams';
 export { Paginated } from './util/decorators/Paginated';
+export {
+  OCPP_COMMAND_HANDLER,
+  OCPPCommandHandler,
+  OCPP1_6_CommandHandler,
+  OCPP2_0_1_CommandHandler,
+} from './util/ocppCommandHandlers';
 export {
   ChargingPreferencesResponse,
   ChargingPreferencesResponseSchema,
