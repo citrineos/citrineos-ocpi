@@ -9,19 +9,16 @@ export = {
       RETURNS trigger AS $$
       DECLARE
         notificationData jsonb;
-        transactionId text;
         tenantData jsonb;
       BEGIN
         IF TG_OP = 'INSERT' AND NEW."transactionDatabaseId" IS NOT NULL THEN
-          -- Get transactionId and tenantId from Transactions
-          SELECT t."transactionId", to_jsonb(tenant) INTO transactionId, tenantData
-          FROM "Transactions" t
-          JOIN "Tenants" tenant ON tenant."id" = t."tenantId"
-          WHERE t."id" = NEW."transactionDatabaseId";
+          -- Get tenant data
+          SELECT to_jsonb(t) INTO tenantData 
+          FROM "Tenants" t 
+          WHERE t."id" = NEW."tenantId";
 
-          -- Merge all MeterValues fields, transactionId, and tenant
+          -- Merge all MeterValues fields, and tenant
           notificationData := to_jsonb(NEW)
-            || jsonb_build_object('transactionId', transactionId)
             || jsonb_build_object('tenant', tenantData);
         END IF;
 

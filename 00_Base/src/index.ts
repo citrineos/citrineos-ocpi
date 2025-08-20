@@ -13,6 +13,9 @@ import { OcpiConfig, OcpiConfigToken } from './config/ocpi.types';
 import { IDtoModule } from './events';
 import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
 
+export * from './broadcaster';
+export * from './mapper';
+export * from './graphql';
 export { Version } from './model/Version';
 export { BodyWithSchema } from './util/decorators/BodyWithSchema';
 export { plainToClass } from './util/Util';

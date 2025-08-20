@@ -8,7 +8,7 @@ export = {
       CREATE OR REPLACE FUNCTION "TransactionNotify"()
       RETURNS trigger AS $$
       DECLARE
-        requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt'];
+        requiredFields text[] := ARRAY['id', 'transactionId', 'tenantId', 'updatedAt'];
         requiredData jsonb;
         changedData jsonb;
         notificationData jsonb;

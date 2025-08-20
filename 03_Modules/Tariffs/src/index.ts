@@ -12,12 +12,12 @@ import {
   OcpiConfigToken,
   OcpiModule,
   RabbitMqDtoReceiver,
+  TariffsBroadcaster,
 } from '@citrineos/ocpi-base';
 import { ILogObj, Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 import { TariffsModuleApi } from './module/TariffsModuleApi';
 import { ITariffDto } from '@citrineos/base';
-import { TariffsBroadcaster } from '@citrineos/ocpi-base/dist/broadcaster/TariffsBroadcaster';
 
 export { TariffsModuleApi } from './module/TariffsModuleApi';
 export { ITariffsModuleApi } from './module/ITariffsModuleApi';
@@ -53,8 +53,17 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     'TariffNotification',
   )
   async handleTariffInsert(event: IDtoEvent<ITariffDto>): Promise<void> {
-    this._logger.info(`Handling Tariff Insert: ${JSON.stringify(event)}`);
-    await this.tariffsBroadcaster.broadcastPutTariff(event._payload);
+    this._logger.debug(`Handling Tariff Insert: ${JSON.stringify(event)}`);
+    const tariffDto = event._payload;
+    const tenant = tariffDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${tariffDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    await this.tariffsBroadcaster.broadcastPutTariff(tenant, tariffDto);
   }
 
   @AsDtoEventHandler(
@@ -65,8 +74,17 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
   async handleTariffUpdate(
     event: IDtoEvent<Partial<ITariffDto>>,
   ): Promise<void> {
-    this._logger.info(`Handling Tariff Update: ${JSON.stringify(event)}`);
-    await this.tariffsBroadcaster.broadcastPatchTariff(event._payload);
+    this._logger.debug(`Handling Tariff Update: ${JSON.stringify(event)}`);
+    const tariffDto = event._payload;
+    const tenant = tariffDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${tariffDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    await this.tariffsBroadcaster.broadcastPutTariff(tenant, tariffDto);
   }
 
   @AsDtoEventHandler(
@@ -75,7 +93,16 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     'TariffNotification',
   )
   async handleTariffDelete(event: IDtoEvent<ITariffDto>): Promise<void> {
-    this._logger.info(`Handling Tariff Delete: ${JSON.stringify(event)}`);
-    await this.tariffsBroadcaster.broadcastTariffDeletion(event._payload);
+    this._logger.debug(`Handling Tariff Delete: ${JSON.stringify(event)}`);
+    const tariffDto = event._payload;
+    const tenant = tariffDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${tariffDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    await this.tariffsBroadcaster.broadcastTariffDeletion(tenant, tariffDto);
   }
 }

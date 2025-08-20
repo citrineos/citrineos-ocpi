@@ -12,15 +12,13 @@ import { TokenDTO } from '../model/DTO/TokenDTO';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { LocationsService } from '../services/LocationsService';
 import { LocationDTO } from '../model/DTO/LocationDTO';
-import { EXTRACT_EVSE_ID, UID_FORMAT } from '../model/DTO/EvseDTO';
+import { UID_FORMAT } from '../model/DTO/EvseDTO';
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import {
   ITransactionDto,
   ITransactionEventDto,
   IMeterValueDto,
-  MeasurandEnumType,
 } from '@citrineos/base';
-import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -30,6 +28,75 @@ export class SessionMapper extends BaseTransactionMapper {
     protected ocpiGraphqlClient: OcpiGraphqlClient,
   ) {
     super(logger, locationsService, ocpiGraphqlClient);
+  }
+
+  /**
+   * Maps a single transaction to a session
+   */
+  public async mapTransactionToSession(
+    transaction: ITransactionDto,
+  ): Promise<Session> {
+    const [locationMap, tokenMap, tariffMap] =
+      await this.getLocationsTokensAndTariffsMapsForTransactions([transaction]);
+
+    const location = locationMap.get(transaction.transactionId!);
+    const token = tokenMap.get(transaction.transactionId!);
+    const tariff = tariffMap.get(transaction.transactionId!);
+
+    if (!location || !token || !tariff) {
+      const missing = [];
+      if (!location) missing.push('location');
+      if (!token) missing.push('token');
+      if (!tariff) missing.push('tariff');
+
+      throw new Error(
+        `Cannot map transaction ${transaction.transactionId} to session. Missing: ${missing.join(', ')}`,
+      );
+    }
+
+    return this.mapTransactionWithContextToSession(
+      transaction,
+      location,
+      token,
+      tariff,
+    );
+  }
+
+  /**
+   * Maps a partial transaction to a partial session
+   */
+  public async mapPartialTransactionToPartialSession(
+    transaction: Partial<ITransactionDto>,
+  ): Promise<Partial<Session>> {
+    // If we don't have a transaction ID, we can only map basic fields
+    if (!transaction.transactionId) {
+      return this.mapPartialTransactionWithoutContext(transaction);
+    }
+
+    try {
+      // Try to fetch context data, but handle failures gracefully
+      const [locationMap, tokenMap, tariffMap] =
+        await this.getLocationsTokensAndTariffsMapsForTransactions([
+          transaction as ITransactionDto,
+        ]);
+
+      const location = locationMap.get(transaction.transactionId);
+      const token = tokenMap.get(transaction.transactionId);
+      const tariff = tariffMap.get(transaction.transactionId);
+
+      return this.mapPartialTransactionWithContext(
+        transaction,
+        location,
+        token,
+        tariff,
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Failed to fetch context for partial transaction ${transaction.transactionId}. Mapping without context.`,
+        error,
+      );
+      return this.mapPartialTransactionWithoutContext(transaction);
+    }
   }
 
   public async getLocationsTokensAndTariffsMapsForTransactions(
@@ -77,7 +144,12 @@ export class SessionMapper extends BaseTransactionMapper {
 
       if (location && token && tariff) {
         result.push(
-          this.mapTransactionToSession(transaction, location, token, tariff),
+          this.mapTransactionWithContextToSession(
+            transaction,
+            location,
+            token,
+            tariff,
+          ),
         );
       } else {
         this.logger.debug(`Skipped transaction ${transaction.transactionId}`);
@@ -86,7 +158,157 @@ export class SessionMapper extends BaseTransactionMapper {
     return result;
   }
 
-  private mapTransactionToSession(
+  /**
+   * Maps a partial transaction with available context data
+   */
+  private mapPartialTransactionWithContext(
+    transaction: Partial<ITransactionDto>,
+    location?: LocationDTO,
+    token?: TokenDTO,
+    tariff?: ITariffDto,
+  ): Partial<Session> {
+    const session: Partial<Session> = {};
+
+    // Map basic transaction fields
+    if (transaction.transactionId !== undefined) {
+      session.id = transaction.transactionId;
+    }
+
+    if (transaction.startTime !== undefined) {
+      session.start_date_time = transaction.startTime
+        ? new Date(transaction.startTime)
+        : undefined;
+    }
+
+    if (transaction.endTime !== undefined) {
+      session.end_date_time = transaction.endTime
+        ? new Date(transaction.endTime)
+        : null;
+    }
+
+    if (transaction.totalKwh !== undefined) {
+      session.kwh = transaction.totalKwh || 0;
+    }
+
+    if (transaction.updatedAt !== undefined) {
+      session.last_updated = transaction.updatedAt!;
+    }
+
+    // Map context-dependent fields if available
+    if (location) {
+      session.country_code = location.country_code;
+      session.party_id = location.party_id;
+      session.location_id = this.getLocationId(location);
+    }
+
+    if (token) {
+      session.cdr_token = this.createCdrToken(token);
+    }
+
+    if (tariff) {
+      session.currency = tariff.currency;
+      if (
+        transaction.totalKwh !== undefined &&
+        transaction.endTime !== undefined
+      ) {
+        session.total_cost = transaction.endTime
+          ? this.calculateTotalCost(
+              transaction.totalKwh || 0,
+              tariff.pricePerKwh,
+            )
+          : null;
+      }
+    }
+
+    // Map fields that depend on transaction structure
+    if (transaction.evse && transaction.stationId) {
+      session.evse_uid = this.getEvseUid(transaction as ITransactionDto);
+    }
+
+    if (transaction.connector) {
+      session.connector_id = transaction.connector.connectorId.toString();
+    }
+
+    // Map meter values if available
+    if (transaction.meterValues && tariff) {
+      session.charging_periods = this.getChargingPeriods(
+        transaction.meterValues,
+        String(tariff.id),
+      );
+    }
+
+    // Map status if we can determine it
+    if (transaction.endTime !== undefined) {
+      session.status = this.getTransactionStatus(
+        transaction as ITransactionDto,
+      );
+    }
+
+    // Set default auth method
+    session.auth_method = AuthMethod.WHITELIST;
+
+    // Set optional fields that are typically null in your implementation
+    session.authorization_reference = null;
+    session.meter_id = null;
+
+    return session;
+  }
+
+  /**
+   * Maps a partial transaction without context data (location, token, tariff)
+   */
+  private mapPartialTransactionWithoutContext(
+    transaction: Partial<ITransactionDto>,
+  ): Partial<Session> {
+    const session: Partial<Session> = {};
+
+    if (transaction.transactionId !== undefined) {
+      session.id = transaction.transactionId;
+    }
+
+    if (transaction.startTime !== undefined) {
+      session.start_date_time = transaction.startTime
+        ? new Date(transaction.startTime)
+        : undefined;
+    }
+
+    if (transaction.endTime !== undefined) {
+      session.end_date_time = transaction.endTime
+        ? new Date(transaction.endTime)
+        : null;
+    }
+
+    if (transaction.totalKwh !== undefined) {
+      session.kwh = transaction.totalKwh || 0;
+    }
+
+    if (transaction.updatedAt !== undefined) {
+      session.last_updated = transaction.updatedAt!;
+    }
+
+    if (transaction.evse && transaction.stationId) {
+      session.evse_uid = this.getEvseUid(transaction as ITransactionDto);
+    }
+
+    if (transaction.connector) {
+      session.connector_id = transaction.connector.connectorId.toString();
+    }
+
+    if (transaction.endTime !== undefined) {
+      session.status = this.getTransactionStatus(
+        transaction as ITransactionDto,
+      );
+    }
+
+    // Set defaults for fields that don't depend on external context
+    session.auth_method = AuthMethod.WHITELIST;
+    session.authorization_reference = null;
+    session.meter_id = null;
+
+    return session;
+  }
+
+  private mapTransactionWithContextToSession(
     transaction: ITransactionDto,
     location: LocationDTO,
     token: TokenDTO,
@@ -108,7 +330,6 @@ export class SessionMapper extends BaseTransactionMapper {
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
-
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction),

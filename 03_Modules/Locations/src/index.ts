@@ -8,9 +8,14 @@ import {
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
+  GET_CHARGING_STATION_BY_ID_QUERY,
+  GetChargingStationByIdQueryResult,
+  GetChargingStationByIdQueryVariables,
   IDtoEvent,
+  LocationsBroadcaster,
   OcpiConfig,
   OcpiConfigToken,
+  OcpiGraphqlClient,
   OcpiModule,
   RabbitMqDtoReceiver,
 } from '@citrineos/ocpi-base';
@@ -23,7 +28,6 @@ import {
   ILocationDto,
 } from '@citrineos/base';
 import { Inject, Service } from 'typedi';
-import { LocationsBroadcaster } from '@citrineos/ocpi-base/dist/broadcaster/LocationsBroadcaster';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi';
 export { ILocationsModuleApi } from './module/ILocationsModuleApi';
@@ -34,6 +38,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     @Inject(OcpiConfigToken) config: OcpiConfig,
     readonly logger: Logger<ILogObj>,
     readonly locationsBroadcaster: LocationsBroadcaster,
+    readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {
     super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
@@ -59,8 +64,17 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'LocationNotification',
   )
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
-    this._logger.info(`Handling Location Insert: ${JSON.stringify(event)}`);
-    await this.locationsBroadcaster.broadcastPutLocation(event._payload);
+    this._logger.debug(`Handling Location Insert: ${JSON.stringify(event)}`);
+    const locationDto = event._payload;
+    const tenant = locationDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${locationDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    await this.locationsBroadcaster.broadcastPutLocation(tenant, locationDto);
   }
 
   @AsDtoEventHandler(
@@ -71,8 +85,17 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleLocationUpdate(
     event: IDtoEvent<Partial<ILocationDto>>,
   ): Promise<void> {
-    this._logger.info(`Handling Location Update: ${JSON.stringify(event)}`);
-    await this.locationsBroadcaster.broadcastPatchLocation(event._payload);
+    this._logger.debug(`Handling Location Update: ${JSON.stringify(event)}`);
+    const locationDto = event._payload;
+    const tenant = locationDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${locationDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    await this.locationsBroadcaster.broadcastPatchLocation(tenant, locationDto);
   }
 
   @AsDtoEventHandler(
@@ -83,7 +106,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleChargingStationUpdate(
     event: IDtoEvent<Partial<IChargingStationDto>>,
   ): Promise<void> {
-    this._logger.info(
+    this._logger.debug(
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
     );
     // Updates are Location/Evse PATCH requests
@@ -96,10 +119,30 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'EvseNotification',
   )
   async handleEvseInsert(event: IDtoEvent<IEvseDto>): Promise<void> {
-    this._logger.info(`Handling EVSE Insert: ${JSON.stringify(event)}`);
-    // Inserts are Location/Evse PUT requests
-    // Requires pulling the ChargingStation data from GraphQL
-    await this.locationsBroadcaster.broadcastPutEvse(event._payload);
+    this._logger.debug(`Handling EVSE Insert: ${JSON.stringify(event)}`);
+    const evseDto = event._payload;
+    const tenant = evseDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${evseDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    const chargingStationResponse = await this.ocpiGraphqlClient.request<
+      GetChargingStationByIdQueryResult,
+      GetChargingStationByIdQueryVariables
+    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: evseDto.stationId });
+    if (!chargingStationResponse.ChargingStations[0]) {
+      this._logger.error(
+        `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
+      );
+      return;
+    }
+    evseDto.chargingStation = chargingStationResponse
+      .ChargingStations[0] as IChargingStationDto;
+
+    await this.locationsBroadcaster.broadcastPutEvse(tenant, evseDto);
   }
 
   @AsDtoEventHandler(
@@ -108,9 +151,30 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'EvseNotification',
   )
   async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
-    this._logger.info(`Handling EVSE Update: ${JSON.stringify(event)}`);
-    // Updates are Location/Evse PATCH requests
-    await this.locationsBroadcaster.broadcastPatchEvse(event._payload);
+    this._logger.debug(`Handling EVSE Update: ${JSON.stringify(event)}`);
+    const evseDto = event._payload;
+    const tenant = evseDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${evseDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    const chargingStationResponse = await this.ocpiGraphqlClient.request<
+      GetChargingStationByIdQueryResult,
+      GetChargingStationByIdQueryVariables
+    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: evseDto.stationId! });
+    if (!chargingStationResponse.ChargingStations[0]) {
+      this._logger.error(
+        `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
+      );
+      return;
+    }
+    evseDto.chargingStation = chargingStationResponse
+      .ChargingStations[0] as IChargingStationDto;
+
+    await this.locationsBroadcaster.broadcastPatchEvse(tenant, evseDto);
   }
 
   @AsDtoEventHandler(
@@ -119,9 +183,30 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'ConnectorNotification',
   )
   async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
-    this._logger.info(`Handling Connector Insert: ${JSON.stringify(event)}`);
-    // Inserts are Location/Evse/Connector PUT requests
-    await this.locationsBroadcaster.broadcastPutConnector(event._payload);
+    this._logger.debug(`Handling Connector Insert: ${JSON.stringify(event)}`);
+    const connectorDto = event._payload;
+    const tenant = connectorDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${connectorDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    const chargingStationResponse = await this.ocpiGraphqlClient.request<
+      GetChargingStationByIdQueryResult,
+      GetChargingStationByIdQueryVariables
+    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: connectorDto.stationId });
+    if (!chargingStationResponse.ChargingStations[0]) {
+      this._logger.error(
+        `Charging Station not found for ID ${connectorDto.stationId}, cannot broadcast.`,
+      );
+      return;
+    }
+    connectorDto.chargingStation = chargingStationResponse
+      .ChargingStations[0] as IChargingStationDto;
+
+    await this.locationsBroadcaster.broadcastPutConnector(tenant, connectorDto);
   }
 
   @AsDtoEventHandler(
@@ -132,8 +217,34 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleConnectorUpdate(
     event: IDtoEvent<Partial<IConnectorDto>>,
   ): Promise<void> {
-    this._logger.info(`Handling Connector Update: ${JSON.stringify(event)}`);
-    // Updates are Location/Evse/Connector PATCH requests
-    await this.locationsBroadcaster.broadcastPatchConnector(event._payload);
+    this._logger.debug(`Handling Connector Update: ${JSON.stringify(event)}`);
+    const connectorDto = event._payload;
+    const tenant = connectorDto.tenant;
+    if (!tenant) {
+      this._logger.error(
+        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${connectorDto.id}, cannot broadcast.`,
+      );
+      return;
+    }
+
+    const chargingStationResponse = await this.ocpiGraphqlClient.request<
+      GetChargingStationByIdQueryResult,
+      GetChargingStationByIdQueryVariables
+    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: connectorDto.stationId! });
+    if (!chargingStationResponse.ChargingStations[0]) {
+      this._logger.error(
+        `Charging Station not found for ID ${connectorDto.stationId}, cannot broadcast.`,
+      );
+      return;
+    }
+    connectorDto.chargingStation = chargingStationResponse
+      .ChargingStations[0] as IChargingStationDto;
+
+    // TODO: filter out status updates, since they should only apply at the EVSE level
+
+    await this.locationsBroadcaster.broadcastPatchConnector(
+      tenant,
+      connectorDto,
+    );
   }
 }

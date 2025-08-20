@@ -13,6 +13,7 @@ import {
   ConnectorResponseSchemaName,
   EvseResponse,
   EvseResponseSchema,
+  EvseResponseSchemaName,
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
   FunctionalEndpointParams,
@@ -36,7 +37,6 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
-import { EvseResponseSchemaName } from '@citrineos/ocpi-base/dist/model/DTO/EvseDTO';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
   PaginatedLocationResponseSchema,

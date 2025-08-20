@@ -2,27 +2,33 @@ import { BaseBroadcaster } from './BaseBroadcaster';
 import { Service } from 'typedi';
 import { CdrsClientApi } from '../trigger/CdrsClientApi';
 import { ILogObj, Logger } from 'tslog';
-import { CredentialsService } from '../services/CredentialsService';
 import { Cdr, CdrResponseSchema } from '../model/Cdr';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
-import { HttpMethod } from '@citrineos/base';
+import { HttpMethod, ITransactionDto } from '@citrineos/base';
+import { CdrMapper } from '../mapper';
 
 @Service()
 export class CdrBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
-    readonly credentialsService: CredentialsService,
+    readonly cdrMapper: CdrMapper,
     readonly cdrsClientApi: CdrsClientApi,
   ) {
     super();
   }
 
-  async broadcastPostCdr(cdrDto: Cdr): Promise<void> {
-    const cdrId = cdrDto.id;
-    if (!cdrId) throw new Error('CDR ID missing');
-
-    const params = { cdrId };
+  async broadcastPostCdr(transactionDto: ITransactionDto): Promise<void> {
+    const cdrs: Cdr[] = await this.cdrMapper.mapTransactionsToCdrs([
+      transactionDto,
+    ]);
+    if (cdrs.length === 0) {
+      this.logger.warn(
+        `No CDRs generated for Transaction: ${transactionDto.transactionId}`,
+      );
+      return;
+    }
+    const cdrDto = cdrs[0];
 
     try {
       await this.cdrsClientApi.broadcastToClients({
@@ -33,10 +39,9 @@ export class CdrBroadcaster extends BaseBroadcaster {
         httpMethod: HttpMethod.Post,
         schema: CdrResponseSchema,
         body: cdrDto,
-        otherParams: params,
       });
     } catch (e) {
-      this.logger.error(`broadcastPostCdr failed for CDR ${cdrId}`, e);
+      this.logger.error(`broadcastPostCdr failed for CDR ${cdrDto.id}`, e);
     }
   }
 }
