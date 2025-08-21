@@ -3,10 +3,20 @@ require('ts-node/register');
 
 module.exports = (async () => {
   const { getOcpiSystemConfig } = require('./bootstrap.config');
-  const { createDockerOcpiConfig } = require('./envs/docker');
 
   try {
-    const ocpiConfig = getOcpiSystemConfig(createDockerOcpiConfig());
+    let ocpiConfig;
+    const env = process.env.OCPI_ENV || 'local'; // default to local
+
+    if (env.toLowerCase() === 'local') {
+      const { createLocalOcpiConfig } = require('./envs/local');
+      ocpiConfig = getOcpiSystemConfig(createLocalOcpiConfig());
+      console.log('[sequelize.bridge.config.js] Using LOCAL configuration');
+    } else {
+      const { createDockerOcpiConfig } = require('./envs/docker');
+      ocpiConfig = getOcpiSystemConfig(createDockerOcpiConfig());
+      console.log('[sequelize.bridge.config.js] Using DOCKER configuration');
+    }
 
     const { host, port, database, username, password } = ocpiConfig.database;
 
