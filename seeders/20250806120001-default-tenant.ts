@@ -60,16 +60,37 @@ export = {
       },
     };
 
-    const tenant = {
-      id: 1,
-      name: 'default tenant',
-      partyId: 'S44',
-      countryCode: 'US',
-      serverProfileOCPI: JSON.stringify(serverProfileOCPI),
-      createdAt: new Date('2025-08-07T17:55:00+00:00'),
-      updatedAt: new Date('2025-08-07T17:55:00+00:00'),
-    };
-    await queryInterface.bulkInsert('Tenants', [tenant], {} as QueryOptions);
+    try {
+      const tenant = {
+        id: 1,
+        name: 'Default Tenant',
+        partyId: 'S44',
+        countryCode: 'US',
+        serverProfileOCPI: JSON.stringify(serverProfileOCPI),
+        createdAt: new Date('2025-08-07T17:55:00+00:00'),
+        updatedAt: new Date('2025-08-07T17:55:00+00:00'),
+      };
+      await queryInterface.bulkInsert('Tenants', [tenant], {} as QueryOptions);
+    } catch (error) {
+      console.error('Error inserting tenant, will attempt update:', error);
+
+      const tenantUpdate = {
+        partyId: 'S44',
+        countryCode: 'US',
+        serverProfileOCPI: JSON.stringify(serverProfileOCPI),
+        updatedAt: new Date('2025-08-07T17:55:00+00:00'),
+      };
+      try {
+        await queryInterface.bulkUpdate(
+          'Tenants',
+          tenantUpdate,
+          { id: 1 },
+          {} as QueryOptions,
+        );
+      } catch (updateError) {
+        console.error('Error updating tenant:', updateError);
+      }
+    }
   },
 
   down: async (queryInterface: QueryInterface) => {
