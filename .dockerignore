@@ -11,6 +11,8 @@
 
 # Specific files and file types to ignore
 **/*.js
+# Exclude config files
+!**/config/**/*.js
 **/*.cjs
 **/*.md
 **/*.yml

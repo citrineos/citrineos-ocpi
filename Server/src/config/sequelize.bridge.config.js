@@ -3,9 +3,10 @@ require('ts-node/register');
 
 module.exports = (async () => {
   const { getOcpiSystemConfig } = require('./bootstrap.config');
+  const { createDockerOcpiConfig } = require('./envs/docker');
 
   try {
-    const ocpiConfig = getOcpiSystemConfig();
+    const ocpiConfig = getOcpiSystemConfig(createDockerOcpiConfig());
 
     const { host, port, database, username, password } = ocpiConfig.database;
 

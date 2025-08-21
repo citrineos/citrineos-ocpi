@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:22 as build
+FROM --platform=$BUILDPLATFORM node:22 AS build
 
 WORKDIR /usr/local/apps
 
@@ -21,7 +21,7 @@ RUN npm run build
 
 # The final stage, which copies built files and prepares the run environment
 # Using alpine image to reduce the final image size
-FROM --platform=linux/amd64 node:22-alpine
+FROM --platform=$BUILDPLATFORM node:22-alpine
 COPY --from=build /usr/local/apps /usr/local/apps
 
 WORKDIR /usr/local/apps/citrineos-ocpi
