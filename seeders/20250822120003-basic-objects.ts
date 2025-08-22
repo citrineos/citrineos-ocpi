@@ -17,14 +17,14 @@ export = {
       timeZone: 'America/Los_Angeles',
       publishUpstream: true,
       parkingType: 'AlongMotorway',
-      facilities: ['Cafe', 'ParkingLot', 'Wifi'],
-      //   coordinates: {
-      //     type: 'Point',
-      //     coordinates: [-122.4194, 37.7749], // [longitude, latitude] for San Francisco
-      //   },
-      openingHours: {
+      facilities: JSON.stringify(['Cafe', 'ParkingLot', 'Wifi']),
+      coordinates: JSON.stringify({
+        type: 'Point',
+        coordinates: [-122.4194, 37.7749], // [longitude, latitude] for San Francisco
+      }),
+      openingHours: JSON.stringify({
         twentyfourSeven: true,
-      },
+      }),
       tenantId: 1, // Assuming tenant exists
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -48,13 +48,13 @@ export = {
       firmwareVersion: '1.0.0',
       meterType: 'EnergyMeter',
       meterSerialNumber: 'EM001-SN-001',
-      //   coordinates: {
-      //     type: 'Point',
-      //     coordinates: [-122.4194, 37.7749],
-      //   },
+      coordinates: JSON.stringify({
+        type: 'Point',
+        coordinates: [-122.4194, 37.7749],
+      }),
       floorLevel: '0',
-      parkingRestrictions: ['EVOnly'],
-      capabilities: ['RFIDReader', 'CreditCardPayable'],
+      parkingRestrictions: JSON.stringify(['EVOnly']),
+      capabilities: JSON.stringify(['RFIDReader', 'CreditCardPayable']),
       locationId: 1,
       tenantId: 1,
       createdAt: new Date(),
@@ -124,12 +124,6 @@ export = {
       authorizationAmount: 25.0,
       paymentFee: 0.35,
       taxRate: 0.0875, // 8.75% tax rate
-      tariffAltText: [
-        {
-          language: 'en',
-          text: 'Standard charging rate for Test Charging Hub',
-        },
-      ],
       tenantId: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -142,7 +136,7 @@ export = {
       id: 1,
       idToken: 'DEADBEEF',
       idTokenType: 'ISO14443',
-      additionalInfo: [
+      additionalInfo: JSON.stringify([
         {
           additionalIdToken: 'USTSTC012345678',
           type: 'eMAID',
@@ -155,7 +149,7 @@ export = {
           additionalIdToken: '02345',
           type: 'visual_number',
         },
-      ],
+      ]),
       status: 'Accepted',
       chargingPriority: 1,
       language1: 'en',
