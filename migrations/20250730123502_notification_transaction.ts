@@ -30,6 +30,11 @@ export = {
           WHERE n.value IS DISTINCT FROM o.value
           AND n.key != ALL(requiredFields);
 
+          -- Only proceed if non-required fields changed
+          IF changedData IS NULL OR changedData = '{}'::jsonb THEN
+            RETURN COALESCE(NEW, OLD);
+          END IF;
+
           notificationData := requiredData || COALESCE(changedData, '{}'::jsonb) || jsonb_build_object('tenant', tenantData);
         END IF;
 

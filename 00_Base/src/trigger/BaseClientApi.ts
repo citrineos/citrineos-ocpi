@@ -113,7 +113,7 @@ export abstract class BaseClientApi {
     body?: any,
     paginatedParams?: PaginatedParams,
     otherParams?: Record<string, string | number | (string | number)[]>,
-    path?: string
+    path?: string,
   ): Promise<any> {
     if (!partnerProfile) {
       const response = await this.ocpiGraphqlClient.request<
@@ -172,22 +172,27 @@ export abstract class BaseClientApi {
     options.queryParameters = queryParameters;
     switch (httpMethod) {
       case HttpMethod.Get:
+        this.logger.debug(`Sending GET request to ${url}`);
         return this.getRaw<T>(url, options).then((response) =>
           this.handleResponse(schema, response),
         );
       case HttpMethod.Post:
+        this.logger.debug(`Sending POST request to ${url}`);
         return this.createRaw<T>(url, body, options).then((response) =>
           this.handleResponse(schema, response),
         );
       case HttpMethod.Put:
+        this.logger.debug(`Sending PUT request to ${url}`);
         return this.replaceRaw<T>(url, body, options).then((response) =>
           this.handleResponse(schema, response),
         );
       case HttpMethod.Patch:
+        this.logger.debug(`Sending PATCH request to ${url}`);
         return this.updateRaw<T>(url, body, options).then((response) =>
           this.handleResponse(schema, response),
         );
       case HttpMethod.Delete:
+        this.logger.debug(`Sending DELETE request to ${url}`);
         return this.delRaw<T>(url, options).then((response) =>
           this.handleResponse(schema, response),
         );
@@ -258,6 +263,13 @@ export abstract class BaseClientApi {
       otherParams,
       path,
     } = params;
+    this.logger.debug(
+      `Broadcasting to clients for ${moduleId}_${interfaceRole}`,
+    );
+    this.logger.debug(
+      `Requesting partners for ${cpoCountryCode}_${cpoPartyId}`,
+    );
+    this.logger.debug(`Using URL: ${url} with path ${path}`);
     const responses: T[] = [];
     const response = await this.ocpiGraphqlClient.request<
       TenantPartnersListQueryResult,
@@ -269,6 +281,9 @@ export abstract class BaseClientApi {
     });
     const partners = response.TenantPartners as ITenantPartnerDto[];
     for (const partner of partners) {
+      this.logger.debug(
+        `Requesting partner ${partner.countryCode}_${partner.partyId}`,
+      );
       const response = await this.request(
         cpoCountryCode,
         cpoPartyId,

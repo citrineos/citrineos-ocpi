@@ -1,4 +1,4 @@
-import { ITariffDto, OCPP2_0_1 } from '@citrineos/base';
+import { IAuthorizationDto, ITariffDto, OCPP2_0_1 } from '@citrineos/base';
 import { TokenDTO } from '../model/DTO/TokenDTO';
 import { ILogObj, Logger } from 'tslog';
 import { Price } from '../model/Price';
@@ -14,6 +14,8 @@ import { ITransactionDto, ILocationDto } from '@citrineos/base';
 import { LocationMapper } from './LocationMapper';
 import { TokensMapper } from './TokensMapper';
 import {
+  GetAuthorizationByIdQueryResult,
+  GetAuthorizationByIdQueryVariables,
   GetLocationByIdQueryResult,
   GetLocationByIdQueryVariables,
   GetTariffByKeyQueryResult,
@@ -21,6 +23,7 @@ import {
 } from '../graphql/operations';
 import { GET_TARIFF_BY_KEY_QUERY } from '../graphql/queries/tariff.queries';
 import { TariffMapper } from './TariffMapper';
+import { GET_AUTHORIZATION_BY_ID } from '../graphql';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -34,24 +37,17 @@ export abstract class BaseTransactionMapper {
   ): Promise<Map<string, LocationDTO>> {
     const transactionIdToLocationMap: Map<string, LocationDTO> = new Map();
     for (const transaction of transactions) {
-      const locationId = transaction.chargingStation?.location?.id;
-
-      if (locationId === undefined) {
-        this.logger.debug(
-          `Skipping transaction ${transaction.id} location ${transaction.chargingStation?.location?.id}`,
-        );
-        continue;
+      if (!transaction.location && transaction.locationId) {
+        const result = await this.ocpiGraphqlClient.request<
+          GetLocationByIdQueryResult,
+          GetLocationByIdQueryVariables
+        >(GET_LOCATION_BY_ID_QUERY, { id: transaction.locationId });
+        transaction.location = result.Locations[0] as ILocationDto;
       }
-
-      const result = await this.ocpiGraphqlClient.request<
-        GetLocationByIdQueryResult,
-        GetLocationByIdQueryVariables
-      >(GET_LOCATION_BY_ID_QUERY, { id: locationId });
-      const location = result.Locations[0] as ILocationDto;
-
+      const location = transaction.location;
       if (!location) {
         this.logger.debug(
-          `Skipping transaction ${transaction.id} location ${transaction.chargingStation?.location?.id}`,
+          `Skipping transaction ${transaction.id} location ${transaction.locationId}`,
         );
         continue;
       }
@@ -69,6 +65,16 @@ export abstract class BaseTransactionMapper {
     const transactionIdToTokenMap: Map<string, TokenDTO> = new Map();
 
     for (const transaction of transactions) {
+      if (!transaction.authorization && transaction.authorizationId) {
+        const result = await this.ocpiGraphqlClient.request<
+          GetAuthorizationByIdQueryResult,
+          GetAuthorizationByIdQueryVariables
+        >(GET_AUTHORIZATION_BY_ID, { id: transaction.authorizationId });
+        if (result.Authorizations_by_pk) {
+          transaction.authorization =
+            result.Authorizations_by_pk as IAuthorizationDto;
+        }
+      }
       if (transaction.authorization) {
         const tokenDto = await TokensMapper.toDto(transaction.authorization);
         if (tokenDto) {
@@ -89,6 +95,19 @@ export abstract class BaseTransactionMapper {
   ): Promise<Map<string, ITariffDto>> {
     const transactionIdToTariffMap = new Map<string, ITariffDto>();
     for (const transaction of transactions) {
+      if (!transaction.tariff && transaction.tariffId) {
+        const result = await this.ocpiGraphqlClient.request<
+          GetTariffByKeyQueryResult,
+          GetTariffByKeyQueryVariables
+        >(GET_TARIFF_BY_KEY_QUERY, {
+          id: transaction.tariffId,
+          countryCode: transaction.tenant!.countryCode!,
+          partyId: transaction.tenant!.partyId!,
+        });
+        if (result.Tariffs[0]) {
+          transaction.tariff = result.Tariffs[0] as ITariffDto;
+        }
+      }
       const tariff = transaction.tariff;
       if (tariff) {
         transactionIdToTariffMap.set(transaction.transactionId!, tariff);

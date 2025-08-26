@@ -169,7 +169,7 @@ function getParamSchema(
         return {};
       }
     } else {
-      console.log('TODO: CHECK HERE', type);
+      // console.log('TODO: CHECK HERE', type);
       // SchemaStore.addToSchemaStore(type, type.name);
       return { $ref: '#/components/schemas/' + type.name };
     }

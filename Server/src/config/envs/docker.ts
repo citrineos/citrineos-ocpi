@@ -52,7 +52,14 @@ export function createDockerOcpiConfig(): OcpiConfigInput {
     },
 
     cache: {
-      memory: true,
+      ...(process.env.REDIS_HOST
+        ? {
+            redis: {
+              host: process.env.REDIS_HOST,
+              port: parseInt(process.env.REDIS_PORT || '6379'),
+            },
+          }
+        : { memory: true }),
     },
 
     graphql: {

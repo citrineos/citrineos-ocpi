@@ -101,7 +101,7 @@ export const LIST_TENANT_PARTNERS_BY_CPO = gql`
           partyId: { _eq: $cpoPartyId }
         }
         partnerProfileOCPI: {
-          _contains: { endpoints: { identifier: $endpointIdentifier } }
+          _contains: { endpoints: [{ identifier: $endpointIdentifier }] }
         }
       }
     ) {

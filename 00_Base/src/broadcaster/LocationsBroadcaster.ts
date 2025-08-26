@@ -3,12 +3,9 @@ import { Service } from 'typedi';
 import { LocationsClientApi } from '../trigger/LocationsClientApi';
 import { ILogObj, Logger } from 'tslog';
 import { CredentialsService } from '../services/CredentialsService';
-import { LocationDTO, LocationResponseSchema } from '../model/DTO/LocationDTO';
-import { EvseDTO, EvseResponseSchema } from '../model/DTO/EvseDTO';
-import {
-  ConnectorDTO,
-  ConnectorResponseSchema,
-} from '../model/DTO/ConnectorDTO';
+import { LocationDTO } from '../model/DTO/LocationDTO';
+import { EvseDTO } from '../model/DTO/EvseDTO';
+import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import {
@@ -24,6 +21,7 @@ import {
   EvseMapper,
   LocationMapper,
 } from '../mapper/LocationMapper';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -66,9 +64,9 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Locations,
-        interfaceRole: InterfaceRole.SENDER,
+        interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
-        schema: LocationResponseSchema,
+        schema: OcpiEmptyResponseSchema,
         body: location,
         path: path,
       });
@@ -115,9 +113,9 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Locations,
-        interfaceRole: InterfaceRole.SENDER,
+        interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
-        schema: EvseResponseSchema,
+        schema: OcpiEmptyResponseSchema,
         body: evseData,
         path: path,
       });
@@ -161,9 +159,9 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Locations,
-        interfaceRole: InterfaceRole.SENDER,
+        interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
-        schema: ConnectorResponseSchema,
+        schema: OcpiEmptyResponseSchema,
         body: connectorData,
         path: path,
       });

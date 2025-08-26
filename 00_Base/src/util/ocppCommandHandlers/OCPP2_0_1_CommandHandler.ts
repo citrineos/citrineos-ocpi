@@ -325,7 +325,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
           tenantPartner.partnerProfileOCPI!,
           responseUrl,
           {
-            result: CommandResultType.EVSE_OCCUPIED,
+            result: CommandResultType.REJECTED,
             message: {
               language: 'en',
               text: 'Charging station rejected stop session',

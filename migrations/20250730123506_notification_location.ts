@@ -32,6 +32,11 @@ export = {
           WHERE n.value IS DISTINCT FROM o.value
           AND n.key != ALL(requiredFields); -- Don't duplicate required fields
 
+          -- Only proceed if non-required fields changed
+          IF changedData IS NULL OR changedData = '{}'::jsonb THEN
+            RETURN COALESCE(NEW, OLD);
+          END IF;
+
           -- Merge required and changed fields
           notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
           tenantId := NEW."tenantId";

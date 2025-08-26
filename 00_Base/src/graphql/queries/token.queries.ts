@@ -35,6 +35,7 @@ export const READ_AUTHORIZATION = gql`
       status
       realTimeAuth
       language1
+      groupAuthorizationId
     }
   }
 `;
@@ -95,9 +96,48 @@ export const GET_AUTHORIZATION_BY_TOKEN = gql`
       id
       idToken
       idTokenType
-      tenantPartnerId
+      tenantId
+      tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      groupAuthorization: GroupAuthorization {
+        idToken
+      }
       additionalInfo
       groupAuthorizationId
+      status
+      realTimeAuth
+      language1
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_AUTHORIZATION_BY_ID = gql`
+  query GetAuthorizationById($id: Int!) {
+    Authorizations_by_pk(id: $id) {
+      id
+      idToken
+      idTokenType
+      tenantId
+      tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      groupAuthorization: GroupAuthorization {
+        idToken
+      }
+      additionalInfo
+      groupAuthorizationId
+      status
+      realTimeAuth
+      language1
+      createdAt
+      updatedAt
     }
   }
 `;

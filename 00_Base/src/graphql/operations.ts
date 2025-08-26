@@ -99,11 +99,11 @@ export type GetChargingStationByIdQueryResult = {
       id: number,
       tenantId: number,
       stationId: string,
-      evseId: number,
+      evseId?: number | null,
       connectorId: number,
-      evseTypeConnectorId: number,
-      status?: string | null,
-      errorCode?: string | null,
+      evseTypeConnectorId?: number | null,
+      status?: any | null,
+      errorCode?: any | null,
       timestamp?: any | null,
       info?: string | null,
       vendorId?: string | null,
@@ -112,8 +112,8 @@ export type GetChargingStationByIdQueryResult = {
       updatedAt: any
     }>,
     tenant: {
-      partyId?: string | null,
-      countryCode?: string | null
+      partyId: string,
+      countryCode: string
     }
   }>
 };
@@ -171,8 +171,8 @@ export type GetLocationsQueryResult = {
     timeZone?: string | null,
     updatedAt: any,
     tenant: {
-      partyId?: string | null,
-      countryCode?: string | null
+      partyId: string,
+      countryCode: string
     },
     chargingPool: Array<{
       id: string,
@@ -206,9 +206,9 @@ export type GetLocationsQueryResult = {
         connectors: Array<{
           id: number,
           stationId: string,
-          evseId: number,
+          evseId?: number | null,
           connectorId: number,
-          evseTypeConnectorId: number,
+          evseTypeConnectorId?: number | null,
           format?: string | null,
           maximumAmperage?: number | null,
           maximumPowerWatts?: number | null,
@@ -216,8 +216,8 @@ export type GetLocationsQueryResult = {
           powerType?: string | null,
           termsAndConditionsUrl?: string | null,
           type?: string | null,
-          status?: string | null,
-          errorCode?: string | null,
+          status?: any | null,
+          errorCode?: any | null,
           timestamp?: any | null,
           info?: string | null,
           vendorId?: string | null,
@@ -253,8 +253,8 @@ export type GetLocationByIdQueryResult = {
     timeZone?: string | null,
     updatedAt: any,
     tenant: {
-      partyId?: string | null,
-      countryCode?: string | null
+      partyId: string,
+      countryCode: string
     },
     chargingPool: Array<{
       id: string,
@@ -288,9 +288,9 @@ export type GetLocationByIdQueryResult = {
         connectors: Array<{
           id: number,
           stationId: string,
-          evseId: number,
+          evseId?: number | null,
           connectorId: number,
-          evseTypeConnectorId: number,
+          evseTypeConnectorId?: number | null,
           format?: string | null,
           maximumAmperage?: number | null,
           maximumPowerWatts?: number | null,
@@ -298,8 +298,8 @@ export type GetLocationByIdQueryResult = {
           powerType?: string | null,
           termsAndConditionsUrl?: string | null,
           type?: string | null,
-          status?: string | null,
-          errorCode?: string | null,
+          status?: any | null,
+          errorCode?: any | null,
           timestamp?: any | null,
           info?: string | null,
           vendorId?: string | null,
@@ -370,9 +370,9 @@ export type GetConnectorByIdQueryResult = {
         connectors: Array<{
           id: number,
           stationId: string,
-          evseId: number,
+          evseId?: number | null,
           connectorId: number,
-          evseTypeConnectorId: number,
+          evseTypeConnectorId?: number | null,
           format?: string | null,
           maximumAmperage?: number | null,
           maximumPowerWatts?: number | null,
@@ -380,8 +380,8 @@ export type GetConnectorByIdQueryResult = {
           powerType?: string | null,
           termsAndConditionsUrl?: string | null,
           type?: string | null,
-          status?: string | null,
-          errorCode?: string | null,
+          status?: any | null,
+          errorCode?: any | null,
           timestamp?: any | null,
           info?: string | null,
           vendorId?: string | null,
@@ -413,11 +413,11 @@ export type GetTariffByKeyQueryResult = {
     pricePerSession?: any | null,
     stationId?: string | null,
     taxRate?: any | null,
-    tariffAltText?: any | null,
+    tariffAltText?: string | null,
     updatedAt: any,
     tenant: {
-      countryCode?: string | null,
-      partyId?: string | null
+      countryCode: string,
+      partyId: string
     }
   }>
 };
@@ -441,11 +441,11 @@ export type GetTariffsQueryResult = {
     pricePerSession?: any | null,
     stationId?: string | null,
     taxRate?: any | null,
-    tariffAltText?: any | null,
+    tariffAltText?: string | null,
     updatedAt: any,
     tenant: {
-      countryCode?: string | null,
-      partyId?: string | null
+      countryCode: string,
+      partyId: string
     }
   }>
 };
@@ -481,14 +481,14 @@ export type GetTenantPartnerByServerTokenQueryVariables = Exact<{
 export type GetTenantPartnerByServerTokenQueryResult = {
   TenantPartners: Array<{
     id: number,
-    countryCode?: string | null,
-    partyId?: string | null,
+    countryCode: string,
+    partyId: string,
     partnerProfileOCPI?: any | null,
     tenantId: number,
     tenant: {
       id: number,
-      countryCode?: string | null,
-      partyId?: string | null,
+      countryCode: string,
+      partyId: string,
       serverProfileOCPI?: any | null
     }
   }>
@@ -502,14 +502,14 @@ export type GetTenantPartnerByIdQueryVariables = Exact<{
 export type GetTenantPartnerByIdQueryResult = {
   TenantPartners_by_pk?: {
     id: number,
-    countryCode?: string | null,
-    partyId?: string | null,
+    countryCode: string,
+    partyId: string,
     partnerProfileOCPI?: any | null,
     tenantId: number,
     tenant: {
       id: number,
-      countryCode?: string | null,
-      partyId?: string | null,
+      countryCode: string,
+      partyId: string,
       serverProfileOCPI?: any | null
     }
   } | null
@@ -537,14 +537,14 @@ export type GetTenantPartnerByCpoClientAndModuleIdQueryVariables = Exact<{
 export type GetTenantPartnerByCpoClientAndModuleIdQueryResult = {
   TenantPartners: Array<{
     id: number,
-    countryCode?: string | null,
-    partyId?: string | null,
+    countryCode: string,
+    partyId: string,
     partnerProfileOCPI?: any | null,
     tenantId: number,
     tenant: {
       id: number,
-      countryCode?: string | null,
-      partyId?: string | null,
+      countryCode: string,
+      partyId: string,
       serverProfileOCPI?: any | null
     }
   }>
@@ -560,14 +560,14 @@ export type TenantPartnersListQueryVariables = Exact<{
 export type TenantPartnersListQueryResult = {
   TenantPartners: Array<{
     id: number,
-    countryCode?: string | null,
-    partyId?: string | null,
+    countryCode: string,
+    partyId: string,
     partnerProfileOCPI?: any | null,
     tenantId: number,
     tenant: {
       id: number,
-      countryCode?: string | null,
-      partyId?: string | null,
+      countryCode: string,
+      partyId: string,
       serverProfileOCPI?: any | null
     }
   }>
@@ -581,8 +581,8 @@ export type GetTenantByIdQueryVariables = Exact<{
 export type GetTenantByIdQueryResult = {
   Tenants: Array<{
     serverProfileOCPI?: any | null,
-    countryCode?: string | null,
-    partyId?: string | null
+    countryCode: string,
+    partyId: string
   }>
 };
 
@@ -600,19 +600,20 @@ export type ReadAuthorizationsQueryResult = {
     createdAt: any,
     updatedAt: any,
     tenantId: number,
-    idToken?: string | null,
+    idToken: string,
     idTokenType?: string | null,
     additionalInfo?: any | null,
-    status?: string | null,
-    realTimeAuth?: string | null,
+    status: string,
+    realTimeAuth: string,
     language1?: string | null,
+    groupAuthorizationId?: number | null,
     tenantPartner?: {
       id: number,
-      countryCode?: string | null,
-      partyId?: string | null
+      countryCode: string,
+      partyId: string
     } | null,
     groupAuthorization?: {
-      idToken?: string | null
+      idToken: string
     } | null
   }>
 };
@@ -632,20 +633,20 @@ export type UpdateAuthorizationMutationResult = {
       createdAt: any,
       updatedAt: any,
       tenantId: number,
-      idToken?: string | null,
+      idToken: string,
       idTokenType?: string | null,
       additionalInfo?: any | null,
-      status?: string | null,
-      realTimeAuth?: string | null,
+      status: string,
+      realTimeAuth: string,
       language1?: string | null,
       groupAuthorizationId?: number | null,
       tenantPartner?: {
         id: number,
-        countryCode?: string | null,
-        partyId?: string | null
+        countryCode: string,
+        partyId: string
       } | null,
       groupAuthorization?: {
-        idToken?: string | null
+        idToken: string
       } | null
     }>
   } | null
@@ -661,12 +662,54 @@ export type GetAuthorizationByTokenQueryVariables = Exact<{
 export type GetAuthorizationByTokenQueryResult = {
   Authorizations: Array<{
     id: number,
-    idToken?: string | null,
+    idToken: string,
     idTokenType?: string | null,
-    tenantPartnerId?: number | null,
+    tenantId: number,
     additionalInfo?: any | null,
-    groupAuthorizationId?: number | null
+    groupAuthorizationId?: number | null,
+    status: string,
+    realTimeAuth: string,
+    language1?: string | null,
+    createdAt: any,
+    updatedAt: any,
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    groupAuthorization?: {
+      idToken: string
+    } | null
   }>
+};
+
+export type GetAuthorizationByIdQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type GetAuthorizationByIdQueryResult = {
+  Authorizations_by_pk?: {
+    id: number,
+    idToken: string,
+    idTokenType?: string | null,
+    tenantId: number,
+    additionalInfo?: any | null,
+    groupAuthorizationId?: number | null,
+    status: string,
+    realTimeAuth: string,
+    language1?: string | null,
+    createdAt: any,
+    updatedAt: any,
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    groupAuthorization?: {
+      idToken: string
+    } | null
+  } | null
 };
 
 export type CreateAuthorizationMutationVariables = Exact<{
@@ -690,20 +733,20 @@ export type CreateAuthorizationMutationResult = {
     createdAt: any,
     updatedAt: any,
     tenantId: number,
-    idToken?: string | null,
+    idToken: string,
     idTokenType?: string | null,
     additionalInfo?: any | null,
-    status?: string | null,
-    realTimeAuth?: string | null,
+    status: string,
+    realTimeAuth: string,
     language1?: string | null,
     groupAuthorizationId?: number | null,
     tenantPartner?: {
       id: number,
-      countryCode?: string | null,
-      partyId?: string | null
+      countryCode: string,
+      partyId: string
     } | null,
     groupAuthorization?: {
-      idToken?: string | null
+      idToken: string
     } | null
   } | null
 };
@@ -717,7 +760,7 @@ export type GetGroupAuthorizationQueryVariables = Exact<{
 export type GetGroupAuthorizationQueryResult = {
   Authorizations: Array<{
     id: number,
-    idToken?: string | null,
+    idToken: string,
     idTokenType?: string | null
   }>
 };
@@ -769,7 +812,7 @@ export type GetTransactionsQueryResult = {
       eventType?: string | null,
       transactionInfo?: any | null,
       EvseType?: {
-        id?: number | null
+        id: number
       } | null
     }>,
     startTransaction?: {
@@ -787,19 +830,19 @@ export type GetTransactionsQueryResult = {
       createdAt: any,
       updatedAt: any,
       tenantId: number,
-      idToken?: string | null,
+      idToken: string,
       idTokenType?: string | null,
       additionalInfo?: any | null,
-      status?: string | null,
-      realTimeAuth?: string | null,
+      status: string,
+      realTimeAuth: string,
       language1?: string | null,
       tenantPartner?: {
         id: number,
-        countryCode?: string | null,
-        partyId?: string | null
+        countryCode: string,
+        partyId: string
       } | null,
       groupAuthorization?: {
-        idToken?: string | null
+        idToken: string
       } | null
     } | null,
     tariff?: {
@@ -813,11 +856,11 @@ export type GetTransactionsQueryResult = {
       pricePerSession?: any | null,
       stationId?: string | null,
       taxRate?: any | null,
-      tariffAltText?: any | null,
+      tariffAltText?: string | null,
       updatedAt: any,
       tenant: {
-        countryCode?: string | null,
-        partyId?: string | null
+        countryCode: string,
+        partyId: string
       }
     } | null
   }>
@@ -845,8 +888,8 @@ export type GetTransactionByTransactionIdQueryResult = {
     createdAt: any,
     updatedAt: any,
     tenant: {
-      countryCode?: string | null,
-      partyId?: string | null
+      countryCode: string,
+      partyId: string
     },
     evse?: {
       id: number
@@ -876,7 +919,7 @@ export type GetTransactionByTransactionIdQueryResult = {
       eventType?: string | null,
       transactionInfo?: any | null,
       EvseType?: {
-        id?: number | null
+        id: number
       } | null
     }>,
     startTransaction?: {
@@ -894,19 +937,19 @@ export type GetTransactionByTransactionIdQueryResult = {
       createdAt: any,
       updatedAt: any,
       tenantId: number,
-      idToken?: string | null,
+      idToken: string,
       idTokenType?: string | null,
       additionalInfo?: any | null,
-      status?: string | null,
-      realTimeAuth?: string | null,
+      status: string,
+      realTimeAuth: string,
       language1?: string | null,
       tenantPartner?: {
         id: number,
-        countryCode?: string | null,
-        partyId?: string | null
+        countryCode: string,
+        partyId: string
       } | null,
       groupAuthorization?: {
-        idToken?: string | null
+        idToken: string
       } | null
     } | null,
     tariff?: {
@@ -920,11 +963,11 @@ export type GetTransactionByTransactionIdQueryResult = {
       pricePerSession?: any | null,
       stationId?: string | null,
       taxRate?: any | null,
-      tariffAltText?: any | null,
+      tariffAltText?: string | null,
       updatedAt: any,
       tenant: {
-        countryCode?: string | null,
-        partyId?: string | null
+        countryCode: string,
+        partyId: string
       }
     } | null
   }>

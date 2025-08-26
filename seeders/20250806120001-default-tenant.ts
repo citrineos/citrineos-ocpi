@@ -9,7 +9,7 @@ export = {
       versionDetails: [
         {
           version: '2.2.1',
-          versionDetailsUrl: 'http://localhost:8085/ocpi/versions/0/2.2.1',
+          versionDetailsUrl: 'http://localhost:8085/ocpi/versions/1/2.2.1',
         },
       ],
       versionEndpoints: {

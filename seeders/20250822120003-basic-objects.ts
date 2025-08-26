@@ -158,6 +158,7 @@ export = {
         'http://citrineos-ocpi:8085/ocpi/2.2.1/tokens/realTimeAuth',
       concurrentTransaction: false,
       tenantId: 1,
+      tenantPartnerId: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

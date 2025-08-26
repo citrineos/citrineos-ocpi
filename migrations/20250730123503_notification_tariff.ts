@@ -8,7 +8,7 @@ export = {
       CREATE OR REPLACE FUNCTION "TariffNotify"()
       RETURNS trigger AS $$
       DECLARE
-        requiredFields text[] := ARRAY['id', 'tenantId', 'currency', 'pricePerKwh', 'updatedAt'];
+        requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt'];
         requiredData jsonb;
         changedData jsonb;
         notificationData jsonb;
@@ -31,6 +31,11 @@ export = {
           JOIN jsonb_each(to_jsonb(OLD)) o ON n.key = o.key
           WHERE n.value IS DISTINCT FROM o.value
           AND n.key != ALL(requiredFields); -- Don't duplicate required fields
+
+          -- Only proceed if non-required fields changed
+          IF changedData IS NULL OR changedData = '{}'::jsonb THEN
+            RETURN COALESCE(NEW, OLD);
+          END IF;
 
           -- Merge required and changed fields
           notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);

@@ -20,15 +20,16 @@ export = {
           -- Merge all MeterValues fields, and tenant
           notificationData := to_jsonb(NEW)
             || jsonb_build_object('tenant', tenantData);
-        END IF;
 
-        PERFORM pg_notify(
-          'MeterValueNotification',
-          json_build_object(
-            'operation', TG_OP,
-            'data', notificationData
-          )::text
-        );
+          -- Only notify when transactionDatabaseId is not null
+          PERFORM pg_notify(
+            'MeterValueNotification',
+            json_build_object(
+              'operation', TG_OP,
+              'data', notificationData
+            )::text
+          );
+        END IF;
 
         RETURN COALESCE(NEW, OLD);
       END;

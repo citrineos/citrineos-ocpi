@@ -8,7 +8,7 @@ export = {
       CREATE OR REPLACE FUNCTION "ConnectorNotify"()
       RETURNS trigger AS $$
       DECLARE
-        requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt', 'stationId'];
+        requiredFields text[] := ARRAY['id', 'tenantId', 'updatedAt', 'stationId', 'evseId'];
         requiredData jsonb;
         changedData jsonb;
         notificationData jsonb;
@@ -30,6 +30,11 @@ export = {
           JOIN jsonb_each(to_jsonb(OLD)) o ON n.key = o.key
           WHERE n.value IS DISTINCT FROM o.value
           AND n.key != ALL(requiredFields);
+
+          -- Only proceed if non-required fields changed
+          IF changedData IS NULL OR changedData = '{}'::jsonb THEN
+            RETURN COALESCE(NEW, OLD);
+          END IF;
 
           notificationData := requiredData || COALESCE(changedData, '{}'::jsonb);
           tenantId := NEW."tenantId";

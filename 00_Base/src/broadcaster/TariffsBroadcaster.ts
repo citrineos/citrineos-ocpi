@@ -5,14 +5,22 @@ import { ILogObj, Logger } from 'tslog';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import { HttpMethod, ITariffDto, ITenantDto } from '@citrineos/base';
-import { Tariff, TariffResponseSchema } from '../model/Tariff';
+import { Tariff } from '../model/Tariff';
 import { TariffMapper } from '../mapper/TariffMapper';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import {
+  GET_TARIFF_BY_KEY_QUERY,
+  GetTariffByKeyQueryResult,
+  GetTariffByKeyQueryVariables,
+  OcpiGraphqlClient,
+} from '../graphql';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly tariffsClientApi: TariffsClientApi,
+    readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {
     super();
   }
@@ -28,9 +36,9 @@ export class TariffsBroadcaster extends BaseBroadcaster {
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Tariffs,
-        interfaceRole: InterfaceRole.SENDER,
+        interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
-        schema: TariffResponseSchema,
+        schema: OcpiEmptyResponseSchema,
         body: tariff,
         path: path,
       });
@@ -39,13 +47,41 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     }
   }
 
-  async broadcastPutTariff(tenant: ITenantDto, tariffDto: Partial<ITariffDto>): Promise<void> {
+  async broadcastPutTariff(
+    tenant: ITenantDto,
+    tariffDto: Partial<ITariffDto>,
+  ): Promise<void> {
+    if (!tariffDto.currency || !tariffDto.pricePerKwh) {
+      this.logger.debug(
+        `Currency or pricePerKwh missing in Tariff ${tariffDto.id}, fetching data.`,
+      );
+      const tariffResponse = await this.ocpiGraphqlClient.request<
+        GetTariffByKeyQueryResult,
+        GetTariffByKeyQueryVariables
+      >(GET_TARIFF_BY_KEY_QUERY, {
+        id: tariffDto.id!,
+        countryCode: tenant.countryCode!,
+        partyId: tenant.partyId!,
+      });
+      if (!tariffResponse?.Tariffs[0]) {
+        this.logger.error(
+          `Failed to fetch Tariff ${tariffDto.id} data from GraphQL to fill required fields for broadcast PUT`,
+        );
+        return;
+      }
+      tariffDto.currency = tariffResponse.Tariffs[0].currency;
+      tariffDto.pricePerKwh = tariffResponse.Tariffs[0].pricePerKwh;
+    }
+
     const tariff = TariffMapper.map(tariffDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${tariff.id}`;
     await this.broadcast(tenant, HttpMethod.Put, path, tariff);
   }
 
-  async broadcastTariffDeletion(tenant: ITenantDto, tariffDto: ITariffDto): Promise<void> {
+  async broadcastTariffDeletion(
+    tenant: ITenantDto,
+    tariffDto: ITariffDto,
+  ): Promise<void> {
     const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffDto.id}`;
     await this.broadcast(tenant, HttpMethod.Delete, path);
   }

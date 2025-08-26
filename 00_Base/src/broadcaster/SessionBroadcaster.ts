@@ -2,7 +2,7 @@ import { BaseBroadcaster } from './BaseBroadcaster';
 import { Service } from 'typedi';
 import { SessionsClientApi } from '../trigger/SessionsClientApi';
 import { ILogObj, Logger } from 'tslog';
-import { Session, SessionResponseSchema } from '../model/Session';
+import { Session } from '../model/Session';
 import { ModuleId } from '../model/ModuleId';
 import { InterfaceRole } from '../model/InterfaceRole';
 import {
@@ -12,6 +12,7 @@ import {
   ITransactionDto,
 } from '@citrineos/base';
 import { SessionMapper } from '../mapper/SessionMapper';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -73,9 +74,9 @@ export class SessionBroadcaster extends BaseBroadcaster {
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Sessions,
-        interfaceRole: InterfaceRole.SENDER,
+        interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
-        schema: SessionResponseSchema,
+        schema: OcpiEmptyResponseSchema,
         body: session,
         path: path,
       });

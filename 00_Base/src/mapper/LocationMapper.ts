@@ -47,11 +47,11 @@ export class LocationMapper {
       },
       time_zone: location.timeZone,
       evses: location.chargingPool
-        .map((station) =>
-          station.evses!.map((evse) => EvseMapper.fromGraphql(station, evse)),
+        ?.map((station) =>
+          station.evses?.map((evse) => EvseMapper.fromGraphql(station, evse)),
         )
-        .flat()
-        .filter((evse) => evse !== undefined),
+        ?.flat()
+        ?.filter((evse) => evse !== undefined),
       parking_type: LocationMapper.mapLocationParkingType(location.parkingType),
       facilities: location.facilities
         ?.map(LocationMapper.mapLocationFacility)
@@ -63,7 +63,9 @@ export class LocationMapper {
     };
   }
 
-  static fromPartialGraphql(location: Partial<ILocationDto>): Partial<LocationDTO> {
+  static fromPartialGraphql(
+    location: Partial<ILocationDto>,
+  ): Partial<LocationDTO> {
     return {
       publish: location.publishUpstream,
       name: location.name,
@@ -77,12 +79,14 @@ export class LocationMapper {
         latitude: location.coordinates.coordinates[1].toString(),
       },
       time_zone: location.timeZone,
-      evses: location.chargingPool && location.chargingPool
-        .map((station) =>
-          station.evses!.map((evse) => EvseMapper.fromGraphql(station, evse)),
-        )
-        .flat()
-        .filter((evse) => evse !== undefined),
+      evses:
+        location.chargingPool &&
+        location.chargingPool
+          .map((station) =>
+            station.evses!.map((evse) => EvseMapper.fromGraphql(station, evse)),
+          )
+          .flat()
+          .filter((evse) => evse !== undefined),
       parking_type: LocationMapper.mapLocationParkingType(location.parkingType),
       facilities: location.facilities
         ?.map(LocationMapper.mapLocationFacility)
@@ -195,26 +199,28 @@ export class EvseMapper {
     station: IChargingStationDto,
     evse: IEvseDto,
   ): EvseDTO | undefined {
-    const connectors = evse
-      .connectors!.map(ConnectorMapper.fromGraphql)
-      .filter((c) => c !== undefined);
+    let connectors = evse
+      .connectors?.map(ConnectorMapper.fromGraphql)
+      ?.filter((c) => c !== undefined);
     if (!connectors || connectors.length === 0) {
       const logger = Container.get(Logger);
-      logger.warn('EVSE has no valid connectors, skipping', {
+      logger.warn('EVSE has no valid connectors', {
         stationId: station.id,
         evseId: evse.id,
       });
-      return;
+      connectors = undefined;
+      // return;
+      // TODO: solve this case
     }
 
     return {
       uid: UID_FORMAT(station.id, evse.id!),
       evse_id: evse.evseId,
-      status: EvseMapper.mapEvseStatusFromConnectors(
+      status: connectors ? EvseMapper.mapEvseStatusFromConnectors(
         evse.connectors!.filter((c) =>
           connectors.some((con) => con!.id === c.id!.toString()),
         ),
-      ),
+      ) : EvseStatus.UNKNOWN,
       capabilities: station.capabilities
         ?.map((c) => EvseMapper.mapEvseCapabilities(c))
         .filter((c) => c !== null),
@@ -228,7 +234,7 @@ export class EvseMapper {
       parking_restrictions: station.parkingRestrictions
         ?.map((r) => EvseMapper.mapEvseParkingRestrictions(r))
         .filter((r) => r !== null),
-      connectors: connectors,
+      connectors: connectors || [],
       floor_level: station.floorLevel,
       last_updated: evse.updatedAt!,
     };
@@ -238,17 +244,19 @@ export class EvseMapper {
     station: Partial<IChargingStationDto>,
     evse: Partial<IEvseDto>,
   ): Partial<EvseDTO> {
-    const connectors = evse
-      .connectors?.map(ConnectorMapper.fromGraphql)
+    const connectors = evse.connectors
+      ?.map(ConnectorMapper.fromGraphql)
       .filter((c) => c !== undefined);
 
     return {
       evse_id: evse.evseId,
-      status: connectors && EvseMapper.mapEvseStatusFromConnectors(
-        evse.connectors!.filter((c) =>
-          connectors.some((con) => con!.id === c.id!.toString()),
+      status:
+        connectors &&
+        EvseMapper.mapEvseStatusFromConnectors(
+          evse.connectors!.filter((c) =>
+            connectors.some((con) => con!.id === c.id!.toString()),
+          ),
         ),
-      ),
       capabilities: station.capabilities
         ?.map((c) => EvseMapper.mapEvseCapabilities(c))
         .filter((c) => c !== null),
@@ -388,7 +396,9 @@ export class ConnectorMapper {
     logger.warn(`Invalid connector: ${JSON.stringify(partialConnector)}`);
   }
 
-  static fromPartialGraphql(connector: Partial<IConnectorDto>): Partial<ConnectorDTO> {
+  static fromPartialGraphql(
+    connector: Partial<IConnectorDto>,
+  ): Partial<ConnectorDTO> {
     const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
       standard: ConnectorMapper.mapConnectorType(connector.type),
