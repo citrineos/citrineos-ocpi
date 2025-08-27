@@ -195,10 +195,11 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     // Map context-dependent fields if available
-    if (location) {
-      session.country_code = location.country_code;
-      session.party_id = location.party_id;
-      session.location_id = this.getLocationId(location);
+    session.country_code = transaction.tenant!.countryCode!;
+    session.party_id = transaction.tenant!.partyId!;
+
+    if (transaction.locationId) {
+      session.location_id = transaction.locationId.toString();
     }
 
     if (token) {
@@ -221,12 +222,12 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     // Map fields that depend on transaction structure
-    if (transaction.evse && transaction.stationId) {
+    if (transaction.evseId && transaction.stationId) {
       session.evse_uid = this.getEvseUid(transaction as ITransactionDto);
     }
 
-    if (transaction.connector) {
-      session.connector_id = transaction.connector.connectorId.toString();
+    if (transaction.connectorId) {
+      session.connector_id = transaction.connectorId.toString();
     }
 
     // Map meter values if available
@@ -286,12 +287,12 @@ export class SessionMapper extends BaseTransactionMapper {
       session.last_updated = transaction.updatedAt!;
     }
 
-    if (transaction.evse && transaction.stationId) {
+    if (transaction.evseId && transaction.stationId) {
       session.evse_uid = this.getEvseUid(transaction as ITransactionDto);
     }
 
-    if (transaction.connector) {
-      session.connector_id = transaction.connector.connectorId.toString();
+    if (transaction.connectorId) {
+      session.connector_id = transaction.connectorId.toString();
     }
 
     if (transaction.endTime !== undefined) {
@@ -333,7 +334,7 @@ export class SessionMapper extends BaseTransactionMapper {
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction),
-      connector_id: transaction.connector!.connectorId.toString(),
+      connector_id: transaction.connectorId!.toString(),
       currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
@@ -379,7 +380,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getEvseUid(transaction: ITransactionDto): string {
-    return UID_FORMAT(transaction.stationId, transaction.evse!.id!);
+    return UID_FORMAT(transaction.stationId, transaction.evseId!);
   }
 
   private getCurrency(location: LocationDTO): string {

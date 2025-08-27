@@ -26,25 +26,11 @@ export const GET_TRANSACTIONS_QUERY = gql`
       endTime
       createdAt
       updatedAt
-      evse: Evse {
-        id
-      }
-      connector: Connector {
-        id
-        connectorId
-      }
-      chargingStation: ChargingStation {
-        location: Location {
-          id
-          name
-          address
-          city
-          postalCode
-          state
-          country
-          coordinates
-        }
-      }
+      evseId
+      connectorId
+      locationId
+      authorizationId
+      tariffId
       transactionEvents: TransactionEvents {
         id
         eventType
@@ -62,44 +48,6 @@ export const GET_TRANSACTIONS_QUERY = gql`
       meterValues: MeterValues {
         timestamp
         sampledValue
-      }
-      authorization: Authorization {
-        id
-        createdAt
-        updatedAt
-        tenantId
-        tenantPartner: TenantPartner {
-          id
-          countryCode
-          partyId
-        }
-        groupAuthorization: GroupAuthorization {
-          idToken
-        }
-        idToken
-        idTokenType
-        additionalInfo
-        status
-        realTimeAuth
-        language1
-      }
-      tariff: Tariff {
-        authorizationAmount
-        createdAt
-        currency
-        id
-        paymentFee
-        pricePerKwh
-        pricePerMin
-        pricePerSession
-        stationId
-        taxRate
-        tariffAltText
-        updatedAt
-        tenant: Tenant {
-          countryCode
-          partyId
-        }
       }
     }
   }
@@ -126,29 +74,11 @@ export const GET_TRANSACTION_BY_TRANSACTION_ID_QUERY = gql`
       endTime
       createdAt
       updatedAt
-      evse: Evse {
-        id
-      }
-      connector: Connector {
-        id
-        connectorId
-      }
-      chargingStation: ChargingStation {
-        id
-        tenantId
-        isOnline
-        protocol
-        location: Location {
-          id
-          name
-          address
-          city
-          postalCode
-          state
-          country
-          coordinates
-        }
-      }
+      evseId
+      connectorId
+      locationId
+      authorizationId
+      tariffId
       transactionEvents: TransactionEvents {
         id
         eventType
@@ -166,44 +96,6 @@ export const GET_TRANSACTION_BY_TRANSACTION_ID_QUERY = gql`
       meterValues: MeterValues {
         timestamp
         sampledValue
-      }
-      authorization: Authorization {
-        id
-        createdAt
-        updatedAt
-        tenantId
-        tenantPartner: TenantPartner {
-          id
-          countryCode
-          partyId
-        }
-        groupAuthorization: GroupAuthorization {
-          idToken
-        }
-        idToken
-        idTokenType
-        additionalInfo
-        status
-        realTimeAuth
-        language1
-      }
-      tariff: Tariff {
-        authorizationAmount
-        createdAt
-        currency
-        id
-        paymentFee
-        pricePerKwh
-        pricePerMin
-        pricePerSession
-        stationId
-        taxRate
-        tariffAltText
-        updatedAt
-        tenant: Tenant {
-          countryCode
-          partyId
-        }
       }
     }
   }

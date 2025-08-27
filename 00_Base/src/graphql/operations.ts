@@ -788,25 +788,11 @@ export type GetTransactionsQueryResult = {
     endTime?: any | null,
     createdAt: any,
     updatedAt: any,
-    evse?: {
-      id: number
-    } | null,
-    connector?: {
-      id: number,
-      connectorId: number
-    } | null,
-    chargingStation?: {
-      location?: {
-        id: number,
-        name?: string | null,
-        address?: string | null,
-        city?: string | null,
-        postalCode?: string | null,
-        state?: string | null,
-        country?: string | null,
-        coordinates?: any | null
-      } | null
-    } | null,
+    evseId?: number | null,
+    connectorId?: number | null,
+    locationId?: number | null,
+    authorizationId?: number | null,
+    tariffId?: number | null,
     transactionEvents: Array<{
       id: number,
       eventType?: string | null,
@@ -824,45 +810,7 @@ export type GetTransactionsQueryResult = {
     meterValues: Array<{
       timestamp?: any | null,
       sampledValue?: any | null
-    }>,
-    authorization?: {
-      id: number,
-      createdAt: any,
-      updatedAt: any,
-      tenantId: number,
-      idToken: string,
-      idTokenType?: string | null,
-      additionalInfo?: any | null,
-      status: string,
-      realTimeAuth: string,
-      language1?: string | null,
-      tenantPartner?: {
-        id: number,
-        countryCode: string,
-        partyId: string
-      } | null,
-      groupAuthorization?: {
-        idToken: string
-      } | null
-    } | null,
-    tariff?: {
-      authorizationAmount?: any | null,
-      createdAt: any,
-      currency: any,
-      id: number,
-      paymentFee?: any | null,
-      pricePerKwh: any,
-      pricePerMin?: any | null,
-      pricePerSession?: any | null,
-      stationId?: string | null,
-      taxRate?: any | null,
-      tariffAltText?: string | null,
-      updatedAt: any,
-      tenant: {
-        countryCode: string,
-        partyId: string
-      }
-    } | null
+    }>
   }>
 };
 
@@ -887,33 +835,15 @@ export type GetTransactionByTransactionIdQueryResult = {
     endTime?: any | null,
     createdAt: any,
     updatedAt: any,
+    evseId?: number | null,
+    connectorId?: number | null,
+    locationId?: number | null,
+    authorizationId?: number | null,
+    tariffId?: number | null,
     tenant: {
       countryCode: string,
       partyId: string
     },
-    evse?: {
-      id: number
-    } | null,
-    connector?: {
-      id: number,
-      connectorId: number
-    } | null,
-    chargingStation?: {
-      id: string,
-      tenantId: number,
-      isOnline?: boolean | null,
-      protocol?: string | null,
-      location?: {
-        id: number,
-        name?: string | null,
-        address?: string | null,
-        city?: string | null,
-        postalCode?: string | null,
-        state?: string | null,
-        country?: string | null,
-        coordinates?: any | null
-      } | null
-    } | null,
     transactionEvents: Array<{
       id: number,
       eventType?: string | null,
@@ -931,44 +861,6 @@ export type GetTransactionByTransactionIdQueryResult = {
     meterValues: Array<{
       timestamp?: any | null,
       sampledValue?: any | null
-    }>,
-    authorization?: {
-      id: number,
-      createdAt: any,
-      updatedAt: any,
-      tenantId: number,
-      idToken: string,
-      idTokenType?: string | null,
-      additionalInfo?: any | null,
-      status: string,
-      realTimeAuth: string,
-      language1?: string | null,
-      tenantPartner?: {
-        id: number,
-        countryCode: string,
-        partyId: string
-      } | null,
-      groupAuthorization?: {
-        idToken: string
-      } | null
-    } | null,
-    tariff?: {
-      authorizationAmount?: any | null,
-      createdAt: any,
-      currency: any,
-      id: number,
-      paymentFee?: any | null,
-      pricePerKwh: any,
-      pricePerMin?: any | null,
-      pricePerSession?: any | null,
-      stationId?: string | null,
-      taxRate?: any | null,
-      tariffAltText?: string | null,
-      updatedAt: any,
-      tenant: {
-        countryCode: string,
-        partyId: string
-      }
-    } | null
+    }>
   }>
 };
