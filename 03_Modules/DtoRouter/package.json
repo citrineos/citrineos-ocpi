@@ -16,12 +16,10 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/deasync-promise": "1.0.0",
     "typescript": "5.0.4"
   },
   "dependencies": {
     "@citrineos/ocpi-base": "2.0.0",
-    "deasync-promise": "1.0.1",
     "tslog": "4.9.2"
   }
 }

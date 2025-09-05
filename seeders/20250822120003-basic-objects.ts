@@ -39,7 +39,7 @@ export = {
     // Create ChargingStation
     const chargingStation = {
       id: 'cp001',
-      isOnline: true,
+      isOnline: null,
       protocol: 'ocpp2.0.1',
       chargePointVendor: 'CitrineOS',
       chargePointModel: 'TestStation',
