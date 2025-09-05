@@ -79,6 +79,22 @@ export const GET_TRANSACTION_BY_TRANSACTION_ID_QUERY = gql`
       locationId
       authorizationId
       tariffId
+      authorization: Authorization {
+        tenantPartner: TenantPartner {
+          id
+          countryCode
+          partyId
+          partnerProfileOCPI
+          tenant: Tenant {
+            id
+            countryCode
+            partyId
+          }
+        }
+      }
+      chargingStation: ChargingStation {
+        id
+      }
       transactionEvents: TransactionEvents {
         id
         eventType

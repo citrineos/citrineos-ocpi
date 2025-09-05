@@ -798,7 +798,7 @@ export type GetTransactionsQueryResult = {
       eventType?: string | null,
       transactionInfo?: any | null,
       EvseType?: {
-        id: number
+        id?: number | null
       } | null
     }>,
     startTransaction?: {
@@ -844,12 +844,28 @@ export type GetTransactionByTransactionIdQueryResult = {
       countryCode: string,
       partyId: string
     },
+    authorization?: {
+      tenantPartner?: {
+        id: number,
+        countryCode: string,
+        partyId: string,
+        partnerProfileOCPI?: any | null,
+        tenant: {
+          id: number,
+          countryCode: string,
+          partyId: string
+        }
+      } | null
+    } | null,
+    chargingStation?: {
+      id: string
+    } | null,
     transactionEvents: Array<{
       id: number,
       eventType?: string | null,
       transactionInfo?: any | null,
       EvseType?: {
-        id: number
+        id?: number | null
       } | null
     }>,
     startTransaction?: {
