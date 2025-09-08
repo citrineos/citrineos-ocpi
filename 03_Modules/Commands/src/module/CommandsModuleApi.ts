@@ -4,18 +4,8 @@
 // SPDX-License-Identifier: Apache 2.0
 
 import { ICommandsModuleApi } from './ICommandsModuleApi';
-import {
-  Body,
-  Ctx,
-  JsonController,
-  Param,
-  Post,
-} from 'routing-controllers';
-import {
-  HttpStatus,
-  ITenantPartnerDto,
-  OCPPVersion,
-} from '@citrineos/base';
+import { Body, Ctx, JsonController, Param, Post } from 'routing-controllers';
+import { HttpStatus, ITenantPartnerDto, OCPPVersion } from '@citrineos/base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
@@ -50,9 +40,8 @@ import {
 } from '@citrineos/ocpi-base';
 import { Inject, Service } from 'typedi';
 
-/**
- * Server API for the provisioning component.
- */
+import { AsAdminEndpoint } from '../../../00_Base/src/util/decorators/AsAdminEndpoint';
+
 @JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsModuleApi
@@ -147,6 +136,7 @@ export class CommandsModuleApi
   }
 
   @Post('/callback/:tenantPartnerId/:ocppVersion/:command/:commandId')
+  @AsAdminEndpoint()
   async postAsynchronousResponse(
     @Param('tenantPartnerId') tenantPartnerId: number,
     @Param('ocppVersion') ocppVersion: OCPPVersion,
