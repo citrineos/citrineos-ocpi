@@ -176,7 +176,6 @@ export const ocpiConfigInputSchema = z.object({
   oidc: oidcConfigSchema,
 });
 
-export type OIDCConfig = z.infer<typeof oidcConfigSchema>;
 export type OcpiConfigInput = z.infer<typeof ocpiConfigInputSchema>;
 
 /**
@@ -322,7 +321,9 @@ export const ocpiConfigSchema = z.object({
   logLevel: z.number().min(0).max(6),
   defaultPageLimit: z.number().int().positive(),
   maxPageLimit: z.number().int().positive(),
+  oidc: oidcConfigSchema,
 });
 
+export type OIDCConfig = z.infer<typeof oidcConfigSchema>;
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;
 export const OcpiConfigToken = new Token<OcpiConfig>('ocpi.config');
