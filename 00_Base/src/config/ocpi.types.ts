@@ -10,6 +10,16 @@ import { Token } from 'typedi';
  * This schema defines the configuration structure specific to OCPI modules only.
  * It excludes all citrineos-core-specific settings.
  */
+export const oidcConfigSchema = z
+  .object({
+    jwksUri: z.string(),
+    issuer: z.string(),
+    audience: z.string().optional(),
+    cacheTime: z.number().optional(),
+    rateLimit: z.boolean().optional(),
+  })
+  .optional();
+
 export const ocpiConfigInputSchema = z.object({
   env: z.enum(['development', 'production']),
 
@@ -161,6 +171,9 @@ export const ocpiConfigInputSchema = z.object({
   logLevel: z.number().min(0).max(6).default(2).optional(),
   defaultPageLimit: z.number().int().positive().default(50).optional(),
   maxPageLimit: z.number().int().positive().default(1000).optional(),
+
+  // Optional OIDC configuration
+  oidc: oidcConfigSchema,
 });
 
 export type OcpiConfigInput = z.infer<typeof ocpiConfigInputSchema>;
@@ -308,7 +321,9 @@ export const ocpiConfigSchema = z.object({
   logLevel: z.number().min(0).max(6),
   defaultPageLimit: z.number().int().positive(),
   maxPageLimit: z.number().int().positive(),
+  oidc: oidcConfigSchema,
 });
 
+export type OIDCConfig = z.infer<typeof oidcConfigSchema>;
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;
 export const OcpiConfigToken = new Token<OcpiConfig>('ocpi.config');

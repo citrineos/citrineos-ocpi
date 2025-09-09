@@ -64,6 +64,7 @@ import {
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import { ITokensModuleApi } from './ITokensModuleApi';
+import { AsAdminEndpoint } from '../../../../00_Base/src/util/decorators/AsAdminEndpoint';
 
 const MockPutTokenBody = {
   country_code: 'MSP',
@@ -249,6 +250,7 @@ export class TokensModuleApi
   }
 
   @Post('/realTimeAuth')
+  @AsAdminEndpoint()
   async realTimeAuthorization(
     @VersionNumberParam() _version: VersionNumber,
     @Body() realTimeAuthRequest: RealTimeAuthorizationRequestBody,
