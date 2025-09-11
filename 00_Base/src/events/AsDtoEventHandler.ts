@@ -1,7 +1,8 @@
-// Copyright (c) 2025 S44, LLC
+// Copyright (c) 2023 S44, LLC
 // Copyright Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
+
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
 import { DtoEventObjectType, DtoEventType } from './types';

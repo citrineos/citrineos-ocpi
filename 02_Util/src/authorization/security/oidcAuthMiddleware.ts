@@ -1,3 +1,8 @@
+// Copyright (c) 2023 S44, LLC
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 // OIDC middleware for Koa, inspired by citrineos-core OIDCAuthProvider
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';

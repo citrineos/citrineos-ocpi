@@ -1,3 +1,8 @@
+// Copyright (c) 2023 S44, LLC
+// Copyright Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 export enum Capability {
   CHARGING_PROFILE_CAPABLE = 'CHARGING_PROFILE_CAPABLE',
   CHARGING_PREFERENCES_CAPABLE = 'CHARGING_PREFERENCES_CAPABLE',
