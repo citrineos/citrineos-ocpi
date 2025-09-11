@@ -1,19 +1,7 @@
 # Build and configuration files
-**/*.tsbuildinfo
-**/package.json
-**/package-lock.json
-**/tsconfig.json
-**/tsconfig.*.json
-**/jest.config.ts
-**/vite.config.ts
-**/codegen.ts
-**/copy-assets.ts
 .dockerignore
 .gitattributes
-.github/
 .gitignore
-.husky/
-.idea/
 .npmrc
 .nvmrc
 .prettierignore
@@ -23,28 +11,36 @@ renovate.json
 nodemon.json
 db.sync.ts
 eslint.config.js
+jest.config.ts
+**/package.json
+**/package-lock.json
+**/tsconfig.json
+**/tsconfig.*.json
+**/*.tsbuildinfo
+.github/workflows/
 
 # Assets and data
-**/assets/
-**/data/
-**/public/
+Server/src/assets/
+Server/data/
 *.png
 *.svg
 *.ico
 *.pem
 *.conf
+03_Modules/Credentials/tests/index.txt
 
 # Documentation
 README.md
 LICENSE
+Server/everest/README.md
 
-# Generated code and schemas
-**/schemas/
-
-# Directories that should be fully ignored
-node_modules/
-dist/
-build/
-coverage/
-migrations/
-seeders/
+# Other ignored files
+00_Base/src/services/TokensAdminService.ts
+00_Base/src/util/Timer.ts
+Server/.nvmrc
+Server/deploy.Dockerfile
+Server/everest/Dockerfile
+Server/local.Dockerfile
+migrations/tsconfig.json
+seeders/package.json
+seeders/tsconfig.json
