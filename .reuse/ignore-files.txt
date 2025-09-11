@@ -1,0 +1,12 @@
+*.tsbuildinfo
+.dockerignore
+.gitignore
+.prettierrc
+.sequelizerc
+package.json
+package-lock.json
+renovate.json
+tsconfig.json
+tsconfig.build.json
+tsconfig.eslint.json
+

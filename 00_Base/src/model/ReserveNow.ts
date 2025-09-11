@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { ResponseUrlSchema } from './ResponseUrl';
 import { TokenDTOSchema } from './DTO/TokenDTO';
 import { z } from 'zod';

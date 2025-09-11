@@ -1,19 +1,6 @@
-// import { Service } from 'typedi';
-// import { ResponseUrlRepository } from '../repository/ResponseUrlRepository';
-// import { AsyncReceiverApi } from '../trigger/AsyncReceiverApi';
-// import { ActiveChargingProfileResult } from '../model/ActiveChargingProfileResult';
-// import { ClearChargingProfileResult } from '../model/ChargingprofilesClearProfileResult';
-// import { ChargingProfileResult } from '../model/ChargingProfileResult';
-// import { NotFoundError } from 'routing-controllers';
-// import { CommandResult } from '../model/CommandResult';
-// import { OcpiParams } from '../trigger/util/OcpiParams';
-
-// @Service()
-// export class AsyncResponder {
-//   constructor(
-//     readonly responseUrlRepo: ResponseUrlRepository,
-//     readonly asyncResponseApi: AsyncReceiverApi,
-//   ) {}
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
 //   async send(
 //     correlationId: string,

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { GET_TENANT_BY_ID } from '../graphql/queries/tenantVersionEndpoints.queries';
 import { VersionNumber } from '../model/VersionNumber';

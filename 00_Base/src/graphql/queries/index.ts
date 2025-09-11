@@ -1,5 +1,7 @@
-// export * from './adminLocation.mutations';
-// export * from './asyncJob.queries';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 export * from './chargingStation.queries';
 export * from './chargingStationSequence.queries';
 // export * from './cpoTenant.queries';

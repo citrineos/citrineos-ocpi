@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { IsDateString, IsInt, Min } from 'class-validator';
 import { Optional } from '../../util/decorators/Optional';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../../model/PaginatedResponse';

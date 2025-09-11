@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { JSONSchemaFaker } from 'json-schema-faker';
 import { getAllSchemas } from '../openapi-spec-helper/schemas';
 import { PaginatedCdrResponse } from '../model/Cdr';

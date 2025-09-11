@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';

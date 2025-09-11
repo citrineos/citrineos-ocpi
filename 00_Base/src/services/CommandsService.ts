@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { Inject, Service } from 'typedi';
 import { CancelReservation } from '../model/CancelReservation';
 import { ReserveNow } from '../model/ReserveNow';

@@ -1,4 +1,7 @@
-// tslint:disable:no-submodule-imports
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import * as oa from 'openapi3-ts';
 import * as pathToRegexp from 'path-to-regexp';
 import 'reflect-metadata';

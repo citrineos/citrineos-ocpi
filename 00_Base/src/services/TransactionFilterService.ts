@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 // import { ITransactionDatasource } from '../datasources/ITransactionDatasource';
 // import { PaginatedResult } from '../model/PaginatedResult';
 // import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';

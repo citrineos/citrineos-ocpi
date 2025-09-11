@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { Role } from '../model/Role';
 import { plainToInstance } from 'class-transformer';
 import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
