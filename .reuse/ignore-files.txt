@@ -1,12 +1,50 @@
-*.tsbuildinfo
+# Build and configuration files
+**/*.tsbuildinfo
+**/package.json
+**/package-lock.json
+**/tsconfig.json
+**/tsconfig.*.json
+**/jest.config.ts
+**/vite.config.ts
+**/codegen.ts
+**/copy-assets.ts
 .dockerignore
+.gitattributes
+.github/
 .gitignore
+.husky/
+.idea/
+.npmrc
+.nvmrc
+.prettierignore
 .prettierrc
 .sequelizerc
-package.json
-package-lock.json
 renovate.json
-tsconfig.json
-tsconfig.build.json
-tsconfig.eslint.json
+nodemon.json
+db.sync.ts
+eslint.config.js
 
+# Assets and data
+**/assets/
+**/data/
+**/public/
+*.png
+*.svg
+*.ico
+*.pem
+*.conf
+
+# Documentation
+README.md
+LICENSE
+
+# Generated code and schemas
+**/schemas/
+
+# Directories that should be fully ignored
+node_modules/
+dist/
+build/
+coverage/
+migrations/
+seeders/
