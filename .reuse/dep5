@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: CitrineOS OCPI
+Upstream-Contact: Contributors to the CitrineOS Project
+Source: https://github.com/citrineos/citrineos-ocpi
+
+Files: .dockerignore .gitignore .prettierrc .sequelizerc codegen.ts db.sync.ts eslint.config.js jest.config.js LICENSE package-lock.json package.json README.md renovate.json tsconfig.build.json tsconfig.eslint.json tsconfig.json
+Copyright: Contributors to the CitrineOS Project
+License: Apache-2.0
