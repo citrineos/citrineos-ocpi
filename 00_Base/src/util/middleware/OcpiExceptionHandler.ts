@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { KoaMiddlewareInterface, NotFoundError, UnauthorizedError } from 'routing-controllers';
 import { Context } from 'vm';
 import { HttpStatus, UnauthorizedException } from '@citrineos/base';

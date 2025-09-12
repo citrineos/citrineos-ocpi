@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 // import { BaseClientApi } from './BaseClientApi';
 // import { PutChargingProfileParams } from './param/charging.profiles/PutChargingProfileParams';
 // import { IHeaders } from 'typed-rest-client/Interfaces';

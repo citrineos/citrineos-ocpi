@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { BadRequestError, createParamDecorator } from 'routing-controllers';
 import { HttpHeader } from '@citrineos/base';
 import { base64Decode } from '../Util';

@@ -1,7 +1,6 @@
-// Copyright (c) 2025 S44, LLC
-// Copyright Contributors to the CitrineOS Project
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
 
 import * as amqplib from 'amqplib';
 import { instanceToPlain } from 'class-transformer';
