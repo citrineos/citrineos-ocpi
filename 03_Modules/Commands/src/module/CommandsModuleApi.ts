@@ -6,6 +6,7 @@ import { ICommandsModuleApi } from './ICommandsModuleApi';
 import { Body, Ctx, JsonController, Param, Post } from 'routing-controllers';
 import { HttpStatus, ITenantPartnerDto, OCPPVersion } from '@citrineos/base';
 import {
+  AsAdminEndpoint,
   AsOcpiFunctionalEndpoint,
   BaseController,
   CancelReservation,
@@ -38,8 +39,6 @@ import {
   versionIdParam,
 } from '@citrineos/ocpi-base';
 import { Inject, Service } from 'typedi';
-
-import { AsAdminEndpoint } from '../../../00_Base/src/util/decorators/AsAdminEndpoint';
 
 @JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()

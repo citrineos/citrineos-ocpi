@@ -5,7 +5,7 @@
 import { UseBefore } from 'routing-controllers';
 import { HttpExceptionHandler } from '../middleware/HttpExceptionHandler';
 import { OcpiConfigToken } from '../../config/ocpi.types';
-import { oidcAuthMiddleware } from '../../../../02_Util/src/authorization/security/oidcAuthMiddleware';
+import { oidcAuthMiddleware } from '../security/oidcAuthMiddleware';
 
 /**
  * Decorator to add necessary auth and exception handling for "admin" OCPI endpoints

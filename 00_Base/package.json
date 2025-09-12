@@ -42,6 +42,8 @@
     "class-validator-jsonschema": "5.0.0",
     "graphql-request": "^7.2.0",
     "json-schema-faker": "0.5.6",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.0",
     "koa": "2.16.2",
     "koa-bodyparser": "4.4.1",
     "koa-logger": "3.2.1",
