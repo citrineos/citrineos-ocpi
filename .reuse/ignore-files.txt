@@ -1,4 +1,26 @@
 # Explicitly ignored files from pipeline failure
+00_Base/src/services/TokensAdminService.ts
+00_Base/src/util/Timer.ts
+.dockerignore
+.gitignore
+.prettierrc
+.sequelizerc
+03_Modules/Credentials/tests/index.txt
+README.md
+Server/.nvmrc
+Server/deploy.Dockerfile
+Server/everest/Dockerfile
+Server/everest/README.md
+Server/local.Dockerfile
+Server/nodemon.json
+Server/tsconfig.docker.json
+migrations/tsconfig.json
+package-lock.json
+renovate.json
+seeders/package.json
+seeders/tsconfig.json
+tsconfig.build.json
+tsconfig.eslint.json
 Server/src/assets/logo.png
 .github/workflows/lint.yml
 .github/workflows/test-build-server.yml
@@ -32,16 +54,11 @@ Server/data/directus/uploads/b4f0a73e-1813-4ca4-8d76-5b7c5aed636c.png
 Server/data/directus/uploads/b4f0a73e-1813-4ca4-8d76-5b7c5aed636c__589fd140dc03b11360453048b8c68765d61556b2.png
 Server/data/directus/uploads/f388d2c3-bc4a-4fc6-9093-4152df0f768a.png
 Server/data/directus/uploads/f388d2c3-bc4a-4fc6-9093-4152df0f768a__589fd140dc03b11360453048b8c68765d61556b2.png
-
 Server/package.json
 Server/src/assets/certificates/acme_account_key.pem
 Server/src/assets/certificates/certChain.pem
 Server/src/assets/certificates/leafKey.pem
 Server/src/assets/certificates/rootCertificate.pem
 Server/src/assets/certificates/subCAKey.pem
-# Assets and data
 Server/tsconfig.json
-Server/src/assets/
-Server/data/
-*.png
 tsconfig.json
