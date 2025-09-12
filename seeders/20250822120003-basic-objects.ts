@@ -13,7 +13,7 @@ export = {
       city: 'San Francisco',
       postalCode: '94102',
       state: 'CA',
-      country: 'US',
+      country: 'USA',
       timeZone: 'America/Los_Angeles',
       publishUpstream: true,
       parkingType: 'AlongMotorway',
