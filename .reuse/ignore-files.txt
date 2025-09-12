@@ -1,11 +1,8 @@
 # Explicitly ignored files from pipeline failure
-00_Base/src/services/TokensAdminService.ts
-00_Base/src/util/Timer.ts
 .dockerignore
 .gitignore
 .prettierrc
 .sequelizerc
-03_Modules/Credentials/tests/index.txt
 README.md
 Server/.nvmrc
 Server/deploy.Dockerfile
