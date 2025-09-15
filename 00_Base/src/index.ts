@@ -323,6 +323,7 @@ export * from './events';
 
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
+import { HealthController } from './util/KoaServerHealthController';
 
 useContainer(Container);
 
@@ -381,7 +382,7 @@ export class OcpiServer extends KoaServer {
         (module as OcpiModule).getController(),
       );
       const options: RoutingControllersOptions = {
-        controllers: [...controllers],
+        controllers: [...controllers, HealthController],
         routePrefix: '/ocpi',
         middlewares: [],
         defaultErrorHandler: false,

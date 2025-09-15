@@ -11,7 +11,6 @@ import {
   type IModuleApi,
 } from '@citrineos/base';
 import { MemoryCache, RedisCache } from '@citrineos/util';
-import { type FastifyInstance } from 'fastify';
 import {
   Container,
   getDtoEventHandlerMetaData,
