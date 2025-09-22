@@ -4,7 +4,7 @@ WORKDIR /usr/local/apps
 
 # copy and pack citrineos core
 COPY ./citrineos-core ./citrineos-core
-RUN cd ./citrineos-core && npm install && npm run build && npm pack
+RUN cd ./citrineos-core && npm install && npm run build && npm pack --workspaces
 
 
 COPY ./citrineos-ocpi ./citrineos-ocpi
