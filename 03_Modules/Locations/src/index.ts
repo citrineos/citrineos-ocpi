@@ -64,16 +64,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
     this._logger.debug(`Handling Location Insert: ${JSON.stringify(event)}`);
-    const locationDto = event._payload;
-    const tenant = locationDto.tenant;
-    if (!tenant) {
-      this._logger.error(
-        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${locationDto.id}, cannot broadcast.`,
-      );
-      return;
-    }
-
-    await this.locationsBroadcaster.broadcastPutLocation(tenant, locationDto);
+    // No automatic publishing on INSERT - publication is now controlled administratively via location-centric API
+    this._logger.info(
+      `Location ${event._payload.id} created but not published - use admin API to publish when ready`,
+    );
   }
 
   @AsDtoEventHandler(
@@ -86,15 +80,25 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.debug(`Handling Location Update: ${JSON.stringify(event)}`);
     const locationDto = event._payload;
-    const tenant = locationDto.tenant;
-    if (!tenant) {
-      this._logger.error(
-        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${locationDto.id}, cannot broadcast.`,
-      );
-      return;
-    }
 
-    await this.locationsBroadcaster.broadcastPatchLocation(tenant, locationDto);
+    // Only allow PATCH updates if the location has already been published
+    if (locationDto.isPublished) {
+      const tenant = locationDto.tenant;
+      if (!tenant) {
+        this._logger.error(
+          `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${locationDto.id}, cannot broadcast.`,
+        );
+        return;
+      }
+      await this.locationsBroadcaster.broadcastPatchLocation(
+        tenant,
+        locationDto,
+      );
+    } else {
+      this._logger.info(
+        `Location ${locationDto.id} updated but not published yet - use admin API to publish when ready`,
+      );
+    }
   }
 
   @AsDtoEventHandler(
@@ -108,8 +112,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     this._logger.debug(
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
     );
-    // Updates are Location/Evse PATCH requests
-    // await this.locationsBroadcaster.broadcastPatchEvse(event._payload); // todo
+    // Charging station updates are handled at the location level - no separate publishing
+    this._logger.info(
+      `Charging station ${event._payload.id} updated - changes will be published when location is re-published`,
+    );
   }
 
   @AsDtoEventHandler(
@@ -119,29 +125,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleEvseInsert(event: IDtoEvent<IEvseDto>): Promise<void> {
     this._logger.debug(`Handling EVSE Insert: ${JSON.stringify(event)}`);
-    const evseDto = event._payload;
-    const tenant = evseDto.tenant;
-    if (!tenant) {
-      this._logger.error(
-        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${evseDto.id}, cannot broadcast.`,
-      );
-      return;
-    }
-
-    const chargingStationResponse = await this.ocpiGraphqlClient.request<
-      GetChargingStationByIdQueryResult,
-      GetChargingStationByIdQueryVariables
-    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: evseDto.stationId });
-    if (!chargingStationResponse.ChargingStations[0]) {
-      this._logger.error(
-        `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
-      );
-      return;
-    }
-    evseDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
-
-    await this.locationsBroadcaster.broadcastPutEvse(tenant, evseDto);
+    // EVSEs are now published as part of the location hierarchy - no separate publishing
+    this._logger.info(
+      `EVSE ${event._payload.id} created but will be published as part of location hierarchy`,
+    );
   }
 
   @AsDtoEventHandler(
@@ -152,28 +139,36 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
     this._logger.debug(`Handling EVSE Update: ${JSON.stringify(event)}`);
     const evseDto = event._payload;
-    const tenant = evseDto.tenant;
-    if (!tenant) {
-      this._logger.error(
-        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${evseDto.id}, cannot broadcast.`,
-      );
-      return;
-    }
 
-    const chargingStationResponse = await this.ocpiGraphqlClient.request<
-      GetChargingStationByIdQueryResult,
-      GetChargingStationByIdQueryVariables
-    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: evseDto.stationId! });
-    if (!chargingStationResponse.ChargingStations[0]) {
-      this._logger.error(
-        `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
-      );
-      return;
-    }
-    evseDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+    // Only allow PATCH updates if the EVSE has already been published
+    if (evseDto.isPublished) {
+      const tenant = evseDto.tenant;
+      if (!tenant) {
+        this._logger.error(
+          `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${evseDto.id}, cannot broadcast.`,
+        );
+        return;
+      }
 
-    await this.locationsBroadcaster.broadcastPatchEvse(tenant, evseDto);
+      const chargingStationResponse = await this.ocpiGraphqlClient.request<
+        GetChargingStationByIdQueryResult,
+        GetChargingStationByIdQueryVariables
+      >(GET_CHARGING_STATION_BY_ID_QUERY, { id: evseDto.stationId! });
+      if (!chargingStationResponse.ChargingStations[0]) {
+        this._logger.error(
+          `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
+        );
+        return;
+      }
+      evseDto.chargingStation = chargingStationResponse
+        .ChargingStations[0] as IChargingStationDto;
+
+      await this.locationsBroadcaster.broadcastPatchEvse(tenant, evseDto);
+    } else {
+      this._logger.info(
+        `EVSE ${evseDto.id} updated but not published yet - use admin API to publish when ready`,
+      );
+    }
   }
 
   @AsDtoEventHandler(
@@ -183,29 +178,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
     this._logger.debug(`Handling Connector Insert: ${JSON.stringify(event)}`);
-    const connectorDto = event._payload;
-    const tenant = connectorDto.tenant;
-    if (!tenant) {
-      this._logger.error(
-        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${connectorDto.id}, cannot broadcast.`,
-      );
-      return;
-    }
-
-    const chargingStationResponse = await this.ocpiGraphqlClient.request<
-      GetChargingStationByIdQueryResult,
-      GetChargingStationByIdQueryVariables
-    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: connectorDto.stationId });
-    if (!chargingStationResponse.ChargingStations[0]) {
-      this._logger.error(
-        `Charging Station not found for ID ${connectorDto.stationId}, cannot broadcast.`,
-      );
-      return;
-    }
-    connectorDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
-
-    await this.locationsBroadcaster.broadcastPutConnector(tenant, connectorDto);
+    // Connectors are now published as part of the location hierarchy - no separate publishing
+    this._logger.info(
+      `Connector ${event._payload.id} created but will be published as part of location hierarchy`,
+    );
   }
 
   @AsDtoEventHandler(
@@ -218,32 +194,38 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     this._logger.debug(`Handling Connector Update: ${JSON.stringify(event)}`);
     const connectorDto = event._payload;
-    const tenant = connectorDto.tenant;
-    if (!tenant) {
-      this._logger.error(
-        `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${connectorDto.id}, cannot broadcast.`,
+
+    // Only allow PATCH updates if the connector has already been published
+    if (connectorDto.isPublished) {
+      const tenant = connectorDto.tenant;
+      if (!tenant) {
+        this._logger.error(
+          `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${connectorDto.id}, cannot broadcast.`,
+        );
+        return;
+      }
+
+      const chargingStationResponse = await this.ocpiGraphqlClient.request<
+        GetChargingStationByIdQueryResult,
+        GetChargingStationByIdQueryVariables
+      >(GET_CHARGING_STATION_BY_ID_QUERY, { id: connectorDto.stationId! });
+      if (!chargingStationResponse.ChargingStations[0]) {
+        this._logger.error(
+          `Charging Station not found for ID ${connectorDto.stationId}, cannot broadcast.`,
+        );
+        return;
+      }
+      connectorDto.chargingStation = chargingStationResponse
+        .ChargingStations[0] as IChargingStationDto;
+
+      await this.locationsBroadcaster.broadcastPatchConnector(
+        tenant,
+        connectorDto,
       );
-      return;
-    }
-
-    const chargingStationResponse = await this.ocpiGraphqlClient.request<
-      GetChargingStationByIdQueryResult,
-      GetChargingStationByIdQueryVariables
-    >(GET_CHARGING_STATION_BY_ID_QUERY, { id: connectorDto.stationId! });
-    if (!chargingStationResponse.ChargingStations[0]) {
-      this._logger.error(
-        `Charging Station not found for ID ${connectorDto.stationId}, cannot broadcast.`,
+    } else {
+      this._logger.info(
+        `Connector ${connectorDto.id} updated but not published yet - use admin API to publish when ready`,
       );
-      return;
     }
-    connectorDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
-
-    // TODO: filter out status updates, since they should only apply at the EVSE level
-
-    await this.locationsBroadcaster.broadcastPatchConnector(
-      tenant,
-      connectorDto,
-    );
   }
 }

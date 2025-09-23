@@ -27,20 +27,31 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
       taxRate
       tariffAltText
       updatedAt
+      tenantId
+      isPublished
+      validationErrors
+      publishedToPartners
+      lastPublicationAttempt
       tenant: Tenant {
+        id
         countryCode
         partyId
+      }
+      connector: Connector {
+        id
+        stationId
+        evseId
+        connectorId
+        type
+        format
+        powerType
       }
     }
   }
 `;
 
 export const GET_TARIFFS_QUERY = gql`
-  query GetTariffs(
-    $limit: Int
-    $offset: Int
-    $where: Tariffs_bool_exp!
-  ) {
+  query GetTariffs($limit: Int, $offset: Int, $where: Tariffs_bool_exp!) {
     Tariffs(
       limit: $limit
       offset: $offset
@@ -59,10 +70,47 @@ export const GET_TARIFFS_QUERY = gql`
       taxRate
       tariffAltText
       updatedAt
+      tenantId
+      isPublished
+      validationErrors
+      publishedToPartners
+      lastPublicationAttempt
       tenant: Tenant {
+        id
         countryCode
         partyId
       }
+      connector: Connector {
+        id
+        stationId
+        evseId
+        connectorId
+        type
+        format
+        powerType
+      }
+    }
+  }
+`;
+
+export const UPDATE_TARIFF_PUBLICATION_STATUS_MUTATION = gql`
+  mutation UpdateTariffPublicationStatus(
+    $id: Int!
+    $isPublished: Boolean!
+    $publishedToPartners: jsonb
+    $validationErrors: jsonb
+    $lastPublicationAttempt: timestamptz!
+  ) {
+    update_Tariffs(
+      where: { id: { _eq: $id } }
+      _set: {
+        isPublished: $isPublished
+        publishedToPartners: $publishedToPartners
+        validationErrors: $validationErrors
+        lastPublicationAttempt: $lastPublicationAttempt
+      }
+    ) {
+      affected_rows
     }
   }
 `;

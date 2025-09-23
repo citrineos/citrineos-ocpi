@@ -265,7 +265,16 @@ export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
 export { SessionsService } from './services/SessionsService';
-// export { AdminLocationsService } from './services/AdminLocationsService';
+export {
+  AdminLocationsService,
+  PublishLocationRequest,
+  PublishLocationResponse,
+} from './services/AdminLocationsService';
+export {
+  AdminTariffsService,
+  PublishTariffRequest,
+  PublishTariffResponse,
+} from './services/AdminTariffsService';
 
 // Export AsyncJob types
 export {

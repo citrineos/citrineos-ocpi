@@ -5,11 +5,7 @@
 import { gql } from 'graphql-request';
 
 export const GET_LOCATIONS_QUERY = gql`
-  query GetLocations(
-    $limit: Int
-    $offset: Int
-    $where: Locations_bool_exp!
-  ) {
+  query GetLocations($limit: Int, $offset: Int, $where: Locations_bool_exp!) {
     Locations(
       offset: $offset
       limit: $limit
@@ -110,12 +106,20 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       state
       timeZone
       updatedAt
+      tenantId
+      isPublished
+      validationErrors
+      publishedToPartners
+      lastPublicationAttempt
       tenant: Tenant {
+        id
         partyId
         countryCode
       }
       chargingPool: ChargingStations {
         id
+        stationId
+        name
         isOnline
         protocol
         capabilities
@@ -143,6 +147,10 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
           removed
           createdAt
           updatedAt
+          isPublished
+          validationErrors
+          publishedToPartners
+          lastPublicationAttempt
           connectors: Connectors {
             id
             stationId
@@ -164,6 +172,10 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
+            isPublished
+            validationErrors
+            publishedToPartners
+            lastPublicationAttempt
           }
         }
       }
@@ -245,6 +257,72 @@ export const GET_CONNECTOR_BY_ID_QUERY = gql`
           }
         }
       }
+    }
+  }
+`;
+
+export const UPDATE_LOCATION_PUBLICATION_STATUS_MUTATION = gql`
+  mutation UpdateLocationPublicationStatus(
+    $id: Int!
+    $isPublished: Boolean!
+    $publishedToPartners: jsonb
+    $validationErrors: jsonb
+    $lastPublicationAttempt: timestamptz!
+  ) {
+    update_Locations(
+      where: { id: { _eq: $id } }
+      _set: {
+        isPublished: $isPublished
+        publishedToPartners: $publishedToPartners
+        validationErrors: $validationErrors
+        lastPublicationAttempt: $lastPublicationAttempt
+      }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
+export const UPDATE_EVSE_PUBLICATION_STATUS_MUTATION = gql`
+  mutation UpdateEvsePublicationStatus(
+    $id: Int!
+    $isPublished: Boolean!
+    $publishedToPartners: jsonb
+    $validationErrors: jsonb
+    $lastPublicationAttempt: timestamptz!
+  ) {
+    update_Evses(
+      where: { id: { _eq: $id } }
+      _set: {
+        isPublished: $isPublished
+        publishedToPartners: $publishedToPartners
+        validationErrors: $validationErrors
+        lastPublicationAttempt: $lastPublicationAttempt
+      }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
+export const UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION = gql`
+  mutation UpdateConnectorPublicationStatus(
+    $id: Int!
+    $isPublished: Boolean!
+    $publishedToPartners: jsonb
+    $validationErrors: jsonb
+    $lastPublicationAttempt: timestamptz!
+  ) {
+    update_Connectors(
+      where: { id: { _eq: $id } }
+      _set: {
+        isPublished: $isPublished
+        publishedToPartners: $publishedToPartners
+        validationErrors: $validationErrors
+        lastPublicationAttempt: $lastPublicationAttempt
+      }
+    ) {
+      affected_rows
     }
   }
 `;
