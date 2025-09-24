@@ -118,8 +118,6 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       }
       chargingPool: ChargingStations {
         id
-        stationId
-        name
         isOnline
         protocol
         capabilities
