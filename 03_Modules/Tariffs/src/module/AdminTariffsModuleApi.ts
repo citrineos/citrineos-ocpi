@@ -16,6 +16,7 @@ import {
   AdminTariffsService,
   PublishTariffRequest,
   PublishTariffResponse,
+  AsAdminEndpoint,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 
@@ -32,11 +33,12 @@ export class AdminTariffsModuleApi extends BaseController {
   /**
    * Publish a tariff to OCPI partners
    */
-  @Post('/tariffs/:tariff_id/publish')
+  @Post('/:tariff_id/publish')
   @ResponseSchema(Object, 'PublishTariffResponse', {
     statusCode: HttpStatus.OK,
     description: 'Tariff published successfully',
   })
+  @AsAdminEndpoint()
   async publishTariff(
     @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,

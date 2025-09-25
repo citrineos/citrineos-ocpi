@@ -16,6 +16,7 @@ import {
   AdminLocationsService,
   PublishLocationRequest,
   PublishLocationResponse,
+  AsAdminEndpoint,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 
@@ -33,11 +34,12 @@ export class AdminLocationsModuleApi extends BaseController {
   /**
    * Publish a location and all its EVSEs and connectors to OCPI partners
    */
-  @Post('/locations/:location_id/publish')
+  @Post('/:location_id/publish')
   @ResponseSchema(Object, 'PublishLocationResponse', {
     statusCode: HttpStatus.OK,
     description: 'Location and all its components published successfully',
   })
+  @AsAdminEndpoint()
   async publishLocation(
     @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
