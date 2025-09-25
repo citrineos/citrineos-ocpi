@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { VersionNumber } from '../VersionNumber';
-import { EndpointSchema } from '../Endpoint';
+import { VersionNumber } from '../VersionNumber.js';
+import { EndpointSchema } from '../Endpoint.js';
 
 export const VersionDetailsDTOSchema = z.object({
   version: z.nativeEnum(VersionNumber),

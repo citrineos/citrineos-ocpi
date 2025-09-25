@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TariffType } from '../../TariffType';
-import { DisplayTextSchema } from '../../DisplayText';
-import { PriceSchema } from '../../Price';
-import { TariffElementSchema } from '../../TariffElement';
-import { EnergyMixSchema } from '../../EnergyMix';
+import { TariffType } from '../../TariffType.js';
+import { DisplayTextSchema } from '../../DisplayText.js';
+import { PriceSchema } from '../../Price.js';
+import { TariffElementSchema } from '../../TariffElement.js';
+import { EnergyMixSchema } from '../../EnergyMix.js';
 
 export const PutTariffRequestSchema = z.object({
   id: z.string().max(36),

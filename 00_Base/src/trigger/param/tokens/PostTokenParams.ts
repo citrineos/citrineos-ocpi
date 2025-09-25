@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TokenType } from '../../../model/TokenType';
-import { VersionNumber } from '../../../model/VersionNumber';
-import { OcpiParamsSchema } from '../../util/OcpiParams';
-import { LocationReferencesSchema } from '../../../model/LocationReferences';
+import { TokenType } from '../../../model/TokenType.js';
+import { VersionNumber } from '../../../model/VersionNumber.js';
+import { OcpiParamsSchema } from '../../util/OcpiParams.js';
+import { LocationReferencesSchema } from '../../../model/LocationReferences.js';
 
 export const PostTokenParamsSchema = OcpiParamsSchema.extend({
   tokenId: z.string().length(36),

@@ -2,29 +2,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
-import {
+import { BaseClientApi } from './BaseClientApi.js';
+import type {
   ConnectorDTO,
   ConnectorResponse,
-  ConnectorResponseSchema,
-} from '../model/DTO/ConnectorDTO';
-import {
+} from '../model/DTO/ConnectorDTO.js';
+import { ConnectorResponseSchema } from '../model/DTO/ConnectorDTO.js';
+import type {
   LocationDTO,
   LocationResponse,
-  LocationResponseSchema,
-} from '../model/DTO/LocationDTO';
-import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import {
-  EvseDTO,
-  EvseResponse,
-  EvseResponseSchema,
-} from '../model/DTO/EvseDTO';
+} from '../model/DTO/LocationDTO.js';
+import { LocationResponseSchema } from '../model/DTO/LocationDTO.js';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import type { EvseDTO, EvseResponse } from '../model/DTO/EvseDTO.js';
+import { EvseResponseSchema } from '../model/DTO/EvseDTO.js';
 import { Service } from 'typedi';
-import { ModuleId } from '../model/ModuleId';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
+import { ModuleId } from '../model/ModuleId.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()

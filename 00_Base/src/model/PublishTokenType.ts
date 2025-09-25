@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TokenType } from './TokenType';
+import { TokenType } from './TokenType.js';
 
 export const PublishTokenTypeSchema = z.object({
   uid: z.string().max(36).nullable().optional(),

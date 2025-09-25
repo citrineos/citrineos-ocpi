@@ -2,17 +2,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { getMetadataStorage, IS_ARRAY, IS_DATE_STRING, IS_ENUM, ValidationTypes } from 'class-validator';
+import {
+  getMetadataStorage,
+  IS_ARRAY,
+  IS_DATE_STRING,
+  IS_ENUM,
+  ValidationTypes,
+} from 'class-validator';
 import { targetConstructorToSchema } from 'class-validator-jsonschema';
-import { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters';
-import { IOptions } from 'class-validator-jsonschema/build/options';
+import type { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters.js';
+import type { IOptions } from 'class-validator-jsonschema/build/options.js';
 import type { SchemaObject } from 'openapi3-ts';
-import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata';
+import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata.js';
 // @ts-expect-error importing js directly from class-transformer
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage.js';
-import { SchemaStore } from './schema.store';
-import { OPTIONAL_PARAM } from '../util/decorators/Optional';
-import { Constructable } from 'typedi';
+import { SchemaStore } from './schema.store.js';
+import { OPTIONAL_PARAM } from '../util/decorators/Optional.js';
+import type { Constructable } from 'typedi';
 
 export const refPointerPrefix = '#/components/schemas/';
 

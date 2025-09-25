@@ -2,25 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  ITenantPartnerDto,
-  OCPIRegistration,
-  OCPIVersionNumber,
-} from '@citrineos/base';
-import {
-  CredentialsDTO,
-  ImageCategory,
-  ImageType,
-  Role,
-  VersionNumber,
-} from '..';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { Endpoint } from '../model/Endpoint';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { ModuleId } from '../model/ModuleId';
-import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { ImageDTO } from '../model/DTO/ImageDTO';
-import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
+import type { ITenantPartnerDto } from '@citrineos/base';
+import { OCPIRegistration, OCPIVersionNumber } from '@citrineos/base';
+import type { CredentialsDTO } from '../index.js';
+import { ImageCategory, ImageType, Role, VersionNumber } from '../index.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
+import type { Endpoint } from '../model/Endpoint.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import { ModuleId } from '../model/ModuleId.js';
+import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
+import type { ImageDTO } from '../model/DTO/ImageDTO.js';
+import type { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO.js';
 
 export class RegistrationMapper {
   static tenantPartnerToCredentialsDto(
@@ -259,7 +251,10 @@ export class RegistrationMapper {
     );
   }
 
-  static toModuleAndRole(value: OCPIRegistration.Endpoint): { identifier: ModuleId, role: InterfaceRole } {
+  static toModuleAndRole(value: OCPIRegistration.Endpoint): {
+    identifier: ModuleId;
+    role: InterfaceRole;
+  } {
     switch (value.identifier) {
       case EndpointIdentifier.CREDENTIALS:
         return { identifier: ModuleId.Credentials, role: InterfaceRole.SENDER };
@@ -288,9 +283,15 @@ export class RegistrationMapper {
       case EndpointIdentifier.COMMANDS_RECEIVER:
         return { identifier: ModuleId.Commands, role: InterfaceRole.RECEIVER };
       case EndpointIdentifier.CHARGING_PROFILES_SENDER:
-        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.SENDER };
+        return {
+          identifier: ModuleId.ChargingProfiles,
+          role: InterfaceRole.SENDER,
+        };
       case EndpointIdentifier.CHARGING_PROFILES_RECEIVER:
-        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.RECEIVER };
+        return {
+          identifier: ModuleId.ChargingProfiles,
+          role: InterfaceRole.RECEIVER,
+        };
       default:
         throw new Error(`Unknown endpoint identifier: ${value.identifier}`);
     }

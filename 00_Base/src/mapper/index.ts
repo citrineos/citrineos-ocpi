@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from './CdrMapper';
-export * from './SessionMapper';
-export * from './TariffMapper';
-export * from './LocationMapper';
-export * from './RegistrationMapper';
-export * from './TokensMapper';
+export * from './CdrMapper.js';
+export * from './SessionMapper.js';
+export * from './TariffMapper.js';
+export * from './LocationMapper.js';
+export * from './RegistrationMapper.js';
+export * from './TokensMapper.js';

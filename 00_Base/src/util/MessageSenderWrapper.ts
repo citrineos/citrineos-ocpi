@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IMessageSender } from '@citrineos/base';
+import type { IMessageSender } from '@citrineos/base';
 
 export class MessageSenderWrapper {
   sender: IMessageSender;

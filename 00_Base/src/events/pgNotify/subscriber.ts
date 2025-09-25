@@ -2,12 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { DtoEventType, IDtoEventSubscriber, IDtoPayload } from '..';
-import { Client, Notification } from 'pg';
+import type { IDtoEventSubscriber, IDtoPayload } from '../index.js';
+import { DtoEventType } from '../index.js';
+import type { Notification } from 'pg';
+import { Client } from 'pg';
 // import { runner, RunnerOption } from 'node-pg-migrate';
 // import path from 'path';
-import { ILogObj, Logger } from 'tslog';
-import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { OcpiConfig } from '../../config/ocpi.types.js';
+import { OcpiConfigToken } from '../../config/ocpi.types.js';
 import { Inject, Service } from 'typedi';
 
 interface IPgNotification {

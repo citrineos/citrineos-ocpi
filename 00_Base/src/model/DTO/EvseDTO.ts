@@ -2,15 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { EvseStatus } from '../EvseStatus';
+import { EvseStatus } from '../EvseStatus.js';
 import { z } from 'zod';
-import { EvseStatusScheduleSchema } from '../EvseStatusSchedule';
-import { Capability } from '../Capability';
-import { ConnectorDTOSchema } from './ConnectorDTO';
-import { GeoLocationSchema } from '../GeoLocation';
-import { DisplayTextSchema } from '../DisplayText';
-import { ParkingRestriction } from '../ParkingRestriction';
-import { OcpiResponseSchema } from '../OcpiResponse';
+import { EvseStatusScheduleSchema } from '../EvseStatusSchedule.js';
+import { Capability } from '../Capability.js';
+import { ConnectorDTOSchema } from './ConnectorDTO.js';
+import { GeoLocationSchema } from '../GeoLocation.js';
+import { DisplayTextSchema } from '../DisplayText.js';
+import { ParkingRestriction } from '../ParkingRestriction.js';
+import { OcpiResponseSchema } from '../OcpiResponse.js';
 
 // TODO make dynamic
 export const uidDelimiter = '::';

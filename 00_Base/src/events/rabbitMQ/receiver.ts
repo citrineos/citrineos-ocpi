@@ -3,17 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as amqplib from 'amqplib';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 import { RetryMessageError } from '@citrineos/base';
+import type { IDtoEventReceiver, IDtoModule } from '../index.js';
 import {
   AbstractDtoEventReceiver,
   DtoEventObjectType,
   DtoEventType,
-  IDtoEventReceiver,
-  IDtoModule,
-} from '..';
+} from '../index.js';
 import { Inject } from 'typedi';
-import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
+import type { OcpiConfig } from '../../config/ocpi.types.js';
+import { OcpiConfigToken } from '../../config/ocpi.types.js';
 
 /**
  * Implementation of a {@link IEventHandler} using RabbitMQ as the underlying transport.

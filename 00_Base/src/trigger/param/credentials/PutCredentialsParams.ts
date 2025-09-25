@@ -3,12 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { VersionNumber } from '../../../model/VersionNumber';
-import {
-  CredentialsDTO,
-  CredentialsDTOSchema,
-} from '../../../model/DTO/CredentialsDTO';
-import { OcpiRegistrationParamsSchema } from '../../util/OcpiRegistrationParams';
+import { VersionNumber } from '../../../model/VersionNumber.js';
+import type { CredentialsDTO } from '../../../model/DTO/CredentialsDTO.js';
+import { CredentialsDTOSchema } from '../../../model/DTO/CredentialsDTO.js';
+import { OcpiRegistrationParamsSchema } from '../../util/OcpiRegistrationParams.js';
 
 export const PutCredentialsParamsSchema = OcpiRegistrationParamsSchema.extend({
   credentials: CredentialsDTOSchema,

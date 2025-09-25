@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { BusinessDetailsSchema } from '../BusinessDetails';
-import { Role } from '../Role';
+import { BusinessDetailsSchema } from '../BusinessDetails.js';
+import { Role } from '../Role.js';
 
 export const CredentialsRoleDTOSchema = z.object({
   role: z.nativeEnum(Role),

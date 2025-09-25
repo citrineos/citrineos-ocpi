@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { GeoLocationSchema } from './GeoLocation';
+import { GeoLocationSchema } from './GeoLocation.js';
 
 export const CdrLocationSchema = z.object({
   id: z.string().max(36),

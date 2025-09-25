@@ -2,9 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export {
-  DtoEventType,
-  DtoEventObjectType,
+export type {
   IDtoEventContext,
   IDtoPayload,
   IDtoEvent,
@@ -13,15 +11,18 @@ export {
   IDtoEventSender,
   IDtoEventSubscriber,
   IDtoRouter,
-  DtoEvent,
-} from './types';
+} from './types.js';
+export { DtoEventType, DtoEventObjectType, DtoEvent } from './types.js';
+export type { IDtoEventHandlerDefinition } from './AsDtoEventHandler.js';
 export {
-  IDtoEventHandlerDefinition,
   AS_DTO_EVENT_HANDLER_METADATA,
   AsDtoEventHandler,
-} from './AsDtoEventHandler';
-export { AbstractDtoModule } from './module';
-export { AbstractDtoEventReceiver, AbstractDtoEventSender } from './handlers';
-export { RabbitMqDtoReceiver } from './rabbitMQ/receiver';
-export { RabbitMqDtoSender } from './rabbitMQ/sender';
-export { PgNotifyEventSubscriber } from './pgNotify/subscriber';
+} from './AsDtoEventHandler.js';
+export { AbstractDtoModule } from './module.js';
+export {
+  AbstractDtoEventReceiver,
+  AbstractDtoEventSender,
+} from './handlers.js';
+export { RabbitMqDtoReceiver } from './rabbitMQ/receiver.js';
+export { RabbitMqDtoSender } from './rabbitMQ/sender.js';
+export { PgNotifyEventSubscriber } from './pgNotify/subscriber.js';

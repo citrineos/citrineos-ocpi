@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  VersionListResponseDTO,
+import type {
   VersionDetailsResponseDTO,
-  VersionNumber,
+  VersionListResponseDTO,
 } from '@citrineos/ocpi-base';
+import { VersionNumber } from '@citrineos/ocpi-base';
 
 /**
  * Interface for the Versions module API.

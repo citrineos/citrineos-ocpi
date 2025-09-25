@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { OcpiParamsSchema } from '../../util/OcpiParams';
-import { CommandResultSchema } from '../../../model/CommandResult';
+import { OcpiParamsSchema } from '../../util/OcpiParams.js';
+import { CommandResultSchema } from '../../../model/CommandResult.js';
 
 export const PostCommandParamsSchema = OcpiParamsSchema.extend({
   url: z.string().min(1),

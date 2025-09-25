@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ResponseUrlSchema } from './ResponseUrl';
+import { ResponseUrlSchema } from './ResponseUrl.js';
 
 export const UnlockConnectorSchema = ResponseUrlSchema.extend({
   location_id: z.string().max(36).min(1),

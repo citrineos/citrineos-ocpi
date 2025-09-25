@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ZodTypeAny } from 'zod';
-import { BodyWithSchema } from './BodyWithSchema';
-import { generateMockForSchema } from '../../controllers/BaseController';
+import type { ZodTypeAny } from 'zod';
+import { BodyWithSchema } from './BodyWithSchema.js';
+import { generateMockForSchema } from '../../controllers/BaseController.js';
 
 export const BODY_WITH_EXAMPLE_PARAM = 'BodyWithExample';
 

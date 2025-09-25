@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BadRequestError } from 'routing-controllers';
-import { CredentialsRoleDTO } from '../../model/DTO/CredentialsRoleDTO';
-import { Role } from '../../model/Role';
+import type { CredentialsRoleDTO } from '../../model/DTO/CredentialsRoleDTO.js';
+import { Role } from '../../model/Role.js';
 
 export function validateRole(
   credentialsRoles: CredentialsRoleDTO[],

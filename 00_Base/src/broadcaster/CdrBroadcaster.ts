@@ -2,16 +2,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseBroadcaster } from './BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster.js';
 import { Service } from 'typedi';
-import { CdrsClientApi } from '../trigger/CdrsClientApi';
-import { ILogObj, Logger } from 'tslog';
-import { Cdr } from '../model/Cdr';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { HttpMethod, ITransactionDto } from '@citrineos/base';
-import { CdrMapper } from '../mapper';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import { CdrsClientApi } from '../trigger/CdrsClientApi.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { Cdr } from '../model/Cdr.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type { ITransactionDto } from '@citrineos/base';
+import { HttpMethod } from '@citrineos/base';
+import { CdrMapper } from '../mapper/index.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 
 @Service()
 export class CdrBroadcaster extends BaseBroadcaster {

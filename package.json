@@ -2,6 +2,7 @@
   "name": "@citrineos/ocpi-workspace",
   "version": "2.0.0",
   "private": false,
+  "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@graphql-codegen/add": "^5.0.3",

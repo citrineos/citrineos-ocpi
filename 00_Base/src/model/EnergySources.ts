@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { EnergySourceCategory } from './EnergySourceCategory';
+import { EnergySourceCategory } from './EnergySourceCategory.js';
 
 export const EnergySourcesSchema = z.object({
   source: z.nativeEnum(EnergySourceCategory),

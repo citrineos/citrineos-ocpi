@@ -4,7 +4,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 
 /**
  * Utility class to measure time

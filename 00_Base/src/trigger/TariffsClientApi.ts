@@ -2,15 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
-import { Tariff, TariffResponse, TariffResponseSchema } from '../model/Tariff';
+import { BaseClientApi } from './BaseClientApi.js';
+import type { Tariff, TariffResponse } from '../model/Tariff.js';
+import { TariffResponseSchema } from '../model/Tariff.js';
 import { Service } from 'typedi';
-import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import { ModuleId } from '../model/ModuleId';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()

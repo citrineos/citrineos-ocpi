@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { OcpiResponseSchema, OcpiResponseStatusCode } from './OcpiResponse';
+import { OcpiResponseSchema, OcpiResponseStatusCode } from './OcpiResponse.js';
 
 export const DEFAULT_LIMIT = 10;
 export const DEFAULT_OFFSET = 0;

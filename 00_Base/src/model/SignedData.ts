@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { SignedValueSchema } from './SignedValue';
+import { SignedValueSchema } from './SignedValue.js';
 
 export const SignedDataSchema = z.object({
   encoding_method: z.string().max(36),

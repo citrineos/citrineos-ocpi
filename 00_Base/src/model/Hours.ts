@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { RegularHoursSchema } from './RegularHours';
-import { ExceptionalPeriodSchema } from './ExceptionalPeriod';
+import { RegularHoursSchema } from './RegularHours.js';
+import { ExceptionalPeriodSchema } from './ExceptionalPeriod.js';
 
 export const HoursSchema = z.object({
   regular_hours: z.array(RegularHoursSchema).nullable().optional(),

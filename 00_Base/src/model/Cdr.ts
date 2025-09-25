@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { AuthMethod } from './AuthMethod';
-import { CdrTokenSchema } from './CdrToken';
-import { CdrLocationSchema } from './CdrLocation';
-import { TariffSchema } from './Tariff';
-import { ChargingPeriodSchema } from './ChargingPeriod';
-import { SignedDataSchema } from './SignedData';
-import { PriceSchema } from './Price';
-import { OcpiResponseStatusCode } from './OcpiResponse';
+import { AuthMethod } from './AuthMethod.js';
+import { CdrTokenSchema } from './CdrToken.js';
+import { CdrLocationSchema } from './CdrLocation.js';
+import { TariffSchema } from './Tariff.js';
+import { ChargingPeriodSchema } from './ChargingPeriod.js';
+import { SignedDataSchema } from './SignedData.js';
+import { PriceSchema } from './Price.js';
+import { OcpiResponseStatusCode } from './OcpiResponse.js';
 
 export const CdrSchema = z.object({
   country_code: z.string().length(2),

@@ -4,14 +4,12 @@
 
 import { Service } from 'typedi';
 // import { CommandExecutor } from '../util/CommandExecutor';
-import {
-  ChargingProfileResponse,
-  ChargingProfileResultType,
-} from '../model/ChargingProfileResponse';
-import { NotFoundException } from '../exception/NotFoundException';
-import { SetChargingProfile } from '../model/SetChargingProfile';
+import type { ChargingProfileResponse } from '../model/ChargingProfileResponse.js';
+import { ChargingProfileResultType } from '../model/ChargingProfileResponse.js';
+import { NotFoundException } from '../exception/NotFoundException.js';
+import type { SetChargingProfile } from '../model/SetChargingProfile.js';
 import { NotFoundError } from 'routing-controllers';
-import { ResponseGenerator } from '../util/response.generator';
+import { ResponseGenerator } from '../util/response.generator.js';
 
 @Service()
 export class ChargingProfilesService {

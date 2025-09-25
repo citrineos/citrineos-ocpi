@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { QueryParam } from 'routing-controllers';
-import { ZodTypeAny } from 'zod';
+import type { ZodTypeAny } from 'zod';
 
 export const ENUM_QUERY_PARAM = 'EnumQueryParam';
 

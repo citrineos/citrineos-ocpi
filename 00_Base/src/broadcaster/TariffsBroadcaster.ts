@@ -2,22 +2,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseBroadcaster } from './BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster.js';
 import { Service } from 'typedi';
-import { TariffsClientApi } from '../trigger/TariffsClientApi';
-import { ILogObj, Logger } from 'tslog';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { HttpMethod, ITariffDto, ITenantDto } from '@citrineos/base';
-import { Tariff } from '../model/Tariff';
-import { TariffMapper } from '../mapper/TariffMapper';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
-import {
-  GET_TARIFF_BY_KEY_QUERY,
+import { TariffsClientApi } from '../trigger/TariffsClientApi.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { ModuleId } from '../model/ModuleId.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type { ITariffDto, ITenantDto } from '@citrineos/base';
+import { HttpMethod } from '@citrineos/base';
+import type { Tariff } from '../model/Tariff.js';
+import { TariffMapper } from '../mapper/index.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import type {
   GetTariffByKeyQueryResult,
   GetTariffByKeyQueryVariables,
+} from '../graphql/index.js';
+import {
+  GET_TARIFF_BY_KEY_QUERY,
   OcpiGraphqlClient,
-} from '../graphql';
+} from '../graphql/index.js';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {

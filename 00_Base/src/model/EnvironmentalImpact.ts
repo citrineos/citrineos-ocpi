@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { EnvironmentalImpactCategory } from './EnvironmentalImpactCategory';
+import { EnvironmentalImpactCategory } from './EnvironmentalImpactCategory.js';
 
 export const EnvironmentalImpactSchema = z.object({
   category: z.nativeEnum(EnvironmentalImpactCategory),

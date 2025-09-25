@@ -2,36 +2,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IRequestOptions, IRestResponse, RestClient } from 'typed-rest-client';
-import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
-import { VersionNumber } from '../model/VersionNumber';
-import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import {
-  HttpHeader,
-  HttpMethod,
-  ITenantPartnerDto,
-  OCPIRegistration,
-} from '@citrineos/base';
-import { OcpiHttpHeader } from '../util/OcpiHttpHeader';
-import { base64Encode } from '../util/Util';
+import type { IRequestOptions, IRestResponse } from 'typed-rest-client';
+import { RestClient } from 'typed-rest-client';
+import type {
+  IHeaders,
+  IRequestQueryParams,
+} from 'typed-rest-client/Interfaces.js';
+import { VersionNumber } from '../model/VersionNumber.js';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException.js';
+import type { ITenantPartnerDto } from '@citrineos/base';
+import { HttpHeader, HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { OcpiHttpHeader } from '../util/OcpiHttpHeader.js';
+import { base64Encode } from '../util/Util.js';
 import { Inject } from 'typedi';
 import { v4 as uuidv4 } from 'uuid';
-import { ModuleId } from '../model/ModuleId';
-import { ILogObj, Logger } from 'tslog';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import {
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
-  LIST_TENANT_PARTNERS_BY_CPO,
-} from '../graphql/queries/tenantPartner.queries';
-import { PaginatedParams } from './param/PaginatedParams';
-import { ZodTypeAny } from 'zod';
-import {
+import { ModuleId } from '../model/ModuleId.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type {
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   TenantPartnersListQueryResult,
   TenantPartnersListQueryVariables,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import {
+  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  LIST_TENANT_PARTNERS_BY_CPO,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import type { PaginatedParams } from './param/PaginatedParams.js';
+import type { ZodTypeAny } from 'zod';
 
 export interface RequiredOcpiParams {
   clientUrl: string;

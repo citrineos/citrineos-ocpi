@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { NotFoundException } from '../exception/NotFoundException';
+import { NotFoundException } from '../exception/NotFoundException.js';
 import {
   buildOcpiResponse,
   OcpiResponseStatusCode,
-} from '../model/OcpiResponse';
+} from '../model/OcpiResponse.js';
 
 export class ResponseGenerator {
   static buildGenericSuccessResponse<T>(data?: T, message?: string) {

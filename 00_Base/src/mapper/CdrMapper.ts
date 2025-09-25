@@ -3,19 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { Cdr } from '../model/Cdr';
-import { Session } from '../model/Session';
-import { SessionMapper } from './SessionMapper';
-import { CdrLocation } from '../model/CdrLocation';
-import { Price } from '../model/Price';
-import { Tariff as OcpiTariff } from '../model/Tariff';
-import { SignedData } from '../model/SignedData';
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { BaseTransactionMapper } from './BaseTransactionMapper';
-import { ILogObj, Logger } from 'tslog';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { LocationsService } from '../services/LocationsService';
-import { ITariffDto, ITransactionDto } from '@citrineos/base';
+import type { Cdr } from '../model/Cdr.js';
+import type { Session } from '../model/Session.js';
+import { SessionMapper } from './SessionMapper.js';
+import type { CdrLocation } from '../model/CdrLocation.js';
+import type { Price } from '../model/Price.js';
+import type { Tariff as OcpiTariff } from '../model/Tariff.js';
+import type { SignedData } from '../model/SignedData.js';
+import type { LocationDTO } from '../model/DTO/LocationDTO.js';
+import { BaseTransactionMapper } from './BaseTransactionMapper.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { OcpiGraphqlClient } from '../graphql/index.js';
+import { LocationsService } from '../services/LocationsService.js';
+import type { ITariffDto, ITransactionDto } from '@citrineos/base';
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {

@@ -2,16 +2,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ISessionsModuleApi } from './ISessionsModuleApi';
-
+import type { ISessionsModuleApi } from './ISessionsModuleApi.js';
 import { Get, JsonController, Param, Put } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
+import type {
+  ChargingPreferences,
+  ChargingPreferencesResponse,
+  PaginatedSessionResponse,
+} from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   BodyWithSchema,
-  ChargingPreferences,
-  ChargingPreferencesResponse,
   ChargingPreferencesResponseSchema,
   ChargingPreferencesResponseSchemaName,
   ChargingPreferencesSchema,
@@ -23,7 +25,6 @@ import {
   OcpiHeaders,
   Paginated,
   PaginatedParams,
-  PaginatedSessionResponse,
   PaginatedSessionResponseSchema,
   PaginatedSessionResponseSchemaName,
   ResponseSchema,

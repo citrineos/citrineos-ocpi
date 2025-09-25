@@ -5,39 +5,34 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
-import { OcpiLogger } from '../util/OcpiLogger';
-import { VersionNumber } from '../model/VersionNumber';
-import { VersionsClientApi } from '../trigger/VersionsClientApi';
-import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException';
-import { NotRegisteredException } from '../exception/NotRegisteredException';
-import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
-import { Endpoint } from '../model/Endpoint';
-import {
-  DELETE_TENANT_PARTNER_BY_ID,
-  UPDATE_TENANT_PARTNER_PROFILE,
-} from '../graphql/queries/tenant.mutations';
-import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
-import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
-import {
-  DELETE_TENANT_PARTNER_BY_SERVER_TOKEN,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
-  GET_TENANT_PARTNER_BY_SERVER_TOKEN,
-} from '../graphql/queries/tenantPartner.queries';
-import { ITenantPartnerDto } from '@citrineos/base';
-import { RegistrationMapper } from '../mapper/RegistrationMapper';
-import {
+import { OcpiLogger } from '../util/OcpiLogger.js';
+import { VersionNumber } from '../model/VersionNumber.js';
+import { VersionsClientApi } from '../trigger/VersionsClientApi.js';
+import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException.js';
+import { NotRegisteredException } from '../exception/NotRegisteredException.js';
+import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
+import { CredentialsClientApi } from '../trigger/CredentialsClientApi.js';
+import type {
   DeleteTenantPartnerByServerTokenMutationResult,
   DeleteTenantPartnerByServerTokenMutationVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
-  GetTenantPartnerByServerTokenQueryResult,
-  GetTenantPartnerByServerTokenQueryVariables,
   UpdateTenantPartnerProfileMutationResult,
   UpdateTenantPartnerProfileMutationVariables,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import {
+  DELETE_TENANT_PARTNER_BY_ID,
+  DELETE_TENANT_PARTNER_BY_SERVER_TOKEN,
+  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  OcpiGraphqlClient,
+  UPDATE_TENANT_PARTNER_PROFILE,
+} from '../graphql/index.js';
+import type { CredentialsDTO } from '../model/DTO/CredentialsDTO.js';
+import type { Endpoint } from '../model/Endpoint.js';
+import type { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO.js';
+import type { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO.js';
+import type { ITenantPartnerDto } from '@citrineos/base';
+import { RegistrationMapper } from '../mapper/index.js';
 
 // const CpoCredentialsRole = CredentialsRoleDTO.build(
 //   Role.CPO,

@@ -5,12 +5,10 @@
 import {
   buildOcpiRegistrationParams,
   OcpiRegistrationParamsSchema,
-} from '../../util/OcpiRegistrationParams';
-import {
-  CredentialsDTO,
-  CredentialsDTOSchema,
-} from '../../../model/DTO/CredentialsDTO';
-import { VersionNumber } from '../../../model/VersionNumber';
+} from '../../util/OcpiRegistrationParams.js';
+import type { CredentialsDTO } from '../../../model/DTO/CredentialsDTO.js';
+import { CredentialsDTOSchema } from '../../../model/DTO/CredentialsDTO.js';
+import { VersionNumber } from '../../../model/VersionNumber.js';
 
 import { z } from 'zod';
 

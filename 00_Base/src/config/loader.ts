@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { OcpiConfig, OcpiConfigInput } from './ocpi.types';
-import { loadOcpiConfig } from './defineOcpiConfig';
-import { ILogObj, Logger } from 'tslog';
+import type { OcpiConfig, OcpiConfigInput } from './ocpi.types.js';
+import { loadOcpiConfig } from './defineOcpiConfig.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 
 /**
  * Get OCPI system configuration with environment detection

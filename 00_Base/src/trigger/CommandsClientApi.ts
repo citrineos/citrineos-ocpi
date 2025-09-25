@@ -2,20 +2,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi, MissingRequiredParamException } from './BaseClientApi';
-import { Inject, Service } from 'typedi';
 import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import { ModuleId } from '../model/ModuleId';
-import { HttpMethod, ICache, OCPIRegistration } from '@citrineos/base';
-import { CommandResult } from '../model/CommandResult';
+  BaseClientApi,
+  MissingRequiredParamException,
+} from './BaseClientApi.js';
+import { Inject, Service } from 'typedi';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { ModuleId } from '../model/ModuleId.js';
+import type { ICache } from '@citrineos/base';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import type { CommandResult } from '../model/CommandResult.js';
 import {
   COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
   COMMAND_RESPONSE_URL_CACHE_RESOLVED,
-} from '../util/Consts';
-import { CacheWrapper } from '../util/CacheWrapper';
+} from '../util/Consts.js';
+import { CacheWrapper } from '../util/CacheWrapper.js';
 
 @Service()
 export class CommandsClientApi extends BaseClientApi {

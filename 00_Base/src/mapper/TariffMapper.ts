@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Service } from 'typedi';
-import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
-import { TariffDimensionType } from '../model/TariffDimensionType';
-import { TariffElement } from '../model/TariffElement';
-import { TariffType } from '../model/TariffType';
-import { MINUTES_IN_HOUR } from '../util/Consts';
-import { ITariffDto } from '@citrineos/base';
+import type { TariffDTO } from '../model/DTO/tariffs/TariffDTO.js';
+import { TariffDimensionType } from '../model/TariffDimensionType.js';
+import type { TariffElement } from '../model/TariffElement.js';
+import { TariffType } from '../model/TariffType.js';
+import { MINUTES_IN_HOUR } from '../util/Consts.js';
+import type { ITariffDto } from '@citrineos/base';
 
 export class TariffMapper {
   constructor() {}

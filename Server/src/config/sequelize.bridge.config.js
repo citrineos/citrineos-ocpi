@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/* eslint-disable */
-require('ts-node/register');
+import 'ts-node/register';
+import { getOcpiSystemConfig } from '@citrineos/ocpi-base';
 
-module.exports = (async () => {
-  const { getOcpiSystemConfig } = require('./bootstrap.config');
-
+export default (async () => {
   try {
     let ocpiConfig;
     const env = process.env.OCPI_ENV || 'local'; // default to local

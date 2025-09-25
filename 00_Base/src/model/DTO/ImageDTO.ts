@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ImageCategory } from '../ImageCategory';
-import { ImageType } from '../ImageType';
+import { ImageCategory } from '../ImageCategory.js';
+import { ImageType } from '../ImageType.js';
 
 export const ImageDTOSchema = z.object({
   url: z.string().url(),
