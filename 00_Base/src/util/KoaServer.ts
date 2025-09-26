@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Koa from 'koa';
+import cors from '@koa/cors';
 import {
   getMetadataArgsStorage,
   MetadataArgsStorage,
@@ -46,6 +47,21 @@ export class KoaServer {
   }
 
   protected initApp(options: RoutingControllersOptions = {}) {
+    // Add CORS middleware before initializing routing controllers
+    this.koa.use(
+      cors({
+        origin: '*', // Allow all origins for development - can be configured more restrictively for production
+        credentials: true,
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowHeaders: [
+          'Content-Type',
+          'Authorization',
+          'Accept',
+          'X-Requested-With',
+        ],
+      }),
+    );
+
     this.app = useKoaServer(this.koa, options);
     this.initLogger();
   }

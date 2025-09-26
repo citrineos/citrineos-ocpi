@@ -30,19 +30,7 @@ import {
 } from '../graphql';
 import { LocationsBroadcaster } from '../broadcaster';
 import { ILogObj, Logger } from 'tslog';
-
-export interface PublishLocationRequest {
-  partnerIds?: string[]; // Optional: specific partner IDs to publish to
-}
-
-export interface PublishLocationResponse {
-  success: boolean;
-  locationId: string;
-  publishedToPartners: string[];
-  validationErrors?: string[];
-  publishedEvses: number;
-  publishedConnectors: number;
-}
+import { PublishLocationResponse } from '../model/DTO/LocationDTO';
 
 @Service()
 export class AdminLocationsService {

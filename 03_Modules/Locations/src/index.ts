@@ -20,6 +20,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { ILogObj, Logger } from 'tslog';
 import { LocationsModuleApi } from './module/LocationsModuleApi';
+import { AdminLocationsModuleApi } from './module/AdminLocationsModuleApi';
 import {
   IChargingStationDto,
   IConnectorDto,
@@ -29,6 +30,7 @@ import {
 import { Inject, Service } from 'typedi';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi';
+export { AdminLocationsModuleApi } from './module/AdminLocationsModuleApi';
 export { ILocationsModuleApi } from './module/ILocationsModuleApi';
 
 @Service()
@@ -43,7 +45,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   }
 
   getController(): any {
-    return LocationsModuleApi;
+    return [LocationsModuleApi, AdminLocationsModuleApi];
   }
 
   async init(): Promise<void> {

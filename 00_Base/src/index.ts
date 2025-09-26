@@ -194,6 +194,12 @@ export {
   LocationResponseSchemaName,
   PaginatedLocationResponseSchema,
   PaginatedLocationResponseSchemaName,
+  PublishLocationResponseSchemaName,
+  PublishLocationRequestSchemaName,
+  PublishLocationRequest,
+  PublishLocationResponse,
+  PublishLocationResponseSchema,
+  PublishLocationRequestSchema,
 } from './model/DTO/LocationDTO';
 export {
   EvseDTO,
@@ -265,11 +271,7 @@ export { TokensService } from './services/TokensService';
 export { LocationsService } from './services/LocationsService';
 export { VersionService } from './services/VersionService';
 export { SessionsService } from './services/SessionsService';
-export {
-  AdminLocationsService,
-  PublishLocationRequest,
-  PublishLocationResponse,
-} from './services/AdminLocationsService';
+export { AdminLocationsService } from './services/AdminLocationsService';
 export {
   AdminTariffsService,
   PublishTariffRequest,
@@ -387,9 +389,9 @@ export class OcpiServer extends KoaServer {
   private initKoaServer() {
     try {
       this.koa = new Koa();
-      const controllers = this._modules.map((module) =>
-        (module as OcpiModule).getController(),
-      );
+      const controllers = this._modules
+        .map((module) => (module as OcpiModule).getController())
+        .flat(); // Flatten the array to handle modules that return multiple controllers
       const options: RoutingControllersOptions = {
         controllers: [...controllers, HealthController],
         routePrefix: '/ocpi',

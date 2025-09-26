@@ -58,3 +58,31 @@ export type LocationResponse = z.infer<typeof LocationResponseSchema>;
 export type PaginatedLocationResponse = z.infer<
   typeof PaginatedLocationResponseSchema
 >;
+
+export const PublishLocationRequestSchema = z.object({
+  partnerIds: z.array(z.string()).optional(),
+});
+export const PublishLocationRequestSchemaName = 'PublishLocationRequest';
+
+export interface PublishLocationRequest {
+  partnerIds?: string[]; // Optional: specific partner IDs to publish to
+}
+
+export const PublishLocationResponseSchema = z.object({
+  success: z.boolean(),
+  locationId: z.string(),
+  publishedToPartners: z.array(z.string()),
+  validationErrors: z.array(z.string()).optional(),
+  publishedEvses: z.number(),
+  publishedConnectors: z.number(),
+});
+export const PublishLocationResponseSchemaName = 'PublishLocationResponse';
+
+export interface PublishLocationResponse {
+  success: boolean;
+  locationId: string;
+  publishedToPartners: string[];
+  validationErrors?: string[];
+  publishedEvses: number;
+  publishedConnectors: number;
+}

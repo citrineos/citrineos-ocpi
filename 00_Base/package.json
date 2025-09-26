@@ -19,6 +19,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/koa-logger": "3.1.5",
+    "@types/koa__cors": "^5.0.0",
     "@types/lodash.capitalize": "4.2.9",
     "@types/lodash.merge": "4.6.9",
     "@types/lodash.startcase": "4.4.9",
@@ -48,6 +49,7 @@
     "koa-bodyparser": "4.4.1",
     "koa-logger": "3.2.1",
     "koa2-swagger-ui": "5.10.0",
+    "@koa/cors": "^5.0.0",
     "lodash.capitalize": "4.2.1",
     "lodash.merge": "4.6.2",
     "lodash.startcase": "4.4.0",
