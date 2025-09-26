@@ -15,7 +15,7 @@ import { CacheWrapper } from './util/CacheWrapper';
 import { version } from '../../package.json';
 import { OcpiConfig, OcpiConfigToken } from './config/ocpi.types';
 import { IDtoModule } from './events';
-import { OcpiGraphqlClient } from './graphql/OcpiGraphqlClient';
+import { OcpiGraphqlClient } from './graphql';
 
 export * from './broadcaster';
 export * from './mapper';

@@ -64,6 +64,7 @@ export interface BroadcastParams<T extends ZodTypeAny> {
   paginatedParams?: PaginatedParams;
   otherParams?: Record<string, string | number | (string | number)[]>;
   path?: string;
+  partners?: ITenantPartnerDto[];
 }
 
 export interface TriggerRequestOptions extends IRequestOptions {
@@ -267,6 +268,7 @@ export abstract class BaseClientApi {
       otherParams,
       path,
     } = params;
+    let partners = params.partners;
     this.logger.debug(
       `Broadcasting to clients for ${moduleId}_${interfaceRole}`,
     );
@@ -275,15 +277,18 @@ export abstract class BaseClientApi {
     );
     this.logger.debug(`Using URL: ${url} with path ${path}`);
     const responses: T[] = [];
-    const response = await this.ocpiGraphqlClient.request<
-      TenantPartnersListQueryResult,
-      TenantPartnersListQueryVariables
-    >(LIST_TENANT_PARTNERS_BY_CPO, {
-      cpoCountryCode,
-      cpoPartyId,
-      endpointIdentifier: `${moduleId}_${interfaceRole}`,
-    });
-    const partners = response.TenantPartners as ITenantPartnerDto[];
+    if (!partners) {
+      const response = await this.ocpiGraphqlClient.request<
+        TenantPartnersListQueryResult,
+        TenantPartnersListQueryVariables
+      >(LIST_TENANT_PARTNERS_BY_CPO, {
+        cpoCountryCode,
+        cpoPartyId,
+        endpointIdentifier: `${moduleId}_${interfaceRole}`,
+      });
+      partners = response.TenantPartners as ITenantPartnerDto[];
+    }
+
     for (const partner of partners) {
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,

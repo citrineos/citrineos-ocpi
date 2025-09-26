@@ -46,6 +46,24 @@ export const GET_TENANT_PARTNER_BY_ID = gql`
   }
 `;
 
+export const GET_TENANT_PARTNERS_BY_IDS = gql`
+  query GetTenantPartnersByIds($ids: [Int!]) {
+    TenantPartners(where: { id: { _in: $ids } }) {
+      id
+      countryCode
+      partyId
+      partnerProfileOCPI
+      tenantId
+      tenant: Tenant {
+        id
+        countryCode
+        partyId
+        serverProfileOCPI
+      }
+    }
+  }
+`;
+
 export const DELETE_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
   mutation DeleteTenantPartnerByServerToken($serverToken: String!) {
     delete_TenantPartners(

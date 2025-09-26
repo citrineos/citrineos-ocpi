@@ -619,6 +619,27 @@ export type GetTenantPartnerByIdQueryResult = {
   } | null
 };
 
+export type GetTenantPartnersByIdsQueryVariables = Exact<{
+  ids?: InputMaybe<Array<Scalars['Int']['input']> | Scalars['Int']['input']>;
+}>;
+
+
+export type GetTenantPartnersByIdsQueryResult = {
+  TenantPartners: Array<{
+    id: number,
+    countryCode: string,
+    partyId: string,
+    partnerProfileOCPI?: any | null,
+    tenantId: number,
+    tenant: {
+      id: number,
+      countryCode: string,
+      partyId: string,
+      serverProfileOCPI?: any | null
+    }
+  }>
+};
+
 export type DeleteTenantPartnerByServerTokenMutationVariables = Exact<{
   serverToken: Scalars['String']['input'];
 }>;

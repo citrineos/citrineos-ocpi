@@ -18,6 +18,7 @@ import {
   IEvseDto,
   ILocationDto,
   ITenantDto,
+  ITenantPartnerDto,
 } from '@citrineos/base';
 import { UID_FORMAT } from '../model/DTO/EvseDTO';
 import {
@@ -40,21 +41,35 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   async broadcastPutLocation(
     tenant: ITenantDto,
     locationDto: ILocationDto,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     const location = LocationMapper.fromGraphql(locationDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${location.id}`;
-    await this.broadcastLocation(tenant, location, HttpMethod.Put, path);
+    await this.broadcastLocation(
+      tenant,
+      location,
+      HttpMethod.Put,
+      path,
+      partners,
+    );
   }
 
   async broadcastPatchLocation(
     tenant: ITenantDto,
     locationDto: Partial<ILocationDto>,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     const locationId = locationDto.id;
     if (!locationId) throw new Error('Location ID missing');
     const location = LocationMapper.fromPartialGraphql(locationDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}`;
-    await this.broadcastLocation(tenant, location, HttpMethod.Patch, path);
+    await this.broadcastLocation(
+      tenant,
+      location,
+      HttpMethod.Patch,
+      path,
+      partners,
+    );
   }
 
   private async broadcastLocation(
@@ -62,6 +77,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     location: Partial<LocationDTO>,
     method: HttpMethod,
     path: string,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -73,6 +89,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: location,
         path: path,
+        partners,
       });
     } catch (e) {
       this.logger.error(
@@ -82,18 +99,23 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     }
   }
 
-  async broadcastPutEvse(tenant: ITenantDto, evseDto: IEvseDto): Promise<void> {
+  async broadcastPutEvse(
+    tenant: ITenantDto,
+    evseDto: IEvseDto,
+    partners?: ITenantPartnerDto[],
+  ): Promise<void> {
     const locationId = evseDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
     const evse = EvseMapper.fromGraphql(evseDto.chargingStation!, evseDto);
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId, evseDto.id!)}`;
-    await this.broadcastEvse(tenant, evse, HttpMethod.Put, path);
+    await this.broadcastEvse(tenant, evse, HttpMethod.Put, path, partners);
   }
 
   async broadcastPatchEvse(
     tenant: ITenantDto,
     evseDto: Partial<IEvseDto>,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     const locationId = evseDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
@@ -103,7 +125,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     );
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
-    await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
+    await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path, partners);
   }
 
   private async broadcastEvse(
@@ -111,6 +133,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     evseData: Partial<EvseDTO>,
     method: HttpMethod,
     path: string,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -122,6 +145,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: evseData,
         path: path,
+        partners,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Evse failed for ${path}`, e);
@@ -131,25 +155,39 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   async broadcastPutConnector(
     tenant: ITenantDto,
     connectorDto: IConnectorDto,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     const locationId = connectorDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in Connector data');
     const connector = ConnectorMapper.fromGraphql(connectorDto);
     if (!connector) throw new Error('Failed to map Connector data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(connectorDto.stationId, connectorDto.evseId)}/${connectorDto.id}`;
-    await this.broadcastConnector(tenant, connector, HttpMethod.Put, path);
+    await this.broadcastConnector(
+      tenant,
+      connector,
+      HttpMethod.Put,
+      path,
+      partners,
+    );
   }
 
   async broadcastPatchConnector(
     tenant: ITenantDto,
     connectorDto: Partial<IConnectorDto>,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     const locationId = connectorDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in Connector data');
     const connector = ConnectorMapper.fromPartialGraphql(connectorDto);
     if (!connector) throw new Error('Failed to map Connector data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(connectorDto.stationId!, connectorDto.evseId!)}/${connectorDto.id}`;
-    await this.broadcastConnector(tenant, connector, HttpMethod.Patch, path);
+    await this.broadcastConnector(
+      tenant,
+      connector,
+      HttpMethod.Patch,
+      path,
+      partners,
+    );
   }
 
   private async broadcastConnector(
@@ -157,6 +195,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     connectorData: Partial<ConnectorDTO>,
     method: HttpMethod,
     path: string,
+    partners?: ITenantPartnerDto[],
   ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -168,6 +207,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: connectorData,
         path: path,
+        partners,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Connector failed for ${path}`, e);
