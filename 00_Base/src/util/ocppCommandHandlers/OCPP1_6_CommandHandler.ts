@@ -112,22 +112,29 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
       this.logger.error('UnlockConnector failed, Connector not found', {
         unlockConnector,
       });
-      this.commandsClientApi.postCommandResult(
-        tenantPartner.countryCode!,
-        tenantPartner.partyId!,
-        tenantPartner.tenant!.countryCode!,
-        tenantPartner.tenant!.partyId!,
-        tenantPartner.partnerProfileOCPI!,
-        unlockConnector.response_url,
-        {
-          result: CommandResultType.FAILED,
-          message: {
-            language: 'en',
-            text: 'Charging station communication failed',
+      this.commandsClientApi
+        .postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          unlockConnector.response_url,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station communication failed',
+            },
           },
-        },
-        commandId,
-      );
+          commandId,
+        )
+        .catch((err) => {
+          this.logger.error(
+            'sendUnlockConnectorCommand postCommandResult error:',
+            err,
+          );
+        });
       return;
     }
     const unlockConnectorRequest: OCPP1_6.UnlockConnectorRequest = {

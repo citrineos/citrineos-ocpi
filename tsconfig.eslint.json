@@ -31,13 +31,17 @@
     "03_Modules/Tokens/**/*.json",
     "03_Modules/DtoRouter/**/*.ts",
     "03_Modules/DtoRouter/**/*.json",
+    "Server/**/*.ts",
+    "Server/**/*.json",
+    "Server/directus-env-config.cjs",
     "mock-client/**/*.ts",
     "mock-client/**/*.json",
     "seeders/**/*.ts",
     "seeders/**/*.json",
     "migrations/**/*.ts",
     "migrations/**/*.json",
-    "./db.sync.ts"
+    "./db.sync.ts",
+    "./codegen.ts"
   ],
   "compilerOptions": {
     "module": "NodeNext",

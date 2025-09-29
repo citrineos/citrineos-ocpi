@@ -62,7 +62,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
     let remoteStartId =
       sequenceResponse.ChargingStationSequences[0]?.value || 0;
     remoteStartId++;
-    this.ocpiGraphqlClient.request<
+    await this.ocpiGraphqlClient.request<
       UpsertSequenceMutationResult,
       UpsertSequenceMutationVariables
     >(UPSERT_SEQUENCE, {
@@ -160,7 +160,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
       this.logger.error('UnlockConnector failed, EVSE or Connector not found', {
         unlockConnector,
       });
-      this.commandsClientApi.postCommandResult(
+      await this.commandsClientApi.postCommandResult(
         tenantPartner.countryCode!,
         tenantPartner.partyId!,
         tenantPartner.tenant!.countryCode!,

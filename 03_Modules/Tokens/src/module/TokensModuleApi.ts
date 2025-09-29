@@ -60,7 +60,7 @@ import {
 } from '@citrineos/ocpi-base';
 import type { ITokensModuleApi } from './ITokensModuleApi.js';
 
-const MockPutTokenBody = {
+const _MockPutTokenBody = {
   country_code: 'MSP',
   party_id: 'US',
   uid: 'SOMEUID',

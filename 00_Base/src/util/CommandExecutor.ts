@@ -515,18 +515,21 @@ export class CommandExecutor {
       this.config.commands.timeout,
     );
 
-    this.cache
+    void this.cache
       .onChange(
         commandId,
         this.config.commands.timeout,
         COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
       )
-      .then((value) => {
+      .catch((err) => {
+        this.logger.error('generateCommandId cache onChange error:', err);
+      })
+      .then(async (value) => {
         if (value !== COMMAND_RESPONSE_URL_CACHE_RESOLVED) {
           this.logger.warn('Command timed out', {
             commandId,
           });
-          this.commandsClientApi.postCommandResult(
+          await this.commandsClientApi.postCommandResult(
             tenantPartner.countryCode!,
             tenantPartner.partyId!,
             tenantPartner.tenant!.countryCode!,
@@ -561,7 +564,7 @@ export class CommandExecutor {
       this.logger.warn('Unsupported OCPP version for command', {
         protocol: ocppVersion,
       });
-      this.commandsClientApi.postCommandResult(
+      void this.commandsClientApi.postCommandResult(
         tenantPartner.countryCode!,
         tenantPartner.partyId!,
         tenantPartner.tenant!.countryCode!,
