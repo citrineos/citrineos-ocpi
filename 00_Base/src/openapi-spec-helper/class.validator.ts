@@ -13,7 +13,7 @@ import { targetConstructorToSchema } from 'class-validator-jsonschema';
 import type { ISchemaConverters } from 'class-validator-jsonschema/build/defaultConverters.js';
 import type { IOptions } from 'class-validator-jsonschema/build/options.js';
 import type { SchemaObject } from 'openapi3-ts';
-import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata.js';
+import type { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata.js';
 // @ts-expect-error importing js directly from class-transformer
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage.js';
 import { SchemaStore } from './schema.store.js';
