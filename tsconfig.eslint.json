@@ -33,7 +33,6 @@
     "03_Modules/DtoRouter/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.json",
-    "Server/directus-env-config.cjs",
     "mock-client/**/*.ts",
     "mock-client/**/*.json",
     "seeders/**/*.ts",
