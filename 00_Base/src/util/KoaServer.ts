@@ -47,20 +47,25 @@ export class KoaServer {
   }
 
   protected initApp(options: RoutingControllersOptions = {}) {
-    // Add CORS middleware before initializing routing controllers
-    this.koa.use(
-      cors({
-        origin: '*', // Allow all origins for development - can be configured more restrictively for production
-        credentials: true,
-        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        allowHeaders: [
-          'Content-Type',
-          'Authorization',
-          'Accept',
-          'X-Requested-With',
-        ],
-      }),
-    );
+    // Add CORS middleware for admin endpoints
+    this.koa.use(async (ctx, next) => {
+      if (ctx.path.startsWith('/admin')) {
+        const corsMiddleware = cors({
+          origin: '*', // Allow all origins for development - can be configured more restrictively for production
+          credentials: true,
+          allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+          allowHeaders: [
+            'Content-Type', 
+            'Authorization', 
+            'Accept', 
+            'X-Requested-With',
+          ],
+        });
+        await corsMiddleware(ctx, next);
+      } else {
+        await next();
+      }
+    });
 
     this.app = useKoaServer(this.koa, options);
     this.initLogger();

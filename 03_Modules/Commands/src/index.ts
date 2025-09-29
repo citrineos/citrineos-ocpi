@@ -24,7 +24,7 @@ export class CommandsModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  getController(): any {
-    return CommandsModuleApi;
+  getControllers(): any[] {
+    return [CommandsModuleApi];
   }
 }

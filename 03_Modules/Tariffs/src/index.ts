@@ -32,8 +32,8 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
-  getController(): any {
-    return TariffsModuleApi;
+  getControllers(): any[] {
+    return [TariffsModuleApi];
   }
 
   async init(): Promise<void> {

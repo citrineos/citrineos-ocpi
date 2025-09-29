@@ -390,7 +390,7 @@ export class OcpiServer extends KoaServer {
     try {
       this.koa = new Koa();
       const controllers = this._modules
-        .map((module) => (module as OcpiModule).getController())
+        .map((module) => (module as OcpiModule).getControllers())
         .flat(); // Flatten the array to handle modules that return multiple controllers
       const options: RoutingControllersOptions = {
         controllers: [...controllers, HealthController],

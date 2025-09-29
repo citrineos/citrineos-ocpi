@@ -24,7 +24,7 @@ export class CdrsModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  getController(): any {
-    return CdrsModuleApi;
+  getControllers(): any[] {
+    return [CdrsModuleApi];
   }
 }

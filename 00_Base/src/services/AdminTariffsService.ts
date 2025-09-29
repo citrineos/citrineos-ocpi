@@ -215,29 +215,10 @@ export class AdminTariffsService {
       }
 
       // Get tenant information for the tariff
-      const tenant: ITenantDto = {
-        id: tariff.tenantId,
-        countryCode: tariff.tenant.countryCode,
-        partyId: tariff.tenant.partyId,
-      } as unknown as ITenantDto;
+      const tenant: ITenantDto = tariff.tenant;
 
-      // Prepare tariff DTO
-      const tariffDto: ITariffDto = {
-        id: tariff.id,
-        authorizationAmount: tariff.authorizationAmount,
-        currency: tariff.currency,
-        paymentFee: tariff.paymentFee,
-        pricePerKwh: tariff.pricePerKwh,
-        pricePerMin: tariff.pricePerMin,
-        pricePerSession: tariff.pricePerSession,
-        stationId: tariff.stationId,
-        taxRate: tariff.taxRate,
-        tariffAltText: tariff.tariffAltText,
-        tenant,
-        tenantId: tariff.tenantId,
-        createdAt: tariff.createdAt,
-        updatedAt: tariff.updatedAt,
-      } as unknown as ITariffDto;
+      // The tariff object from the query should already conform to ITariffDto
+      const tariffDto: ITariffDto = tariff;
 
       // Use TariffsBroadcaster to publish the tariff
       await this.tariffsBroadcaster.broadcastPutTariff(tenant, tariffDto);

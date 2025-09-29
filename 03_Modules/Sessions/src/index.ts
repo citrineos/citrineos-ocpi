@@ -42,8 +42,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
-  getController(): any {
-    return SessionsModuleApi;
+  getControllers(): any[] {
+    return [SessionsModuleApi];
   }
 
   async init(): Promise<void> {

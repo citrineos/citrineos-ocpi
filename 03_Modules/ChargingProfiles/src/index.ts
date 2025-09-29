@@ -23,7 +23,7 @@ export class ChargingProfilesModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  getController(): any {
-    return ChargingProfilesModuleApi;
+  getControllers(): any[] {
+    return [ChargingProfilesModuleApi];
   }
 }

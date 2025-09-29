@@ -53,8 +53,35 @@ export class AdminLocationsModuleApi extends BaseController {
     @Body() request: PublishLocationRequest,
   ): Promise<PublishLocationResponse> {
     return this.adminLocationsService.publishLocationHierarchy(
+      version,
       ocpiHeaders,
       locationId,
+      request.partnerIds,
+    );
+  }
+
+  /**
+   * Publish an EVSE and all its connectors to OCPI partners
+   */
+  @Post('/:location_id/evses/:evse_id/publish')
+  @ResponseSchema(
+    PublishLocationRequestSchema, // TODO: Should be PublishEvseResponse
+    PublishLocationResponseSchemaName, // TODO: Should be PublishEvseResponseSchemaName
+    {
+      statusCode: HttpStatus.OK,
+      description: 'EVSE and all its components published successfully',
+    },
+  )
+  @AsAdminEndpoint()
+  async publishEvse(
+    @VersionNumberParam() version: VersionNumber,
+    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
+    @Param('evse_id') evseId: string,
+    @Body() request: PublishLocationRequest, // TODO: Should be PublishEvseRequest
+  ): Promise<PublishLocationResponse> {
+    return this.adminLocationsService.publishEvseHierarchy(
+      version,
+      evseId,
       request.partnerIds,
     );
   }

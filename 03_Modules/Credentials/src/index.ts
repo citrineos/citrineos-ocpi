@@ -24,7 +24,7 @@ export class CredentialsModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  getController(): any {
-    return CredentialsModuleApi;
+  getControllers(): any[] {
+    return [CredentialsModuleApi];
   }
 }

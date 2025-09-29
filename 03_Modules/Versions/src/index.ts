@@ -23,7 +23,7 @@ export class VersionsModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  public getController(): any {
-    return VersionsModuleApi;
+  public getControllers(): any[] {
+    return [VersionsModuleApi];
   }
 }

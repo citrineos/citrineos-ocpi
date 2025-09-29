@@ -44,7 +44,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     super(config, new RabbitMqDtoReceiver(config, logger), logger);
   }
 
-  getController(): any {
+  getControllers(): any[] {
     return [LocationsModuleApi, AdminLocationsModuleApi];
   }
 
@@ -66,10 +66,24 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   )
   async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
     this._logger.debug(`Handling Location Insert: ${JSON.stringify(event)}`);
-    // No automatic publishing on INSERT - publication is now controlled administratively via location-centric API
-    this._logger.info(
-      `Location ${event._payload.id} created but not published - use admin API to publish when ready`,
-    );
+    const locationDto = event._payload;
+
+    if (locationDto.isPublished) {
+      const tenant = locationDto.tenant;
+      if (!tenant) {
+        this._logger.error(
+          `Tenant data missing in ${event._context.eventType} notification for ${event._context.objectType} ${locationDto.id}, cannot broadcast.`,
+        );
+        return;
+      }
+      // Note: This will broadcast to ALL partners of the tenant.
+      // The administrative API is still the only way to publish to a subset of partners.
+      await this.locationsBroadcaster.broadcastPutLocation(tenant, locationDto);
+    } else {
+      this._logger.info(
+        `Location ${locationDto.id} created but not published - use admin API to publish when ready`,
+      );
+    }
   }
 
   @AsDtoEventHandler(

@@ -181,6 +181,61 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
   }
 `;
 
+export const GET_EVSE_HIERARCHY_BY_ID_QUERY = gql`
+  query GetEvseHierarchyById($id: Int!) {
+    Evses(where: { id: { _eq: $id } }) {
+      id
+      stationId
+      evseTypeId
+      evseId
+      physicalReference
+      removed
+      createdAt
+      updatedAt
+      isPublished
+      lastPublicationAttempt
+      chargingStation: ChargingStation {
+        id
+        stationId
+        locationId
+        location: Location {
+          id
+          tenantId
+          tenant: Tenant {
+            id
+            partyId
+            countryCode
+          }
+        }
+      }
+      connectors: Connectors {
+        id
+        stationId
+        evseId
+        connectorId
+        evseTypeConnectorId
+        format
+        maximumAmperage
+        maximumPowerWatts
+        maximumVoltage
+        powerType
+        termsAndConditionsUrl
+        type
+        status
+        errorCode
+        timestamp
+        info
+        vendorId
+        vendorErrorCode
+        createdAt
+        updatedAt
+        isPublished
+        lastPublicationAttempt
+      }
+    }
+  }
+`;
+
 export const GET_EVSE_BY_ID_QUERY = gql`
   query GetEvseById($locationId: Int!, $stationId: String!, $evseId: Int!) {
     Locations(where: { id: { _eq: $locationId } }) {
@@ -263,16 +318,12 @@ export const UPDATE_LOCATION_PUBLICATION_STATUS_MUTATION = gql`
   mutation UpdateLocationPublicationStatus(
     $id: Int!
     $isPublished: Boolean!
-    $publishedToPartners: jsonb
-    $validationErrors: jsonb
     $lastPublicationAttempt: timestamptz!
   ) {
     update_Locations(
       where: { id: { _eq: $id } }
       _set: {
         isPublished: $isPublished
-        publishedToPartners: $publishedToPartners
-        validationErrors: $validationErrors
         lastPublicationAttempt: $lastPublicationAttempt
       }
     ) {
@@ -285,16 +336,12 @@ export const UPDATE_EVSE_PUBLICATION_STATUS_MUTATION = gql`
   mutation UpdateEvsePublicationStatus(
     $id: Int!
     $isPublished: Boolean!
-    $publishedToPartners: jsonb
-    $validationErrors: jsonb
     $lastPublicationAttempt: timestamptz!
   ) {
     update_Evses(
       where: { id: { _eq: $id } }
       _set: {
         isPublished: $isPublished
-        publishedToPartners: $publishedToPartners
-        validationErrors: $validationErrors
         lastPublicationAttempt: $lastPublicationAttempt
       }
     ) {
@@ -307,16 +354,12 @@ export const UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION = gql`
   mutation UpdateConnectorPublicationStatus(
     $id: Int!
     $isPublished: Boolean!
-    $publishedToPartners: jsonb
-    $validationErrors: jsonb
     $lastPublicationAttempt: timestamptz!
   ) {
     update_Connectors(
       where: { id: { _eq: $id } }
       _set: {
         isPublished: $isPublished
-        publishedToPartners: $publishedToPartners
-        validationErrors: $validationErrors
         lastPublicationAttempt: $lastPublicationAttempt
       }
     ) {

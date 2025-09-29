@@ -23,7 +23,7 @@ export class TokensModule implements OcpiModule {
     readonly logger?: Logger<ILogObj>,
   ) {}
 
-  getController(): any {
-    return TokensModuleApi;
+  getControllers(): any[] {
+    return [TokensModuleApi];
   }
 }
