@@ -200,6 +200,12 @@ export {
   PublishLocationResponse,
   PublishLocationResponseSchema,
   PublishLocationRequestSchema,
+  PublishEvseRequest,
+  PublishEvseRequestSchema,
+  PublishEvseRequestSchemaName,
+  PublishConnectorRequest,
+  PublishConnectorRequestSchema,
+  PublishConnectorRequestSchemaName,
 } from './model/DTO/LocationDTO';
 export {
   EvseDTO,

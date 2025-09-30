@@ -11,10 +11,11 @@ import {
   OcpiGraphqlClient,
   TenantPartnersListQueryResult,
   TenantPartnersListQueryVariables,
+  GET_CONNECTOR_BY_ID_QUERY,
+  GET_EVSE_BY_ID_QUERY,
 } from '../graphql';
 import {
   GET_LOCATION_BY_ID_QUERY,
-  GET_EVSE_HIERARCHY_BY_ID_QUERY,
   GET_TENANT_PARTNERS_BY_IDS,
   LIST_TENANT_PARTNERS_BY_CPO,
   UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION,
@@ -42,12 +43,12 @@ export class AdminLocationsService {
     private readonly locationsBroadcaster: LocationsBroadcaster,
   ) {}
 
-  async publishLocationHierarchy(
+  async publishLocation(
     locationId: string,
     partnerIds?: string[],
+    evseIds?: string[],
   ): Promise<PublishLocationResponse> {
     try {
-      // Fetch the location with all its EVSEs and connectors
       const result = await this.ocpiGraphqlClient.request<
         GetLocationByIdQueryResult,
         GetLocationByIdQueryVariables
@@ -58,87 +59,54 @@ export class AdminLocationsService {
       }
 
       const location = result.Locations[0];
-
-      // Determine which partners to publish to
       const targetPartners = await this.getTargetPartners(
-        location.tenant,
+        location.tenant as ITenantDto,
         partnerIds,
       );
 
-      if (targetPartners.length === 0) {
-        this.logger.warn('No target partners found for publication.');
-        return {
-          success: false,
-          locationId,
-          publishedToPartners: [],
-          validationErrors: ['No target partners found for publication.'],
-          publishedEvses: 0,
-          publishedConnectors: 0,
-        };
-      }
-
-      // Publish the entire hierarchy to validated partners
       const { successfulPartners, validationErrors } =
-        await this.publishToPartners(location, targetPartners);
+        await this.validateAndBroadcast(
+          location,
+          targetPartners,
+          this.validateLocationForPublication.bind(this),
+          this.locationsBroadcaster.broadcastPutLocation.bind(
+            this.locationsBroadcaster,
+          ),
+        );
 
-      // Update publication status for location and all its components
-      await this.updatePublicationStatusForHierarchy(
-        location,
+      await this.updatePublicationStatusForLocation(
+        location as ILocationDto,
         successfulPartners.length > 0,
       );
 
-      const totalEvses = location.chargingPool?.reduce(
-        (sum: any, cp: any) => sum + (cp.evses?.length || 0),
-        0,
-      );
-      const totalConnectors = location.chargingPool?.reduce(
-        (sum: any, cp: any) =>
-          sum +
-          cp.evses?.reduce(
-            (evseSum: any, evse: any) =>
-              evseSum + (evse.connectors?.length || 0),
-            0,
-          ),
-        0,
-      );
+      if (evseIds && evseIds.length > 0) {
+        await this.updatePublicationStatusForEvses(evseIds, true);
+      }
 
       return {
         success: successfulPartners.length > 0,
         locationId,
-        publishedToPartners: successfulPartners.map((p) => p.id.toString()),
+        publishedToPartners: successfulPartners.map(
+          (p) => p?.id?.toString() || '',
+        ),
         validationErrors,
-        publishedEvses: successfulPartners.length > 0 ? totalEvses : 0,
-        publishedConnectors:
-          successfulPartners.length > 0 ? totalConnectors : 0,
+        publishedEvses: evseIds?.length || 0,
+        publishedConnectors: 0,
       };
     } catch (error) {
-      this.logger.error('Error in publishLocationHierarchy:', error);
-      // In case of a broad failure, update status with error
-      const locationResult = await this.ocpiGraphqlClient
-        .request<
-          GetLocationByIdQueryResult,
-          GetLocationByIdQueryVariables
-        >(GET_LOCATION_BY_ID_QUERY, { id: parseInt(locationId) })
-        .catch(() => null); // Avoid crashing if location fetch fails
-
-      if (locationResult?.Locations?.length) {
-        await this.updatePublicationStatusForHierarchy(
-          locationResult.Locations[0],
-          false,
-        );
-      }
+      this.logger.error('Error in publishLocation:', error);
       throw error;
     }
   }
 
-  async publishEvseHierarchy(
+  async publishEvse(
     evseId: string,
     partnerIds?: string[],
+    connectorIds?: string[],
   ): Promise<PublishLocationResponse> {
     try {
-      // Fetch the EVSE with its connectors and parent location/tenant
       const result = await this.ocpiGraphqlClient.request<any, any>(
-        GET_EVSE_HIERARCHY_BY_ID_QUERY,
+        GET_EVSE_BY_ID_QUERY,
         { id: parseInt(evseId) },
       );
 
@@ -153,43 +121,131 @@ export class AdminLocationsService {
         throw new Error(`Tenant not found for EVSE ${evseId}`);
       }
 
-      // Determine which partners to publish to
       const targetPartners = await this.getTargetPartners(tenant, partnerIds);
 
-      if (targetPartners.length === 0) {
-        return {
-          success: false,
-          locationId: evse.chargingStation?.locationId,
-          publishedToPartners: [],
-          validationErrors: ['No target partners found for publication.'],
-          publishedEvses: 0,
-          publishedConnectors: 0,
-        };
+      const { successfulPartners, validationErrors } =
+        await this.validateAndBroadcast(
+          evse,
+          targetPartners,
+          this.validateEvseForPublication.bind(this),
+          this.locationsBroadcaster.broadcastPutEvse.bind(
+            this.locationsBroadcaster,
+          ),
+        );
+
+      await this.updatePublicationStatusForEvse(
+        evse,
+        successfulPartners.length > 0,
+      );
+
+      if (connectorIds && connectorIds.length > 0) {
+        await this.updatePublicationStatusForConnectors(connectorIds, true);
       }
 
-      // Publish the EVSE and its connectors to validated partners
-      const { successfulPartners, validationErrors } =
-        await this.publishEvseToPartners(evse, targetPartners);
+      return {
+        success: successfulPartners.length > 0,
+        locationId: evse.chargingStation?.locationId,
+        publishedToPartners: successfulPartners.map(
+          (p) => p?.id?.toString() || '',
+        ),
+        validationErrors,
+        publishedEvses: successfulPartners.length > 0 ? 1 : 0,
+        publishedConnectors: connectorIds?.length || 0,
+      };
+    } catch (error) {
+      this.logger.error('Error in publishEvse:', error);
+      throw error;
+    }
+  }
 
-      // Update publication status
-      await this.updatePublicationStatusForEvseHierarchy(
-        evse,
+  async publishConnector(
+    connectorId: string,
+    partnerIds?: string[],
+  ): Promise<PublishLocationResponse> {
+    try {
+      const result = await this.ocpiGraphqlClient.request<any, any>(
+        GET_CONNECTOR_BY_ID_QUERY,
+        { id: parseInt(connectorId) },
+      );
+
+      if (!result.Connectors || result.Connectors.length === 0) {
+        throw new Error(`Connector ${connectorId} not found`);
+      }
+
+      const connector = result.Connectors[0];
+      const tenant = connector.evse?.chargingStation?.location?.tenant;
+
+      if (!tenant) {
+        throw new Error(`Tenant not found for Connector ${connectorId}`);
+      }
+
+      const targetPartners = await this.getTargetPartners(tenant, partnerIds);
+
+      const { successfulPartners, validationErrors } =
+        await this.validateAndBroadcast(
+          connector,
+          targetPartners,
+          this.validateConnectorForPublication.bind(this),
+          this.locationsBroadcaster.broadcastPutConnector.bind(
+            this.locationsBroadcaster,
+          ),
+        );
+
+      await this.updatePublicationStatusForConnector(
+        connector,
         successfulPartners.length > 0,
       );
 
       return {
         success: successfulPartners.length > 0,
-        locationId: evse.chargingStation?.locationId,
-        publishedToPartners: successfulPartners.map((p) => p.id.toString()),
+        locationId: connector.evse?.chargingStation?.locationId,
+        publishedToPartners: successfulPartners.map(
+          (p) => p?.id?.toString() || '',
+        ),
         validationErrors,
-        publishedEvses: successfulPartners.length > 0 ? 1 : 0,
-        publishedConnectors:
-          successfulPartners.length > 0 ? evse.connectors?.length || 0 : 0,
+        publishedEvses: 0,
+        publishedConnectors: successfulPartners.length > 0 ? 1 : 0,
       };
     } catch (error) {
-      this.logger.error('Error in publishEvseHierarchy:', error);
+      this.logger.error('Error in publishConnector:', error);
       throw error;
     }
+  }
+
+  private async validateAndBroadcast(
+    dto: any,
+    partners: ITenantPartnerDto[],
+    validationFn: (dto: any, version: VersionNumber) => string[],
+    broadcastFn: (
+      tenant: ITenantDto,
+      dto: any,
+      partners: ITenantPartnerDto[],
+    ) => Promise<void>,
+  ): Promise<{
+    successfulPartners: ITenantPartnerDto[];
+    validationErrors: string[];
+  }> {
+    const successfulPartners: ITenantPartnerDto[] = [];
+    const validationErrors: string[] = [];
+    const tenant =
+      dto.tenant ||
+      dto.chargingStation?.location?.tenant ||
+      dto.evse?.chargingStation?.location?.tenant;
+
+    for (const partner of partners) {
+      const version = partner?.partnerProfileOCPI?.version?.version || '';
+      const errors = validationFn(dto, version as VersionNumber);
+
+      if (errors.length === 0) {
+        await broadcastFn(tenant, dto, [partner]);
+        successfulPartners.push(partner);
+      } else {
+        validationErrors.push(
+          `Validation failed for partner ${partner.id}: ${errors.join(', ')}`,
+        );
+      }
+    }
+    return { successfulPartners, validationErrors };
   }
 
   private async getTargetPartners(
@@ -197,134 +253,60 @@ export class AdminLocationsService {
     partnerIds?: string[],
   ): Promise<ITenantPartnerDto[]> {
     if (partnerIds && partnerIds.length > 0) {
-      this.logger.debug(
-        `Publishing to specific partners: ${partnerIds.join(', ')}`,
-      );
       return this.getPartnersByIds(partnerIds);
-    } else {
-      this.logger.debug('Publishing to all partners for tenant.');
-      if (!tenant) {
-        throw new Error(`Tenant not found.`);
-      }
-      return this.getAllPartners(tenant);
     }
+    return this.getAllPartners(tenant);
   }
 
-  private async publishToPartners(
-    location: any,
-    partners: ITenantPartnerDto[],
-  ): Promise<{
-    successfulPartners: ITenantPartnerDto[];
-    validationErrors: string[];
-  }> {
-    const successfulPartners: ITenantPartnerDto[] = [];
-    const validationErrors: string[] = [];
-
-    for (const partner of partners) {
-      const version = partner.partnerProfileOCPI.version
-        .version as VersionNumber;
-      const errors = this.validateLocationHierarchyForPublication(
-        location,
-        version,
-      );
-
-      if (errors.length === 0) {
-        await this.publishHierarchyToPartners(location, [partner]);
-        successfulPartners.push(partner);
-      } else {
-        validationErrors.push(
-          `Validation failed for partner ${partner.id}: ${errors.join(', ')}`,
-        );
+  private validateLocationForPublication(
+    location: ILocationDto,
+    version: VersionNumber,
+  ): string[] {
+    const errors: string[] = [];
+    if (version === VersionNumber.TWO_DOT_TWO_DOT_ONE) {
+      if (!location.address) errors.push('Location address is required');
+      if (!location.city) errors.push('Location city is required');
+      if (!location.country) errors.push('Location country is required');
+      if (!location.coordinates) {
+        errors.push('Location coordinates are required');
       }
+      if (!location.timeZone) errors.push('Location time_zone is required');
     }
-    return { successfulPartners, validationErrors };
+    return errors;
   }
 
-  private async publishEvseToPartners(
-    evse: any,
-    partners: ITenantPartnerDto[],
-  ): Promise<{
-    successfulPartners: ITenantPartnerDto[];
-    validationErrors: string[];
-  }> {
-    const successfulPartners: ITenantPartnerDto[] = [];
-    const validationErrors: string[] = [];
-    const tenant = evse.chargingStation?.location?.tenant;
-
-    for (const partner of partners) {
-      const version = partner.partnerProfileOCPI.version
-        .version as VersionNumber;
-      const errors = this.validateEvseHierarchyForPublication(evse, version);
-
-      if (errors.length === 0) {
-        await this.locationsBroadcaster.broadcastPutEvse(
-          tenant,
-          evse as IEvseDto,
-          [partner],
-        );
-        if (evse.connectors) {
-          for (const connector of evse.connectors) {
-            await this.locationsBroadcaster.broadcastPutConnector(
-              tenant,
-              connector as IConnectorDto,
-              [partner],
-            );
-          }
-        }
-        successfulPartners.push(partner);
-      } else {
-        validationErrors.push(
-          `Validation failed for partner ${partner.id}: ${errors.join(', ')}`,
-        );
-      }
+  private validateEvseForPublication(
+    evse: IEvseDto,
+    version: VersionNumber,
+  ): string[] {
+    const errors: string[] = [];
+    if (version === VersionNumber.TWO_DOT_TWO_DOT_ONE) {
+      if (!evse.evseId) errors.push(`EVSE ${evse.id} must have an EVSE ID`);
     }
-    return { successfulPartners, validationErrors };
+    return errors;
   }
 
-  private async publishHierarchyToPartners(
-    location: any,
-    partners: ITenantPartnerDto[],
-  ) {
-    const tenant = { id: location.tenantId } as ITenantDto;
-
-    // Broadcast PUT for Location, EVSEs, and Connectors
-    await this.locationsBroadcaster.broadcastPutLocation(
-      tenant,
-      location as ILocationDto,
-      partners,
-    );
-
-    if (location.chargingPool) {
-      for (const station of location.chargingPool) {
-        if (station.evses) {
-          for (const evse of station.evses) {
-            await this.locationsBroadcaster.broadcastPutEvse(
-              tenant,
-              evse as IEvseDto,
-              partners,
-            );
-            if (evse.connectors) {
-              for (const connector of evse.connectors) {
-                await this.locationsBroadcaster.broadcastPutConnector(
-                  tenant,
-                  connector as IConnectorDto,
-                  partners,
-                );
-              }
-            }
-          }
-        }
-      }
+  private validateConnectorForPublication(
+    connector: IConnectorDto,
+    version: VersionNumber,
+  ): string[] {
+    const errors: string[] = [];
+    if (version === VersionNumber.TWO_DOT_TWO_DOT_ONE) {
+      if (!connector.type)
+        errors.push(`Connector ${connector.id} must have a type`);
+      if (!connector.format)
+        errors.push(`Connector ${connector.id} must have a format`);
+      if (!connector.powerType)
+        errors.push(`Connector ${connector.id} must have a power type`);
     }
+    return errors;
   }
 
-  private async updatePublicationStatusForHierarchy(
-    location: any,
+  private async updatePublicationStatusForLocation(
+    location: ILocationDto,
     isPublished: boolean,
   ): Promise<void> {
     const now = new Date().toISOString();
-
-    // Update location
     await this.ocpiGraphqlClient.request(
       UPDATE_LOCATION_PUBLICATION_STATUS_MUTATION,
       {
@@ -333,73 +315,70 @@ export class AdminLocationsService {
         lastPublicationAttempt: now,
       },
     );
+  }
 
-    // Update all EVSEs and connectors in the hierarchy
-    if (location.chargingPool) {
-      for (const station of location.chargingPool) {
-        if (station.evses) {
-          for (const evse of station.evses) {
-            await this.ocpiGraphqlClient.request(
-              UPDATE_EVSE_PUBLICATION_STATUS_MUTATION,
-              {
-                id: evse.id,
-                isPublished: isPublished || evse.isPublished,
-                lastPublicationAttempt: now,
-              },
-            );
+  private async updatePublicationStatusForEvse(
+    evse: IEvseDto,
+    isPublished: boolean,
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    await this.ocpiGraphqlClient.request(
+      UPDATE_EVSE_PUBLICATION_STATUS_MUTATION,
+      {
+        id: evse.id,
+        isPublished: isPublished || evse.isPublished,
+        lastPublicationAttempt: now,
+      },
+    );
+  }
 
-            if (evse.connectors) {
-              for (const connector of evse.connectors) {
-                await this.ocpiGraphqlClient.request(
-                  UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION,
-                  {
-                    id: connector.id,
-                    isPublished: isPublished || connector.isPublished,
-                    lastPublicationAttempt: now,
-                  },
-                );
-              }
-            }
-          }
-        }
-      }
+  private async updatePublicationStatusForConnector(
+    connector: IConnectorDto,
+    isPublished: boolean,
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    await this.ocpiGraphqlClient.request(
+      UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION,
+      {
+        id: connector.id,
+        isPublished: isPublished || connector.isPublished,
+        lastPublicationAttempt: now,
+      },
+    );
+  }
+
+  private async updatePublicationStatusForEvses(
+    evseIds: string[],
+    isPublished: boolean,
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    for (const evseId of evseIds) {
+      await this.ocpiGraphqlClient.request(
+        UPDATE_EVSE_PUBLICATION_STATUS_MUTATION,
+        {
+          id: evseId,
+          isPublished,
+          lastPublicationAttempt: now,
+        },
+      );
     }
   }
 
-  private validateLocationHierarchyForPublication(
-    location: any,
-    version: VersionNumber,
-  ): string[] {
-    const errors: string[] = [];
-
-    // OCPI 2.2.1 validation
-    if (version === VersionNumber.TWO_DOT_TWO_DOT_ONE) {
-      if (!location.address) errors.push('Location address is required');
-      if (!location.city) errors.push('Location city is required');
-      if (!location.country) errors.push('Location country is required');
-      if (!location.coordinates) {
-        errors.push('Location coordinates are required');
-      }
-      if (!location.time_zone) errors.push('Location time_zone is required');
-      if (!location.last_updated)
-        errors.push('Location last_updated is required');
-      if (!location.party_id) errors.push('Location party_id is required');
-
-      if (location.chargingPool) {
-        for (const station of location.chargingPool) {
-          if (station.evses) {
-            for (const evse of station.evses) {
-              errors.push(
-                ...this.validateEvseHierarchyForPublication(evse, version),
-              );
-            }
-          }
-        }
-      }
+  private async updatePublicationStatusForConnectors(
+    connectorIds: string[],
+    isPublished: boolean,
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    for (const connectorId of connectorIds) {
+      await this.ocpiGraphqlClient.request(
+        UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION,
+        {
+          id: connectorId,
+          isPublished,
+          lastPublicationAttempt: now,
+        },
+      );
     }
-    // todo: add other versions as needed - default shold throw error
-
-    return errors;
   }
 
   private async getPartnersByIds(
@@ -436,74 +415,5 @@ export class AdminLocationsService {
     });
 
     return result.TenantPartners as ITenantPartnerDto[];
-  }
-
-  private validateEvseHierarchyForPublication(
-    evse: any,
-    version: VersionNumber,
-  ): string[] {
-    const errors: string[] = [];
-
-    // OCPI 2.2.1 validation
-    if (version === VersionNumber.TWO_DOT_TWO_DOT_ONE) {
-      if (!evse.evseId) {
-        errors.push(`EVSE ${evse.id} must have an EVSE ID`);
-      }
-      if (!evse.connectors || evse.connectors.length === 0) {
-        errors.push(`EVSE ${evse.evseId} must have at least one connector`);
-      } else {
-        for (const connector of evse.connectors) {
-          if (!connector.type) {
-            errors.push(
-              `Connector ${connector.id} in EVSE ${evse.evseId} must have a type`,
-            );
-          }
-          if (!connector.format) {
-            errors.push(
-              `Connector ${connector.id} in EVSE ${evse.evseId} must have a format`,
-            );
-          }
-          if (!connector.powerType) {
-            errors.push(
-              `Connector ${connector.id} in EVSE ${evse.evseId} must have a power type`,
-            );
-          }
-        }
-      }
-    }
-    // todo: add other versions as needed
-
-    return errors;
-  }
-
-  private async updatePublicationStatusForEvseHierarchy(
-    evse: any,
-    isPublished: boolean,
-  ): Promise<void> {
-    const now = new Date().toISOString();
-
-    // Update EVSE
-    await this.ocpiGraphqlClient.request(
-      UPDATE_EVSE_PUBLICATION_STATUS_MUTATION,
-      {
-        id: evse.id,
-        isPublished: isPublished || evse.isPublished,
-        lastPublicationAttempt: now,
-      },
-    );
-
-    // Update all connectors in this EVSE
-    if (evse.connectors) {
-      for (const connector of evse.connectors) {
-        await this.ocpiGraphqlClient.request(
-          UPDATE_CONNECTOR_PUBLICATION_STATUS_MUTATION,
-          {
-            id: connector.id,
-            isPublished: isPublished || connector.isPublished,
-            lastPublicationAttempt: now,
-          },
-        );
-      }
-    }
   }
 }

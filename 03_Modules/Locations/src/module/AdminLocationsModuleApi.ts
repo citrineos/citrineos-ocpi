@@ -15,12 +15,15 @@ import {
   AsAdminEndpoint,
   PublishLocationRequestSchema,
   PublishLocationResponseSchemaName,
+  PublishEvseRequest,
+  PublishEvseRequestSchema,
+  PublishConnectorRequest,
+  PublishConnectorRequestSchema,
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 
 /**
  * Admin API for managing OCPI Location publication.
- * Publishes the entire location hierarchy (location + EVSEs + connectors) in a single operation.
  */
 @JsonController(`/admin/:${versionIdParam}/${ModuleId.Locations}`)
 @Service()
@@ -30,7 +33,8 @@ export class AdminLocationsModuleApi extends BaseController {
   }
 
   /**
-   * Publish a location and all its EVSEs and connectors to OCPI partners
+   * Publish a location to OCPI partners.
+   * Optionally, publish selected EVSEs within the same location.
    */
   @Post('/:location_id/publish')
   @ResponseSchema(
@@ -38,7 +42,8 @@ export class AdminLocationsModuleApi extends BaseController {
     PublishLocationResponseSchemaName,
     {
       statusCode: HttpStatus.OK,
-      description: 'Location and all its components published successfully',
+      description:
+        'Location and optionally its selected EVSEs published successfully',
     },
   )
   @AsAdminEndpoint()
@@ -46,31 +51,58 @@ export class AdminLocationsModuleApi extends BaseController {
     @Param('location_id') locationId: string,
     @Body() request: PublishLocationRequest,
   ): Promise<PublishLocationResponse> {
-    return this.adminLocationsService.publishLocationHierarchy(
+    return this.adminLocationsService.publishLocation(
       locationId,
       request.partnerIds,
+      request.evseIds,
     );
   }
 
   /**
-   * Publish an EVSE and all its connectors to OCPI partners
+   * Publish an EVSE to OCPI partners.
+   * Optionally, publish selected connectors within the same EVSE.
    */
   @Post('/:location_id/evses/:evse_id/publish')
   @ResponseSchema(
-    PublishLocationRequestSchema, // TODO: Should be PublishEvseResponse
+    PublishEvseRequestSchema,
     PublishLocationResponseSchemaName, // TODO: Should be PublishEvseResponseSchemaName
     {
       statusCode: HttpStatus.OK,
-      description: 'EVSE and all its components published successfully',
+      description:
+        'EVSE and optionally its selected connectors published successfully',
     },
   )
   @AsAdminEndpoint()
   async publishEvse(
     @Param('evse_id') evseId: string,
-    @Body() request: PublishLocationRequest, // TODO: Should be PublishEvseRequest
+    @Body() request: PublishEvseRequest,
   ): Promise<PublishLocationResponse> {
-    return this.adminLocationsService.publishEvseHierarchy(
+    return this.adminLocationsService.publishEvse(
       evseId,
+      request.partnerIds,
+      request.connectorIds,
+    );
+  }
+
+  /**
+   * Publish a connector to OCPI partners.
+   */
+  @Post('/:location_id/evses/:evse_id/connectors/:connector_id/publish')
+  @ResponseSchema(
+    PublishConnectorRequestSchema,
+    PublishLocationResponseSchemaName, // TODO: Should be PublishConnectorResponseSchemaName
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Connector published successfully',
+    },
+  )
+  @AsAdminEndpoint()
+  async publishConnector(
+    @Param('connector_id') connectorId: string,
+    @Body() request: PublishConnectorRequest,
+  ): Promise<PublishLocationResponse> {
+    return this.adminLocationsService.publishConnector(
+      connectorId,
       request.partnerIds,
     );
   }
