@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { OcpiHeaders } from '../model/OcpiHeaders';
 import {
   GetLocationByIdQueryResult,
   GetLocationByIdQueryVariables,
@@ -44,8 +43,6 @@ export class AdminLocationsService {
   ) {}
 
   async publishLocationHierarchy(
-    version: VersionNumber,
-    ocpiHeaders: OcpiHeaders,
     locationId: string,
     partnerIds?: string[],
   ): Promise<PublishLocationResponse> {
@@ -62,37 +59,11 @@ export class AdminLocationsService {
 
       const location = result.Locations[0];
 
-      // Validate the entire location hierarchy before publishing
-      const validationErrors = this.validateLocationHierarchyForPublication(
-        location,
-        version,
-      );
-      if (validationErrors.length > 0) {
-        await this.updatePublicationStatusForHierarchy(location, false);
-        return {
-          success: false,
-          locationId,
-          publishedToPartners: [],
-          validationErrors,
-          publishedEvses: 0,
-          publishedConnectors: 0,
-        };
-      }
-
       // Determine which partners to publish to
-      let targetPartners: ITenantPartnerDto[] = [];
-      if (partnerIds && partnerIds.length > 0) {
-        this.logger.debug(
-          `Publishing to specific partners: ${partnerIds.join(', ')}`,
-        );
-        targetPartners = await this.getPartnersByIds(partnerIds);
-      } else {
-        this.logger.debug('Publishing to all partners for tenant.');
-        if (!location.tenant) {
-          throw new Error(`Location ${locationId} does not have a tenant.`);
-        }
-        targetPartners = await this.getAllPartners(location.tenant);
-      }
+      const targetPartners = await this.getTargetPartners(
+        location.tenant,
+        partnerIds,
+      );
 
       if (targetPartners.length === 0) {
         this.logger.warn('No target partners found for publication.');
@@ -106,11 +77,15 @@ export class AdminLocationsService {
         };
       }
 
-      // Publish the entire hierarchy
-      await this.publishHierarchyToPartners(location, targetPartners);
+      // Publish the entire hierarchy to validated partners
+      const { successfulPartners, validationErrors } =
+        await this.publishToPartners(location, targetPartners);
 
       // Update publication status for location and all its components
-      await this.updatePublicationStatusForHierarchy(location, true);
+      await this.updatePublicationStatusForHierarchy(
+        location,
+        successfulPartners.length > 0,
+      );
 
       const totalEvses = location.chargingPool?.reduce(
         (sum: any, cp: any) => sum + (cp.evses?.length || 0),
@@ -128,11 +103,13 @@ export class AdminLocationsService {
       );
 
       return {
-        success: true,
+        success: successfulPartners.length > 0,
         locationId,
-        publishedToPartners: publishedPartnerIds,
-        publishedEvses: totalEvses,
-        publishedConnectors: totalConnectors,
+        publishedToPartners: successfulPartners.map((p) => p.id.toString()),
+        validationErrors,
+        publishedEvses: successfulPartners.length > 0 ? totalEvses : 0,
+        publishedConnectors:
+          successfulPartners.length > 0 ? totalConnectors : 0,
       };
     } catch (error) {
       this.logger.error('Error in publishLocationHierarchy:', error);
@@ -155,7 +132,6 @@ export class AdminLocationsService {
   }
 
   async publishEvseHierarchy(
-    version: VersionNumber,
     evseId: string,
     partnerIds?: string[],
   ): Promise<PublishLocationResponse> {
@@ -177,30 +153,8 @@ export class AdminLocationsService {
         throw new Error(`Tenant not found for EVSE ${evseId}`);
       }
 
-      // Validate the EVSE and its connectors before publishing
-      const validationErrors = this.validateEvseHierarchyForPublication(
-        evse,
-        version,
-      );
-      if (validationErrors.length > 0) {
-        await this.updatePublicationStatusForEvseHierarchy(evse, false);
-        return {
-          success: false,
-          locationId: evse.chargingStation?.locationId,
-          publishedToPartners: [],
-          validationErrors,
-          publishedEvses: 0,
-          publishedConnectors: 0,
-        };
-      }
-
       // Determine which partners to publish to
-      let targetPartners: ITenantPartnerDto[] = [];
-      if (partnerIds && partnerIds.length > 0) {
-        targetPartners = await this.getPartnersByIds(partnerIds);
-      } else {
-        targetPartners = await this.getAllPartners(tenant);
-      }
+      const targetPartners = await this.getTargetPartners(tenant, partnerIds);
 
       if (targetPartners.length === 0) {
         return {
@@ -213,36 +167,118 @@ export class AdminLocationsService {
         };
       }
 
-      // Publish the EVSE and its connectors
-      await this.locationsBroadcaster.broadcastPutEvse(
-        tenant,
-        evse as IEvseDto,
-        targetPartners,
-      );
-      if (evse.connectors) {
-        for (const connector of evse.connectors) {
-          await this.locationsBroadcaster.broadcastPutConnector(
-            tenant,
-            connector as IConnectorDto,
-            targetPartners,
-          );
-        }
-      }
+      // Publish the EVSE and its connectors to validated partners
+      const { successfulPartners, validationErrors } =
+        await this.publishEvseToPartners(evse, targetPartners);
 
       // Update publication status
-      await this.updatePublicationStatusForEvseHierarchy(evse, true);
+      await this.updatePublicationStatusForEvseHierarchy(
+        evse,
+        successfulPartners.length > 0,
+      );
 
       return {
-        success: true,
+        success: successfulPartners.length > 0,
         locationId: evse.chargingStation?.locationId,
-        publishedToPartners: targetPartners.map((p) => p.id.toString()),
-        publishedEvses: 1,
-        publishedConnectors: evse.connectors?.length || 0,
+        publishedToPartners: successfulPartners.map((p) => p.id.toString()),
+        validationErrors,
+        publishedEvses: successfulPartners.length > 0 ? 1 : 0,
+        publishedConnectors:
+          successfulPartners.length > 0 ? evse.connectors?.length || 0 : 0,
       };
     } catch (error) {
       this.logger.error('Error in publishEvseHierarchy:', error);
       throw error;
     }
+  }
+
+  private async getTargetPartners(
+    tenant: ITenantDto,
+    partnerIds?: string[],
+  ): Promise<ITenantPartnerDto[]> {
+    if (partnerIds && partnerIds.length > 0) {
+      this.logger.debug(
+        `Publishing to specific partners: ${partnerIds.join(', ')}`,
+      );
+      return this.getPartnersByIds(partnerIds);
+    } else {
+      this.logger.debug('Publishing to all partners for tenant.');
+      if (!tenant) {
+        throw new Error(`Tenant not found.`);
+      }
+      return this.getAllPartners(tenant);
+    }
+  }
+
+  private async publishToPartners(
+    location: any,
+    partners: ITenantPartnerDto[],
+  ): Promise<{
+    successfulPartners: ITenantPartnerDto[];
+    validationErrors: string[];
+  }> {
+    const successfulPartners: ITenantPartnerDto[] = [];
+    const validationErrors: string[] = [];
+
+    for (const partner of partners) {
+      const version = partner.partnerProfileOCPI.version
+        .version as VersionNumber;
+      const errors = this.validateLocationHierarchyForPublication(
+        location,
+        version,
+      );
+
+      if (errors.length === 0) {
+        await this.publishHierarchyToPartners(location, [partner]);
+        successfulPartners.push(partner);
+      } else {
+        validationErrors.push(
+          `Validation failed for partner ${partner.id}: ${errors.join(', ')}`,
+        );
+      }
+    }
+    return { successfulPartners, validationErrors };
+  }
+
+  private async publishEvseToPartners(
+    evse: any,
+    partners: ITenantPartnerDto[],
+  ): Promise<{
+    successfulPartners: ITenantPartnerDto[];
+    validationErrors: string[];
+  }> {
+    const successfulPartners: ITenantPartnerDto[] = [];
+    const validationErrors: string[] = [];
+    const tenant = evse.chargingStation?.location?.tenant;
+
+    for (const partner of partners) {
+      const version = partner.partnerProfileOCPI.version
+        .version as VersionNumber;
+      const errors = this.validateEvseHierarchyForPublication(evse, version);
+
+      if (errors.length === 0) {
+        await this.locationsBroadcaster.broadcastPutEvse(
+          tenant,
+          evse as IEvseDto,
+          [partner],
+        );
+        if (evse.connectors) {
+          for (const connector of evse.connectors) {
+            await this.locationsBroadcaster.broadcastPutConnector(
+              tenant,
+              connector as IConnectorDto,
+              [partner],
+            );
+          }
+        }
+        successfulPartners.push(partner);
+      } else {
+        validationErrors.push(
+          `Validation failed for partner ${partner.id}: ${errors.join(', ')}`,
+        );
+      }
+    }
+    return { successfulPartners, validationErrors };
   }
 
   private async publishHierarchyToPartners(
@@ -344,38 +380,18 @@ export class AdminLocationsService {
       if (!location.coordinates) {
         errors.push('Location coordinates are required');
       }
+      if (!location.time_zone) errors.push('Location time_zone is required');
+      if (!location.last_updated)
+        errors.push('Location last_updated is required');
+      if (!location.party_id) errors.push('Location party_id is required');
 
       if (location.chargingPool) {
         for (const station of location.chargingPool) {
           if (station.evses) {
             for (const evse of station.evses) {
-              if (!evse.evseId) {
-                errors.push(`EVSE ${evse.id} must have an EVSE ID`);
-              }
-              if (!evse.connectors || evse.connectors.length === 0) {
-                errors.push(
-                  `EVSE ${evse.evseId} must have at least one connector`,
-                );
-                continue;
-              }
-
-              for (const connector of evse.connectors) {
-                if (!connector.type) {
-                  errors.push(
-                    `Connector ${connector.id} in EVSE ${evse.evseId} must have a type`,
-                  );
-                }
-                if (!connector.format) {
-                  errors.push(
-                    `Connector ${connector.id} in EVSE ${evse.evseId} must have a format`,
-                  );
-                }
-                if (!connector.powerType) {
-                  errors.push(
-                    `Connector ${connector.id} in EVSE ${evse.evseId} must have a power type`,
-                  );
-                }
-              }
+              errors.push(
+                ...this.validateEvseHierarchyForPublication(evse, version),
+              );
             }
           }
         }

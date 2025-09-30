@@ -7,12 +7,8 @@ import { Service } from 'typedi';
 import {
   BaseController,
   ResponseSchema,
-  OcpiHeaders,
-  FunctionalEndpointParams,
   ModuleId,
   versionIdParam,
-  VersionNumber,
-  VersionNumberParam,
   AdminLocationsService,
   PublishLocationRequest,
   PublishLocationResponse,
@@ -47,14 +43,10 @@ export class AdminLocationsModuleApi extends BaseController {
   )
   @AsAdminEndpoint()
   async publishLocation(
-    @VersionNumberParam() version: VersionNumber,
-    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Param('location_id') locationId: string,
     @Body() request: PublishLocationRequest,
   ): Promise<PublishLocationResponse> {
     return this.adminLocationsService.publishLocationHierarchy(
-      version,
-      ocpiHeaders,
       locationId,
       request.partnerIds,
     );
@@ -74,13 +66,10 @@ export class AdminLocationsModuleApi extends BaseController {
   )
   @AsAdminEndpoint()
   async publishEvse(
-    @VersionNumberParam() version: VersionNumber,
-    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Param('evse_id') evseId: string,
     @Body() request: PublishLocationRequest, // TODO: Should be PublishEvseRequest
   ): Promise<PublishLocationResponse> {
     return this.adminLocationsService.publishEvseHierarchy(
-      version,
       evseId,
       request.partnerIds,
     );
