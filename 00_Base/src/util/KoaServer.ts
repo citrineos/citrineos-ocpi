@@ -49,15 +49,15 @@ export class KoaServer {
   protected initApp(options: RoutingControllersOptions = {}) {
     // Add CORS middleware for admin endpoints
     this.koa.use(async (ctx, next) => {
-      if (ctx.path.startsWith('/admin')) {
+      if (ctx.path.startsWith('/ocpi/admin')) {
         const corsMiddleware = cors({
           origin: '*', // Allow all origins for development - can be configured more restrictively for production
           credentials: true,
           allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
           allowHeaders: [
-            'Content-Type', 
-            'Authorization', 
-            'Accept', 
+            'Content-Type',
+            'Authorization',
+            'Accept',
             'X-Requested-With',
           ],
         });
