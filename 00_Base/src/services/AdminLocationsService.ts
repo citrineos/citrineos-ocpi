@@ -25,6 +25,7 @@ import {
 } from '../graphql';
 import { ModuleId } from '../model/ModuleId';
 import {
+  IChargingStationDto,
   IConnectorDto,
   IEvseDto,
   ILocationDto,
@@ -81,7 +82,9 @@ export class AdminLocationsService {
       );
 
       if (evseIds && evseIds.length > 0) {
-        await this.updatePublicationStatusForEvses(evseIds, true);
+        for (const evseId of evseIds) {
+          await this.publishEvse(evseId, partnerIds);
+        }
       }
 
       return {
@@ -140,7 +143,9 @@ export class AdminLocationsService {
       );
 
       if (connectorIds && connectorIds.length > 0) {
-        await this.updatePublicationStatusForConnectors(connectorIds, true);
+        for (const connectorId of connectorIds) {
+          await this.publishConnector(evseId, connectorId, partnerIds);
+        }
       }
 
       return {
@@ -183,7 +188,7 @@ export class AdminLocationsService {
         throw new Error(`Connector ${connectorId} not found in EVSE ${evseId}`);
       }
 
-      connector.chargingStation = evse.chargingStation;
+      connector.chargingStation = evse.chargingStation as IChargingStationDto;
       const tenant = evse.chargingStation?.location?.tenant as ITenantDto;
 
       if (!tenant) {
