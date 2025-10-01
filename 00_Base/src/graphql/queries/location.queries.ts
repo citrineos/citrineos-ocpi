@@ -108,8 +108,6 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       updatedAt
       tenantId
       isPublished
-      validationErrors
-      publishedToPartners
       lastPublicationAttempt
       tenant: Tenant {
         id
@@ -146,8 +144,6 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
           createdAt
           updatedAt
           isPublished
-          validationErrors
-          publishedToPartners
           lastPublicationAttempt
           connectors: Connectors {
             id
@@ -171,9 +167,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
             createdAt
             updatedAt
             isPublished
-            validationErrors
-            publishedToPartners
-            lastPublicationAttempt
+      lastPublicationAttempt
           }
         }
       }

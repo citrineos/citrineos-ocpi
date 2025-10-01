@@ -5,5 +5,5 @@
 import { Constructable } from 'typedi';
 
 export abstract class OcpiModule {
-  public abstract getControllers(): Constructable<any[]>;
+  public abstract getControllers(): Constructable<any>[];
 }
