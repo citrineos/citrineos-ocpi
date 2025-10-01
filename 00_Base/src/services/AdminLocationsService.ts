@@ -11,8 +11,9 @@ import {
   OcpiGraphqlClient,
   TenantPartnersListQueryResult,
   TenantPartnersListQueryVariables,
-  GET_CONNECTOR_BY_ID_QUERY,
-  GET_EVSE_BY_ID_QUERY,
+  GET_EVSE_HIERARCHY_BY_ID_QUERY,
+  GetEvseHierarchyByIdQueryResult,
+  GetEvseHierarchyByIdQueryVariables,
 } from '../graphql';
 import {
   GET_LOCATION_BY_ID_QUERY,
@@ -105,17 +106,17 @@ export class AdminLocationsService {
     connectorIds?: string[],
   ): Promise<PublishLocationResponse> {
     try {
-      const result = await this.ocpiGraphqlClient.request<any, any>(
-        GET_EVSE_BY_ID_QUERY,
-        { id: parseInt(evseId) },
-      );
+      const result = await this.ocpiGraphqlClient.request<
+        GetEvseHierarchyByIdQueryResult,
+        GetEvseHierarchyByIdQueryVariables
+      >(GET_EVSE_HIERARCHY_BY_ID_QUERY, { id: parseInt(evseId) });
 
       if (!result.Evses || result.Evses.length === 0) {
         throw new Error(`EVSE ${evseId} not found`);
       }
 
-      const evse = result.Evses[0];
-      const tenant = evse.chargingStation?.location?.tenant;
+      const evse = result.Evses[0] as IEvseDto;
+      const tenant = evse.chargingStation?.location?.tenant as ITenantDto;
 
       if (!tenant) {
         throw new Error(`Tenant not found for EVSE ${evseId}`);
@@ -144,7 +145,7 @@ export class AdminLocationsService {
 
       return {
         success: successfulPartners.length > 0,
-        locationId: evse.chargingStation?.locationId,
+        locationId: evse.chargingStation?.locationId?.toString() || '',
         publishedToPartners: successfulPartners.map(
           (p) => p?.id?.toString() || '',
         ),
@@ -159,21 +160,31 @@ export class AdminLocationsService {
   }
 
   async publishConnector(
+    evseId: string,
     connectorId: string,
     partnerIds?: string[],
   ): Promise<PublishLocationResponse> {
     try {
-      const result = await this.ocpiGraphqlClient.request<any, any>(
-        GET_CONNECTOR_BY_ID_QUERY,
-        { id: parseInt(connectorId) },
-      );
+      const result = await this.ocpiGraphqlClient.request<
+        GetEvseHierarchyByIdQueryResult,
+        GetEvseHierarchyByIdQueryVariables
+      >(GET_EVSE_HIERARCHY_BY_ID_QUERY, { id: parseInt(evseId) });
 
-      if (!result.Connectors || result.Connectors.length === 0) {
-        throw new Error(`Connector ${connectorId} not found`);
+      if (!result.Evses || result.Evses.length === 0) {
+        throw new Error(`EVSE ${evseId} not found`);
       }
 
-      const connector = result.Connectors[0];
-      const tenant = connector.evse?.chargingStation?.location?.tenant;
+      const evse = result.Evses[0] as IEvseDto;
+      const connector = evse.connectors?.find(
+        (c) => c.id === parseInt(connectorId),
+      );
+
+      if (!connector) {
+        throw new Error(`Connector ${connectorId} not found in EVSE ${evseId}`);
+      }
+
+      connector.chargingStation = evse.chargingStation;
+      const tenant = evse.chargingStation?.location?.tenant as ITenantDto;
 
       if (!tenant) {
         throw new Error(`Tenant not found for Connector ${connectorId}`);
@@ -198,7 +209,7 @@ export class AdminLocationsService {
 
       return {
         success: successfulPartners.length > 0,
-        locationId: connector.evse?.chargingStation?.locationId,
+        locationId: evse.chargingStation?.locationId?.toString() || '',
         publishedToPartners: successfulPartners.map(
           (p) => p?.id?.toString() || '',
         ),
@@ -282,6 +293,8 @@ export class AdminLocationsService {
     const errors: string[] = [];
     if (version === VersionNumber.TWO_DOT_TWO_DOT_ONE) {
       if (!evse.evseId) errors.push(`EVSE ${evse.id} must have an EVSE ID`);
+      if (evse.connectors?.length === 0)
+        errors.push(`EVSE ${evse.id} must have at least one connector`);
     }
     return errors;
   }
@@ -298,6 +311,14 @@ export class AdminLocationsService {
         errors.push(`Connector ${connector.id} must have a format`);
       if (!connector.powerType)
         errors.push(`Connector ${connector.id} must have a power type`);
+      if (!connector.maximumVoltage || connector.maximumVoltage <= 0)
+        errors.push(
+          `Connector ${connector.id} must have a valid maximum voltage`,
+        );
+      if (!connector.maximumAmperage || connector.maximumAmperage <= 0)
+        errors.push(
+          `Connector ${connector.id} must have a valid maximum amperage`,
+        );
     }
     return errors;
   }

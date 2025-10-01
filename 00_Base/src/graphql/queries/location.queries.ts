@@ -167,7 +167,7 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
             createdAt
             updatedAt
             isPublished
-      lastPublicationAttempt
+            lastPublicationAttempt
           }
         }
       }
@@ -190,7 +190,6 @@ export const GET_EVSE_HIERARCHY_BY_ID_QUERY = gql`
       lastPublicationAttempt
       chargingStation: ChargingStation {
         id
-        stationId
         locationId
         location: Location {
           id

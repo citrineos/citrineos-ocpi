@@ -254,8 +254,6 @@ export type GetLocationByIdQueryResult = {
     updatedAt: any,
     tenantId: number,
     isPublished: boolean,
-    validationErrors?: any | null,
-    publishedToPartners?: any | null,
     lastPublicationAttempt?: any | null,
     tenant: {
       id: number,
@@ -292,8 +290,6 @@ export type GetLocationByIdQueryResult = {
         createdAt: any,
         updatedAt: any,
         isPublished: boolean,
-        validationErrors?: any | null,
-        publishedToPartners?: any | null,
         lastPublicationAttempt?: any | null,
         connectors: Array<{
           id: number,
@@ -317,11 +313,66 @@ export type GetLocationByIdQueryResult = {
           createdAt: any,
           updatedAt: any,
           isPublished: boolean,
-          validationErrors?: any | null,
-          publishedToPartners?: any | null,
           lastPublicationAttempt?: any | null
         }>
       }>
+    }>
+  }>
+};
+
+export type GetEvseHierarchyByIdQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type GetEvseHierarchyByIdQueryResult = {
+  Evses: Array<{
+    id: number,
+    stationId?: string | null,
+    evseTypeId?: number | null,
+    evseId?: string | null,
+    physicalReference?: string | null,
+    removed?: boolean | null,
+    createdAt: any,
+    updatedAt: any,
+    isPublished: boolean,
+    lastPublicationAttempt?: any | null,
+    chargingStation?: {
+      id: string,
+      locationId?: number | null,
+      location?: {
+        id: number,
+        tenantId: number,
+        tenant: {
+          id: number,
+          partyId: string,
+          countryCode: string
+        }
+      } | null
+    } | null,
+    connectors: Array<{
+      id: number,
+      stationId: string,
+      evseId?: number | null,
+      connectorId: number,
+      evseTypeConnectorId?: number | null,
+      format?: string | null,
+      maximumAmperage?: number | null,
+      maximumPowerWatts?: number | null,
+      maximumVoltage?: number | null,
+      powerType?: string | null,
+      termsAndConditionsUrl?: string | null,
+      type?: string | null,
+      status?: any | null,
+      errorCode?: any | null,
+      timestamp?: any | null,
+      info?: string | null,
+      vendorId?: string | null,
+      vendorErrorCode?: string | null,
+      createdAt: any,
+      updatedAt: any,
+      isPublished: boolean,
+      lastPublicationAttempt?: any | null
     }>
   }>
 };
@@ -411,8 +462,6 @@ export type GetConnectorByIdQueryResult = {
 export type UpdateLocationPublicationStatusMutationVariables = Exact<{
   id: Scalars['Int']['input'];
   isPublished: Scalars['Boolean']['input'];
-  publishedToPartners?: InputMaybe<Scalars['jsonb']['input']>;
-  validationErrors?: InputMaybe<Scalars['jsonb']['input']>;
   lastPublicationAttempt: Scalars['timestamptz']['input'];
 }>;
 
@@ -426,8 +475,6 @@ export type UpdateLocationPublicationStatusMutationResult = {
 export type UpdateEvsePublicationStatusMutationVariables = Exact<{
   id: Scalars['Int']['input'];
   isPublished: Scalars['Boolean']['input'];
-  publishedToPartners?: InputMaybe<Scalars['jsonb']['input']>;
-  validationErrors?: InputMaybe<Scalars['jsonb']['input']>;
   lastPublicationAttempt: Scalars['timestamptz']['input'];
 }>;
 
@@ -441,8 +488,6 @@ export type UpdateEvsePublicationStatusMutationResult = {
 export type UpdateConnectorPublicationStatusMutationVariables = Exact<{
   id: Scalars['Int']['input'];
   isPublished: Scalars['Boolean']['input'];
-  publishedToPartners?: InputMaybe<Scalars['jsonb']['input']>;
-  validationErrors?: InputMaybe<Scalars['jsonb']['input']>;
   lastPublicationAttempt: Scalars['timestamptz']['input'];
 }>;
 

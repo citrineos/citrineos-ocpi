@@ -87,7 +87,7 @@ export class AdminLocationsModuleApi extends BaseController {
   /**
    * Publish a connector to OCPI partners.
    */
-  @Post('/:location_id/evses/:evse_id/connectors/:connector_id/publish')
+  @Post('/evses/:evse_id/connectors/:connector_id/publish')
   @ResponseSchema(
     PublishConnectorRequestSchema,
     PublishLocationResponseSchemaName, // TODO: Should be PublishConnectorResponseSchemaName
@@ -98,10 +98,12 @@ export class AdminLocationsModuleApi extends BaseController {
   )
   @AsAdminEndpoint()
   async publishConnector(
+    @Param('evse_id') evseId: string,
     @Param('connector_id') connectorId: string,
     @Body() request: PublishConnectorRequest,
   ): Promise<PublishLocationResponse> {
     return this.adminLocationsService.publishConnector(
+      evseId,
       connectorId,
       request.partnerIds,
     );
