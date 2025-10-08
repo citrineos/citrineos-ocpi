@@ -6,7 +6,6 @@ import {
   AbstractDtoModule,
   AsDtoEventHandler,
   CdrBroadcaster,
-  CdrMapper,
   DtoEventObjectType,
   DtoEventType,
   GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
@@ -19,13 +18,11 @@ import {
   OcpiModule,
   RabbitMqDtoReceiver,
   SessionBroadcaster,
-  SessionMapper,
 } from '@citrineos/ocpi-base';
 import { ILogObj, Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 import { SessionsModuleApi } from './module/SessionsModuleApi';
 import { IMeterValueDto, ITransactionDto } from '@citrineos/base';
-import { Cdr } from '@citrineos/ocpi-base/src/model/Cdr';
 
 export { SessionsModuleApi } from './module/SessionsModuleApi';
 export { ISessionsModuleApi } from './module/ISessionsModuleApi';
@@ -57,6 +54,45 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     await super.shutdown();
   }
 
+  /**
+   * Checks if a meter value is a Transaction.Begin meter value by comparing timestamps
+   */
+  private async isTransactionBeginMeterValue(
+    meterValueDto: IMeterValueDto,
+  ): Promise<boolean> {
+    try {
+      // Fetch the transaction to get its start time
+      const transactionResponse = await this.ocpiGraphqlClient.request<
+        GetTransactionByTransactionIdQueryResult,
+        GetTransactionByTransactionIdQueryVariables
+      >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+        transactionId: meterValueDto.transactionId!,
+      });
+
+      if (!transactionResponse.Transactions[0]) {
+        this._logger.warn(
+          `Transaction not found for meter value ${meterValueDto.id}`,
+        );
+        return false;
+      }
+
+      const transaction = transactionResponse.Transactions[0];
+      const transactionStartTime = new Date(transaction.startTime);
+      const meterValueTime = new Date(meterValueDto.timestamp);
+
+      // Consider it a Transaction.Begin meter value if it's within 1 second of transaction start
+      const timeDiffMs = Math.abs(
+        meterValueTime.getTime() - transactionStartTime.getTime(),
+      );
+      return timeDiffMs <= 1000; // 1 second tolerance
+    } catch (error) {
+      this._logger.error(
+        `Error checking if meter value is Transaction.Begin: ${error}`,
+      );
+      return false;
+    }
+  }
+
   @AsDtoEventHandler(
     DtoEventType.INSERT,
     DtoEventObjectType.Transaction,
@@ -74,7 +110,26 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       );
       return;
     }
-    await this.sessionBroadcaster.broadcastPutSession(tenant, transactionDto);
+
+    // Fetch the full transaction with meter values to include Transaction.Begin meter values in the initial PUT
+    const fullTransactionResponse = await this.ocpiGraphqlClient.request<
+      GetTransactionByTransactionIdQueryResult,
+      GetTransactionByTransactionIdQueryVariables
+    >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+      transactionId: transactionDto.transactionId!,
+    });
+
+    if (fullTransactionResponse.Transactions[0]) {
+      const fullTransactionDto = fullTransactionResponse
+        .Transactions[0] as ITransactionDto;
+      await this.sessionBroadcaster.broadcastPutSession(
+        tenant,
+        fullTransactionDto,
+      );
+    } else {
+      // Fallback to original transaction if full fetch fails
+      await this.sessionBroadcaster.broadcastPutSession(tenant, transactionDto);
+    }
   }
 
   @AsDtoEventHandler(
@@ -142,6 +197,16 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       if (!meterValueDto.tariffId) {
         this._logger.error(
           `Tariff ID missing in Meter Value notification for Transaction ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
+        );
+        return;
+      }
+
+      // Skip Transaction.Begin meter values to prevent race condition
+      const isTransactionBegin =
+        await this.isTransactionBeginMeterValue(meterValueDto);
+      if (isTransactionBegin) {
+        this._logger.debug(
+          `Skipping Transaction.Begin meter value for Transaction ${meterValueDto.transactionDatabaseId} to prevent race condition`,
         );
         return;
       }
