@@ -412,7 +412,7 @@ export class OcpiServer extends KoaServer {
 
   private initContainer() {
     Container.set(OcpiConfigToken, this.ocpiConfig);
-    Container.set(CacheWrapper, new CacheWrapper(this.cache));
+    Container.set(CacheWrapper, new CacheWrapper(this.cache, this.logger));
     Container.set(Logger, this.logger);
 
     Container.set(

@@ -58,7 +58,7 @@ export class CommandExecutor {
     @Inject() cacheWrapper: CacheWrapper,
     @InjectMany(OCPP_COMMAND_HANDLER) handlers: OCPPCommandHandler[],
   ) {
-    this.cache = cacheWrapper.cache;
+    this.cache = cacheWrapper.getCache();
     handlers.forEach((handler) => {
       this.handlerRegistry.set(handler.supportedVersion, handler);
     });

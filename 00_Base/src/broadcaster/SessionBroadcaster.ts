@@ -17,15 +17,22 @@ import {
 } from '@citrineos/base';
 import { SessionMapper } from '../mapper/SessionMapper';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import { CacheWrapper } from '../util/CacheWrapper';
+import { ICache } from '@citrineos/base';
+import { SessionStatus } from '../model/SessionStatus';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
+  private readonly _cacheWrapper: CacheWrapper;
+
   constructor(
     readonly logger: Logger<ILogObj>,
     readonly sessionsClientApi: SessionsClientApi,
     readonly sessionMapper: SessionMapper,
+    private readonly _cache: ICache,
   ) {
     super();
+    this._cacheWrapper = new CacheWrapper(this._cache, this.logger);
   }
 
   async broadcastPutSession(
@@ -36,6 +43,14 @@ export class SessionBroadcaster extends BaseBroadcaster {
       await this.sessionMapper.mapTransactionToSession(transactionDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
     await this.broadcastSession(tenant, session, HttpMethod.Put, path);
+
+    if (session.id) {
+      const cacheKey = `session:${session.id}`;
+      await this._cache.set(cacheKey, 'true');
+      if (session.status === SessionStatus.COMPLETED) {
+        await this._cache.remove(cacheKey);
+      }
+    }
   }
 
   async broadcastPatchSession(
@@ -47,7 +62,21 @@ export class SessionBroadcaster extends BaseBroadcaster {
         transactionDto,
       );
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(tenant, session, HttpMethod.Patch, path);
+
+    if (session.id) {
+      const cacheKey = `session:${session.id}`;
+      const keyFound = await this._cacheWrapper.waitForCacheKey(cacheKey);
+      if (keyFound) {
+        await this.broadcastSession(tenant, session, HttpMethod.Patch, path);
+        if (session.status === SessionStatus.COMPLETED) {
+          await this._cache.remove(cacheKey);
+        }
+      } else {
+        this.logger.warn(
+          `Not broadcasting PATCH for session ${session.id} due to cache timeout.`,
+        );
+      }
+    }
   }
 
   async broadcastPatchSessionChargingPeriod(
@@ -59,12 +88,24 @@ export class SessionBroadcaster extends BaseBroadcaster {
       meterValueDto.tariffId!.toString(),
     );
     const path = `/${tenant.countryCode}/${tenant.partyId}/${meterValueDto.transactionId}`;
-    await this.broadcastSession(
-      tenant,
-      { charging_periods },
-      HttpMethod.Patch,
-      path,
-    );
+
+    if (meterValueDto.transactionId) {
+      const cacheKey = `session:${meterValueDto.transactionId}`;
+      const keyFound = await this._cacheWrapper.waitForCacheKey(cacheKey);
+
+      if (keyFound) {
+        await this.broadcastSession(
+          tenant,
+          { charging_periods },
+          HttpMethod.Patch,
+          path,
+        );
+      } else {
+        this.logger.warn(
+          `Not broadcasting PATCH for session ${meterValueDto.transactionId} due to cache timeout.`,
+        );
+      }
+    }
   }
 
   private async broadcastSession(
