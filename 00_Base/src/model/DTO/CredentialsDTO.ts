@@ -1,44 +1,15 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-  MaxLength,
-  ValidateNested,
-} from 'class-validator';
-import { Index } from '@citrineos/data';
-import { Type } from 'class-transformer';
-import { CredentialsRoleDTO } from './CredentialsRoleDTO';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class CredentialsDTO {
-  @Index
-  @MaxLength(64)
-  @IsString()
-  @IsNotEmpty()
-  token!: string;
+import { z } from 'zod';
+import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO';
 
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  url!: string;
+export const CredentialsDTOSchema = z.object({
+  token: z.string().max(64),
+  url: z.string().url(),
+  roles: z.array(CredentialsRoleDTOSchema).min(1),
+});
+export const CredentialsDTOSchemaName = 'CredentialsDTO';
 
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => CredentialsRoleDTO)
-  roles!: CredentialsRoleDTO[];
-
-  static build(
-    token: string,
-    url: string,
-    roles: CredentialsRoleDTO[],
-  ): CredentialsDTO {
-    const credentials = new CredentialsDTO();
-    credentials.token = token;
-    credentials.url = url;
-    credentials.roles = roles;
-    return credentials;
-  }
-}
+export type CredentialsDTO = z.infer<typeof CredentialsDTOSchema>;

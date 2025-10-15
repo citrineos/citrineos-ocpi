@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { CdrDimensionType } from './CdrDimensionType';
-import { Enum } from '../util/decorators/Enum';
 
-export class CdrDimension {
-  @Enum(CdrDimensionType, 'CdrDimensionType')
-  @IsNotEmpty()
-  type!: CdrDimensionType;
+export const CdrDimensionSchema = z.object({
+  type: z.nativeEnum(CdrDimensionType),
+  volume: z.number(),
+});
 
-  @IsNumber()
-  @IsNotEmpty()
-  volume!: number;
-}
+export type CdrDimension = z.infer<typeof CdrDimensionSchema>;

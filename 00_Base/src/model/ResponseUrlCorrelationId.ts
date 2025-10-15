@@ -1,18 +1,15 @@
-import { Column, DataType, Index, Model, Table } from '@citrineos/data';
-import { OcpiParams } from '../trigger/util/OcpiParams';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-@Table
-export class ResponseUrlCorrelationId extends Model {
-  @Index
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
-  correlationId!: string;
+import { z } from 'zod';
 
-  @Column(DataType.STRING)
-  responseUrl!: string;
+export const ResponseUrlCorrelationIdSchema = z.object({
+  correlationId: z.string(),
+  responseUrl: z.string(),
+  params: z.any().optional(),
+});
 
-  @Column(DataType.JSON)
-  params?: OcpiParams;
-}
+export type ResponseUrlCorrelationId = z.infer<
+  typeof ResponseUrlCorrelationIdSchema
+>;

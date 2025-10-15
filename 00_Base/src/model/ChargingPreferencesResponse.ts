@@ -1,7 +1,9 @@
-import { OcpiResponse } from './OcpiResponse';
-import { IsNotEmpty } from 'class-validator';
-import { Enum } from '../util/decorators/Enum';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
+import { OcpiResponseSchema } from './OcpiResponse';
 
 export enum ChargingPreferencesResponseType {
   ACCEPTED = 'ACCEPTED',
@@ -11,9 +13,12 @@ export enum ChargingPreferencesResponseType {
   PROFILE_TYPE_NOT_SUPPORTED = 'PROFILE_TYPE_NOT_SUPPORTED',
 }
 
-export class ChargingPreferencesResponse extends OcpiResponse<ChargingPreferencesResponseType> {
-  @IsNotEmpty()
-  @Enum(ChargingPreferencesResponseType, 'ChargingPreferencesResponseType')
-  @Optional(false)
-  data!: ChargingPreferencesResponseType;
-}
+export const ChargingPreferencesResponseSchema = OcpiResponseSchema(
+  z.nativeEnum(ChargingPreferencesResponseType),
+);
+export const ChargingPreferencesResponseSchemaName =
+  'ChargingPreferencesResponseSchema';
+
+export type ChargingPreferencesResponse = z.infer<
+  typeof ChargingPreferencesResponseSchema
+>;

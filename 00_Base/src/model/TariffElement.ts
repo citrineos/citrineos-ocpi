@@ -1,19 +1,14 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
-import { PriceComponent } from './PriceComponent';
-import { TariffRestrictions } from './TariffRestrictions';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class TariffElement {
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => PriceComponent)
-  @ValidateNested({ each: true })
-  price_components!: PriceComponent[];
+import { z } from 'zod';
+import { PriceComponentSchema } from './PriceComponent';
+import { TariffRestrictionsSchema } from './TariffRestrictions';
 
-  @Optional()
-  @Type(() => TariffRestrictions)
-  @ValidateNested()
-  restrictions?: TariffRestrictions | null;
-}
+export const TariffElementSchema = z.object({
+  price_components: z.array(PriceComponentSchema).min(1),
+  restrictions: TariffRestrictionsSchema.nullable().optional(),
+});
+
+export type TariffElement = z.infer<typeof TariffElementSchema>;

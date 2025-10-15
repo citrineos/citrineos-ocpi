@@ -1,15 +1,24 @@
-import { buildOcpiRegistrationParams, OcpiRegistrationParams } from '../../util/OcpiRegistrationParams';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { CredentialsDTO } from '../../../model/DTO/CredentialsDTO';
-import { VersionNumber } from '../../../model/VersionNumber';
-import { Type } from 'class-transformer';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class PostCredentialsParams extends OcpiRegistrationParams {
-  @IsNotEmpty()
-  @Type(() => CredentialsDTO)
-  @ValidateNested()
-  credentials!: CredentialsDTO;
-}
+import {
+  buildOcpiRegistrationParams,
+  OcpiRegistrationParamsSchema,
+} from '../../util/OcpiRegistrationParams';
+import {
+  CredentialsDTO,
+  CredentialsDTOSchema,
+} from '../../../model/DTO/CredentialsDTO';
+import { VersionNumber } from '../../../model/VersionNumber';
+
+import { z } from 'zod';
+
+export const PostCredentialsParamsSchema = OcpiRegistrationParamsSchema.extend({
+  credentials: CredentialsDTOSchema,
+});
+
+export type PostCredentialsParams = z.infer<typeof PostCredentialsParamsSchema>;
 
 export const buildPostCredentialsParams = (
   version: VersionNumber,
@@ -18,12 +27,13 @@ export const buildPostCredentialsParams = (
   xRequestId?: string,
   xCorrelationId?: string,
 ): PostCredentialsParams => {
-  const params: OcpiRegistrationParams = buildOcpiRegistrationParams(
-    version,
-    authorization,
-    xRequestId,
-    xCorrelationId,
-  );
-  (params as PostCredentialsParams).credentials = credentials;
-  return params as PostCredentialsParams;
+  return {
+    ...buildOcpiRegistrationParams(
+      version,
+      authorization,
+      xRequestId,
+      xCorrelationId,
+    ),
+    credentials,
+  };
 };

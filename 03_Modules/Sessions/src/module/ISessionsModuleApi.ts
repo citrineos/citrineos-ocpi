@@ -1,9 +1,11 @@
-// Copyright (c) 2023 S44, LLC
-// Copyright Contributors to the CitrineOS Project
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
 
 /**
- * Interface for the Commands module.
+ * Interface for the Sessions module API.
+ * This interface can be extended to define specific method contracts
+ * or augmented using TypeScript declaration merging.
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ISessionsModuleApi {}

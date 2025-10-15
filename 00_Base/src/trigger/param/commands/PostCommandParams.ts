@@ -1,15 +1,14 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CommandResult } from '../../../model/CommandResult';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class PostCommandParams extends OcpiParams {
-  @IsNotEmpty()
-  @IsString()
-  url!: string;
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { CommandResultSchema } from '../../../model/CommandResult';
 
-  @IsNotEmpty()
-  @Type(() => CommandResult)
-  @ValidateNested()
-  commandResult!: CommandResult;
-}
+export const PostCommandParamsSchema = OcpiParamsSchema.extend({
+  url: z.string().min(1),
+  commandResult: CommandResultSchema,
+});
+
+export type PostCommandParams = z.infer<typeof PostCommandParamsSchema>;

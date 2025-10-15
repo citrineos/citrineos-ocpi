@@ -1,198 +1,71 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsBoolean,
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsObject,
-  IsString,
-  MaxLength,
-  MinLength,
-  ValidateNested,
-} from 'class-validator';
-import { CdrToken } from './CdrToken';
-import { CdrLocation } from './CdrLocation';
-import { ChargingPeriod } from './ChargingPeriod';
-import { SignedData } from './SignedData';
-import { Price } from './Price';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { AuthMethod } from './AuthMethod';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
-import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './OcpiResponse';
-import { Tariff } from './Tariff';
+import { CdrTokenSchema } from './CdrToken';
+import { CdrLocationSchema } from './CdrLocation';
+import { TariffSchema } from './Tariff';
+import { ChargingPeriodSchema } from './ChargingPeriod';
+import { SignedDataSchema } from './SignedData';
+import { PriceSchema } from './Price';
+import { OcpiResponseStatusCode } from './OcpiResponse';
 
-export class Cdr {
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  country_code!: string;
+export const CdrSchema = z.object({
+  country_code: z.string().length(2),
+  party_id: z.string().max(3),
+  id: z.string().max(39),
+  start_date_time: z.coerce.date(),
+  end_date_time: z.coerce.date(),
+  session_id: z.string().max(36).nullable().optional(),
+  cdr_token: CdrTokenSchema,
+  auth_method: z.nativeEnum(AuthMethod),
+  authorization_reference: z.string().max(36).nullable().optional(),
+  cdr_location: CdrLocationSchema,
+  meter_id: z.string().max(255).nullable().optional(),
+  currency: z.string().length(3),
+  tariffs: z.array(TariffSchema).nullable().optional(),
+  charging_periods: z.array(ChargingPeriodSchema).min(1),
+  signed_data: SignedDataSchema.nullable().optional(),
+  total_cost: PriceSchema,
+  total_fixed_cost: PriceSchema.optional(),
+  total_energy: z.number(),
+  total_energy_cost: PriceSchema.nullable().optional(),
+  total_time: z.number(),
+  total_time_cost: PriceSchema.nullable().optional(),
+  total_parking_time: z.number().nullable().optional(),
+  total_parking_cost: PriceSchema.nullable().optional(),
+  total_reservation_cost: PriceSchema.nullable().optional(),
+  remark: z.string().max(255).nullable().optional(),
+  invoice_reference_id: z.string().max(39).nullable().optional(),
+  credit: z.boolean().nullable().optional(),
+  credit_reference_id: z.string().max(39).nullable().optional(),
+  home_charging_compensation: z.boolean().nullable().optional(),
+  last_updated: z.coerce.date(),
+});
 
-  @MaxLength(3)
-  @IsString()
-  @IsNotEmpty()
-  party_id!: string;
+export type Cdr = z.infer<typeof CdrSchema>;
 
-  @MaxLength(39)
-  @IsString()
-  @IsNotEmpty()
-  id!: string;
+export const CdrResponseSchema = z.object({
+  status_code: z.nativeEnum(OcpiResponseStatusCode),
+  status_message: z.string().optional(),
+  timestamp: z.coerce.date(),
+  data: CdrSchema,
+});
 
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  start_date_time!: Date;
+export type CdrResponse = z.infer<typeof CdrResponseSchema>;
 
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  end_date_time!: Date;
+export const PaginatedCdrResponseSchema = z.object({
+  status_code: z.nativeEnum(OcpiResponseStatusCode),
+  status_message: z.string().optional(),
+  timestamp: z.coerce.date(),
+  total: z.number().int().nonnegative(),
+  offset: z.number().int().nonnegative(),
+  limit: z.number().int().min(0).max(200),
+  link: z.string(),
+  data: z.array(CdrSchema),
+});
 
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  session_id?: string | null;
-
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => CdrToken)
-  @ValidateNested()
-  cdr_token!: CdrToken;
-
-  @Enum(AuthMethod, 'AuthMethod')
-  @IsNotEmpty()
-  auth_method!: AuthMethod;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  authorization_reference?: string | null;
-
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => CdrLocation)
-  @ValidateNested()
-  cdr_location!: CdrLocation;
-
-  @MaxLength(255)
-  @IsString()
-  @Optional()
-  meter_id?: string | null;
-
-  @MaxLength(3)
-  @MinLength(3)
-  @IsString()
-  @IsNotEmpty()
-  currency!: string;
-
-  @IsArray()
-  @Optional()
-  @Type(() => Tariff)
-  @ValidateNested({ each: true })
-  tariffs?: Tariff[] | null;
-
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => ChargingPeriod)
-  @ValidateNested({ each: true })
-  charging_periods!: ChargingPeriod[];
-
-  @Optional()
-  @Type(() => SignedData)
-  @ValidateNested()
-  signed_data?: SignedData | null;
-
-  @IsNotEmpty()
-  @Type(() => Price)
-  @ValidateNested()
-  total_cost!: Price;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  total_fixed_cost?: Price | undefined;
-
-  @IsNumber()
-  @IsNotEmpty()
-  total_energy!: number;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  total_energy_cost?: Price | null;
-
-  @IsNumber()
-  @IsNotEmpty()
-  total_time!: number;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  total_time_cost?: Price | null;
-
-  @IsNumber()
-  @Optional()
-  total_parking_time?: number | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  total_parking_cost?: Price | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  total_reservation_cost?: Price | null;
-
-  @MaxLength(255)
-  @IsString()
-  @Optional()
-  remark?: string | null;
-
-  @MaxLength(39)
-  @IsString()
-  @Optional()
-  invoice_reference_id?: string | null;
-
-  @Optional()
-  @IsBoolean()
-  credit?: boolean | null;
-
-  @MaxLength(39)
-  @IsString()
-  @Optional()
-  credit_reference_id?: string | null;
-
-  @Optional()
-  @IsBoolean()
-  home_charging_compensation?: boolean | null;
-
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  last_updated!: Date;
-}
-
-export class CdrResponse extends OcpiResponse<Cdr> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => Cdr)
-  @ValidateNested()
-  data!: Cdr;
-}
-
-export class PaginatedCdrResponse extends PaginatedResponse<Cdr> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @Optional(false)
-  @Type(() => Cdr)
-  data!: Cdr[];
-}
+export type PaginatedCdrResponse = z.infer<typeof PaginatedCdrResponseSchema>;
+export const PaginatedCdrResponseSchemaName = 'PaginatedCdrResponse';

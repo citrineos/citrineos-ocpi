@@ -1,38 +1,15 @@
-import { Column, DataType, Index, Model, Table } from '@citrineos/data';
-import { CreationOptional } from 'sequelize';
-import { DisplayText } from './DisplayText';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-@Table
-export class OcpiTariff extends Model {
-  @Column(DataType.CHAR(2))
-  declare countryCode: string;
+import { z } from 'zod';
 
-  @Column(DataType.STRING(3))
-  declare partyId: string;
+export const OcpiTariffSchema = z.object({
+  countryCode: z.string().length(2),
+  partyId: z.string().length(3),
+  coreTariffId: z.number(),
+  tariffAltText: z.array(z.any()).nullable().optional(),
+  updatedAt: z.date().optional(),
+});
 
-  @Index
-  @Column({
-    type: DataType.INTEGER,
-    unique: true,
-  })
-  declare coreTariffId: number;
-
-  @Column(DataType.JSON)
-  declare tariffAltText?: DisplayText[] | null;
-
-  declare updatedAt: CreationOptional<Date>;
-
-  get key(): TariffKey {
-    return {
-      id: this.id,
-      countryCode: this.countryCode,
-      partyId: this.partyId,
-    };
-  }
-}
-
-export interface TariffKey {
-  id: string;
-  countryCode: string;
-  partyId: string;
-}
+export type OcpiTariff = z.infer<typeof OcpiTariffSchema>;

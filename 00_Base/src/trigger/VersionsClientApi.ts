@@ -1,55 +1,85 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { BaseClientApi } from './BaseClientApi';
-import { IHeaders } from 'typed-rest-client/Interfaces';
 import { Service } from 'typedi';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import { IRestResponse } from 'typed-rest-client';
-import { OcpiRegistrationParams } from './util/OcpiRegistrationParams';
-import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
+import {
+  VersionDetailsResponseDTO,
+  VersionDetailsResponseDTOSchema,
+} from '../model/DTO/VersionDetailsResponseDTO';
 import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { VersionsInterface } from '../model/EndpointIdentifier';
 
 @Service()
 export class VersionsClientApi extends BaseClientApi {
+  getUrl(
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    versionInterface = VersionsInterface.VERSIONS,
+  ): string {
+    switch (versionInterface) {
+      case VersionsInterface.VERSIONS:
+        return partnerProfile.credentials!.versionsUrl;
+      case VersionsInterface.DETAILS:
+        return partnerProfile.version.versionDetailsUrl!;
+    }
+  }
   /**
    * This endpoint lists all the available OCPI versions and the corresponding URLs to where version specific details such as the supported endpoints can be found.
    */
   async getVersions(
-    params: OcpiRegistrationParams,
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    url?: string,
   ): Promise<VersionListResponseDTO> {
-    let response: IRestResponse<VersionListResponseDTO>;
     try {
-      this.validateRequiredParam(params, 'authorization');
-      const additionalHeaders: IHeaders =
-        this.getOcpiRegistrationHeaders(params);
-
-      response = await this.getRaw<VersionListResponseDTO>('', {
-        additionalHeaders,
-      });
-      return this.handleResponse(VersionListResponseDTO, response);
+      return this.request(
+        fromCountryCode,
+        fromPartyId,
+        toCountryCode,
+        toPartyId,
+        HttpMethod.Get,
+        VersionDetailsResponseDTOSchema,
+        partnerProfile,
+        false,
+        url,
+      );
     } catch (e: any) {
       throw new UnsuccessfulRequestException(
         `Could not get version list. Error: ${e.message}`,
-        response!,
       );
     }
   }
 
   async getVersionDetails(
-    params: OcpiRegistrationParams,
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    url?: string,
   ): Promise<VersionDetailsResponseDTO> {
-    let response: IRestResponse<VersionDetailsResponseDTO>;
     try {
-      this.validateRequiredParam(params, 'authorization');
-      const additionalHeaders: IHeaders =
-        this.getOcpiRegistrationHeaders(params);
-      response = await this.getRaw<VersionDetailsResponseDTO>('', {
-        // note URL set elsewhere
-        additionalHeaders,
-      });
-      return this.handleResponse(VersionDetailsResponseDTO, response);
-    } catch (e) {
+      url = url || this.getUrl(partnerProfile, VersionsInterface.DETAILS);
+      return this.request(
+        fromCountryCode,
+        fromPartyId,
+        toCountryCode,
+        toPartyId,
+        HttpMethod.Get,
+        VersionDetailsResponseDTOSchema,
+        partnerProfile,
+        false,
+        url,
+      );
+    } catch (e: any) {
       throw new UnsuccessfulRequestException(
-        'Could not get version details',
-        response!,
+        `Could not get version details. Error: ${e.message}`,
       );
     }
   }

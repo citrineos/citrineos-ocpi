@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import {
   OperationObject,
   ReferenceObject,
@@ -9,7 +13,6 @@ import { IRoute } from './parse.metadata';
 import { getContentType, getStatusCode } from './generate.spec.helpers';
 import { mergeDeep } from './merge.deep';
 import { SchemaStore } from './schema.store';
-import { Constructable } from 'typedi';
 
 const OPEN_API_KEY = Symbol('routing-controllers-openapi:OpenAPI');
 
@@ -93,7 +96,8 @@ export function applyOpenAPIDecorator(
  * Supplement action with response body type annotation.
  */
 export function ResponseSchema(
-  responseClass: Constructable<any>,
+  responseSchema: any,
+  responseSchemaName: string,
   options: {
     contentType?: string;
     description?: string;
@@ -108,13 +112,7 @@ export function ResponseSchema(
     const isArray = options.isArray || false;
     const statusCode = (options.statusCode || getStatusCode(route)) + '';
 
-    let responseSchemaName = '';
-    if (typeof responseClass === 'function' && responseClass.name) {
-      SchemaStore.addToSchemaStore(responseClass as Constructable<any>);
-      responseSchemaName = responseClass.name;
-    } else if (typeof responseClass === 'string') {
-      responseSchemaName = responseClass;
-    }
+    SchemaStore.addToSchemaStore(responseSchema, responseSchemaName);
 
     if (responseSchemaName) {
       const reference: ReferenceObject = {

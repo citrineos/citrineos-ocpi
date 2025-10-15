@@ -1,40 +1,28 @@
-import { LocationReferences } from './LocationReferences';
-import { DisplayText } from './DisplayText';
-import { OcpiToken } from './OcpiToken';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { AuthorizationInfoAllowed } from './AuthorizationInfoAllowed';
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
-import { OcpiResponse } from './OcpiResponse';
+import { TokenDTOSchema } from './DTO/TokenDTO';
+import { DisplayTextSchema } from './DisplayText';
+import { LocationReferencesSchema } from './LocationReferences';
+import { OcpiResponseSchema } from './OcpiResponse';
 
-export class AuthorizationInfo {
-  @Enum(AuthorizationInfoAllowed, 'AuthorizationInfoAllowed')
-  @IsNotEmpty()
-  allowed!: AuthorizationInfoAllowed;
+export const AuthorizationInfoSchema = z.object({
+  allowed: z.nativeEnum(AuthorizationInfoAllowed),
+  token: TokenDTOSchema,
+  authorization_reference: z.string(),
+  info: DisplayTextSchema.optional(),
+  location: LocationReferencesSchema.optional(),
+});
 
-  @IsNotEmpty()
-  @Type(() => OcpiToken)
-  @ValidateNested()
-  token!: OcpiToken;
+export type AuthorizationInfo = z.infer<typeof AuthorizationInfoSchema>;
 
-  @IsString()
-  authorizationReference!: string;
+export const AuthorizationInfoResponseSchema = OcpiResponseSchema(
+  AuthorizationInfoSchema,
+);
 
-  @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested()
-  info?: DisplayText;
-
-  @Optional()
-  @Type(() => LocationReferences)
-  @ValidateNested()
-  location?: LocationReferences;
-}
-
-export class AuthorizationInfoResponse extends OcpiResponse<AuthorizationInfo> {
-  @IsNotEmpty()
-  @Type(() => AuthorizationInfo)
-  @ValidateNested()
-  data!: AuthorizationInfo;
-}
+export type AuthorizationInfoResponse = z.infer<
+  typeof AuthorizationInfoResponseSchema
+>;

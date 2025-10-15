@@ -1,19 +1,15 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { ResponseUrl } from './ResponseUrl';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class UnlockConnector extends ResponseUrl {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  location_id!: string;
+import { z } from 'zod';
+import { ResponseUrlSchema } from './ResponseUrl';
 
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  evse_uid!: string;
+export const UnlockConnectorSchema = ResponseUrlSchema.extend({
+  location_id: z.string().max(36).min(1),
+  evse_uid: z.string().max(36).min(1),
+  connector_id: z.string().max(36).min(1),
+});
+export const UnlockConnectorSchemaName = 'UnlockConnector';
 
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  connector_id!: string;
-}
+export type UnlockConnector = z.infer<typeof UnlockConnectorSchema>;

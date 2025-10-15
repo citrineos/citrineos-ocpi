@@ -1,70 +1,91 @@
-import { PostTokenParams } from './param/tokens/PostTokenParams';
-import { IHeaders, IRequestQueryParams } from 'typed-rest-client/Interfaces';
-import { AuthorizationInfoResponse } from '../model/AuthorizationInfo';
-import { PaginatedOcpiParams } from './param/PaginatedOcpiParams';
-import { BaseClientApi, TriggerRequestOptions } from './BaseClientApi';
-import { PaginatedTokenResponse } from '../model/OcpiToken';
-import { VersionNumber } from '../model/VersionNumber';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { BaseClientApi } from './BaseClientApi';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { EndpointIdentifier } from '../model/EndpointIdentifier';
+import { PaginatedParams } from './param/PaginatedParams';
+import {
+  PaginatedTokenResponse,
+  PaginatedTokenResponseSchema,
+} from '../model/DTO/TokenDTO';
+import { TokenType } from '../model/TokenType';
+import { LocationReferences } from '../model/LocationReferences';
+import {
+  AuthorizationInfoResponse,
+  AuthorizationInfoResponseSchema,
+} from '../model/AuthorizationInfo';
 
 @Service()
 export class TokensClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tokens;
 
-  async getTokens(
-    params: PaginatedOcpiParams,
-  ): Promise<PaginatedTokenResponse> {
-    this.validateOcpiParams(params);
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-
-    const options = {
-      version: params.version ?? VersionNumber.TWO_DOT_TWO_DOT_ONE,
-      additionalHeaders,
-    } as TriggerRequestOptions;
-
-    if (params.offset || params.limit || params.date_from || params.date_to) {
-      const queryParameters: IRequestQueryParams = this.newQueryParams();
-      if (params.offset) {
-        queryParameters.params['offset'] = params.offset;
-      }
-      if (params.limit) {
-        queryParameters.params['limit'] = params.limit;
-      }
-      if (params.date_from) {
-        queryParameters.params['date_from'] = new Date(
-          params.date_from,
-        ).toISOString();
-      }
-      if (params.date_to) {
-        queryParameters.params['date_to'] = new Date(
-          params.date_to,
-        ).toISOString();
-      }
-      options.queryParameters = queryParameters;
+  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+    const url = partnerProfile.endpoints?.find(
+      (value: OCPIRegistration.Endpoint) =>
+        value.identifier === EndpointIdentifier.TOKENS_SENDER,
+    )?.url;
+    if (!url) {
+      throw new Error(
+        `No Tokens endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+      );
     }
-
-    return await this.get(PaginatedTokenResponse, options);
+    return url;
   }
 
-  async postToken(params: PostTokenParams): Promise<AuthorizationInfoResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'tokenId');
-    const queryParameters: IRequestQueryParams = this.newQueryParams();
-    queryParameters.params['type'] = params.type as string;
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.create(
-      AuthorizationInfoResponse,
-      {
-        version: params.version,
-        path: '{tokenId}/authorize'.replace(
-          '{tokenId}',
-          encodeURIComponent(params.tokenId),
-        ),
-        additionalHeaders,
-        queryParameters,
-      },
-      params.locationReferences,
+  async getTokens(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    paginatedParams: PaginatedParams,
+  ): Promise<PaginatedTokenResponse> {
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Get,
+      PaginatedTokenResponseSchema,
+      partnerProfile,
+      true,
+      undefined,
+      undefined,
+      paginatedParams,
+    );
+  }
+
+  async postToken(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    tokenId: string,
+    tokenType?: TokenType,
+    body?: LocationReferences,
+  ): Promise<AuthorizationInfoResponse> {
+    const path = `${tokenId}/authorize`;
+    const otherParams: Record<string, string> | undefined = tokenType && {
+      type: tokenType,
+    };
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Post,
+      AuthorizationInfoResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      body,
+      undefined,
+      otherParams,
     );
   }
 }

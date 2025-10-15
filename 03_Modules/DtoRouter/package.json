@@ -1,0 +1,25 @@
+{
+  "name": "@citrineos/dto-router",
+  "version": "2.0.0",
+  "description": "The DTO router. This module handles placing push dto events onto the message broker.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ocpp",
+    "ocpp_v201"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "typescript": "5.0.4"
+  },
+  "dependencies": {
+    "@citrineos/ocpi-base": "2.0.0",
+    "tslog": "4.9.2"
+  }
+}

@@ -1,0 +1,87 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+#
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  # amqp-broker:
+  #   image: rabbitmq:3-management
+  #   ports:
+  #     - 15672:15672
+  #     - 5672:5672
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: 'guest'
+  #     RABBITMQ_DEFAULT_PASS: 'guest'
+  #   volumes:
+  #     - ./data/rabbitmq:/var/lib/rabbitmq
+  #   healthcheck:
+  #     test: rabbitmq-diagnostics -q ping
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 3
+  # ocpp-db:
+  #   image: citrineos/postgis:v1.1.0
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - ./data/postgresql/pgdata:/var/lib/postgresql/data
+  #   environment:
+  #     POSTGRES_DB: citrine
+  #     POSTGRES_USER: citrine
+  #     POSTGRES_PASSWORD: 'citrine'
+  #   healthcheck:
+  #     test: 'pg_isready --username=citrine'
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 5
+
+  citrineos-ocpi:
+    build:
+      context: ../../
+      dockerfile: ./citrineos-ocpi/Server/local.Dockerfile
+    environment:
+      APP_NAME: 'all'
+      APP_ENV: 'docker'
+      DB_HOST: 'ocpp-db'
+      AMQP_URL: 'amqp://guest:guest@amqp-broker:5672'
+      AMQP_EXCHANGE: 'citrineos'
+    # depends_on:
+    #   ocpp-db:
+    #     condition: service_healthy
+    #   amqp-broker:
+    #     condition: service_healthy
+    ports:
+      - 8085:8085
+      # - 9229:9229
+
+  # directus:
+  #   image: ghcr.io/citrineos/citrineos-directus:latest
+  #   ports:
+  #     - 8055:8055
+  #   volumes:
+  #     - ./data/directus/uploads:/directus/uploads
+  #     - ./directus-env-config.cjs:/directus/config.cjs
+  #   depends_on:
+  #     ocpp-db:
+  #       condition: service_healthy
+  #   environment:
+  #     APP_NAME: 'all'
+  #     KEY: '1234567890'
+  #     SECRET: '0987654321'
+  #     ADMIN_EMAIL: 'admin@citrineos.com'
+  #     ADMIN_PASSWORD: 'CitrineOS!'
+  #     CONFIG_PATH: '/directus/config.cjs'
+  #     EXTENSIONS_AUTO_RELOAD: 'true'
+  #     EXTENSIONS_CACHE_TTL: '1s'
+  #     DB_CLIENT: 'pg'
+  #     DB_HOST: ocpp-db
+  #     DB_PORT: 5432
+  #     DB_DATABASE: 'citrine'
+  #     DB_USER: 'citrine'
+  #     DB_PASSWORD: 'citrine'
+  #     WEBSOCKETS_ENABLED: 'true'
+  #   healthcheck:
+  #     test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8055/server/health || exit 1
+  #     start_period: 15s
+  #     interval: 15s
+  #     timeout: 15s
+  #     retries: 3

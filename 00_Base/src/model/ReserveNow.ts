@@ -1,38 +1,19 @@
-import { IsDate, IsNotEmpty, IsObject, IsString, MaxLength, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { ResponseUrl } from './ResponseUrl';
-import { TokenDTO } from './DTO/TokenDTO';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class ReserveNow extends ResponseUrl {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => TokenDTO)
-  @ValidateNested()
-  token!: TokenDTO;
+import { ResponseUrlSchema } from './ResponseUrl';
+import { TokenDTOSchema } from './DTO/TokenDTO';
+import { z } from 'zod';
 
-  @IsDate()
-  @IsNotEmpty()
-  @Type(() => Date)
-  expiry_date!: Date;
+export const ReserveNowSchema = ResponseUrlSchema.extend({
+  token: TokenDTOSchema,
+  expiry_date: z.coerce.date(),
+  reservation_id: z.string().max(36),
+  location_id: z.string().max(36),
+  evse_uid: z.string().max(36).nullable().optional(),
+  authorization_reference: z.string().max(36).nullable().optional(),
+});
+export const ReserveNowSchemaName = 'ReserveNow';
 
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  reservation_id!: string;
-
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  location_id!: string;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  evse_uid?: string | null;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  authorization_reference?: string | null;
-}
+export type ReserveNow = z.infer<typeof ReserveNowSchema>;

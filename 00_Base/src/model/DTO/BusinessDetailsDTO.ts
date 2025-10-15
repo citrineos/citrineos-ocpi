@@ -1,33 +1,14 @@
-import { IsNotEmpty, IsString, IsUrl, MaxLength, ValidateNested } from 'class-validator';
-import { Optional } from '../../util/decorators/Optional';
-import { Type } from 'class-transformer';
-import { ImageDTO } from './ImageDTO';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class BusinessDetailsDTO {
-  @MaxLength(100)
-  @IsString()
-  @IsNotEmpty()
-  name!: string;
+import { z } from 'zod';
+import { ImageDTOSchema } from './ImageDTO';
 
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @Optional()
-  website?: string | null;
+export const BusinessDetailsSchema = z.object({
+  name: z.string().max(100),
+  website: z.string().url().nullable().optional(),
+  logo: ImageDTOSchema.nullable().optional(),
+});
 
-  @Optional()
-  @Type(() => ImageDTO)
-  @ValidateNested()
-  logo?: ImageDTO | null;
-
-  static build(
-    name: string,
-    website: string | null,
-    logo: ImageDTO | null,
-  ): BusinessDetailsDTO {
-    const businessDetails = new BusinessDetailsDTO();
-    businessDetails.name = name;
-    businessDetails.website = website;
-    businessDetails.logo = logo;
-    return businessDetails;
-  }
-}
+export type BusinessDetailsDTO = z.infer<typeof BusinessDetailsSchema>;

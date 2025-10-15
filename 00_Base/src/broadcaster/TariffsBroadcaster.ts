@@ -1,87 +1,92 @@
-import { Service } from 'typedi';
-import { DeleteTariffParams } from '../trigger/param/tariffs/DeleteTariffParams';
-import { CredentialsService } from '../services/CredentialsService';
-import { ModuleId } from '../model/ModuleId';
-import { PutTariffParams } from '../trigger/param/tariffs/PutTariffParams';
-import { OcpiTariff, TariffKey } from '../model/OcpiTariff';
-import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
-import { TariffsService } from '../services/TariffsService';
-import { TariffsClientApi } from '../trigger/TariffsClientApi';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { BaseBroadcaster } from './BaseBroadcaster';
+import { Service } from 'typedi';
+import { TariffsClientApi } from '../trigger/TariffsClientApi';
 import { ILogObj, Logger } from 'tslog';
+import { ModuleId } from '../model/ModuleId';
+import { InterfaceRole } from '../model/InterfaceRole';
+import { HttpMethod, ITariffDto, ITenantDto } from '@citrineos/base';
+import { Tariff } from '../model/Tariff';
+import { TariffMapper } from '../mapper/TariffMapper';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import {
+  GET_TARIFF_BY_KEY_QUERY,
+  GetTariffByKeyQueryResult,
+  GetTariffByKeyQueryVariables,
+  OcpiGraphqlClient,
+} from '../graphql';
 
 @Service()
 export class TariffsBroadcaster extends BaseBroadcaster {
   constructor(
     readonly logger: Logger<ILogObj>,
-    readonly credentialsService: CredentialsService,
-    private readonly tariffService: TariffsService,
-    private readonly tariffsClientApi: TariffsClientApi,
+    readonly tariffsClientApi: TariffsClientApi,
+    readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {
     super();
   }
 
-  public async broadcastOcpiUpdate(ocpiTariffs: OcpiTariff[]) {
-    (await this.tariffService.getTariffsForOcpiTariffs(ocpiTariffs)).forEach(
-      (tariff) => this.broadcastTariff(tariff),
-    );
-  }
-
-  public async broadcastByKey(key: TariffKey) {
-    const tariff = await this.tariffService.getTariffByKey(key);
-    if (tariff === undefined) {
-      throw new Error(
-        `Tariff ${key.countryCode}:${key.partyId}:${key.id} not found`,
-      );
-    }
-    return this.broadcastTariff(tariff);
-  }
-
-  public async broadcastDeletionByKeys(keys: TariffKey[]) {
-    keys.forEach((key) => this.broadcastDeletionByKey(key));
-  }
-
-  public async broadcastDeletionByKey(key: TariffKey) {
-    const tariff = await this.tariffService.getTariffByKey(key);
-    if (tariff !== undefined) {
-      throw new Error(
-        `Tariff ${key.countryCode}:${key.partyId}:${key.id} exists`,
-      );
-    }
-    return this.broadcastTariffDeletion(key);
-  }
-
-  private async broadcastTariff(tariff: TariffDTO) {
+  private async broadcast(
+    tenant: ITenantDto,
+    method: HttpMethod,
+    path: string,
+    tariff?: Partial<Tariff>,
+  ): Promise<void> {
     try {
-      const params = PutTariffParams.build(tariff.id, tariff);
-      await this.tariffsClientApi.broadcastToClients(
-        tariff.country_code,
-        tariff.party_id,
-        ModuleId.Tariffs,
-        params,
-        this.tariffsClientApi.putTariff,
-      );
-    } catch (error) {
-      console.log(`Failed to broadcast ${tariff.id} tariff`);
+      await this.tariffsClientApi.broadcastToClients({
+        cpoCountryCode: tenant.countryCode!,
+        cpoPartyId: tenant.partyId!,
+        moduleId: ModuleId.Tariffs,
+        interfaceRole: InterfaceRole.RECEIVER,
+        httpMethod: method,
+        schema: OcpiEmptyResponseSchema,
+        body: tariff,
+        path: path,
+      });
+    } catch (e) {
+      this.logger.error(`broadcast${method} failed for Tariff ${path}`, e);
     }
   }
 
-  private async broadcastTariffDeletion({
-    id,
-    countryCode,
-    partyId,
-  }: TariffKey): Promise<void> {
-    try {
-      const params = DeleteTariffParams.build(id);
-      await this.tariffsClientApi.broadcastToClients(
-        countryCode,
-        partyId,
-        ModuleId.Tariffs,
-        params,
-        this.tariffsClientApi.deleteTariff,
+  async broadcastPutTariff(
+    tenant: ITenantDto,
+    tariffDto: Partial<ITariffDto>,
+  ): Promise<void> {
+    if (!tariffDto.currency || !tariffDto.pricePerKwh) {
+      this.logger.debug(
+        `Currency or pricePerKwh missing in Tariff ${tariffDto.id}, fetching data.`,
       );
-    } catch (error) {
-      console.error(`Failed to broadcast deletion of ${id} tariff`);
+      const tariffResponse = await this.ocpiGraphqlClient.request<
+        GetTariffByKeyQueryResult,
+        GetTariffByKeyQueryVariables
+      >(GET_TARIFF_BY_KEY_QUERY, {
+        id: tariffDto.id!,
+        countryCode: tenant.countryCode!,
+        partyId: tenant.partyId!,
+      });
+      if (!tariffResponse?.Tariffs[0]) {
+        this.logger.error(
+          `Failed to fetch Tariff ${tariffDto.id} data from GraphQL to fill required fields for broadcast PUT`,
+        );
+        return;
+      }
+      tariffDto.currency = tariffResponse.Tariffs[0].currency;
+      tariffDto.pricePerKwh = tariffResponse.Tariffs[0].pricePerKwh;
     }
+
+    const tariff = TariffMapper.map(tariffDto);
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariff.id}`;
+    await this.broadcast(tenant, HttpMethod.Put, path, tariff);
+  }
+
+  async broadcastTariffDeletion(
+    tenant: ITenantDto,
+    tariffDto: ITariffDto,
+  ): Promise<void> {
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffDto.id}`;
+    await this.broadcast(tenant, HttpMethod.Delete, path);
   }
 }

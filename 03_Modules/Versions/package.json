@@ -1,6 +1,6 @@
 {
   "name": "@citrineos/ocpi-versions",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The Versions module for OCPI v2.2.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,12 +16,10 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/deasync-promise": "1.0.0",
     "typescript": "5.0.4"
   },
   "dependencies": {
-    "@citrineos/ocpi-base": "1.0.0",
-    "deasync-promise": "1.0.1",
+    "@citrineos/ocpi-base": "2.0.0",
     "tslog": "4.9.2"
   }
 }

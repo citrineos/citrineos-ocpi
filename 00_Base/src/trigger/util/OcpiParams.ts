@@ -1,42 +1,14 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { OcpiRegistrationParams } from './OcpiRegistrationParams';
-import { VersionNumber } from '../../model/VersionNumber';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class OcpiParams extends OcpiRegistrationParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(2)
-  fromCountryCode!: string;
+import { z } from 'zod';
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(3)
-  fromPartyId!: string;
+export const OcpiParamsSchema = z.object({
+  fromCountryCode: z.string().length(2),
+  fromPartyId: z.string().length(3),
+  toCountryCode: z.string().length(2),
+  toPartyId: z.string().length(3),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(2)
-  toCountryCode!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Length(3)
-  toPartyId!: string;
-
-  constructor(
-    fromCountryCode?: string,
-    fromPartyId?: string,
-    toCountryCode?: string,
-    toPartyId?: string,
-    authorization?: string,
-    xRequestId?: string,
-    xCorrelationId?: string,
-    version?: VersionNumber,
-  ) {
-    super(authorization, xRequestId, xCorrelationId, version);
-    this.fromCountryCode = fromCountryCode!;
-    this.fromPartyId = fromPartyId!;
-    this.toCountryCode = toCountryCode!;
-    this.toPartyId = toPartyId!;
-  }
-}
+export type OcpiParams = z.infer<typeof OcpiParamsSchema>;

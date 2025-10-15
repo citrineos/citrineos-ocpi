@@ -1,33 +1,16 @@
-import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsString, IsUrl, MaxLength, ValidateNested } from 'class-validator';
-import { SignedValue } from './SignedValue';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class SignedData {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  encoding_method!: string;
+import { z } from 'zod';
+import { SignedValueSchema } from './SignedValue';
 
-  @IsInt()
-  @Optional()
-  encoding_method_version?: number | null;
+export const SignedDataSchema = z.object({
+  encoding_method: z.string().max(36),
+  encoding_method_version: z.number().int().nullable().optional(),
+  public_key: z.string().max(512).nullable().optional(),
+  signed_values: z.array(SignedValueSchema).min(1),
+  url: z.string().max(512).url().nullable().optional(),
+});
 
-  @MaxLength(512)
-  @IsString()
-  @Optional()
-  public_key?: string | null;
-
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => SignedValue)
-  @ValidateNested({ each: true })
-  signed_values!: SignedValue[];
-
-  @MaxLength(512)
-  @IsUrl({ require_tld: false })
-  @IsString()
-  @Optional()
-  url?: string | null;
-}
+export type SignedData = z.infer<typeof SignedDataSchema>;

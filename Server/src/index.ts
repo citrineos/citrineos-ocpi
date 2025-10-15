@@ -1,214 +1,94 @@
-// Copyright (c) 2023 S44, LLC
-// Copyright Contributors to the CitrineOS Project
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
 
 import {
-  type AbstractModule,
-  type AbstractModuleApi,
-  Ajv,
+  Constructable,
   EventGroup,
   eventGroupFromString,
-  type IAuthenticator,
   type ICache,
-  type IFileAccess,
-  type IMessageHandler,
-  type IMessageSender,
   type IModule,
   type IModuleApi,
-  SystemConfig,
 } from '@citrineos/base';
-import { MonitoringModule, MonitoringModuleApi } from '@citrineos/monitoring';
+import { MemoryCache, RedisCache } from '@citrineos/util';
 import {
-  Authenticator,
-  CertificateAuthorityService,
-  DirectusUtil,
-  initSwagger,
-  MemoryCache,
-  RabbitMqReceiver,
-  RabbitMqSender,
-  RedisCache,
-  WebsocketNetworkConnection,
-} from '@citrineos/util';
-import { type JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
-import addFormats from 'ajv-formats';
-import fastify, { type FastifyInstance } from 'fastify';
-import { type ILogObj, Logger } from 'tslog';
-import { systemConfig } from './config';
-import { UnknownStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/UnknownStationFilter';
-import { ConnectedStationFilter } from '@citrineos/util/dist/networkconnection/authenticator/ConnectedStationFilter';
-import { BasicAuthenticationFilter } from '@citrineos/util/dist/networkconnection/authenticator/BasicAuthenticationFilter';
-import {
-  ConfigurationModule,
-  ConfigurationModuleApi,
-} from '@citrineos/configuration';
-import {
-  TransactionsModule,
-  TransactionsModuleApi,
-} from '@citrineos/transactions';
-import {
-  CertificatesModule,
-  CertificatesModuleApi,
-} from '@citrineos/certificates';
-import { EVDriverModule, EVDriverModuleApi } from '@citrineos/evdriver';
-import { ReportingModule, ReportingModuleApi } from '@citrineos/reporting';
-import {
-  SmartChargingModule,
-  SmartChargingModuleApi,
-} from '@citrineos/smartcharging';
-import { RepositoryStore, sequelize, Sequelize } from '@citrineos/data';
-import {
-  type FastifyRouteSchemaDef,
-  type FastifySchemaCompiler,
-  type FastifyValidationResult,
-} from 'fastify/types/schema';
-import {
-  AdminApi,
-  MessageRouterImpl,
-  WebhookDispatcher,
-} from '@citrineos/ocpprouter';
-import { Container, OcpiServer, ServerConfig } from '@citrineos/ocpi-base';
+  Container,
+  getDtoEventHandlerMetaData,
+  getOcpiSystemConfig,
+  IDtoModule,
+  OcpiConfig,
+  OcpiModule,
+  OcpiServer,
+} from '@citrineos/ocpi-base';
 import { CommandsModule } from '@citrineos/ocpi-commands';
 import { VersionsModule } from '@citrineos/ocpi-versions';
 import { CredentialsModule } from '@citrineos/ocpi-credentials';
-import { TenantModule, TenantModuleApi } from '@citrineos/tenant';
 import { LocationsModule } from '@citrineos/ocpi-locations';
 import { SessionsModule } from '@citrineos/ocpi-sessions';
 import { ChargingProfilesModule } from '@citrineos/ocpi-charging-profiles';
 import { TariffsModule } from '@citrineos/ocpi-tariffs';
 import { CdrsModule } from '@citrineos/ocpi-cdrs';
-import { RealTimeAuthorizer, TokensModule } from '@citrineos/ocpi-tokens';
-
-interface ModuleConfig {
-  ModuleClass: new (...args: any[]) => AbstractModule;
-  ModuleApiClass: new (...args: any[]) => AbstractModuleApi<any>;
-  configModule: any; // todo type?
-}
+import { TokensModule } from '@citrineos/ocpi-tokens';
+import { DtoRouter } from '@citrineos/dto-router';
+import { createLocalOcpiConfig } from './config/envs/local';
+import { createDockerOcpiConfig } from './config/envs/docker';
+import { ILogObj, Logger } from 'tslog';
 
 export class CitrineOSServer {
   /**
    * Fields
    */
-  private readonly _config: ServerConfig;
-  private readonly _logger: Logger<ILogObj>;
-  private readonly _server: FastifyInstance;
-  private readonly _cache: ICache;
-  private readonly _ajv: Ajv;
-  private readonly _fileAccess: IFileAccess;
   private readonly modules: IModule[] = [];
   private readonly apis: IModuleApi[] = [];
-  private _sequelizeInstance!: Sequelize;
+  private ocpiConfig?: OcpiConfig;
+  private _logger?: Logger<ILogObj>;
+  private _cache?: ICache;
   private host?: string;
   private port?: number;
   private eventGroup?: EventGroup;
-  private _authenticator?: IAuthenticator;
-  private _networkConnection?: WebsocketNetworkConnection;
-  private _repositoryStore!: RepositoryStore;
-  private ocpiRealTimeAuthorizer!: RealTimeAuthorizer;
   private ocpiServer!: OcpiServer;
 
   /**
    * Constructor for the class.
    *
    * @param {EventGroup} appName - app type
-   * @param {ServerConfig} config - config
+   * @param {OcpiConfig} config - config
    * @param {FastifyInstance} server - optional Fastify server instance
-   * @param {Ajv} ajv - optional Ajv JSON schema validator instance
    * @param {ICache} cache - cache
    */
   // todo rename event group to type
-  constructor(
-    appName: string,
-    config: ServerConfig,
-    server?: FastifyInstance,
-    ajv?: Ajv,
-    cache?: ICache,
-    fileAccess?: IFileAccess,
-  ) {
+  constructor(appName: string) {
     // Set event group
     this.eventGroup = eventGroupFromString(appName);
-
-    // Set system config
-    // TODO: Create and export config schemas for each util module, such as amqp, redis, kafka, etc, to avoid passing them possibly invalid configuration
-    if (!config.util.messageBroker.amqp) {
-      throw new Error(
-        'This server implementation requires amqp configuration for rabbitMQ.',
-      );
-    }
-    this._config = config;
-
-    // Create server instance
-    this._server =
-      server || fastify().withTypeProvider<JsonSchemaToTsProvider>();
-
-    // Add health check
-    this.initHealthCheck();
-
-    // Create Ajv JSON schema validator instance
-    this._ajv = this.initAjv(ajv);
-    this.addAjvFormats();
-
-    // Initialize parent logger
-    this._logger = this.initLogger();
-
-    // Force sync database
-    this.initDb();
-
-    // Init repo store
-    this.initRepositoryStore();
-
-    // Set cache implementation
-    this._cache = this.initCache(cache);
-
-    // Initialize Swagger if enabled
-    this.initSwagger();
-
-    // Add Directus Message API flow creation if enabled
-    let directusUtil;
-    if (this._config.util.directus?.generateFlows) {
-      directusUtil = new DirectusUtil(
-        this._config as SystemConfig,
-        this._logger,
-      );
-      this._server.addHook(
-        'onRoute',
-        directusUtil.addDirectusMessageApiFlowsFastifyRouteHook.bind(
-          directusUtil,
-        ),
-      );
-      this._server.addHook('onReady', async () => {
-        this._logger?.info('Directus actions initialization finished');
-      });
-    }
-
-    // Initialize File Access Implementation
-    this._fileAccess = this.initFileAccess(fileAccess, directusUtil);
-
-    // Register AJV for schema validation
-    this.registerAjv();
-
-    // start ocpi needs to happen first to load authorizer
-    this.startOcpiServer();
-
-    // Initialize module & API
-    // Always initialize API after SwaggerUI
-    this.initSystem();
 
     process.on('SIGINT', this.shutdown.bind(this));
     process.on('SIGTERM', this.shutdown.bind(this));
     process.on('SIGQUIT', this.shutdown.bind(this));
   }
 
-  shutdown() {
+  async initialize(): Promise<void> {
+    // Initialize parent logger
+    this.initLogger();
+
+    // init cache
+    this.initCache();
+
+    // Set up shutdown handlers
+    for (const event of ['SIGINT', 'SIGTERM', 'SIGQUIT']) {
+      process.on(event, async () => {
+        await this.shutdown();
+      });
+    }
+  }
+
+  async shutdown() {
     // todo shut down depending on setup
     // Shut down all modules and central system
-    this.modules.forEach((module) => {
-      module.shutdown();
-    });
-    this._networkConnection?.shutdown();
+    for (const module of this.modules) {
+      await module.shutdown();
+    }
 
-    // Shutdown server
-    this._server.close().then(); // todo async?
+    this.ocpiServer.shutdown();
 
     setTimeout(() => {
       console.log('Exiting...');
@@ -216,486 +96,92 @@ export class CitrineOSServer {
     }, 2000);
   }
 
+  async initConfig() {
+    switch (process.env.APP_ENV) {
+      case 'docker':
+        this.ocpiConfig = getOcpiSystemConfig(createDockerOcpiConfig());
+        break;
+      default:
+        this.ocpiConfig = getOcpiSystemConfig(createLocalOcpiConfig());
+    }
+  }
+
   async run(): Promise<void> {
     try {
-      await this.ocpiServer.initialize();
-      this.ocpiServer.run(
-        this._config.ocpiServer.host,
-        this._config.ocpiServer.port,
-      );
-      await this._server
-        .listen({
-          host: this.host,
-          port: this.port,
-        })
-        .then((address) => {
-          this._logger?.info(`Server listening at ${address}`);
-        })
-        .catch((error) => {
-          this._logger?.error(error);
-          process.exit(1);
-        });
-      // TODO Push config to microservices
+      await this.initConfig();
+      await this.initialize();
+      await this.startOcpiServer();
     } catch (error) {
       await Promise.reject(error);
     }
   }
 
-  protected _createSender(): IMessageSender {
-    return new RabbitMqSender(this._config as SystemConfig, this._logger);
-  }
-
-  protected _createHandler(): IMessageHandler {
-    return new RabbitMqReceiver(this._config as SystemConfig, this._logger);
-  }
-
-  protected getOcpiModuleConfig() {
+  protected getOcpiModuleConfig(): Constructable<OcpiModule | IDtoModule>[] {
     return [
-      {
-        module: VersionsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: CredentialsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: CommandsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: LocationsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: SessionsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: ChargingProfilesModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: TariffsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: CdrsModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
-      {
-        module: TokensModule,
-        handler: this._createHandler(),
-        sender: this._createSender(),
-      },
+      VersionsModule,
+      CredentialsModule,
+      CommandsModule,
+      LocationsModule,
+      SessionsModule,
+      ChargingProfilesModule,
+      TariffsModule,
+      CdrsModule,
+      TokensModule,
     ];
   }
 
-  private initHealthCheck() {
-    this._server.get('/health', async () => ({ status: 'healthy' }));
-  }
-
-  private initAjv(ajv?: Ajv) {
-    return (
-      ajv ||
-      new Ajv({
-        removeAdditional: 'all',
-        useDefaults: true,
-        coerceTypes: 'array',
-        strict: false,
-      })
-    );
-  }
-
-  private addAjvFormats() {
-    addFormats(this._ajv, {
-      mode: 'fast',
-      formats: ['date-time'],
-    });
-  }
-
   private initLogger() {
-    return new Logger<ILogObj>({
+    this._logger = new Logger<ILogObj>({
       name: 'CitrineOS Logger',
-      minLevel: systemConfig.logLevel,
-      hideLogPositionForProduction: systemConfig.env === 'production',
+      minLevel: this.ocpiConfig!.logLevel,
+      hideLogPositionForProduction: this.ocpiConfig!.env === 'production',
       // Disable colors for cloud deployment as some cloud logging environments such as cloudwatch can not interpret colors
       stylePrettyLogs: process.env.DEPLOYMENT_TARGET !== 'cloud',
     });
   }
 
-  private initDb() {
-    this._sequelizeInstance = sequelize.DefaultSequelizeInstance.getInstance(
-      this._config as SystemConfig,
-      this._logger,
-    );
+  private initCache() {
+    this._cache = this.ocpiConfig!.cache.redis
+      ? new RedisCache({
+          socket: {
+            host: this.ocpiConfig!.cache.redis.host,
+            port: this.ocpiConfig!.cache.redis.port,
+          },
+        })
+      : new MemoryCache();
   }
 
-  private initCache(cache?: ICache): ICache {
-    return (
-      cache ||
-      (this._config.util.cache.redis
-        ? new RedisCache({
-            socket: {
-              host: this._config.util.cache.redis.host,
-              port: this._config.util.cache.redis.port,
-            },
-          })
-        : new MemoryCache())
-    );
-  }
-
-  private initSwagger() {
-    if (this._config.util.swagger) {
-      initSwagger(this._config as SystemConfig, this._server);
-    }
-  }
-
-  private registerAjv() {
-    // todo type schema instead of any
-    const fastifySchemaCompiler: FastifySchemaCompiler<any> = (
-      routeSchema: FastifyRouteSchemaDef<any>,
-    ) => this._ajv?.compile(routeSchema.schema) as FastifyValidationResult;
-    this._server.setValidatorCompiler(fastifySchemaCompiler);
-  }
-
-  private initNetworkConnection() {
-    this._authenticator = new Authenticator(
-      new UnknownStationFilter(
-        new sequelize.SequelizeLocationRepository(this._config as SystemConfig, this._logger),
-        this._logger,
-      ),
-      new ConnectedStationFilter(this._cache, this._logger),
-      new BasicAuthenticationFilter(
-        new sequelize.SequelizeDeviceModelRepository(
-          this._config as SystemConfig,
-          this._logger,
-        ),
-        this._logger,
-      ),
-      this._logger,
-    );
-
-    const webhookDispatcher = new WebhookDispatcher(
-      this._repositoryStore.subscriptionRepository,
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const router = new MessageRouterImpl(
-      this._config as SystemConfig,
-      this._cache,
-      this._createSender(),
-      this._createHandler(),
-      webhookDispatcher,
-      async (_identifier: string, _message: string) => false,
-      this._logger,
-      this._ajv,
-    );
-
-    this._networkConnection = new WebsocketNetworkConnection(
-      this._config as SystemConfig,
-      this._cache,
-      this._authenticator,
-      router,
-      this._logger,
-    );
-
-    this.apis.push(new AdminApi(router, this._server, this._logger));
-
-    this.host = this._config.centralSystem.host;
-    this.port = this._config.centralSystem.port;
-  }
-
-  private initAllModules() {
-    this.ocpiRealTimeAuthorizer = Container.get(RealTimeAuthorizer);
-
-    if (this._config.modules.certificates) {
-      const module = new CertificatesModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-        this._repositoryStore.deviceModelRepository,
-        this._repositoryStore.certificateRepository,
-        this._repositoryStore.locationRepository,
-      );
-      this.modules.push(module);
-      this.apis.push(
-        new CertificatesModuleApi(
-          module,
-          this._server,
-          this._fileAccess,
-          this._networkConnection!,
-          this._config.util.networkConnection.websocketServers,
-          this._logger,
-        ),
-      );
-    }
-
-    if (this._config.modules.configuration) {
-      const module = new ConfigurationModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-        this._repositoryStore.bootRepository,
-        this._repositoryStore.deviceModelRepository,
-        this._repositoryStore.messageInfoRepository,
-      );
-      this.modules.push(module);
-      this.apis.push(
-        new ConfigurationModuleApi(module, this._server, this._logger),
-      );
-    }
-
-    if (this._config.modules.evdriver) {
-      const module = new EVDriverModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-        this._repositoryStore.authorizationRepository,
-        this._repositoryStore.localAuthListRepository,
-        this._repositoryStore.deviceModelRepository,
-        this._repositoryStore.tariffRepository,
-        this._repositoryStore.transactionEventRepository,
-        (this._repositoryStore as any).chargingProfileRepository,
-        (this._repositoryStore as any).reservationRepository,
-        (this._repositoryStore as any).callMessageRepository,
-        new CertificateAuthorityService(
-          this._config as SystemConfig,
-          this._logger,
-        ),
-        [this.ocpiRealTimeAuthorizer],
-      );
-      this.modules.push(module);
-      this.apis.push(new EVDriverModuleApi(module, this._server, this._logger));
-    }
-
-    if (this._config.modules.monitoring) {
-      const module = new MonitoringModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-        this._repositoryStore.deviceModelRepository,
-        this._repositoryStore.variableMonitoringRepository,
-      );
-      this.modules.push(module);
-      this.apis.push(
-        new MonitoringModuleApi(module, this._server, this._logger),
-      );
-    }
-
-    if (this._config.modules.reporting) {
-      const module = new ReportingModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-        this._repositoryStore.deviceModelRepository,
-        this._repositoryStore.securityEventRepository,
-        this._repositoryStore.variableMonitoringRepository,
-      );
-      this.modules.push(module);
-      this.apis.push(
-        new ReportingModuleApi(module, this._server, this._logger),
-      );
-    }
-
-    if (this._config.modules.smartcharging) {
-      const module = new SmartChargingModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-      );
-      this.modules.push(module);
-      this.apis.push(
-        new SmartChargingModuleApi(module, this._server, this._logger),
-      );
-    }
-
-    if (this._config.modules.transactions) {
-      const module = new TransactionsModule(
-        this._config as SystemConfig,
-        this._cache,
-        this._fileAccess,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-        this._repositoryStore.transactionEventRepository,
-        this._repositoryStore.authorizationRepository,
-        this._repositoryStore.deviceModelRepository,
-        this._repositoryStore.componentRepository,
-        this._repositoryStore.locationRepository,
-        this._repositoryStore.tariffRepository,
-        (this._repositoryStore as any).reservationRepository,
-        [this.ocpiRealTimeAuthorizer],
-      );
-      this.modules.push(module);
-      this.apis.push(
-        new TransactionsModuleApi(module, this._server, this._logger),
-      );
-    }
-
-    // TODO: take actions to make sure module has correct subscriptions and log proof
-    if (this.eventGroup !== EventGroup.All) {
-      this.host = this._config.centralSystem.host as string;
-      this.port = this._config.centralSystem.port as number;
-    }
-  }
-
-  private startOcpiServer() {
+  private async startOcpiServer() {
     this.ocpiServer = new OcpiServer(
-      this._config as ServerConfig,
-      this._cache,
-      this._logger,
+      this.ocpiConfig!,
+      this._cache!,
+      this._logger!,
       this.getOcpiModuleConfig(),
-      this._repositoryStore,
     );
+    await this.ocpiServer.initialize();
+    await this.initDtoRouter();
   }
 
-  private initModule(moduleConfig: ModuleConfig) {
-    if (moduleConfig.configModule !== null) {
-      const module = new moduleConfig.ModuleClass(
-        this._config,
-        this._cache,
-        this._createSender(),
-        this._createHandler(),
-        this._logger,
-      );
-      this.modules.push(module);
-      if (moduleConfig.ModuleApiClass === CertificatesModuleApi) {
-        this.apis.push(
-          new moduleConfig.ModuleApiClass(
-            module,
-            this._server,
-            this._fileAccess,
-            this._networkConnection,
-            this._config.util.networkConnection.websocketServers,
-            this._logger,
-          ),
+  private async initDtoRouter() {
+    const dtoRouter: DtoRouter = Container.get(DtoRouter);
+    await dtoRouter.init();
+    for (const module of this.ocpiServer.modules) {
+      const eventHandlers = getDtoEventHandlerMetaData(module);
+      for (const eventHandler of eventHandlers) {
+        const subscribed = await dtoRouter.subscribe(
+          eventHandler.eventId,
+          eventHandler.eventType,
+          eventHandler.objectType,
         );
-      } else {
-        this.apis.push(
-          new moduleConfig.ModuleApiClass(module, this._server, this._logger),
+        this._logger?.info(
+          `Subscribed successfully (${subscribed}) to event: ${eventHandler.eventId} of type: ${eventHandler.eventType} for object: ${eventHandler.objectType}`,
         );
       }
-
-      // TODO: take actions to make sure module has correct subscriptions and log proof
-      this._logger?.info(`${moduleConfig.ModuleClass.name} module started...`);
-      if (this.eventGroup !== EventGroup.All) {
-        this.host = moduleConfig.configModule.host as string;
-        this.port = moduleConfig.configModule.port as number;
-      }
-    } else {
-      throw new Error(`No config for ${this.eventGroup} module`);
     }
-  }
-
-  private getModuleConfig(): ModuleConfig {
-    switch (this.eventGroup) {
-      case EventGroup.Certificates:
-        return {
-          ModuleClass: CertificatesModule,
-          ModuleApiClass: CertificatesModuleApi,
-          configModule: this._config.modules.certificates,
-        };
-      case EventGroup.Configuration:
-        return {
-          ModuleClass: ConfigurationModule,
-          ModuleApiClass: ConfigurationModuleApi,
-          configModule: this._config.modules.configuration,
-        };
-      case EventGroup.EVDriver:
-        return {
-          ModuleClass: EVDriverModule,
-          ModuleApiClass: EVDriverModuleApi,
-          configModule: this._config.modules.evdriver,
-        };
-      case EventGroup.Monitoring:
-        return {
-          ModuleClass: MonitoringModule,
-          ModuleApiClass: MonitoringModuleApi,
-          configModule: this._config.modules.monitoring,
-        };
-      case EventGroup.Reporting:
-        return {
-          ModuleClass: ReportingModule,
-          ModuleApiClass: ReportingModuleApi,
-          configModule: this._config.modules.reporting,
-        };
-      case EventGroup.SmartCharging:
-        return {
-          ModuleClass: SmartChargingModule,
-          ModuleApiClass: SmartChargingModuleApi,
-          configModule: this._config.modules.smartcharging,
-        };
-      case EventGroup.Tenant:
-        return {
-          ModuleClass: TenantModule,
-          ModuleApiClass: TenantModuleApi,
-          configModule: this._config.modules.tenant,
-        };
-      case EventGroup.Transactions:
-        return {
-          ModuleClass: TransactionsModule,
-          ModuleApiClass: TransactionsModuleApi,
-          configModule: this._config.modules.transactions,
-        };
-      default:
-        throw new Error('Unhandled module type: ' + this.eventGroup);
-    }
-  }
-
-  private initSystem() {
-    if (this.eventGroup === EventGroup.All) {
-      this.initNetworkConnection();
-      this.initAllModules();
-    } else if (this.eventGroup === EventGroup.General) {
-      this.initNetworkConnection();
-    } else {
-      const moduleConfig: ModuleConfig = this.getModuleConfig();
-      this.initModule(moduleConfig);
-    }
-  }
-
-  private initFileAccess(
-    fileAccess?: IFileAccess,
-    directus?: IFileAccess,
-  ): IFileAccess {
-    return (
-      fileAccess ||
-      directus ||
-      new DirectusUtil(this._config as SystemConfig, this._logger)
-    );
-  }
-
-  private initRepositoryStore() {
-    this._repositoryStore = new RepositoryStore(
-      this._config as SystemConfig,
-      this._logger,
-      this._sequelizeInstance,
-    );
   }
 }
 
-new CitrineOSServer(process.env.APP_NAME as EventGroup, systemConfig)
+new CitrineOSServer(process.env.APP_NAME as EventGroup)
   .run()
   .catch((error: any) => {
     console.error(error);

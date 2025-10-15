@@ -1,35 +1,28 @@
-import { CacheWrapper, OcpiModule, ServerConfig } from '@citrineos/ocpi-base';
-import { IMessageHandler, IMessageSender, SystemConfig } from '@citrineos/base';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import {
+  CacheWrapper,
+  OcpiConfig,
+  OcpiConfigToken,
+  OcpiModule,
+} from '@citrineos/ocpi-base';
 
 import { CredentialsModuleApi } from './module/CredentialsModuleApi';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { ILogObj, Logger } from 'tslog';
-import { CredentialsHandlers } from './module/CredentialsHandlers';
 
 export { CredentialsModuleApi } from './module/CredentialsModuleApi';
 export { ICredentialsModuleApi } from './module/ICredentialsModuleApi';
-export { CredentialsHandlers } from './module/CredentialsHandlers';
 
 @Service()
 export class CredentialsModule implements OcpiModule {
-  handler!: IMessageHandler;
-  sender!: IMessageSender;
-
   constructor(
-    readonly config: ServerConfig,
+    @Inject(OcpiConfigToken) readonly config: OcpiConfig,
     readonly cacheWrapper: CacheWrapper,
     readonly logger?: Logger<ILogObj>,
   ) {}
-
-  init(_handler: IMessageHandler, _sender: IMessageSender): void {
-    new CredentialsHandlers(
-      this.config as SystemConfig,
-      this.cacheWrapper.cache,
-      this.sender,
-      this.handler,
-      this.logger,
-    );
-  }
 
   getController(): any {
     return CredentialsModuleApi;

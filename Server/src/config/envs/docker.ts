@@ -1,191 +1,111 @@
-// Copyright Contributors to the CitrineOS Project
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
 
-import { RegistrationStatusEnumType } from '@citrineos/base';
-import {
-  Env,
-  ServerConfig,
-  ServerConfigUtilCertificateAuthorityChargingStationCAName,
-  ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion,
-  ServerConfigUtilCertificateAuthorityV2gCAName,
-} from '@citrineos/ocpi-base';
-import path from 'path';
+import { OcpiConfigInput } from '@citrineos/ocpi-base';
 
-export const dockerConfig: ServerConfig = {
-  env: Env.DEVELOPMENT,
-  centralSystem: {
-    host: '0.0.0.0',
-    port: 8080,
-  },
-  modules: {
-    certificates: {
-      endpointPrefix: '/certificates',
+export function createDockerOcpiConfig(): OcpiConfigInput {
+  return {
+    env: 'development',
+
+    ocpiServer: {
+      host: '0.0.0.0',
+      port: 8085,
     },
-    configuration: {
-      heartbeatInterval: 60,
-      bootRetryInterval: 15,
-      unknownChargerStatus: RegistrationStatusEnumType.Accepted,
-      getBaseReportOnPending: true,
-      bootWithRejectedVariables: true,
-      autoAccept: true,
-      endpointPrefix: '/configuration',
+
+    ocpiModules: {
+      credentials: {
+        endpointPrefix: '/credentials',
+      },
+      versions: {
+        endpointPrefix: '/versions',
+      },
+      locations: {
+        endpointPrefix: '/locations',
+      },
+      sessions: {
+        endpointPrefix: '/sessions',
+      },
+      cdrs: {
+        endpointPrefix: '/cdrs',
+      },
+      tokens: {
+        endpointPrefix: '/tokens',
+      },
+      tariffs: {
+        endpointPrefix: '/tariffs',
+      },
+      chargingProfiles: {
+        endpointPrefix: '/chargingprofiles',
+      },
+      commands: {
+        endpointPrefix: '/commands',
+      },
     },
-    evdriver: {
-      endpointPrefix: '/evdriver',
+
+    database: {
+      host: process.env.DB_HOST || 'postgres',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME || 'citrine',
+      username: process.env.DB_USER || 'citrine',
+      password: process.env.DB_PASS || 'citrine',
     },
-    monitoring: {
-      endpointPrefix: '/monitoring',
-    },
-    reporting: {
-      endpointPrefix: '/reporting',
-    },
-    smartcharging: {
-      endpointPrefix: '/smartcharging',
-    },
-    tenant: {
-      endpointPrefix: '/tenant',
-    },
-    transactions: {
-      endpointPrefix: '/transactions',
-      costUpdatedInterval: 60,
-    },
-  },
-  data: {
-    sequelize: {
-      host: 'ocpp-db',
-      port: 5432,
-      database: 'citrine',
-      dialect: 'postgres',
-      username: 'citrine',
-      password: 'citrine',
-      storage: '',
-      sync: false,
-      alter: true,
-    },
-  },
-  util: {
+
     cache: {
-      memory: true,
+      ...(process.env.REDIS_HOST
+        ? {
+            redis: {
+              host: process.env.REDIS_HOST,
+              port: parseInt(process.env.REDIS_PORT || '6379'),
+            },
+          }
+        : { memory: true }),
     },
+
+    graphql: {
+      endpoint:
+        process.env.GRAPHQL_ENDPOINT || 'http://graphql-engine:8080/v1/graphql',
+    },
+
+    commands: {
+      timeout: parseInt(process.env.COMMANDS_TIMEOUT || '30'),
+      ocpiBaseUrl:
+        process.env.COMMANDS_OCPI_BASE_URL || 'http://citrineos-ocpi:8085/ocpi',
+      coreHeaders: JSON.parse(process.env.COMMANDS_CORE_HEADERS || '{}'),
+      ocpp1_6: {
+        remoteStartTransactionRequestUrl:
+          process.env.COMMANDS_OCPP1_6_REMOTE_START_TRANSACTION_REQUEST_URL ||
+          'http://citrine:8080/ocpp/1.6/evdriver/remoteStartTransaction',
+        remoteStopTransactionRequestUrl:
+          process.env.COMMANDS_OCPP1_6_REMOTE_STOP_TRANSACTION_REQUEST_URL ||
+          'http://citrine:8080/ocpp/1.6/evdriver/remoteStopTransaction',
+        unlockConnectorRequestUrl:
+          process.env.COMMANDS_OCPP1_6_UNLOCK_CONNECTOR_REQUEST_URL ||
+          'http://citrine:8080/ocpp/1.6/evdriver/unlockConnector',
+      },
+      ocpp2_0_1: {
+        requestStartTransactionRequestUrl:
+          process.env
+            .COMMANDS_OCPP2_0_1_REQUEST_START_TRANSACTION_REQUEST_URL ||
+          'http://citrine:8080/ocpp/2.0.1/evdriver/requestStartTransaction',
+        requestStopTransactionRequestUrl:
+          process.env.COMMANDS_OCPP2_0_1_REQUEST_STOP_TRANSACTION_REQUEST_URL ||
+          'http://citrine:8080/ocpp/2.0.1/evdriver/requestStopTransaction',
+        unlockConnectorRequestUrl:
+          process.env.COMMANDS_OCPP2_0_1_UNLOCK_CONNECTOR_REQUEST_URL ||
+          'http://citrine:8080/ocpp/2.0.1/evdriver/unlockConnector',
+      },
+    },
+
     messageBroker: {
       amqp: {
-        url: 'amqp://guest:guest@amqp-broker:5672',
-        exchange: 'citrineos',
+        url: process.env.AMQP_URL || 'amqp://guest:guest@rabbitmq:5672',
+        exchange: process.env.AMQP_EXCHANGE || 'ocpi',
       },
     },
-    swagger: {
-      path: '/docs',
-      logoPath: path.resolve(path.dirname(__filename), '../../assets/logo.png'),
-      exposeData: true,
-      exposeMessage: true,
-    },
-    directus: {
-      host: 'directus',
-      port: 8055,
-      generateFlows: true,
-    },
-    networkConnection: {
-      websocketServers: [
-        {
-          id: '0',
-          securityProfile: 0,
-          allowUnknownChargingStations: true,
-          pingInterval: 60,
-          host: '0.0.0.0',
-          port: 8081,
-          protocol: 'ocpp2.0.1',
-        },
-        {
-          id: '1',
-          securityProfile: 1,
-          allowUnknownChargingStations: false,
-          pingInterval: 60,
-          host: '0.0.0.0',
-          port: 8082,
-          protocol: 'ocpp2.0.1',
-        },
-        {
-          id: '2',
-          securityProfile: 2,
-          allowUnknownChargingStations: false,
-          pingInterval: 60,
-          host: '0.0.0.0',
-          port: 8443,
-          protocol: 'ocpp2.0.1',
-          accountKeyFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/acme_account_key.pem',
-          ),
-          tlsKeyFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/leafKey.pem',
-          ),
-          tlsCertificateChainFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/certChain.pem',
-          ),
-          rootCACertificateFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/rootCertificate.pem',
-          ),
-        },
-        {
-          id: '3',
-          securityProfile: 3,
-          allowUnknownChargingStations: false,
-          pingInterval: 60,
-          host: '0.0.0.0',
-          port: 8444,
-          protocol: 'ocpp2.0.1',
-          tlsKeyFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/leafKey.pem',
-          ),
-          tlsCertificateChainFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/certChain.pem',
-          ),
-          mtlsCertificateAuthorityKeyFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/subCAKey.pem',
-          ),
-          rootCACertificateFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/rootCertificate.pem',
-          ),
-        },
-      ],
-    },
-    certificateAuthority: {
-      v2gCA: {
-        name: ServerConfigUtilCertificateAuthorityV2gCAName.HUBJECT,
-        hubject: {
-          baseUrl: 'https://open.plugncharge-test.hubject.com',
-          tokenUrl:
-            'https://hubject.stoplight.io/api/v1/projects/cHJqOjk0NTg5/nodes/6bb8b3bc79c2e-authorization-token',
-          isoVersion:
-            ServerConfigUtilCertificateAuthorityV2gCAHubjectIsoVersion.ISO15118_2,
-        },
-      },
-      chargingStationCA: {
-        name: ServerConfigUtilCertificateAuthorityChargingStationCAName.ACME,
-        acme: {
-          env: Env.STAGING,
-          accountKeyFilePath: path.resolve(
-            path.dirname(__filename),
-            '../../assets/certificates/acme_account_key.pem',
-          ),
-          email: 'test@citrineos.com',
-        },
-      },
-    },
-  },
-  logLevel: 2, // debug
-  maxCallLengthSeconds: 5,
-  maxCachingSeconds: 10,
-  ocpiServer: {
-    host: '0.0.0.0',
-    port: 8085,
-  },
-};
+
+    logLevel: parseInt(process.env.LOG_LEVEL || '2'),
+    defaultPageLimit: parseInt(process.env.DEFAULT_PAGE_LIMIT || '50'),
+    maxPageLimit: parseInt(process.env.MAX_PAGE_LIMIT || '1000'),
+  };
+}

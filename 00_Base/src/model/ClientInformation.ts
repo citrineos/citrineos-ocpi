@@ -1,144 +1,78 @@
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasMany,
-  Model,
-  Table,
-} from '@citrineos/data';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
+import { ModuleId } from './ModuleId';
 import {
   ClientCredentialsRole,
+  ClientCredentialsRoleSchema,
   toCredentialsRoleDTO,
 } from './ClientCredentialsRole';
-import { CredentialsDTO } from './DTO/CredentialsDTO';
-import { CpoTenant } from './CpoTenant';
-import { Exclude } from 'class-transformer';
-import { ClientVersion } from './ClientVersion';
-import { ServerVersion } from './ServerVersion';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
-import { ModuleId } from './ModuleId';
+import { ClientVersion, ClientVersionSchema } from './ClientVersion';
+import { ServerVersion, ServerVersionSchema } from './ServerVersion';
 import { Endpoint } from './Endpoint';
-import { VersionNumber } from './VersionNumber';
+import { CredentialsDTO } from './DTO/CredentialsDTO';
 
-export enum ClientInformationProps {
-  clientToken = 'clientToken',
-  serverToken = 'serverToken',
-  registered = 'registered',
-  clientCredentialsRoles = 'clientCredentialsRoles',
-  clientVersionDetails = 'clientVersionDetails',
-  serverVersionDetails = 'serverVersionDetails',
-  cpoTenantId = 'cpoTenantId',
-  cpoTenant = 'cpoTenant',
-}
+export const ClientInformationSchema = z.object({
+  clientToken: z.string().min(1),
+  serverToken: z.string().min(1),
+  registered: z.boolean(),
 
-@Table
-export class ClientInformation extends Model {
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
-  @IsString()
-  @IsNotEmpty()
-  [ClientInformationProps.clientToken]!: string;
+  // Excluded from validation; used internally
+  clientCredentialsRoles: z.array(ClientCredentialsRoleSchema),
+  clientVersionDetails: z.array(ClientVersionSchema),
+  serverVersionDetails: z.array(ServerVersionSchema),
+  cpoTenantId: z.number(),
+});
 
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
-  @IsString()
-  @IsNotEmpty()
-  [ClientInformationProps.serverToken]!: string;
+export type ClientInformation = z.infer<typeof ClientInformationSchema>;
 
-  @Column(DataType.BOOLEAN)
-  @IsBoolean()
-  @IsNotEmpty()
-  [ClientInformationProps.registered]!: boolean;
-
-  @Exclude()
-  @HasMany(() => ClientCredentialsRole, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  [ClientInformationProps.clientCredentialsRoles]!: ClientCredentialsRole[];
-
-  @Exclude()
-  @HasMany(() => ClientVersion, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  [ClientInformationProps.clientVersionDetails]!: ClientVersion[];
-
-  @Exclude()
-  @HasMany(() => ServerVersion, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  [ClientInformationProps.serverVersionDetails]!: ServerVersion[];
-
-  @Exclude()
-  @ForeignKey(() => CpoTenant)
-  @Column(DataType.INTEGER)
-  [ClientInformationProps.cpoTenantId]!: number;
-
-  @Exclude()
-  @BelongsTo(() => CpoTenant)
-  [ClientInformationProps.cpoTenant]!: CpoTenant;
-
-  static buildClientInformation(
-    clientToken: string,
-    serverToken: string,
-    registered: boolean,
-    clientCredentialsRoles: ClientCredentialsRole[],
-    clientVersionDetails: ClientVersion[],
-    serverVersionDetails: ServerVersion[],
-  ): ClientInformation {
-    const clientInformation = new ClientInformation();
-    clientInformation.clientToken = clientToken;
-    clientInformation.serverToken = serverToken;
-    clientInformation.registered = registered;
-    clientInformation.clientCredentialsRoles = clientCredentialsRoles;
-    clientInformation.clientVersionDetails = clientVersionDetails;
-    clientInformation.serverVersionDetails = serverVersionDetails;
-    return clientInformation;
-  }
-
-  public getReceiversOf(
-    module: ModuleId,
-  ): { version: VersionNumber; endpoints: Endpoint[] }[] {
-    return this[ClientInformationProps.clientVersionDetails].flatMap(
-      (clientVersion) => {
-        const endpoints = clientVersion.endpoints.filter((endpoint) =>
-          endpoint.isReceiverOf(module),
-        );
-        return endpoints.length > 0
-          ? [{ version: clientVersion.version, endpoints }]
-          : [];
-      },
-    );
-  }
-}
+export const buildClientInformation = (
+  clientToken: string,
+  serverToken: string,
+  registered: boolean,
+  clientCredentialsRoles: ClientCredentialsRole,
+  clientVersionDetails: ClientVersion,
+  serverVersionDetails: ServerVersion,
+): ClientInformation =>
+  ({
+    clientToken,
+    serverToken,
+    registered,
+    clientCredentialsRoles,
+    clientVersionDetails,
+    serverVersionDetails,
+    cpoTenantId: 0,
+  }) as any;
 
 export const getClientVersionDetailsByModuleId = (
   clientInformation: ClientInformation,
   moduleId: ModuleId,
-): Endpoint | undefined =>
-  clientInformation.clientVersionDetails[0].endpoints.find(
-    (endpoint) => endpoint.identifier === moduleId,
+): Endpoint | undefined => {
+  if (
+    !clientInformation ||
+    !clientInformation.clientVersionDetails[0] ||
+    !clientInformation.clientVersionDetails[0].endpoints
+  ) {
+    return undefined;
+  }
+  return clientInformation.clientVersionDetails[0].endpoints.find(
+    (endpoint: Endpoint) => endpoint.identifier === moduleId,
   );
+};
 
 export const toCredentialsDTO = (
   clientInformation: ClientInformation,
 ): CredentialsDTO => {
-  const credentials = new CredentialsDTO();
-  credentials.token = clientInformation.serverToken;
   const credentialsEndpoint = getClientVersionDetailsByModuleId(
     clientInformation,
     ModuleId.Credentials,
   );
-  if (credentialsEndpoint && credentialsEndpoint.url) {
-    credentials.url = credentialsEndpoint.url;
-  }
-  credentials.roles = clientInformation.clientCredentialsRoles.map(
-    (role: ClientCredentialsRole) => toCredentialsRoleDTO(role),
-  );
-  return credentials;
+
+  return {
+    token: clientInformation.serverToken,
+    url: credentialsEndpoint?.url ?? '',
+    roles: clientInformation.clientCredentialsRoles.map(toCredentialsRoleDTO),
+  };
 };

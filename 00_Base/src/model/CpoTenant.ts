@@ -1,35 +1,14 @@
-import { HasMany, Model, Table } from '@citrineos/data';
-import { ClientInformation } from './ClientInformation';
-import { ServerCredentialsRole } from './ServerCredentialsRole';
-import { Exclude } from 'class-transformer';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export enum CpoTenantProps {
-  serverCredentialsRoles = 'serverCredentialsRoles',
-  clientInformation = 'clientInformation',
-}
+import { z } from 'zod';
+import { ServerCredentialsRoleSchema } from './ServerCredentialsRole';
+import { ClientInformationSchema } from './ClientInformation';
 
-@Table
-export class CpoTenant extends Model {
-  @Exclude()
-  @HasMany(() => ServerCredentialsRole, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  [CpoTenantProps.serverCredentialsRoles]!: ServerCredentialsRole[];
+export const CpoTenantSchema = z.object({
+  serverCredentialsRoles: z.array(ServerCredentialsRoleSchema),
+  clientInformation: z.array(ClientInformationSchema),
+});
 
-  @Exclude()
-  @HasMany(() => ClientInformation, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  [CpoTenantProps.clientInformation]!: ClientInformation[];
-
-  static buildCpoTenant(
-    serverCredentialsRoles: ServerCredentialsRole[],
-    clientInformation: ClientInformation[],
-  ) {
-    const cpoTenant = new CpoTenant();
-    cpoTenant.serverCredentialsRoles = serverCredentialsRoles;
-    cpoTenant.clientInformation = clientInformation;
-    return cpoTenant;
-  }
-}
+export type CpoTenant = z.infer<typeof CpoTenantSchema>;

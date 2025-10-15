@@ -1,75 +1,29 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from '@citrineos/data';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { VersionNumber } from './VersionNumber';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../util/decorators/Enum';
-import { Exclude } from 'class-transformer';
 import { Endpoint } from './Endpoint';
-import { ClientInformation } from './ClientInformation';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
-import { IVersion, Version } from './Version';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 
-@Table
-export class ServerVersion extends Model implements IVersion {
-  @Column(DataType.ENUM(...Object.values(VersionNumber)))
-  @IsNotEmpty()
-  @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+export const ServerVersionSchema = z.object({
+  version: z.nativeEnum(VersionNumber),
+  url: z.string().url(),
+  // excluded fields
+  endpoints: z.custom<Endpoint[]>().optional(),
+  clientInformationId: z.number().optional(),
+});
 
-  @Column(DataType.STRING)
-  @IsString()
-  @IsUrl({ require_tld: false })
-  url!: string;
+export type ServerVersion = z.infer<typeof ServerVersionSchema>;
 
-  @Exclude()
-  @HasMany(() => Endpoint, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  endpoints!: Endpoint[];
+export const toVersionDTO = (sv: ServerVersion): VersionDTO => ({
+  version: sv.version,
+  url: sv.url,
+});
 
-  @Exclude()
-  @ForeignKey(() => ClientInformation)
-  @Column(DataType.INTEGER)
-  clientInformationId!: number;
-
-  @Exclude()
-  @BelongsTo(() => ClientInformation)
-  clientInformation!: ClientInformation;
-
-  static buildServerVersion(
-    version: VersionNumber,
-    url: string,
-    endpoints: Endpoint[],
-  ): ServerVersion {
-    return ServerVersion.build({
-      version,
-      url,
-      endpoints,
-    });
-  }
-
-  static fromVersion(version: Version): ServerVersion {
-    return ServerVersion.buildServerVersion(
-      version.version,
-      version.url,
-      version.endpoints.map((endpoint) =>
-        Endpoint.fromVersionEndpoint(endpoint),
-      ),
-    );
-  }
-
-  public toVersionDTO(): VersionDTO {
-    const dto = new VersionDTO();
-    dto.version = this.version;
-    dto.url = this.url;
-    return dto;
-  }
-
-  public toVersionDetailsDTO(): VersionDetailsDTO {
-    const dto = new VersionDetailsDTO();
-    dto.version = this.version;
-    dto.endpoints = this.endpoints.map((endpoint) => endpoint.toEndpointDTO());
-    return dto;
-  }
-}
+export const toVersionDetailsDTO = (sv: ServerVersion): VersionDetailsDTO => ({
+  version: sv.version,
+  endpoints: sv.endpoints ?? [],
+});

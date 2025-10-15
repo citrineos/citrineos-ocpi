@@ -1,42 +1,33 @@
-import { IsOptional, IsString } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { VersionNumber } from '../../model/VersionNumber';
 
-export class OcpiRegistrationParams {
-  @IsString()
-  authorization!: string;
+import { z } from 'zod';
 
-  @IsString()
-  @IsOptional()
-  xRequestId?: string;
+export const OcpiRegistrationParamsSchema = z.object({
+  authorization: z.string(),
+  xRequestId: z.string().optional(),
+  xCorrelationId: z.string().optional(),
+  version: z
+    .nativeEnum(VersionNumber)
+    .optional()
+    .default(VersionNumber.TWO_DOT_TWO_DOT_ONE),
+});
 
-  @IsString()
-  @IsOptional()
-  xCorrelationId?: string;
-
-  version?: VersionNumber = VersionNumber.TWO_DOT_TWO_DOT_ONE;
-
-  constructor(
-    authorization?: string,
-    xRequestId?: string,
-    xCorrelationId?: string,
-    version?: VersionNumber,
-  ) {
-    this.authorization = authorization!;
-    this.xRequestId = xRequestId;
-    this.xCorrelationId = xCorrelationId;
-    this.version = version;
-  }
-}
+export type OcpiRegistrationParams = z.infer<
+  typeof OcpiRegistrationParamsSchema
+>;
 
 export const buildOcpiRegistrationParams = (
   version: VersionNumber,
   authorization: string,
   xRequestId?: string,
   xCorrelationId?: string,
-): OcpiRegistrationParams =>
-  new OcpiRegistrationParams(
-    authorization,
-    xRequestId,
-    xCorrelationId,
-    version,
-  );
+): OcpiRegistrationParams => ({
+  authorization,
+  xRequestId,
+  xCorrelationId,
+  version,
+});

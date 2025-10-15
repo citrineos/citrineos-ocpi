@@ -1,23 +1,33 @@
 {
   "name": "@citrineos/ocpi-workspace",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": false,
   "devDependencies": {
-    "@eslint/js": "9.0.0",
+    "@eslint/js": "^9.0.0",
+    "@graphql-codegen/add": "^5.0.3",
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
+    "@graphql-eslint/eslint-plugin": "^4.4.0",
     "@types/eslint__js": "8.42.3",
-    "concurrently": "8.2.2",
-    "eslint": "8.57.0",
-    "eslint-config-prettier": "9.1.0",
-    "prettier": "3.2.5",
+    "@typescript-eslint/eslint-plugin-tslint": "^7.0.2",
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
+    "sequelize-cli": "^6.6.2",
     "typescript": "5.5.4",
-    "typescript-eslint": "7.6.0"
+    "typescript-eslint": "^8.7.0"
   },
   "scripts": {
     "test": "jest --config jest.config.js",
     "sync-db": "ts-node ./db.sync.ts",
-    "init-db": "sequelize-cli db:migrate --debug && sequelize-cli db:migrate:schema:timestamps:add --debug",
-    "seed-db": "sequelize-cli db:seed:all --debug",
-    "clean-db": "sequelize-cli db:seed:undo:all --debug",
+    "init-db": "npx sequelize-cli db:migrate --debug && echo migration completed successfully",
+    "seed-db": "npx sequelize-cli db:seed:all --debug",
+    "seed-undo": "npx sequelize-cli db:seed:undo:all --debug",
+    "clean-db": "npx sequelize-cli db:seed:undo:all --debug",
     "clean-and-seed-db": "npm run clean-db && npm run seed-db",
     "start-mock-emsp": "npm run build && nodemon ./mock-client/index.ts --config ./mock-client/nodemon.json",
     "start-mockoon": "npm run start-mock-emsp && mockoon-cli start --data http://localhost:8086/docs/spec --port 3000",
@@ -33,11 +43,14 @@
     "clean-dist": "find . -type d -name dist -not -path '*/node_modules/*' -exec rm -rf {} +",
     "clean": "npm run clean-dist && npm run clean-tsbuildinfo",
     "build": "tsc --build --verbose",
-    "postbuild": "npm run copy-assets --prefix ./Server",
+    "postbuild": "npm run copy-assets --prefix ./Server && npm run migrate:build",
     "lint": "npx eslint ./",
     "lint-fix": "npm run prettier && npx eslint --fix ./",
     "prettier": "prettier --write .",
-    "fresh-and-install-all": "npm run fresh && npm run install-all"
+    "fi": "npm run fresh && npm run install-all",
+    "generate": "graphql-codegen",
+    "migrate:build": "tsc --project migrations/tsconfig.json",
+    "migrate": "npm run migrate:build && npx sequelize-cli db:migrate && echo migration completed successfully"
   },
   "workspaces": [
     "./00_Base",
@@ -51,6 +64,7 @@
     "./03_Modules/Cdrs",
     "./03_Modules/Tokens",
     "./03_Modules/Certificates",
+    "./03_Modules/DtoRouter",
     "./Server"
   ]
 }

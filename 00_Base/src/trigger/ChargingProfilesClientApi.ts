@@ -1,51 +1,55 @@
-import { BaseClientApi } from './BaseClientApi';
-import { PutChargingProfileParams } from './param/charging.profiles/PutChargingProfileParams';
-import { IHeaders } from 'typed-rest-client/Interfaces';
-import { Service } from 'typedi';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-@Service()
-export class ChargingProfilesClientApi extends BaseClientApi {
-  CONTROLLER_PATH = ModuleId.ChargingProfiles;
+// import { BaseClientApi } from './BaseClientApi';
+// import { PutChargingProfileParams } from './param/charging.profiles/PutChargingProfileParams';
+// import { IHeaders } from 'typed-rest-client/Interfaces';
+// import { Service } from 'typedi';
+// import { ModuleId } from '../model/ModuleId';
+// import { InterfaceRole } from '../model/InterfaceRole';
+// import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
 
-  async putChargingProfile(
-    params: PutChargingProfileParams,
-  ): Promise<OcpiEmptyResponse> {
-    this.validateRequiredParam(params, 'sessionId', 'activeChargingProfile');
+// @Service()
+// export class ChargingProfilesClientApi extends BaseClientApi {
+//   CONTROLLER_PATH = ModuleId.ChargingProfiles;
 
-    params.authorization = await this.getAuthToken(
-      params.fromCountryCode,
-      params.fromPartyId,
-      params.toCountryCode,
-      params.toPartyId,
-    );
+//   async putChargingProfile(
+//     params: PutChargingProfileParams,
+//   ): Promise<OcpiEmptyResponse> {
+//     this.validateRequiredParam(params, 'sessionId', 'activeChargingProfile');
 
-    const endpoint = await this.getEndpointWithVersion(
-      params.fromCountryCode,
-      params.fromPartyId,
-      params.toCountryCode,
-      params.toPartyId,
-      ModuleId.ChargingProfiles,
-      InterfaceRole.RECEIVER,
-    );
-    params.version = endpoint.clientVersion.version;
+//     params.authorization = await this.getAuthToken(
+//       params.fromCountryCode,
+//       params.fromPartyId,
+//       params.toCountryCode,
+//       params.toPartyId,
+//     );
 
-    this.baseUrl = endpoint.url;
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+//     const endpoint = await this.getEndpointWithVersion(
+//       params.fromCountryCode,
+//       params.fromPartyId,
+//       params.toCountryCode,
+//       params.toPartyId,
+//       ModuleId.ChargingProfiles,
+//       InterfaceRole.RECEIVER,
+//     );
+//     params.version = endpoint.clientVersion.version;
 
-    return await this.replace(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{sessionId}'.replace(
-          '{sessionId}',
-          encodeURIComponent(params.sessionId),
-        ),
-        additionalHeaders,
-      },
-      params.activeChargingProfile,
-    );
-  }
-}
+//     this.baseUrl = endpoint.url;
+//     const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
+
+//     return await this.replace(
+//       OcpiEmptyResponse,
+//       {
+//         version: params.version,
+//         path: '{sessionId}'.replace(
+//           '{sessionId}',
+//           encodeURIComponent(params.sessionId),
+//         ),
+//         additionalHeaders,
+//       },
+//       params.activeChargingProfile,
+//     );
+//   }
+// }

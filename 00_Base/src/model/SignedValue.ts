@@ -1,18 +1,13 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class SignedValue {
-  @MaxLength(32)
-  @IsString()
-  @IsNotEmpty()
-  nature!: string;
+import { z } from 'zod';
 
-  @MaxLength(512)
-  @IsString()
-  @IsNotEmpty()
-  plain_data!: string;
+export const SignedValueSchema = z.object({
+  nature: z.string().max(32),
+  plain_data: z.string().max(512),
+  signed_data: z.string().max(5000),
+});
 
-  @MaxLength(5000)
-  @IsString()
-  @IsNotEmpty()
-  signed_data!: string;
-}
+export type SignedValue = z.infer<typeof SignedValueSchema>;

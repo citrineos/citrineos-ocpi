@@ -1,12 +1,12 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class Price {
-  @IsNumber()
-  @IsNotEmpty()
-  excl_vat!: number;
+import { z } from 'zod';
 
-  @IsNumber()
-  @Optional()
-  incl_vat?: number | null;
-}
+export const PriceSchema = z.object({
+  excl_vat: z.number(),
+  incl_vat: z.number().nullable().optional(),
+});
+
+export type Price = z.infer<typeof PriceSchema>;

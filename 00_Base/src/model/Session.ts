@@ -1,134 +1,46 @@
-import {
-  IsArray,
-  IsDateString,
-  IsNotEmpty,
-  IsNumber,
-  IsObject,
-  IsString,
-  MaxLength,
-  MinLength,
-  ValidateNested,
-} from 'class-validator';
-import { Price } from './Price';
-import { ChargingPeriod } from './ChargingPeriod';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { AuthMethod } from './AuthMethod';
 import { SessionStatus } from './SessionStatus';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
-import { CdrToken } from './CdrToken';
-import { PaginatedResponse } from './PaginatedResponse';
-import { OcpiResponse } from './OcpiResponse';
+import { PaginatedResponseSchema } from './PaginatedResponse';
+import { OcpiResponseSchema } from './OcpiResponse';
+import { PriceSchema } from './Price';
+import { ChargingPeriodSchema } from './ChargingPeriod';
+import { CdrTokenSchema } from './CdrToken';
 
-export class Session {
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  country_code!: string;
+export const SessionSchema = z.object({
+  country_code: z.string().min(2).max(2),
+  party_id: z.string().max(3),
+  id: z.string().max(36),
+  start_date_time: z.coerce.date(),
+  end_date_time: z.coerce.date().nullable().optional(),
+  kwh: z.number(),
+  cdr_token: CdrTokenSchema,
+  auth_method: z.nativeEnum(AuthMethod),
+  authorization_reference: z.string().max(36).nullable().optional(),
+  location_id: z.string().max(36),
+  evse_uid: z.string().max(36),
+  connector_id: z.string().max(36),
+  meter_id: z.string().max(255).nullable().optional(),
+  currency: z.string().min(3).max(3),
+  charging_periods: z.array(ChargingPeriodSchema).optional().nullable(),
+  total_cost: PriceSchema.optional().nullable(),
+  status: z.nativeEnum(SessionStatus),
+  last_updated: z.coerce.date(),
+});
 
-  @MaxLength(3)
-  @IsString()
-  @IsNotEmpty()
-  party_id!: string;
+export type Session = z.infer<typeof SessionSchema>;
 
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  id!: string;
+export const SessionResponseSchema = OcpiResponseSchema(SessionSchema);
+export type SessionResponse = z.infer<typeof SessionResponseSchema>;
 
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  start_date_time!: Date;
-
-  @IsString()
-  @IsDateString()
-  @Optional()
-  @Type(() => Date)
-  end_date_time?: Date | null;
-
-  @IsNumber()
-  @IsNotEmpty()
-  kwh!: number;
-
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => CdrToken)
-  @ValidateNested()
-  cdr_token!: CdrToken;
-
-  @Enum(AuthMethod, 'AuthMethod')
-  @IsNotEmpty()
-  auth_method!: AuthMethod;
-
-  @MaxLength(36)
-  @IsString()
-  @Optional()
-  authorization_reference?: string | null;
-
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  location_id!: string;
-
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  evse_uid!: string;
-
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  connector_id!: string;
-
-  @MaxLength(255)
-  @IsString()
-  @Optional()
-  meter_id?: string | null;
-
-  @MaxLength(3)
-  @MinLength(3)
-  @IsString()
-  @IsNotEmpty()
-  currency!: string;
-
-  @IsArray()
-  @Optional()
-  @Type(() => ChargingPeriod)
-  @ValidateNested({ each: true })
-  charging_periods?: ChargingPeriod[] | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  total_cost?: Price | null;
-
-  @Enum(SessionStatus, 'SessionStatus')
-  @IsNotEmpty()
-  status!: SessionStatus;
-
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  last_updated!: Date;
-}
-
-export class SessionResponse extends OcpiResponse<Session> {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => Session)
-  @ValidateNested()
-  data!: Session;
-}
-
-export class PaginatedSessionResponse extends PaginatedResponse<Session> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @Optional(false)
-  @Type(() => Session)
-  data!: Session[];
-}
+export const PaginatedSessionResponseSchema =
+  PaginatedResponseSchema(SessionSchema);
+export const PaginatedSessionResponseSchemaName =
+  'PaginatedSessionResponseSchema';
+export type PaginatedSessionResponse = z.infer<
+  typeof PaginatedSessionResponseSchema
+>;

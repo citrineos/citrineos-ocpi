@@ -1,29 +1,16 @@
-import { IsArray, IsBoolean, IsNotEmpty, ValidateNested } from 'class-validator';
-import { RegularHours } from './RegularHours';
-import { ExceptionalPeriod } from './ExceptionalPeriod';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class Hours {
-  @IsArray()
-  @Optional()
-  @Type(() => RegularHours)
-  @ValidateNested({ each: true })
-  regular_hours?: RegularHours[] | null;
+import { z } from 'zod';
+import { RegularHoursSchema } from './RegularHours';
+import { ExceptionalPeriodSchema } from './ExceptionalPeriod';
 
-  @IsBoolean()
-  @IsNotEmpty()
-  twentyfourseven!: boolean;
+export const HoursSchema = z.object({
+  regular_hours: z.array(RegularHoursSchema).nullable().optional(),
+  twentyfourseven: z.boolean(),
+  exceptional_openings: z.array(ExceptionalPeriodSchema).nullable().optional(),
+  exceptional_closings: z.array(ExceptionalPeriodSchema).nullable().optional(),
+});
 
-  @IsArray()
-  @Optional()
-  @Type(() => ExceptionalPeriod)
-  @ValidateNested({ each: true })
-  exceptional_openings?: ExceptionalPeriod[] | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => ExceptionalPeriod)
-  @ValidateNested({ each: true })
-  exceptional_closings?: ExceptionalPeriod[] | null;
-}
+export type Hours = z.infer<typeof HoursSchema>;

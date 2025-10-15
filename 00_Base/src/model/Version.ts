@@ -1,65 +1,38 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { VersionNumber } from './VersionNumber';
-import { Endpoint } from './Endpoint';
-import { ClientInformation } from './ClientInformation';
+import { Endpoint, EndpointSchema } from './Endpoint';
 import { VersionDTO } from './DTO/VersionDTO';
 import { VersionDetailsDTO } from './DTO/VersionDetailsDTO';
-import { Column, DataType, HasMany, Model, Table } from '@citrineos/data';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../util/decorators/Enum';
-import { VersionEndpoint } from './VersionEndpoint';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
 
-export interface IVersion {
-  id?: number;
-  version: VersionNumber;
-  url: string;
-  endpoints: Endpoint[];
-  clientInformationId: number;
-  clientInformation: ClientInformation;
-  toVersionDTO: () => VersionDTO;
-  toVersionDetailsDTO: () => VersionDetailsDTO;
-}
+export const VersionSchema = z.object({
+  id: z.number().optional(),
+  version: z.nativeEnum(VersionNumber),
+  url: z.string().url(),
+  endpoints: z.array(EndpointSchema),
+});
 
-@Table
-export class Version extends Model {
-  @Column(DataType.ENUM(...Object.values(VersionNumber)))
-  @IsNotEmpty()
-  @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+export type Version = z.infer<typeof VersionSchema>;
 
-  @Column(DataType.STRING)
-  @IsString()
-  @IsUrl({ require_tld: false })
-  url!: string;
+export const buildVersion = (
+  version: VersionNumber,
+  url: string,
+  endpoints: Endpoint[],
+): Version => ({
+  version,
+  url,
+  endpoints,
+});
 
-  @HasMany(() => VersionEndpoint, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  endpoints!: VersionEndpoint[];
+export const toVersionDTO = (v: Version): VersionDTO => ({
+  version: v.version,
+  url: v.url,
+});
 
-  static buildVersion(
-    version: VersionNumber,
-    url: string,
-    endpoints: VersionEndpoint[],
-  ): Version {
-    const v = new Version();
-    v.version = version;
-    v.url = url;
-    v.endpoints = endpoints;
-    return v;
-  }
-
-  public toVersionDTO(): VersionDTO {
-    const dto = new VersionDTO();
-    dto.version = this.version;
-    dto.url = this.url;
-    return dto;
-  }
-
-  public toVersionDetailsDTO(): VersionDetailsDTO {
-    const dto = new VersionDetailsDTO();
-    dto.version = this.version;
-    dto.endpoints = this.endpoints.map((endpoint) => endpoint.toEndpointDTO());
-    return dto;
-  }
-}
+export const toVersionDetailsDTO = (v: Version): VersionDetailsDTO => ({
+  version: v.version,
+  endpoints: v.endpoints,
+});

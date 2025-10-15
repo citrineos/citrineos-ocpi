@@ -1,63 +1,16 @@
-import { Column, DataType, Model, Table } from '@citrineos/data';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { OcpiEvse } from './OcpiEvse';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export enum OcpiLocationProps {
-  coreLocationId = 'coreLocationId',
-  publish = 'publish',
-  lastUpdated = 'lastUpdated',
-  partyId = 'partyId',
-  countryCode = 'countryCode',
-  timeZone = 'timeZone',
-}
+import { z } from 'zod';
 
-/**
- * OCPI representation of a Location -- not named 'Location' to avoid collisions
- * with Citrine's version of a Location.
- *
- * Note that "coreLocationId" in OcpiLocation should match Citrine Core's Location id.
- *
- * TODO add link to credentials for the correct tenant
- */
-@Table
-export class OcpiLocation extends Model {
-  @Column({
-    type: DataType.INTEGER,
-    unique: true,
-  })
-  [OcpiLocationProps.coreLocationId]!: number;
+export const OcpiLocationSchema = z.object({
+  coreLocationId: z.number().int(),
+  publish: z.boolean(),
+  lastUpdated: z.coerce.date(),
+  partyId: z.string().length(3),
+  countryCode: z.string().length(2),
+  timeZone: z.string(),
+});
 
-  @Column(DataType.BOOLEAN)
-  [OcpiLocationProps.publish]!: boolean;
-
-  @Column(DataType.DATE)
-  [OcpiLocationProps.lastUpdated]!: Date;
-
-  @Column(DataType.STRING(3))
-  @IsString()
-  @IsNotEmpty()
-  @Length(3, 3)
-  [OcpiLocationProps.partyId]!: string;
-
-  @Column(DataType.STRING(2))
-  @IsString()
-  @IsNotEmpty()
-  @Length(2, 2)
-  [OcpiLocationProps.countryCode]!: string; // todo should we use CountryCode enum?
-
-  @Column(DataType.STRING)
-  [OcpiLocationProps.timeZone]!: string;
-
-  /* Helper properties */
-  ocpiEvses!: Map<string, OcpiEvse>;
-
-  static buildWithLastUpdated(
-    coreLocationId: number,
-    lastUpdated: Date,
-  ): OcpiLocation {
-    const location = new OcpiLocation();
-    location.coreLocationId = coreLocationId;
-    location.lastUpdated = lastUpdated;
-    return location;
-  }
-}
+export type OcpiLocation = z.infer<typeof OcpiLocationSchema>;

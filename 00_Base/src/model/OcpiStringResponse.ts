@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { OcpiResponse } from './OcpiResponse';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class OcpiStringResponse extends OcpiResponse<string> {
-  @IsString()
-  @IsNotEmpty()
-  @ValidateNested() // needed for json schema
-  data!: string;
-}
+import { z } from 'zod';
+import { OcpiResponseSchema } from './OcpiResponse';
+
+export const OcpiStringResponseSchema = OcpiResponseSchema(z.string());
+
+export type OcpiStringResponse = z.infer<typeof OcpiStringResponseSchema>;

@@ -1,87 +1,37 @@
-import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
-import { fromImageDTO, Image, toImageDTO } from './Image';
-import { Optional } from '../util/decorators/Optional';
-import { BelongsTo, Column, DataType, ForeignKey, HasOne, Model, Table } from '@citrineos/data';
-import { ClientCredentialsRole } from './ClientCredentialsRole';
-import { ServerCredentialsRole } from './ServerCredentialsRole';
-import { Exclude } from 'class-transformer';
-import { ON_DELETE_CASCADE } from '../util/OcpiSequelizeInstance';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';
+import { fromImageDTO, ImageSchema, toImageDTO } from './Image';
 
-export enum BusinessDetailsProps {
-  name = 'name',
-  website = 'website',
-  logo = 'logo',
-  clientCredentialsRoleId = 'clientCredentialsRoleId',
-  clientCredentialsRole = 'clientCredentialsRole',
-  serverCredentialsRoleId = 'serverCredentialsRoleId',
-  serverCredentialsRole = 'serverCredentialsRole',
-}
+export const BusinessDetailsSchema = z.object({
+  name: z.string().max(100),
+  website: z.string().url().nullable().optional(),
+  logo: ImageSchema.nullable().optional(),
+});
 
-@Table // todo note here need for both client and server credential roles models because using base wont work
-export class BusinessDetails extends Model {
-  @Column(DataType.STRING(100))
-  @MaxLength(100)
-  @IsString()
-  @IsNotEmpty()
-  [BusinessDetailsProps.name]!: string;
-
-  @Column({
-    type: DataType.STRING,
-    field: BusinessDetailsProps.website,
-  })
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @Optional()
-  [BusinessDetailsProps.website]?: string | null;
-
-  @Exclude()
-  @HasOne(() => Image, {
-    onDelete: ON_DELETE_CASCADE,
-  })
-  [BusinessDetailsProps.logo]?: Image | null;
-
-  @Exclude()
-  @ForeignKey(() => ClientCredentialsRole)
-  @Column(DataType.INTEGER)
-  [BusinessDetailsProps.clientCredentialsRoleId]!: number;
-
-  @Exclude()
-  @BelongsTo(() => ClientCredentialsRole)
-  [BusinessDetailsProps.clientCredentialsRole]!: ClientCredentialsRole;
-
-  @Exclude()
-  @ForeignKey(() => ServerCredentialsRole)
-  @Column(DataType.INTEGER)
-  [BusinessDetailsProps.serverCredentialsRoleId]!: number;
-
-  @Exclude()
-  @BelongsTo(() => ServerCredentialsRole)
-  [BusinessDetailsProps.serverCredentialsRole]!: ServerCredentialsRole;
-}
+export type BusinessDetails = z.infer<typeof BusinessDetailsSchema>;
 
 export const toBusinessDetailsDTO = (businessDetails: BusinessDetails) => {
-  const businessDetailsDTO = new BusinessDetailsDTO();
-  businessDetailsDTO.name = businessDetails.name;
-  businessDetailsDTO.website = businessDetails.website;
-  if (businessDetails.logo) {
-    businessDetailsDTO.logo = toImageDTO(businessDetails.logo);
-  }
-  return businessDetailsDTO;
+  return {
+    name: businessDetails.name,
+    website: businessDetails.website,
+    logo: businessDetails.logo ? toImageDTO(businessDetails.logo) : undefined,
+  };
 };
 
 export const fromBusinessDetailsDTO = (
   businessDetailsDTO: BusinessDetailsDTO,
-) => {
+): BusinessDetails => {
   const record: any = {
     name: businessDetailsDTO.name,
     website: businessDetailsDTO.website,
   };
-  const businessDetails = BusinessDetails.build(record, {
-    include: [Image],
-  });
+  const businessDetails: BusinessDetails = record;
   if (businessDetailsDTO.logo) {
-    businessDetails.setDataValue('logo', fromImageDTO(businessDetailsDTO.logo));
+    businessDetails.logo = fromImageDTO(businessDetailsDTO.logo);
   }
   return businessDetails;
 };

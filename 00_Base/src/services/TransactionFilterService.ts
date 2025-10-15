@@ -1,74 +1,63 @@
-import { ITransactionDatasource } from '../datasources/ITransactionDatasource';
-import { PaginatedResult } from '../model/PaginatedResult';
-import {
-  SequelizeTransactionEventRepository,
-  Transaction,
-} from '@citrineos/data';
-import { Attributes, CountOptions } from 'sequelize/types/model';
-import { TransactionQueryBuilder } from './TransactionQueryBuilder';
-import { Service, Token } from 'typedi';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
-  'TRANSACTION_DATASOURCE_SERVICE_TOKEN',
-);
+// import { ITransactionDatasource } from '../datasources/ITransactionDatasource';
+// import { PaginatedResult } from '../model/PaginatedResult';
+// import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+// import { Service, Token } from 'typedi';
+// import { Transaction } from '@citrineos/data';
+// import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
+// import { GetTransactionsQuery } from '../graphql/types/graphql';
 
-@Service(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
-export class TransactionFilterService implements ITransactionDatasource {
-  constructor(
-    private readonly transactionRepository: SequelizeTransactionEventRepository,
-    private readonly transactionQueryBuilder: TransactionQueryBuilder,
-  ) {}
+// export const TRANSACTION_DATASOURCE_SERVICE_TOKEN = new Token(
+//   'TRANSACTION_DATASOURCE_SERVICE_TOKEN',
+// );
 
-  async getTransactions(
-    cpoCountryCode: string,
-    cpoPartyId: string,
-    mspCountryCode: string,
-    mspPartyId: string,
-    dateFrom?: Date,
-    dateTo?: Date,
-    offset?: number,
-    limit?: number,
-    endedOnly?: boolean,
-  ): Promise<PaginatedResult<Transaction>> {
-    const baseQueryParams = {
-      dateFrom,
-      dateTo,
-      mspCountryCode,
-      mspPartyId,
-      cpoCountryCode,
-      cpoPartyId,
-    };
+// @Service(TRANSACTION_DATASOURCE_SERVICE_TOKEN)
+// export class TransactionFilterService implements ITransactionDatasource {
+//   constructor(private readonly ocpiGraphqlClient: OcpiGraphqlClient) {}
 
-    const queryOptions = this.transactionQueryBuilder.buildQuery(
-      {
-        ...baseQueryParams,
-        offset,
-        limit,
-      },
-      endedOnly,
-    );
+//   async getTransactions(
+//     cpoCountryCode: string,
+//     cpoPartyId: string,
+//     mspCountryCode: string,
+//     mspPartyId: string,
+//     dateFrom?: Date,
+//     dateTo?: Date,
+//     offset?: number,
+//     limit?: number,
+//     endedOnly?: boolean,
+//   ): Promise<PaginatedResult<Transaction>> {
+//     const queryOptions = {
+//       cpoCountryCode,
+//       cpoPartyId,
+//       mspCountryCode,
+//       mspPartyId,
+//       dateFrom,
+//       dateTo,
+//       offset,
+//       limit,
+//     };
+//     // Call GraphQL endpoint
+//     const response = await this.ocpiGraphqlClient.request<GetTransactionsQuery>(
+//       GET_TRANSACTIONS_QUERY,
+//       queryOptions,
+//     );
+//     let transactions = response.Transactions || [];
+//     let total = response.Transactions_aggregate?.aggregate?.count || 0;
 
-    const countQueryOptions = {
-      ...this.transactionQueryBuilder.buildQuery(baseQueryParams, endedOnly),
-      distinct: true,
-      col: 'id',
-    };
-
-    const [transactions, total] = await Promise.all([
-      this.transactionRepository.transaction.readAllByQuery(queryOptions),
-      Transaction.count(
-        countQueryOptions as Omit<
-          CountOptions<Attributes<Transaction>>,
-          'group'
-        >,
-      ),
-    ]);
-
-    const result: PaginatedResult<Transaction> =
-      new PaginatedResult<Transaction>();
-    result.data = transactions;
-    result.total = total;
-
-    return result;
-  }
-}
+//     if (endedOnly) {
+//       // Filter transactions to include only those that have ended
+//       transactions = transactions.filter(
+//         (transaction) => transaction.isActive === false,
+//       );
+//       total = transactions.length;
+//     }
+//     const result: PaginatedResult<Transaction> =
+//       new PaginatedResult<Transaction>();
+//     result.data = transactions as unknown as Transaction[];
+//     result.total = total;
+//     return result;
+//   }
+// }

@@ -1,47 +1,15 @@
-import { Column, DataType, Model, Table } from '@citrineos/data';
-import { OcpiConnector } from './OcpiConnector';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-/**
- * OCPI representation of an EVSE -- not named 'Evse' to avoid collisions
- * with Citrine's version of an EVSE.
- */
-@Table
-export class OcpiEvse extends Model {
-  // this is a GENERAL id, i.e. 1 or 2
-  // not the eMI3 id
-  @Column({
-    type: DataType.INTEGER,
-    unique: 'evseId_stationId',
-  })
-  declare evseId: number;
+import { z } from 'zod';
 
-  @Column({
-    type: DataType.STRING,
-    unique: 'evseId_stationId',
-  })
-  declare stationId: string;
+export const OcpiEvseSchema = z.object({
+  evseId: z.string(),
+  stationId: z.string(),
+  physicalReference: z.string().optional(),
+  removed: z.boolean().optional(),
+  lastUpdated: z.date(),
+});
 
-  @Column(DataType.STRING)
-  declare physicalReference?: string;
-
-  @Column(DataType.BOOLEAN)
-  declare removed?: boolean;
-
-  @Column(DataType.DATE)
-  declare lastUpdated: Date;
-
-  /* Helper properties */
-  ocpiConnectors!: Map<string, OcpiConnector>;
-
-  static buildWithLastUpdated(
-    evseId: number,
-    stationId: string,
-    lastUpdated: Date,
-  ): OcpiEvse {
-    const evse = new OcpiEvse();
-    evse.evseId = evseId;
-    evse.stationId = stationId;
-    evse.lastUpdated = lastUpdated;
-    return evse;
-  }
-}
+export type OcpiEvse = z.infer<typeof OcpiEvseSchema>;

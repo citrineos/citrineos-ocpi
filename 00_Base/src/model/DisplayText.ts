@@ -1,14 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class DisplayText {
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  language!: string;
+import { z } from 'zod';
 
-  @MaxLength(512)
-  @IsString()
-  @IsNotEmpty()
-  text!: string;
-}
+export const DisplayTextSchema = z.object({
+  language: z.string().min(2).max(2),
+  text: z.string().max(512),
+});
+
+export type DisplayText = z.infer<typeof DisplayTextSchema>;

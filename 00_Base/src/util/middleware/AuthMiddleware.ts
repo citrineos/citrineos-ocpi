@@ -1,15 +1,31 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { KoaMiddlewareInterface } from 'routing-controllers';
-import { HttpHeader, HttpStatus } from '@citrineos/base';
-import { Service } from 'typedi';
+import { HttpHeader, HttpStatus, UnauthorizedException } from '@citrineos/base';
+import Container, { Service } from 'typedi';
+import { Logger } from 'tslog';
 import { extractToken } from '../decorators/AuthToken';
 import { OcpiHttpHeader } from '../OcpiHttpHeader';
 import { BaseMiddleware } from './BaseMiddleware';
-import { ClientInformationRepository } from '../../repository/ClientInformationRepository';
 import { ContentType } from '../ContentType';
 import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse';
 import { OcpiResponseStatusCode } from '../../model/OcpiResponse';
+import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
+import {
+  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_SERVER_TOKEN,
+} from '../../graphql/queries/tenantPartner.queries';
+import {
+  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
+  GetTenantPartnerByServerTokenQueryResult,
+  GetTenantPartnerByServerTokenQueryVariables,
+} from '../../graphql/operations';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
+const registrationModules: string[] = ['versions', 'credentials'];
 
 /**
  * AuthMiddleware is applied via the {@link AsOcpiEndpoint} and {@link AsOcpiOpenRoutingEndpoint} decorators. Endpoints
@@ -23,9 +39,7 @@ export class AuthMiddleware
   extends BaseMiddleware
   implements KoaMiddlewareInterface
 {
-  constructor(
-    readonly clientInformationRepository: ClientInformationRepository,
-  ) {
+  constructor(readonly ocpiGraphqlClient: OcpiGraphqlClient) {
     super();
   }
 
@@ -41,40 +55,80 @@ export class AuthMiddleware
   }
 
   async use(context: any, next: (err?: any) => Promise<any>): Promise<any> {
-    console.debug(
-      `AuthMiddleware executed for ${context.request.method} ${context.request.url}`,
-    );
+    const logger = Container.get(Logger);
+
     const authHeader =
       context.request.headers[HttpHeader.Authorization.toLowerCase()];
+
     if (!permittedRoutes.includes(context.request.originalUrl)) {
       if (!authHeader) {
+        logger.debug(
+          `No authorization header found for ${context.request.method} ${context.request.url}`,
+        );
         return this.throwError(context);
       }
+
       try {
         const token = extractToken(authHeader);
-        const fromCountryCode = this.getHeader(
-          context,
-          OcpiHttpHeader.OcpiFromCountryCode,
-        );
-        const fromPartyId = this.getHeader(
-          context,
-          OcpiHttpHeader.OcpiFromPartyId,
-        );
-        const toCountryCode = this.getHeader(
-          context,
-          OcpiHttpHeader.OcpiToCountryCode,
-        );
-        const toPartyId = this.getHeader(context, OcpiHttpHeader.OcpiToPartyId);
-        await this.clientInformationRepository.authorizeToken(
-          token,
-          fromCountryCode,
-          fromPartyId,
-          toCountryCode,
-          toPartyId,
-        );
-      } catch (error) {
+
+        const response = await this.ocpiGraphqlClient.request<
+          GetTenantPartnerByServerTokenQueryResult,
+          GetTenantPartnerByServerTokenQueryVariables
+        >(GET_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
+
+        const tenantPartner = response.TenantPartners[0];
+        if (!tenantPartner) {
+          logger.debug(
+            `Authorization failed - tenant partner not found for token`,
+          );
+          throw new UnauthorizedException(
+            'Credentials not found for given token',
+          );
+        }
+
+        if (
+          !registrationModules.some((value) =>
+            (context.request.originalUrl as string).includes(value),
+          )
+        ) {
+          const fromCountryCode = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiFromCountryCode,
+          );
+          const fromPartyId = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiFromPartyId,
+          );
+          const toCountryCode = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiToCountryCode,
+          );
+          const toPartyId = this.getHeader(
+            context,
+            OcpiHttpHeader.OcpiToPartyId,
+          );
+          if (
+            tenantPartner.countryCode !== fromCountryCode ||
+            tenantPartner.partyId !== fromPartyId ||
+            tenantPartner.tenant.countryCode !== toCountryCode ||
+            tenantPartner.tenant.partyId !== toPartyId
+          ) {
+            logger.debug(
+              `String token matched tenantPartner with incorrect routing headers - ${tenantPartner.countryCode}:${fromCountryCode}, ${tenantPartner.partyId}:${fromPartyId}, ${tenantPartner.tenant.countryCode}:${toCountryCode}, ${tenantPartner.tenant.partyId}:${toPartyId}`,
+            );
+            throw new UnauthorizedException(
+              'Credentials not found for given token',
+            );
+          }
+        }
+
+        context.state.tenantPartner = tenantPartner;
+      } catch (error: any) {
+        logger.debug(`Authorization error: ${error.message}`);
         return this.throwError(context);
       }
+    } else {
+      logger.debug('Route is permitted, skipping authentication');
     }
     return await next();
   }

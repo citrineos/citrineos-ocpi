@@ -1,11 +1,12 @@
-import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class LocationReferences {
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(36)
-  location_id!: string;
+import { z } from 'zod';
 
-  @IsArray()
-  evse_uids!: string[];
-}
+export const LocationReferencesSchema = z.object({
+  location_id: z.string().max(36),
+  evse_uids: z.array(z.string()),
+});
+
+export type LocationReferences = z.infer<typeof LocationReferencesSchema>;

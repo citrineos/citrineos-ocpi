@@ -1,6 +1,8 @@
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
-import { Enum } from '../util/decorators/Enum';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 
 export enum OcpiResponseStatusCode {
   GenericSuccessCode = 1000,
@@ -19,45 +21,21 @@ export enum OcpiResponseStatusCode {
   HubConnectionProblem = 4003,
 }
 
-export class OcpiResponse<T> {
-  @Enum(OcpiResponseStatusCode, 'OcpiResponseStatusCode')
-  @IsNotEmpty()
-  status_code!: OcpiResponseStatusCode;
-  /**
-   *
-   * @type {string}
-   * @memberof OcpiResponseDTO
-   */
-  @IsString()
-  @Optional()
-  status_message?: string;
-
-  /**
-   *
-   * @type {string}
-   * @memberof OcpiResponseDTO
-   */
-  @IsDate()
-  timestamp!: Date;
-
-  /**
-   *
-   * @type {object}
-   * @memberof OcpiResponseDTO
-   */
-  @Optional()
-  data?: T;
-}
+export const OcpiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    status_code: z.nativeEnum(OcpiResponseStatusCode),
+    status_message: z.string().optional(),
+    timestamp: z.coerce.date(),
+    data: dataSchema.optional(),
+  });
 
 export const buildOcpiResponse = <T>(
   status_code: OcpiResponseStatusCode,
   data?: T,
   status_message?: string,
-) => {
-  const response = new OcpiResponse<T>();
-  response.status_code = status_code;
-  response.status_message = status_message;
-  response.data = data;
-  response.timestamp = new Date();
-  return response;
-};
+) => ({
+  status_code,
+  status_message,
+  data,
+  timestamp: new Date(),
+});

@@ -1,17 +1,14 @@
-import { ArrayMinSize, IsArray, IsNotEmpty } from 'class-validator';
-import { Enum } from '../../util/decorators/Enum';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { VersionNumber } from '../VersionNumber';
-import { Type } from 'class-transformer';
-import { Endpoint, EndpointDTO } from '../Endpoint';
+import { EndpointSchema } from '../Endpoint';
 
-export class VersionDetailsDTO {
-  @IsNotEmpty()
-  @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+export const VersionDetailsDTOSchema = z.object({
+  version: z.nativeEnum(VersionNumber),
+  endpoints: z.array(EndpointSchema).min(1),
+});
 
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsNotEmpty()
-  @Type(() => Endpoint)
-  endpoints!: EndpointDTO[];
-}
+export type VersionDetailsDTO = z.infer<typeof VersionDetailsDTOSchema>;

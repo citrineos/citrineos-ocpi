@@ -1,15 +1,24 @@
-import { OcpiSequelizeInstance, ServerConfig } from '@citrineos/ocpi-base';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-const ocpiSequelizeInstance = new OcpiSequelizeInstance(new ServerConfig());
-const sequelize = ocpiSequelizeInstance.sequelize;
+// import {
+//   OcpiSequelizeInstance,
+//   getOcpiSystemConfig,
+// } from '@citrineos/ocpi-base';
 
-const syncDatabase = async () => {
-  try {
-    await sequelize.sync({ alter: true }); // Use { force: true } for dropping and recreating tables
-    console.log('Database synchronized successfully');
-  } catch (error) {
-    console.error('Error synchronizing database:', error);
-  }
-};
+// // Create a minimal OCPI config for database sync using local environment
+// const ocpiConfig = getOcpiSystemConfig();
+// const ocpiSequelizeInstance = new OcpiSequelizeInstance(ocpiConfig);
+// const sequelize = ocpiSequelizeInstance.sequelize;
 
-syncDatabase().then();
+// const syncDatabase = async () => {
+//   try {
+//     await sequelize.sync({ alter: true }); // Use { force: true } for dropping and recreating tables
+//     console.log('Database synchronized successfully');
+//   } catch (error) {
+//     console.error('Error synchronizing database:', error);
+//   }
+// };
+
+// syncDatabase().then();

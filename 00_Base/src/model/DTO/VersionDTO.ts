@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
-import { Enum } from '../../util/decorators/Enum';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { VersionNumber } from '../VersionNumber';
 
-export class VersionDTO {
-  @IsNotEmpty()
-  @Enum(VersionNumber, 'VersionNumber')
-  version!: VersionNumber;
+export const VersionDTOSchema = z.object({
+  version: z.nativeEnum(VersionNumber),
+  url: z.string().url(),
+});
 
-  @IsString()
-  @IsUrl({ require_tld: false })
-  url!: string;
-}
+export type VersionDTO = z.infer<typeof VersionDTOSchema>;

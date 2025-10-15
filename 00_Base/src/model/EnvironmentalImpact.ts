@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { EnvironmentalImpactCategory } from './EnvironmentalImpactCategory';
-import { Enum } from '../util/decorators/Enum';
 
-export class EnvironmentalImpact {
-  @Enum(EnvironmentalImpactCategory, 'EnvironmentalImpactCategory')
-  @IsNotEmpty()
-  category!: EnvironmentalImpactCategory;
+export const EnvironmentalImpactSchema = z.object({
+  category: z.nativeEnum(EnvironmentalImpactCategory),
+  amount: z.number().min(0),
+});
 
-  @IsNumber()
-  @IsNotEmpty()
-  amount!: number;
-}
+export type EnvironmentalImpact = z.infer<typeof EnvironmentalImpactSchema>;

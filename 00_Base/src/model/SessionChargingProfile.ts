@@ -1,17 +1,15 @@
-import { Column, DataType, Index, Model, Table } from '@citrineos/data';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-@Table
-export class SessionChargingProfile extends Model {
-  @Index
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
-  sessionId!: string;
+import { z } from 'zod';
 
-  @Column(DataType.INTEGER)
-  chargingProfileId!: number;
+export const SessionChargingProfileSchema = z.object({
+  sessionId: z.string(),
+  chargingProfileId: z.number(),
+  chargingScheduleId: z.number(),
+});
 
-  @Column(DataType.INTEGER)
-  chargingScheduleId!: number;
-}
+export type SessionChargingProfile = z.infer<
+  typeof SessionChargingProfileSchema
+>;

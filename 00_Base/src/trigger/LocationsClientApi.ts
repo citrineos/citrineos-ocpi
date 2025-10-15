@@ -1,195 +1,265 @@
-import { GetConnectorParams } from './param/locations/GetConnectorParams';
-import { GetEvseParams } from './param/locations/GetEvseParams';
-import { GetLocationParams } from './param/locations/GetLocationParams';
-import { PatchConnectorParams } from './param/locations/PatchConnectorParams';
-import { PatchEvseParams } from './param/locations/PatchEvseParams';
-import { PatchLocationParams } from './param/locations/PatchLocationParams';
-import { PutConnectorParams } from './param/locations/PutConnectorParams';
-import { PutEvseParams } from './param/locations/PutEvseParams';
-import { PutLocationParams } from './param/locations/PutLocationParams';
-import { IHeaders } from 'typed-rest-client/Interfaces';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { BaseClientApi } from './BaseClientApi';
-import { ConnectorResponse } from '../model/DTO/ConnectorDTO';
-import { LocationResponse } from '../model/DTO/LocationDTO';
-import { OcpiEmptyResponse } from '../model/OcpiEmptyResponse';
-import { EvseResponse } from '../model/DTO/EvseDTO';
+import {
+  ConnectorDTO,
+  ConnectorResponse,
+  ConnectorResponseSchema,
+} from '../model/DTO/ConnectorDTO';
+import {
+  LocationDTO,
+  LocationResponse,
+  LocationResponseSchema,
+} from '../model/DTO/LocationDTO';
+import {
+  OcpiEmptyResponse,
+  OcpiEmptyResponseSchema,
+} from '../model/OcpiEmptyResponse';
+import {
+  EvseDTO,
+  EvseResponse,
+  EvseResponseSchema,
+} from '../model/DTO/EvseDTO';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId';
+import { EndpointIdentifier } from '../model/EndpointIdentifier';
+import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Locations;
 
-  async getConnector(params: GetConnectorParams): Promise<ConnectorResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'locationId', 'evseUid', 'connectorId');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get(ConnectorResponse, {
-      version: params.version,
-      path: '{countryCode}/{partyId}/{locationId}/{evseUid}/{connectorId}'
-        .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-        .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-        .replace('{locationId}', encodeURIComponent(params.locationId))
-        .replace('{evseUid}', encodeURIComponent(params.evseUid))
-        .replace('{connectorId}', encodeURIComponent(params.connectorId)),
-      additionalHeaders,
-    });
+  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+    const url = partnerProfile.endpoints?.find(
+      (value: OCPIRegistration.Endpoint) =>
+        value.identifier === EndpointIdentifier.LOCATIONS_RECEIVER,
+    )?.url;
+    if (!url) {
+      throw new Error(
+        `No Locations endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+      );
+    }
+    return url;
   }
 
-  async getEvse(params: GetEvseParams): Promise<EvseResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'locationId', 'evseUid');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get(EvseResponse, {
-      version: params.version,
-      path: '{countryCode}/{partyId}/{locationId}/{evseUid}'
-        .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-        .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-        .replace('{locationId}', encodeURIComponent(params.locationId))
-        .replace('{evseUid}', encodeURIComponent(params.evseUid)),
-      additionalHeaders,
-    });
+  async getConnector(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    evseUid: string,
+    connectorId: string,
+  ): Promise<ConnectorResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}/${connectorId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Get,
+      ConnectorResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+    );
   }
 
-  async getLocation(params: GetLocationParams): Promise<LocationResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'countryCode', 'partyId', 'locationId');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.get(LocationResponse, {
-      version: params.version,
-      path: '{countryCode}/{partyId}/{locationId}'
-        .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-        .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-        .replace('{locationId}', encodeURIComponent(params.locationId)),
-      additionalHeaders,
-    });
+  async getEvse(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    evseUid: string,
+  ): Promise<EvseResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Get,
+      EvseResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+    );
+  }
+
+  async getLocation(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+  ): Promise<LocationResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Get,
+      LocationResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+    );
   }
 
   async patchConnector(
-    params: PatchConnectorParams,
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    evseUid: string,
+    connectorId: string,
+    requestBody: Partial<ConnectorDTO>,
   ): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(
-      params,
-      'locationId',
-      'evseUid',
-      'connectorId',
-      'requestBody',
-    );
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUid}/{connectorId}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{locationId}', encodeURIComponent(params.locationId))
-          .replace('{evseUid}', encodeURIComponent(params.evseUid))
-          .replace('{connectorId}', encodeURIComponent(params.connectorId)),
-        additionalHeaders,
-      },
-      params.requestBody,
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}/${connectorId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      requestBody,
     );
   }
 
-  async patchEvse(params: PatchEvseParams): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'locationId', 'evseUid', 'requestBody');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.update(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUid}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{locationId}', encodeURIComponent(params.locationId))
-          .replace('{evseUid}', encodeURIComponent(params.evseUid)),
-        additionalHeaders,
-      },
-      params.requestBody,
+  async patchEvse(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    evseUid: string,
+    requestBody: Partial<EvseDTO>,
+  ): Promise<OcpiEmptyResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      requestBody,
     );
   }
 
-  async patchLocation(params: PatchLocationParams): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'locationId', 'requestBody');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return this.update(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{locationId}', encodeURIComponent(params.locationId)),
-        additionalHeaders,
-      },
-      params.requestBody,
+  async patchLocation(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    requestBody: Partial<LocationDTO>,
+  ): Promise<OcpiEmptyResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Patch,
+      OcpiEmptyResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      requestBody,
     );
   }
 
-  async putConnector(params: PutConnectorParams): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(
-      params,
-      'locationId',
-      'evseUid',
-      'connectorId',
-      'connector',
-    );
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUid}/{connectorId}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{locationId}', encodeURIComponent(params.locationId))
-          .replace('{evseUid}', encodeURIComponent(params.evseUid))
-          .replace('{connectorId}', encodeURIComponent(params.connectorId)),
-        additionalHeaders,
-      },
-      params.connector,
-    );
-  }
-
-  async putEvse(params: PutEvseParams): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'locationId', 'evseUid', 'evse');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}/{evseUid}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{locationId}', encodeURIComponent(params.locationId))
-          .replace('{evseUid}', encodeURIComponent(params.evseUid)),
-        additionalHeaders,
-      },
-      params.evse,
+  async putConnector(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    evseUid: string,
+    connectorId: string,
+    connector: ConnectorDTO,
+  ): Promise<OcpiEmptyResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}/${connectorId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      connector,
     );
   }
 
-  async putLocation(params: PutLocationParams): Promise<OcpiEmptyResponse> {
-    this.validateOcpiParams(params);
-    this.validateRequiredParam(params, 'locationId', 'location');
-    const additionalHeaders: IHeaders = this.getOcpiHeaders(params);
-    return await this.replace(
-      OcpiEmptyResponse,
-      {
-        version: params.version,
-        path: '{countryCode}/{partyId}/{locationId}'
-          .replace('{countryCode}', encodeURIComponent(params.fromCountryCode))
-          .replace('{partyId}', encodeURIComponent(params.fromPartyId))
-          .replace('{locationId}', encodeURIComponent(params.locationId)),
-        additionalHeaders,
-      },
-      params.location,
+  async putEvse(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    evseUid: string,
+    evse: EvseDTO,
+  ): Promise<OcpiEmptyResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      evse,
+    );
+  }
+
+  async putLocation(
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+    partnerProfile: OCPIRegistration.PartnerProfile,
+    locationId: string,
+    location: LocationDTO,
+  ): Promise<OcpiEmptyResponse> {
+    const path = `${fromCountryCode}/${fromPartyId}/${locationId}`;
+    return this.request(
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+      HttpMethod.Put,
+      OcpiEmptyResponseSchema,
+      partnerProfile,
+      true,
+      `${this.getUrl(partnerProfile)}/${path}`,
+      location,
     );
   }
 }

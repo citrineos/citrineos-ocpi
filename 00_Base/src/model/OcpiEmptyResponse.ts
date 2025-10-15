@@ -1,27 +1,27 @@
-import { IsDateString, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
-import { OcpiResponse, OcpiResponseStatusCode } from './OcpiResponse';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class OcpiEmptyResponse extends OcpiResponse<void> {
-  @Optional()
-  @ValidateNested() // needed for json schema
-  data?: undefined;
+import { z } from 'zod';
+import { OcpiResponseStatusCode } from './OcpiResponse';
 
-  @IsString()
-  @Optional()
-  status_message?: string;
+export const OcpiEmptyResponseSchema = z.object({
+  status_code: z
+    .nativeEnum(OcpiResponseStatusCode)
+    .default(OcpiResponseStatusCode.GenericSuccessCode),
+  status_message: z.string().optional(),
+  timestamp: z.coerce.date(),
+  data: z.undefined().optional(),
+});
+export const OcpiEmptyResponseSchemaName = 'OcpiEmptyResponse';
 
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  timestamp!: Date;
+export type OcpiEmptyResponse = z.infer<typeof OcpiEmptyResponseSchema>;
 
-  status_code = OcpiResponseStatusCode.GenericSuccessCode;
-
-  static build(status_code: OcpiResponseStatusCode): OcpiEmptyResponse {
-    const response = new OcpiEmptyResponse();
-    response.status_code = status_code;
-    response.timestamp = new Date();
-    return response;
-  }
-}
+export const buildOcpiEmptyResponse = (
+  status_code: OcpiResponseStatusCode,
+): OcpiEmptyResponse => {
+  return {
+    status_code,
+    timestamp: new Date(),
+  };
+};

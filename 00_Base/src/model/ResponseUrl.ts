@@ -1,8 +1,11 @@
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class ResponseUrl {
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  response_url!: string;
-}
+import { z } from 'zod';
+
+export const ResponseUrlSchema = z.object({
+  response_url: z.string().url(),
+});
+
+export type ResponseUrl = z.infer<typeof ResponseUrlSchema>;

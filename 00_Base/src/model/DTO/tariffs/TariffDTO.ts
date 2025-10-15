@@ -1,107 +1,39 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsDateString,
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-  MaxLength,
-  MinLength,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { PaginatedResponse } from '../../PaginatedResponse';
-import { Optional } from '../../../util/decorators/Optional';
-import { Price } from '../../Price';
-import { TariffElement } from '../../TariffElement';
-import { EnergyMix } from '../../EnergyMix';
-import { DisplayText } from '../../DisplayText';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { TariffType } from '../../TariffType';
+import { DisplayTextSchema } from '../../DisplayText';
+import { PriceSchema } from '../../Price';
+import { TariffElementSchema } from '../../TariffElement';
+import { EnergyMixSchema } from '../../EnergyMix';
+import { PaginatedResponseSchema } from '../../PaginatedResponse';
 
-export class TariffDTO {
-  @MaxLength(36)
-  @IsString()
-  @IsNotEmpty()
-  id!: string;
+export const TariffDTOSchema = z.object({
+  id: z.string().max(36),
+  country_code: z.string().min(2).max(2),
+  party_id: z.string().max(3),
+  currency: z.string().length(3),
+  type: z.nativeEnum(TariffType).nullable().optional(),
+  tariff_alt_text: z.array(DisplayTextSchema).nullable().optional(),
+  tariff_alt_url: z.string().url().nullable().optional(),
+  min_price: PriceSchema.nullable().optional(),
+  max_price: PriceSchema.nullable().optional(),
+  elements: z.array(TariffElementSchema).min(1),
+  energy_mix: EnergyMixSchema.nullable().optional(),
+  start_date_time: z.coerce.date().nullable().optional(),
+  end_date_time: z.coerce.date().nullable().optional(),
+  last_updated: z.coerce.date(),
+});
 
-  @MaxLength(2)
-  @MinLength(2)
-  @IsString()
-  @IsNotEmpty()
-  country_code!: string;
+export type TariffDTO = z.infer<typeof TariffDTOSchema>;
 
-  @MaxLength(3)
-  @IsString()
-  @IsNotEmpty()
-  party_id!: string;
+export const PaginatedTariffResponseSchema =
+  PaginatedResponseSchema(TariffDTOSchema);
+export const PaginatedTariffResponseSchemaName =
+  'PaginatedTariffResponseSchema';
 
-  @MaxLength(3)
-  @MinLength(3)
-  @IsString()
-  @IsNotEmpty()
-  currency!: string;
-
-  @IsString()
-  @Optional()
-  type?: TariffType | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => DisplayText)
-  @ValidateNested({ each: true })
-  tariff_alt_text?: DisplayText[] | null;
-
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @Optional()
-  tariff_alt_url?: string | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  min_price?: Price | null;
-
-  @Optional()
-  @Type(() => Price)
-  @ValidateNested()
-  max_price?: Price | null;
-
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsNotEmpty()
-  @Type(() => TariffElement)
-  @ValidateNested({ each: true })
-  elements!: TariffElement[];
-
-  @Optional()
-  @Type(() => EnergyMix)
-  @ValidateNested()
-  energy_mix?: EnergyMix | null;
-
-  @IsString()
-  @IsDateString()
-  @Optional()
-  @Type(() => Date)
-  start_date_time?: Date | null;
-
-  @IsString()
-  @IsDateString()
-  @Optional()
-  @Type(() => Date)
-  end_date_time?: Date | null;
-
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  @Type(() => Date)
-  last_updated!: Date;
-}
-
-export class PaginatedTariffResponse extends PaginatedResponse<TariffDTO> {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @IsNotEmpty()
-  @Optional(false)
-  @Type(() => TariffDTO)
-  data!: TariffDTO[];
-}
+export type PaginatedTariffResponse = z.infer<
+  typeof PaginatedTariffResponseSchema
+>;

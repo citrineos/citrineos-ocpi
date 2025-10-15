@@ -1,6 +1,6 @@
 {
   "name": "@citrineos/ocpi-base",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The base module for OCPP v2.0.1 including all interfaces. This module is not intended to be used directly, but rather as a dependency for other modules.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "generate-interfaces": "node json-schema-processor.js",
+    "build": "tsc --build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -19,40 +19,47 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/koa-logger": "3.1.5",
+    "@types/lodash.capitalize": "4.2.9",
     "@types/lodash.merge": "4.6.9",
-    "ts-node": "10.9.1",
+    "@types/lodash.startcase": "4.4.9",
+    "@types/pg": "8.15.4",
     "@types/uuid": "9.0.3",
     "@types/validator": "13.11.1",
+    "cpy-cli": "5.0.0",
     "json-schema-to-typescript": "12.0.0",
     "json-schema-to-zod": "1.1.1",
-    "typescript": "5.0.4",
-    "@types/lodash.capitalize": "4.2.9",
-    "@types/lodash.startcase": "4.4.9"
+    "ts-node": "10.9.1",
+    "typescript": "5.0.4"
   },
   "dependencies": {
-    "@citrineos/base": "~1.4.0",
-    "@citrineos/data": "~1.4.0",
-    "@citrineos/util": "~1.4.0",
-    "@types/sequelize": "4.28.20",
-    "json-schema-faker": "0.5.6",
-    "sequelize": "6.37.3",
-    "sequelize-typescript": "2.1.5",
-    "typed-rest-client": "2.0.2",
+    "@citrineos/base": "~1.8.0",
+    "@citrineos/util": "~1.8.0",
+    "ajv": "8.17.1",
+    "ajv-formats": "^3.0.1",
+    "amqplib": "0.10.8",
     "class-transformer": "0.5.1",
-    "reflect-metadata": "0.1.13",
-    "tslog": "4.9.2",
-    "uuid": "9.0.0",
-    "zod": "3.22.2",
     "class-validator": "0.14.1",
     "class-validator-jsonschema": "5.0.0",
-    "koa": "2.15.3",
+    "graphql-request": "^7.2.0",
+    "json-schema-faker": "0.5.6",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.0",
+    "koa": "2.16.2",
     "koa-bodyparser": "4.4.1",
     "koa-logger": "3.2.1",
     "koa2-swagger-ui": "5.10.0",
     "lodash.capitalize": "4.2.1",
     "lodash.merge": "4.6.2",
     "lodash.startcase": "4.4.0",
+    "node-pg-migrate": "^7.9.1",
+    "pg": "8.11.3",
+    "reflect-metadata": "0.1.13",
     "routing-controllers": "0.10.4",
-    "typedi": "0.10.0"
+    "tslog": "4.9.2",
+    "typed-rest-client": "2.1.0",
+    "typedi": "0.10.0",
+    "uuid": "9.0.0",
+    "zod": "3.24.1",
+    "zod-to-json-schema": "3.24.6"
   }
 }

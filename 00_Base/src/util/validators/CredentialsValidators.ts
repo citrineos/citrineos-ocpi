@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { BadRequestError } from 'routing-controllers';
 import { CredentialsRoleDTO } from '../../model/DTO/CredentialsRoleDTO';
 import { Role } from '../../model/Role';

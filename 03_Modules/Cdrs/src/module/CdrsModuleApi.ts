@@ -1,7 +1,6 @@
-// Copyright (c) 2023 S44, LLC
-// Copyright Contributors to the CitrineOS Project
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
 
 import { ICdrsModuleApi } from './ICdrsModuleApi';
 
@@ -17,6 +16,8 @@ import {
   OcpiHeaders,
   Paginated,
   PaginatedCdrResponse,
+  PaginatedCdrResponseSchema,
+  PaginatedCdrResponseSchemaName,
   PaginatedParams,
   ResponseSchema,
   versionIdParam,
@@ -25,7 +26,8 @@ import {
 import { Service } from 'typedi';
 
 const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
-  PaginatedCdrResponse,
+  PaginatedCdrResponseSchema,
+  PaginatedCdrResponseSchemaName,
   new PaginatedParams(),
 );
 
@@ -38,7 +40,7 @@ export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedCdrResponse, {
+  @ResponseSchema(PaginatedCdrResponseSchema, PaginatedCdrResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {

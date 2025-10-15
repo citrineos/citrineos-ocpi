@@ -1,22 +1,14 @@
-import {
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  IsUrl,
-  ValidateNested,
-} from 'class-validator';
-import { ChargingProfile } from './ChargingProfile';
-import { Type } from 'class-transformer';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class SetChargingProfile {
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => ChargingProfile)
-  @ValidateNested()
-  charging_profile!: ChargingProfile;
+import { z } from 'zod';
+import { ChargingProfileSchema } from './ChargingProfile';
 
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  response_url!: string;
-}
+export const SetChargingProfileSchema = z.object({
+  charging_profile: ChargingProfileSchema,
+  response_url: z.string().url(),
+});
+export const SetChargingProfileSchemaName = 'SetChargingProfile';
+
+export type SetChargingProfile = z.infer<typeof SetChargingProfileSchema>;

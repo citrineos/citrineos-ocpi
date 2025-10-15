@@ -1,19 +1,14 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { Session } from '../../../model/Session';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class PatchSessionParams extends OcpiParams {
-  @IsString()
-  @IsNotEmpty()
-  @Length(36, 36)
-  sessionId!: string;
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { SessionSchema } from '../../../model/Session';
 
-  requestBody!: Partial<Session>;
+export const PatchSessionParamsSchema = OcpiParamsSchema.extend({
+  sessionId: z.string().length(36),
+  requestBody: SessionSchema.partial(),
+});
 
-  static build(sessionId: string, requestBody: Partial<Session>) {
-    const params = new PatchSessionParams();
-    params.sessionId = sessionId;
-    params.requestBody = requestBody;
-    return params;
-  }
-}
+export type PatchSessionParams = z.infer<typeof PatchSessionParamsSchema>;

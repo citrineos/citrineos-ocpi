@@ -1,17 +1,12 @@
-import { OcpiParams } from '../../util/OcpiParams';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Cdr } from '../../../model/Cdr';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class PostCdrParams extends OcpiParams {
-  @IsNotEmpty()
-  @Type(() => Cdr)
-  @ValidateNested()
-  cdr!: Cdr;
+import { z } from 'zod';
+import { CdrSchema } from '../../../model/Cdr';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
 
-  static build(cdr: Cdr) {
-    const params = new PostCdrParams();
-    params.cdr = cdr;
-    return params;
-  }
-}
+export const PostCdrParamsSchema = OcpiParamsSchema.extend({
+  cdr: CdrSchema,
+});
+export type PostCdrParams = z.infer<typeof PostCdrParamsSchema>;

@@ -1,14 +1,13 @@
-import { IsNotEmpty, IsNumber, Max } from 'class-validator';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { z } from 'zod';
 import { EnergySourceCategory } from './EnergySourceCategory';
-import { Enum } from '../util/decorators/Enum';
 
-export class EnergySources {
-  @Enum(EnergySourceCategory, 'EnergySourceCategory')
-  @IsNotEmpty()
-  source!: EnergySourceCategory;
+export const EnergySourcesSchema = z.object({
+  source: z.nativeEnum(EnergySourceCategory),
+  percentage: z.number().min(0).max(100),
+});
 
-  @Max(100)
-  @IsNumber()
-  @IsNotEmpty()
-  percentage!: number;
-}
+export type EnergySources = z.infer<typeof EnergySourcesSchema>;

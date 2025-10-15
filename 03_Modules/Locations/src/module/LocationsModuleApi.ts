@@ -1,38 +1,33 @@
-// Copyright (c) 2023 S44, LLC
-// Copyright Contributors to the CitrineOS Project
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
-// SPDX-License-Identifier: Apache 2.0
+// SPDX-License-Identifier: Apache-2.0
 
-import {
-  Body,
-  Get,
-  JsonController,
-  Param,
-  Put,
-  QueryParam,
-} from 'routing-controllers';
+import { Get, JsonController, Param } from 'routing-controllers';
 import { ILocationsModuleApi } from './ILocationsModuleApi';
 import {
-  AdminLocationDTO,
-  AdminLocationsService,
-  AsAdminEndpoint,
   AsOcpiFunctionalEndpoint,
   BaseController,
   ConnectorResponse,
+  ConnectorResponseSchema,
+  ConnectorResponseSchemaName,
   EvseResponse,
+  EvseResponseSchema,
+  EvseResponseSchemaName,
   EXTRACT_EVSE_ID,
   EXTRACT_STATION_ID,
   FunctionalEndpointParams,
+  generateMockForSchema,
   generateMockOcpiPaginatedResponse,
-  generateMockOcpiResponse,
-  LocationDTO,
   LocationResponse,
+  LocationResponseSchema,
+  LocationResponseSchemaName,
   LocationsService,
   ModuleId,
-  OcpiEmptyResponse,
   OcpiHeaders,
   Paginated,
   PaginatedLocationResponse,
+  PaginatedLocationResponseSchema,
+  PaginatedLocationResponseSchemaName,
   PaginatedParams,
   ResponseSchema,
   versionIdParam,
@@ -43,12 +38,22 @@ import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
 
 const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
-  PaginatedLocationResponse,
+  PaginatedLocationResponseSchema,
+  PaginatedLocationResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_LOCATION = generateMockOcpiResponse(LocationResponse);
-const MOCK_EVSE = generateMockOcpiResponse(EvseResponse);
-const MOCK_CONNECTOR = generateMockOcpiResponse(ConnectorResponse);
+const MOCK_LOCATION = generateMockForSchema(
+  LocationResponseSchema,
+  LocationResponseSchemaName,
+);
+const MOCK_EVSE = generateMockForSchema(
+  EvseResponseSchema,
+  EvseResponseSchemaName,
+);
+const MOCK_CONNECTOR = generateMockForSchema(
+  ConnectorResponseSchema,
+  ConnectorResponseSchemaName,
+);
 
 /**
  * Server API for the provisioning component.
@@ -67,20 +72,24 @@ export class LocationsModuleApi
    */
   constructor(
     readonly locationsService: LocationsService,
-    readonly adminLocationsService: AdminLocationsService,
+    // readonly adminLocationsService: AdminLocationsService,
   ) {
     super();
   }
 
   @Get()
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(PaginatedLocationResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-    examples: {
-      success: MOCK_PAGINATED_LOCATION,
+  @ResponseSchema(
+    PaginatedLocationResponseSchema,
+    PaginatedLocationResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: MOCK_PAGINATED_LOCATION,
+      },
     },
-  })
+  )
   async getLocations(
     @VersionNumberParam() version: VersionNumber,
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
@@ -91,7 +100,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(LocationResponse, {
+  @ResponseSchema(LocationResponseSchema, LocationResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -107,7 +116,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(EvseResponse, {
+  @ResponseSchema(EvseResponseSchema, EvseResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -131,7 +140,7 @@ export class LocationsModuleApi
 
   @Get('/:location_id/:evse_uid/:connector_id')
   @AsOcpiFunctionalEndpoint()
-  @ResponseSchema(ConnectorResponse, {
+  @ResponseSchema(ConnectorResponseSchema, ConnectorResponseSchemaName, {
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
@@ -159,19 +168,19 @@ export class LocationsModuleApi
    * Admin Endpoints
    **/
 
-  @Put('/admin')
-  @AsAdminEndpoint()
-  @ResponseSchema(OcpiEmptyResponse, {
-    statusCode: HttpStatus.OK,
-    description: 'Successful response',
-  })
-  async createLocation(
-    @QueryParam('broadcast') broadcast: boolean,
-    @Body() adminLocation: AdminLocationDTO,
-  ): Promise<LocationDTO> {
-    return await this.adminLocationsService.createOrUpdateLocation(
-      adminLocation,
-      broadcast,
-    );
-  }
+  // @Put('/admin')
+  // @AsAdminEndpoint()
+  // @ResponseSchema(OcpiEmptyResponse, {
+  //   statusCode: HttpStatus.OK,
+  //   description: 'Successful response',
+  // })
+  // async createLocation(
+  //   @QueryParam('broadcast') broadcast: boolean,
+  //   @Body() adminLocation: AdminLocationDTO,
+  // ): Promise<LocationDTO> {
+  //   return await this.adminLocationsService.createOrUpdateLocation(
+  //     adminLocation,
+  //     broadcast,
+  //   );
+  // }
 }

@@ -1,8 +1,10 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-import { OcpiParams } from '../../util/OcpiParams';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class GetCdrParams extends OcpiParams {
-  @IsNotEmpty()
-  @IsString()
-  url!: string;
-}
+import { z } from 'zod';
+import { OcpiParamsSchema } from '../../util/OcpiParams';
+
+export const GetCdrParamsSchema = OcpiParamsSchema.extend({
+  url: z.string().url(),
+});

@@ -1,29 +1,19 @@
-import { IsArray, IsDateString, IsInt, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
-import { ChargingProfilePeriod } from './ChargingProfilePeriod';
-import { Type } from 'class-transformer';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class ChargingProfile {
-  @IsString()
-  @IsDateString()
-  @Optional()
-  start_date_time?: Date | null;
+import { z } from 'zod';
+import { ChargingProfilePeriodSchema } from './ChargingProfilePeriod';
 
-  @IsInt()
-  @Optional()
-  duration?: number | null;
+export const ChargingProfileSchema = z.object({
+  start_date_time: z.coerce.date().nullable().optional(),
+  duration: z.number().int().nullable().optional(),
+  charging_rate_unit: z.string(),
+  min_charging_rate: z.number().nullable().optional(),
+  charging_profile_period: z
+    .array(ChargingProfilePeriodSchema)
+    .nullable()
+    .optional(),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  charging_rate_unit!: string;
-
-  @IsNumber({ maxDecimalPlaces: 1 })
-  @Optional()
-  min_charging_rate?: number | null;
-
-  @IsArray()
-  @Optional()
-  @Type(() => ChargingProfilePeriod)
-  @ValidateNested({ each: true })
-  charging_profile_period?: ChargingProfilePeriod[] | null;
-}
+export type ChargingProfile = z.infer<typeof ChargingProfileSchema>;

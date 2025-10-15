@@ -1,29 +1,20 @@
-import {
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { CredentialsRoleDTO } from './CredentialsRoleDTO';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class AdminCredentialsRequestDTO {
-  @IsString()
-  @IsUrl({ require_tld: false })
-  @IsNotEmpty()
-  url!: string; // version url of OCPI
+import { z } from 'zod';
+import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO';
+import { CountryCode } from '../../util/Util';
 
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => CredentialsRoleDTO)
-  roles!: CredentialsRoleDTO[];
+export const AdminCredentialsRequestDTOSchema = z.object({
+  url: z.string().url(),
+  role: CredentialsRoleDTOSchema,
+  mspCountryCode: z.nativeEnum(CountryCode),
+  mspPartyId: z.string(),
+});
+export const AdminCredentialsRequestDTOSchemaName =
+  'AdminCredentialsRequestDTO';
 
-  constructor(url: string, roles: CredentialsRoleDTO[]) {
-    this.url = url;
-    this.roles = roles;
-  }
-}
+export type AdminCredentialsRequestDTO = z.infer<
+  typeof AdminCredentialsRequestDTOSchema
+>;

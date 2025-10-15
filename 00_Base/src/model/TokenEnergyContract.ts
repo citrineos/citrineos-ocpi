@@ -1,14 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class TokenEnergyContract {
-  @MaxLength(64)
-  @IsString()
-  @IsNotEmpty()
-  supplier_name!: string;
+import { z } from 'zod';
 
-  @MaxLength(64)
-  @IsString()
-  @Optional()
-  contract_id?: string | null;
-}
+export const TokenEnergyContractSchema = z.object({
+  supplier_name: z.string().max(64),
+  contract_id: z.string().max(64).nullable().optional(),
+});
+
+export type TokenEnergyContract = z.infer<typeof TokenEnergyContractSchema>;

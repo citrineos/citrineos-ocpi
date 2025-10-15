@@ -1,22 +1,15 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsObject,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { ActiveChargingProfile } from './ActiveChargingProfile';
-import { Type } from 'class-transformer';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 
-export class ChargingprofilesActive {
-  @IsString()
-  @IsDateString()
-  @IsNotEmpty()
-  start_date_time!: Date;
+import { z } from 'zod';
+import { ActiveChargingProfileSchema } from './ActiveChargingProfile';
 
-  @IsObject()
-  @IsNotEmpty()
-  @Type(() => ActiveChargingProfile)
-  @ValidateNested()
-  charging_profile!: ActiveChargingProfile;
-}
+export const ChargingprofilesActiveSchema = z.object({
+  start_date_time: z.coerce.date(),
+  charging_profile: ActiveChargingProfileSchema,
+});
+
+export type ChargingprofilesActive = z.infer<
+  typeof ChargingprofilesActiveSchema
+>;

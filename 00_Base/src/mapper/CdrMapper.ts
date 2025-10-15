@@ -1,7 +1,10 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { Service } from 'typedi';
 import { Cdr } from '../model/Cdr';
 import { Session } from '../model/Session';
-import { Tariff, Transaction } from '@citrineos/data';
 import { SessionMapper } from './SessionMapper';
 import { CdrLocation } from '../model/CdrLocation';
 import { Price } from '../model/Price';
@@ -10,32 +13,23 @@ import { SignedData } from '../model/SignedData';
 import { LocationDTO } from '../model/DTO/LocationDTO';
 import { BaseTransactionMapper } from './BaseTransactionMapper';
 import { ILogObj, Logger } from 'tslog';
-import { OcpiLocationRepository } from '../repository/OcpiLocationRepository';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
 import { LocationsService } from '../services/LocationsService';
-import { TariffsDatasource } from '../datasources/TariffsDatasource';
-import { TokensDatasource } from '../datasources/TokensDatasource';
+import { ITariffDto, ITransactionDto } from '@citrineos/base';
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {
   constructor(
     protected logger: Logger<ILogObj>,
     protected locationsService: LocationsService,
-    protected ocpiLocationsRepository: OcpiLocationRepository,
-    protected tokensDatasource: TokensDatasource,
-    protected tariffsDatasource: TariffsDatasource,
+    protected ocpiGraphqlClient: OcpiGraphqlClient,
     readonly sessionMapper: SessionMapper,
   ) {
-    super(
-      logger,
-      locationsService,
-      ocpiLocationsRepository,
-      tokensDatasource,
-      tariffsDatasource,
-    );
+    super(logger, locationsService, ocpiGraphqlClient);
   }
 
   public async mapTransactionsToCdrs(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
   ): Promise<Cdr[]> {
     try {
       const validTransactions = this.getCompletedTransactions(transactions);
@@ -59,13 +53,18 @@ export class CdrMapper extends BaseTransactionMapper {
         transactionIdToOcpiTariffMap,
       );
     } catch (error) {
-      // TODO: Handle Error
-      throw new Error();
+      // Log the original error for debugging
+      this.logger.error('Error mapping transactions to CDRs', { error });
+
+      // Preserve the original error context while providing a clear message
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to map transactions to CDRs: ${errorMessage}`);
     }
   }
 
   private async mapTransactionsToSessions(
-    transactions: Transaction[],
+    transactions: ITransactionDto[],
   ): Promise<Session[]> {
     return this.sessionMapper.mapTransactionsToSessions(transactions);
   }
@@ -73,7 +72,7 @@ export class CdrMapper extends BaseTransactionMapper {
   private async mapSessionsToCDRs(
     sessions: Session[],
     transactionIdToLocationMap: Map<string, LocationDTO>,
-    transactionIdToTariffMap: Map<string, Tariff>,
+    transactionIdToTariffMap: Map<string, ITariffDto>,
     transactionIdToOcpiTariffMap: Map<string, OcpiTariff>,
   ): Promise<Cdr[]> {
     return Promise.all(
@@ -93,7 +92,7 @@ export class CdrMapper extends BaseTransactionMapper {
   private async mapSessionToCDR(
     session: Session,
     location: LocationDTO,
-    tariff: Tariff,
+    tariff: ITariffDto,
     ocpiTariff: OcpiTariff,
   ): Promise<Cdr> {
     return {
@@ -214,7 +213,7 @@ export class CdrMapper extends BaseTransactionMapper {
 
   private async calculateTotalEnergyCost(
     _session: Session,
-    _tariff: Tariff,
+    _tariff: ITariffDto,
   ): Promise<Price | undefined> {
     // TODO: Return total energy cost if needed
     return undefined;
@@ -232,7 +231,7 @@ export class CdrMapper extends BaseTransactionMapper {
 
   private async calculateTotalTimeCost(
     _session: Session,
-    _tariff: Tariff,
+    _tariff: ITariffDto,
   ): Promise<Price | undefined> {
     // TODO: Return total time cost if needed
     return undefined;
@@ -245,7 +244,7 @@ export class CdrMapper extends BaseTransactionMapper {
 
   private async calculateTotalParkingCost(
     _session: Session,
-    _tariff: Tariff,
+    _tariff: ITariffDto,
   ): Promise<Price | undefined> {
     // TODO: Return total parking cost if needed
     return undefined;
@@ -253,7 +252,7 @@ export class CdrMapper extends BaseTransactionMapper {
 
   private async calculateTotalReservationCost(
     _session: Session,
-    _tariff: Tariff,
+    _tariff: ITariffDto,
   ): Promise<Price | undefined> {
     // TODO: Return total reservation cost if needed
     return undefined;
@@ -271,34 +270,25 @@ export class CdrMapper extends BaseTransactionMapper {
     return undefined;
   }
 
-  private isCredit(_session: Session, _tariff: Tariff): boolean | undefined {
+  private isCredit(
+    _session: Session,
+    _tariff: ITariffDto,
+  ): boolean | undefined {
     // TODO: Return whether CDR is a Credit CDR if needed
     return undefined;
   }
 
   private generateCreditReferenceId(
     _session: Session,
-    _tariff: Tariff,
+    _tariff: ITariffDto,
   ): string | undefined {
     // TODO: Return Credit Reference ID for Credit CDR if needed
     return undefined;
   }
 
-  private getCompletedTransactions(transactions: Transaction[]): Transaction[] {
-    return transactions.filter((transaction) =>
-      this.hasValidDuration(transaction),
-    );
-  }
-
-  // TODO try to move this into SQL if possible
-  private hasValidDuration(transaction: Transaction): boolean {
-    const [startEvent, endEvent] = this.getStartAndEndEvents(transaction);
-    if (startEvent && endEvent) {
-      const duration =
-        new Date(endEvent.timestamp).getTime() -
-        new Date(startEvent.timestamp).getTime();
-      return duration > 0;
-    }
-    return false;
+  private getCompletedTransactions(
+    transactions: ITransactionDto[],
+  ): ITransactionDto[] {
+    return transactions.filter((transaction) => !transaction.isActive);
   }
 }
