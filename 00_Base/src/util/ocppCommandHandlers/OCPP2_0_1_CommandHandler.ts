@@ -2,34 +2,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
 import {
   ChargingStationSequenceType,
-  IChargingStationDto,
-  ITenantPartnerDto,
   OCPP2_0_1,
   OCPPVersion,
 } from '@citrineos/base';
-import { IRequestOptions } from 'typed-rest-client';
+import type { IRequestOptions } from 'typed-rest-client';
 import { Service } from 'typedi';
-import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from './base';
-import { StartSession } from '../../model/StartSession';
-import { IRequestQueryParams } from 'typed-rest-client/Interfaces';
+import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from './base.js';
+import type { StartSession } from '../../model/StartSession.js';
+import type { IRequestQueryParams } from 'typed-rest-client/Interfaces.js';
 import { OCPP2_0_1_Mapper } from '@citrineos/data';
-import {
+import type {
   GetSequenceQueryResult,
   GetSequenceQueryVariables,
   UpsertSequenceMutationResult,
   UpsertSequenceMutationVariables,
-} from '../../graphql/operations';
-import {
-  GET_SEQUENCE,
-  UPSERT_SEQUENCE,
-} from '../../graphql/queries/chargingStationSequence.queries';
-import { TokensMapper } from '../../mapper/TokensMapper';
-import { EXTRACT_EVSE_ID } from '../../model/DTO/EvseDTO';
-import { CommandType } from '../../model/CommandType';
-import { StopSession } from '../../model/StopSession';
-import { CommandResultType, UnlockConnector } from '../..';
+} from '../../graphql/index.js';
+import { GET_SEQUENCE, UPSERT_SEQUENCE } from '../../graphql/index.js';
+import { TokensMapper } from '../../mapper/index.js';
+import { EXTRACT_EVSE_ID } from '../../model/DTO/EvseDTO.js';
+import { CommandType } from '../../model/CommandType.js';
+import type { StopSession } from '../../model/StopSession.js';
+import type { UnlockConnector } from '../../index.js';
+import { CommandResultType } from '../../index.js';
 
 @Service({ id: OCPP_COMMAND_HANDLER, multiple: true })
 export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
@@ -65,16 +62,23 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
     let remoteStartId =
       sequenceResponse.ChargingStationSequences[0]?.value || 0;
     remoteStartId++;
-    this.ocpiGraphqlClient.request<
-      UpsertSequenceMutationResult,
-      UpsertSequenceMutationVariables
-    >(UPSERT_SEQUENCE, {
-      tenantId: tenantPartner.tenant!.id!,
-      stationId: chargingStation.id,
-      type: ChargingStationSequenceType.remoteStartId,
-      value: remoteStartId,
-      createdAt: new Date().toISOString(),
-    });
+    this.ocpiGraphqlClient
+      .request<UpsertSequenceMutationResult, UpsertSequenceMutationVariables>(
+        UPSERT_SEQUENCE,
+        {
+          tenantId: tenantPartner.tenant!.id!,
+          stationId: chargingStation.id,
+          type: ChargingStationSequenceType.remoteStartId,
+          value: remoteStartId,
+          createdAt: new Date().toISOString(),
+        },
+      )
+      .catch((error) => {
+        this.logger.error(
+          'Failed to update remoteStartId sequence for charging station',
+          { error, tenantPartner, chargingStation },
+        );
+      });
 
     const requestStartTransactionRequest: OCPP2_0_1.RequestStartTransactionRequest =
       {
@@ -163,22 +167,26 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
       this.logger.error('UnlockConnector failed, EVSE or Connector not found', {
         unlockConnector,
       });
-      this.commandsClientApi.postCommandResult(
-        tenantPartner.countryCode!,
-        tenantPartner.partyId!,
-        tenantPartner.tenant!.countryCode!,
-        tenantPartner.tenant!.partyId!,
-        tenantPartner.partnerProfileOCPI!,
-        unlockConnector.response_url,
-        {
-          result: CommandResultType.FAILED,
-          message: {
-            language: 'en',
-            text: 'Charging station communication failed',
+      this.commandsClientApi
+        .postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          unlockConnector.response_url,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station communication failed',
+            },
           },
-        },
-        commandId,
-      );
+          commandId,
+        )
+        .catch((error) => {
+          this.logger.error('Failed to post command result', { error });
+        });
       return;
     }
     const unlockConnectorRequest: OCPP2_0_1.UnlockConnectorRequest = {

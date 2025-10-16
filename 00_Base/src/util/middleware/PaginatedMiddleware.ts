@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { KoaMiddlewareInterface } from 'routing-controllers';
-import { Context } from 'vm';
+import type { KoaMiddlewareInterface } from 'routing-controllers';
+import type { Context } from 'vm';
 import { Service } from 'typedi';
-import { BaseMiddleware } from './BaseMiddleware';
+import { BaseMiddleware } from './BaseMiddleware.js';
+import type { PaginatedResponse } from '../../model/PaginatedResponse.js';
 import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
-  PaginatedResponse,
-} from '../../model/PaginatedResponse';
-import { OcpiHttpHeader } from '../OcpiHttpHeader';
+} from '../../model/PaginatedResponse.js';
+import { OcpiHttpHeader } from '../OcpiHttpHeader.js';
 
 /**
  * PaginatedMiddleware will handle pulling limit, offset and total out of the {@link PaginatedResponse} and ensuring

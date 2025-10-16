@@ -4,6 +4,7 @@
   "description": "The DTO router. This module handles placing push dto events onto the message broker.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ITenantPartnerDto } from '@citrineos/base';
+import type { ITenantPartnerDto } from '@citrineos/base';
 
 // Temporarily define the types locally until the import issue is resolved
 // TODO: Import these from @citrineos/base once the build/link issue is fixed

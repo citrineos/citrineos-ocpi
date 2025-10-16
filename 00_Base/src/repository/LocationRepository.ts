@@ -3,14 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { ILogObj, Logger } from 'tslog';
-import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
-import { IChargingStationDto } from '@citrineos/base';
-import {
+import type {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import {
+  GET_CHARGING_STATION_BY_ID_QUERY,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { IChargingStationDto } from '@citrineos/base';
 
 @Service()
 export class LocationRepository {

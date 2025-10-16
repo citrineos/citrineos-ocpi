@@ -36,11 +36,7 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
 `;
 
 export const GET_TARIFFS_QUERY = gql`
-  query GetTariffs(
-    $limit: Int
-    $offset: Int
-    $where: Tariffs_bool_exp!
-  ) {
+  query GetTariffs($limit: Int, $offset: Int, $where: Tariffs_bool_exp!) {
     Tariffs(
       limit: $limit
       offset: $offset

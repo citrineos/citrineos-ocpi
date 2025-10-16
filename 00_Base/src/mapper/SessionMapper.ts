@@ -3,26 +3,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { Session } from '../model/Session';
-import { ITariffDto, OCPP2_0_1 } from '@citrineos/base';
-import { AuthMethod } from '../model/AuthMethod';
-import { ChargingPeriod } from '../model/ChargingPeriod';
-import { CdrDimensionType } from '../model/CdrDimensionType';
-import { CdrToken } from '../model/CdrToken';
-import { SessionStatus } from '../model/SessionStatus';
-import { ILogObj, Logger } from 'tslog';
-import { CdrDimension } from '../model/CdrDimension';
-import { TokenDTO } from '../model/DTO/TokenDTO';
-import { BaseTransactionMapper } from './BaseTransactionMapper';
-import { LocationsService } from '../services/LocationsService';
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { UID_FORMAT } from '../model/DTO/EvseDTO';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import {
+import type { Session } from '../model/Session.js';
+import type {
+  IMeterValueDto,
+  ITariffDto,
   ITransactionDto,
   ITransactionEventDto,
-  IMeterValueDto,
 } from '@citrineos/base';
+import { OCPP2_0_1 } from '@citrineos/base';
+import { AuthMethod } from '../model/AuthMethod.js';
+import type { ChargingPeriod } from '../model/ChargingPeriod.js';
+import { CdrDimensionType } from '../model/CdrDimensionType.js';
+import type { CdrToken } from '../model/CdrToken.js';
+import { SessionStatus } from '../model/SessionStatus.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { CdrDimension } from '../model/CdrDimension.js';
+import type { TokenDTO } from '../model/DTO/TokenDTO.js';
+import { BaseTransactionMapper } from './BaseTransactionMapper.js';
+import { LocationsService } from '../services/LocationsService.js';
+import type { LocationDTO } from '../model/DTO/LocationDTO.js';
+import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
+import { OcpiGraphqlClient } from '../graphql/index.js';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {

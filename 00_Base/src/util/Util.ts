@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Role } from '../model/Role';
+import { Role } from '../model/Role.js';
 import { plainToInstance } from 'class-transformer';
-import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { Constructable } from 'typedi';
+import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
+import type { Constructable } from 'typedi';
 
 export const invalidClientCredentialsRoles = (roles: CredentialsRoleDTO[]) =>
   roles.some((role) => role.role !== Role.EMSP);

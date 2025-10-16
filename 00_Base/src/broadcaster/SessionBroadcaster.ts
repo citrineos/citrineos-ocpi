@@ -2,21 +2,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseBroadcaster } from './BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster.js';
 import { Service } from 'typedi';
-import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import { ILogObj, Logger } from 'tslog';
-import { Session } from '../model/Session';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import {
-  HttpMethod,
+import { SessionsClientApi } from '../trigger/SessionsClientApi.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { Session } from '../model/Session.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type {
   IMeterValueDto,
   ITenantDto,
   ITransactionDto,
 } from '@citrineos/base';
-import { SessionMapper } from '../mapper/SessionMapper';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import { HttpMethod } from '@citrineos/base';
+import { SessionMapper } from '../mapper/index.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO';
+import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO.js';
 
 export const CredentialsDTOSchema = z.object({
   token: z.string().max(64),

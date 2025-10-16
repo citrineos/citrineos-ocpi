@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ConnectorType } from '../ConnectorType';
-import { ConnectorFormat } from '../ConnectorFormat';
-import { PowerType } from '../PowerType';
-import { OcpiResponseSchema } from '../OcpiResponse';
-import { uidDelimiter } from './EvseDTO';
+import { ConnectorType } from '../ConnectorType.js';
+import { ConnectorFormat } from '../ConnectorFormat.js';
+import { PowerType } from '../PowerType.js';
+import { OcpiResponseSchema } from '../OcpiResponse.js';
+import { uidDelimiter } from './EvseDTO.js';
 
 export const ConnectorDTOSchema = z.object({
   id: z.string().max(36),

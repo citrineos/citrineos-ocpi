@@ -2,32 +2,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IAuthorizationDto, ITariffDto, OCPP2_0_1 } from '@citrineos/base';
-import { TokenDTO } from '../model/DTO/TokenDTO';
-import { ILogObj, Logger } from 'tslog';
-import { Price } from '../model/Price';
-import { Session } from '../model/Session';
-import { Tariff as OcpiTariff } from '../model/Tariff';
-import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { LocationsService } from '../services/LocationsService';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GET_LOCATION_BY_ID_QUERY } from '../graphql/queries/location.queries';
-// import { GET_TARIFF_BY_CORE_KEY_QUERY } from '../graphql/queries/tariff.queries';
-import { ITransactionDto, ILocationDto } from '@citrineos/base';
-import { LocationMapper } from './LocationMapper';
-import { TokensMapper } from './TokensMapper';
-import {
+import type {
+  IAuthorizationDto,
+  ILocationDto,
+  ITariffDto,
+  ITransactionDto,
+} from '@citrineos/base';
+import type { TokenDTO } from '../model/DTO/TokenDTO.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { Price } from '../model/Price.js';
+import type { Session } from '../model/Session.js';
+import type { Tariff as OcpiTariff } from '../model/Tariff.js';
+import type { LocationDTO } from '../model/DTO/LocationDTO.js';
+import { LocationsService } from '../services/LocationsService.js';
+import type {
   GetAuthorizationByIdQueryResult,
   GetAuthorizationByIdQueryVariables,
   GetLocationByIdQueryResult,
   GetLocationByIdQueryVariables,
   GetTariffByKeyQueryResult,
   GetTariffByKeyQueryVariables,
-} from '../graphql/operations';
-import { GET_TARIFF_BY_KEY_QUERY } from '../graphql/queries/tariff.queries';
-import { TariffMapper } from './TariffMapper';
-import { GET_AUTHORIZATION_BY_ID } from '../graphql';
+} from '../graphql/index.js';
+import {
+  GET_AUTHORIZATION_BY_ID,
+  GET_LOCATION_BY_ID_QUERY,
+  GET_TARIFF_BY_KEY_QUERY,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import { LocationMapper } from './LocationMapper.js';
+import { TokensMapper } from './TokensMapper.js';
+import { TariffMapper } from './TariffMapper.js';
 
 export abstract class BaseTransactionMapper {
   protected constructor(

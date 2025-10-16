@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from './BaseClientApi.js';
 import { Service } from 'typedi';
-import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import { HttpMethod, OCPIRegistration } from '@citrineos/base';
 
 @Service()

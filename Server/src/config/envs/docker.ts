@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { OcpiConfigInput } from '@citrineos/ocpi-base';
+import type { OcpiConfigInput } from '@citrineos/ocpi-base';
 
 export function createDockerOcpiConfig(): OcpiConfigInput {
   return {

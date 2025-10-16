@@ -1,6 +1,7 @@
 # Explicitly ignored files from pipeline failure
 .dockerignore
 .gitignore
+.prettierignore
 .prettierrc
 .sequelizerc
 README.md

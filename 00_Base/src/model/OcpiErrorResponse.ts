@@ -2,9 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsDateString, IsInt, IsNotEmpty, IsString, Max, Min, ValidateNested } from 'class-validator';
-import { Optional } from '../util/decorators/Optional';
-import { OcpiResponseStatusCode } from './OcpiResponse';
+import {
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { Optional } from '../util/decorators/Optional.js';
+import { OcpiResponseStatusCode } from './OcpiResponse.js';
 
 export class OcpiErrorResponse {
   @Optional()

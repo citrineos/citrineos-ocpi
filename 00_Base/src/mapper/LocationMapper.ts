@@ -2,35 +2,38 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { EvseDTO, UID_FORMAT } from '../model/DTO/EvseDTO';
-import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
-import { EvseStatus } from '../model/EvseStatus';
-import { ConnectorType } from '../model/ConnectorType';
-import { ConnectorFormat } from '../model/ConnectorFormat';
-import { PowerType } from '../model/PowerType';
-import {
-  ChargingStationCapability,
-  ChargingStationParkingRestriction,
-  ConnectorStatus,
+import type { LocationDTO } from '../model/DTO/LocationDTO.js';
+import type { EvseDTO } from '../model/DTO/EvseDTO.js';
+import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
+import type { ConnectorDTO } from '../model/DTO/ConnectorDTO.js';
+import { EvseStatus } from '../model/EvseStatus.js';
+import { ConnectorType } from '../model/ConnectorType.js';
+import { ConnectorFormat } from '../model/ConnectorFormat.js';
+import { PowerType } from '../model/PowerType.js';
+import type {
   IChargingStationDto,
   IConnectorDto,
   IEvseDto,
   ILocationDto,
+} from '@citrineos/base';
+import {
+  ChargingStationCapability,
+  ChargingStationParkingRestriction,
   ConnectorFormatEnum,
   ConnectorPowerType,
+  ConnectorStatus,
   ConnectorTypeEnum,
-  LocationParkingType,
   LocationFacilityType,
   LocationHours,
+  LocationParkingType,
 } from '@citrineos/base';
-import { ParkingRestriction } from '../model/ParkingRestriction';
-import { Capability } from '../model/Capability';
-import Container from 'typedi';
+import { ParkingRestriction } from '../model/ParkingRestriction.js';
+import { Capability } from '../model/Capability.js';
+import { Container } from 'typedi';
 import { Logger } from 'tslog';
-import { ParkingType } from '../model/ParkingType';
-import { Facilities } from '../model/Facilities';
-import { Hours } from '../model/Hours';
+import { ParkingType } from '../model/ParkingType.js';
+import { Facilities } from '../model/Facilities.js';
+import type { Hours } from '../model/Hours.js';
 
 export class LocationMapper {
   static fromGraphql(location: ILocationDto): LocationDTO {
@@ -203,8 +206,8 @@ export class EvseMapper {
     station: IChargingStationDto,
     evse: IEvseDto,
   ): EvseDTO | undefined {
-    let connectors = evse
-      .connectors?.map(ConnectorMapper.fromGraphql)
+    let connectors = evse.connectors
+      ?.map(ConnectorMapper.fromGraphql)
       ?.filter((c) => c !== undefined);
     if (!connectors || connectors.length === 0) {
       const logger = Container.get(Logger);
@@ -220,11 +223,13 @@ export class EvseMapper {
     return {
       uid: UID_FORMAT(station.id, evse.id!),
       evse_id: evse.evseId,
-      status: connectors ? EvseMapper.mapEvseStatusFromConnectors(
-        evse.connectors!.filter((c) =>
-          connectors.some((con) => con!.id === c.id!.toString()),
-        ),
-      ) : EvseStatus.UNKNOWN,
+      status: connectors
+        ? EvseMapper.mapEvseStatusFromConnectors(
+            evse.connectors!.filter((c) =>
+              connectors.some((con) => con!.id === c.id!.toString()),
+            ),
+          )
+        : EvseStatus.UNKNOWN,
       capabilities: station.capabilities
         ?.map((c) => EvseMapper.mapEvseCapabilities(c))
         .filter((c) => c !== null),

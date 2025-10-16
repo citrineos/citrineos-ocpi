@@ -2,19 +2,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { KoaMiddlewareInterface, NotFoundError, UnauthorizedError } from 'routing-controllers';
-import { Context } from 'vm';
+import type { KoaMiddlewareInterface } from 'routing-controllers';
+import { NotFoundError, UnauthorizedError } from 'routing-controllers';
+import type { Context } from 'vm';
 import { Service } from 'typedi';
 import { HttpStatus, UnauthorizedException } from '@citrineos/base';
-import { MissingParamException } from '../../exception/MissingParamException';
-import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
-import { NotRegisteredException } from '../../exception/NotRegisteredException';
-import { UnknownTokenException } from '../../exception/UnknownTokenException';
-import { WrongClientAccessException } from '../../exception/WrongClientAccessException';
-import { InvalidParamException } from '../../exception/InvalidParamException';
-import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
-import { NotFoundException } from '../../exception/NotFoundException';
-import { ContentType } from '../ContentType';
+import { MissingParamException } from '../../exception/MissingParamException.js';
+import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException.js';
+import { NotRegisteredException } from '../../exception/NotRegisteredException.js';
+import { UnknownTokenException } from '../../exception/UnknownTokenException.js';
+import { WrongClientAccessException } from '../../exception/WrongClientAccessException.js';
+import { InvalidParamException } from '../../exception/InvalidParamException.js';
+import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException.js';
+import { NotFoundException } from '../../exception/NotFoundException.js';
+import { ContentType } from '../ContentType.js';
 
 class HttpExceptionBody {
   message?: string;

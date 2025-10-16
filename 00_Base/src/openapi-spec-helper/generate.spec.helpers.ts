@@ -5,23 +5,23 @@
 import * as oa from 'openapi3-ts';
 import * as pathToRegexp from 'path-to-regexp';
 import 'reflect-metadata';
-import { applyOpenAPIDecorator } from './decorators';
-import { IRoute } from './index';
-import { mergeDeep } from './merge.deep';
-import { capitalize } from './capitalize';
-import { smartcase } from './smart.case';
-import { ENUM_PARAM } from '../util/decorators/EnumParam';
-import { refPointerPrefix } from './class.validator';
-import { SchemaStore } from './schema.store';
-import { MULTIPLE_TYPES } from '../util/decorators/MultipleTypes';
+import { applyOpenAPIDecorator } from './decorators.js';
+import type { IRoute } from './index.js';
+import { mergeDeep } from './merge.deep.js';
+import { capitalize } from './capitalize.js';
+import { smartcase } from './smart.case.js';
+import { ENUM_PARAM } from '../util/decorators/EnumParam.js';
+import { refPointerPrefix } from './class.validator.js';
+import { SchemaStore } from './schema.store.js';
+import { MULTIPLE_TYPES } from '../util/decorators/MultipleTypes.js';
 import { HttpHeader } from '@citrineos/base';
-import { ENUM_QUERY_PARAM } from '../util/decorators/EnumQueryParam';
-import { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs';
-import { Constructable } from 'typedi';
-import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample';
-import { ContentType } from '../util/ContentType';
-import { ZodTypeAny } from 'zod';
-import { BODY_PARAM } from '../util/decorators/BodyWithSchema';
+import { ENUM_QUERY_PARAM } from '../util/decorators/EnumQueryParam.js';
+import type { ParamMetadataArgs } from 'routing-controllers/types/metadata/args/ParamMetadataArgs.js';
+import type { Constructable } from 'typedi';
+import { BODY_WITH_EXAMPLE_PARAM } from '../util/decorators/BodyWithExample.js';
+import { ContentType } from '../util/ContentType.js';
+import type { ZodTypeAny } from 'zod';
+import { BODY_PARAM } from '../util/decorators/BodyWithSchema.js';
 
 /** Return full Express path of given route. */
 export function getFullExpressPath(route: IRoute): string {

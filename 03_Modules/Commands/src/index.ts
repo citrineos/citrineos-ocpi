@@ -4,17 +4,18 @@
 
 import { Inject, Service } from 'typedi';
 
-import { CommandsModuleApi } from './module/CommandsModuleApi';
+import { CommandsModuleApi } from './module/CommandsModuleApi.js';
+import type { OcpiConfig } from '@citrineos/ocpi-base';
 import {
   CacheWrapper,
-  OcpiConfig,
   OcpiConfigToken,
   OcpiModule,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 
-export { CommandsModuleApi } from './module/CommandsModuleApi';
-export { ICommandsModuleApi } from './module/ICommandsModuleApi';
+export { CommandsModuleApi } from './module/CommandsModuleApi.js';
+export type { ICommandsModuleApi } from './module/ICommandsModuleApi.js';
 
 @Service()
 export class CommandsModule implements OcpiModule {

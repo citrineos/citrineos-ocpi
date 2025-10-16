@@ -1,9 +1,14 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
+import type {
   AdminCredentialsRequestDTO,
+  CredentialsDTO,
+  CredentialsResponse,
+  OcpiEmptyResponse,
+  UnregisterClientRequestDTO,
+} from '@citrineos/ocpi-base';
+import {
   AdminCredentialsRequestDTOSchema,
   AdminCredentialsRequestDTOSchemaName,
   AsAdminEndpoint,
@@ -13,31 +18,28 @@ import {
   BodyWithSchema,
   buildCredentialsResponse,
   buildOcpiEmptyResponse,
-  CredentialsDTO,
   CredentialsDTOSchema,
   CredentialsDTOSchemaName,
-  CredentialsResponse,
   CredentialsResponseSchema,
   CredentialsResponseSchemaName,
   CredentialsService,
   generateMockForSchema,
   ModuleId,
-  OcpiEmptyResponse,
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
   OcpiLogger,
   OcpiResponseStatusCode,
   ResponseSchema,
-  UnregisterClientRequestDTO,
   UnregisterClientRequestDTOSchema,
   UnregisterClientRequestDTOSchemaName,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import { HttpStatus, ITenantPartnerDto } from '@citrineos/base';
+import type { ITenantPartnerDto } from '@citrineos/base';
+import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
-import { ICredentialsModuleApi } from './ICredentialsModuleApi';
+import type { ICredentialsModuleApi } from './ICredentialsModuleApi.js';
 import {
   Ctx,
   Delete,

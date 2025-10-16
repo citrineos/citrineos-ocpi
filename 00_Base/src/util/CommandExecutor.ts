@@ -2,43 +2,45 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { StartSession } from '../model/StartSession';
-import {
+import type { StartSession } from '../model/StartSession.js';
+import type {
   ICache,
   IChargingStationDto,
   ITenantPartnerDto,
-  OCPPVersion,
 } from '@citrineos/base';
+import { OCPPVersion } from '@citrineos/base';
 import { Inject, InjectMany, Service } from 'typedi';
-import { StopSession } from '../model/StopSession';
-import { SetChargingProfile } from '../model/SetChargingProfile';
-import { ReserveNow } from '../model/ReserveNow';
-import { CancelReservation } from '../model/CancelReservation';
+import type { StopSession } from '../model/StopSession.js';
+import type { SetChargingProfile } from '../model/SetChargingProfile.js';
+import type { ReserveNow } from '../model/ReserveNow.js';
+import type { CancelReservation } from '../model/CancelReservation.js';
+import type { OcpiConfig, UnlockConnector } from '../index.js';
 import {
   CacheWrapper,
   CommandResultType,
   CommandType,
-  OcpiConfig,
   OcpiConfigToken,
-  UnlockConnector,
-} from '..';
-import { ILogObj, Logger } from 'tslog';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { CommandsClientApi } from '../trigger/CommandsClientApi';
+} from '../index.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type {
+  GetTenantPartnerByIdQueryResult,
+  GetTenantPartnerByIdQueryVariables,
+} from '../graphql/index.js';
+import {
+  GET_TENANT_PARTNER_BY_ID,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import { CommandsClientApi } from '../trigger/CommandsClientApi.js';
 import { v4 as uuidv4 } from 'uuid';
 import {
   OCPP_COMMAND_HANDLER,
   OCPPCommandHandler,
-} from './ocppCommandHandlers';
-import {
-  GetTenantPartnerByIdQueryResult,
-  GetTenantPartnerByIdQueryVariables,
-} from '../graphql/operations';
-import { GET_TENANT_PARTNER_BY_ID } from '../graphql/queries/tenantPartner.queries';
+} from './ocppCommandHandlers/index.js';
 import {
   COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
   COMMAND_RESPONSE_URL_CACHE_RESOLVED,
-} from './Consts';
+} from './Consts.js';
 
 @Service()
 export class CommandExecutor {
@@ -524,23 +526,39 @@ export class CommandExecutor {
           this.logger.warn('Command timed out', {
             commandId,
           });
-          this.commandsClientApi.postCommandResult(
-            tenantPartner.countryCode!,
-            tenantPartner.partyId!,
-            tenantPartner.tenant!.countryCode!,
-            tenantPartner.tenant!.partyId!,
-            tenantPartner.partnerProfileOCPI!,
-            responseUrl,
-            {
-              result: CommandResultType.TIMEOUT,
-              message: {
-                language: 'en',
-                text: 'Charging station communication failed',
+          this.commandsClientApi
+            .postCommandResult(
+              tenantPartner.countryCode!,
+              tenantPartner.partyId!,
+              tenantPartner.tenant!.countryCode!,
+              tenantPartner.tenant!.partyId!,
+              tenantPartner.partnerProfileOCPI!,
+              responseUrl,
+              {
+                result: CommandResultType.TIMEOUT,
+                message: {
+                  language: 'en',
+                  text: 'Charging station communication failed',
+                },
               },
-            },
-            commandId,
-          );
+              commandId,
+            )
+            .catch((error: any) => {
+              this.logger.error(
+                'Error posting command result on command timeout',
+                {
+                  commandId,
+                  error,
+                },
+              );
+            });
         }
+      })
+      .catch((error: any) => {
+        this.logger.error('Error in command cache onChange', {
+          commandId,
+          error,
+        });
       });
 
     return commandId;
@@ -559,22 +577,33 @@ export class CommandExecutor {
       this.logger.warn('Unsupported OCPP version for command', {
         protocol: ocppVersion,
       });
-      this.commandsClientApi.postCommandResult(
-        tenantPartner.countryCode!,
-        tenantPartner.partyId!,
-        tenantPartner.tenant!.countryCode!,
-        tenantPartner.tenant!.partyId!,
-        tenantPartner.partnerProfileOCPI!,
-        responseUrl,
-        {
-          result: CommandResultType.FAILED,
-          message: {
-            language: 'en',
-            text: 'Charging station communication failed',
+      this.commandsClientApi
+        .postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station communication failed',
+            },
           },
-        },
-        commandId,
-      );
+          commandId,
+        )
+        .catch((error: any) => {
+          this.logger.error(
+            'Error posting command result for unsupported OCPP version',
+            {
+              commandId,
+              error,
+            },
+          );
+        });
+      return undefined;
     }
   }
 

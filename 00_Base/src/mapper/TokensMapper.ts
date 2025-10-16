@@ -2,17 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type { IAuthorizationDto } from '@citrineos/base';
 import {
   AuthorizationStatusType,
   AuthorizationWhitelistType,
-  IAuthorizationDto,
   IdTokenType,
   OCPP2_0_1,
 } from '@citrineos/base';
-import { TokenType } from '../model/TokenType';
-
-import { TokenDTO } from '../model/DTO/TokenDTO';
-import { WhitelistType } from '../model/WhitelistType';
+import { TokenType } from '../model/TokenType.js';
+import type { TokenDTO } from '../model/DTO/TokenDTO.js';
+import { WhitelistType } from '../model/WhitelistType.js';
 
 export class TokensMapper {
   public static toDto(authorization: IAuthorizationDto): TokenDTO {
@@ -92,7 +91,7 @@ export class TokensMapper {
   public static mapWhitelistType(
     whitelist: WhitelistType | undefined,
   ): AuthorizationWhitelistType | null | undefined {
-    switch(whitelist) {
+    switch (whitelist) {
       case WhitelistType.ALLOWED:
         return AuthorizationWhitelistType.Allowed;
       case WhitelistType.ALLOWED_OFFLINE:

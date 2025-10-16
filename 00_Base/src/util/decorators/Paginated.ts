@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { QueryParams, UseBefore } from 'routing-controllers';
-import { PaginatedMiddleware } from '../middleware/PaginatedMiddleware';
+import { PaginatedMiddleware } from '../middleware/PaginatedMiddleware.js';
 
 /**
  * Paginated decorator applies {@link PaginatedMiddleware} on the endpoint

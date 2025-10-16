@@ -3,13 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import {
-  OcpiConfig,
-  OcpiConfigInput,
-  ocpiConfigInputSchema,
-  ocpiConfigSchema,
-} from './ocpi.types';
-import { ILogObj, Logger } from 'tslog';
+import type { OcpiConfig, OcpiConfigInput } from './ocpi.types.js';
+import { ocpiConfigInputSchema, ocpiConfigSchema } from './ocpi.types.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 
 const args =
   typeof process !== 'undefined' && process.argv ? process.argv.slice(2) : [];

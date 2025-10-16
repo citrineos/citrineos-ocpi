@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { DayOfWeek } from './DayOfWeek';
-import { ReservationRestrictionType } from './ReservationRestrictionType';
+import { DayOfWeek } from './DayOfWeek.js';
+import { ReservationRestrictionType } from './ReservationRestrictionType.js';
 
 export const TariffRestrictionsSchema = z.object({
   start_time: z

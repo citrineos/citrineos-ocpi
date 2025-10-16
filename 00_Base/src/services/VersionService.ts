@@ -2,20 +2,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GET_TENANT_BY_ID } from '../graphql/queries/tenantVersionEndpoints.queries';
-import { VersionNumber } from '../model/VersionNumber';
-import { Service } from 'typedi';
-import { NotFoundError } from 'routing-controllers';
-import { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO';
-import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
-import { OcpiResponseStatusCode } from '../model/OcpiResponse';
-import { ITenantDto, OCPIRegistration } from '@citrineos/base';
-import { RegistrationMapper } from '../mapper/RegistrationMapper';
-import {
+import type {
   GetTenantByIdQueryResult,
   GetTenantByIdQueryVariables,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import { GET_TENANT_BY_ID, OcpiGraphqlClient } from '../graphql/index.js';
+import { VersionNumber } from '../model/VersionNumber.js';
+import { Service } from 'typedi';
+import { NotFoundError } from 'routing-controllers';
+import type { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO.js';
+import type { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO.js';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
+import type { ITenantDto } from '@citrineos/base';
+import { OCPIRegistration } from '@citrineos/base';
+import { RegistrationMapper } from '../mapper/index.js';
 
 @Service()
 export class VersionService {

@@ -3,33 +3,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Inject, Service } from 'typedi';
-import { CancelReservation } from '../model/CancelReservation';
-import { ReserveNow } from '../model/ReserveNow';
-import { StartSession } from '../model/StartSession';
-import { StopSession } from '../model/StopSession';
-import { UnlockConnector } from '../model/UnlockConnector';
-import { CommandType } from '../model/CommandType';
-import {
-  CommandResponseType,
-  OcpiCommandResponse,
-} from '../model/CommandResponse';
-// import { CommandExecutor } from '../util/CommandExecutor';
-import { BadRequestError, NotFoundError } from 'routing-controllers';
-import { ResponseGenerator } from '../util/response.generator';
-import { CommandExecutor } from '../util/CommandExecutor';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { ILogObj, Logger } from 'tslog';
-import { OcpiConfig, OcpiConfigToken } from '../config/ocpi.types';
-import { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
-import {
+import type { CancelReservation } from '../model/CancelReservation.js';
+import type { ReserveNow } from '../model/ReserveNow.js';
+import type { StartSession } from '../model/StartSession.js';
+import type { StopSession } from '../model/StopSession.js';
+import type { UnlockConnector } from '../model/UnlockConnector.js';
+import { CommandType } from '../model/CommandType.js';
+import type { OcpiCommandResponse } from '../model/CommandResponse.js';
+import { CommandResponseType } from '../model/CommandResponse.js';
+// import { CommandExecutor } from '../util/CommandExecutor.js';
+import { ResponseGenerator } from '../util/response.generator.js';
+import { CommandExecutor } from '../util/CommandExecutor.js';
+import type {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
   GetTransactionByTransactionIdQueryResult,
   GetTransactionByTransactionIdQueryVariables,
-} from '../graphql/operations';
-import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
-import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO';
-import { GET_TRANSACTION_BY_TRANSACTION_ID_QUERY } from '../graphql/queries/transaction.queries';
+} from '../graphql/index.js';
+import {
+  GET_CHARGING_STATION_BY_ID_QUERY,
+  GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { OcpiConfig } from '../config/ocpi.types.js';
+import { OcpiConfigToken } from '../config/ocpi.types.js';
+import type { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
+import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO.js';
 
 @Service()
 export class CommandsService {
@@ -184,11 +185,11 @@ export class CommandsService {
         'Unknown connector',
       );
     }
-    this.commandExecutor.executeStartSession(
-      startSession,
-      tenantPartner,
-      chargingStation,
-    );
+    this.commandExecutor
+      .executeStartSession(startSession, tenantPartner, chargingStation)
+      .catch((error) => {
+        this.logger.error('Failed to execute StartSession command', error);
+      });
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,
@@ -258,11 +259,11 @@ export class CommandsService {
         'Charging station is offline',
       );
     }
-    this.commandExecutor.executeStopSession(
-      stopSession,
-      tenantPartner,
-      chargingStation,
-    );
+    this.commandExecutor
+      .executeStopSession(stopSession, tenantPartner, chargingStation)
+      .catch((error) => {
+        this.logger.error('Failed to execute StopSession command', error);
+      });
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,
@@ -327,11 +328,11 @@ export class CommandsService {
         'Unknown connector',
       );
     }
-    this.commandExecutor.executeUnlockConnector(
-      unlockConnector,
-      tenantPartner,
-      chargingStation,
-    );
+    this.commandExecutor
+      .executeUnlockConnector(unlockConnector, tenantPartner, chargingStation)
+      .catch((error) => {
+        this.logger.error('Failed to execute UnlockConnector command', error);
+      });
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,

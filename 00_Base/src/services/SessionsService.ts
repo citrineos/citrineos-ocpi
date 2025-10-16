@@ -2,24 +2,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import Container, { Service } from 'typedi';
-import { PaginatedSessionResponse } from '../model/Session';
+import { Service } from 'typedi';
+import type { PaginatedSessionResponse } from '../model/Session.js';
 import {
   buildOcpiPaginatedResponse,
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
-} from '../model/PaginatedResponse';
-import { OcpiResponseStatusCode } from '../model/OcpiResponse';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
-import { SessionMapper } from '../mapper/SessionMapper';
-import { ITransactionDto } from '@citrineos/base';
-import {
+} from '../model/PaginatedResponse.js';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
+import type {
   GetTransactionsQueryResult,
   GetTransactionsQueryVariables,
   Transactions_Bool_Exp,
-} from '../graphql/operations';
-import { Logger } from 'tslog';
+} from '../graphql/index.js';
+import { GET_TRANSACTIONS_QUERY, OcpiGraphqlClient } from '../graphql/index.js';
+import { SessionMapper } from '../mapper/index.js';
+import type { ITransactionDto } from '@citrineos/base';
+
 @Service()
 export class SessionsService {
   constructor(

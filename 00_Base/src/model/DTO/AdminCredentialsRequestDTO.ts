@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO';
-import { CountryCode } from '../../util/Util';
+import { CredentialsRoleDTOSchema } from './CredentialsRoleDTO.js';
+import { CountryCode } from '../../util/Util.js';
 
 export const AdminCredentialsRequestDTOSchema = z.object({
   url: z.string().url(),

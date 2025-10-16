@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IsNotEmpty, IsString } from 'class-validator';
-import { EvseVariableAttributes } from './EvseVariableAttributes';
+import { EvseVariableAttributes } from './EvseVariableAttributes.js';
 
 /**
  * Represents the Charging Station variable attributes

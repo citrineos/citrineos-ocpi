@@ -2,30 +2,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseBroadcaster } from './BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster.js';
 import { Service } from 'typedi';
-import { LocationsClientApi } from '../trigger/LocationsClientApi';
-import { ILogObj, Logger } from 'tslog';
-import { CredentialsService } from '../services/CredentialsService';
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { EvseDTO } from '../model/DTO/EvseDTO';
-import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import {
-  HttpMethod,
+import { LocationsClientApi } from '../trigger/LocationsClientApi.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { CredentialsService } from '../services/CredentialsService.js';
+import type { LocationDTO } from '../model/DTO/LocationDTO.js';
+import type { EvseDTO } from '../model/DTO/EvseDTO.js';
+import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
+import type { ConnectorDTO } from '../model/DTO/ConnectorDTO.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type {
   IConnectorDto,
   IEvseDto,
   ILocationDto,
   ITenantDto,
 } from '@citrineos/base';
-import { UID_FORMAT } from '../model/DTO/EvseDTO';
+import { HttpMethod } from '@citrineos/base';
 import {
   ConnectorMapper,
   EvseMapper,
   LocationMapper,
-} from '../mapper/LocationMapper';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+} from '../mapper/index.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {

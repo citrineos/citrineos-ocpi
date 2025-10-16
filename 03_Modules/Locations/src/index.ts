@@ -1,26 +1,28 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import type {
+  GetChargingStationByIdQueryResult,
+  GetChargingStationByIdQueryVariables,
+  IDtoEvent,
+  OcpiConfig,
+} from '@citrineos/ocpi-base';
 import {
   AbstractDtoModule,
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
   GET_CHARGING_STATION_BY_ID_QUERY,
-  GetChargingStationByIdQueryResult,
-  GetChargingStationByIdQueryVariables,
-  IDtoEvent,
   LocationsBroadcaster,
-  OcpiConfig,
   OcpiConfigToken,
   OcpiGraphqlClient,
   OcpiModule,
   RabbitMqDtoReceiver,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
-import { LocationsModuleApi } from './module/LocationsModuleApi';
-import {
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { LocationsModuleApi } from './module/LocationsModuleApi.js';
+import type {
   IChargingStationDto,
   IConnectorDto,
   IEvseDto,
@@ -28,8 +30,8 @@ import {
 } from '@citrineos/base';
 import { Inject, Service } from 'typedi';
 
-export { LocationsModuleApi } from './module/LocationsModuleApi';
-export { ILocationsModuleApi } from './module/ILocationsModuleApi';
+export { LocationsModuleApi } from './module/LocationsModuleApi.js';
+export type { ILocationsModuleApi } from './module/ILocationsModuleApi.js';
 
 @Service()
 export class LocationsModule extends AbstractDtoModule implements OcpiModule {

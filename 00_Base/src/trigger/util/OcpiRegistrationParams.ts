@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { VersionNumber } from '../../model/VersionNumber';
+import { VersionNumber } from '../../model/VersionNumber.js';
 
 import { z } from 'zod';
 

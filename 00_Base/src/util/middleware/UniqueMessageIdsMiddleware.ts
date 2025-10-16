@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { KoaMiddlewareInterface } from 'routing-controllers';
-import { Context } from 'vm';
+import type { KoaMiddlewareInterface } from 'routing-controllers';
+import type { Context } from 'vm';
 import { Service } from 'typedi';
-import { OcpiHttpHeader } from '../OcpiHttpHeader';
-import { BaseMiddleware } from './BaseMiddleware';
+import { OcpiHttpHeader } from '../OcpiHttpHeader.js';
+import { BaseMiddleware } from './BaseMiddleware.js';
 
 /**
  * UniqueMessageIdsMiddleware will apply the {@link OcpiHttpHeader.XRequestId} and {@link OcpiHttpHeader.XCorrelationId}

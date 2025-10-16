@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { HeaderParam, ParamOptions, UseBefore } from 'routing-controllers';
-import { AuthMiddleware } from '../middleware/AuthMiddleware';
-import { UniqueMessageIdsMiddleware } from '../middleware/UniqueMessageIdsMiddleware';
+import type { ParamOptions } from 'routing-controllers';
+import { HeaderParam, UseBefore } from 'routing-controllers';
+import { AuthMiddleware } from '../middleware/AuthMiddleware.js';
+import { UniqueMessageIdsMiddleware } from '../middleware/UniqueMessageIdsMiddleware.js';
 import { HttpHeader } from '@citrineos/base';
-import { uniqueMessageIdHeaders } from './AsOcpiFunctionalEndpoint';
-import { OcpiExceptionHandler } from '../middleware/OcpiExceptionHandler';
+import { uniqueMessageIdHeaders } from './AsOcpiFunctionalEndpoint.js';
+import { OcpiExceptionHandler } from '../middleware/OcpiExceptionHandler.js';
 
 /**
  * Decorator for to inject OCPI headers and apply {@link AuthMiddleware} and {@link UniqueMessageIdsMiddleware}

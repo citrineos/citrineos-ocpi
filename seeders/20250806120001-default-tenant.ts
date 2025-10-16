@@ -4,10 +4,11 @@
 
 'use strict';
 
-import { QueryInterface, QueryOptions } from 'sequelize';
+import type { QueryOptions } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 /** @type {import('sequelize-cli').Migration} */
-export = {
+export default {
   up: async (queryInterface: QueryInterface) => {
     const serverProfileOCPI = {
       versionDetails: [

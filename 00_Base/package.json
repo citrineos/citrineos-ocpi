@@ -4,6 +4,7 @@
   "description": "The base module for OCPP v2.0.1 including all interfaces. This module is not intended to be used directly, but rather as a dependency for other modules.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
@@ -34,7 +35,7 @@
   "dependencies": {
     "@citrineos/base": "~1.8.0",
     "@citrineos/util": "~1.8.0",
-    "ajv": "8.17.1",
+    "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "amqplib": "0.10.9",
     "class-transformer": "0.5.1",

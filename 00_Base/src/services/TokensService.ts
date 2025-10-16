@@ -3,25 +3,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { OcpiLogger } from '../util/OcpiLogger';
-import { SingleTokenRequest, TokenDTO } from '../model/DTO/TokenDTO';
-import { TokenType } from '../model/TokenType';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { OcpiLogger } from '../util/OcpiLogger.js';
+import type { SingleTokenRequest, TokenDTO } from '../model/DTO/TokenDTO.js';
+import { TokenType } from '../model/TokenType.js';
 import {
-  UPDATE_TOKEN_MUTATION,
-  READ_AUTHORIZATION,
-  GET_AUTHORIZATION_BY_TOKEN,
-  GET_GROUP_AUTHORIZATION,
   CREATE_AUTHORIZATION_MUTATION,
-} from '../graphql/queries/token.queries';
-import { TokensMapper } from '../mapper/TokensMapper';
-import {
-  AuthorizationStatusType,
-  IAuthorizationDto,
-  IChargingStationDto,
-  IdTokenType,
-} from '@citrineos/base';
-import {
+  GET_AUTHORIZATION_BY_TOKEN,
+  GET_CHARGING_STATION_BY_ID_QUERY,
+  GET_GROUP_AUTHORIZATION,
+  GET_TENANT_PARTNER_BY_ID,
+  OcpiGraphqlClient,
+  READ_AUTHORIZATION,
+  UPDATE_TOKEN_MUTATION,
+} from '../graphql/index.js';
+import { TokensMapper } from '../mapper/index.js';
+import type { IAuthorizationDto, IChargingStationDto } from '@citrineos/base';
+import { AuthorizationStatusType, IdTokenType } from '@citrineos/base';
+import type {
   Authorizations_Set_Input,
   CreateAuthorizationMutationResult,
   CreateAuthorizationMutationVariables,
@@ -37,21 +35,19 @@ import {
   ReadAuthorizationsQueryVariables,
   UpdateAuthorizationMutationResult,
   UpdateAuthorizationMutationVariables,
-} from '../graphql/operations';
-import { UnknownTokenException } from '../exception/UnknownTokenException';
-import { AdditionalInfoType } from '@citrineos/base/dist/ocpp/model/2.0.1';
-import { MissingParamException } from '../exception/MissingParamException';
-import {
+} from '../graphql/operations.js';
+import { UnknownTokenException } from '../exception/UnknownTokenException.js';
+import type { AdditionalInfoType } from '@citrineos/base/dist/ocpp/model/2.0.1/index.js';
+import { MissingParamException } from '../exception/MissingParamException.js';
+import type {
   RealTimeAuthorizationRequestBody,
   RealTimeAuthorizationResponse,
 } from '@citrineos/util';
-import { TokensClientApi } from '../trigger/TokensClientApi';
-import { InvalidParamException } from '../exception/InvalidParamException';
-import { GET_TENANT_PARTNER_BY_ID } from '../graphql/queries/tenantPartner.queries';
-import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
-import { LocationReferences } from '../model/LocationReferences';
-import { UID_FORMAT } from '../model/DTO/EvseDTO';
-import { OcpiResponseStatusCode } from '../model/OcpiResponse';
+import { TokensClientApi } from '../trigger/TokensClientApi.js';
+import { InvalidParamException } from '../exception/InvalidParamException.js';
+import type { LocationReferences } from '../model/LocationReferences.js';
+import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
 
 @Service()
 export class TokensService {

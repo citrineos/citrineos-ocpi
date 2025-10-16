@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ModuleId } from './ModuleId';
-import { InterfaceRole } from './InterfaceRole';
-import { VersionNumber } from './VersionNumber';
+import { ModuleId } from './ModuleId.js';
+import { InterfaceRole } from './InterfaceRole.js';
+import { VersionNumber } from './VersionNumber.js';
 
 export const VersionEndpointSchema = z.object({
   identifier: z.nativeEnum(ModuleId),

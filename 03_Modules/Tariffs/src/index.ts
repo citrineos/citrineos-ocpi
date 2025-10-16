@@ -1,26 +1,25 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import type { IDtoEvent, OcpiConfig } from '@citrineos/ocpi-base';
 import {
   AbstractDtoModule,
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
-  IDtoEvent,
-  OcpiConfig,
   OcpiConfigToken,
   OcpiModule,
   RabbitMqDtoReceiver,
   TariffsBroadcaster,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
-import { TariffsModuleApi } from './module/TariffsModuleApi';
-import { ITariffDto } from '@citrineos/base';
+import { TariffsModuleApi } from './module/TariffsModuleApi.js';
+import type { ITariffDto } from '@citrineos/base';
 
-export { TariffsModuleApi } from './module/TariffsModuleApi';
-export { ITariffsModuleApi } from './module/ITariffsModuleApi';
+export { TariffsModuleApi } from './module/TariffsModuleApi.js';
+export type { ITariffsModuleApi } from './module/ITariffsModuleApi.js';
 
 @Service()
 export class TariffsModule extends AbstractDtoModule implements OcpiModule {

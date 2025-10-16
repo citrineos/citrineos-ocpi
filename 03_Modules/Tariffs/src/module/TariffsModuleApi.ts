@@ -2,42 +2,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ITariffsModuleApi } from './ITariffsModuleApi';
-
-import { Delete, Get, JsonController, Param, Put } from 'routing-controllers';
-
+import type { ITariffsModuleApi } from './ITariffsModuleApi.js';
+import { Get, JsonController } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
+import type { PaginatedTariffResponse } from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  BodyWithSchema,
-  buildOcpiEmptyResponse,
-  buildOcpiErrorResponse,
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   FunctionalEndpointParams,
   generateMockForSchema,
   ModuleId,
-  OcpiEmptyResponse,
-  OcpiErrorResponse,
   OcpiHeaders,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
-  PaginatedTariffResponse,
   PaginatedTariffResponseSchema,
   PaginatedTariffResponseSchemaName,
-  PutTariffRequest,
-  PutTariffRequestSchema,
-  PutTariffRequestSchemaName,
   ResponseSchema,
-  TariffDTO,
   TariffsService,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-
 import { Service } from 'typedi';
 
 @Service()

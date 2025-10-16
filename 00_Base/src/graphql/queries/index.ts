@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from './chargingStation.queries';
-export * from './chargingStationSequence.queries';
-// export * from './cpoTenant.queries';
-export * from './location.queries';
-export * from './tariff.queries';
-export * from './tenant.mutations';
-export * from './tenantPartner.queries';
-export * from './tenantVersionEndpoints.queries';
-export * from './token.queries';
-export * from './transaction.queries';
+export * from './chargingStation.queries.js';
+export * from './chargingStationSequence.queries.js';
+// export * from './cpoTenant.queries.js';
+export * from './location.queries.js';
+export * from './tariff.queries.js';
+export * from './tenant.mutations.js';
+export * from './tenantPartner.queries.js';
+export * from './tenantVersionEndpoints.queries.js';
+export * from './token.queries.js';
+export * from './transaction.queries.js';

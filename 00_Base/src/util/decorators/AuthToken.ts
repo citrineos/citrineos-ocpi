@@ -4,7 +4,7 @@
 
 import { BadRequestError, createParamDecorator } from 'routing-controllers';
 import { HttpHeader } from '@citrineos/base';
-import { base64Decode } from '../Util';
+import { base64Decode } from '../Util.js';
 
 const tokenPrefix = 'Token ';
 

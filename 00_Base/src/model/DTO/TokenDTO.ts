@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TokenType } from '../TokenType';
-import { WhitelistType } from '../WhitelistType';
-import { OcpiResponseSchema } from '../OcpiResponse';
-import { PaginatedResponseSchema } from '../PaginatedResponse';
-import { TokenEnergyContractSchema } from '../TokenEnergyContract';
+import { TokenType } from '../TokenType.js';
+import { WhitelistType } from '../WhitelistType.js';
+import { OcpiResponseSchema } from '../OcpiResponse.js';
+import { PaginatedResponseSchema } from '../PaginatedResponse.js';
+import { TokenEnergyContractSchema } from '../TokenEnergyContract.js';
 
 export const TokenDTOSchema = z.object({
   country_code: z.string().length(2),

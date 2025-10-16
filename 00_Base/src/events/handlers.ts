@@ -2,17 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ILogObj, Logger } from 'tslog';
-import {
-  DtoEventObjectType,
-  DtoEventType,
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type {
   IDtoEvent,
   IDtoEventReceiver,
   IDtoEventSender,
   IDtoModule,
   IDtoPayload,
-} from './types';
-import { OcpiConfig } from '../config/ocpi.types';
+} from './types.js';
+import { DtoEventObjectType, DtoEventType } from './types.js';
+import type { OcpiConfig } from '../config/ocpi.types.js';
 
 /**
  * Abstract class implementing {@link IDtoEventReceiver}.

@@ -2,20 +2,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi, MissingRequiredParamException } from './BaseClientApi';
-import { ModuleId } from '../model/ModuleId';
 import {
-  CredentialsResponse,
-  CredentialsResponseSchema,
-} from '../model/CredentialsResponse';
+  BaseClientApi,
+  MissingRequiredParamException,
+} from './BaseClientApi.js';
+import { ModuleId } from '../model/ModuleId.js';
+import type { CredentialsResponse } from '../model/CredentialsResponse.js';
+import { CredentialsResponseSchema } from '../model/CredentialsResponse.js';
 import { Service } from 'typedi';
-import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import { HttpMethod, OCPIRegistration } from '@citrineos/base';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { CredentialsDTO } from '..';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
+import type { CredentialsDTO } from '../index.js';
 
 @Service()
 export class CredentialsClientApi extends BaseClientApi {

@@ -4,6 +4,7 @@
   "description": "The Tokens module for OCPI v2.2.1. This module is not intended to be used directly, but rather as a dependency for other modules.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
