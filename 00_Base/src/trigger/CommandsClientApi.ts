@@ -23,7 +23,7 @@ export class CommandsClientApi extends BaseClientApi {
 
   constructor(@Inject() cacheWrapper: CacheWrapper) {
     super();
-    this.cache = cacheWrapper.cache;
+    this.cache = cacheWrapper.getCache();
   }
 
   CONTROLLER_PATH = ModuleId.Commands;

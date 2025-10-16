@@ -319,6 +319,13 @@ export class SessionMapper extends BaseTransactionMapper {
     token: TokenDTO,
     tariff: ITariffDto,
   ): Session {
+    const beginMeterValue = transaction.meterValues?.find((mv) =>
+      mv.sampledValue.find(
+        (sv) =>
+          sv.context === OCPP2_0_1.ReadingContextEnumType.Transaction_Begin,
+      ),
+    );
+
     return {
       country_code: location.country_code,
       party_id: location.party_id,
@@ -340,10 +347,9 @@ export class SessionMapper extends BaseTransactionMapper {
       evse_uid: this.getEvseUid(transaction),
       connector_id: transaction.connectorId!.toString(),
       currency: tariff.currency,
-      charging_periods: this.getChargingPeriods(
-        transaction.meterValues,
-        String(tariff?.id),
-      ),
+      charging_periods: beginMeterValue
+        ? this.getChargingPeriods([beginMeterValue], String(tariff?.id))
+        : [],
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt!,
       // TODO: Fill in optional values
