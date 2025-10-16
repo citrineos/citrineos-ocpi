@@ -526,23 +526,39 @@ export class CommandExecutor {
           this.logger.warn('Command timed out', {
             commandId,
           });
-          this.commandsClientApi.postCommandResult(
-            tenantPartner.countryCode!,
-            tenantPartner.partyId!,
-            tenantPartner.tenant!.countryCode!,
-            tenantPartner.tenant!.partyId!,
-            tenantPartner.partnerProfileOCPI!,
-            responseUrl,
-            {
-              result: CommandResultType.TIMEOUT,
-              message: {
-                language: 'en',
-                text: 'Charging station communication failed',
+          this.commandsClientApi
+            .postCommandResult(
+              tenantPartner.countryCode!,
+              tenantPartner.partyId!,
+              tenantPartner.tenant!.countryCode!,
+              tenantPartner.tenant!.partyId!,
+              tenantPartner.partnerProfileOCPI!,
+              responseUrl,
+              {
+                result: CommandResultType.TIMEOUT,
+                message: {
+                  language: 'en',
+                  text: 'Charging station communication failed',
+                },
               },
-            },
-            commandId,
-          );
+              commandId,
+            )
+            .catch((error: any) => {
+              this.logger.error(
+                'Error posting command result on command timeout',
+                {
+                  commandId,
+                  error,
+                },
+              );
+            });
         }
+      })
+      .catch((error: any) => {
+        this.logger.error('Error in command cache onChange', {
+          commandId,
+          error,
+        });
       });
 
     return commandId;
@@ -561,22 +577,33 @@ export class CommandExecutor {
       this.logger.warn('Unsupported OCPP version for command', {
         protocol: ocppVersion,
       });
-      this.commandsClientApi.postCommandResult(
-        tenantPartner.countryCode!,
-        tenantPartner.partyId!,
-        tenantPartner.tenant!.countryCode!,
-        tenantPartner.tenant!.partyId!,
-        tenantPartner.partnerProfileOCPI!,
-        responseUrl,
-        {
-          result: CommandResultType.FAILED,
-          message: {
-            language: 'en',
-            text: 'Charging station communication failed',
+      this.commandsClientApi
+        .postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          responseUrl,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station communication failed',
+            },
           },
-        },
-        commandId,
-      );
+          commandId,
+        )
+        .catch((error: any) => {
+          this.logger.error(
+            'Error posting command result for unsupported OCPP version',
+            {
+              commandId,
+              error,
+            },
+          );
+        });
+      return undefined;
     }
   }
 

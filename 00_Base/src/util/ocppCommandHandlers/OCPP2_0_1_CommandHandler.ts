@@ -62,16 +62,23 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
     let remoteStartId =
       sequenceResponse.ChargingStationSequences[0]?.value || 0;
     remoteStartId++;
-    this.ocpiGraphqlClient.request<
-      UpsertSequenceMutationResult,
-      UpsertSequenceMutationVariables
-    >(UPSERT_SEQUENCE, {
-      tenantId: tenantPartner.tenant!.id!,
-      stationId: chargingStation.id,
-      type: ChargingStationSequenceType.remoteStartId,
-      value: remoteStartId,
-      createdAt: new Date().toISOString(),
-    });
+    this.ocpiGraphqlClient
+      .request<UpsertSequenceMutationResult, UpsertSequenceMutationVariables>(
+        UPSERT_SEQUENCE,
+        {
+          tenantId: tenantPartner.tenant!.id!,
+          stationId: chargingStation.id,
+          type: ChargingStationSequenceType.remoteStartId,
+          value: remoteStartId,
+          createdAt: new Date().toISOString(),
+        },
+      )
+      .catch((error) => {
+        this.logger.error(
+          'Failed to update remoteStartId sequence for charging station',
+          { error, tenantPartner, chargingStation },
+        );
+      });
 
     const requestStartTransactionRequest: OCPP2_0_1.RequestStartTransactionRequest =
       {
@@ -160,22 +167,26 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
       this.logger.error('UnlockConnector failed, EVSE or Connector not found', {
         unlockConnector,
       });
-      this.commandsClientApi.postCommandResult(
-        tenantPartner.countryCode!,
-        tenantPartner.partyId!,
-        tenantPartner.tenant!.countryCode!,
-        tenantPartner.tenant!.partyId!,
-        tenantPartner.partnerProfileOCPI!,
-        unlockConnector.response_url,
-        {
-          result: CommandResultType.FAILED,
-          message: {
-            language: 'en',
-            text: 'Charging station communication failed',
+      this.commandsClientApi
+        .postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          unlockConnector.response_url,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station communication failed',
+            },
           },
-        },
-        commandId,
-      );
+          commandId,
+        )
+        .catch((error) => {
+          this.logger.error('Failed to post command result', { error });
+        });
       return;
     }
     const unlockConnectorRequest: OCPP2_0_1.UnlockConnectorRequest = {
