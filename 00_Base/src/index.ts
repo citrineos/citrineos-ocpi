@@ -436,7 +436,7 @@ export class OcpiServer extends KoaServer {
       mode: 'fast',
       formats: ['date-time'],
     });
-    Container.set(Ajv.Ajv, ajv);
+    Container.set(Ajv, ajv);
 
     this.onContainerInitialized();
   }
