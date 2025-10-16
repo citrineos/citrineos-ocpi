@@ -21,6 +21,6 @@
   "dependencies": {
     "@citrineos/ocpi-base": "2.0.0",
     "tslog": "4.9.2",
-    "@types/geojson": "7946.0.14"
+    "@types/geojson": "7946.0.16"
   }
 }
