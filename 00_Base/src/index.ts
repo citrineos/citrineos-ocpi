@@ -10,7 +10,6 @@ import { OcpiModule } from './model/OcpiModule.js';
 import { KoaServer } from './util/KoaServer.js';
 import Koa from 'koa';
 import type { ICache } from '@citrineos/base';
-import { addFormats, Ajv } from '@citrineos/base';
 import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper.js';
@@ -22,6 +21,8 @@ import { OcpiConfigToken } from './config/ocpi.types.js';
 import type { IDtoModule } from './events/index.js';
 import { OcpiGraphqlClient } from './graphql/index.js';
 import { HealthController } from './util/KoaServerHealthController.js';
+import { Ajv } from 'ajv';
+import addFormats from 'ajv-formats';
 
 export * from './broadcaster/index.js';
 export * from './mapper/index.js';
@@ -425,7 +426,7 @@ export class OcpiServer extends KoaServer {
       ),
     );
 
-    const ajv = new Ajv.Ajv({
+    const ajv = new Ajv({
       removeAdditional: 'all',
       useDefaults: true,
       coerceTypes: 'array',

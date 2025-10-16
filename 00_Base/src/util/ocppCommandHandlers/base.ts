@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  Ajv,
   type IChargingStationDto,
   type IMessageConfirmation,
   type ITenantPartnerDto,
@@ -29,6 +28,7 @@ import { Inject, Token } from 'typedi';
 import { OcpiGraphqlClient } from '../../graphql/index.js';
 import { CommandsClientApi } from '../../trigger/CommandsClientApi.js';
 import qs from 'qs';
+import type { Ajv } from 'ajv';
 
 export const OCPP_COMMAND_HANDLER = new Token<OCPPCommandHandler>(
   'OCPP_COMMAND_HANDLER',
@@ -38,7 +38,7 @@ export abstract class OCPPCommandHandler {
   abstract readonly supportedVersion: OCPPVersion;
 
   @Inject()
-  private ajv!: Ajv.Ajv;
+  private ajv!: Ajv;
 
   @Inject()
   protected logger!: Logger<ILogObj>;
@@ -150,7 +150,7 @@ export abstract class OCPPCommandHandler {
 
     if (!validate(data)) {
       const errors = validate.errors
-        ?.map((err) => `${err.instancePath} ${err.message}`)
+        ?.map((err: any) => `${err.instancePath} ${err.message}`)
         .join(', ');
       throw new Error(`Validation failed: ${errors}`);
     }
