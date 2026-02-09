@@ -143,7 +143,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const chargingStationDto = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPutEvse(tenant, evseDto, chargingStationDto);
+    await this.locationsBroadcaster.broadcastPutEvse(
+      tenant,
+      evseDto,
+      chargingStationDto,
+    );
   }
 
   @AsDtoEventHandler(
@@ -175,7 +179,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const chargingStationDto = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPatchEvse(tenant, evseDto, chargingStationDto);
+    await this.locationsBroadcaster.broadcastPatchEvse(
+      tenant,
+      evseDto,
+      chargingStationDto,
+    );
   }
 
   @AsDtoEventHandler(

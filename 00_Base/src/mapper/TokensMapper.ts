@@ -6,7 +6,7 @@ import type {
   AuthorizationDto,
   AuthorizationStatusEnumType,
   AuthorizationWhitelistEnumType,
-  IdTokenEnumType
+  IdTokenEnumType,
 } from '@citrineos/base';
 import {
   AuthorizationStatusEnum,

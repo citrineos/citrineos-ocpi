@@ -88,9 +88,7 @@ export abstract class BaseClientApi {
 
   abstract getUrl(partnerProfile: PartnerProfile): string;
 
-  protected getHeaders(
-    partnerProfile: PartnerProfile,
-  ): IHeaders {
+  protected getHeaders(partnerProfile: PartnerProfile): IHeaders {
     const headers: IHeaders = {};
     headers[OcpiHttpHeader.XRequestId] = uuidv4();
     headers[OcpiHttpHeader.XCorrelationId] = uuidv4();

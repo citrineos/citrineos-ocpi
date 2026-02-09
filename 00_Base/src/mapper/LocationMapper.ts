@@ -21,7 +21,7 @@ import {
   type EvseDto,
   type LocationDto,
   type LocationFacilityEnumType,
-  type LocationParkingEnumType
+  type LocationParkingEnumType,
 } from '@citrineos/base';
 import {
   ChargingStationCapabilityEnum,

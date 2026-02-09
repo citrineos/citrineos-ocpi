@@ -12,7 +12,11 @@ import { CredentialsResponseSchema } from '../model/CredentialsResponse.js';
 import { Service } from 'typedi';
 import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
-import { type Endpoint, HttpMethod, type PartnerProfile } from '@citrineos/base';
+import {
+  type Endpoint,
+  HttpMethod,
+  type PartnerProfile,
+} from '@citrineos/base';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 import type { CredentialsDTO } from '../index.js';
 
@@ -22,8 +26,7 @@ export class CredentialsClientApi extends BaseClientApi {
 
   getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: Endpoint) =>
-        value.identifier === EndpointIdentifier.CREDENTIALS,
+      (value: Endpoint) => value.identifier === EndpointIdentifier.CREDENTIALS,
     )!.url;
     if (!url) {
       throw new MissingRequiredParamException(

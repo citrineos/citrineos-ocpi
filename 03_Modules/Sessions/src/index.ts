@@ -122,9 +122,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.MeterValue,
     'MeterValueNotification',
   )
-  async handleMeterValueInsert(
-    event: IDtoEvent<MeterValueDto>,
-  ): Promise<void> {
+  async handleMeterValueInsert(event: IDtoEvent<MeterValueDto>): Promise<void> {
     this._logger.debug(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
     const meterValueDto = event._payload;
     const tenant = meterValueDto.tenant;

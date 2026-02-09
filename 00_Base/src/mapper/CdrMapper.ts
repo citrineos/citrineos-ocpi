@@ -271,10 +271,7 @@ export class CdrMapper extends BaseTransactionMapper {
     return undefined;
   }
 
-  private isCredit(
-    _session: Session,
-    _tariff: TariffDto,
-  ): boolean | undefined {
+  private isCredit(_session: Session, _tariff: TariffDto): boolean | undefined {
     // TODO: Return whether CDR is a Credit CDR if needed
     return undefined;
   }

@@ -246,9 +246,7 @@ export class SessionMapper extends BaseTransactionMapper {
 
     // Map status if we can determine it
     if (transaction.endTime !== undefined) {
-      session.status = this.getTransactionStatus(
-        transaction as TransactionDto,
-      );
+      session.status = this.getTransactionStatus(transaction as TransactionDto);
     }
 
     // Set default auth method
@@ -302,9 +300,7 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     if (transaction.endTime !== undefined) {
-      session.status = this.getTransactionStatus(
-        transaction as TransactionDto,
-      );
+      session.status = this.getTransactionStatus(transaction as TransactionDto);
     }
 
     // Set defaults for fields that don't depend on external context

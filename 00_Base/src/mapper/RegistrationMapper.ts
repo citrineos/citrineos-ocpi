@@ -9,7 +9,7 @@ import {
   type CredentialRole,
   type BusinessDetails,
   type Image,
-  OCPIVersionNumberEnum
+  OCPIVersionNumberEnum,
 } from '@citrineos/base';
 import type { CredentialsDTO } from '../index.js';
 import { ImageCategory, ImageType, Role, VersionNumber } from '../index.js';
@@ -56,9 +56,7 @@ export class RegistrationMapper {
     };
   }
 
-  static toCredentialsRole(
-    value: CredentialsRoleDTO,
-  ): CredentialRole {
+  static toCredentialsRole(value: CredentialsRoleDTO): CredentialRole {
     return {
       role: RegistrationMapper.toRoleString(value.role),
       businessDetails: RegistrationMapper.toRegistrationBusinessDetails(
@@ -67,9 +65,7 @@ export class RegistrationMapper {
     };
   }
 
-  static toBusinessDetails(
-    value: BusinessDetails,
-  ): BusinessDetailsDTO {
+  static toBusinessDetails(value: BusinessDetails): BusinessDetailsDTO {
     return {
       name: value.name,
       website: value.website,
@@ -183,7 +179,7 @@ export class RegistrationMapper {
 
   static toVersionNumber(value: OCPIVersionNumberEnumType): VersionNumber {
     switch (value) {
-      case OCPIVersionNumberEnum["2.2.1"]:
+      case OCPIVersionNumberEnum['2.2.1']:
         return VersionNumber.TWO_DOT_TWO_DOT_ONE;
       default:
         throw new Error(`Unsupported OCPI version ${value}`);
@@ -193,7 +189,7 @@ export class RegistrationMapper {
   static toOCPIVersionNumber(value: VersionNumber): OCPIVersionNumberEnumType {
     switch (value) {
       case VersionNumber.TWO_DOT_TWO_DOT_ONE:
-        return OCPIVersionNumberEnum["2.2.1"];
+        return OCPIVersionNumberEnum['2.2.1'];
       default:
         throw new Error(`Unsupported version ${value}`);
     }

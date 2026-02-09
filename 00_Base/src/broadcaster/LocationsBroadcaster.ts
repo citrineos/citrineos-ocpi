@@ -84,7 +84,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     }
   }
 
-  async broadcastPutEvse(tenant: TenantDto, evseDto: EvseDto, chargingStationDto: ChargingStationDto): Promise<void> {
+  async broadcastPutEvse(
+    tenant: TenantDto,
+    evseDto: EvseDto,
+    chargingStationDto: ChargingStationDto,
+  ): Promise<void> {
     const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
     const evse = EvseMapper.fromGraphql(chargingStationDto!, evseDto);
@@ -96,14 +100,11 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   async broadcastPatchEvse(
     tenant: TenantDto,
     evseDto: Partial<EvseDto>,
-    chargingStationDto: Partial<ChargingStationDto>
+    chargingStationDto: Partial<ChargingStationDto>,
   ): Promise<void> {
     const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
-    const evse = EvseMapper.fromPartialGraphql(
-      chargingStationDto!,
-      evseDto,
-    );
+    const evse = EvseMapper.fromPartialGraphql(chargingStationDto!, evseDto);
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
