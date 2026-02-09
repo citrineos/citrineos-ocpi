@@ -10,7 +10,7 @@ import { Logger } from 'tslog';
 import type { Cdr } from '../model/Cdr.js';
 import { ModuleId } from '../model/ModuleId.js';
 import { InterfaceRole } from '../model/InterfaceRole.js';
-import type { ITransactionDto } from '@citrineos/base';
+import type { TransactionDto } from '@citrineos/base';
 import { HttpMethod } from '@citrineos/base';
 import { CdrMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
@@ -25,7 +25,7 @@ export class CdrBroadcaster extends BaseBroadcaster {
     super();
   }
 
-  async broadcastPostCdr(transactionDto: ITransactionDto): Promise<void> {
+  async broadcastPostCdr(transactionDto: TransactionDto): Promise<void> {
     const cdrs: Cdr[] = await this.cdrMapper.mapTransactionsToCdrs([
       transactionDto,
     ]);

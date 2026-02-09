@@ -7,12 +7,12 @@ import { TariffDimensionType } from '../model/TariffDimensionType.js';
 import type { TariffElement } from '../model/TariffElement.js';
 import { TariffType } from '../model/TariffType.js';
 import { MINUTES_IN_HOUR } from '../util/Consts.js';
-import type { ITariffDto } from '@citrineos/base';
+import type { TariffDto } from '@citrineos/base';
 
 export class TariffMapper {
   constructor() {}
 
-  public static map(coreTariff: Partial<ITariffDto>): TariffDTO {
+  public static map(coreTariff: Partial<TariffDto>): TariffDTO {
     return {
       id: coreTariff.id!.toString(),
       country_code: coreTariff.tenant!.countryCode!,
@@ -33,7 +33,7 @@ export class TariffMapper {
     };
   }
   private static getTariffElement(
-    coreTariff: Partial<ITariffDto>,
+    coreTariff: Partial<TariffDto>,
   ): TariffElement {
     return {
       price_components: [
@@ -71,7 +71,7 @@ export class TariffMapper {
   // TODO make flexible for more complicated tariffs
   private mapTariffElementToCoreTariff(
     tariffElements: TariffElement[],
-  ): Partial<ITariffDto> {
+  ): Partial<TariffDto> {
     const tariffElement = tariffElements[0];
     const priceComponents = tariffElement.price_components ?? [];
     const pricePerKwh =

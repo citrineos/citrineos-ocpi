@@ -5,7 +5,7 @@
 import { BaseClientApi } from './BaseClientApi.js';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId.js';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { type Endpoint, HttpMethod, type PartnerProfile } from '@citrineos/base';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 import type { PaginatedParams } from './param/PaginatedParams.js';
 import type { PaginatedTokenResponse } from '../model/DTO/TokenDTO.js';
@@ -19,9 +19,9 @@ import { AuthorizationInfoResponseSchema } from '../model/AuthorizationInfo.js';
 export class TokensClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tokens;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
+      (value: Endpoint) =>
         value.identifier === EndpointIdentifier.TOKENS_SENDER,
     )?.url;
     if (!url) {
@@ -37,7 +37,7 @@ export class TokensClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     paginatedParams: PaginatedParams,
   ): Promise<PaginatedTokenResponse> {
     return this.request(
@@ -60,7 +60,7 @@ export class TokensClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     tokenId: string,
     tokenType?: TokenType,
     body?: LocationReferences,

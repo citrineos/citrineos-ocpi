@@ -4,7 +4,7 @@
 
 import type { ICommandsModuleApi } from './ICommandsModuleApi.js';
 import { Body, Ctx, JsonController, Param, Post } from 'routing-controllers';
-import type { ITenantPartnerDto } from '@citrineos/base';
+import type { TenantPartnerDto } from '@citrineos/base';
 import { HttpStatus, OCPPVersion } from '@citrineos/base';
 import type {
   CancelReservation,
@@ -132,7 +132,7 @@ export class CommandsModuleApi
     return await this.commandsService.postCommand(
       commandType,
       validationResult.data,
-      ctx!.state!.tenantPartner as ITenantPartnerDto,
+      ctx!.state!.tenantPartner as TenantPartnerDto,
     );
   }
 

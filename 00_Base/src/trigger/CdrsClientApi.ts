@@ -10,15 +10,15 @@ import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import { ModuleId } from '../model/ModuleId.js';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { type Endpoint, HttpMethod, type PartnerProfile } from '@citrineos/base';
 
 @Service()
 export class CdrsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Cdrs;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
+      (value: Endpoint) =>
         value.identifier === EndpointIdentifier.CDRS_RECEIVER,
     )?.url;
     if (!url) {
@@ -34,7 +34,7 @@ export class CdrsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     url: string, // Provided in the response to a Cdr POST
   ): Promise<CdrResponse> {
     return this.request(
@@ -55,7 +55,7 @@ export class CdrsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     body: Cdr,
   ): Promise<OcpiEmptyResponse> {
     return this.request(

@@ -8,13 +8,13 @@ import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestEx
 import type { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO.js';
 import { VersionDetailsResponseDTOSchema } from '../model/DTO/VersionDetailsResponseDTO.js';
 import type { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO.js';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { HttpMethod, type PartnerProfile } from '@citrineos/base';
 import { VersionsInterface } from '../model/EndpointIdentifier.js';
 
 @Service()
 export class VersionsClientApi extends BaseClientApi {
   getUrl(
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     versionInterface = VersionsInterface.VERSIONS,
   ): string {
     switch (versionInterface) {
@@ -32,7 +32,7 @@ export class VersionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     url?: string,
   ): Promise<VersionListResponseDTO> {
     try {
@@ -59,7 +59,7 @@ export class VersionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     url?: string,
   ): Promise<VersionDetailsResponseDTO> {
     try {

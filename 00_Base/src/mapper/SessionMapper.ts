@@ -5,10 +5,10 @@
 import { Service } from 'typedi';
 import type { Session } from '../model/Session.js';
 import type {
-  IMeterValueDto,
-  ITariffDto,
-  ITransactionDto,
-  ITransactionEventDto,
+  MeterValueDto,
+  TariffDto,
+  TransactionDto,
+  TransactionEventDto,
 } from '@citrineos/base';
 import { OCPP2_0_1 } from '@citrineos/base';
 import { AuthMethod } from '../model/AuthMethod.js';
@@ -40,7 +40,7 @@ export class SessionMapper extends BaseTransactionMapper {
    * Maps a single transaction to a session
    */
   public async mapTransactionToSession(
-    transaction: ITransactionDto,
+    transaction: TransactionDto,
   ): Promise<Session> {
     const [locationMap, tokenMap, tariffMap] =
       await this.getLocationsTokensAndTariffsMapsForTransactions([transaction]);
@@ -72,7 +72,7 @@ export class SessionMapper extends BaseTransactionMapper {
    * Maps a partial transaction to a partial session
    */
   public async mapPartialTransactionToPartialSession(
-    transaction: Partial<ITransactionDto>,
+    transaction: Partial<TransactionDto>,
   ): Promise<Partial<Session>> {
     // If we don't have a transaction ID, we can only map basic fields
     if (!transaction.transactionId) {
@@ -83,7 +83,7 @@ export class SessionMapper extends BaseTransactionMapper {
       // Try to fetch context data, but handle failures gracefully
       const [locationMap, tokenMap, tariffMap] =
         await this.getLocationsTokensAndTariffsMapsForTransactions([
-          transaction as ITransactionDto,
+          transaction as TransactionDto,
         ]);
 
       const location = locationMap.get(transaction.transactionId);
@@ -106,9 +106,9 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   public async getLocationsTokensAndTariffsMapsForTransactions(
-    transactions: ITransactionDto[],
+    transactions: TransactionDto[],
   ): Promise<
-    [Map<string, LocationDTO>, Map<string, TokenDTO>, Map<string, ITariffDto>]
+    [Map<string, LocationDTO>, Map<string, TokenDTO>, Map<string, TariffDto>]
   > {
     return await Promise.all([
       this.getLocationDTOsForTransactions(transactions),
@@ -118,7 +118,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   public async mapTransactionsToSessions(
-    transactions: ITransactionDto[],
+    transactions: TransactionDto[],
   ): Promise<Session[]> {
     const [
       transactionIdToLocationMap,
@@ -135,10 +135,10 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   public async mapTransactionsToSessionsHelper(
-    transactions: ITransactionDto[],
+    transactions: TransactionDto[],
     transactionIdToLocationMap: Map<string, LocationDTO>,
     transactionIdToTokenMap: Map<string, TokenDTO>,
-    transactionIdToTariffMap: Map<string, ITariffDto>,
+    transactionIdToTariffMap: Map<string, TariffDto>,
   ): Promise<Session[]> {
     const result: Session[] = [];
     for (const transaction of transactions) {
@@ -168,10 +168,10 @@ export class SessionMapper extends BaseTransactionMapper {
    * Maps a partial transaction with available context data
    */
   private mapPartialTransactionWithContext(
-    transaction: Partial<ITransactionDto>,
+    transaction: Partial<TransactionDto>,
     location?: LocationDTO,
     token?: TokenDTO,
-    tariff?: ITariffDto,
+    tariff?: TariffDto,
   ): Partial<Session> {
     const session: Partial<Session> = {};
 
@@ -229,7 +229,7 @@ export class SessionMapper extends BaseTransactionMapper {
 
     // Map fields that depend on transaction structure
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as ITransactionDto);
+      session.evse_uid = this.getEvseUid(transaction as TransactionDto);
     }
 
     if (transaction.connectorId) {
@@ -247,7 +247,7 @@ export class SessionMapper extends BaseTransactionMapper {
     // Map status if we can determine it
     if (transaction.endTime !== undefined) {
       session.status = this.getTransactionStatus(
-        transaction as ITransactionDto,
+        transaction as TransactionDto,
       );
     }
 
@@ -265,7 +265,7 @@ export class SessionMapper extends BaseTransactionMapper {
    * Maps a partial transaction without context data (location, token, tariff)
    */
   private mapPartialTransactionWithoutContext(
-    transaction: Partial<ITransactionDto>,
+    transaction: Partial<TransactionDto>,
   ): Partial<Session> {
     const session: Partial<Session> = {};
 
@@ -294,7 +294,7 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as ITransactionDto);
+      session.evse_uid = this.getEvseUid(transaction as TransactionDto);
     }
 
     if (transaction.connectorId) {
@@ -303,7 +303,7 @@ export class SessionMapper extends BaseTransactionMapper {
 
     if (transaction.endTime !== undefined) {
       session.status = this.getTransactionStatus(
-        transaction as ITransactionDto,
+        transaction as TransactionDto,
       );
     }
 
@@ -316,10 +316,10 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private mapTransactionWithContextToSession(
-    transaction: ITransactionDto,
+    transaction: TransactionDto,
     location: LocationDTO,
     token: TokenDTO,
-    tariff: ITariffDto,
+    tariff: TariffDto,
   ): Session {
     return {
       country_code: location.country_code,
@@ -357,7 +357,7 @@ export class SessionMapper extends BaseTransactionMapper {
     };
   }
 
-  private getLatestEvent(transactionEvents: ITransactionEventDto[]): Date {
+  private getLatestEvent(transactionEvents: TransactionEventDto[]): Date {
     return transactionEvents.reduce((latestDate, current) => {
       const currentDate = new Date(current.timestamp);
       if (!latestDate || currentDate > latestDate) {
@@ -385,7 +385,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return location.id ?? '';
   }
 
-  private getEvseUid(transaction: ITransactionDto): string {
+  private getEvseUid(transaction: TransactionDto): string {
     return UID_FORMAT(transaction.stationId, transaction.evseId!);
   }
 
@@ -398,7 +398,7 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   public getChargingPeriods(
-    meterValues: IMeterValueDto[] = [],
+    meterValues: MeterValueDto[] = [],
     tariffId: string,
   ): ChargingPeriod[] {
     return meterValues
@@ -418,9 +418,9 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private mapMeterValueToChargingPeriod(
-    meterValue: IMeterValueDto,
+    meterValue: MeterValueDto,
     tariffId: string,
-    previousMeterValue?: IMeterValueDto,
+    previousMeterValue?: MeterValueDto,
   ): ChargingPeriod {
     return {
       start_date_time: new Date(meterValue.timestamp),
@@ -430,8 +430,8 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getCdrDimensions(
-    meterValue: IMeterValueDto,
-    previousMeterValue?: IMeterValueDto,
+    meterValue: MeterValueDto,
+    previousMeterValue?: MeterValueDto,
   ): CdrDimension[] {
     const cdrDimensions: CdrDimension[] = [];
     for (const sampledValue of meterValue.sampledValue) {
@@ -480,7 +480,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return cdrDimensions;
   }
 
-  private getEnergyImportForMeterValue(meterValue?: IMeterValueDto) {
+  private getEnergyImportForMeterValue(meterValue?: MeterValueDto) {
     return (
       meterValue?.sampledValue.find(
         (sampledValue) =>
@@ -492,8 +492,8 @@ export class SessionMapper extends BaseTransactionMapper {
   }
 
   private getTimeElapsedForMeterValue(
-    meterValue: IMeterValueDto,
-    previousMeterValue?: IMeterValueDto,
+    meterValue: MeterValueDto,
+    previousMeterValue?: MeterValueDto,
   ): number {
     const timeDiffMs = previousMeterValue
       ? new Date(meterValue.timestamp).getTime() -
@@ -504,7 +504,7 @@ export class SessionMapper extends BaseTransactionMapper {
     return timeDiffMs / (1000 * 60 * 60); // 1000 ms/sec * 60 sec/min * 60 min/hour
   }
 
-  private getTransactionStatus(transaction: ITransactionDto): SessionStatus {
+  private getTransactionStatus(transaction: TransactionDto): SessionStatus {
     // TODO: Implement other session status
     return transaction.endTime ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }

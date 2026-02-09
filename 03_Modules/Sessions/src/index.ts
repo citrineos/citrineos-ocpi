@@ -24,7 +24,7 @@ import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 import { SessionsModuleApi } from './module/SessionsModuleApi.js';
-import type { IMeterValueDto, ITransactionDto } from '@citrineos/base';
+import type { MeterValueDto, TransactionDto } from '@citrineos/base';
 
 export { SessionsModuleApi } from './module/SessionsModuleApi.js';
 export type { ISessionsModuleApi } from './module/ISessionsModuleApi.js';
@@ -62,7 +62,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     'TransactionNotification',
   )
   async handleTransactionInsert(
-    event: IDtoEvent<ITransactionDto>,
+    event: IDtoEvent<TransactionDto>,
   ): Promise<void> {
     this._logger.debug(`Handling Transaction Insert: ${JSON.stringify(event)}`);
     const transactionDto = event._payload;
@@ -82,7 +82,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     'TransactionNotification',
   )
   async handleTransactionUpdate(
-    event: IDtoEvent<Partial<ITransactionDto>>,
+    event: IDtoEvent<Partial<TransactionDto>>,
   ): Promise<void> {
     this._logger.debug(`Handling Transaction Update: ${JSON.stringify(event)}`);
     const transactionDto = event._payload;
@@ -112,7 +112,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       }
 
       const fullTransactionDto = fullTransactionDtoResponse
-        .Transactions[0] as ITransactionDto;
+        .Transactions[0] as TransactionDto;
       await this.cdrBroadcaster.broadcastPostCdr(fullTransactionDto);
     }
   }
@@ -123,7 +123,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     'MeterValueNotification',
   )
   async handleMeterValueInsert(
-    event: IDtoEvent<IMeterValueDto>,
+    event: IDtoEvent<MeterValueDto>,
   ): Promise<void> {
     this._logger.debug(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
     const meterValueDto = event._payload;

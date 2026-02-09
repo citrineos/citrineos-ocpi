@@ -20,7 +20,7 @@ import {
   OcpiGraphqlClient,
 } from '../graphql/index.js';
 import { TariffMapper } from '../mapper/index.js';
-import type { ITariffDto } from '@citrineos/base';
+import type { TariffDto } from '@citrineos/base';
 
 @Service()
 export class TariffsService {
@@ -37,7 +37,7 @@ export class TariffsService {
     >(GET_TARIFF_BY_KEY_QUERY, key);
     const tariff = result.Tariffs?.[0];
     if (tariff) {
-      return TariffMapper.map(tariff as ITariffDto);
+      return TariffMapper.map(tariff as TariffDto);
     }
     return undefined;
   }
@@ -73,7 +73,7 @@ export class TariffsService {
     >(GET_TARIFFS_QUERY, variables);
     const mappedTariffs: TariffDTO[] = [];
     for (const tariff of result.Tariffs) {
-      mappedTariffs.push(TariffMapper.map(tariff as ITariffDto));
+      mappedTariffs.push(TariffMapper.map(tariff as TariffDto));
     }
     return {
       data: mappedTariffs,

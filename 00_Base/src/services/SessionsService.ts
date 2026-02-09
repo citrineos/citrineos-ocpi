@@ -17,7 +17,7 @@ import type {
 } from '../graphql/index.js';
 import { GET_TRANSACTIONS_QUERY, OcpiGraphqlClient } from '../graphql/index.js';
 import { SessionMapper } from '../mapper/index.js';
-import type { ITransactionDto } from '@citrineos/base';
+import type { TransactionDto } from '@citrineos/base';
 
 @Service()
 export class SessionsService {
@@ -66,7 +66,7 @@ export class SessionsService {
     >(GET_TRANSACTIONS_QUERY, queryOptions);
 
     let mappedSessions = await this.sessionMapper.mapTransactionsToSessions(
-      result.Transactions as ITransactionDto[],
+      result.Transactions as TransactionDto[],
     );
 
     if (endedOnly) {

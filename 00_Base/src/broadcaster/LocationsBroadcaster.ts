@@ -15,10 +15,11 @@ import type { ConnectorDTO } from '../model/DTO/ConnectorDTO.js';
 import { ModuleId } from '../model/ModuleId.js';
 import { InterfaceRole } from '../model/InterfaceRole.js';
 import type {
-  IConnectorDto,
-  IEvseDto,
-  ILocationDto,
-  ITenantDto,
+  ChargingStationDto,
+  ConnectorDto,
+  EvseDto,
+  LocationDto,
+  TenantDto,
 } from '@citrineos/base';
 import { HttpMethod } from '@citrineos/base';
 import {
@@ -39,8 +40,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutLocation(
-    tenant: ITenantDto,
-    locationDto: ILocationDto,
+    tenant: TenantDto,
+    locationDto: LocationDto,
   ): Promise<void> {
     const location = LocationMapper.fromGraphql(locationDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${location.id}`;
@@ -48,8 +49,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchLocation(
-    tenant: ITenantDto,
-    locationDto: Partial<ILocationDto>,
+    tenant: TenantDto,
+    locationDto: Partial<LocationDto>,
   ): Promise<void> {
     const locationId = locationDto.id;
     if (!locationId) throw new Error('Location ID missing');
@@ -59,7 +60,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastLocation(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     location: Partial<LocationDTO>,
     method: HttpMethod,
     path: string,
@@ -83,23 +84,24 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     }
   }
 
-  async broadcastPutEvse(tenant: ITenantDto, evseDto: IEvseDto): Promise<void> {
-    const locationId = evseDto.chargingStation?.locationId;
+  async broadcastPutEvse(tenant: TenantDto, evseDto: EvseDto, chargingStationDto: ChargingStationDto): Promise<void> {
+    const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
-    const evse = EvseMapper.fromGraphql(evseDto.chargingStation!, evseDto);
+    const evse = EvseMapper.fromGraphql(chargingStationDto!, evseDto);
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId, evseDto.id!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Put, path);
   }
 
   async broadcastPatchEvse(
-    tenant: ITenantDto,
-    evseDto: Partial<IEvseDto>,
+    tenant: TenantDto,
+    evseDto: Partial<EvseDto>,
+    chargingStationDto: Partial<ChargingStationDto>
   ): Promise<void> {
-    const locationId = evseDto.chargingStation?.locationId;
+    const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
     const evse = EvseMapper.fromPartialGraphql(
-      evseDto.chargingStation!,
+      chargingStationDto!,
       evseDto,
     );
     if (!evse) throw new Error('Failed to map EVSE data');
@@ -108,7 +110,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastEvse(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     evseData: Partial<EvseDTO>,
     method: HttpMethod,
     path: string,
@@ -130,8 +132,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutConnector(
-    tenant: ITenantDto,
-    connectorDto: IConnectorDto,
+    tenant: TenantDto,
+    connectorDto: ConnectorDto,
   ): Promise<void> {
     const locationId = connectorDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in Connector data');
@@ -142,8 +144,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchConnector(
-    tenant: ITenantDto,
-    connectorDto: Partial<IConnectorDto>,
+    tenant: TenantDto,
+    connectorDto: Partial<ConnectorDto>,
   ): Promise<void> {
     const locationId = connectorDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in Connector data');
@@ -154,7 +156,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastConnector(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     connectorData: Partial<ConnectorDTO>,
     method: HttpMethod,
     path: string,

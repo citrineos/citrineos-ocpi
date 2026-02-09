@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
+import type { ChargingStationDto, TenantPartnerDto } from '@citrineos/base';
 import {
-  ChargingStationSequenceType,
+  ChargingStationSequenceTypeEnum,
   OCPP2_0_1,
   OCPPVersion,
 } from '@citrineos/base';
@@ -34,8 +34,8 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
 
   public async sendStartSessionCommand(
     startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -57,7 +57,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
     >(GET_SEQUENCE, {
       tenantId: tenantPartner.tenant!.id!,
       stationId: chargingStation.id,
-      type: ChargingStationSequenceType.remoteStartId,
+      type: ChargingStationSequenceTypeEnum.remoteStartId,
     });
     let remoteStartId =
       sequenceResponse.ChargingStationSequences[0]?.value || 0;
@@ -68,7 +68,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
         {
           tenantId: tenantPartner.tenant!.id!,
           stationId: chargingStation.id,
-          type: ChargingStationSequenceType.remoteStartId,
+          type: ChargingStationSequenceTypeEnum.remoteStartId,
           value: remoteStartId,
           createdAt: new Date().toISOString(),
         },
@@ -105,8 +105,8 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
 
   public async sendStopSessionCommand(
     stopSession: StopSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -138,8 +138,8 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
 
   public async sendUnlockConnectorCommand(
     unlockConnector: UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -204,7 +204,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
   }
 
   public async handleAsyncCommandResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     command: CommandType,
     responseUrl: string,
     response: any,
@@ -238,7 +238,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleRequestStartTransactionResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,
@@ -294,7 +294,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleRequestStopTransactionResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,
@@ -350,7 +350,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleUnlockConnectorResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,

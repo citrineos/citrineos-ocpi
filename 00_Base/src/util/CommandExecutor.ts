@@ -5,8 +5,8 @@
 import type { StartSession } from '../model/StartSession.js';
 import type {
   ICache,
-  IChargingStationDto,
-  ITenantPartnerDto,
+  ChargingStationDto,
+  TenantPartnerDto,
 } from '@citrineos/base';
 import { OCPPVersion } from '@citrineos/base';
 import { Inject, InjectMany, Service } from 'typedi';
@@ -68,8 +68,8 @@ export class CommandExecutor {
 
   public async executeStartSession(
     startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
   ): Promise<void> {
     this.logger.info('Executing StartSession command', { startSession });
 
@@ -99,8 +99,8 @@ export class CommandExecutor {
 
   public async executeStopSession(
     stopSession: StopSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
   ): Promise<void> {
     this.logger.info('Executing StopSession command', { stopSession });
 
@@ -130,8 +130,8 @@ export class CommandExecutor {
 
   public async executeUnlockConnector(
     unlockConnector: UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
   ): Promise<void> {
     this.logger.info('Executing UnlockConnector command', { unlockConnector });
 
@@ -478,7 +478,7 @@ export class CommandExecutor {
       return;
     }
     const tenantPartner =
-      tenantPartnerResponse.TenantPartners_by_pk as ITenantPartnerDto;
+      tenantPartnerResponse.TenantPartners_by_pk as TenantPartnerDto;
 
     const commandHandler = this.getCommandHandler(
       ocppVersion,
@@ -505,7 +505,7 @@ export class CommandExecutor {
 
   private async generateCommandId(
     responseUrl: string,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
   ): Promise<string> {
     const commandId = uuidv4();
     await this.cache.set(
@@ -566,7 +566,7 @@ export class CommandExecutor {
 
   private getCommandHandler(
     ocppVersion: OCPPVersion | undefined,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     commandId: string,
   ): OCPPCommandHandler | undefined {

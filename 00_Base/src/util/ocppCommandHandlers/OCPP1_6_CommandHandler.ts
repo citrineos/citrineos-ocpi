@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
+import type { ChargingStationDto, TenantPartnerDto } from '@citrineos/base';
 import { OCPP1_6, OCPPVersion } from '@citrineos/base';
 import type { IRequestOptions } from 'typed-rest-client';
 import { Service } from 'typedi';
@@ -20,8 +20,8 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
 
   public async sendStartSessionCommand(
     startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -53,8 +53,8 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
 
   public async sendStopSessionCommand(
     stopSession: StopSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -86,8 +86,8 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
 
   public async sendUnlockConnectorCommand(
     unlockConnector: UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -148,7 +148,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   public async handleAsyncCommandResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     command: CommandType,
     responseUrl: string,
     response: any,
@@ -182,7 +182,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleRemoteStartTransactionResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,
@@ -234,7 +234,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleRemoteStopTransactionResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,
@@ -286,7 +286,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleUnlockConnectorResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,

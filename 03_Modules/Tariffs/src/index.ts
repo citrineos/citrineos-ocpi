@@ -16,7 +16,7 @@ import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 import { TariffsModuleApi } from './module/TariffsModuleApi.js';
-import type { ITariffDto } from '@citrineos/base';
+import type { TariffDto } from '@citrineos/base';
 
 export { TariffsModuleApi } from './module/TariffsModuleApi.js';
 export type { ITariffsModuleApi } from './module/ITariffsModuleApi.js';
@@ -51,7 +51,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Tariff,
     'TariffNotification',
   )
-  async handleTariffInsert(event: IDtoEvent<ITariffDto>): Promise<void> {
+  async handleTariffInsert(event: IDtoEvent<TariffDto>): Promise<void> {
     this._logger.debug(`Handling Tariff Insert: ${JSON.stringify(event)}`);
     const tariffDto = event._payload;
     const tenant = tariffDto.tenant;
@@ -71,7 +71,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     'TariffNotification',
   )
   async handleTariffUpdate(
-    event: IDtoEvent<Partial<ITariffDto>>,
+    event: IDtoEvent<Partial<TariffDto>>,
   ): Promise<void> {
     this._logger.debug(`Handling Tariff Update: ${JSON.stringify(event)}`);
     const tariffDto = event._payload;
@@ -91,7 +91,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Tariff,
     'TariffNotification',
   )
-  async handleTariffDelete(event: IDtoEvent<ITariffDto>): Promise<void> {
+  async handleTariffDelete(event: IDtoEvent<TariffDto>): Promise<void> {
     this._logger.debug(`Handling Tariff Delete: ${JSON.stringify(event)}`);
     const tariffDto = event._payload;
     const tenant = tariffDto.tenant;

@@ -2,11 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IAuthorizationDto } from '@citrineos/base';
+import type {
+  AuthorizationDto,
+  AuthorizationStatusEnumType,
+  AuthorizationWhitelistEnumType,
+  IdTokenEnumType
+} from '@citrineos/base';
 import {
-  AuthorizationStatusType,
-  AuthorizationWhitelistType,
-  IdTokenType,
+  AuthorizationStatusEnum,
+  AuthorizationWhitelistEnum,
+  IdTokenEnum,
   OCPP2_0_1,
 } from '@citrineos/base';
 import { TokenType } from '../model/TokenType.js';
@@ -14,7 +19,7 @@ import type { TokenDTO } from '../model/DTO/TokenDTO.js';
 import { WhitelistType } from '../model/WhitelistType.js';
 
 export class TokensMapper {
-  public static toDto(authorization: IAuthorizationDto): TokenDTO {
+  public static toDto(authorization: AuthorizationDto): TokenDTO {
     const tokenDto: TokenDTO = {
       country_code: authorization.tenantPartner!.countryCode!,
       party_id: authorization.tenantPartner!.partyId!,
@@ -26,7 +31,7 @@ export class TokensMapper {
       visual_number: TokensMapper.getVisualNumber(authorization),
       issuer: TokensMapper.getIssuer(authorization),
       group_id: authorization.groupAuthorization?.idToken,
-      valid: authorization.status === AuthorizationStatusType.Accepted,
+      valid: authorization.status === AuthorizationStatusEnum.Accepted,
       whitelist: TokensMapper.mapRealTimeEnumType(authorization.realTimeAuth),
       language: authorization.language1,
       // default_profile_type: token.default_profile_type,
@@ -39,32 +44,32 @@ export class TokensMapper {
 
   public static mapOcpiTokenTypeToOcppIdTokenType(
     type: TokenType,
-  ): IdTokenType {
+  ): IdTokenEnumType {
     switch (type) {
       case TokenType.RFID:
         // If you are actually using ISO15693, you need to change this
-        return IdTokenType.ISO14443;
+        return IdTokenEnum.ISO14443;
       case TokenType.AD_HOC_USER:
-        return IdTokenType.Local;
+        return IdTokenEnum.Local;
       case TokenType.APP_USER:
-        return IdTokenType.Central;
+        return IdTokenEnum.Central;
       case TokenType.OTHER:
-        return IdTokenType.Other;
+        return IdTokenEnum.Other;
       default:
         throw new Error(`Unknown token type: ${type}`);
     }
   }
 
   public static mapOcppIdTokenTypeToOcpiTokenType(
-    type: IdTokenType | null | undefined,
+    type: IdTokenEnumType | null | undefined,
   ): TokenType {
     switch (type) {
-      case IdTokenType.ISO14443:
+      case IdTokenEnum.ISO14443:
         // If you are actually using ISO15693, you need to change this
         return TokenType.RFID;
-      case IdTokenType.Local:
+      case IdTokenEnum.Local:
         return TokenType.AD_HOC_USER;
-      case IdTokenType.Central:
+      case IdTokenEnum.Central:
         return TokenType.APP_USER;
       case null:
         return TokenType.OTHER;
@@ -74,14 +79,14 @@ export class TokensMapper {
   }
 
   public static mapRealTimeEnumType(
-    type: AuthorizationWhitelistType | null | undefined,
+    type: AuthorizationWhitelistEnumType | null | undefined,
   ): WhitelistType {
     switch (type) {
-      case AuthorizationWhitelistType.Allowed:
+      case AuthorizationWhitelistEnum.Allowed:
         return WhitelistType.ALLOWED;
-      case AuthorizationWhitelistType.AllowedOffline:
+      case AuthorizationWhitelistEnum.AllowedOffline:
         return WhitelistType.ALLOWED_OFFLINE;
-      case AuthorizationWhitelistType.Never:
+      case AuthorizationWhitelistEnum.Never:
         return WhitelistType.NEVER;
       default:
         return WhitelistType.ALWAYS;
@@ -90,14 +95,14 @@ export class TokensMapper {
 
   public static mapWhitelistType(
     whitelist: WhitelistType | undefined,
-  ): AuthorizationWhitelistType | null | undefined {
+  ): AuthorizationWhitelistEnumType | null | undefined {
     switch (whitelist) {
       case WhitelistType.ALLOWED:
-        return AuthorizationWhitelistType.Allowed;
+        return AuthorizationWhitelistEnum.Allowed;
       case WhitelistType.ALLOWED_OFFLINE:
-        return AuthorizationWhitelistType.AllowedOffline;
+        return AuthorizationWhitelistEnum.AllowedOffline;
       case WhitelistType.NEVER:
-        return AuthorizationWhitelistType.Never;
+        return AuthorizationWhitelistEnum.Never;
       case WhitelistType.ALWAYS:
         return null;
       default:
@@ -107,9 +112,9 @@ export class TokensMapper {
 
   public static mapOcpiTokenToPartialOcppAuthorization(
     tokenDto: Partial<TokenDTO>,
-  ): Partial<IAuthorizationDto> {
+  ): Partial<AuthorizationDto> {
     const idToken: string | undefined = tokenDto.uid;
-    const idTokenType: IdTokenType | undefined =
+    const idTokenType: IdTokenEnumType | undefined =
       tokenDto.type &&
       TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(tokenDto.type);
 
@@ -144,13 +149,13 @@ export class TokensMapper {
           ])
         : undefined;
 
-    const status: AuthorizationStatusType = tokenDto.valid
-      ? AuthorizationStatusType.Accepted
-      : AuthorizationStatusType.Invalid;
+    const status: AuthorizationStatusEnumType = tokenDto.valid
+      ? AuthorizationStatusEnum.Accepted
+      : AuthorizationStatusEnum.Invalid;
 
     const language1: string | undefined = tokenDto.language ?? undefined;
 
-    const realTimeAuth: AuthorizationWhitelistType | null | undefined =
+    const realTimeAuth: AuthorizationWhitelistEnumType | null | undefined =
       TokensMapper.mapWhitelistType(tokenDto.whitelist);
 
     return {
@@ -163,7 +168,7 @@ export class TokensMapper {
     };
   }
 
-  public static getContractId(authorization: IAuthorizationDto): string {
+  public static getContractId(authorization: AuthorizationDto): string {
     const contractId = authorization.additionalInfo!.find(
       (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
     )?.additionalIdToken;
@@ -175,7 +180,7 @@ export class TokensMapper {
     return contractId;
   }
 
-  public static getVisualNumber(authorization: IAuthorizationDto): string {
+  public static getVisualNumber(authorization: AuthorizationDto): string {
     const visualNumber = authorization.additionalInfo!.find(
       (info) => info.type === 'visual_number',
     )?.additionalIdToken;
@@ -187,7 +192,7 @@ export class TokensMapper {
     return visualNumber;
   }
 
-  public static getIssuer(authorization: IAuthorizationDto): string {
+  public static getIssuer(authorization: AuthorizationDto): string {
     const issuer = authorization.additionalInfo!.find(
       (info) => info.type === 'issuer',
     )?.additionalIdToken;

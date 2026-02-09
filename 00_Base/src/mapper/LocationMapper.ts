@@ -10,22 +10,29 @@ import { EvseStatus } from '../model/EvseStatus.js';
 import { ConnectorType } from '../model/ConnectorType.js';
 import { ConnectorFormat } from '../model/ConnectorFormat.js';
 import { PowerType } from '../model/PowerType.js';
-import type {
-  IChargingStationDto,
-  IConnectorDto,
-  IEvseDto,
-  ILocationDto,
+import {
+  type ChargingStationParkingRestrictionEnumType,
+  type ChargingStationCapabilityEnumType,
+  type ConnectorFormatEnumType,
+  type ConnectorPowerTypeEnumType,
+  type ConnectorTypeEnumType,
+  type ChargingStationDto,
+  type ConnectorDto,
+  type EvseDto,
+  type LocationDto,
+  type LocationFacilityEnumType,
+  type LocationParkingEnumType
 } from '@citrineos/base';
 import {
-  ChargingStationCapability,
-  ChargingStationParkingRestriction,
+  ChargingStationCapabilityEnum,
+  ChargingStationParkingRestrictionEnum,
   ConnectorFormatEnum,
-  ConnectorPowerType,
-  ConnectorStatus,
+  ConnectorPowerTypeEnum,
+  ConnectorStatusEnum,
   ConnectorTypeEnum,
-  LocationFacilityType,
+  LocationFacilityEnum,
   LocationHours,
-  LocationParkingType,
+  LocationParkingEnum,
 } from '@citrineos/base';
 import { ParkingRestriction } from '../model/ParkingRestriction.js';
 import { Capability } from '../model/Capability.js';
@@ -36,7 +43,7 @@ import { Facilities } from '../model/Facilities.js';
 import type { Hours } from '../model/Hours.js';
 
 export class LocationMapper {
-  static fromGraphql(location: ILocationDto): LocationDTO {
+  static fromGraphql(location: LocationDto): LocationDTO {
     return {
       id: location.id!.toString(),
       country_code: location.tenant!.countryCode!,
@@ -71,7 +78,7 @@ export class LocationMapper {
   }
 
   static fromPartialGraphql(
-    location: Partial<ILocationDto>,
+    location: Partial<LocationDto>,
   ): Partial<LocationDTO> {
     return {
       publish: location.publishUpstream,
@@ -106,20 +113,20 @@ export class LocationMapper {
   }
 
   static mapLocationParkingType(
-    parkingType: LocationParkingType | null | undefined,
+    parkingType: LocationParkingEnumType | null | undefined,
   ): ParkingType | null {
     switch (parkingType) {
-      case LocationParkingType.AlongMotorway:
+      case LocationParkingEnum.AlongMotorway:
         return ParkingType.ALONG_MOTORWAY;
-      case LocationParkingType.ParkingGarage:
+      case LocationParkingEnum.ParkingGarage:
         return ParkingType.PARKING_GARAGE;
-      case LocationParkingType.ParkingLot:
+      case LocationParkingEnum.ParkingLot:
         return ParkingType.PARKING_LOT;
-      case LocationParkingType.OnDriveway:
+      case LocationParkingEnum.OnDriveway:
         return ParkingType.ON_DRIVEWAY;
-      case LocationParkingType.OnStreet:
+      case LocationParkingEnum.OnStreet:
         return ParkingType.ON_STREET;
-      case LocationParkingType.UndergroundGarage:
+      case LocationParkingEnum.UndergroundGarage:
         return ParkingType.UNDERGROUND_GARAGE;
       default:
         return null;
@@ -127,48 +134,48 @@ export class LocationMapper {
   }
 
   static mapLocationFacility(
-    locationFacility: LocationFacilityType | null | undefined,
+    locationFacility: LocationFacilityEnumType | null | undefined,
   ): Facilities | null {
     switch (locationFacility) {
-      case LocationFacilityType.Hotel:
+      case LocationFacilityEnum.Hotel:
         return Facilities.HOTEL;
-      case LocationFacilityType.Restaurant:
+      case LocationFacilityEnum.Restaurant:
         return Facilities.RESTAURANT;
-      case LocationFacilityType.Cafe:
+      case LocationFacilityEnum.Cafe:
         return Facilities.CAFE;
-      case LocationFacilityType.Mall:
+      case LocationFacilityEnum.Mall:
         return Facilities.MALL;
-      case LocationFacilityType.Supermarket:
+      case LocationFacilityEnum.Supermarket:
         return Facilities.SUPERMARKET;
-      case LocationFacilityType.Sport:
+      case LocationFacilityEnum.Sport:
         return Facilities.SPORT;
-      case LocationFacilityType.RecreationArea:
+      case LocationFacilityEnum.RecreationArea:
         return Facilities.RECREATION_AREA;
-      case LocationFacilityType.Nature:
+      case LocationFacilityEnum.Nature:
         return Facilities.NATURE;
-      case LocationFacilityType.Museum:
+      case LocationFacilityEnum.Museum:
         return Facilities.MUSEUM;
-      case LocationFacilityType.BikeSharing:
+      case LocationFacilityEnum.BikeSharing:
         return Facilities.BIKE_SHARING;
-      case LocationFacilityType.BusStop:
+      case LocationFacilityEnum.BusStop:
         return Facilities.BUS_STOP;
-      case LocationFacilityType.TaxiStand:
+      case LocationFacilityEnum.TaxiStand:
         return Facilities.TAXI_STAND;
-      case LocationFacilityType.TramStop:
+      case LocationFacilityEnum.TramStop:
         return Facilities.TRAM_STOP;
-      case LocationFacilityType.MetroStation:
+      case LocationFacilityEnum.MetroStation:
         return Facilities.METRO_STATION;
-      case LocationFacilityType.TrainStation:
+      case LocationFacilityEnum.TrainStation:
         return Facilities.TRAIN_STATION;
-      case LocationFacilityType.Airport:
+      case LocationFacilityEnum.Airport:
         return Facilities.AIRPORT;
-      case LocationFacilityType.ParkingLot:
+      case LocationFacilityEnum.ParkingLot:
         return Facilities.PARKING_LOT;
-      case LocationFacilityType.CarpoolParking:
+      case LocationFacilityEnum.CarpoolParking:
         return Facilities.CARPOOL_PARKING;
-      case LocationFacilityType.FuelStation:
+      case LocationFacilityEnum.FuelStation:
         return Facilities.FUEL_STATION;
-      case LocationFacilityType.Wifi:
+      case LocationFacilityEnum.Wifi:
         return Facilities.WIFI;
       default:
         return null;
@@ -203,8 +210,8 @@ export class LocationMapper {
 
 export class EvseMapper {
   static fromGraphql(
-    station: IChargingStationDto,
-    evse: IEvseDto,
+    station: ChargingStationDto,
+    evse: EvseDto,
   ): EvseDTO | undefined {
     let connectors = evse.connectors
       ?.map(ConnectorMapper.fromGraphql)
@@ -250,8 +257,8 @@ export class EvseMapper {
   }
 
   static fromPartialGraphql(
-    station: Partial<IChargingStationDto>,
-    evse: Partial<IEvseDto>,
+    station: Partial<ChargingStationDto>,
+    evse: Partial<EvseDto>,
   ): Partial<EvseDTO> {
     const connectors = evse.connectors
       ?.map(ConnectorMapper.fromGraphql)
@@ -285,42 +292,42 @@ export class EvseMapper {
     };
   }
 
-  static mapEvseStatusFromConnectors(connectors: IConnectorDto[]): EvseStatus {
+  static mapEvseStatusFromConnectors(connectors: ConnectorDto[]): EvseStatus {
     if (!connectors || connectors.length === 0) {
       return EvseStatus.UNKNOWN;
     }
 
     const anyInUse = connectors.some(
       (c) =>
-        c.status === ConnectorStatus.Preparing ||
-        c.status === ConnectorStatus.Charging ||
-        c.status === ConnectorStatus.SuspendedEVSE ||
-        c.status === ConnectorStatus.SuspendedEV ||
-        c.status === ConnectorStatus.Finishing,
+        c.status === ConnectorStatusEnum.Preparing ||
+        c.status === ConnectorStatusEnum.Charging ||
+        c.status === ConnectorStatusEnum.SuspendedEVSE ||
+        c.status === ConnectorStatusEnum.SuspendedEV ||
+        c.status === ConnectorStatusEnum.Finishing,
     );
     if (anyInUse) {
       return EvseStatus.CHARGING;
     }
     const anyReserved = connectors.some(
-      (c) => c.status === ConnectorStatus.Reserved,
+      (c) => c.status === ConnectorStatusEnum.Reserved,
     );
     if (anyReserved) {
       return EvseStatus.RESERVED;
     }
     const anyAvailable = connectors.some(
-      (c) => c.status === ConnectorStatus.Available,
+      (c) => c.status === ConnectorStatusEnum.Available,
     );
     if (anyAvailable) {
       return EvseStatus.AVAILABLE;
     }
     const anyUnavailable = connectors.some(
-      (c) => c.status === ConnectorStatus.Unavailable,
+      (c) => c.status === ConnectorStatusEnum.Unavailable,
     );
     if (anyUnavailable) {
       return EvseStatus.INOPERATIVE;
     }
     const anyFaulted = connectors.some(
-      (c) => c.status === ConnectorStatus.Faulted,
+      (c) => c.status === ConnectorStatusEnum.Faulted,
     );
     if (anyFaulted) {
       return EvseStatus.OUTOFORDER;
@@ -330,18 +337,18 @@ export class EvseMapper {
   }
 
   static mapEvseParkingRestrictions(
-    stationRestrictions: ChargingStationParkingRestriction,
+    stationRestrictions: ChargingStationParkingRestrictionEnumType,
   ): ParkingRestriction | null {
     switch (stationRestrictions) {
-      case ChargingStationParkingRestriction.EVOnly:
+      case ChargingStationParkingRestrictionEnum.EVOnly:
         return ParkingRestriction.EV_ONLY;
-      case ChargingStationParkingRestriction.Customers:
+      case ChargingStationParkingRestrictionEnum.Customers:
         return ParkingRestriction.CUSTOMERS;
-      case ChargingStationParkingRestriction.Disabled:
+      case ChargingStationParkingRestrictionEnum.Disabled:
         return ParkingRestriction.DISABLED;
-      case ChargingStationParkingRestriction.Motorcycles:
+      case ChargingStationParkingRestrictionEnum.Motorcycles:
         return ParkingRestriction.MOTORCYCLES;
-      case ChargingStationParkingRestriction.Plugged:
+      case ChargingStationParkingRestrictionEnum.Plugged:
         return ParkingRestriction.PLUGGED;
       default:
         return null;
@@ -349,34 +356,34 @@ export class EvseMapper {
   }
 
   static mapEvseCapabilities(
-    stationCapabilities: ChargingStationCapability,
+    stationCapabilities: ChargingStationCapabilityEnumType,
   ): Capability | null {
     switch (stationCapabilities) {
-      case ChargingStationCapability.ChargingProfileCapable:
+      case ChargingStationCapabilityEnum.ChargingProfileCapable:
         return Capability.CHARGING_PROFILE_CAPABLE;
-      case ChargingStationCapability.ChargingPreferencesCapable:
+      case ChargingStationCapabilityEnum.ChargingPreferencesCapable:
         return Capability.CHARGING_PREFERENCES_CAPABLE;
-      case ChargingStationCapability.ChipCardSupport:
+      case ChargingStationCapabilityEnum.ChipCardSupport:
         return Capability.CHIP_CARD_SUPPORT;
-      case ChargingStationCapability.ContactlessCardSupport:
+      case ChargingStationCapabilityEnum.ContactlessCardSupport:
         return Capability.CONTACTLESS_CARD_SUPPORT;
-      case ChargingStationCapability.CreditCardPayable:
+      case ChargingStationCapabilityEnum.CreditCardPayable:
         return Capability.CREDIT_CARD_PAYABLE;
-      case ChargingStationCapability.DebitCardPayable:
+      case ChargingStationCapabilityEnum.DebitCardPayable:
         return Capability.DEBIT_CARD_PAYABLE;
-      case ChargingStationCapability.PEDTerminal:
+      case ChargingStationCapabilityEnum.PEDTerminal:
         return Capability.PED_TERMINAL;
-      case ChargingStationCapability.RemoteStartStopCapable:
+      case ChargingStationCapabilityEnum.RemoteStartStopCapable:
         return Capability.REMOTE_START_STOP_CAPABLE;
-      case ChargingStationCapability.Reservable:
+      case ChargingStationCapabilityEnum.Reservable:
         return Capability.RESERVABLE;
-      case ChargingStationCapability.RFIDReader:
+      case ChargingStationCapabilityEnum.RFIDReader:
         return Capability.RFID_READER;
-      case ChargingStationCapability.StartSessionConnectorRequired:
+      case ChargingStationCapabilityEnum.StartSessionConnectorRequired:
         return Capability.START_SESSION_CONNECTOR_REQUIRED;
-      case ChargingStationCapability.TokenGroupCapable:
+      case ChargingStationCapabilityEnum.TokenGroupCapable:
         return Capability.TOKEN_GROUP_CAPABLE;
-      case ChargingStationCapability.UnlockCapable:
+      case ChargingStationCapabilityEnum.UnlockCapable:
         return Capability.UNLOCK_CAPABLE;
       default:
         return null;
@@ -385,7 +392,7 @@ export class EvseMapper {
 }
 
 export class ConnectorMapper {
-  static fromGraphql(connector: IConnectorDto): ConnectorDTO | undefined {
+  static fromGraphql(connector: ConnectorDto): ConnectorDTO | undefined {
     const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
       id: connector.id?.toString(),
@@ -406,7 +413,7 @@ export class ConnectorMapper {
   }
 
   static fromPartialGraphql(
-    connector: Partial<IConnectorDto>,
+    connector: Partial<ConnectorDto>,
   ): Partial<ConnectorDTO> {
     const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
@@ -424,7 +431,7 @@ export class ConnectorMapper {
   }
 
   static mapConnectorType(
-    connectorType: ConnectorTypeEnum | null | undefined,
+    connectorType: ConnectorTypeEnumType | null | undefined,
   ): ConnectorType | undefined {
     const logger = Container.get(Logger);
     switch (connectorType) {
@@ -507,7 +514,7 @@ export class ConnectorMapper {
   }
 
   static mapConnectorFormat(
-    connectorFormat: ConnectorFormatEnum | null | undefined,
+    connectorFormat: ConnectorFormatEnumType | null | undefined,
   ): ConnectorFormat | undefined {
     const logger = Container.get(Logger);
     switch (connectorFormat) {
@@ -522,19 +529,19 @@ export class ConnectorMapper {
   }
 
   static mapConnectorPowerType(
-    connectorPowerType: ConnectorPowerType | null | undefined,
+    connectorPowerType: ConnectorPowerTypeEnumType | null | undefined,
   ): PowerType | undefined {
     const logger = Container.get(Logger);
     switch (connectorPowerType) {
-      case ConnectorPowerType.AC1Phase:
+      case ConnectorPowerTypeEnum.AC1Phase:
         return PowerType.AC_1_PHASE;
-      case ConnectorPowerType.AC2Phase:
+      case ConnectorPowerTypeEnum.AC2Phase:
         return PowerType.AC_2_PHASE;
-      case ConnectorPowerType.AC2PhaseSplit:
+      case ConnectorPowerTypeEnum.AC2PhaseSplit:
         return PowerType.AC_2_PHASE_SPLIT;
-      case ConnectorPowerType.AC3Phase:
+      case ConnectorPowerTypeEnum.AC3Phase:
         return PowerType.AC_3_PHASE;
-      case ConnectorPowerType.DC:
+      case ConnectorPowerTypeEnum.DC:
         return PowerType.DC;
       default:
         logger.warn(`Unknown PowerType ${connectorPowerType}`);
