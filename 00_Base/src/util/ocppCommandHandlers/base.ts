@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  type IChargingStationDto,
+  type ChargingStationDto,
   type IMessageConfirmation,
-  type ITenantPartnerDto,
+  type TenantPartnerDto,
   OCPPVersion,
 } from '@citrineos/base';
 import type {
@@ -60,27 +60,27 @@ export abstract class OCPPCommandHandler {
 
   abstract sendStartSessionCommand(
     startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void>;
 
   abstract sendStopSessionCommand(
     stopSession: StopSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void>;
 
   abstract sendUnlockConnectorCommand(
     unlockConnector: UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void>;
 
   abstract handleAsyncCommandResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     command: CommandType,
     responseUrl: string,
     response: any,
@@ -91,7 +91,7 @@ export abstract class OCPPCommandHandler {
     url: string,
     payload: any,
     options: IRequestOptions,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     commandId: string,
   ): Promise<void> {

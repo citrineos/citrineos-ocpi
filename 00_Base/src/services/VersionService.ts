@@ -13,8 +13,7 @@ import { NotFoundError } from 'routing-controllers';
 import type { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO.js';
 import type { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO.js';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
-import type { ITenantDto } from '@citrineos/base';
-import { OCPIRegistration } from '@citrineos/base';
+import type { Endpoint, TenantDto, Version } from '@citrineos/base';
 import { RegistrationMapper } from '../mapper/index.js';
 
 @Service()
@@ -26,12 +25,12 @@ export class VersionService {
       GetTenantByIdQueryResult,
       GetTenantByIdQueryVariables
     >(GET_TENANT_BY_ID, { id: tenantId });
-    const tenant = response.Tenants[0] as ITenantDto;
-    const versions: OCPIRegistration.Version[] = Array.from(
+    const tenant = response.Tenants[0] as TenantDto;
+    const versions: Version[] = Array.from(
       tenant.serverProfileOCPI?.versionDetails || [],
     );
     return {
-      data: versions.map((version: OCPIRegistration.Version) => ({
+      data: versions.map((version: Version) => ({
         version: RegistrationMapper.toVersionNumber(version.version),
         url: version.versionDetailsUrl!,
       })),
@@ -48,8 +47,8 @@ export class VersionService {
       GetTenantByIdQueryResult,
       GetTenantByIdQueryVariables
     >(GET_TENANT_BY_ID, { id: tenantId });
-    const tenant = response.Tenants[0] as ITenantDto;
-    const tenantVersionEndpoints: OCPIRegistration.Endpoint[] | undefined =
+    const tenant = response.Tenants[0] as TenantDto;
+    const tenantVersionEndpoints: Endpoint[] | undefined =
       tenant.serverProfileOCPI?.versionEndpoints &&
       tenant.serverProfileOCPI.versionEndpoints[
         RegistrationMapper.toOCPIVersionNumber(version)
@@ -61,7 +60,7 @@ export class VersionService {
       data: {
         version: version,
         endpoints:
-          tenantVersionEndpoints.map((value: OCPIRegistration.Endpoint) => {
+          tenantVersionEndpoints.map((value: Endpoint) => {
             const { identifier, role } =
               RegistrationMapper.toModuleAndRole(value);
             return {

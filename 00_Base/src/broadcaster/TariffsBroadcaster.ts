@@ -9,7 +9,7 @@ import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
 import { ModuleId } from '../model/ModuleId.js';
 import { InterfaceRole } from '../model/InterfaceRole.js';
-import type { ITariffDto, ITenantDto } from '@citrineos/base';
+import type { TariffDto, TenantDto } from '@citrineos/base';
 import { HttpMethod } from '@citrineos/base';
 import type { Tariff } from '../model/Tariff.js';
 import { TariffMapper } from '../mapper/index.js';
@@ -34,7 +34,7 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcast(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     method: HttpMethod,
     path: string,
     tariff?: Partial<Tariff>,
@@ -56,8 +56,8 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutTariff(
-    tenant: ITenantDto,
-    tariffDto: Partial<ITariffDto>,
+    tenant: TenantDto,
+    tariffDto: Partial<TariffDto>,
   ): Promise<void> {
     if (!tariffDto.currency || !tariffDto.pricePerKwh) {
       this.logger.debug(
@@ -87,8 +87,8 @@ export class TariffsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastTariffDeletion(
-    tenant: ITenantDto,
-    tariffDto: ITariffDto,
+    tenant: TenantDto,
+    tariffDto: TariffDto,
   ): Promise<void> {
     const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffDto.id}`;
     await this.broadcast(tenant, HttpMethod.Delete, path);

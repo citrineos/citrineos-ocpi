@@ -10,11 +10,7 @@ import { Logger } from 'tslog';
 import type { Session } from '../model/Session.js';
 import { ModuleId } from '../model/ModuleId.js';
 import { InterfaceRole } from '../model/InterfaceRole.js';
-import type {
-  IMeterValueDto,
-  ITenantDto,
-  ITransactionDto,
-} from '@citrineos/base';
+import type { MeterValueDto, TenantDto, TransactionDto } from '@citrineos/base';
 import { HttpMethod } from '@citrineos/base';
 import { SessionMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
@@ -30,8 +26,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutSession(
-    tenant: ITenantDto,
-    transactionDto: ITransactionDto,
+    tenant: TenantDto,
+    transactionDto: TransactionDto,
   ): Promise<void> {
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
@@ -40,8 +36,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchSession(
-    tenant: ITenantDto,
-    transactionDto: Partial<ITransactionDto>,
+    tenant: TenantDto,
+    transactionDto: Partial<TransactionDto>,
   ): Promise<void> {
     const session =
       await this.sessionMapper.mapPartialTransactionToPartialSession(
@@ -52,8 +48,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchSessionChargingPeriod(
-    tenant: ITenantDto,
-    meterValueDto: IMeterValueDto,
+    tenant: TenantDto,
+    meterValueDto: MeterValueDto,
   ): Promise<void> {
     const charging_periods = await this.sessionMapper.getChargingPeriods(
       [meterValueDto],
@@ -69,7 +65,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastSession(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     session: Partial<Session>,
     method: HttpMethod,
     path: string,

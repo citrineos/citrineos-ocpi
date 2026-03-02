@@ -10,8 +10,8 @@ import type {
 } from 'typed-rest-client/Interfaces.js';
 import { VersionNumber } from '../model/VersionNumber.js';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException.js';
-import type { ITenantPartnerDto } from '@citrineos/base';
-import { HttpHeader, HttpMethod, OCPIRegistration } from '@citrineos/base';
+import type { TenantPartnerDto, PartnerProfile } from '@citrineos/base';
+import { HttpHeader, HttpMethod } from '@citrineos/base';
 import { OcpiHttpHeader } from '../util/OcpiHttpHeader.js';
 import { base64Encode } from '../util/Util.js';
 import { Inject } from 'typedi';
@@ -86,11 +86,9 @@ export abstract class BaseClientApi {
     this.initRestClient();
   }
 
-  abstract getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string;
+  abstract getUrl(partnerProfile: PartnerProfile): string;
 
-  protected getHeaders(
-    partnerProfile: OCPIRegistration.PartnerProfile,
-  ): IHeaders {
+  protected getHeaders(partnerProfile: PartnerProfile): IHeaders {
     const headers: IHeaders = {};
     headers[OcpiHttpHeader.XRequestId] = uuidv4();
     headers[OcpiHttpHeader.XCorrelationId] = uuidv4();
@@ -112,7 +110,7 @@ export abstract class BaseClientApi {
     toPartyId: string,
     httpMethod: HttpMethod,
     schema: T,
-    partnerProfile?: OCPIRegistration.PartnerProfile,
+    partnerProfile?: PartnerProfile,
     routingHeaders = true,
     url?: string,
     body?: any,
@@ -130,7 +128,7 @@ export abstract class BaseClientApi {
         clientCountryCode: toCountryCode,
         clientPartyId: toPartyId,
       });
-      const partner = response.TenantPartners[0] as ITenantPartnerDto;
+      const partner = response.TenantPartners[0] as TenantPartnerDto;
       partnerProfile = partner.partnerProfileOCPI!;
     }
     if (!url) {
@@ -284,7 +282,7 @@ export abstract class BaseClientApi {
       cpoPartyId,
       endpointIdentifier: `${moduleId}_${interfaceRole}`,
     });
-    const partners = response.TenantPartners as ITenantPartnerDto[];
+    const partners = response.TenantPartners as TenantPartnerDto[];
     for (const partner of partners) {
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,

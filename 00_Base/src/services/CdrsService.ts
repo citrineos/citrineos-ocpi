@@ -11,7 +11,7 @@ import type {
 } from '../graphql/index.js';
 import { GET_TRANSACTIONS_QUERY, OcpiGraphqlClient } from '../graphql/index.js';
 import { CdrMapper } from '../mapper/index.js';
-import type { ITransactionDto } from '@citrineos/base';
+import type { TransactionDto } from '@citrineos/base';
 import type { PaginatedCdrResponse } from '../model/Cdr.js';
 
 @Service()
@@ -59,7 +59,7 @@ export class CdrsService {
       GetTransactionsQueryVariables
     >(GET_TRANSACTIONS_QUERY, variables);
     const mappedCdr = await this.cdrMapper.mapTransactionsToCdrs(
-      result.Transactions as ITransactionDto[],
+      result.Transactions as TransactionDto[],
     );
 
     return {

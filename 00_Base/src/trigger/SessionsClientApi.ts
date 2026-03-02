@@ -10,15 +10,19 @@ import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import { ModuleId } from '../model/ModuleId.js';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import {
+  type Endpoint,
+  HttpMethod,
+  type PartnerProfile,
+} from '@citrineos/base';
 
 @Service()
 export class SessionsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Sessions;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
+      (value: Endpoint) =>
         value.identifier === EndpointIdentifier.SESSIONS_RECEIVER,
     )?.url;
     if (!url) {
@@ -34,7 +38,7 @@ export class SessionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
   ): Promise<SessionResponse> {
     return this.request(
       fromCountryCode,
@@ -52,7 +56,7 @@ export class SessionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     body: Partial<Session>,
   ): Promise<OcpiEmptyResponse> {
     return this.request(
@@ -74,7 +78,7 @@ export class SessionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     body: Session,
   ): Promise<OcpiEmptyResponse> {
     return this.request(

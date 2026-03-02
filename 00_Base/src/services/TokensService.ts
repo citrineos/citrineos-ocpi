@@ -17,8 +17,8 @@ import {
   UPDATE_TOKEN_MUTATION,
 } from '../graphql/index.js';
 import { TokensMapper } from '../mapper/index.js';
-import type { IAuthorizationDto, IChargingStationDto } from '@citrineos/base';
-import { AuthorizationStatusType, IdTokenType } from '@citrineos/base';
+import type { AuthorizationDto, ChargingStationDto } from '@citrineos/base';
+import { AuthorizationStatusEnum, IdTokenEnum } from '@citrineos/base';
 import type {
   Authorizations_Set_Input,
   CreateAuthorizationMutationResult,
@@ -82,7 +82,7 @@ export class TokensService {
         `Multiple authorizations found for token uid ${tokenRequest.uid}, type ${tokenRequest.type}, country code ${tokenRequest.country_code}, and party id ${tokenRequest.party_id}. Returning the first one. All entries: ${JSON.stringify(result.Authorizations)}`,
       );
     }
-    return TokensMapper.toDto(result.Authorizations[0] as IAuthorizationDto);
+    return TokensMapper.toDto(result.Authorizations[0] as AuthorizationDto);
   }
 
   async upsertToken(
@@ -130,7 +130,7 @@ export class TokensService {
       });
 
       return TokensMapper.toDto(
-        result.update_Authorizations?.returning[0] as IAuthorizationDto,
+        result.update_Authorizations?.returning[0] as AuthorizationDto,
       );
     } else {
       const timestamp = token.last_updated;
@@ -152,7 +152,7 @@ export class TokensService {
       });
 
       return TokensMapper.toDto(
-        result.insert_Authorizations_one as IAuthorizationDto,
+        result.insert_Authorizations_one as AuthorizationDto,
       );
     }
   }
@@ -220,7 +220,7 @@ export class TokensService {
       UpdateAuthorizationMutationVariables
     >(UPDATE_TOKEN_MUTATION, updateVariables);
     return TokensMapper.toDto(
-      result.update_Authorizations?.returning[0] as IAuthorizationDto,
+      result.update_Authorizations?.returning[0] as AuthorizationDto,
     );
   }
 
@@ -255,7 +255,7 @@ export class TokensService {
         );
       }
       const chargingStation = chargingStationResponse
-        .ChargingStations[0] as IChargingStationDto;
+        .ChargingStations[0] as ChargingStationDto;
       locationReferences = {
         location_id: realTimeAuthRequest.locationId.toString(),
         evse_uids: chargingStation.evses!.map((evse) =>
@@ -324,9 +324,9 @@ export class TokensService {
       tenantId,
       tenantPartnerId,
       idToken: groupId,
-      idTokenType: IdTokenType.Central,
+      idTokenType: IdTokenEnum.Central,
       additionalInfo: undefined,
-      status: AuthorizationStatusType.Invalid,
+      status: AuthorizationStatusEnum.Invalid,
       language1: undefined,
       groupAuthorizationId: undefined,
       createdAt: timestamp,

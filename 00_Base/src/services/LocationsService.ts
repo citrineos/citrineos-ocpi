@@ -48,10 +48,10 @@ import {
   LocationMapper,
 } from '../mapper/index.js';
 import type {
-  IChargingStationDto,
-  IConnectorDto,
-  IEvseDto,
-  ILocationDto,
+  ChargingStationDto,
+  ConnectorDto,
+  EvseDto,
+  LocationDto,
 } from '@citrineos/base';
 
 @Service()
@@ -102,7 +102,7 @@ export class LocationsService {
     // Map GraphQL DTOs to OCPI DTOs
     const locations =
       response.Locations.map((value) =>
-        LocationMapper.fromGraphql(value as ILocationDto),
+        LocationMapper.fromGraphql(value as LocationDto),
       ) ?? [];
     const locationsTotal = locations.length;
 
@@ -131,7 +131,7 @@ export class LocationsService {
         );
       }
       const location = LocationMapper.fromGraphql(
-        response.Locations[0] as ILocationDto,
+        response.Locations[0] as LocationDto,
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
@@ -165,8 +165,8 @@ export class LocationsService {
         GetEvseByIdQueryVariables
       >(GET_EVSE_BY_ID_QUERY, variables);
       const evse = EvseMapper.fromGraphql(
-        response.Locations[0].chargingPool[0] as IChargingStationDto,
-        response.Locations[0].chargingPool[0].evses[0] as IEvseDto,
+        response.Locations[0].chargingPool[0] as ChargingStationDto,
+        response.Locations[0].chargingPool[0].evses[0] as EvseDto,
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);
     } catch (e) {
@@ -208,7 +208,7 @@ export class LocationsService {
       }
       const connector = ConnectorMapper.fromGraphql(
         response.Locations?.[0]?.chargingPool?.[0]?.evses?.[0]
-          ?.connectors?.[0] as IConnectorDto,
+          ?.connectors?.[0] as ConnectorDto,
       );
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,

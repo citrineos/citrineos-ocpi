@@ -29,7 +29,7 @@ import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
 import type { OcpiConfig } from '../config/ocpi.types.js';
 import { OcpiConfigToken } from '../config/ocpi.types.js';
-import type { IChargingStationDto, ITenantPartnerDto } from '@citrineos/base';
+import type { ChargingStationDto, TenantPartnerDto } from '@citrineos/base';
 import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO.js';
 
 @Service()
@@ -53,7 +53,7 @@ export class CommandsService {
       | StartSession
       | StopSession
       | UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
@@ -86,7 +86,7 @@ export class CommandsService {
 
   private async handleCancelReservation(
     _cancelReservation: CancelReservation,
-    _tenantPartner: ITenantPartnerDto,
+    _tenantPartner: TenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.NOT_SUPPORTED,
@@ -96,7 +96,7 @@ export class CommandsService {
 
   private async handleReserveNow(
     _reserveNow: ReserveNow,
-    _tenantPartner: ITenantPartnerDto,
+    _tenantPartner: TenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.NOT_SUPPORTED,
@@ -106,7 +106,7 @@ export class CommandsService {
 
   private async handleStartSession(
     startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     if (!startSession.evse_uid) {
       this.logger.error('EVSE UID is required for StartSession command');
@@ -154,7 +154,7 @@ export class CommandsService {
       );
     }
     const chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+      .ChargingStations[0] as ChargingStationDto;
     if (!chargingStation.isOnline) {
       this.logger.error('Charging station is offline', {
         stationId: chargingStation.id,
@@ -198,7 +198,7 @@ export class CommandsService {
 
   private async handleStopSession(
     stopSession: StopSession,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     const transactionResponse = await this.ocpiGraphqlClient.request<
       GetTransactionByTransactionIdQueryResult,
@@ -246,7 +246,7 @@ export class CommandsService {
         'Session is already stopped',
       );
     }
-    const chargingStation = transaction.chargingStation as IChargingStationDto;
+    const chargingStation = transaction.chargingStation as ChargingStationDto;
     if (!chargingStation.isOnline) {
       this.logger.error('Charging station is offline', {
         stationId: chargingStation.id,
@@ -272,7 +272,7 @@ export class CommandsService {
 
   private async handleUnlockConnector(
     unlockConnector: UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
   ): Promise<OcpiCommandResponse> {
     const chargingStationResponse = await this.ocpiGraphqlClient.request<
       GetChargingStationByIdQueryResult,
@@ -297,7 +297,7 @@ export class CommandsService {
       );
     }
     const chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+      .ChargingStations[0] as ChargingStationDto;
     if (!chargingStation.isOnline) {
       this.logger.error('Charging station is offline', {
         stationId: chargingStation.id,

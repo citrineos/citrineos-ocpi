@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
-  IAuthorizationDto,
-  ILocationDto,
-  ITariffDto,
-  ITransactionDto,
+  AuthorizationDto,
+  LocationDto,
+  TariffDto,
+  TransactionDto,
 } from '@citrineos/base';
 import type { TokenDTO } from '../model/DTO/TokenDTO.js';
 import type { ILogObj } from 'tslog';
@@ -42,7 +42,7 @@ export abstract class BaseTransactionMapper {
   ) {}
 
   public async getLocationDTOsForTransactions(
-    transactions: ITransactionDto[],
+    transactions: TransactionDto[],
   ): Promise<Map<string, LocationDTO>> {
     const transactionIdToLocationMap: Map<string, LocationDTO> = new Map();
     for (const transaction of transactions) {
@@ -51,7 +51,7 @@ export abstract class BaseTransactionMapper {
           GetLocationByIdQueryResult,
           GetLocationByIdQueryVariables
         >(GET_LOCATION_BY_ID_QUERY, { id: transaction.locationId });
-        transaction.location = result.Locations[0] as ILocationDto;
+        transaction.location = result.Locations[0] as LocationDto;
       }
       const location = transaction.location;
       if (!location) {
@@ -69,7 +69,7 @@ export abstract class BaseTransactionMapper {
   }
 
   protected async getTokensForTransactions(
-    transactions: ITransactionDto[],
+    transactions: TransactionDto[],
   ): Promise<Map<string, TokenDTO>> {
     const transactionIdToTokenMap: Map<string, TokenDTO> = new Map();
 
@@ -81,7 +81,7 @@ export abstract class BaseTransactionMapper {
         >(GET_AUTHORIZATION_BY_ID, { id: transaction.authorizationId });
         if (result.Authorizations_by_pk) {
           transaction.authorization =
-            result.Authorizations_by_pk as IAuthorizationDto;
+            result.Authorizations_by_pk as AuthorizationDto;
         }
       }
       if (transaction.authorization) {
@@ -100,9 +100,9 @@ export abstract class BaseTransactionMapper {
   }
 
   protected async getTariffsForTransactions(
-    transactions: ITransactionDto[],
-  ): Promise<Map<string, ITariffDto>> {
-    const transactionIdToTariffMap = new Map<string, ITariffDto>();
+    transactions: TransactionDto[],
+  ): Promise<Map<string, TariffDto>> {
+    const transactionIdToTariffMap = new Map<string, TariffDto>();
     for (const transaction of transactions) {
       if (!transaction.tariff && transaction.tariffId) {
         const result = await this.ocpiGraphqlClient.request<
@@ -114,7 +114,7 @@ export abstract class BaseTransactionMapper {
           partyId: transaction.tenant!.partyId!,
         });
         if (result.Tariffs[0]) {
-          transaction.tariff = result.Tariffs[0] as ITariffDto;
+          transaction.tariff = result.Tariffs[0] as TariffDto;
         }
       }
       const tariff = transaction.tariff;
@@ -129,7 +129,7 @@ export abstract class BaseTransactionMapper {
 
   protected async getOcpiTariffsForTransactions(
     sessions: Session[],
-    transactionIdToTariffMap: Map<string, ITariffDto>,
+    transactionIdToTariffMap: Map<string, TariffDto>,
   ): Promise<Map<string, OcpiTariff>> {
     const transactionIdToOcpiTariffMap = new Map<string, OcpiTariff>();
     await Promise.all(
@@ -146,7 +146,7 @@ export abstract class BaseTransactionMapper {
             GetTariffByKeyQueryResult,
             GetTariffByKeyQueryVariables
           >(GET_TARIFF_BY_KEY_QUERY, tariffVariables);
-          const tariff = result.Tariffs[0] as ITariffDto;
+          const tariff = result.Tariffs[0] as TariffDto;
           if (tariff) {
             transactionIdToOcpiTariffMap.set(
               session.id,
