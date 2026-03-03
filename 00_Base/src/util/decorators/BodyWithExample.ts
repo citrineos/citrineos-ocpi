@@ -3,14 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ZodTypeAny } from 'zod';
-import { BodyWithSchema } from './BodyWithSchema.js';
 import { generateMockForSchema } from '../../controllers/BaseController.js';
+import { BodyWithSchema } from './BodyWithSchema.js';
 
 export const BODY_WITH_EXAMPLE_PARAM = 'BodyWithExample';
 
 export const BodyWithExample = (schema: ZodTypeAny, name: string) =>
   function (object: NonNullable<unknown>, methodName: string, index: number) {
-    const example = generateMockForSchema(schema, name);
+    const example = generateMockForSchema(schema, name).then(
+      undefined,
+      () => null,
+    );
     BodyWithSchema(schema, name)(object, methodName, index);
 
     // Add custom metadata for additional use cases

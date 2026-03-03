@@ -28,6 +28,11 @@ import {
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 
+const MOCK_PAGINATED_TARIFF = await generateMockForSchema(
+  PaginatedTariffResponseSchema,
+  PaginatedTariffResponseSchemaName,
+);
+
 @Service()
 @JsonController(`/:${versionIdParam}/${ModuleId.Tariffs}`)
 export class TariffsModuleApi
@@ -50,10 +55,7 @@ export class TariffsModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          PaginatedTariffResponseSchema,
-          PaginatedTariffResponseSchemaName,
-        ),
+        success: MOCK_PAGINATED_TARIFF,
       },
     },
   )

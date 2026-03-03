@@ -36,12 +36,12 @@ import {
 
 import { Service } from 'typedi';
 
-const MOCK_PAGINATED_SESSIONS = generateMockOcpiPaginatedResponse(
+const MOCK_PAGINATED_SESSIONS = await generateMockOcpiPaginatedResponse(
   PaginatedSessionResponseSchema,
   PaginatedSessionResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_CHARGING_PREFERENCES = generateMockForSchema(
+const MOCK_CHARGING_PREFERENCES = await generateMockForSchema(
   ChargingPreferencesResponseSchema,
   ChargingPreferencesResponseSchemaName,
 );

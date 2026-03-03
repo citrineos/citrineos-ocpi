@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { JSONSchemaFaker } from 'json-schema-faker';
+import { generate, registerFormat } from 'json-schema-faker';
 import { getAllSchemas } from '../openapi-spec-helper/schemas.js';
 import type { PaginatedCdrResponse } from '../model/Cdr.js';
 import { PaginatedParams } from './param/PaginatedParams.js';
@@ -12,47 +12,52 @@ import type { ZodTypeAny } from 'zod';
 import { Container } from 'typedi';
 import { Logger } from 'tslog';
 
-export const generateMockForSchema = (
+registerFormat('url', () => 'https://example.com');
+
+export const generateMockForSchema = async (
   schema: ZodTypeAny,
   name: string,
-): any => {
-  (JSONSchemaFaker.format as any)('url', (url: any) => url);
-  JSONSchemaFaker.option({
-    useExamplesValue: true,
-    useDefaultValue: true,
-  });
-
+): Promise<any> => {
   const jsonSchema: any = zodToJsonSchema(schema, name);
   (jsonSchema as any).components = {
     schemas: getAllSchemas(),
   };
   try {
-    return JSONSchemaFaker.generate(jsonSchema);
+    return await generate(jsonSchema, {
+      useExamplesValue: true,
+      useDefaultValue: true,
+    });
   } catch (err) {
     console.log('err', err);
     return null;
   }
 };
 
-export const generateMockOcpiPaginatedResponse = (
+export const generateMockOcpiPaginatedResponse = async (
   schema: any,
   name: string,
   paginationParams?: PaginatedParams,
-): any => {
-  const response = generateMockForSchema(schema, name) as PaginatedCdrResponse;
-  response.limit = paginationParams?.limit || DEFAULT_LIMIT;
-  response.offset = paginationParams?.offset || DEFAULT_OFFSET;
-  response.total = 50; // todo for now but will be set
+): Promise<any> => {
+  const response = (await generateMockForSchema(
+    schema,
+    name,
+  )) as PaginatedCdrResponse;
+  if (response) {
+    response.limit = paginationParams?.limit || DEFAULT_LIMIT;
+    response.offset = paginationParams?.offset || DEFAULT_OFFSET;
+    response.total = 50; // todo for now but will be set
+  }
   return response;
 };
 
 export class BaseController {
   protected logger = Container.get(Logger);
-  generateMockOcpiResponse = (model: any, name: string): any =>
+  generateMockOcpiResponse = async (model: any, name: string): Promise<any> =>
     generateMockForSchema(model, name);
-  generateMockOcpiPaginatedResponse = (
+  generateMockOcpiPaginatedResponse = async (
     model: any,
     name: string,
     paginationParams?: PaginatedParams,
-  ): any => generateMockOcpiPaginatedResponse(model, name, paginationParams);
+  ): Promise<any> =>
+    generateMockOcpiPaginatedResponse(model, name, paginationParams);
 }
