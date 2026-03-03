@@ -2,30 +2,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from './BaseClientApi.js';
 import { Service } from 'typedi';
-import { ModuleId } from '../model/ModuleId';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { PaginatedParams } from './param/PaginatedParams';
+import { ModuleId } from '../model/ModuleId.js';
 import {
-  PaginatedTokenResponse,
-  PaginatedTokenResponseSchema,
-} from '../model/DTO/TokenDTO';
-import { TokenType } from '../model/TokenType';
-import { LocationReferences } from '../model/LocationReferences';
-import {
-  AuthorizationInfoResponse,
-  AuthorizationInfoResponseSchema,
-} from '../model/AuthorizationInfo';
+  type Endpoint,
+  HttpMethod,
+  type PartnerProfile,
+} from '@citrineos/base';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
+import type { PaginatedParams } from './param/PaginatedParams.js';
+import type { PaginatedTokenResponse } from '../model/DTO/TokenDTO.js';
+import { PaginatedTokenResponseSchema } from '../model/DTO/TokenDTO.js';
+import { TokenType } from '../model/TokenType.js';
+import type { LocationReferences } from '../model/LocationReferences.js';
+import type { AuthorizationInfoResponse } from '../model/AuthorizationInfo.js';
+import { AuthorizationInfoResponseSchema } from '../model/AuthorizationInfo.js';
 
 @Service()
 export class TokensClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tokens;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
+      (value: Endpoint) =>
         value.identifier === EndpointIdentifier.TOKENS_SENDER,
     )?.url;
     if (!url) {
@@ -41,7 +41,7 @@ export class TokensClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     paginatedParams: PaginatedParams,
   ): Promise<PaginatedTokenResponse> {
     return this.request(
@@ -64,7 +64,7 @@ export class TokensClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     tokenId: string,
     tokenType?: TokenType,
     body?: LocationReferences,

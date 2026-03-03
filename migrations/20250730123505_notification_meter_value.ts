@@ -4,9 +4,9 @@
 
 'use strict';
 
-import { QueryInterface } from 'sequelize';
+import type { QueryInterface } from 'sequelize';
 
-export = {
+export default {
   up: async (queryInterface: QueryInterface) => {
     await queryInterface.sequelize.query(`
       CREATE OR REPLACE FUNCTION "MeterValueNotify"()

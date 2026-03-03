@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IChargingProfilesModuleApi } from './IChargingProfilesModuleApi';
-
+import type { IChargingProfilesModuleApi } from './IChargingProfilesModuleApi.js';
 import {
   Delete,
   Get,
@@ -14,18 +13,20 @@ import {
 } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
+import type {
+  ChargingProfileResponse,
+  SetChargingProfile,
+} from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   BodyWithSchema,
-  ChargingProfileResponse,
   ChargingProfileResponseSchema,
   ChargingProfileResponseSchemaName,
   ChargingProfilesService,
   generateMockForSchema,
   ModuleId,
   ResponseSchema,
-  SetChargingProfile,
   SetChargingProfileSchema,
   SetChargingProfileSchemaName,
   versionIdParam,

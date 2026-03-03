@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { OcpiHttpHeader } from '../OcpiHttpHeader';
-import { OcpiHeaders } from '../../model/OcpiHeaders';
+import { OcpiHttpHeader } from '../OcpiHttpHeader.js';
+import { OcpiHeaders } from '../../model/OcpiHeaders.js';
 import { createParamDecorator } from 'routing-controllers';
 
 export function FunctionalEndpointParams() {

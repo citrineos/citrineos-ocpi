@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CountryCode } from '../util/Util';
+import { CountryCode } from '../util/Util.js';
 
 export const OcpiReservationSchema = z.object({
   coreReservationId: z.number(),

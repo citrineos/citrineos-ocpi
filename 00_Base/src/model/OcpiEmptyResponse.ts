@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { OcpiResponseStatusCode } from './OcpiResponse';
+import { OcpiResponseStatusCode } from './OcpiResponse.js';
 
 export const OcpiEmptyResponseSchema = z.object({
   status_code: z

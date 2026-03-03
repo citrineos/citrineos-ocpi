@@ -3,10 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import {
-  ActiveChargingProfile,
-  ActiveChargingProfileSchema,
-} from '../../../model/ActiveChargingProfile';
+import type { ActiveChargingProfile } from '../../../model/ActiveChargingProfile.js';
+import { ActiveChargingProfileSchema } from '../../../model/ActiveChargingProfile.js';
 
 export const PutChargingProfileParamsSchema = z.object({
   sessionId: z.string().min(1),

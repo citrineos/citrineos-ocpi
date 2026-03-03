@@ -2,10 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ICdrsModuleApi } from './ICdrsModuleApi';
+import type { ICdrsModuleApi } from './ICdrsModuleApi.js';
 
 import { Get, JsonController } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
+import type { PaginatedCdrResponse } from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
@@ -15,7 +16,6 @@ import {
   ModuleId,
   OcpiHeaders,
   Paginated,
-  PaginatedCdrResponse,
   PaginatedCdrResponseSchema,
   PaginatedCdrResponseSchemaName,
   PaginatedParams,

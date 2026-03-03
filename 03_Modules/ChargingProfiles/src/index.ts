@@ -2,14 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChargingProfilesModuleApi } from './module/ChargingProfilesModuleApi';
+import { ChargingProfilesModuleApi } from './module/ChargingProfilesModuleApi.js';
+import type { OcpiConfig } from '@citrineos/ocpi-base';
 import {
   CacheWrapper,
-  OcpiConfig,
   OcpiConfigToken,
   OcpiModule,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 import { Container, Inject, Service } from 'typedi';
 import { useContainer } from 'routing-controllers';
 

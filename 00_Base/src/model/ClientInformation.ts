@@ -3,16 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ModuleId } from './ModuleId';
+import { ModuleId } from './ModuleId.js';
+import type { ClientCredentialsRole } from './ClientCredentialsRole.js';
 import {
-  ClientCredentialsRole,
   ClientCredentialsRoleSchema,
   toCredentialsRoleDTO,
-} from './ClientCredentialsRole';
-import { ClientVersion, ClientVersionSchema } from './ClientVersion';
-import { ServerVersion, ServerVersionSchema } from './ServerVersion';
-import { Endpoint } from './Endpoint';
-import { CredentialsDTO } from './DTO/CredentialsDTO';
+} from './ClientCredentialsRole.js';
+import type { ClientVersion } from './ClientVersion.js';
+import { ClientVersionSchema } from './ClientVersion.js';
+import type { ServerVersion } from './ServerVersion.js';
+import { ServerVersionSchema } from './ServerVersion.js';
+import type { Endpoint } from './Endpoint.js';
+import type { CredentialsDTO } from './DTO/CredentialsDTO.js';
 
 export const ClientInformationSchema = z.object({
   clientToken: z.string().min(1),

@@ -2,24 +2,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
-import { Tariff, TariffResponse, TariffResponseSchema } from '../model/Tariff';
+import { BaseClientApi } from './BaseClientApi.js';
+import type { Tariff, TariffResponse } from '../model/Tariff.js';
+import { TariffResponseSchema } from '../model/Tariff.js';
 import { Service } from 'typedi';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import { ModuleId } from '../model/ModuleId';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+  type Endpoint,
+  HttpMethod,
+  type PartnerProfile,
+} from '@citrineos/base';
 
 @Service()
 export class TariffsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Tariffs;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
+      (value: Endpoint) =>
         value.identifier === EndpointIdentifier.TARIFFS_RECEIVER,
     )?.url;
     if (!url) {
@@ -35,7 +38,7 @@ export class TariffsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     tariffId: string,
   ): Promise<TariffResponse> {
     const path = `${fromCountryCode}/${fromPartyId}/${tariffId}`;
@@ -57,7 +60,7 @@ export class TariffsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     tariffId: string,
     tariff: Tariff,
   ): Promise<TariffResponse> {
@@ -81,7 +84,7 @@ export class TariffsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     tariffId: string,
   ): Promise<OcpiEmptyResponse> {
     const path = `${fromCountryCode}/${fromPartyId}/${tariffId}`;

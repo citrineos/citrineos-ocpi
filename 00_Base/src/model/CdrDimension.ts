@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CdrDimensionType } from './CdrDimensionType';
+import { CdrDimensionType } from './CdrDimensionType.js';
 
 export const CdrDimensionSchema = z.object({
   type: z.nativeEnum(CdrDimensionType),
