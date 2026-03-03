@@ -1,9 +1,14 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
+import type {
   AdminCredentialsRequestDTO,
+  CredentialsDTO,
+  CredentialsResponse,
+  OcpiEmptyResponse,
+  UnregisterClientRequestDTO,
+} from '@citrineos/ocpi-base';
+import {
   AdminCredentialsRequestDTOSchema,
   AdminCredentialsRequestDTOSchemaName,
   AsAdminEndpoint,
@@ -13,31 +18,28 @@ import {
   BodyWithSchema,
   buildCredentialsResponse,
   buildOcpiEmptyResponse,
-  CredentialsDTO,
   CredentialsDTOSchema,
   CredentialsDTOSchemaName,
-  CredentialsResponse,
   CredentialsResponseSchema,
   CredentialsResponseSchemaName,
   CredentialsService,
   generateMockForSchema,
   ModuleId,
-  OcpiEmptyResponse,
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
   OcpiLogger,
   OcpiResponseStatusCode,
   ResponseSchema,
-  UnregisterClientRequestDTO,
   UnregisterClientRequestDTOSchema,
   UnregisterClientRequestDTOSchemaName,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-import { HttpStatus, ITenantPartnerDto } from '@citrineos/base';
+import type { TenantPartnerDto } from '@citrineos/base';
+import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
-import { ICredentialsModuleApi } from './ICredentialsModuleApi';
+import type { ICredentialsModuleApi } from './ICredentialsModuleApi.js';
 import {
   Ctx,
   Delete,
@@ -88,7 +90,7 @@ export class CredentialsModuleApi
     @Ctx() ctx: any,
   ): Promise<CredentialsResponse> {
     this.logger.info('getCredentials', _version);
-    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
+    const tenantPartner = ctx!.state!.tenantPartner as TenantPartnerDto;
     const credentialsDto =
       await this.credentialsService.getCredentials(tenantPartner);
     return buildCredentialsResponse(credentialsDto);
@@ -113,7 +115,7 @@ export class CredentialsModuleApi
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('postCredentials', version, credentials);
-    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
+    const tenantPartner = ctx!.state!.tenantPartner as TenantPartnerDto;
     const serverCredentials = await this.credentialsService?.postCredentials(
       tenantPartner,
       credentials,
@@ -141,7 +143,7 @@ export class CredentialsModuleApi
     credentials: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     this.logger.info('putCredentials', version, credentials);
-    const tenantPartner = ctx!.state!.tenantPartner as ITenantPartnerDto;
+    const tenantPartner = ctx!.state!.tenantPartner as TenantPartnerDto;
     const serverCredentials = await this.credentialsService?.putCredentials(
       tenantPartner,
       credentials,

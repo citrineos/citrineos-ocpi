@@ -15,16 +15,22 @@ import {
 import { Service } from 'typedi';
 
 import { HttpStatus } from '@citrineos/base';
-import {
+import type {
   RealTimeAuthorizationRequestBody,
   RealTimeAuthorizationResponse,
 } from '@citrineos/util';
+import type {
+  OcpiEmptyResponse,
+  SingleTokenRequest,
+  TokenDTO,
+  TokenResponse,
+} from '@citrineos/ocpi-base';
 import {
-  AsOcpiFunctionalEndpoint,
   AsAdminEndpoint,
+  AsOcpiFunctionalEndpoint,
   BaseController,
-  BodyWithSchema,
   BodyWithExample,
+  BodyWithSchema,
   buildOcpiEmptyResponse,
   buildOcpiResponse,
   EnumQueryParam,
@@ -32,20 +38,15 @@ import {
   generateMockForSchema,
   InvalidParamException,
   ModuleId,
-  OcpiEmptyResponse,
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
   OcpiHeaders,
   OcpiResponseStatusCode,
   ResponseSchema,
-  SingleTokenRequest,
-  TokenDTO,
   TokenDTOSchema,
   TokenDTOSchemaName,
-  TokenResponse,
   TokenResponseSchema,
   TokenResponseSchemaName,
-  // TokensAdminService,
   TokensService,
   TokenType,
   TokenTypeSchema,
@@ -57,7 +58,7 @@ import {
   WhitelistType,
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
-import { ITokensModuleApi } from './ITokensModuleApi';
+import type { ITokensModuleApi } from './ITokensModuleApi.js';
 
 const MockPutTokenBody = {
   country_code: 'MSP',

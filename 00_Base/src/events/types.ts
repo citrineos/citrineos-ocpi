@@ -4,7 +4,11 @@
 
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 
-import { OcpiConfig } from '..';
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import type { OcpiConfig } from '../index.js';
 
 /**
  *  Data Transfer Object (DTO) event types for operations.

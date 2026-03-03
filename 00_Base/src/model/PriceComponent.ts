@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TariffDimensionType } from './TariffDimensionType';
+import { TariffDimensionType } from './TariffDimensionType.js';
 
 export const PriceComponentSchema = z.object({
   type: z.nativeEnum(TariffDimensionType),

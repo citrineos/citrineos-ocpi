@@ -5,39 +5,34 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Service } from 'typedi';
 import { InternalServerError, NotFoundError } from 'routing-controllers';
-import { OcpiLogger } from '../util/OcpiLogger';
-import { VersionNumber } from '../model/VersionNumber';
-import { VersionsClientApi } from '../trigger/VersionsClientApi';
-import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException';
-import { NotRegisteredException } from '../exception/NotRegisteredException';
-import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { CredentialsClientApi } from '../trigger/CredentialsClientApi';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { CredentialsDTO } from '../model/DTO/CredentialsDTO';
-import { Endpoint } from '../model/Endpoint';
-import {
-  DELETE_TENANT_PARTNER_BY_ID,
-  UPDATE_TENANT_PARTNER_PROFILE,
-} from '../graphql/queries/tenant.mutations';
-import { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO';
-import { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO';
-import {
-  DELETE_TENANT_PARTNER_BY_SERVER_TOKEN,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
-  GET_TENANT_PARTNER_BY_SERVER_TOKEN,
-} from '../graphql/queries/tenantPartner.queries';
-import { ITenantPartnerDto } from '@citrineos/base';
-import { RegistrationMapper } from '../mapper/RegistrationMapper';
-import {
+import { OcpiLogger } from '../util/OcpiLogger.js';
+import { VersionNumber } from '../model/VersionNumber.js';
+import { VersionsClientApi } from '../trigger/VersionsClientApi.js';
+import { AlreadyRegisteredException } from '../exception/AlreadyRegisteredException.js';
+import { NotRegisteredException } from '../exception/NotRegisteredException.js';
+import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
+import { CredentialsClientApi } from '../trigger/CredentialsClientApi.js';
+import type {
   DeleteTenantPartnerByServerTokenMutationResult,
   DeleteTenantPartnerByServerTokenMutationVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
-  GetTenantPartnerByServerTokenQueryResult,
-  GetTenantPartnerByServerTokenQueryVariables,
   UpdateTenantPartnerProfileMutationResult,
   UpdateTenantPartnerProfileMutationVariables,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import {
+  DELETE_TENANT_PARTNER_BY_ID,
+  DELETE_TENANT_PARTNER_BY_SERVER_TOKEN,
+  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  OcpiGraphqlClient,
+  UPDATE_TENANT_PARTNER_PROFILE,
+} from '../graphql/index.js';
+import type { CredentialsDTO } from '../model/DTO/CredentialsDTO.js';
+import type { Endpoint } from '../model/Endpoint.js';
+import type { UnregisterClientRequestDTO } from '../model/UnregisterClientRequestDTO.js';
+import type { AdminCredentialsRequestDTO } from '../model/DTO/AdminCredentialsRequestDTO.js';
+import type { TenantPartnerDto } from '@citrineos/base';
+import { RegistrationMapper } from '../mapper/index.js';
 
 // const CpoCredentialsRole = CredentialsRoleDTO.build(
 //   Role.CPO,
@@ -82,13 +77,13 @@ export class CredentialsService {
   // }
 
   async getCredentials(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
   ): Promise<CredentialsDTO> {
     return RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner);
   }
 
   async postCredentials(
-    partner: ITenantPartnerDto,
+    partner: TenantPartnerDto,
     credentials: CredentialsDTO,
     versionNumber: VersionNumber,
   ): Promise<CredentialsDTO> {
@@ -133,7 +128,7 @@ export class CredentialsService {
   }
 
   async putCredentials(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     credentials: CredentialsDTO,
   ): Promise<CredentialsDTO> {
     if (!tenantPartner.partnerProfileOCPI?.credentials) {
@@ -192,7 +187,7 @@ export class CredentialsService {
       clientCountryCode: partnerRole.country_code,
       clientPartyId: partnerRole.party_id,
     });
-    let tenantPartner = response.TenantPartners[0] as ITenantPartnerDto;
+    let tenantPartner = response.TenantPartners[0] as TenantPartnerDto;
     if (tenantPartner.partnerProfileOCPI?.credentials) {
       throw new AlreadyRegisteredException();
     }
@@ -255,7 +250,7 @@ export class CredentialsService {
         clientCountryCode: credentialsRequest.mspCountryCode,
         clientPartyId: credentialsRequest.mspPartyId,
       });
-      const tenantPartner = response.TenantPartners[0] as ITenantPartnerDto;
+      const tenantPartner = response.TenantPartners[0] as TenantPartnerDto;
       const newCredentialsToken = uuidv4();
       tenantPartner.partnerProfileOCPI!.serverCredentials.versionsUrl =
         credentialsRequest.url;
@@ -311,9 +306,9 @@ export class CredentialsService {
   }
 
   private async getVersionDetails(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     versionsUrl?: string,
-  ): Promise<ITenantPartnerDto> {
+  ): Promise<TenantPartnerDto> {
     const versions = await this.versionsClientApi.getVersions(
       tenantPartner.tenant!.countryCode!,
       tenantPartner.tenant!.partyId!,
@@ -390,7 +385,7 @@ export class CredentialsService {
       clientCountryCode: request.clientCountryCode,
       clientPartyId: request.clientPartyId,
     });
-    const tenantPartner = response.TenantPartners[0] as ITenantPartnerDto;
+    const tenantPartner = response.TenantPartners[0] as TenantPartnerDto;
     await this.credentialsClientApi.deleteCredentials(
       request.serverCountryCode,
       request.serverPartyId,
@@ -417,7 +412,7 @@ export class CredentialsService {
       clientCountryCode: credentialsRequest.mspCountryCode,
       clientPartyId: credentialsRequest.mspPartyId,
     });
-    const tenantPartner = response.TenantPartners[0] as ITenantPartnerDto;
+    const tenantPartner = response.TenantPartners[0] as TenantPartnerDto;
     if (tenantPartner.partnerProfileOCPI) {
       throw new Error(
         `TenantPartner already has credentials token A: ${JSON.stringify(tenantPartner.partnerProfileOCPI)}`,

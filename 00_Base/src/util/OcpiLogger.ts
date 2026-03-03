@@ -2,10 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Service, Container } from 'typedi';
-import { ILogObj, Logger } from 'tslog';
-import { ServerConfig } from '../config/ServerConfig';
-import { Env } from '../config/sub/Env';
+import { Container, Service } from 'typedi';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { ServerConfig } from '../config/ServerConfig.js';
+import { Env } from '../config/sub/Env.js';
 
 @Service()
 export class OcpiLogger extends Logger<ILogObj> {

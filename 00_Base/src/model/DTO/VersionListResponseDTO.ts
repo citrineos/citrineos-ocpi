@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { OcpiResponseSchema } from '../OcpiResponse';
-import { VersionDTOSchema } from './VersionDTO';
+import { OcpiResponseSchema } from '../OcpiResponse.js';
+import { VersionDTOSchema } from './VersionDTO.js';
 import { z } from 'zod';
 
 export const VersionListResponseDTOSchema = OcpiResponseSchema(

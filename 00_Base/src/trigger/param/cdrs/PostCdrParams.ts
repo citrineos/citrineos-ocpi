@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CdrSchema } from '../../../model/Cdr';
-import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { CdrSchema } from '../../../model/Cdr.js';
+import { OcpiParamsSchema } from '../../util/OcpiParams.js';
 
 export const PostCdrParamsSchema = OcpiParamsSchema.extend({
   cdr: CdrSchema,

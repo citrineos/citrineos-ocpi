@@ -5,11 +5,7 @@
 import { gql } from 'graphql-request';
 
 export const GET_LOCATIONS_QUERY = gql`
-  query GetLocations(
-    $limit: Int
-    $offset: Int
-    $where: Locations_bool_exp!
-  ) {
+  query GetLocations($limit: Int, $offset: Int, $where: Locations_bool_exp!) {
     Locations(
       offset: $offset
       limit: $limit

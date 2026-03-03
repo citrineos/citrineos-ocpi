@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { EvseStatus } from './EvseStatus';
+import { EvseStatus } from './EvseStatus.js';
 
 export const EvseStatusScheduleSchema = z.object({
   period_begin: z.coerce.date(),

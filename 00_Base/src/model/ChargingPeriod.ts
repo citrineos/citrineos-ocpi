@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CdrDimensionSchema } from './CdrDimension';
+import { CdrDimensionSchema } from './CdrDimension.js';
 
 export const ChargingPeriodSchema = z.object({
   start_date_time: z.coerce.date(),

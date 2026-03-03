@@ -1,34 +1,33 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
-  AbstractDtoModule,
-  AsDtoEventHandler,
-  CdrBroadcaster,
-  CdrMapper,
-  DtoEventObjectType,
-  DtoEventType,
-  GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
+import type {
   GetTransactionByTransactionIdQueryResult,
   GetTransactionByTransactionIdQueryVariables,
   IDtoEvent,
   OcpiConfig,
+} from '@citrineos/ocpi-base';
+import {
+  AbstractDtoModule,
+  AsDtoEventHandler,
+  CdrBroadcaster,
+  DtoEventObjectType,
+  DtoEventType,
+  GET_TRANSACTION_BY_TRANSACTION_ID_QUERY,
   OcpiConfigToken,
   OcpiGraphqlClient,
   OcpiModule,
   RabbitMqDtoReceiver,
   SessionBroadcaster,
-  SessionMapper,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
-import { SessionsModuleApi } from './module/SessionsModuleApi';
-import { IMeterValueDto, ITransactionDto } from '@citrineos/base';
-import { Cdr } from '@citrineos/ocpi-base/src/model/Cdr';
+import { SessionsModuleApi } from './module/SessionsModuleApi.js';
+import type { MeterValueDto, TransactionDto } from '@citrineos/base';
 
-export { SessionsModuleApi } from './module/SessionsModuleApi';
-export { ISessionsModuleApi } from './module/ISessionsModuleApi';
+export { SessionsModuleApi } from './module/SessionsModuleApi.js';
+export type { ISessionsModuleApi } from './module/ISessionsModuleApi.js';
 
 @Service()
 export class SessionsModule extends AbstractDtoModule implements OcpiModule {
@@ -63,7 +62,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     'TransactionNotification',
   )
   async handleTransactionInsert(
-    event: IDtoEvent<ITransactionDto>,
+    event: IDtoEvent<TransactionDto>,
   ): Promise<void> {
     this._logger.debug(`Handling Transaction Insert: ${JSON.stringify(event)}`);
     const transactionDto = event._payload;
@@ -83,7 +82,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     'TransactionNotification',
   )
   async handleTransactionUpdate(
-    event: IDtoEvent<Partial<ITransactionDto>>,
+    event: IDtoEvent<Partial<TransactionDto>>,
   ): Promise<void> {
     this._logger.debug(`Handling Transaction Update: ${JSON.stringify(event)}`);
     const transactionDto = event._payload;
@@ -113,7 +112,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       }
 
       const fullTransactionDto = fullTransactionDtoResponse
-        .Transactions[0] as ITransactionDto;
+        .Transactions[0] as TransactionDto;
       await this.cdrBroadcaster.broadcastPostCdr(fullTransactionDto);
     }
   }
@@ -123,9 +122,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.MeterValue,
     'MeterValueNotification',
   )
-  async handleMeterValueInsert(
-    event: IDtoEvent<IMeterValueDto>,
-  ): Promise<void> {
+  async handleMeterValueInsert(event: IDtoEvent<MeterValueDto>): Promise<void> {
     this._logger.debug(`Handling Meter Value Insert: ${JSON.stringify(event)}`);
     const meterValueDto = event._payload;
     const tenant = meterValueDto.tenant;

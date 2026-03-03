@@ -2,13 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { HeaderParam, ParamOptions, UseBefore } from 'routing-controllers';
-import { AuthMiddleware } from '../middleware/AuthMiddleware';
-import { OcpiHttpHeader } from '../OcpiHttpHeader';
-import { OcpiHeaderMiddleware } from '../middleware/OcpiHeaderMiddleware';
-import { UniqueMessageIdsMiddleware } from '../middleware/UniqueMessageIdsMiddleware';
+import type { ParamOptions } from 'routing-controllers';
+import { HeaderParam, UseBefore } from 'routing-controllers';
+import { AuthMiddleware } from '../middleware/AuthMiddleware.js';
+import { OcpiHttpHeader } from '../OcpiHttpHeader.js';
+import { OcpiHeaderMiddleware } from '../middleware/OcpiHeaderMiddleware.js';
+import { UniqueMessageIdsMiddleware } from '../middleware/UniqueMessageIdsMiddleware.js';
 import { HttpHeader } from '@citrineos/base';
-import { OcpiExceptionHandler } from '../middleware/OcpiExceptionHandler';
+import { OcpiExceptionHandler } from '../middleware/OcpiExceptionHandler.js';
 
 export const uniqueMessageIdHeaders = {
   [OcpiHttpHeader.XRequestId]: { required: true },

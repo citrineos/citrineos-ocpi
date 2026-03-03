@@ -2,20 +2,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { KoaMiddlewareInterface, NotFoundError, UnauthorizedError } from 'routing-controllers';
-import { Context } from 'vm';
+import type { KoaMiddlewareInterface } from 'routing-controllers';
+import { NotFoundError, UnauthorizedError } from 'routing-controllers';
+import type { Context } from 'vm';
 import { HttpStatus, UnauthorizedException } from '@citrineos/base';
-import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse';
+import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse.js';
 import { Service } from 'typedi';
-import { UnknownTokenException } from '../../exception/UnknownTokenException';
-import { OcpiResponseStatusCode } from '../../model/OcpiResponse';
-import { WrongClientAccessException } from '../../exception/WrongClientAccessException';
-import { InvalidParamException } from '../../exception/InvalidParamException';
-import { MissingParamException } from '../../exception/MissingParamException';
-import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException';
-import { NotRegisteredException } from '../../exception/NotRegisteredException';
-import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
-import { ContentType } from '../ContentType';
+import { UnknownTokenException } from '../../exception/UnknownTokenException.js';
+import { OcpiResponseStatusCode } from '../../model/OcpiResponse.js';
+import { WrongClientAccessException } from '../../exception/WrongClientAccessException.js';
+import { InvalidParamException } from '../../exception/InvalidParamException.js';
+import { MissingParamException } from '../../exception/MissingParamException.js';
+import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException.js';
+import { NotRegisteredException } from '../../exception/NotRegisteredException.js';
+import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException.js';
+import { ContentType } from '../ContentType.js';
 
 /**
  * GlobalExceptionHandler handles all exceptions

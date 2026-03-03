@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ProfileType } from './ProfileType';
+import { ProfileType } from './ProfileType.js';
 
 export const ChargingPreferencesSchema = z.object({
   profile_type: z.nativeEnum(ProfileType),

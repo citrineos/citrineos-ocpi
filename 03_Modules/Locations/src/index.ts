@@ -1,35 +1,37 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import type {
+  GetChargingStationByIdQueryResult,
+  GetChargingStationByIdQueryVariables,
+  IDtoEvent,
+  OcpiConfig,
+} from '@citrineos/ocpi-base';
 import {
   AbstractDtoModule,
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
   GET_CHARGING_STATION_BY_ID_QUERY,
-  GetChargingStationByIdQueryResult,
-  GetChargingStationByIdQueryVariables,
-  IDtoEvent,
   LocationsBroadcaster,
-  OcpiConfig,
   OcpiConfigToken,
   OcpiGraphqlClient,
   OcpiModule,
   RabbitMqDtoReceiver,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
-import { LocationsModuleApi } from './module/LocationsModuleApi';
-import {
-  IChargingStationDto,
-  IConnectorDto,
-  IEvseDto,
-  ILocationDto,
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { LocationsModuleApi } from './module/LocationsModuleApi.js';
+import type {
+  ChargingStationDto,
+  ConnectorDto,
+  EvseDto,
+  LocationDto,
 } from '@citrineos/base';
 import { Inject, Service } from 'typedi';
 
-export { LocationsModuleApi } from './module/LocationsModuleApi';
-export { ILocationsModuleApi } from './module/ILocationsModuleApi';
+export { LocationsModuleApi } from './module/LocationsModuleApi.js';
+export type { ILocationsModuleApi } from './module/ILocationsModuleApi.js';
 
 @Service()
 export class LocationsModule extends AbstractDtoModule implements OcpiModule {
@@ -62,7 +64,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Location,
     'LocationNotification',
   )
-  async handleLocationInsert(event: IDtoEvent<ILocationDto>): Promise<void> {
+  async handleLocationInsert(event: IDtoEvent<LocationDto>): Promise<void> {
     this._logger.debug(`Handling Location Insert: ${JSON.stringify(event)}`);
     const locationDto = event._payload;
     const tenant = locationDto.tenant;
@@ -82,7 +84,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'LocationNotification',
   )
   async handleLocationUpdate(
-    event: IDtoEvent<Partial<ILocationDto>>,
+    event: IDtoEvent<Partial<LocationDto>>,
   ): Promise<void> {
     this._logger.debug(`Handling Location Update: ${JSON.stringify(event)}`);
     const locationDto = event._payload;
@@ -103,7 +105,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'ChargingStationNotification',
   )
   async handleChargingStationUpdate(
-    event: IDtoEvent<Partial<IChargingStationDto>>,
+    event: IDtoEvent<Partial<ChargingStationDto>>,
   ): Promise<void> {
     this._logger.debug(
       `Handling Charging Station Update: ${JSON.stringify(event)}`,
@@ -117,7 +119,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Evse,
     'EvseNotification',
   )
-  async handleEvseInsert(event: IDtoEvent<IEvseDto>): Promise<void> {
+  async handleEvseInsert(event: IDtoEvent<EvseDto>): Promise<void> {
     this._logger.debug(`Handling EVSE Insert: ${JSON.stringify(event)}`);
     const evseDto = event._payload;
     const tenant = evseDto.tenant;
@@ -138,10 +140,14 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       );
       return;
     }
-    evseDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+    const chargingStationDto = chargingStationResponse
+      .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPutEvse(tenant, evseDto);
+    await this.locationsBroadcaster.broadcastPutEvse(
+      tenant,
+      evseDto,
+      chargingStationDto,
+    );
   }
 
   @AsDtoEventHandler(
@@ -149,7 +155,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Evse,
     'EvseNotification',
   )
-  async handleEvseUpdate(event: IDtoEvent<Partial<IEvseDto>>): Promise<void> {
+  async handleEvseUpdate(event: IDtoEvent<Partial<EvseDto>>): Promise<void> {
     this._logger.debug(`Handling EVSE Update: ${JSON.stringify(event)}`);
     const evseDto = event._payload;
     const tenant = evseDto.tenant;
@@ -170,10 +176,14 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       );
       return;
     }
-    evseDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+    const chargingStationDto = chargingStationResponse
+      .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPatchEvse(tenant, evseDto);
+    await this.locationsBroadcaster.broadcastPatchEvse(
+      tenant,
+      evseDto,
+      chargingStationDto,
+    );
   }
 
   @AsDtoEventHandler(
@@ -181,7 +191,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.Connector,
     'ConnectorNotification',
   )
-  async handleConnectorInsert(event: IDtoEvent<IConnectorDto>): Promise<void> {
+  async handleConnectorInsert(event: IDtoEvent<ConnectorDto>): Promise<void> {
     this._logger.debug(`Handling Connector Insert: ${JSON.stringify(event)}`);
     const connectorDto = event._payload;
     const tenant = connectorDto.tenant;
@@ -203,7 +213,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     connectorDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+      .ChargingStations[0] as ChargingStationDto;
 
     await this.locationsBroadcaster.broadcastPutConnector(tenant, connectorDto);
   }
@@ -214,7 +224,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     'ConnectorNotification',
   )
   async handleConnectorUpdate(
-    event: IDtoEvent<Partial<IConnectorDto>>,
+    event: IDtoEvent<Partial<ConnectorDto>>,
   ): Promise<void> {
     this._logger.debug(`Handling Connector Update: ${JSON.stringify(event)}`);
     const connectorDto = event._payload;
@@ -237,7 +247,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     connectorDto.chargingStation = chargingStationResponse
-      .ChargingStations[0] as IChargingStationDto;
+      .ChargingStations[0] as ChargingStationDto;
 
     // TODO: filter out status updates, since they should only apply at the EVSE level
 

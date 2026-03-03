@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../../model/PaginatedResponse';
+import {
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
+} from '../../model/PaginatedResponse.js';
 
 export const PaginatedParamsSchema = z.object({
   offset: z.number().int().min(0).optional().default(DEFAULT_OFFSET),
