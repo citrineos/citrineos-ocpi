@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import type {
+  VersionDetailsResponseDTO,
+  VersionListResponseDTO,
+} from '@citrineos/ocpi-base';
 import {
   AsOcpiRegistrationEndpoint,
   BaseController,
   ModuleId,
   ResponseSchema,
-  VersionDetailsResponseDTO,
   versionIdParam,
-  VersionListResponseDTO,
   VersionListResponseDTOSchema,
   VersionListResponseDTOSchemaName,
   VersionNumber,
@@ -18,7 +19,7 @@ import {
 } from '@citrineos/ocpi-base';
 import { HttpStatus } from '@citrineos/base';
 import { Service } from 'typedi';
-import { IVersionsModuleApi } from './IVersionsModuleApi';
+import type { IVersionsModuleApi } from './IVersionsModuleApi.js';
 import { Get, JsonController, Param } from 'routing-controllers';
 
 @JsonController(`/${ModuleId.Versions}`)

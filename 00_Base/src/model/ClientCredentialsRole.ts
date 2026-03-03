@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Role } from './Role';
+import { Role } from './Role.js';
 import {
   BusinessDetailsSchema,
   fromBusinessDetailsDTO,
   toBusinessDetailsDTO,
-} from './BusinessDetails';
-import { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO';
+} from './BusinessDetails.js';
+import type { CredentialsRoleDTO } from './DTO/CredentialsRoleDTO.js';
 
 import { z } from 'zod';
-import { CountryCode } from '../util/Util';
+import { CountryCode } from '../util/Util.js';
 
 export const ClientCredentialsRoleSchema = z.object({
   role: z.literal(Role.EMSP),

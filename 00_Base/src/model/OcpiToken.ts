@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TokenType } from './TokenType';
-import { WhitelistType } from './WhitelistType';
+import { TokenType } from './TokenType.js';
+import { WhitelistType } from './WhitelistType.js';
 
 export const OcpiTokenSchema = z.object({
   authorization_id: z.number(),

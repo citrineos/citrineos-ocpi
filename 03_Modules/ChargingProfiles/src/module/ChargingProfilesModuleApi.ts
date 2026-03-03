@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IChargingProfilesModuleApi } from './IChargingProfilesModuleApi';
-
+import type { IChargingProfilesModuleApi } from './IChargingProfilesModuleApi.js';
 import {
   Delete,
   Get,
@@ -14,24 +13,31 @@ import {
 } from 'routing-controllers';
 
 import { HttpStatus } from '@citrineos/base';
+import type {
+  ChargingProfileResponse,
+  SetChargingProfile,
+} from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
   BodyWithSchema,
-  ChargingProfileResponse,
   ChargingProfileResponseSchema,
   ChargingProfileResponseSchemaName,
   ChargingProfilesService,
   generateMockForSchema,
   ModuleId,
   ResponseSchema,
-  SetChargingProfile,
   SetChargingProfileSchema,
   SetChargingProfileSchemaName,
   versionIdParam,
 } from '@citrineos/ocpi-base';
 
 import { Service } from 'typedi';
+
+const MOCK_CHARGING_PROFILE_RESPONSE = await generateMockForSchema(
+  ChargingProfileResponseSchema,
+  ChargingProfileResponseSchemaName,
+);
 
 @JsonController(`/:${versionIdParam}/${ModuleId.ChargingProfiles}`)
 @Service()
@@ -52,10 +58,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          ChargingProfileResponseSchema,
-          ChargingProfileResponseSchemaName,
-        ),
+        success: MOCK_CHARGING_PROFILE_RESPONSE,
       },
     },
   )
@@ -80,10 +83,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          ChargingProfileResponseSchema,
-          ChargingProfileResponseSchemaName,
-        ),
+        success: MOCK_CHARGING_PROFILE_RESPONSE,
       },
     },
   )
@@ -103,10 +103,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          ChargingProfileResponseSchema,
-          ChargingProfileResponseSchemaName,
-        ),
+        success: MOCK_CHARGING_PROFILE_RESPONSE,
       },
     },
   )

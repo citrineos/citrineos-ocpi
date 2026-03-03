@@ -4,15 +4,13 @@
 
 import * as amqplib from 'amqplib';
 import { instanceToPlain } from 'class-transformer';
-import { ILogObj, Logger } from 'tslog';
-import {
-  AbstractDtoEventSender,
-  IDtoEvent,
-  IDtoEventSender,
-  IDtoPayload,
-} from '..';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { IDtoEvent, IDtoEventSender, IDtoPayload } from '../index.js';
+import { AbstractDtoEventSender } from '../index.js';
 import { Inject, Service } from 'typedi';
-import { OcpiConfig, OcpiConfigToken } from '../../config/ocpi.types';
+import type { OcpiConfig } from '../../config/ocpi.types.js';
+import { OcpiConfigToken } from '../../config/ocpi.types.js';
 
 /**
  * Implementation of a {@link IEventSender} using RabbitMQ as the underlying transport.

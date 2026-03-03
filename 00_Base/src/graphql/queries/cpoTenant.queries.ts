@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 // import { gql } from 'graphql-request';
 
 // export const GET_CPO_TENANT_BY_SERVER_COUNTRY_AND_PARTY_ID = gql`

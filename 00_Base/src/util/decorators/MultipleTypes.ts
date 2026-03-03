@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ZodTypeAny } from 'zod';
+import type { ZodTypeAny } from 'zod';
 
 export const MULTIPLE_TYPES = 'MultipleTypes';
 

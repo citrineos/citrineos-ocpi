@@ -2,29 +2,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi, MissingRequiredParamException } from './BaseClientApi';
-import { ModuleId } from '../model/ModuleId';
 import {
-  CredentialsResponse,
-  CredentialsResponseSchema,
-} from '../model/CredentialsResponse';
+  BaseClientApi,
+  MissingRequiredParamException,
+} from './BaseClientApi.js';
+import { ModuleId } from '../model/ModuleId.js';
+import type { CredentialsResponse } from '../model/CredentialsResponse.js';
+import { CredentialsResponseSchema } from '../model/CredentialsResponse.js';
 import { Service } from 'typedi';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { CredentialsDTO } from '..';
+  type Endpoint,
+  HttpMethod,
+  type PartnerProfile,
+} from '@citrineos/base';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
+import type { CredentialsDTO } from '../index.js';
 
 @Service()
 export class CredentialsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Credentials;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
-        value.identifier === EndpointIdentifier.CREDENTIALS,
+      (value: Endpoint) => value.identifier === EndpointIdentifier.CREDENTIALS,
     )!.url;
     if (!url) {
       throw new MissingRequiredParamException(
@@ -39,7 +41,7 @@ export class CredentialsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
   ): Promise<CredentialsResponse> {
     return this.request(
       fromCountryCode,
@@ -58,7 +60,7 @@ export class CredentialsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     body: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     return this.request(
@@ -80,7 +82,7 @@ export class CredentialsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     body: CredentialsDTO,
   ): Promise<CredentialsResponse> {
     return this.request(
@@ -102,7 +104,7 @@ export class CredentialsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
   ): Promise<OcpiEmptyResponse> {
     return this.request(
       fromCountryCode,

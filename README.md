@@ -22,7 +22,7 @@ CitrineOS OCPI is a set of modules designed to integrate seamlessly with the Cit
 
 ## Release Information
 
-### Version 2.0.0
+### Version 2.0.1
 
 #### Included Functionality
 

@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BusinessDetails } from './BusinessDetails';
-import { Role } from './Role';
-import { ClientInformation } from './ClientInformation';
-import { CpoTenant } from './CpoTenant';
+import type { BusinessDetails } from './BusinessDetails.js';
+import { Role } from './Role.js';
+import type { ClientInformation } from './ClientInformation.js';
+import type { CpoTenant } from './CpoTenant.js';
 
 export interface ICredentialsRole {
   role: Role;

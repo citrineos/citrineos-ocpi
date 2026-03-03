@@ -15,16 +15,22 @@ import {
 import { Service } from 'typedi';
 
 import { HttpStatus } from '@citrineos/base';
-import {
+import type {
   RealTimeAuthorizationRequestBody,
   RealTimeAuthorizationResponse,
 } from '@citrineos/util';
+import type {
+  OcpiEmptyResponse,
+  SingleTokenRequest,
+  TokenDTO,
+  TokenResponse,
+} from '@citrineos/ocpi-base';
 import {
-  AsOcpiFunctionalEndpoint,
   AsAdminEndpoint,
+  AsOcpiFunctionalEndpoint,
   BaseController,
-  BodyWithSchema,
   BodyWithExample,
+  BodyWithSchema,
   buildOcpiEmptyResponse,
   buildOcpiResponse,
   EnumQueryParam,
@@ -32,20 +38,15 @@ import {
   generateMockForSchema,
   InvalidParamException,
   ModuleId,
-  OcpiEmptyResponse,
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
   OcpiHeaders,
   OcpiResponseStatusCode,
   ResponseSchema,
-  SingleTokenRequest,
-  TokenDTO,
   TokenDTOSchema,
   TokenDTOSchemaName,
-  TokenResponse,
   TokenResponseSchema,
   TokenResponseSchemaName,
-  // TokensAdminService,
   TokensService,
   TokenType,
   TokenTypeSchema,
@@ -57,7 +58,16 @@ import {
   WhitelistType,
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
-import { ITokensModuleApi } from './ITokensModuleApi';
+import type { ITokensModuleApi } from './ITokensModuleApi.js';
+
+const MOCK_TOKEN_RESPONSE = await generateMockForSchema(
+  TokenResponseSchema,
+  TokenResponseSchemaName,
+);
+const MOCK_EMPTY_RESPONSE = await generateMockForSchema(
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
+);
 
 const MockPutTokenBody = {
   country_code: 'MSP',
@@ -98,10 +108,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        TokenResponseSchema,
-        TokenResponseSchemaName,
-      ),
+      success: MOCK_TOKEN_RESPONSE,
     },
   })
   async getTokens(
@@ -144,10 +151,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        OcpiEmptyResponseSchema,
-        OcpiEmptyResponseSchemaName,
-      ),
+      success: MOCK_EMPTY_RESPONSE,
     },
   })
   async putToken(
@@ -196,10 +200,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        OcpiEmptyResponseSchema,
-        OcpiEmptyResponseSchemaName,
-      ),
+      success: MOCK_EMPTY_RESPONSE,
     },
   })
   async patchToken(

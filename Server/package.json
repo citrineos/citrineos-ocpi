@@ -1,9 +1,10 @@
 {
   "name": "@citrineos/demo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Runs CitrineOS CORE and OCPI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
@@ -11,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
     "fresh": "rm -rf node_modules package-lock.json && npm run clean",
-    "copy-assets": "ts-node ./copy-assets.ts",
+    "copy-assets": "tsx ./copy-assets.ts ./src/assets ./dist/assets",
     "start": "cross-env APP_NAME=all APP_ENV=local nodemon",
     "start-docker-compose": "docker compose -f docker-compose.yml up --force-recreate",
     "start-docker": "nodemon",
@@ -31,34 +32,35 @@
     "@types/uuid": "9.0.1",
     "nodemon": "2.0.22",
     "ts-node": "10.9.1",
+    "tsx": "^4.21.0",
     "typescript": "5.0.4"
   },
   "dependencies": {
-    "@citrineos/ocpi-base": "2.0.0",
-    "@citrineos/ocpi-credentials": "2.0.0",
-    "@citrineos/ocpi-versions": "2.0.0",
-    "@citrineos/ocpi-commands": "2.0.0",
-    "@citrineos/ocpi-locations": "2.0.0",
-    "@citrineos/ocpi-sessions": "2.0.0",
-    "@citrineos/ocpi-tariffs": "2.0.0",
-    "@citrineos/ocpi-cdrs": "2.0.0",
-    "@citrineos/ocpi-charging-profiles": "2.0.0",
-    "@citrineos/ocpi-tokens": "2.0.0",
-    "@citrineos/dto-router": "2.0.0",
+    "@citrineos/dto-router": "2.0.1",
+    "@citrineos/ocpi-base": "2.0.1",
+    "@citrineos/ocpi-cdrs": "2.0.1",
+    "@citrineos/ocpi-charging-profiles": "2.0.1",
+    "@citrineos/ocpi-commands": "2.0.1",
+    "@citrineos/ocpi-credentials": "2.0.1",
+    "@citrineos/ocpi-locations": "2.0.1",
+    "@citrineos/ocpi-sessions": "2.0.1",
+    "@citrineos/ocpi-tariffs": "2.0.1",
+    "@citrineos/ocpi-tokens": "2.0.1",
+    "@citrineos/ocpi-versions": "2.0.1",
     "@directus/extensions": "~1.0.2",
     "@fastify/type-provider-json-schema-to-ts": "4.0.1",
+    "cross-env": "7.0.3",
     "fastify": "5.7.3",
     "sequelize": "^6.37.7",
     "sqlite3": "5.1.6",
     "tslog": "4.9.2",
-    "uuid": "9.0.0",
-    "cross-env": "7.0.3"
+    "uuid": "9.0.0"
   },
   "engines": {
     "node": ">=18"
   },
   "optionalDependencies": {
-    "bufferutil": "4.0.8",
+    "bufferutil": "4.1.0",
     "utf-8-validate": "6.0.3"
   },
   "workspaces": [
