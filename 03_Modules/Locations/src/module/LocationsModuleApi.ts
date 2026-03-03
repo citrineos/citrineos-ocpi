@@ -3,14 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Get, JsonController, Param } from 'routing-controllers';
-import { ILocationsModuleApi } from './ILocationsModuleApi';
+import type { ILocationsModuleApi } from './ILocationsModuleApi.js';
+import type {
+  ConnectorResponse,
+  EvseResponse,
+  LocationResponse,
+  PaginatedLocationResponse,
+} from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  ConnectorResponse,
   ConnectorResponseSchema,
   ConnectorResponseSchemaName,
-  EvseResponse,
   EvseResponseSchema,
   EvseResponseSchemaName,
   EXTRACT_EVSE_ID,
@@ -18,14 +22,12 @@ import {
   FunctionalEndpointParams,
   generateMockForSchema,
   generateMockOcpiPaginatedResponse,
-  LocationResponse,
   LocationResponseSchema,
   LocationResponseSchemaName,
   LocationsService,
   ModuleId,
   OcpiHeaders,
   Paginated,
-  PaginatedLocationResponse,
   PaginatedLocationResponseSchema,
   PaginatedLocationResponseSchemaName,
   PaginatedParams,

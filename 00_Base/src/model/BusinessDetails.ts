@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO';
-import { fromImageDTO, ImageSchema, toImageDTO } from './Image';
+import type { BusinessDetailsDTO } from './DTO/BusinessDetailsDTO.js';
+import { fromImageDTO, ImageSchema, toImageDTO } from './Image.js';
 
 export const BusinessDetailsSchema = z.object({
   name: z.string().max(100),

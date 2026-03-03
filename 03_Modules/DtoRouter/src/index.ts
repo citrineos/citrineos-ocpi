@@ -2,4 +2,4 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export { DtoRouter } from './router/router';
+export { DtoRouter } from './router/router.js';

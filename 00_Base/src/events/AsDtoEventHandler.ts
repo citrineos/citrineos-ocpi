@@ -4,7 +4,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
-import { DtoEventObjectType, DtoEventType } from './types';
+import { DtoEventObjectType, DtoEventType } from './types.js';
 
 /**
  * Handler definition for Dto subscriptions

@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { JSONSchemaFaker } from 'json-schema-faker';
-import { getAllSchemas } from '../openapi-spec-helper/schemas';
-import { PaginatedCdrResponse } from '../model/Cdr';
-import { PaginatedParams } from './param/PaginatedParams';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
+import { getAllSchemas } from '../openapi-spec-helper/schemas.js';
+import type { PaginatedCdrResponse } from '../model/Cdr.js';
+import { PaginatedParams } from './param/PaginatedParams.js';
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { ZodTypeAny } from 'zod';
-import Container from 'typedi';
+import type { ZodTypeAny } from 'zod';
+import { Container } from 'typedi';
 import { Logger } from 'tslog';
 
 export const generateMockForSchema = (

@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { AuthMethod } from './AuthMethod';
-import { SessionStatus } from './SessionStatus';
-import { PaginatedResponseSchema } from './PaginatedResponse';
-import { OcpiResponseSchema } from './OcpiResponse';
-import { PriceSchema } from './Price';
-import { ChargingPeriodSchema } from './ChargingPeriod';
-import { CdrTokenSchema } from './CdrToken';
+import { AuthMethod } from './AuthMethod.js';
+import { SessionStatus } from './SessionStatus.js';
+import { PaginatedResponseSchema } from './PaginatedResponse.js';
+import { OcpiResponseSchema } from './OcpiResponse.js';
+import { PriceSchema } from './Price.js';
+import { ChargingPeriodSchema } from './ChargingPeriod.js';
+import { CdrTokenSchema } from './CdrToken.js';
 
 export const SessionSchema = z.object({
   country_code: z.string().min(2).max(2),

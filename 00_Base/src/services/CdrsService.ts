@@ -3,17 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { CdrMapper } from '../mapper/CdrMapper';
-import { GET_TRANSACTIONS_QUERY } from '../graphql/queries/transaction.queries';
-import { ITransactionDto } from '@citrineos/base';
-import { PaginatedCdrResponse } from '../model/Cdr';
-import {
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
+import type {
   GetTransactionsQueryResult,
   GetTransactionsQueryVariables,
   Transactions_Bool_Exp,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import { GET_TRANSACTIONS_QUERY, OcpiGraphqlClient } from '../graphql/index.js';
+import { CdrMapper } from '../mapper/index.js';
+import type { TransactionDto } from '@citrineos/base';
+import type { PaginatedCdrResponse } from '../model/Cdr.js';
 
 @Service()
 export class CdrsService {
@@ -60,7 +59,7 @@ export class CdrsService {
       GetTransactionsQueryVariables
     >(GET_TRANSACTIONS_QUERY, variables);
     const mappedCdr = await this.cdrMapper.mapTransactionsToCdrs(
-      result.Transactions as ITransactionDto[],
+      result.Transactions as TransactionDto[],
     );
 
     return {

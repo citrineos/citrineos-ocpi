@@ -2,30 +2,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseBroadcaster } from './BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster.js';
 import { Service } from 'typedi';
-import { LocationsClientApi } from '../trigger/LocationsClientApi';
-import { ILogObj, Logger } from 'tslog';
-import { CredentialsService } from '../services/CredentialsService';
-import { LocationDTO } from '../model/DTO/LocationDTO';
-import { EvseDTO } from '../model/DTO/EvseDTO';
-import { ConnectorDTO } from '../model/DTO/ConnectorDTO';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import {
-  HttpMethod,
-  IConnectorDto,
-  IEvseDto,
-  ILocationDto,
-  ITenantDto,
+import { LocationsClientApi } from '../trigger/LocationsClientApi.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import { CredentialsService } from '../services/CredentialsService.js';
+import type { LocationDTO } from '../model/DTO/LocationDTO.js';
+import type { EvseDTO } from '../model/DTO/EvseDTO.js';
+import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
+import type { ConnectorDTO } from '../model/DTO/ConnectorDTO.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type {
+  ChargingStationDto,
+  ConnectorDto,
+  EvseDto,
+  LocationDto,
+  TenantDto,
 } from '@citrineos/base';
-import { UID_FORMAT } from '../model/DTO/EvseDTO';
+import { HttpMethod } from '@citrineos/base';
 import {
   ConnectorMapper,
   EvseMapper,
   LocationMapper,
-} from '../mapper/LocationMapper';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+} from '../mapper/index.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -38,8 +40,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutLocation(
-    tenant: ITenantDto,
-    locationDto: ILocationDto,
+    tenant: TenantDto,
+    locationDto: LocationDto,
   ): Promise<void> {
     const location = LocationMapper.fromGraphql(locationDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${location.id}`;
@@ -47,8 +49,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchLocation(
-    tenant: ITenantDto,
-    locationDto: Partial<ILocationDto>,
+    tenant: TenantDto,
+    locationDto: Partial<LocationDto>,
   ): Promise<void> {
     const locationId = locationDto.id;
     if (!locationId) throw new Error('Location ID missing');
@@ -58,7 +60,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastLocation(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     location: Partial<LocationDTO>,
     method: HttpMethod,
     path: string,
@@ -82,32 +84,34 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     }
   }
 
-  async broadcastPutEvse(tenant: ITenantDto, evseDto: IEvseDto): Promise<void> {
-    const locationId = evseDto.chargingStation?.locationId;
+  async broadcastPutEvse(
+    tenant: TenantDto,
+    evseDto: EvseDto,
+    chargingStationDto: ChargingStationDto,
+  ): Promise<void> {
+    const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
-    const evse = EvseMapper.fromGraphql(evseDto.chargingStation!, evseDto);
+    const evse = EvseMapper.fromGraphql(chargingStationDto!, evseDto);
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId, evseDto.id!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Put, path);
   }
 
   async broadcastPatchEvse(
-    tenant: ITenantDto,
-    evseDto: Partial<IEvseDto>,
+    tenant: TenantDto,
+    evseDto: Partial<EvseDto>,
+    chargingStationDto: Partial<ChargingStationDto>,
   ): Promise<void> {
-    const locationId = evseDto.chargingStation?.locationId;
+    const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
-    const evse = EvseMapper.fromPartialGraphql(
-      evseDto.chargingStation!,
-      evseDto,
-    );
+    const evse = EvseMapper.fromPartialGraphql(chargingStationDto!, evseDto);
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
   }
 
   private async broadcastEvse(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     evseData: Partial<EvseDTO>,
     method: HttpMethod,
     path: string,
@@ -129,8 +133,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutConnector(
-    tenant: ITenantDto,
-    connectorDto: IConnectorDto,
+    tenant: TenantDto,
+    connectorDto: ConnectorDto,
   ): Promise<void> {
     const locationId = connectorDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in Connector data');
@@ -141,8 +145,8 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchConnector(
-    tenant: ITenantDto,
-    connectorDto: Partial<IConnectorDto>,
+    tenant: TenantDto,
+    connectorDto: Partial<ConnectorDto>,
   ): Promise<void> {
     const locationId = connectorDto.chargingStation?.locationId;
     if (!locationId) throw new Error('Location ID missing in Connector data');
@@ -153,7 +157,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastConnector(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     connectorData: Partial<ConnectorDTO>,
     method: HttpMethod,
     path: string,
