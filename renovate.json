@@ -9,5 +9,5 @@
   "dependencyDashboard": true,
   "branchPrefix": "renovate/",
   "commitMessagePrefix": "📦 chore(deps): ",
-  "baseBranches": ["main", "^rc-\\d+\\.\\d+\\.\\d+$"]
+  "baseBranchPatterns": ["next"]
 }
