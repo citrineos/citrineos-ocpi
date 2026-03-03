@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import type { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
-import { Context, Next } from 'koa';
+import type { Context, Next } from 'koa';
 
 export interface OIDCConfig {
   jwksUri: string;

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { Role } from './Role';
-import { BusinessDetailsSchema } from './BusinessDetails';
+import { Role } from './Role.js';
+import { BusinessDetailsSchema } from './BusinessDetails.js';
 
 export const ServerCredentialsRoleSchema = z.object({
   role: z.literal(Role.CPO),

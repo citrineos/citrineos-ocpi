@@ -3,28 +3,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  ITenantPartnerDto,
-  OCPIRegistration,
-  OCPIVersionNumber,
+  type TenantPartnerDto,
+  type Endpoint as BaseEndpoint,
+  type OCPIVersionNumberEnumType,
+  type CredentialRole,
+  type BusinessDetails,
+  type Image,
+  OCPIVersionNumberEnum,
 } from '@citrineos/base';
-import {
-  CredentialsDTO,
-  ImageCategory,
-  ImageType,
-  Role,
-  VersionNumber,
-} from '..';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { Endpoint } from '../model/Endpoint';
-import { InterfaceRole } from '../model/InterfaceRole';
-import { ModuleId } from '../model/ModuleId';
-import { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO';
-import { ImageDTO } from '../model/DTO/ImageDTO';
-import { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO';
+import type { CredentialsDTO } from '../index.js';
+import { ImageCategory, ImageType, Role, VersionNumber } from '../index.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
+import type { Endpoint } from '../model/Endpoint.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import { ModuleId } from '../model/ModuleId.js';
+import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
+import type { ImageDTO } from '../model/DTO/ImageDTO.js';
+import type { BusinessDetailsDTO } from '../model/DTO/BusinessDetailsDTO.js';
 
 export class RegistrationMapper {
   static tenantPartnerToCredentialsDto(
-    partner: ITenantPartnerDto,
+    partner: TenantPartnerDto,
   ): CredentialsDTO {
     const partnerProfile = partner.partnerProfileOCPI!;
     const tenant = partner.tenant!;
@@ -45,7 +44,7 @@ export class RegistrationMapper {
   static toCredentialsRoleDto(
     countryCode: string,
     partyId: string,
-    value: OCPIRegistration.CredentialRole,
+    value: CredentialRole,
   ): CredentialsRoleDTO {
     return {
       country_code: countryCode,
@@ -57,9 +56,7 @@ export class RegistrationMapper {
     };
   }
 
-  static toCredentialsRole(
-    value: CredentialsRoleDTO,
-  ): OCPIRegistration.CredentialRole {
+  static toCredentialsRole(value: CredentialsRoleDTO): CredentialRole {
     return {
       role: RegistrationMapper.toRoleString(value.role),
       businessDetails: RegistrationMapper.toRegistrationBusinessDetails(
@@ -68,9 +65,7 @@ export class RegistrationMapper {
     };
   }
 
-  static toBusinessDetails(
-    value: OCPIRegistration.BusinessDetails,
-  ): BusinessDetailsDTO {
+  static toBusinessDetails(value: BusinessDetails): BusinessDetailsDTO {
     return {
       name: value.name,
       website: value.website,
@@ -80,7 +75,7 @@ export class RegistrationMapper {
 
   static toRegistrationBusinessDetails(
     value: BusinessDetailsDTO,
-  ): OCPIRegistration.BusinessDetails {
+  ): BusinessDetails {
     return {
       name: value.name,
       website: value.website || undefined,
@@ -90,7 +85,7 @@ export class RegistrationMapper {
     };
   }
 
-  static toImage(value: OCPIRegistration.Image): ImageDTO {
+  static toImage(value: Image): ImageDTO {
     return {
       url: value.url,
       type: RegistrationMapper.toImageType(value.type),
@@ -100,7 +95,7 @@ export class RegistrationMapper {
     };
   }
 
-  static toRegistrationImage(value: ImageDTO): OCPIRegistration.Image {
+  static toRegistrationImage(value: ImageDTO): Image {
     return {
       url: value.url,
       type: value.type,
@@ -182,23 +177,25 @@ export class RegistrationMapper {
     }
   }
 
-  static toVersionNumber(value: OCPIVersionNumber): VersionNumber {
+  static toVersionNumber(value: OCPIVersionNumberEnumType): VersionNumber {
     switch (value) {
-      case OCPIVersionNumber.OCPI2_2_1:
+      case OCPIVersionNumberEnum['2.2.1']:
         return VersionNumber.TWO_DOT_TWO_DOT_ONE;
+      default:
+        throw new Error(`Unsupported OCPI version ${value}`);
     }
   }
 
-  static toOCPIVersionNumber(value: VersionNumber): OCPIVersionNumber {
+  static toOCPIVersionNumber(value: VersionNumber): OCPIVersionNumberEnumType {
     switch (value) {
       case VersionNumber.TWO_DOT_TWO_DOT_ONE:
-        return OCPIVersionNumber.OCPI2_2_1;
+        return OCPIVersionNumberEnum['2.2.1'];
       default:
         throw new Error(`Unsupported version ${value}`);
     }
   }
 
-  static toEndpoint(value: Endpoint): OCPIRegistration.Endpoint {
+  static toEndpoint(value: Endpoint): BaseEndpoint {
     return {
       identifier: RegistrationMapper.toEndpointIdentifier(value),
       url: value.url,
@@ -259,7 +256,10 @@ export class RegistrationMapper {
     );
   }
 
-  static toModuleAndRole(value: OCPIRegistration.Endpoint): { identifier: ModuleId, role: InterfaceRole } {
+  static toModuleAndRole(value: BaseEndpoint): {
+    identifier: ModuleId;
+    role: InterfaceRole;
+  } {
     switch (value.identifier) {
       case EndpointIdentifier.CREDENTIALS:
         return { identifier: ModuleId.Credentials, role: InterfaceRole.SENDER };
@@ -288,9 +288,15 @@ export class RegistrationMapper {
       case EndpointIdentifier.COMMANDS_RECEIVER:
         return { identifier: ModuleId.Commands, role: InterfaceRole.RECEIVER };
       case EndpointIdentifier.CHARGING_PROFILES_SENDER:
-        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.SENDER };
+        return {
+          identifier: ModuleId.ChargingProfiles,
+          role: InterfaceRole.SENDER,
+        };
       case EndpointIdentifier.CHARGING_PROFILES_RECEIVER:
-        return { identifier: ModuleId.ChargingProfiles, role: InterfaceRole.RECEIVER };
+        return {
+          identifier: ModuleId.ChargingProfiles,
+          role: InterfaceRole.RECEIVER,
+        };
       default:
         throw new Error(`Unknown endpoint identifier: ${value.identifier}`);
     }

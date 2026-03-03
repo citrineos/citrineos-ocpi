@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { ActiveChargingProfileSchema } from './ActiveChargingProfile';
+import { ActiveChargingProfileSchema } from './ActiveChargingProfile.js';
 
 export const ChargingprofilesActiveSchema = z.object({
   start_date_time: z.coerce.date(),

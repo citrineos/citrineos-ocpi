@@ -2,21 +2,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseBroadcaster } from './BaseBroadcaster';
+import { BaseBroadcaster } from './BaseBroadcaster.js';
 import { Service } from 'typedi';
-import { SessionsClientApi } from '../trigger/SessionsClientApi';
-import { ILogObj, Logger } from 'tslog';
-import { Session } from '../model/Session';
-import { ModuleId } from '../model/ModuleId';
-import { InterfaceRole } from '../model/InterfaceRole';
-import {
-  HttpMethod,
-  IMeterValueDto,
-  ITenantDto,
-  ITransactionDto,
-} from '@citrineos/base';
-import { SessionMapper } from '../mapper/SessionMapper';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse';
+import { SessionsClientApi } from '../trigger/SessionsClientApi.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { Session } from '../model/Session.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { InterfaceRole } from '../model/InterfaceRole.js';
+import type { MeterValueDto, TenantDto, TransactionDto } from '@citrineos/base';
+import { HttpMethod } from '@citrineos/base';
+import { SessionMapper } from '../mapper/index.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -29,8 +26,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPutSession(
-    tenant: ITenantDto,
-    transactionDto: ITransactionDto,
+    tenant: TenantDto,
+    transactionDto: TransactionDto,
   ): Promise<void> {
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
@@ -39,8 +36,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchSession(
-    tenant: ITenantDto,
-    transactionDto: Partial<ITransactionDto>,
+    tenant: TenantDto,
+    transactionDto: Partial<TransactionDto>,
   ): Promise<void> {
     const session =
       await this.sessionMapper.mapPartialTransactionToPartialSession(
@@ -51,8 +48,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   async broadcastPatchSessionChargingPeriod(
-    tenant: ITenantDto,
-    meterValueDto: IMeterValueDto,
+    tenant: TenantDto,
+    meterValueDto: MeterValueDto,
   ): Promise<void> {
     const charging_periods = await this.sessionMapper.getChargingPeriods(
       [meterValueDto],
@@ -68,7 +65,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
   }
 
   private async broadcastSession(
-    tenant: ITenantDto,
+    tenant: TenantDto,
     session: Partial<Session>,
     method: HttpMethod,
     path: string,

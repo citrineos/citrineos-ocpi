@@ -3,14 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import { ILogObj, Logger } from 'tslog';
-import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
-import { IChargingStationDto } from '@citrineos/base';
-import {
+import type {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import {
+  GET_CHARGING_STATION_BY_ID_QUERY,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { ChargingStationDto } from '@citrineos/base';
 
 @Service()
 export class LocationRepository {
@@ -21,7 +24,7 @@ export class LocationRepository {
 
   public async readChargingStationByStationId(
     stationId: string,
-  ): Promise<IChargingStationDto | undefined> {
+  ): Promise<ChargingStationDto | undefined> {
     this.logger.debug(`Getting charging station ${stationId}`);
 
     try {
@@ -35,7 +38,7 @@ export class LocationRepository {
           `Multiple charging stations found for id ${stationId}. Returning the first one. All entries: ${JSON.stringify(response.ChargingStations)}`,
         );
       }
-      return response.ChargingStations[0] as IChargingStationDto;
+      return response.ChargingStations[0] as ChargingStationDto;
     } catch (e) {
       this.logger.error('Error while fetching charging station', e);
       return undefined;

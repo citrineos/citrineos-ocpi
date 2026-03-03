@@ -4,17 +4,17 @@
 
 import { z } from 'zod';
 
-import { GeoLocationSchema } from '../GeoLocation';
-import { AdditionalGeoLocationSchema } from '../AdditionalGeoLocation';
-import { ParkingType } from '../ParkingType';
-import { EvseDTOSchema } from './EvseDTO';
-import { PublishTokenTypeSchema } from '../PublishTokenType';
-import { BusinessDetailsSchema } from '../BusinessDetails';
-import { Facilities } from '../Facilities';
-import { HoursSchema } from '../Hours';
-import { EnergyMixSchema } from '../EnergyMix';
-import { OcpiResponseSchema } from '../OcpiResponse';
-import { PaginatedResponseSchema } from '../PaginatedResponse';
+import { GeoLocationSchema } from '../GeoLocation.js';
+import { AdditionalGeoLocationSchema } from '../AdditionalGeoLocation.js';
+import { ParkingType } from '../ParkingType.js';
+import { EvseDTOSchema } from './EvseDTO.js';
+import { PublishTokenTypeSchema } from '../PublishTokenType.js';
+import { BusinessDetailsSchema } from '../BusinessDetails.js';
+import { Facilities } from '../Facilities.js';
+import { HoursSchema } from '../Hours.js';
+import { EnergyMixSchema } from '../EnergyMix.js';
+import { OcpiResponseSchema } from '../OcpiResponse.js';
+import { PaginatedResponseSchema } from '../PaginatedResponse.js';
 
 export const LocationDTOSchema = z.object({
   country_code: z.string().min(2).max(2),

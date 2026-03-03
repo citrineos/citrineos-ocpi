@@ -2,27 +2,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { KoaMiddlewareInterface } from 'routing-controllers';
+import type { KoaMiddlewareInterface } from 'routing-controllers';
 import { HttpHeader, HttpStatus, UnauthorizedException } from '@citrineos/base';
-import Container, { Service } from 'typedi';
+import { Container, Service } from 'typedi';
 import { Logger } from 'tslog';
-import { extractToken } from '../decorators/AuthToken';
-import { OcpiHttpHeader } from '../OcpiHttpHeader';
-import { BaseMiddleware } from './BaseMiddleware';
-import { ContentType } from '../ContentType';
-import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse';
-import { OcpiResponseStatusCode } from '../../model/OcpiResponse';
-import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
-import {
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
-  GET_TENANT_PARTNER_BY_SERVER_TOKEN,
-} from '../../graphql/queries/tenantPartner.queries';
-import {
-  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
-  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
+import { extractToken } from '../decorators/AuthToken.js';
+import { OcpiHttpHeader } from '../OcpiHttpHeader.js';
+import { BaseMiddleware } from './BaseMiddleware.js';
+import { ContentType } from '../ContentType.js';
+import { buildOcpiErrorResponse } from '../../model/OcpiErrorResponse.js';
+import { OcpiResponseStatusCode } from '../../model/OcpiResponse.js';
+import type {
   GetTenantPartnerByServerTokenQueryResult,
   GetTenantPartnerByServerTokenQueryVariables,
-} from '../../graphql/operations';
+} from '../../graphql/index.js';
+import {
+  GET_TENANT_PARTNER_BY_SERVER_TOKEN,
+  OcpiGraphqlClient,
+} from '../../graphql/index.js';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 const registrationModules: string[] = ['versions', 'credentials'];

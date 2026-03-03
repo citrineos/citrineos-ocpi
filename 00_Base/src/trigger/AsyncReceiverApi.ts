@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from './BaseClientApi.js';
 import { Service } from 'typedi';
-import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { HttpMethod, type PartnerProfile } from '@citrineos/base';
 
 @Service()
 export class AsyncReceiverApi extends BaseClientApi {
@@ -21,7 +19,7 @@ export class AsyncReceiverApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     url: string,
     body: any,
   ): Promise<OcpiEmptyResponse> {

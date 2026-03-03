@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IsNotEmpty, IsString } from 'class-validator';
-import { ConnectorVariableAttributes } from './ConnectorVariableAttributes';
+import { ConnectorVariableAttributes } from './ConnectorVariableAttributes.js';
 
 /**
  * Represents the EVSE variable attributes

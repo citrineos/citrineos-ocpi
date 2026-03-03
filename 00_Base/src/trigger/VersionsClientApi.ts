@@ -2,21 +2,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
+import { BaseClientApi } from './BaseClientApi.js';
 import { Service } from 'typedi';
-import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException';
-import {
-  VersionDetailsResponseDTO,
-  VersionDetailsResponseDTOSchema,
-} from '../model/DTO/VersionDetailsResponseDTO';
-import { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
-import { VersionsInterface } from '../model/EndpointIdentifier';
+import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException.js';
+import type { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO.js';
+import { VersionDetailsResponseDTOSchema } from '../model/DTO/VersionDetailsResponseDTO.js';
+import type { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO.js';
+import { HttpMethod, type PartnerProfile } from '@citrineos/base';
+import { VersionsInterface } from '../model/EndpointIdentifier.js';
 
 @Service()
 export class VersionsClientApi extends BaseClientApi {
   getUrl(
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     versionInterface = VersionsInterface.VERSIONS,
   ): string {
     switch (versionInterface) {
@@ -34,7 +32,7 @@ export class VersionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     url?: string,
   ): Promise<VersionListResponseDTO> {
     try {
@@ -61,7 +59,7 @@ export class VersionsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     url?: string,
   ): Promise<VersionDetailsResponseDTO> {
     try {
