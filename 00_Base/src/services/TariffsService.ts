@@ -3,27 +3,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { TariffDTO } from '../model/DTO/tariffs/TariffDTO';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse';
-import { OcpiHeaders } from '../model/OcpiHeaders';
-import { PaginatedParams } from '../controllers/param/PaginatedParams';
-import { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
-import {
-  // CREATE_OR_UPDATE_TARIFF_MUTATION,
-  // DELETE_TARIFF_MUTATION,
-  GET_TARIFF_BY_KEY_QUERY,
-  GET_TARIFFS_QUERY,
-} from '../graphql/queries/tariff.queries';
-import { TariffMapper } from '../mapper/TariffMapper';
-import { ITariffDto, ITenantDto } from '@citrineos/base';
-import {
+import type { TariffDTO } from '../model/DTO/tariffs/TariffDTO.js';
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
+import { OcpiHeaders } from '../model/OcpiHeaders.js';
+import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
+import type {
   GetTariffByKeyQueryResult,
   GetTariffByKeyQueryVariables,
   GetTariffsQueryResult,
   GetTariffsQueryVariables,
   Tariffs_Bool_Exp,
-} from '../graphql/operations';
+} from '../graphql/index.js';
+import {
+  GET_TARIFF_BY_KEY_QUERY,
+  GET_TARIFFS_QUERY,
+  OcpiGraphqlClient,
+} from '../graphql/index.js';
+import { TariffMapper } from '../mapper/index.js';
+import type { TariffDto } from '@citrineos/base';
 
 @Service()
 export class TariffsService {
@@ -40,7 +37,7 @@ export class TariffsService {
     >(GET_TARIFF_BY_KEY_QUERY, key);
     const tariff = result.Tariffs?.[0];
     if (tariff) {
-      return TariffMapper.map(tariff as ITariffDto);
+      return TariffMapper.map(tariff as TariffDto);
     }
     return undefined;
   }
@@ -76,7 +73,7 @@ export class TariffsService {
     >(GET_TARIFFS_QUERY, variables);
     const mappedTariffs: TariffDTO[] = [];
     for (const tariff of result.Tariffs) {
-      mappedTariffs.push(TariffMapper.map(tariff as ITariffDto));
+      mappedTariffs.push(TariffMapper.map(tariff as TariffDto));
     }
     return {
       data: mappedTariffs,

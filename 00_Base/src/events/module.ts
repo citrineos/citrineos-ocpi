@@ -3,20 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'reflect-metadata';
-import { ILogObj, Logger } from 'tslog';
-import {
-  AS_DTO_EVENT_HANDLER_METADATA,
-  IDtoEventHandlerDefinition,
-} from './AsDtoEventHandler';
-import {
-  DtoEventObjectType,
-  DtoEventType,
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
+import type { IDtoEventHandlerDefinition } from './AsDtoEventHandler.js';
+import { AS_DTO_EVENT_HANDLER_METADATA } from './AsDtoEventHandler.js';
+import type {
   IDtoEvent,
   IDtoEventReceiver,
   IDtoModule,
   IDtoPayload,
-} from './types';
-import { OcpiConfig } from '..';
+} from './types.js';
+import { DtoEventObjectType, DtoEventType } from './types.js';
+import type { OcpiConfig } from '../index.js';
 
 export abstract class AbstractDtoModule implements IDtoModule {
   protected _config: OcpiConfig;

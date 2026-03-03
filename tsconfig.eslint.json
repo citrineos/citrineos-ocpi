@@ -31,17 +31,23 @@
     "03_Modules/Tokens/**/*.json",
     "03_Modules/DtoRouter/**/*.ts",
     "03_Modules/DtoRouter/**/*.json",
+    "Server/**/*.ts",
+    "Server/**/*.cjs",
+    "Server/**/*.json",
     "mock-client/**/*.ts",
     "mock-client/**/*.json",
     "seeders/**/*.ts",
     "seeders/**/*.json",
     "migrations/**/*.ts",
     "migrations/**/*.json",
-    "./db.sync.ts"
+    "./db.sync.ts",
+    "./jest.config.js",
+    "./codegen.ts"
   ],
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
     "strict": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -50,6 +56,8 @@
     "declaration": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "verbatimModuleSyntax": true,
+    "allowJs": true
   }
 }

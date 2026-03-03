@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { OcpiParamsSchema } from '../../util/OcpiParams';
+import { OcpiParamsSchema } from '../../util/OcpiParams.js';
 
 export const GetSessionParamsSchema = OcpiParamsSchema.extend({
   sessionId: z.string().length(36),

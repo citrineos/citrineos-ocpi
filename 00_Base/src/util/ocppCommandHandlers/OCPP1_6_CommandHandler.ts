@@ -2,20 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  IChargingStationDto,
-  ITenantPartnerDto,
-  OCPP1_6,
-  OCPPVersion,
-} from '@citrineos/base';
-import { IRequestOptions } from 'typed-rest-client';
+import type { ChargingStationDto, TenantPartnerDto } from '@citrineos/base';
+import { OCPP1_6, OCPPVersion } from '@citrineos/base';
+import type { IRequestOptions } from 'typed-rest-client';
 import { Service } from 'typedi';
-import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from './base';
-import { StartSession } from '../../model/StartSession';
-import { IRequestQueryParams } from 'typed-rest-client/Interfaces';
-import { CommandType } from '../../model/CommandType';
-import { StopSession } from '../../model/StopSession';
-import { CommandResultType, UnlockConnector } from '../..';
+import { OCPP_COMMAND_HANDLER, OCPPCommandHandler } from './base.js';
+import type { StartSession } from '../../model/StartSession.js';
+import type { IRequestQueryParams } from 'typed-rest-client/Interfaces.js';
+import { CommandType } from '../../model/CommandType.js';
+import type { StopSession } from '../../model/StopSession.js';
+import type { UnlockConnector } from '../../index.js';
+import { CommandResultType } from '../../index.js';
 
 @Service({ id: OCPP_COMMAND_HANDLER, multiple: true })
 export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
@@ -23,8 +20,8 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
 
   public async sendStartSessionCommand(
     startSession: StartSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -56,8 +53,8 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
 
   public async sendStopSessionCommand(
     stopSession: StopSession,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -89,8 +86,8 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
 
   public async sendUnlockConnectorCommand(
     unlockConnector: UnlockConnector,
-    tenantPartner: ITenantPartnerDto,
-    chargingStation: IChargingStationDto,
+    tenantPartner: TenantPartnerDto,
+    chargingStation: ChargingStationDto,
     commandId: string,
   ): Promise<void> {
     const options: IRequestOptions = {
@@ -115,22 +112,26 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
       this.logger.error('UnlockConnector failed, Connector not found', {
         unlockConnector,
       });
-      this.commandsClientApi.postCommandResult(
-        tenantPartner.countryCode!,
-        tenantPartner.partyId!,
-        tenantPartner.tenant!.countryCode!,
-        tenantPartner.tenant!.partyId!,
-        tenantPartner.partnerProfileOCPI!,
-        unlockConnector.response_url,
-        {
-          result: CommandResultType.FAILED,
-          message: {
-            language: 'en',
-            text: 'Charging station communication failed',
+      this.commandsClientApi
+        .postCommandResult(
+          tenantPartner.countryCode!,
+          tenantPartner.partyId!,
+          tenantPartner.tenant!.countryCode!,
+          tenantPartner.tenant!.partyId!,
+          tenantPartner.partnerProfileOCPI!,
+          unlockConnector.response_url,
+          {
+            result: CommandResultType.FAILED,
+            message: {
+              language: 'en',
+              text: 'Charging station communication failed',
+            },
           },
-        },
-        commandId,
-      );
+          commandId,
+        )
+        .catch((error) => {
+          this.logger.error('Failed to post command result', { error });
+        });
       return;
     }
     const unlockConnectorRequest: OCPP1_6.UnlockConnectorRequest = {
@@ -147,7 +148,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   public async handleAsyncCommandResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     command: CommandType,
     responseUrl: string,
     response: any,
@@ -181,7 +182,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleRemoteStartTransactionResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,
@@ -233,7 +234,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleRemoteStopTransactionResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,
@@ -285,7 +286,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   }
 
   private async handleUnlockConnectorResponse(
-    tenantPartner: ITenantPartnerDto,
+    tenantPartner: TenantPartnerDto,
     responseUrl: string,
     response: any,
     commandId: string,

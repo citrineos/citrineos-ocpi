@@ -2,19 +2,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type { OcpiConfig } from '@citrineos/ocpi-base';
 import {
   CacheWrapper,
-  OcpiConfig,
   OcpiConfigToken,
   OcpiModule,
 } from '@citrineos/ocpi-base';
 
-import { CredentialsModuleApi } from './module/CredentialsModuleApi';
+import { CredentialsModuleApi } from './module/CredentialsModuleApi.js';
 import { Inject, Service } from 'typedi';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 
-export { CredentialsModuleApi } from './module/CredentialsModuleApi';
-export { ICredentialsModuleApi } from './module/ICredentialsModuleApi';
+export { CredentialsModuleApi } from './module/CredentialsModuleApi.js';
+export type { ICredentialsModuleApi } from './module/ICredentialsModuleApi.js';
 
 @Service()
 export class CredentialsModule implements OcpiModule {

@@ -2,14 +2,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ICommandsModuleApi } from './ICommandsModuleApi';
+import type { ICommandsModuleApi } from './ICommandsModuleApi.js';
 import { Body, Ctx, JsonController, Param, Post } from 'routing-controllers';
-import { HttpStatus, ITenantPartnerDto, OCPPVersion } from '@citrineos/base';
+import type { TenantPartnerDto } from '@citrineos/base';
+import { HttpStatus, OCPPVersion } from '@citrineos/base';
+import type {
+  CancelReservation,
+  OcpiCommandResponse,
+  ReserveNow,
+  StartSession,
+  StopSession,
+  UnlockConnector,
+} from '@citrineos/ocpi-base';
 import {
   AsAdminEndpoint,
   AsOcpiFunctionalEndpoint,
   BaseController,
-  CancelReservation,
   CancelReservationSchema,
   CancelReservationSchemaName,
   CommandExecutor,
@@ -21,19 +29,14 @@ import {
   generateMockForSchema,
   ModuleId,
   MultipleTypes,
-  OcpiCommandResponse,
-  ReserveNow,
   ReserveNowSchema,
   ReserveNowSchemaName,
   ResponseGenerator,
   ResponseSchema,
-  StartSession,
   StartSessionSchema,
   StartSessionSchemaName,
-  StopSession,
   StopSessionSchema,
   StopSessionSchemaName,
-  UnlockConnector,
   UnlockConnectorSchema,
   UnlockConnectorSchemaName,
   versionIdParam,
@@ -129,7 +132,7 @@ export class CommandsModuleApi
     return await this.commandsService.postCommand(
       commandType,
       validationResult.data,
-      ctx!.state!.tenantPartner as ITenantPartnerDto,
+      ctx!.state!.tenantPartner as TenantPartnerDto,
     );
   }
 

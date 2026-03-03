@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { TokenDTOSchema } from './DTO/TokenDTO';
-import { ResponseUrlSchema } from './ResponseUrl';
+import { TokenDTOSchema } from './DTO/TokenDTO.js';
+import { ResponseUrlSchema } from './ResponseUrl.js';
 
 export const StartSessionSchema = ResponseUrlSchema.extend({
   token: TokenDTOSchema,

@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ImageCategory } from './ImageCategory';
-import { ImageDTO } from './DTO/ImageDTO';
-import { ImageType } from './ImageType';
+import { ImageCategory } from './ImageCategory.js';
+import type { ImageDTO } from './DTO/ImageDTO.js';
+import { ImageType } from './ImageType.js';
 
 import { z } from 'zod';
 

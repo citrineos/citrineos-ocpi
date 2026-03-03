@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export * from './SessionBroadcaster';
-export * from './CdrBroadcaster';
-export * from './TariffsBroadcaster';
-export * from './LocationsBroadcaster';
+export * from './SessionBroadcaster.js';
+export * from './CdrBroadcaster.js';
+export * from './TariffsBroadcaster.js';
+export * from './LocationsBroadcaster.js';

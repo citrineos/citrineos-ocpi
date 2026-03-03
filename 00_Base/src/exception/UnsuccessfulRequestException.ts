@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IRestResponse } from 'typed-rest-client';
+import type { IRestResponse } from 'typed-rest-client';
 
 export class UnsuccessfulRequestException extends Error {
   iRestResponse?: IRestResponse<any>;

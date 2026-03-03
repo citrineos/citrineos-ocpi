@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { AuthorizationInfoAllowed } from './AuthorizationInfoAllowed';
-import { TokenDTOSchema } from './DTO/TokenDTO';
-import { DisplayTextSchema } from './DisplayText';
-import { LocationReferencesSchema } from './LocationReferences';
-import { OcpiResponseSchema } from './OcpiResponse';
+import { AuthorizationInfoAllowed } from './AuthorizationInfoAllowed.js';
+import { TokenDTOSchema } from './DTO/TokenDTO.js';
+import { DisplayTextSchema } from './DisplayText.js';
+import { LocationReferencesSchema } from './LocationReferences.js';
+import { OcpiResponseSchema } from './OcpiResponse.js';
 
 export const AuthorizationInfoSchema = z.object({
   allowed: z.nativeEnum(AuthorizationInfoAllowed),

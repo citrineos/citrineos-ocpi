@@ -3,16 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Koa from 'koa';
+import type { RoutingControllersOptions } from 'routing-controllers';
 import {
   getMetadataArgsStorage,
   MetadataArgsStorage,
-  RoutingControllersOptions,
   useKoaServer,
 } from 'routing-controllers';
-import { InfoObject, OpenAPIObject, ServerObject } from 'openapi3-ts';
+import type { InfoObject, OpenAPIObject, ServerObject } from 'openapi3-ts';
 import KoaLogger from 'koa-logger';
-import { routingControllersToSpec } from '../openapi-spec-helper';
-import { getAllSchemas } from '../openapi-spec-helper/schemas';
+import { routingControllersToSpec } from '../openapi-spec-helper/index.js';
+import { getAllSchemas } from '../openapi-spec-helper/schemas.js';
 import { koaSwagger } from 'koa2-swagger-ui';
 import { Server } from 'http';
 

@@ -1,21 +1,23 @@
 // SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
-  DtoEvent,
-  DtoEventObjectType,
-  DtoEventType,
+import type {
   IDtoEventSender,
   IDtoEventSubscriber,
   IDtoPayload,
   IDtoRouter,
   OcpiConfig,
+} from '@citrineos/ocpi-base';
+import {
+  DtoEvent,
+  DtoEventObjectType,
+  DtoEventType,
   OcpiConfigToken,
   PgNotifyEventSubscriber,
   RabbitMqDtoSender,
 } from '@citrineos/ocpi-base';
-import { ILogObj, Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
+import { Logger } from 'tslog';
 import { Inject, Service } from 'typedi';
 
 @Service()

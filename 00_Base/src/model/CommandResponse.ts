@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { DisplayTextSchema } from './DisplayText';
+import { DisplayTextSchema } from './DisplayText.js';
 import { z } from 'zod';
-import { OcpiResponseSchema } from './OcpiResponse';
+import { OcpiResponseSchema } from './OcpiResponse.js';
 
 export enum CommandResponseType {
   NOT_SUPPORTED = 'NOT_SUPPORTED',

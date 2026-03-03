@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Context } from 'vm';
+import type { Context } from 'vm';
 
 /**
  * Helper Base class for middlewares

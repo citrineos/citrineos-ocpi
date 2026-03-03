@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Constructable } from 'typedi';
+import type { Constructable } from 'typedi';
 
 export abstract class OcpiModule {
   public abstract getController(): Constructable<any>;

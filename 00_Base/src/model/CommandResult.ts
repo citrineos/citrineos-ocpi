@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { DisplayTextSchema } from './DisplayText';
-import { OcpiResponseSchema } from './OcpiResponse';
+import { DisplayTextSchema } from './DisplayText.js';
+import { OcpiResponseSchema } from './OcpiResponse.js';
 import { z } from 'zod';
 
 export enum CommandResultType {
