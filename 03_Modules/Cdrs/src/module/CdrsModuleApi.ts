@@ -25,7 +25,7 @@ import {
 
 import { Service } from 'typedi';
 
-const MOCK_PAGINATED_CDRS = generateMockOcpiPaginatedResponse(
+const MOCK_PAGINATED_CDRS = await generateMockOcpiPaginatedResponse(
   PaginatedCdrResponseSchema,
   PaginatedCdrResponseSchemaName,
   new PaginatedParams(),

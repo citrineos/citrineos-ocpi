@@ -43,6 +43,11 @@ import {
 } from '@citrineos/ocpi-base';
 import { Inject, Service } from 'typedi';
 
+const MOCK_COMMAND_RESPONSE = await generateMockForSchema(
+  CommandResponseSchema,
+  CommandResponseSchemaName,
+);
+
 @JsonController(`/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsModuleApi
@@ -62,10 +67,7 @@ export class CommandsModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        CommandResponseSchema,
-        CommandResponseSchemaName,
-      ),
+      success: MOCK_COMMAND_RESPONSE,
     },
   })
   async postCommand(

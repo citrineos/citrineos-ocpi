@@ -60,6 +60,15 @@ import {
 } from '@citrineos/ocpi-base';
 import type { ITokensModuleApi } from './ITokensModuleApi.js';
 
+const MOCK_TOKEN_RESPONSE = await generateMockForSchema(
+  TokenResponseSchema,
+  TokenResponseSchemaName,
+);
+const MOCK_EMPTY_RESPONSE = await generateMockForSchema(
+  OcpiEmptyResponseSchema,
+  OcpiEmptyResponseSchemaName,
+);
+
 const MockPutTokenBody = {
   country_code: 'MSP',
   party_id: 'US',
@@ -99,10 +108,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        TokenResponseSchema,
-        TokenResponseSchemaName,
-      ),
+      success: MOCK_TOKEN_RESPONSE,
     },
   })
   async getTokens(
@@ -145,10 +151,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        OcpiEmptyResponseSchema,
-        OcpiEmptyResponseSchemaName,
-      ),
+      success: MOCK_EMPTY_RESPONSE,
     },
   })
   async putToken(
@@ -197,10 +200,7 @@ export class TokensModuleApi
     statusCode: HttpStatus.OK,
     description: 'Successful response',
     examples: {
-      success: generateMockForSchema(
-        OcpiEmptyResponseSchema,
-        OcpiEmptyResponseSchemaName,
-      ),
+      success: MOCK_EMPTY_RESPONSE,
     },
   })
   async patchToken(

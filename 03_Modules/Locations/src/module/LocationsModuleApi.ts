@@ -39,20 +39,20 @@ import {
 import { Service } from 'typedi';
 import { HttpStatus } from '@citrineos/base';
 
-const MOCK_PAGINATED_LOCATION = generateMockOcpiPaginatedResponse(
+const MOCK_PAGINATED_LOCATION = await generateMockOcpiPaginatedResponse(
   PaginatedLocationResponseSchema,
   PaginatedLocationResponseSchemaName,
   new PaginatedParams(),
 );
-const MOCK_LOCATION = generateMockForSchema(
+const MOCK_LOCATION = await generateMockForSchema(
   LocationResponseSchema,
   LocationResponseSchemaName,
 );
-const MOCK_EVSE = generateMockForSchema(
+const MOCK_EVSE = await generateMockForSchema(
   EvseResponseSchema,
   EvseResponseSchemaName,
 );
-const MOCK_CONNECTOR = generateMockForSchema(
+const MOCK_CONNECTOR = await generateMockForSchema(
   ConnectorResponseSchema,
   ConnectorResponseSchemaName,
 );

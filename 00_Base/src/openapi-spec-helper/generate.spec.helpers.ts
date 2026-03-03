@@ -255,7 +255,7 @@ export function getRequestBody(route: IRoute): oa.RequestBodyObject | void {
     bodyMeta.method,
   );
 
-  if (example) {
+  if (example && typeof (example as any).then !== 'function') {
     content[ContentType.JSON]['example'] = example;
   }
 

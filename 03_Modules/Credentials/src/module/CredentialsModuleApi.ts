@@ -51,11 +51,11 @@ import {
   Put,
 } from 'routing-controllers';
 
-const MOCK_CREDENTIALS_RESPONSE = generateMockForSchema(
+const MOCK_CREDENTIALS_RESPONSE = await generateMockForSchema(
   CredentialsResponseSchema,
   CredentialsResponseSchemaName,
 );
-const MOCK_EMPTY = generateMockForSchema(
+const MOCK_EMPTY = await generateMockForSchema(
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
 );

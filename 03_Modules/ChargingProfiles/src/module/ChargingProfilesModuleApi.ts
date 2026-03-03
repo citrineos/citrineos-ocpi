@@ -34,6 +34,11 @@ import {
 
 import { Service } from 'typedi';
 
+const MOCK_CHARGING_PROFILE_RESPONSE = await generateMockForSchema(
+  ChargingProfileResponseSchema,
+  ChargingProfileResponseSchemaName,
+);
+
 @JsonController(`/:${versionIdParam}/${ModuleId.ChargingProfiles}`)
 @Service()
 export class ChargingProfilesModuleApi
@@ -53,10 +58,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          ChargingProfileResponseSchema,
-          ChargingProfileResponseSchemaName,
-        ),
+        success: MOCK_CHARGING_PROFILE_RESPONSE,
       },
     },
   )
@@ -81,10 +83,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          ChargingProfileResponseSchema,
-          ChargingProfileResponseSchemaName,
-        ),
+        success: MOCK_CHARGING_PROFILE_RESPONSE,
       },
     },
   )
@@ -104,10 +103,7 @@ export class ChargingProfilesModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          ChargingProfileResponseSchema,
-          ChargingProfileResponseSchemaName,
-        ),
+        success: MOCK_CHARGING_PROFILE_RESPONSE,
       },
     },
   )
