@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ResponseUrlSchema } from './ResponseUrl';
-import { TokenDTOSchema } from './DTO/TokenDTO';
+import { ResponseUrlSchema } from './ResponseUrl.js';
+import { TokenDTOSchema } from './DTO/TokenDTO.js';
 import { z } from 'zod';
 
 export const ReserveNowSchema = ResponseUrlSchema.extend({

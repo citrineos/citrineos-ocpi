@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { UseBefore } from 'routing-controllers';
-import { HttpExceptionHandler } from '../middleware/HttpExceptionHandler';
-import { OcpiConfigToken } from '../../config/ocpi.types';
-import { oidcAuthMiddleware } from '../security/oidcAuthMiddleware';
+import { HttpExceptionHandler } from '../middleware/HttpExceptionHandler.js';
+import { OcpiConfigToken } from '../../config/ocpi.types.js';
+import { oidcAuthMiddleware } from '../security/oidcAuthMiddleware.js';
 
 /**
  * Decorator to add necessary auth and exception handling for "admin" OCPI endpoints

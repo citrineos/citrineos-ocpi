@@ -2,43 +2,36 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ITariffsModuleApi } from './ITariffsModuleApi';
-
-import { Delete, Get, JsonController, Param, Put } from 'routing-controllers';
-
+import type { ITariffsModuleApi } from './ITariffsModuleApi.js';
+import { Get, JsonController } from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
+import type { PaginatedTariffResponse } from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
-  BodyWithSchema,
-  buildOcpiEmptyResponse,
-  buildOcpiErrorResponse,
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   FunctionalEndpointParams,
   generateMockForSchema,
   ModuleId,
-  OcpiEmptyResponse,
-  OcpiErrorResponse,
   OcpiHeaders,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
-  PaginatedTariffResponse,
   PaginatedTariffResponseSchema,
   PaginatedTariffResponseSchemaName,
-  PutTariffRequest,
-  PutTariffRequestSchema,
-  PutTariffRequestSchemaName,
   ResponseSchema,
-  TariffDTO,
   TariffsService,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
 } from '@citrineos/ocpi-base';
-
 import { Service } from 'typedi';
+
+const MOCK_PAGINATED_TARIFF = await generateMockForSchema(
+  PaginatedTariffResponseSchema,
+  PaginatedTariffResponseSchemaName,
+);
 
 @Service()
 @JsonController(`/:${versionIdParam}/${ModuleId.Tariffs}`)
@@ -62,10 +55,7 @@ export class TariffsModuleApi
       statusCode: HttpStatus.OK,
       description: 'Successful response',
       examples: {
-        success: generateMockForSchema(
-          PaginatedTariffResponseSchema,
-          PaginatedTariffResponseSchemaName,
-        ),
+        success: MOCK_PAGINATED_TARIFF,
       },
     },
   )

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { DisplayTextSchema } from './DisplayText';
-import { GeoLocationSchema } from './GeoLocation';
+import { DisplayTextSchema } from './DisplayText.js';
+import { GeoLocationSchema } from './GeoLocation.js';
 
 export const AdditionalGeoLocationSchema = GeoLocationSchema.extend({
   name: DisplayTextSchema.nullable().optional(),

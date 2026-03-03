@@ -2,29 +2,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/* eslint-disable */
-require('ts-node/register');
+import 'ts-node/register';
+import { getOcpiSystemConfig } from '@citrineos/ocpi-base';
+import { createLocalOcpiConfig } from './envs/local.js';
+import { createDockerOcpiConfig } from './envs/docker.js';
 
-module.exports = (async () => {
-  const { getOcpiSystemConfig } = require('./bootstrap.config');
-
+export default (async () => {
   try {
     let ocpiConfig;
     const env = process.env.OCPI_ENV || 'local'; // default to local
 
     if (env.toLowerCase() === 'local') {
-      const { createLocalOcpiConfig } = require('./envs/local');
       ocpiConfig = getOcpiSystemConfig(createLocalOcpiConfig());
-      console.log('[sequelize.bridge.config.js] Using LOCAL configuration');
+      console.log('[sequelize.bridge.config.ts] Using LOCAL configuration');
     } else {
-      const { createDockerOcpiConfig } = require('./envs/docker');
       ocpiConfig = getOcpiSystemConfig(createDockerOcpiConfig());
-      console.log('[sequelize.bridge.config.js] Using DOCKER configuration');
+      console.log('[sequelize.bridge.config.ts] Using DOCKER configuration');
     }
 
     const { host, port, database, username, password } = ocpiConfig.database;
 
-    console.log('[sequelize.bridge.config.js] Loaded config for DB:', {
+    console.log('[sequelize.bridge.config.ts] Loaded config for DB:', {
       host,
       port,
       database,
@@ -43,7 +41,7 @@ module.exports = (async () => {
     };
   } catch (error) {
     console.error(
-      '[sequelize.bridge.config.js] Failed to load bootstrap configuration:',
+      '[sequelize.bridge.config.ts] Failed to load bootstrap configuration:',
       error,
     );
     throw error;

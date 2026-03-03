@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { EnergySourcesSchema } from './EnergySources';
-import { EnvironmentalImpactSchema } from './EnvironmentalImpact';
+import { EnergySourcesSchema } from './EnergySources.js';
+import { EnvironmentalImpactSchema } from './EnvironmentalImpact.js';
 
 export const EnergyMixSchema = z.object({
   is_green_energy: z.boolean(),

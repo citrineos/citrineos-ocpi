@@ -3,18 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as oa from 'openapi3-ts';
-import {
-  MetadataArgsStorage,
-  RoutingControllersOptions,
-} from 'routing-controllers';
+import type { RoutingControllersOptions } from 'routing-controllers';
+import { MetadataArgsStorage } from 'routing-controllers';
 
-import { getSpec } from './generate.spec.helpers';
-import { parseRoutes } from './parse.metadata';
-import { mergeDeep } from './merge.deep';
+import { getSpec } from './generate.spec.helpers.js';
+import { parseRoutes } from './parse.metadata.js';
+import { mergeDeep } from './merge.deep.js';
 
-export * from './decorators';
-export * from './generate.spec.helpers';
-export * from './parse.metadata';
+export * from './decorators.js';
+export * from './generate.spec.helpers.js';
+export * from './parse.metadata.js';
 
 /**
  * Convert routing-controllers metadata into an OpenAPI specification. Similar to {@link defaultClassValidatorJsonSchemaOptions}

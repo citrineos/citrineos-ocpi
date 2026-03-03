@@ -3,25 +3,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Service } from 'typedi';
-import { OcpiLogger } from '../util/OcpiLogger';
-import { SingleTokenRequest, TokenDTO } from '../model/DTO/TokenDTO';
-import { TokenType } from '../model/TokenType';
-import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient';
+import { OcpiLogger } from '../util/OcpiLogger.js';
+import type { SingleTokenRequest, TokenDTO } from '../model/DTO/TokenDTO.js';
+import { TokenType } from '../model/TokenType.js';
 import {
-  UPDATE_TOKEN_MUTATION,
-  READ_AUTHORIZATION,
-  GET_AUTHORIZATION_BY_TOKEN,
-  GET_GROUP_AUTHORIZATION,
   CREATE_AUTHORIZATION_MUTATION,
-} from '../graphql/queries/token.queries';
-import { TokensMapper } from '../mapper/TokensMapper';
-import {
-  AuthorizationStatusType,
-  IAuthorizationDto,
-  IChargingStationDto,
-  IdTokenType,
-} from '@citrineos/base';
-import {
+  GET_AUTHORIZATION_BY_TOKEN,
+  GET_CHARGING_STATION_BY_ID_QUERY,
+  GET_GROUP_AUTHORIZATION,
+  GET_TENANT_PARTNER_BY_ID,
+  OcpiGraphqlClient,
+  READ_AUTHORIZATION,
+  UPDATE_TOKEN_MUTATION,
+} from '../graphql/index.js';
+import { TokensMapper } from '../mapper/index.js';
+import type { AuthorizationDto, ChargingStationDto } from '@citrineos/base';
+import { AuthorizationStatusEnum, IdTokenEnum } from '@citrineos/base';
+import type {
   Authorizations_Set_Input,
   CreateAuthorizationMutationResult,
   CreateAuthorizationMutationVariables,
@@ -37,21 +35,19 @@ import {
   ReadAuthorizationsQueryVariables,
   UpdateAuthorizationMutationResult,
   UpdateAuthorizationMutationVariables,
-} from '../graphql/operations';
-import { UnknownTokenException } from '../exception/UnknownTokenException';
-import { AdditionalInfoType } from '@citrineos/base/dist/ocpp/model/2.0.1';
-import { MissingParamException } from '../exception/MissingParamException';
-import {
+} from '../graphql/operations.js';
+import { UnknownTokenException } from '../exception/UnknownTokenException.js';
+import type { AdditionalInfoType } from '@citrineos/base/dist/ocpp/model/2.0.1/index.js';
+import { MissingParamException } from '../exception/MissingParamException.js';
+import type {
   RealTimeAuthorizationRequestBody,
   RealTimeAuthorizationResponse,
 } from '@citrineos/util';
-import { TokensClientApi } from '../trigger/TokensClientApi';
-import { InvalidParamException } from '../exception/InvalidParamException';
-import { GET_TENANT_PARTNER_BY_ID } from '../graphql/queries/tenantPartner.queries';
-import { GET_CHARGING_STATION_BY_ID_QUERY } from '../graphql/queries/chargingStation.queries';
-import { LocationReferences } from '../model/LocationReferences';
-import { UID_FORMAT } from '../model/DTO/EvseDTO';
-import { OcpiResponseStatusCode } from '../model/OcpiResponse';
+import { TokensClientApi } from '../trigger/TokensClientApi.js';
+import { InvalidParamException } from '../exception/InvalidParamException.js';
+import type { LocationReferences } from '../model/LocationReferences.js';
+import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
+import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
 
 @Service()
 export class TokensService {
@@ -86,7 +82,7 @@ export class TokensService {
         `Multiple authorizations found for token uid ${tokenRequest.uid}, type ${tokenRequest.type}, country code ${tokenRequest.country_code}, and party id ${tokenRequest.party_id}. Returning the first one. All entries: ${JSON.stringify(result.Authorizations)}`,
       );
     }
-    return TokensMapper.toDto(result.Authorizations[0] as IAuthorizationDto);
+    return TokensMapper.toDto(result.Authorizations[0] as AuthorizationDto);
   }
 
   async upsertToken(
@@ -134,7 +130,7 @@ export class TokensService {
       });
 
       return TokensMapper.toDto(
-        result.update_Authorizations?.returning[0] as IAuthorizationDto,
+        result.update_Authorizations?.returning[0] as AuthorizationDto,
       );
     } else {
       const timestamp = token.last_updated;
@@ -156,7 +152,7 @@ export class TokensService {
       });
 
       return TokensMapper.toDto(
-        result.insert_Authorizations_one as IAuthorizationDto,
+        result.insert_Authorizations_one as AuthorizationDto,
       );
     }
   }
@@ -224,7 +220,7 @@ export class TokensService {
       UpdateAuthorizationMutationVariables
     >(UPDATE_TOKEN_MUTATION, updateVariables);
     return TokensMapper.toDto(
-      result.update_Authorizations?.returning[0] as IAuthorizationDto,
+      result.update_Authorizations?.returning[0] as AuthorizationDto,
     );
   }
 
@@ -259,7 +255,7 @@ export class TokensService {
         );
       }
       const chargingStation = chargingStationResponse
-        .ChargingStations[0] as IChargingStationDto;
+        .ChargingStations[0] as ChargingStationDto;
       locationReferences = {
         location_id: realTimeAuthRequest.locationId.toString(),
         evse_uids: chargingStation.evses!.map((evse) =>
@@ -328,9 +324,9 @@ export class TokensService {
       tenantId,
       tenantPartnerId,
       idToken: groupId,
-      idTokenType: IdTokenType.Central,
+      idTokenType: IdTokenEnum.Central,
       additionalInfo: undefined,
-      status: AuthorizationStatusType.Invalid,
+      status: AuthorizationStatusEnum.Invalid,
       language1: undefined,
       groupAuthorizationId: undefined,
       createdAt: timestamp,

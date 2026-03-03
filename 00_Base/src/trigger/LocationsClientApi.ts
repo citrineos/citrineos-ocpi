@@ -2,38 +2,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseClientApi } from './BaseClientApi';
-import {
+import { BaseClientApi } from './BaseClientApi.js';
+import type {
   ConnectorDTO,
   ConnectorResponse,
-  ConnectorResponseSchema,
-} from '../model/DTO/ConnectorDTO';
-import {
+} from '../model/DTO/ConnectorDTO.js';
+import { ConnectorResponseSchema } from '../model/DTO/ConnectorDTO.js';
+import type {
   LocationDTO,
   LocationResponse,
-  LocationResponseSchema,
-} from '../model/DTO/LocationDTO';
-import {
-  OcpiEmptyResponse,
-  OcpiEmptyResponseSchema,
-} from '../model/OcpiEmptyResponse';
-import {
-  EvseDTO,
-  EvseResponse,
-  EvseResponseSchema,
-} from '../model/DTO/EvseDTO';
+} from '../model/DTO/LocationDTO.js';
+import { LocationResponseSchema } from '../model/DTO/LocationDTO.js';
+import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import type { EvseDTO, EvseResponse } from '../model/DTO/EvseDTO.js';
+import { EvseResponseSchema } from '../model/DTO/EvseDTO.js';
 import { Service } from 'typedi';
-import { ModuleId } from '../model/ModuleId';
-import { EndpointIdentifier } from '../model/EndpointIdentifier';
-import { HttpMethod, OCPIRegistration } from '@citrineos/base';
+import { ModuleId } from '../model/ModuleId.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
+import {
+  type Endpoint,
+  HttpMethod,
+  type PartnerProfile,
+} from '@citrineos/base';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Locations;
 
-  getUrl(partnerProfile: OCPIRegistration.PartnerProfile): string {
+  getUrl(partnerProfile: PartnerProfile): string {
     const url = partnerProfile.endpoints?.find(
-      (value: OCPIRegistration.Endpoint) =>
+      (value: Endpoint) =>
         value.identifier === EndpointIdentifier.LOCATIONS_RECEIVER,
     )?.url;
     if (!url) {
@@ -49,7 +48,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     evseUid: string,
     connectorId: string,
@@ -73,7 +72,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     evseUid: string,
   ): Promise<EvseResponse> {
@@ -96,7 +95,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
   ): Promise<LocationResponse> {
     const path = `${fromCountryCode}/${fromPartyId}/${locationId}`;
@@ -118,7 +117,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     evseUid: string,
     connectorId: string,
@@ -144,7 +143,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     evseUid: string,
     requestBody: Partial<EvseDTO>,
@@ -169,7 +168,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     requestBody: Partial<LocationDTO>,
   ): Promise<OcpiEmptyResponse> {
@@ -193,7 +192,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     evseUid: string,
     connectorId: string,
@@ -219,7 +218,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     evseUid: string,
     evse: EvseDTO,
@@ -244,7 +243,7 @@ export class LocationsClientApi extends BaseClientApi {
     fromPartyId: string,
     toCountryCode: string,
     toPartyId: string,
-    partnerProfile: OCPIRegistration.PartnerProfile,
+    partnerProfile: PartnerProfile,
     locationId: string,
     location: LocationDTO,
   ): Promise<OcpiEmptyResponse> {

@@ -2,17 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
+import type {
   OperationObject,
   ReferenceObject,
   ResponsesObject,
   SchemaObject,
 } from 'openapi3-ts';
 import 'reflect-metadata';
-import { IRoute } from './parse.metadata';
-import { getContentType, getStatusCode } from './generate.spec.helpers';
-import { mergeDeep } from './merge.deep';
-import { SchemaStore } from './schema.store';
+import type { IRoute } from './parse.metadata.js';
+import { getContentType, getStatusCode } from './generate.spec.helpers.js';
+import { mergeDeep } from './merge.deep.js';
+import { SchemaStore } from './schema.store.js';
 
 const OPEN_API_KEY = Symbol('routing-controllers-openapi:OpenAPI');
 

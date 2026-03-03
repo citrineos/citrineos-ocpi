@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { CredentialsDTOSchema } from './DTO/CredentialsDTO';
-import { OcpiResponseSchema, OcpiResponseStatusCode } from './OcpiResponse';
+import { CredentialsDTOSchema } from './DTO/CredentialsDTO.js';
+import { OcpiResponseSchema, OcpiResponseStatusCode } from './OcpiResponse.js';
 
 export const CredentialsResponseSchema =
   OcpiResponseSchema(CredentialsDTOSchema);
