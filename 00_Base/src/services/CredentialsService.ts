@@ -234,7 +234,7 @@ export class CredentialsService {
       RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner),
     );
     if (!credentialsResponse?.data?.token) {
-      throw new NotFoundError('EMSP did not return Token C in credentials response');
+      throw new NotFoundError('Token C not found in credentials response');
     }
     
     // Replace Token A with Token C (OCPI spec requirement)
