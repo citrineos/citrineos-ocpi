@@ -236,7 +236,7 @@ export class CredentialsService {
     if (!credentialsResponse?.data?.token) {
       throw new NotFoundError('Token C not found in credentials response');
     }
-    
+
     // Replace Token A with Token C (OCPI spec requirement)
     tenantPartner.partnerProfileOCPI!.credentials = {
       versionsUrl: credentialsResponse.data.url,
@@ -246,7 +246,7 @@ export class CredentialsService {
       credentialsResponse.data.roles.map((value: CredentialsRoleDTO) =>
         RegistrationMapper.toCredentialsRole(value),
       );
-    
+
     await this.ocpiGraphqlClient.request<
       UpdateTenantPartnerProfileMutationResult,
       UpdateTenantPartnerProfileMutationVariables
