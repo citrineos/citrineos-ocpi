@@ -49,7 +49,7 @@ import {
   Param,
   Post,
   Put,
-  QueryParam
+  QueryParam,
 } from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = await generateMockForSchema(
