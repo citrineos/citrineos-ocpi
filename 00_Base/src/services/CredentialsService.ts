@@ -233,6 +233,27 @@ export class CredentialsService {
       tenantPartner.partnerProfileOCPI!,
       RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner),
     );
+    if (!credentialsResponse?.data?.token) {
+      throw new NotFoundError('Token C not found in credentials response');
+    }
+
+    // Replace Token A with Token C (OCPI spec requirement)
+    tenantPartner.partnerProfileOCPI!.credentials = {
+      versionsUrl: credentialsResponse.data.url,
+      token: credentialsResponse.data.token,
+    };
+    tenantPartner.partnerProfileOCPI!.roles =
+      credentialsResponse.data.roles.map((value: CredentialsRoleDTO) =>
+        RegistrationMapper.toCredentialsRole(value),
+      );
+
+    await this.ocpiGraphqlClient.request<
+      UpdateTenantPartnerProfileMutationResult,
+      UpdateTenantPartnerProfileMutationVariables
+    >(UPDATE_TENANT_PARTNER_PROFILE, {
+      partnerId: tenantPartner.id!,
+      input: tenantPartner.partnerProfileOCPI!,
+    });
     return credentialsResponse.data as CredentialsDTO;
   }
 
