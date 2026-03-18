@@ -28,4 +28,4 @@ WORKDIR /usr/local/apps/citrineos-ocpi
 
 EXPOSE ${PORT}
 
-CMD ["npm", "run", "start-docker-cloud"]
+CMD ["npm", "run", "start-docker"]

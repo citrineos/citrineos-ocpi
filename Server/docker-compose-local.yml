@@ -49,6 +49,10 @@ services:
     #     condition: service_healthy
     #   amqp-broker:
     #     condition: service_healthy
+    volumes:
+      - ../../citrineos-ocpi:/usr/local/apps/citrineos-ocpi:cached
+      - /usr/local/apps/citrineos-ocpi/node_modules
+      - /usr/local/apps/citrineos-core/node_modules
     ports:
       - 8085:8085
       # - 9229:9229
