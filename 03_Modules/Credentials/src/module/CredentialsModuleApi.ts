@@ -49,6 +49,7 @@ import {
   Param,
   Post,
   Put,
+  QueryParam,
 } from 'routing-controllers';
 
 const MOCK_CREDENTIALS_RESPONSE = await generateMockForSchema(
@@ -195,9 +196,9 @@ export class CredentialsModuleApi
   })
   async registerCredentialsTokenA(
     @VersionNumberParam() versionNumber: VersionNumber,
-    @Param('versionUrl') versionUrl: string, // CPO version url
-    @Param('cpoCountryCode') cpoCountryCode: string,
-    @Param('cpoPartyId') cpoPartyId: string,
+    @QueryParam('versionUrl') versionUrl: string, // CPO version url
+    @QueryParam('cpoCountryCode') cpoCountryCode: string,
+    @QueryParam('cpoPartyId') cpoPartyId: string,
     @BodyWithSchema(CredentialsDTOSchema, CredentialsDTOSchemaName)
     credentials: CredentialsDTO, // Partner credentials
   ): Promise<CredentialsResponse> {
