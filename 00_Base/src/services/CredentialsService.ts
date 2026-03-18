@@ -100,6 +100,10 @@ export class CredentialsService {
         `TenantPartner expects ${partner.partnerProfileOCPI!.version.version}, received ${versionNumber}`,
       );
     }
+    partner.partnerProfileOCPI!.credentials = {
+      versionsUrl: credentials.url,
+      token: credentials.token,
+    };
     const tenantPartner = await this.getVersionDetails(
       partner,
       credentials.url,
@@ -107,10 +111,6 @@ export class CredentialsService {
 
     const newServerToken = uuidv4();
     tenantPartner.partnerProfileOCPI!.serverCredentials.token = newServerToken;
-    tenantPartner.partnerProfileOCPI!.credentials = {
-      versionsUrl: credentials.url,
-      token: credentials.token,
-    };
     tenantPartner.partnerProfileOCPI!.roles = credentials.roles.map(
       (value: CredentialsRoleDTO) =>
         RegistrationMapper.toCredentialsRole(value),
