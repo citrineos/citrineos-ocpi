@@ -18,9 +18,9 @@ export class ChargingProfilesService {
   // constructor(private commandExecutor: CommandExecutor) {}
 
   async getActiveChargingProfile(
-    sessionId: string,
-    duration: number,
-    responseUrl: string,
+    _sessionId: string,
+    _duration: number,
+    _responseUrl: string,
   ): Promise<ChargingProfileResponse> {
     try {
       // await this.commandExecutor.executeGetActiveChargingProfile(
@@ -54,8 +54,8 @@ export class ChargingProfilesService {
   }
 
   async deleteChargingProfile(
-    sessionId: string,
-    responseUrl: string,
+    _sessionId: string,
+    _responseUrl: string,
   ): Promise<ChargingProfileResponse> {
     try {
       // await this.commandExecutor.executeClearChargingProfile(
@@ -88,8 +88,8 @@ export class ChargingProfilesService {
   }
 
   async putChargingProfile(
-    sessionId: string,
-    setChargingProfile: SetChargingProfile,
+    _sessionId: string,
+    _setChargingProfile: SetChargingProfile,
   ): Promise<ChargingProfileResponse> {
     try {
       // await this.commandExecutor.executePutChargingProfile(

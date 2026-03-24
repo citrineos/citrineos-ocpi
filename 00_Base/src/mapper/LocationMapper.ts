@@ -415,7 +415,6 @@ export class ConnectorMapper {
   static fromPartialGraphql(
     connector: Partial<ConnectorDto>,
   ): Partial<ConnectorDTO> {
-    const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
       standard: ConnectorMapper.mapConnectorType(connector.type),
       format: ConnectorMapper.mapConnectorFormat(connector.format),

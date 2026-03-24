@@ -58,8 +58,8 @@ export class DtoRouter implements IDtoRouter {
   }
 
   async shutdown(): Promise<void> {
-    this._subscriber.shutdown();
-    this._sender.shutdown();
+    await this._subscriber.shutdown();
+    await this._sender.shutdown();
   }
 
   async subscribe<T extends IDtoPayload>(
@@ -67,7 +67,7 @@ export class DtoRouter implements IDtoRouter {
     eventType: DtoEventType,
     objectType: DtoEventObjectType,
   ): Promise<boolean> {
-    this._subscriber.subscribe(
+    await this._subscriber.subscribe(
       eventId,
       async (event: { eventType: DtoEventType; payload: T }) => {
         this._logger.info(

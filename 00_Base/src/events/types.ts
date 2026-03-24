@@ -201,7 +201,7 @@ export interface IDtoRouter {
   /**
    * Subscribes to Dto events
    */
-  subscribe<T extends IDtoPayload>(
+  subscribe<_T extends IDtoPayload>(
     eventId: string,
     eventType: DtoEventType,
     objectType: DtoEventObjectType,

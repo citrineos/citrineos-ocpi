@@ -44,7 +44,7 @@ services:
       DB_HOST: 'ocpp-db'
       AMQP_URL: 'amqp://guest:guest@amqp-broker:5672'
       AMQP_EXCHANGE: 'citrineos'
-      CITRINEOS_OCPI_GRAPHQL_ENDPOINT: 'http://172.17.0.1:8080/v1/graphql'
+      CITRINEOS_OCPI_GRAPHQL_ENDPOINT: 'http://172.17.0.1:8090/v1/graphql'
       CITRINEOS_OCPI_GRAPHQL_HEADERS: '{"x-hasura-admin-secret":"password"}'
     # depends_on:
     #   ocpp-db:

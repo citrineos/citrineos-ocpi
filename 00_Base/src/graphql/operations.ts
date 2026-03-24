@@ -454,6 +454,68 @@ export type GetTariffsQueryResult = {
   }>
 };
 
+export type CreateOrUpdateTariffMutationVariables = Exact<{
+  object: any;
+}>;
+
+export type CreateOrUpdateTariffMutationResult = {
+  insert_Tariffs_one?: {
+    id: number,
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    updatedAt: any,
+    tenant: {
+      countryCode: string,
+      partyId: string
+    }
+  } | null
+};
+
+export type DeleteTariffMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+export type DeleteTariffMutationResult = {
+  delete_Tariffs_by_pk?: {
+    id: number
+  } | null
+};
+
+export type GetTariffByOcpiIdQueryVariables = Exact<{
+  tariffId: Scalars['Int']['input'];
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+}>;
+
+export type GetTariffByOcpiIdQueryResult = {
+  Tariffs: Array<{
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    id: number,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    updatedAt: any,
+    tenant: {
+      countryCode: string,
+      partyId: string
+    }
+  }>
+};
+
 export type UpdateTenantPartnerProfileMutationVariables = Exact<{
   partnerId: Scalars['Int']['input'];
   input: Scalars['jsonb']['input'];

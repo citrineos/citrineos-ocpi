@@ -2,10 +2,38 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/**
- * Interface for the Tariffs module API.
- * This interface can be extended to define specific method contracts
- * or augmented using TypeScript declaration merging.
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ITariffsModuleApi {}
+import type {
+  OcpiEmptyResponse,
+  PaginatedTariffResponse,
+  PutTariffRequest,
+  VersionNumber,
+} from '@citrineos/ocpi-base';
+
+export interface ITariffsModuleApi {
+  getTariffs(
+    version: VersionNumber,
+    ...args: any[]
+  ): Promise<PaginatedTariffResponse>;
+
+  getTariffById(
+    version: VersionNumber,
+    countryCode: string,
+    partyId: string,
+    tariffId: string,
+  ): Promise<any>;
+
+  putTariff(
+    version: VersionNumber,
+    countryCode: string,
+    partyId: string,
+    tariffId: string,
+    tariffBody: PutTariffRequest,
+  ): Promise<any>;
+
+  deleteTariff(
+    version: VersionNumber,
+    countryCode: string,
+    partyId: string,
+    tariffId: string,
+  ): Promise<OcpiEmptyResponse>;
+}

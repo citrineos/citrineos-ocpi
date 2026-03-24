@@ -16,6 +16,7 @@ import { MissingParamException } from '../../exception/MissingParamException.js'
 import { AlreadyRegisteredException } from '../../exception/AlreadyRegisteredException.js';
 import { NotRegisteredException } from '../../exception/NotRegisteredException.js';
 import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException.js';
+import { NotFoundException } from '../../exception/NotFoundException.js';
 import { ContentType } from '../ContentType.js';
 
 /**
@@ -50,6 +51,15 @@ export class OcpiExceptionHandler implements KoaMiddlewareInterface {
               buildOcpiErrorResponse(
                 OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
                 'Credentials not found',
+              ),
+            );
+            break;
+          case NotFoundException.name:
+            context.status = HttpStatus.NOT_FOUND;
+            context.body = JSON.stringify(
+              buildOcpiErrorResponse(
+                OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
+                (err as any).message,
               ),
             );
             break;

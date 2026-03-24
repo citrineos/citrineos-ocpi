@@ -69,7 +69,7 @@ const MOCK_EMPTY_RESPONSE = await generateMockForSchema(
   OcpiEmptyResponseSchemaName,
 );
 
-const MockPutTokenBody = {
+const _MockPutTokenBody = {
   country_code: 'MSP',
   party_id: 'US',
   uid: 'SOMEUID',

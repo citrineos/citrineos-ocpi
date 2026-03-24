@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TariffDTO } from '../model/DTO/tariffs/TariffDTO.js';
+import type { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest.js';
 import { TariffDimensionType } from '../model/TariffDimensionType.js';
 import type { TariffElement } from '../model/TariffElement.js';
 import { TariffType } from '../model/TariffType.js';
@@ -13,15 +14,29 @@ export class TariffMapper {
   constructor() {}
 
   public static map(coreTariff: Partial<TariffDto>): TariffDTO {
+    let tariffAltText: Array<{ language: string; text: string }> | undefined;
+    if (coreTariff.tariffAltText) {
+      if (typeof coreTariff.tariffAltText === 'string') {
+        try {
+          tariffAltText = JSON.parse(coreTariff.tariffAltText);
+        } catch {
+          tariffAltText = undefined;
+        }
+      } else if (Array.isArray(coreTariff.tariffAltText)) {
+        tariffAltText = coreTariff.tariffAltText as Array<{
+          language: string;
+          text: string;
+        }>;
+      }
+    }
+
     return {
       id: coreTariff.id!.toString(),
       country_code: coreTariff.tenant!.countryCode!,
       party_id: coreTariff.tenant!.partyId!,
       currency: coreTariff.currency!,
       type: TariffType.AD_HOC_PAYMENT,
-      // tariff_alt_text: coreTariff.tariffAltText
-      //   ? (coreTariff.tariffAltText[0] as any)?.text
-      //   : undefined,
+      tariff_alt_text: tariffAltText,
       tariff_alt_url: undefined,
       min_price: undefined,
       max_price: undefined,
@@ -32,6 +47,7 @@ export class TariffMapper {
       last_updated: coreTariff.updatedAt!,
     };
   }
+
   private static getTariffElement(
     coreTariff: Partial<TariffDto>,
   ): TariffElement {
@@ -68,12 +84,11 @@ export class TariffMapper {
     };
   }
 
-  // TODO make flexible for more complicated tariffs
-  private mapTariffElementToCoreTariff(
+  public static mapElementsToCoreTariff(
     tariffElements: TariffElement[],
   ): Partial<TariffDto> {
     const tariffElement = tariffElements[0];
-    const priceComponents = tariffElement.price_components ?? [];
+    const priceComponents = tariffElement?.price_components ?? [];
     const pricePerKwh =
       priceComponents.find((pc) => pc.type === TariffDimensionType.ENERGY)
         ?.price ?? 0;
@@ -91,5 +106,24 @@ export class TariffMapper {
       pricePerSession,
       taxRate,
     };
+  }
+
+  public static mapFromOcpi(
+    tariff: PutTariffRequest,
+    tenantId?: number,
+  ): Partial<TariffDto> {
+    const coreFields = TariffMapper.mapElementsToCoreTariff(tariff.elements);
+    const now = new Date().toISOString();
+    return {
+      id: parseInt(tariff.id, 10),
+      currency: tariff.currency,
+      tariffAltText: tariff.tariff_alt_text
+        ? JSON.stringify(tariff.tariff_alt_text)
+        : (undefined as any),
+      createdAt: now,
+      updatedAt: now,
+      ...(tenantId !== undefined && { tenantId }),
+      ...coreFields,
+    } as Partial<TariffDto>;
   }
 }

@@ -117,24 +117,60 @@ export default {
       {} as QueryOptions,
     );
 
-    // Create Tariff
-    const tariff = {
-      id: 1,
-      stationId: 'cp001',
-      connectorId: 1,
-      currency: 'USD',
-      pricePerKwh: 0.3,
-      pricePerMin: 0.05,
-      pricePerSession: 1.5,
-      authorizationAmount: 25.0,
-      paymentFee: 0.35,
-      taxRate: 0.0875, // 8.75% tax rate
-      tenantId: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    // Create Tariffs
+    const tariffs = [
+      {
+        id: 1,
+        stationId: 'cp001',
+        connectorId: 1,
+        currency: 'USD',
+        pricePerKwh: 0.3,
+        pricePerMin: 0.05,
+        pricePerSession: 1.5,
+        authorizationAmount: 25.0,
+        paymentFee: 0.35,
+        taxRate: 0.0875,
+        tenantId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        stationId: 'cp001',
+        connectorId: 1,
+        currency: 'EUR',
+        pricePerKwh: 0.25,
+        pricePerMin: null,
+        pricePerSession: 2.0,
+        authorizationAmount: 20.0,
+        paymentFee: 0.5,
+        taxRate: 0.2,
+        tariffAltText: JSON.stringify([
+          { language: 'en', text: 'Flat energy tariff' },
+          { language: 'fr', text: 'Tarif énergie fixe' },
+        ]),
+        tenantId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        stationId: 'cp001',
+        connectorId: 1,
+        currency: 'USD',
+        pricePerKwh: 0.4,
+        pricePerMin: null,
+        pricePerSession: null,
+        authorizationAmount: null,
+        paymentFee: null,
+        taxRate: 0.1,
+        tenantId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
 
-    await queryInterface.bulkInsert('Tariffs', [tariff], {} as QueryOptions);
+    await queryInterface.bulkInsert('Tariffs', tariffs, {} as QueryOptions);
 
     // Create Authorization with Real-Time Auth enabled
     const authorization = {
@@ -182,7 +218,11 @@ export default {
       { id: 1 },
       {} as QueryOptions,
     );
-    await queryInterface.bulkDelete('Tariffs', { id: 1 }, {} as QueryOptions);
+    await queryInterface.bulkDelete(
+      'Tariffs',
+      { id: [1, 2, 3] },
+      {} as QueryOptions,
+    );
     await queryInterface.bulkDelete(
       'Connectors',
       { id: 1 },

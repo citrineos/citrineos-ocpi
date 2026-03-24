@@ -4,7 +4,12 @@
     "rootDir": "./",
     "outDir": "./dist"
   },
-  "exclude": ["./dist/**/*", "**/node_modules/**"],
+  "exclude": [
+    "./dist/**/*",
+    "**/node_modules/**",
+    "**/__tests__/**",
+    "**/*.test.ts"
+  ],
   "references": [
     {
       "path": "./Server"

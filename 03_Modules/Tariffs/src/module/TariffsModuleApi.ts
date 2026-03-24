@@ -3,25 +3,44 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ITariffsModuleApi } from './ITariffsModuleApi.js';
-import { Get, JsonController } from 'routing-controllers';
+import {
+  Ctx,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Put,
+} from 'routing-controllers';
 import { HttpStatus } from '@citrineos/base';
-import type { PaginatedTariffResponse } from '@citrineos/ocpi-base';
+import type {
+  OcpiEmptyResponse,
+  PaginatedTariffResponse,
+  PutTariffRequest,
+  TariffDTO,
+} from '@citrineos/ocpi-base';
 import {
   AsOcpiFunctionalEndpoint,
   BaseController,
+  BodyWithSchema,
+  buildOcpiEmptyResponse,
+  buildOcpiResponse,
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   FunctionalEndpointParams,
   generateMockForSchema,
   ModuleId,
+  NotFoundException,
   OcpiHeaders,
   OcpiResponseStatusCode,
   Paginated,
   PaginatedParams,
   PaginatedTariffResponseSchema,
   PaginatedTariffResponseSchemaName,
+  PutTariffRequestSchema,
+  PutTariffRequestSchemaName,
   ResponseSchema,
   TariffsService,
+  TariffsBroadcaster,
   versionIdParam,
   VersionNumber,
   VersionNumberParam,
@@ -41,11 +60,14 @@ export class TariffsModuleApi
 {
   constructor(
     readonly tariffService: TariffsService,
-    // readonly tariffsPublisher: TariffsBroadcaster,
+    readonly tariffsBroadcaster: TariffsBroadcaster,
   ) {
     super();
   }
 
+  /**
+   * Sender Interface: GET /tariffs (paginated list)
+   */
   @Get()
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(
@@ -64,9 +86,6 @@ export class TariffsModuleApi
     @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Paginated() paginationParams?: PaginatedParams,
   ): Promise<PaginatedTariffResponse> {
-    console.log(
-      `GET /tariffs ${JSON.stringify(paginationParams)}, ${JSON.stringify(ocpiHeaders)}`,
-    );
     const { data, count } = await this.tariffService.getTariffs(
       ocpiHeaders,
       paginationParams,
@@ -82,52 +101,79 @@ export class TariffsModuleApi
     };
   }
 
-  // TODO: auth & reorganize
-  // @Post(`/tariff-broadcasts`)
-  // async broadcastTariff(
-  //   @Body()
-  //   broadcastRequest: TariffKey & {
-  //     eventType: 'created' | 'updated' | 'deleted';
-  //   },
-  // ): Promise<void> {
-  //   console.log(`POST /tariff-broadcasts ${JSON.stringify(broadcastRequest)}`);
+  /**
+   * Receiver Interface: GET /:country_code/:party_id/:tariff_id
+   */
+  @Get('/:country_code/:party_id/:tariff_id')
+  @AsOcpiFunctionalEndpoint()
+  async getTariffById(
+    @VersionNumberParam() version: VersionNumber,
+    @Param('country_code') countryCode: string,
+    @Param('party_id') partyId: string,
+    @Param('tariff_id') tariffId: string,
+  ) {
+    const tariff = await this.tariffService.getTariffByOcpiId(
+      countryCode,
+      partyId,
+      tariffId,
+    );
 
-  //   switch (broadcastRequest.eventType) {
-  //     case 'deleted':
-  //       return this.tariffsPublisher.broadcastDeletionByKey(broadcastRequest);
-  //     case 'updated':
-  //       return this.tariffsPublisher.broadcastByKey(broadcastRequest);
-  //     case 'created':
-  //       return this.tariffsPublisher.broadcastByKey(broadcastRequest);
-  //     default:
-  //       throw new Error(`Unsupported event type ${broadcastRequest.eventType}`);
-  //   }
-  // }
+    if (!tariff) {
+      throw new NotFoundException(
+        `Tariff ${tariffId} not found for ${countryCode}/${partyId}`,
+      );
+    }
+
+    return buildOcpiResponse<TariffDTO>(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      tariff,
+    );
+  }
 
   /**
-   * Admin Endpoints
+   * Receiver Interface: PUT /:country_code/:party_id/:tariff_id
    */
+  @Put('/:country_code/:party_id/:tariff_id')
+  @AsOcpiFunctionalEndpoint()
+  async putTariff(
+    @VersionNumberParam() version: VersionNumber,
+    @Param('country_code') countryCode: string,
+    @Param('party_id') partyId: string,
+    @Param('tariff_id') tariffId: string,
+    @BodyWithSchema(PutTariffRequestSchema, PutTariffRequestSchemaName)
+    tariffBody: PutTariffRequest,
+    @Ctx() ctx?: any,
+  ) {
+    const tenantId: number | undefined = ctx?.state?.tenantPartner?.tenant?.id;
+    const tariffRequest: PutTariffRequest = {
+      ...tariffBody,
+      id: tariffId,
+      country_code: countryCode,
+      party_id: partyId,
+    };
+    const result = await this.tariffService.createOrUpdateTariff(
+      tariffRequest,
+      tenantId,
+    );
 
-  // @Put()
-  // async updateTariff(
-  //   @Body(PutTariffRequestSchema, PutTariffRequestSchemaName)
-  //   tariffDto: PutTariffRequest,
-  // ): Promise<TariffDTO> {
-  //   return await this.tariffService.createOrUpdateTariff(tariffDto);
-  // }
+    return buildOcpiResponse<TariffDTO>(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      result,
+    );
+  }
 
-  // @Delete('/:tariffId')
-  // async deleteTariff(
-  //   @Param('tariffId') tariffId: number,
-  // ): Promise<OcpiEmptyResponse | OcpiErrorResponse> {
-  //   if (!tariffId) {
-  //     return buildOcpiErrorResponse(
-  //       OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
-  //       'No tariff id provided',
-  //     );
-  //   }
-
-  //   await this.tariffService.deleteTariff(tariffId);
-  //   return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
-  // }
+  /**
+   * Receiver Interface: DELETE /:country_code/:party_id/:tariff_id
+   */
+  @Delete('/:country_code/:party_id/:tariff_id')
+  @AsOcpiFunctionalEndpoint()
+  async deleteTariff(
+    @VersionNumberParam() version: VersionNumber,
+    @Param('country_code') countryCode: string,
+    @Param('party_id') partyId: string,
+    @Param('tariff_id') tariffId: string,
+  ): Promise<OcpiEmptyResponse> {
+    await this.tariffService.deleteTariff(countryCode, partyId, tariffId);
+    return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
+  }
 }
