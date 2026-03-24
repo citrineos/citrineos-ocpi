@@ -20,7 +20,10 @@ import type {
   RealTimeAuthorizationResponse,
 } from '@citrineos/util';
 import type {
+  AuthorizationInfoResponse,
+  LocationReferences,
   OcpiEmptyResponse,
+  PaginatedTokenResponse,
   SingleTokenRequest,
   TokenDTO,
   TokenResponse,
@@ -28,20 +31,30 @@ import type {
 import {
   AsAdminEndpoint,
   AsOcpiFunctionalEndpoint,
+  AuthorizationInfoResponseSchema,
+  AuthorizationInfoResponseSchemaName,
   BaseController,
   BodyWithExample,
   BodyWithSchema,
   buildOcpiEmptyResponse,
   buildOcpiResponse,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
   EnumQueryParam,
   FunctionalEndpointParams,
   generateMockForSchema,
   InvalidParamException,
+  LocationReferencesSchema,
+  LocationReferencesSchemaName,
   ModuleId,
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
   OcpiHeaders,
   OcpiResponseStatusCode,
+  Paginated,
+  PaginatedParams,
+  PaginatedTokenResponseSchema,
+  PaginatedTokenResponseSchemaName,
   ResponseSchema,
   TokenDTOSchema,
   TokenDTOSchemaName,
@@ -67,6 +80,14 @@ const MOCK_TOKEN_RESPONSE = await generateMockForSchema(
 const MOCK_EMPTY_RESPONSE = await generateMockForSchema(
   OcpiEmptyResponseSchema,
   OcpiEmptyResponseSchemaName,
+);
+const MOCK_PAGINATED_TOKEN = await generateMockForSchema(
+  PaginatedTokenResponseSchema,
+  PaginatedTokenResponseSchemaName,
+);
+const MOCK_AUTH_INFO_RESPONSE = await generateMockForSchema(
+  AuthorizationInfoResponseSchema,
+  AuthorizationInfoResponseSchemaName,
 );
 
 const _MockPutTokenBody = {
@@ -102,6 +123,46 @@ export class TokensModuleApi
     super();
   }
 
+  /**
+   * Sender Interface: GET /tokens (paginated list)
+   */
+  @Get()
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(
+    PaginatedTokenResponseSchema,
+    PaginatedTokenResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful response',
+      examples: {
+        success: MOCK_PAGINATED_TOKEN,
+      },
+    },
+  )
+  async getTokensPaginated(
+    @VersionNumberParam() version: VersionNumber,
+    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
+    @Paginated() paginationParams?: PaginatedParams,
+  ): Promise<PaginatedTokenResponse> {
+    this.logger.info('getTokensPaginated');
+    const { data, count } = await this.tokensService.getTokensPaginated(
+      ocpiHeaders,
+      paginationParams,
+    );
+
+    return {
+      data,
+      total: count,
+      offset: paginationParams?.offset || DEFAULT_OFFSET,
+      limit: paginationParams?.limit || DEFAULT_LIMIT,
+      status_code: OcpiResponseStatusCode.GenericSuccessCode,
+      timestamp: new Date(),
+    };
+  }
+
+  /**
+   * Receiver Interface: GET /:countryCode/:partyId/:tokenId
+   */
   @Get('/:countryCode/:partyId/:tokenId')
   @AsOcpiFunctionalEndpoint()
   @ResponseSchema(TokenResponseSchema, TokenResponseSchemaName, {
@@ -241,6 +302,52 @@ export class TokensModuleApi
     );
 
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
+  }
+
+  /**
+   * Sender Interface: POST /:tokenUid/authorize (real-time authorization)
+   */
+  @Post('/:tokenUid/authorize')
+  @AsOcpiFunctionalEndpoint()
+  @ResponseSchema(
+    AuthorizationInfoResponseSchema,
+    AuthorizationInfoResponseSchemaName,
+    {
+      statusCode: HttpStatus.OK,
+      description: 'Successful authorization response',
+      examples: {
+        success: MOCK_AUTH_INFO_RESPONSE,
+      },
+    },
+  )
+  async postAuthorize(
+    @VersionNumberParam() version: VersionNumber,
+    @Param('tokenUid') tokenUid: string,
+    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
+    @EnumQueryParam('type', TokenTypeSchema, TokenTypeSchemaName)
+    type?: TokenType,
+    @BodyWithSchema(LocationReferencesSchema, LocationReferencesSchemaName)
+    locationReferences?: LocationReferences,
+    @Ctx() ctx?: any,
+  ): Promise<AuthorizationInfoResponse> {
+    this.logger.info('postAuthorize', tokenUid, type);
+
+    const tenantPartnerId = ctx?.state?.tenantPartner?.id;
+    if (tenantPartnerId === undefined) {
+      throw new InvalidParamException('Tenant information not available');
+    }
+
+    const authInfo = await this.tokensService.authorizeToken(
+      tokenUid,
+      type ?? TokenType.RFID,
+      tenantPartnerId,
+      locationReferences,
+    );
+
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      authInfo,
+    );
   }
 
   @Post('/realTimeAuth')

@@ -36,6 +36,7 @@ export type TokenResponse = z.infer<typeof TokenResponseSchema>;
 
 export const PaginatedTokenResponseSchema =
   PaginatedResponseSchema(TokenDTOSchema);
+export const PaginatedTokenResponseSchemaName = 'PaginatedTokenResponseSchema';
 
 export type PaginatedTokenResponse = z.infer<
   typeof PaginatedTokenResponseSchema

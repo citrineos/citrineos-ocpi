@@ -200,7 +200,7 @@ describe('TariffMapper', () => {
 
       const result = TariffMapper.mapFromOcpi(ocpiTariff);
 
-      expect(result.tariffAltText).toEqual([
+      expect(JSON.parse(result.tariffAltText as unknown as string)).toEqual([
         { language: 'de', text: 'Standardtarif' },
       ]);
     });

@@ -9,6 +9,7 @@ import { TokenType } from '../model/TokenType.js';
 import {
   CREATE_AUTHORIZATION_MUTATION,
   GET_AUTHORIZATION_BY_TOKEN,
+  GET_AUTHORIZATIONS_PAGINATED,
   GET_CHARGING_STATION_BY_ID_QUERY,
   GET_GROUP_AUTHORIZATION,
   GET_TENANT_PARTNER_BY_ID,
@@ -20,11 +21,14 @@ import { TokensMapper } from '../mapper/index.js';
 import type { AuthorizationDto, ChargingStationDto } from '@citrineos/base';
 import { AuthorizationStatusEnum, IdTokenEnum } from '@citrineos/base';
 import type {
+  Authorizations_Paginated_Bool_Exp,
   Authorizations_Set_Input,
   CreateAuthorizationMutationResult,
   CreateAuthorizationMutationVariables,
   GetAuthorizationByTokenQueryResult,
   GetAuthorizationByTokenQueryVariables,
+  GetAuthorizationsPaginatedQueryResult,
+  GetAuthorizationsPaginatedQueryVariables,
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
   GetGroupAuthorizationQueryResult,
@@ -48,6 +52,11 @@ import { InvalidParamException } from '../exception/InvalidParamException.js';
 import type { LocationReferences } from '../model/LocationReferences.js';
 import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
+import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
+import { OcpiHeaders } from '../model/OcpiHeaders.js';
+import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
+import { AuthorizationInfoAllowed } from '../model/AuthorizationInfoAllowed.js';
+import type { AuthorizationInfo } from '../model/AuthorizationInfo.js';
 
 @Service()
 export class TokensService {
@@ -124,7 +133,7 @@ export class TokensService {
           status: authorization.status!,
           language1: authorization.language1,
           groupAuthorizationId,
-          realTimeAuth: authorization.realTimeAuth,
+          ...(authorization.realTimeAuth != null && { realTimeAuth: authorization.realTimeAuth }),
           updatedAt: token.last_updated,
         },
       });
@@ -146,7 +155,7 @@ export class TokensService {
         status: authorization.status!,
         language1: authorization.language1,
         groupAuthorizationId,
-        realTimeAuth: authorization.realTimeAuth,
+        ...(authorization.realTimeAuth != null && { realTimeAuth: authorization.realTimeAuth }),
         createdAt: timestamp,
         updatedAt: timestamp,
       });
@@ -222,6 +231,95 @@ export class TokensService {
     return TokensMapper.toDto(
       result.update_Authorizations?.returning[0] as AuthorizationDto,
     );
+  }
+
+  async getTokensPaginated(
+    ocpiHeaders: OcpiHeaders,
+    paginatedParams?: PaginatedParams,
+  ): Promise<{ data: TokenDTO[]; count: number }> {
+    const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;
+    const offset = paginatedParams?.offset ?? DEFAULT_OFFSET;
+    const where: Authorizations_Paginated_Bool_Exp = {
+      TenantPartner: {
+        countryCode: { _eq: ocpiHeaders.toCountryCode },
+        partyId: { _eq: ocpiHeaders.toPartyId },
+      },
+    };
+    const dateFilters: any = {};
+    if (paginatedParams?.dateFrom)
+      dateFilters._gte = paginatedParams.dateFrom.toISOString();
+    if (paginatedParams?.dateTo)
+      dateFilters._lte = paginatedParams.dateTo.toISOString();
+    if (Object.keys(dateFilters).length > 0) {
+      where.updatedAt = dateFilters;
+    }
+    const result = await this.ocpiGraphqlClient.request<
+      GetAuthorizationsPaginatedQueryResult,
+      GetAuthorizationsPaginatedQueryVariables
+    >(GET_AUTHORIZATIONS_PAGINATED, { limit, offset, where });
+    const mappedTokens: TokenDTO[] = [];
+    for (const auth of result.Authorizations) {
+      try {
+        mappedTokens.push(TokensMapper.toDto(auth as AuthorizationDto));
+      } catch (e) {
+        this.logger.warn(
+          `Skipping authorization ${auth.id} during paginated listing: ${e}`,
+        );
+      }
+    }
+    return {
+      data: mappedTokens,
+      count: mappedTokens.length,
+    };
+  }
+
+  async authorizeToken(
+    tokenUid: string,
+    type: TokenType,
+    tenantPartnerId: number,
+    locationReferences?: LocationReferences,
+  ): Promise<AuthorizationInfo> {
+    const idTokenType = TokensMapper.mapOcpiTokenTypeToOcppIdTokenType(type);
+    const existingAuth = await this.ocpiGraphqlClient.request<
+      GetAuthorizationByTokenQueryResult,
+      GetAuthorizationByTokenQueryVariables
+    >(GET_AUTHORIZATION_BY_TOKEN, {
+      idToken: tokenUid,
+      idTokenType,
+      tenantPartnerId,
+    });
+
+    if (existingAuth.Authorizations.length === 0) {
+      throw new UnknownTokenException(`Unknown Token ${tokenUid}`);
+    }
+
+    const authorization = existingAuth.Authorizations[0];
+    const tokenDto = TokensMapper.toDto(authorization as AuthorizationDto);
+
+    let allowed: AuthorizationInfoAllowed;
+    if (authorization.status === AuthorizationStatusEnum.Accepted) {
+      allowed = AuthorizationInfoAllowed.Allowed;
+    } else if (authorization.status === AuthorizationStatusEnum.Blocked) {
+      allowed = AuthorizationInfoAllowed.Blocked;
+    } else if (authorization.status === AuthorizationStatusEnum.Expired) {
+      allowed = AuthorizationInfoAllowed.Expired;
+    } else if (authorization.status === AuthorizationStatusEnum.NoCredit) {
+      allowed = AuthorizationInfoAllowed.NoCredit;
+    } else {
+      allowed = AuthorizationInfoAllowed.NotAllowed;
+    }
+
+    const authorizationInfo: AuthorizationInfo = {
+      allowed,
+      token: tokenDto,
+      authorization_reference: `auth-${tokenUid}-${Date.now()}`,
+    };
+
+    if (locationReferences) {
+      authorizationInfo.location = locationReferences;
+    }
+
+    return authorizationInfo;
   }
 
   async realTimeAuthorization(

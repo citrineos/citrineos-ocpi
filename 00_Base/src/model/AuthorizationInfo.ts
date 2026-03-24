@@ -22,6 +22,8 @@ export type AuthorizationInfo = z.infer<typeof AuthorizationInfoSchema>;
 export const AuthorizationInfoResponseSchema = OcpiResponseSchema(
   AuthorizationInfoSchema,
 );
+export const AuthorizationInfoResponseSchemaName =
+  'AuthorizationInfoResponseSchema';
 
 export type AuthorizationInfoResponse = z.infer<
   typeof AuthorizationInfoResponseSchema

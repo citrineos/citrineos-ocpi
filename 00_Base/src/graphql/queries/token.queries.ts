@@ -6,7 +6,7 @@ import { gql } from 'graphql-request';
 
 export const READ_AUTHORIZATION = gql`
   query ReadAuthorizations(
-    $idToken: String
+    $idToken: citext
     $type: String
     $countryCode: String
     $partyId: String
@@ -46,7 +46,7 @@ export const READ_AUTHORIZATION = gql`
 
 export const UPDATE_TOKEN_MUTATION = gql`
   mutation UpdateAuthorization(
-    $idToken: String!
+    $idToken: citext!
     $type: String!
     $tenantPartnerId: Int!
     $set: Authorizations_set_input
@@ -86,7 +86,7 @@ export const UPDATE_TOKEN_MUTATION = gql`
 
 export const GET_AUTHORIZATION_BY_TOKEN = gql`
   query GetAuthorizationByToken(
-    $idToken: String!
+    $idToken: citext!
     $idTokenType: String!
     $tenantPartnerId: Int!
   ) {
@@ -150,7 +150,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
   mutation CreateAuthorization(
     $tenantId: Int!
     $tenantPartnerId: Int!
-    $idToken: String!
+    $idToken: citext!
     $idTokenType: String!
     $additionalInfo: jsonb
     $status: String!
@@ -198,8 +198,43 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
   }
 `;
 
+export const GET_AUTHORIZATIONS_PAGINATED = gql`
+  query GetAuthorizationsPaginated(
+    $limit: Int
+    $offset: Int
+    $where: Authorizations_bool_exp!
+  ) {
+    Authorizations(
+      limit: $limit
+      offset: $offset
+      order_by: { createdAt: asc }
+      where: $where
+    ) {
+      id
+      createdAt
+      updatedAt
+      tenantId
+      tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      groupAuthorization: GroupAuthorization {
+        idToken
+      }
+      idToken
+      idTokenType
+      additionalInfo
+      status
+      realTimeAuth
+      language1
+      groupAuthorizationId
+    }
+  }
+`;
+
 export const GET_GROUP_AUTHORIZATION = gql`
-  query GetGroupAuthorization($groupId: String!, $tenantPartnerId: Int!) {
+  query GetGroupAuthorization($groupId: citext!, $tenantPartnerId: Int!) {
     Authorizations(
       where: {
         idToken: { _eq: $groupId }

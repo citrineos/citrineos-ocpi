@@ -8,5 +8,6 @@ export const LocationReferencesSchema = z.object({
   location_id: z.string().max(36),
   evse_uids: z.array(z.string()),
 });
+export const LocationReferencesSchemaName = 'LocationReferencesSchema';
 
 export type LocationReferences = z.infer<typeof LocationReferencesSchema>;

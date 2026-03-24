@@ -38,8 +38,17 @@ export type {
   AuthorizationInfo,
   AuthorizationInfoResponse,
 } from './model/AuthorizationInfo.js';
+export {
+  AuthorizationInfoResponseSchema,
+  AuthorizationInfoResponseSchemaName,
+} from './model/AuthorizationInfo.js';
 export { TokensClientApi } from './trigger/TokensClientApi.js';
 export { AuthorizationInfoAllowed } from './model/AuthorizationInfoAllowed.js';
+export type { LocationReferences } from './model/LocationReferences.js';
+export {
+  LocationReferencesSchema,
+  LocationReferencesSchemaName,
+} from './model/LocationReferences.js';
 export type { PostTokenParams } from './trigger/param/tokens/PostTokenParams.js';
 export { UnsuccessfulRequestException } from './exception/UnsuccessfulRequestException.js';
 export { NotFoundException } from './exception/NotFoundException.js';
@@ -93,6 +102,7 @@ export type {
   SingleTokenRequest,
   TokenDTO,
   TokenResponse,
+  PaginatedTokenResponse,
 } from './model/DTO/TokenDTO.js';
 export {
   SingleTokenRequestSchema,
@@ -100,6 +110,8 @@ export {
   TokenResponseSchema,
   TokenResponseSchemaName,
   TokenDTOSchemaName,
+  PaginatedTokenResponseSchema,
+  PaginatedTokenResponseSchemaName,
 } from './model/DTO/TokenDTO.js';
 
 export type { OcpiConfig, OcpiConfigInput } from './config/ocpi.types.js';
