@@ -54,7 +54,7 @@
     "sequelize": "^6.37.7",
     "sqlite3": "5.1.6",
     "tslog": "4.9.2",
-    "uuid": "9.0.0"
+    "uuid": "14.0.0"
   },
   "engines": {
     "node": ">=18"
