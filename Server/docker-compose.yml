@@ -38,6 +38,8 @@ services:
     build:
       context: ../
       dockerfile: ./Server/deploy.Dockerfile
+      args:
+        NPM_TAG: ${NPM_TAG:-prod}
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
