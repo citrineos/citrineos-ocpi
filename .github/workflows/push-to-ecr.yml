@@ -63,5 +63,5 @@ jobs:
           push: true
           no-cache: true 
           build-args: |
-            NPM_TAG=${{ contains(steps.branch.outputs.branch, 'env/staging') && 'staging' || 'prod' }}
+            NPM_TAG=${{ contains(steps.branch.outputs.branch, 'staging') && 'staging' || 'prod' }}
           tags: ${{ steps.login-ecr.outputs.registry }}/citrineos-ocpi:${{ steps.branch.outputs.branch }}-${{ steps.date.outputs.date }}-${{ github.sha }},${{ steps.login-ecr.outputs.registry }}/citrineos-ocpi:latest,ghcr.io/enexflow/citrineos-ocpi:latest,ghcr.io/enexflow/citrineos-ocpi:${{ steps.branch.outputs.branch }}-${{ steps.date.outputs.date }}-${{ github.sha }}
