@@ -8,7 +8,7 @@ import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
 export const shouldBroadcast = (
-  tenant: TenantDto | undefined, // ← accept undefined
+  tenant: TenantDto | undefined,
   requiredRole: Role,
   context: IDtoEventContext,
   logger: Logger<ILogObj>,
@@ -22,20 +22,13 @@ export const shouldBroadcast = (
     );
     return false;
   }
-  if (!tenant.serverProfileOCPI?.credentialsRole) {
-    logDbBroadcast(
-      logger,
-      'error',
-      `Tenant ${tenant.id} does not have a server profile OCPI credentials role, cannot broadcast.`,
-    );
+  const roles = tenant.serverProfileOCPI?.credentialsRoles;
+  if (!roles?.length) {
+    logDbBroadcast(logger, 'error', `Tenant ${tenant.id} does not have a server profile OCPI credentials role, cannot broadcast.`);
     return false;
   }
-  if (tenant.serverProfileOCPI?.credentialsRole?.role !== requiredRole) {
-    logDbBroadcast(
-      logger,
-      'info',
-      `Tenant is not a ${requiredRole} in ${context.eventType} notification for ${context.objectType} ${objectId}, should not be broadcasted.`,
-    );
+  if (!roles.some((r) => r.role === requiredRole)) {
+    logDbBroadcast(logger, 'info', `Tenant is not a ${requiredRole} in ${context.eventType} notification for ${context.objectType} ${objectId}, should not be broadcasted.`);
     return false;
   }
   return true;

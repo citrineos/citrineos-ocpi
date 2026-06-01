@@ -31,13 +31,13 @@ export class RegistrationMapper {
     return {
       token: partnerProfile.serverCredentials.token!,
       url: partnerProfile.serverCredentials.versionsUrl,
-      roles: [
+      roles: serverProfile.credentialsRoles.map((credRole) =>
         RegistrationMapper.toCredentialsRoleDto(
           tenant.countryCode!,
           tenant.partyId!,
-          serverProfile.credentialsRole,
+          credRole,
         ),
-      ],
+      ),
     };
   }
 
