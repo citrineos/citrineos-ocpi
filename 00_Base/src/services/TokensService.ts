@@ -387,6 +387,7 @@ export class TokensService {
         realTimeAuthRequest.idTokenType,
       ),
       locationReferences,
+      tenantPartner.awsSecretCertificateArn,
     );
     this.logger.debug(`Real Time Auth response`, postTokenResult.data?.allowed);
 

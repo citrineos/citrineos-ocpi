@@ -38,6 +38,8 @@ services:
     build:
       context: ../../
       dockerfile: ./citrineos-ocpi/Server/local.Dockerfile
+    env_file:
+      - .env
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'

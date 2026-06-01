@@ -301,6 +301,7 @@ export {
 export { ResponseSchema } from './openapi-spec-helper/decorators.js';
 export { BaseClientApi } from './trigger/BaseClientApi.js';
 export { LocationsClientApi } from './trigger/LocationsClientApi.js';
+export { PartnerMtlsCertificateService } from './util/PartnerMtlsCertificateService.js';
 
 export { CommandsService } from './services/CommandsService.js';
 export { CredentialsService } from './services/CredentialsService.js';

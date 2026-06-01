@@ -174,6 +174,19 @@ export const ocpiConfigInputSchema = z.object({
 
   // Optional OIDC configuration
   oidc: oidcConfigSchema,
+
+  // Optional mTLS for outbound OCPI (AWS Secrets Manager client certificates)
+  mtls: z
+    .object({
+      secretCacheTtlSeconds: z
+        .number()
+        .int()
+        .positive()
+        .default(900)
+        .optional(),
+      awsRegion: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type OcpiConfigInput = z.infer<typeof ocpiConfigInputSchema>;
@@ -322,6 +335,13 @@ export const ocpiConfigSchema = z.object({
   defaultPageLimit: z.number().int().positive(),
   maxPageLimit: z.number().int().positive(),
   oidc: oidcConfigSchema,
+
+  mtls: z
+    .object({
+      secretCacheTtlSeconds: z.number().int().positive(),
+      awsRegion: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type OIDCConfig = z.infer<typeof oidcConfigSchema>;

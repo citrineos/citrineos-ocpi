@@ -43,6 +43,7 @@ export class CommandsClientApi extends BaseClientApi {
     url: string, // Provided in the command
     body: CommandResult,
     commandId: string,
+    awsSecretCertificateArn?: string | null,
   ): Promise<OcpiEmptyResponse> {
     await this.cache.set(
       commandId,
@@ -62,6 +63,10 @@ export class CommandsClientApi extends BaseClientApi {
       true,
       url,
       body,
+      undefined,
+      undefined,
+      undefined,
+      awsSecretCertificateArn ?? undefined,
     );
   }
 }

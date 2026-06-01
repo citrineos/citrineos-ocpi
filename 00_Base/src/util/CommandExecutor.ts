@@ -542,6 +542,7 @@ export class CommandExecutor {
                 },
               },
               commandId,
+              tenantPartner.awsSecretCertificateArn,
             )
             .catch((error: any) => {
               this.logger.error(
@@ -593,6 +594,7 @@ export class CommandExecutor {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         )
         .catch((error: any) => {
           this.logger.error(

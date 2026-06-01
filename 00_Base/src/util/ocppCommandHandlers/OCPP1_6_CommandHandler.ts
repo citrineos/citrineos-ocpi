@@ -16,7 +16,6 @@ import { CommandType } from '../../model/CommandType.js';
 import type { StopSession } from '../../model/StopSession.js';
 import type { UnlockConnector } from '../../index.js';
 import { CommandResultType } from '../../index.js';
-
 @Service({ id: OCPP_COMMAND_HANDLER, multiple: true })
 export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
   public readonly supportedVersion = OCPPVersion.OCPP1_6;
@@ -131,6 +130,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         )
         .catch((error) => {
           this.logger.error('Failed to post command result', { error });
@@ -214,6 +214,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP1_6.RemoteStartTransactionResponseStatus.Rejected:
@@ -232,6 +233,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
     }
   }
@@ -266,6 +268,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP1_6.RemoteStopTransactionResponseStatus.Rejected:
@@ -284,6 +287,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
     }
   }
@@ -317,6 +321,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP1_6.UnlockConnectorResponseStatus.NotSupported:
@@ -335,6 +340,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP1_6.UnlockConnectorResponseStatus.UnlockFailed:
@@ -353,6 +359,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
     }

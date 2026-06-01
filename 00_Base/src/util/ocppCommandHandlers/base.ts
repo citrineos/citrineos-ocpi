@@ -136,6 +136,7 @@ export abstract class OCPPCommandHandler {
           },
         },
         commandId,
+        tenantPartner.awsSecretCertificateArn,
       );
     }
   }

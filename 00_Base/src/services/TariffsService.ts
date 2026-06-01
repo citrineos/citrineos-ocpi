@@ -352,6 +352,9 @@ export class TariffsService {
         url,
         undefined,
         { ...paginated, offset: currentOffset },
+        undefined,
+        undefined,
+        partnerRow.awsSecretCertificateArn,
       );
 
       for (const item of (resp as any).data) {
