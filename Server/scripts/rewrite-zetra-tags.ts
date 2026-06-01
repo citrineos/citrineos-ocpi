@@ -21,7 +21,7 @@ for (const file of files) {
     'dependencies',
     'devDependencies',
     'peerDependencies',
-  ]) {
+  ] as const) {
     if (!pkg[section]) continue;
     for (const key of Object.keys(pkg[section])) {
       if (key.startsWith('@zetra/')) {
