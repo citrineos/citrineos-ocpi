@@ -2,7 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChargingStationDto, TenantPartnerDto } from '@zetra/citrineos-base';
+import type {
+  ChargingStationDto,
+  TenantPartnerDto,
+} from '@zetra/citrineos-base';
 import {
   ChargingStationSequenceTypeEnum,
   OCPP2_0_1,

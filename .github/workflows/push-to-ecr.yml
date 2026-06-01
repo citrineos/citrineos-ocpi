@@ -2,7 +2,7 @@ name: Push docker images
 
 on:
   push:
-    branches: [ env/*]
+    branches: [env/*]
 
 jobs:
   push-to-ecr:
@@ -61,6 +61,5 @@ jobs:
           context: ./
           file: ./Server/deploy.Dockerfile
           push: true
-          no-cache: true 
+          no-cache: true
           tags: ${{ steps.login-ecr.outputs.registry }}/citrineos-ocpi:${{ steps.branch.outputs.branch }}-${{ steps.date.outputs.date }}-${{ github.sha }},${{ steps.login-ecr.outputs.registry }}/citrineos-ocpi:latest,ghcr.io/enexflow/citrineos-ocpi:latest,ghcr.io/enexflow/citrineos-ocpi:${{ steps.branch.outputs.branch }}-${{ steps.date.outputs.date }}-${{ github.sha }}
-  

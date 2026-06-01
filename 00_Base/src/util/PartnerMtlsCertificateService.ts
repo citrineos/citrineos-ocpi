@@ -147,7 +147,10 @@ export class PartnerMtlsCertificateService {
     }
   }
 
-  parseSecretPayload(secretString: string, arn: string): PartnerMtlsSecretPayload {
+  parseSecretPayload(
+    secretString: string,
+    arn: string,
+  ): PartnerMtlsSecretPayload {
     let parsed: unknown;
     try {
       parsed = JSON.parse(secretString);
@@ -161,10 +164,14 @@ export class PartnerMtlsCertificateService {
     const certificate = record.certificate;
     const privateKey = record.private_key;
     if (typeof certificate !== 'string' || !certificate.trim()) {
-      throw new Error(`Secret ${arn} must include a non-empty "certificate" field`);
+      throw new Error(
+        `Secret ${arn} must include a non-empty "certificate" field`,
+      );
     }
     if (typeof privateKey !== 'string' || !privateKey.trim()) {
-      throw new Error(`Secret ${arn} must include a non-empty "private_key" field`);
+      throw new Error(
+        `Secret ${arn} must include a non-empty "private_key" field`,
+      );
     }
     const ca = record.ca;
     return {

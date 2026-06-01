@@ -178,7 +178,12 @@ export const ocpiConfigInputSchema = z.object({
   // Optional mTLS for outbound OCPI (AWS Secrets Manager client certificates)
   mtls: z
     .object({
-      secretCacheTtlSeconds: z.number().int().positive().default(900).optional(),
+      secretCacheTtlSeconds: z
+        .number()
+        .int()
+        .positive()
+        .default(900)
+        .optional(),
       awsRegion: z.string().optional(),
     })
     .optional(),

@@ -8,7 +8,9 @@ jest.mock('@aws-sdk/client-secrets-manager', () => ({
   SecretsManagerClient: jest.fn().mockImplementation(() => ({
     send: mockSend,
   })),
-  GetSecretValueCommand: jest.fn().mockImplementation((input: unknown) => input),
+  GetSecretValueCommand: jest
+    .fn()
+    .mockImplementation((input: unknown) => input),
 }));
 
 import { PartnerMtlsCertificateService } from '../PartnerMtlsCertificateService.js';
@@ -20,7 +22,9 @@ const baseConfig = {
   mtls: { secretCacheTtlSeconds: 900 },
 } as OcpiConfig;
 
-function createService(config: OcpiConfig = baseConfig): PartnerMtlsCertificateService {
+function createService(
+  config: OcpiConfig = baseConfig,
+): PartnerMtlsCertificateService {
   const service = new PartnerMtlsCertificateService(config);
   (service as any).logger = {
     error: jest.fn(),
@@ -36,8 +40,10 @@ describe('PartnerMtlsCertificateService', () => {
     mockSend.mockReset();
     mockSend.mockResolvedValue({
       SecretString: JSON.stringify({
-        certificate: '-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----',
-        private_key: '-----BEGIN PRIVATE KEY-----\nMIIE\n-----END PRIVATE KEY-----',
+        certificate:
+          '-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----',
+        private_key:
+          '-----BEGIN PRIVATE KEY-----\nMIIE\n-----END PRIVATE KEY-----',
       }),
     });
   });
@@ -104,7 +110,10 @@ describe('PartnerMtlsCertificateService', () => {
     it('throws when required fields are missing', () => {
       const service = createService();
       expect(() =>
-        service.parseSecretPayload(JSON.stringify({ certificate: 'x' }), TEST_ARN),
+        service.parseSecretPayload(
+          JSON.stringify({ certificate: 'x' }),
+          TEST_ARN,
+        ),
       ).toThrow('private_key');
     });
   });
