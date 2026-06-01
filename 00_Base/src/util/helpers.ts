@@ -24,11 +24,19 @@ export const shouldBroadcast = (
   }
   const roles = tenant.serverProfileOCPI?.credentialsRoles;
   if (!roles?.length) {
-    logDbBroadcast(logger, 'error', `Tenant ${tenant.id} does not have a server profile OCPI credentials role, cannot broadcast.`);
+    logDbBroadcast(
+      logger,
+      'error',
+      `Tenant ${tenant.id} does not have a server profile OCPI credentials role, cannot broadcast.`,
+    );
     return false;
   }
   if (!roles.some((r) => r.role === requiredRole)) {
-    logDbBroadcast(logger, 'info', `Tenant is not a ${requiredRole} in ${context.eventType} notification for ${context.objectType} ${objectId}, should not be broadcasted.`);
+    logDbBroadcast(
+      logger,
+      'info',
+      `Tenant is not a ${requiredRole} in ${context.eventType} notification for ${context.objectType} ${objectId}, should not be broadcasted.`,
+    );
     return false;
   }
   return true;
