@@ -237,6 +237,7 @@ export class CredentialsService {
       tenantPartner.partyId!,
       tenantPartner.partnerProfileOCPI!,
       RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner),
+      tenantPartner.awsSecretCertificateArn,
     );
     if (!credentialsResponse?.data?.token) {
       throw new NotFoundError('Token C not found in credentials response');
@@ -312,6 +313,7 @@ export class CredentialsService {
           credentialsRequest.mspPartyId,
           tenantPartner.partnerProfileOCPI!,
           newCredentialsDto,
+          tenantPartner.awsSecretCertificateArn,
         );
 
       tenantPartner.partnerProfileOCPI!.credentials = {
@@ -351,6 +353,7 @@ export class CredentialsService {
       tenantPartner.partyId!,
       tenantPartner.partnerProfileOCPI!,
       versionsUrl,
+      tenantPartner.awsSecretCertificateArn,
     );
     if (!versions?.data) {
       throw new NotFoundError(
@@ -372,6 +375,7 @@ export class CredentialsService {
       tenantPartner.partyId!,
       tenantPartner.partnerProfileOCPI!,
       version.url,
+      tenantPartner.awsSecretCertificateArn,
     );
     if (!versionDetails?.data) {
       throw new NotFoundError('Matching version details not found');
@@ -427,6 +431,7 @@ export class CredentialsService {
       request.clientCountryCode,
       request.clientPartyId,
       tenantPartner.partnerProfileOCPI!,
+      tenantPartner.awsSecretCertificateArn,
     );
 
     await this.ocpiGraphqlClient.request(DELETE_TENANT_PARTNER_BY_ID, {

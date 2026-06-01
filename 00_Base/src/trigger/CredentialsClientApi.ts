@@ -42,6 +42,7 @@ export class CredentialsClientApi extends BaseClientApi {
     toCountryCode: string,
     toPartyId: string,
     partnerProfile: PartnerProfile,
+    awsSecretCertificateArn?: string | null,
   ): Promise<CredentialsResponse> {
     return this.request(
       fromCountryCode,
@@ -52,6 +53,12 @@ export class CredentialsClientApi extends BaseClientApi {
       CredentialsResponseSchema,
       partnerProfile,
       false,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      awsSecretCertificateArn ?? undefined,
     );
   }
 
@@ -62,6 +69,7 @@ export class CredentialsClientApi extends BaseClientApi {
     toPartyId: string,
     partnerProfile: PartnerProfile,
     body: CredentialsDTO,
+    awsSecretCertificateArn?: string | null,
   ): Promise<CredentialsResponse> {
     return this.request(
       fromCountryCode,
@@ -74,6 +82,10 @@ export class CredentialsClientApi extends BaseClientApi {
       false,
       undefined,
       body,
+      undefined,
+      undefined,
+      undefined,
+      awsSecretCertificateArn ?? undefined,
     );
   }
 
@@ -84,6 +96,7 @@ export class CredentialsClientApi extends BaseClientApi {
     toPartyId: string,
     partnerProfile: PartnerProfile,
     body: CredentialsDTO,
+    awsSecretCertificateArn?: string | null,
   ): Promise<CredentialsResponse> {
     return this.request(
       fromCountryCode,
@@ -96,6 +109,10 @@ export class CredentialsClientApi extends BaseClientApi {
       false,
       undefined,
       body,
+      undefined,
+      undefined,
+      undefined,
+      awsSecretCertificateArn ?? undefined,
     );
   }
 
@@ -105,6 +122,7 @@ export class CredentialsClientApi extends BaseClientApi {
     toCountryCode: string,
     toPartyId: string,
     partnerProfile: PartnerProfile,
+    awsSecretCertificateArn?: string | null,
   ): Promise<OcpiEmptyResponse> {
     return this.request(
       fromCountryCode,
@@ -115,6 +133,12 @@ export class CredentialsClientApi extends BaseClientApi {
       OcpiEmptyResponseSchema,
       partnerProfile,
       false,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      awsSecretCertificateArn ?? undefined,
     );
   }
 }

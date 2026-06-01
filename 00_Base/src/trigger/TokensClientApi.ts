@@ -68,6 +68,7 @@ export class TokensClientApi extends BaseClientApi {
     tokenId: string,
     tokenType?: TokenType,
     body?: LocationReferences,
+    awsSecretCertificateArn?: string | null,
   ): Promise<AuthorizationInfoResponse> {
     const path = `${tokenId}/authorize`;
     const otherParams: Record<string, string> | undefined = tokenType && {
@@ -86,6 +87,8 @@ export class TokensClientApi extends BaseClientApi {
       body,
       undefined,
       otherParams,
+      undefined,
+      awsSecretCertificateArn ?? undefined,
     );
   }
 }

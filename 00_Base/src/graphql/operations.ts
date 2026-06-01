@@ -1572,6 +1572,7 @@ export type GetTenantPartnerByServerTokenQueryResult = {
     countryCode: string,
     partyId: string,
     partnerProfileOCPI?: any | null,
+    awsSecretCertificateArn?: string | null,
     tenantId: number,
     tenant: {
       id: number,
@@ -1605,6 +1606,7 @@ export type GetTenantPartnerByIdQueryResult = {
     countryCode: string,
     partyId: string,
     partnerProfileOCPI?: any | null,
+    awsSecretCertificateArn?: string | null,
     tenantId: number,
     tenant: {
       id: number,
@@ -1640,6 +1642,7 @@ export type GetTenantPartnerByCpoClientAndModuleIdQueryResult = {
     countryCode: string,
     partyId: string,
     partnerProfileOCPI?: any | null,
+    awsSecretCertificateArn?: string | null,
     tenantId: number,
     tenant: {
       id: number,
@@ -1663,6 +1666,7 @@ export type TenantPartnersListQueryResult = {
     countryCode: string,
     partyId: string,
     partnerProfileOCPI?: any | null,
+    awsSecretCertificateArn?: string | null,
     tenantId: number,
     tenant: {
       id: number,

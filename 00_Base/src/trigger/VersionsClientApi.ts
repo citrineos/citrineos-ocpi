@@ -35,6 +35,7 @@ export class VersionsClientApi extends BaseClientApi {
     toPartyId: string,
     partnerProfile: PartnerProfile,
     url?: string,
+    awsSecretCertificateArn?: string | null,
   ): Promise<VersionListResponseDTO> {
     try {
       return this.request(
@@ -47,6 +48,11 @@ export class VersionsClientApi extends BaseClientApi {
         partnerProfile,
         false,
         url,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        awsSecretCertificateArn ?? undefined,
       );
     } catch (e: any) {
       throw new UnsuccessfulRequestException(
@@ -62,6 +68,7 @@ export class VersionsClientApi extends BaseClientApi {
     toPartyId: string,
     partnerProfile: PartnerProfile,
     url?: string,
+    awsSecretCertificateArn?: string | null,
   ): Promise<VersionDetailsResponseDTO> {
     try {
       url = url || this.getUrl(partnerProfile, VersionsInterface.DETAILS);
@@ -75,6 +82,11 @@ export class VersionsClientApi extends BaseClientApi {
         partnerProfile,
         false,
         url,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        awsSecretCertificateArn ?? undefined,
       );
     } catch (e: any) {
       throw new UnsuccessfulRequestException(

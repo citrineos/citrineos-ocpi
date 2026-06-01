@@ -10,7 +10,7 @@ import type {
 } from 'typed-rest-client/Interfaces.js';
 import { VersionNumber } from '../model/VersionNumber.js';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException.js';
-import type { TenantPartnerDto, PartnerProfile } from '@zetra/citrineos-base';
+import type { PartnerProfile } from '@zetra/citrineos-base';
 import { HttpHeader, HttpMethod } from '@zetra/citrineos-base';
 import { OcpiHttpHeader } from '../util/OcpiHttpHeader.js';
 import { base64Encode } from '../util/Util.js';
@@ -33,6 +33,7 @@ import {
 } from '../graphql/index.js';
 import type { PaginatedParams } from './param/PaginatedParams.js';
 import type { ZodTypeAny } from 'zod';
+import { PartnerMtlsCertificateService } from '../util/PartnerMtlsCertificateService.js';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -78,6 +79,8 @@ export abstract class BaseClientApi {
   protected logger!: Logger<ILogObj>;
   @Inject()
   protected ocpiGraphqlClient!: OcpiGraphqlClient;
+  @Inject()
+  protected partnerMtlsCertificateService!: PartnerMtlsCertificateService;
 
   CONTROLLER_PATH = 'null';
   private restClient!: RestClient;
@@ -117,6 +120,7 @@ export abstract class BaseClientApi {
     paginatedParams?: PaginatedParams,
     otherParams?: Record<string, string | number | (string | number)[]>,
     path?: string,
+    awsSecretCertificateArn?: string | null,
   ): Promise<any> {
     if (!partnerProfile) {
       const response = await this.ocpiGraphqlClient.request<
@@ -128,8 +132,17 @@ export abstract class BaseClientApi {
         clientCountryCode: toCountryCode,
         clientPartyId: toPartyId,
       });
-      const partner = response.TenantPartners[0] as TenantPartnerDto;
+      const partner = response.TenantPartners[0];
       partnerProfile = partner.partnerProfileOCPI!;
+      if (awsSecretCertificateArn === undefined) {
+        awsSecretCertificateArn = partner.awsSecretCertificateArn;
+      }
+    }
+    if (!partnerProfile) {
+      throw new MissingRequiredParamException(
+        'partnerProfile',
+        'Tenant partner or partnerProfileOCPI not found',
+      );
     }
     if (!url) {
       url = this.getUrl(partnerProfile);
@@ -173,30 +186,36 @@ export abstract class BaseClientApi {
       }
     }
     options.queryParameters = queryParameters;
+    const restClient = awsSecretCertificateArn?.trim()
+      ? await this.partnerMtlsCertificateService.getRestClient(
+          awsSecretCertificateArn,
+          `CitrineOS OCPI ${this.CONTROLLER_PATH}`,
+        )
+      : this.restClient;
     switch (httpMethod) {
       case HttpMethod.Get:
         this.logger.debug(`Sending GET request to ${url}`);
-        return this.getRaw<T>(url, options).then((response) =>
+        return this.getRaw<T>(url, options, restClient).then((response) =>
           this.handleResponse(schema, response),
         );
       case HttpMethod.Post:
         this.logger.debug(`Sending POST request to ${url}`);
-        return this.createRaw<T>(url, body, options).then((response) =>
-          this.handleResponse(schema, response),
+        return this.createRaw<T>(url, body, options, restClient).then(
+          (response) => this.handleResponse(schema, response),
         );
       case HttpMethod.Put:
         this.logger.debug(`Sending PUT request to ${url}`);
-        return this.replaceRaw<T>(url, body, options).then((response) =>
-          this.handleResponse(schema, response),
+        return this.replaceRaw<T>(url, body, options, restClient).then(
+          (response) => this.handleResponse(schema, response),
         );
       case HttpMethod.Patch:
         this.logger.debug(`Sending PATCH request to ${url}`);
-        return this.updateRaw<T>(url, body, options).then((response) =>
-          this.handleResponse(schema, response),
+        return this.updateRaw<T>(url, body, options, restClient).then(
+          (response) => this.handleResponse(schema, response),
         );
       case HttpMethod.Delete:
         this.logger.debug(`Sending DELETE request to ${url}`);
-        return this.delRaw<T>(url, options).then((response) =>
+        return this.delRaw<T>(url, options, restClient).then((response) =>
           this.handleResponse(schema, response),
         );
     }
@@ -205,39 +224,44 @@ export abstract class BaseClientApi {
   protected async getRaw<T>(
     url: string,
     options?: IRequestOptions,
+    restClient: RestClient = this.restClient,
   ): Promise<IRestResponse<T>> {
-    return this.restClient.get<T>(url, options);
+    return restClient.get<T>(url, options);
   }
 
   protected async delRaw<T>(
     url: string,
     options?: IRequestOptions,
+    restClient: RestClient = this.restClient,
   ): Promise<IRestResponse<T>> {
-    return this.restClient.del<T>(url, options);
+    return restClient.del<T>(url, options);
   }
 
   protected async createRaw<T>(
     url: string,
     body: any,
     options?: IRequestOptions,
+    restClient: RestClient = this.restClient,
   ): Promise<IRestResponse<T>> {
-    return this.restClient.create<T>(url, body, options);
+    return restClient.create<T>(url, body, options);
   }
 
   protected async updateRaw<T>(
     url: string,
     body: any,
     options?: IRequestOptions,
+    restClient: RestClient = this.restClient,
   ): Promise<IRestResponse<T>> {
-    return this.restClient.update<T>(url, body, options);
+    return restClient.update<T>(url, body, options);
   }
 
   protected async replaceRaw<T>(
     url: string,
     body: any,
     options?: IRequestOptions,
+    restClient: RestClient = this.restClient,
   ): Promise<IRestResponse<T>> {
-    return this.restClient.replace<T>(url, body, options);
+    return restClient.replace<T>(url, body, options);
   }
 
   protected getOffsetFromLink(link: string): number {
@@ -289,7 +313,7 @@ export abstract class BaseClientApi {
       cpoPartyId,
       endpointIdentifier: `${moduleId}_${interfaceRole}`,
     });
-    const partners = response.TenantPartners as TenantPartnerDto[];
+    const partners = response.TenantPartners;
     for (const partner of partners) {
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,
@@ -308,6 +332,7 @@ export abstract class BaseClientApi {
         paginatedParams,
         otherParams,
         path,
+        partner.awsSecretCertificateArn ?? undefined,
       );
       responses.push(response);
     }

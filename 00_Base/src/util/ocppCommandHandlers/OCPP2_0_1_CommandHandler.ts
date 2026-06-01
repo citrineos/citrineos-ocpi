@@ -2,10 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type {
-  ChargingStationDto,
-  TenantPartnerDto,
-} from '@zetra/citrineos-base';
+import type { ChargingStationDto, TenantPartnerDto } from '@zetra/citrineos-base';
 import {
   ChargingStationSequenceTypeEnum,
   OCPP2_0_1,
@@ -186,6 +183,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         )
         .catch((error) => {
           this.logger.error('Failed to post command result', { error });
@@ -270,6 +268,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP2_0_1.RequestStartStopStatusEnumType.Rejected:
@@ -291,6 +290,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
     }
@@ -326,6 +326,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP2_0_1.RequestStartStopStatusEnumType.Rejected:
@@ -347,6 +348,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
     }
@@ -381,6 +383,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP2_0_1.UnlockStatusEnumType.OngoingAuthorizedTransaction:
@@ -402,6 +405,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP2_0_1.UnlockStatusEnumType.UnknownConnector:
@@ -423,6 +427,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
         return;
       case OCPP2_0_1.UnlockStatusEnumType.UnlockFailed:
@@ -444,6 +449,7 @@ export class OCPP2_0_1_CommandHandler extends OCPPCommandHandler {
             },
           },
           commandId,
+          tenantPartner.awsSecretCertificateArn,
         );
     }
   }
