@@ -8,7 +8,7 @@ import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
 export const shouldBroadcast = (
-  tenant: TenantDto | undefined, // ← accept undefined
+  tenant: TenantDto | undefined,
   requiredRole: Role,
   context: IDtoEventContext,
   logger: Logger<ILogObj>,
@@ -22,7 +22,8 @@ export const shouldBroadcast = (
     );
     return false;
   }
-  if (!tenant.serverProfileOCPI?.credentialsRole) {
+  const roles = tenant.serverProfileOCPI?.credentialsRoles;
+  if (!roles?.length) {
     logDbBroadcast(
       logger,
       'error',
@@ -30,7 +31,7 @@ export const shouldBroadcast = (
     );
     return false;
   }
-  if (tenant.serverProfileOCPI?.credentialsRole?.role !== requiredRole) {
+  if (!roles.some((r) => r.role === requiredRole)) {
     logDbBroadcast(
       logger,
       'info',
