@@ -2,10 +2,12 @@ FROM --platform=$BUILDPLATFORM node:22 AS build
 
 WORKDIR /usr/local/apps/citrineos-ocpi
 
-# COPY
 COPY . .
-
 COPY ./Server/tsconfig.docker.json /usr/local/apps/Server/tsconfig.json
+
+ARG NPM_TAG=prod
+
+RUN NPM_TAG=$NPM_TAG node /usr/local/apps/citrineos-ocpi/Server/scripts/rewrite-zetra-tags.ts
 
 # INSTALL
 RUN npm run install-all
