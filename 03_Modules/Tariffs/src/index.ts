@@ -11,7 +11,6 @@ import {
   OcpiModule,
   RabbitMqDtoReceiver,
   Role,
-  shouldBroadcast,
   TariffsBroadcaster,
 } from '@citrineos/ocpi-base';
 import type { ILogObj } from 'tslog';
@@ -69,17 +68,6 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     }
 
     const tenant = tariffDto.tenant;
-    if (
-      !shouldBroadcast(
-        tenant,
-        Role.CPO,
-        event._context,
-        this._logger,
-        String(tariffDto.id),
-      )
-    ) {
-      return;
-    }
     await this.tariffsBroadcaster.broadcastPutTariff(tenant!, tariffDto);
   }
 
@@ -102,17 +90,6 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     }
 
     const tenant = tariffDto.tenant;
-    if (
-      !shouldBroadcast(
-        tenant,
-        Role.CPO,
-        event._context,
-        this._logger,
-        String(tariffDto.id),
-      )
-    ) {
-      return;
-    }
     await this.tariffsBroadcaster.broadcastPutTariff(tenant!, tariffDto);
   }
 
@@ -133,17 +110,6 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     }
 
     const tenant = tariffDto.tenant;
-    if (
-      !shouldBroadcast(
-        tenant,
-        Role.CPO,
-        event._context,
-        this._logger,
-        String(tariffDto.id),
-      )
-    ) {
-      return;
-    }
     await this.tariffsBroadcaster.broadcastTariffDeletion(tenant!, tariffDto);
   }
 }

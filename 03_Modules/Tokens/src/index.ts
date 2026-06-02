@@ -8,7 +8,6 @@ import {
   AbstractDtoModule,
   AsDtoEventHandler,
   Role,
-  shouldBroadcast,
   type IDtoEvent,
   type OcpiConfig,
 } from '@citrineos/ocpi-base';
@@ -79,14 +78,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
     }
     for (const tenant of tenants) {
       if (
-        !tenant ||
-        !shouldBroadcast(
-          tenant,
-          Role.EMSP,
-          event._context,
-          this._logger,
-          String(authorizationDto.id),
-        )
+        !tenant
       ) {
         continue;
       }
@@ -123,14 +115,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
     }
     for (const tenant of tenants) {
       if (
-        !tenant ||
-        !shouldBroadcast(
-          tenant,
-          Role.EMSP,
-          event._context,
-          this._logger,
-          String(authorizationDto.id),
-        )
+        !tenant
       ) {
         return;
       }
@@ -169,14 +154,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
     }
     for (const tenant of tenants) {
       if (
-        !tenant ||
-        !shouldBroadcast(
-          tenant,
-          Role.EMSP,
-          event._context,
-          this._logger,
-          String(authorizationDto.id),
-        )
+        !tenant
       ) {
         continue;
       }

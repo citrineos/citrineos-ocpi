@@ -2,42 +2,55 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { logDbBroadcast, Role, type IDtoEventContext } from '../index.js';
+import { logDbBroadcast, ModuleId, Role, type IDtoEventContext, type TenantPartnersListQueryResult } from '../index.js';
 import type { TenantDto } from '@zetra/citrineos-base';
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
-export const shouldBroadcast = (
-  tenant: TenantDto | undefined,
-  requiredRole: Role,
-  context: IDtoEventContext,
+type BroadcastPartner = TenantPartnersListQueryResult['TenantPartners'][number];
+
+export const shouldBroadcastToPartner = (
+  tenantPartner: BroadcastPartner | undefined,
+  moduleId: ModuleId,
   logger: Logger<ILogObj>,
-  objectId: string,
 ) => {
-  if (!tenant || !tenant.countryCode || !tenant.partyId) {
+  console.log('SHOULD BROADCAST TO PARTNER !', tenantPartner);
+  if (!tenantPartner || !tenantPartner.countryCode || !tenantPartner.partyId) {
     logDbBroadcast(
       logger,
       'error',
-      `Tenant data missing in ${context.eventType} notification for ${context.objectType} ${objectId}, cannot broadcast.`,
+      `Tenant Partner data missing, cannot broadcast.`,
     );
     return false;
   }
-  const roles = tenant.serverProfileOCPI?.credentialsRoles;
+  const roles = tenantPartner.partnerProfileOCPI?.roles;
   if (!roles?.length) {
     logDbBroadcast(
       logger,
       'error',
-      `Tenant ${tenant.id} does not have a server profile OCPI credentials role, cannot broadcast.`,
+      `TenantPartner ${tenantPartner.id} does not have a partner profile OCPI credentials role, cannot broadcast.`,
     );
     return false;
   }
-  if (!roles.some((r) => r.role === requiredRole)) {
+  let requiredRole = null
+
+  if(moduleId === ModuleId.Tokens) {
+    requiredRole = Role.CPO
+
+  }
+  else
+  {
+    requiredRole = Role.EMSP  
+  }
+
+  if (!roles.some((r: any) => r.role === requiredRole || r.role === Role.HUB)) {
     logDbBroadcast(
       logger,
       'info',
-      `Tenant is not a ${requiredRole} in ${context.eventType} notification for ${context.objectType} ${objectId}, should not be broadcasted.`,
+      `Tenant Partner ${tenantPartner.id} is not a ${requiredRole} for module ${moduleId}, should not be broadcasted.`,
     );
-    return false;
+    return false
   }
   return true;
 };
+

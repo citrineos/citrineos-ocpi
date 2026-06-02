@@ -34,6 +34,7 @@ import {
 import type { PaginatedParams } from './param/PaginatedParams.js';
 import type { ZodTypeAny } from 'zod';
 import { PartnerMtlsCertificateService } from '../util/PartnerMtlsCertificateService.js';
+import { shouldBroadcastToPartner } from '../util/helpers.js';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -315,6 +316,9 @@ export abstract class BaseClientApi {
     });
     const partners = response.TenantPartners;
     for (const partner of partners) {
+      if (!shouldBroadcastToPartner(partner, moduleId, this.logger)) {
+        continue;
+      }
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,
       );
