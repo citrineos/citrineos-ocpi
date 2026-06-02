@@ -293,7 +293,7 @@ export type GetChargingStationByIdQueryResult = {
     imsi?: string | null,
     meterType?: string | null,
     meterSerialNumber?: string | null,
-    locationId?: number | null,
+    locationId: number,
     createdAt: any,
     updatedAt: any,
     evses: Array<{
@@ -350,7 +350,7 @@ export type InsertChargingStationMutationVariables = Exact<{
 export type InsertChargingStationMutationResult = {
   insert_ChargingStations_one?: {
     id: string,
-    locationId?: number | null
+    locationId: number
   } | null
 };
 
@@ -564,12 +564,12 @@ export type GetEvseByOcpiIdAndPartnerIdQueryResult = {
     ocpiStatus?: string | null,
     ChargingStation?: {
       id: string,
-      location?: {
+      location: {
         id: number,
         ocpiId?: string | null,
         ownerTenantPartnerId?: number | null,
         updatedAt: any
-      } | null
+      }
     } | null,
     connectors: Array<{
       id: number,
@@ -647,7 +647,7 @@ export type GetLocationsQueryResult = {
       meterType?: string | null,
       meterSerialNumber?: string | null,
       parkingRestrictions?: any | null,
-      locationId?: number | null,
+      locationId: number,
       createdAt: any,
       updatedAt: any,
       evses: Array<{
@@ -729,7 +729,7 @@ export type GetLocationByIdQueryResult = {
       meterType?: string | null,
       meterSerialNumber?: string | null,
       parkingRestrictions?: any | null,
-      locationId?: number | null,
+      locationId: number,
       createdAt: any,
       updatedAt: any,
       evses: Array<{
@@ -811,7 +811,7 @@ export type GetLocationByOcpiIdQueryResult = {
       meterType?: string | null,
       meterSerialNumber?: string | null,
       parkingRestrictions?: any | null,
-      locationId?: number | null,
+      locationId: number,
       createdAt: any,
       updatedAt: any,
       evses: Array<{
@@ -884,7 +884,7 @@ export type GetEvseByIdQueryResult = {
       meterType?: string | null,
       meterSerialNumber?: string | null,
       parkingRestrictions?: any | null,
-      locationId?: number | null,
+      locationId: number,
       createdAt: any,
       updatedAt: any,
       evses: Array<{
@@ -1579,7 +1579,11 @@ export type GetTenantPartnerByServerTokenQueryResult = {
       countryCode?: string | null,
       partyId?: string | null,
       serverProfileOCPI?: any | null
-    }
+    },
+    roamingPartners: Array<{
+      countryCode: string,
+      partyId: string
+    }>
   }>
 };
 
