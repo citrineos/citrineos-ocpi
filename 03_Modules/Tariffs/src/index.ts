@@ -10,7 +10,6 @@ import {
   OcpiConfigToken,
   OcpiModule,
   RabbitMqDtoReceiver,
-  Role,
   TariffsBroadcaster,
 } from '@citrineos/ocpi-base';
 import type { ILogObj } from 'tslog';

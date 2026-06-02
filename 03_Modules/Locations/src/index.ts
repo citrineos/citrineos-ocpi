@@ -18,7 +18,6 @@ import {
   OcpiGraphqlClient,
   OcpiModule,
   RabbitMqDtoReceiver,
-  Role,
 } from '@citrineos/ocpi-base';
 import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';

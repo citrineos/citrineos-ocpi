@@ -7,7 +7,6 @@ import { TokensModuleApi } from './module/TokensModuleApi.js';
 import {
   AbstractDtoModule,
   AsDtoEventHandler,
-  Role,
   type IDtoEvent,
   type OcpiConfig,
 } from '@citrineos/ocpi-base';
