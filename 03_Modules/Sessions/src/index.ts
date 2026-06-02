@@ -93,11 +93,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     );
     const transactionDto = event._payload;
     const tenant = transactionDto.tenant;
-    if (
-      !tenant
-    ) {
-      return;
-    }
     await this.sessionBroadcaster.broadcastPatchSession(
       tenant!,
       transactionDto,

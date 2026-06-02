@@ -2,8 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { logDbBroadcast, ModuleId, Role, type IDtoEventContext, type TenantPartnersListQueryResult } from '../index.js';
-import type { TenantDto } from '@zetra/citrineos-base';
+import {
+  logDbBroadcast,
+  ModuleId,
+  Role,
+  type TenantPartnersListQueryResult,
+} from '../index.js';
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
@@ -14,7 +18,6 @@ export const shouldBroadcastToPartner = (
   moduleId: ModuleId,
   logger: Logger<ILogObj>,
 ) => {
-  console.log('SHOULD BROADCAST TO PARTNER !', tenantPartner);
   if (!tenantPartner || !tenantPartner.countryCode || !tenantPartner.partyId) {
     logDbBroadcast(
       logger,
@@ -32,15 +35,12 @@ export const shouldBroadcastToPartner = (
     );
     return false;
   }
-  let requiredRole = null
+  let requiredRole = null;
 
-  if(moduleId === ModuleId.Tokens) {
-    requiredRole = Role.CPO
-
-  }
-  else
-  {
-    requiredRole = Role.EMSP  
+  if (moduleId === ModuleId.Tokens) {
+    requiredRole = Role.CPO;
+  } else {
+    requiredRole = Role.EMSP;
   }
 
   if (!roles.some((r: any) => r.role === requiredRole || r.role === Role.HUB)) {
@@ -49,8 +49,7 @@ export const shouldBroadcastToPartner = (
       'info',
       `Tenant Partner ${tenantPartner.id} is not a ${requiredRole} for module ${moduleId}, should not be broadcasted.`,
     );
-    return false
+    return false;
   }
   return true;
 };
-

@@ -77,9 +77,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     for (const tenant of tenants) {
-      if (
-        !tenant
-      ) {
+      if (!tenant) {
         continue;
       }
       await this.tokenBroadcaster.broadcastPutToken(tenant, authorizationDto);
@@ -114,9 +112,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     for (const tenant of tenants) {
-      if (
-        !tenant
-      ) {
+      if (!tenant) {
         return;
       }
       await this.tokenBroadcaster.broadcastPatchToken(
@@ -153,9 +149,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     for (const tenant of tenants) {
-      if (
-        !tenant
-      ) {
+      if (!tenant) {
         continue;
       }
       await this.tokenBroadcaster.broadcastDeleteToken(
