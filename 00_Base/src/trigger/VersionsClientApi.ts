@@ -7,6 +7,7 @@ import { Service } from 'typedi';
 import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestException.js';
 import type { VersionDetailsResponseDTO } from '../model/DTO/VersionDetailsResponseDTO.js';
 import { VersionDetailsResponseDTOSchema } from '../model/DTO/VersionDetailsResponseDTO.js';
+import { VersionListResponseDTOSchema } from '../model/DTO/VersionListResponseDTO.js';
 import type { VersionListResponseDTO } from '../model/DTO/VersionListResponseDTO.js';
 import { HttpMethod, type PartnerProfile } from '@citrineos/base';
 import { VersionsInterface } from '../model/EndpointIdentifier.js';
@@ -42,7 +43,7 @@ export class VersionsClientApi extends BaseClientApi {
         toCountryCode,
         toPartyId,
         HttpMethod.Get,
-        VersionDetailsResponseDTOSchema,
+        VersionListResponseDTOSchema,
         partnerProfile,
         false,
         url,
