@@ -1,0 +1,165 @@
+allowedConnectorTypes,disallowedEvseIdPrefixes,concurrentTransaction,idTokenType,language1,language2,realTimeAuth,realTimeAuthUrl,status,chargingPriority,groupAuthorizationId,id,realTimeAuthTimeout,tenantPartnerId,personalMessage,additionalInfo,customData,realTimeAuthLastAttempt,cacheExpiryDateTime,createdAt,updatedAt,idToken
+"null","null","false","'ISO14443'","null","null","'Never'","null","'Accepted'","null","null","19","null","null","null","null","null","null","null","'2026-02-10T16:03:18.537+00:00'","'2026-02-10T16:03:18.537+00:00'","'ABC12345'"
+"null","null","false","'ISO14443'","null","null","'Never'","null","'Accepted'","null","null","20","null","null","null","null","null","null","null","'2026-02-25T16:01:12.289+00:00'","'2026-02-25T16:01:12.289+00:00'","11113333"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","152","null","null","null","{
+  'name': '87D0EE3C',
+  'color': 'blue',
+  'customer': '5db9a6fc-8be7-40c8-8e56-2e68b885400f'
+}","null","null","null","'2026-05-19T16:01:35.004986+00:00'","'2026-05-19T16:01:35.004986+00:00'","'87D0EE3C'"
+"null","null","false","'Central'","null","null","'Never'","null","'Accepted'","null","null","24","null","null","null","null","null","null","null","'2026-03-13T13:43:50.199+00:00'","'2026-03-13T13:43:50.199+00:00'","'PAYMENT_1'"
+"null","null","false","'Central'","null","null","'Never'","null","'Accepted'","null","null","25","null","null","null","null","null","null","null","'2026-03-13T13:44:04.279+00:00'","'2026-03-13T13:44:04.279+00:00'","'PAYMENT_2'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Rejected'","null","null","84","null","null","null","{
+  'name': 'VID:87951851',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-06T14:06:57.64048+00:00'","'2026-05-06T14:07:47.57917+00:00'","'VID:87951851'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Rejected'","null","null","85","null","null","null","{
+  'name': 'VID:87951',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-06T14:07:47.591151+00:00'","'2026-05-06T14:08:00.285852+00:00'","'VID:87951'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","108","null","null","null","{
+  'name': 'test',
+  'color': 'red',
+  'customer': 'to'
+}","null","null","null","'2025-04-04T00:00:00+00:00'","'2025-04-04T00:00:00+00:00'","11223"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Rejected'","null","null","109","null","null","null","{
+  'name': '1234567',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-18T10:01:44.038161+00:00'","'2026-05-18T12:04:19.291379+00:00'","1234567"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","39","null","null","null","[
+  {
+    'type': 'eMAID',
+    'additionalIdToken': 'FR*ZETRA*DEADBEEB'
+  },
+  {
+    'type': 'issuer',
+    'additionalIdToken': 'Zetra'
+  },
+  {
+    'type': 'visual_number',
+    'additionalIdToken': '02345'
+  }
+]","null","null","null","'2026-04-09T12:02:15.094618+00:00'","'2026-04-09T12:02:15.094618+00:00'","'DEADBEEB'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Rejected'","null","null","100","null","null","null","{
+  'name': 'VID:ABCDE321',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-08T06:56:14.849866+00:00'","'2026-05-08T06:59:02.937334+00:00'","'VID:ABCDE321'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Accepted'","null","null","101","null","null","null","{
+  'name': 'VID:ABCDE892',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-08T06:59:02.947659+00:00'","'2026-05-08T06:59:02.947659+00:00'","'VID:ABCDE892'"
+"null","null","false","'ISO14443'","null","null","'Never'","null","'Accepted'","null","null","18","null","null","null","{
+  'name': 'DEADBEEF',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-01-28T08:20:37.278+00:00'","'2026-05-18T13:31:07.460966+00:00'","'DEADBEEF'"
+"null","null","false","'ISO14443'","null","null","'Never'","null","'Accepted'","null","null","42","null","null","null","{
+  'name': '11110000',
+  'color': 'blue',
+  'customer': '080ee997-5af5-4be2-baec-9b6f6ac0ac87'
+}","null","null","null","'2026-04-15T12:14:56.5+00:00'","'2026-05-18T15:10:56.389209+00:00'","11110000"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Rejected'","null","null","142","null","null","null","{
+  'name': 'TEST007',
+  'color': 'blue',
+  'customer': '52bdb661-0eac-4a2b-bc8b-1fc46013c3b4'
+}","null","null","null","'2026-05-18T15:20:30.846464+00:00'","'2026-05-18T15:21:04.234679+00:00'","'TEST007'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Accepted'","null","null","146","null","null","null","{
+  'name': 'VID:ABC12345',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-19T09:53:41.681441+00:00'","'2026-05-19T09:53:41.681441+00:00'","'VID:ABC12345'"
+"null","null","false","'ISO14443'","null","null","'Never'","null","'Accepted'","null","null","41","null","null","null","{
+  'name': '27081000',
+  'color': 'blue',
+  'customer': '52bdb661-0eac-4a2b-bc8b-1fc46013c3b4'
+}","null","null","null","'2026-04-10T14:59:21.304+00:00'","'2026-05-19T12:05:21.842724+00:00'","27081000"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Accepted'","null","null","86","null","null","null","{
+  'name': 'VID:AABBCCDDEEFF',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-06T14:40:31.164378+00:00'","'2026-05-06T14:40:31.164378+00:00'","'VID:AABBCCDDEEFF'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","54","null","null","null","[
+  {
+    'type': 'eMAID',
+    'additionalIdToken': 'FR*ZETRA*C71D7951'
+  },
+  {
+    'type': 'issuer',
+    'additionalIdToken': 'Zetra'
+  },
+  {
+    'type': 'visual_number',
+    'additionalIdToken': '12345'
+  }
+]","null","null","null","'2026-04-17T15:46:03.576+00:00'","'2026-04-17T15:46:03.576+00:00'","'C71D7951'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Rejected'","null","null","69","null","null","null","{
+  'name': 'TEST1',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-05T12:14:06.876297+00:00'","'2026-05-08T06:54:00.511975+00:00'","'TEST1'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Rejected'","null","null","64","null","null","null","{
+  'name': 'VID:ABCDE234',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-04-30T14:29:10.890088+00:00'","'2026-05-08T06:56:14.835571+00:00'","'VID:ABCDE234'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","53","null","null","null","[
+  {
+    'type': 'eMAID',
+    'additionalIdToken': 'FR*ZETRA*E1234567890'
+  },
+  {
+    'name': 'Noir-2',
+    'color': 'black',
+    'customer': 'Bogaert'
+  },
+  {
+    'type': 'visual_number',
+    'additionalIdToken': '0123456789'
+  },
+  {
+    'type': 'issuer',
+    'additionalIdToken': 'Zetra'
+  }
+]","null","null","null","'2026-04-09T12:02:15.094618+00:00'","'2026-04-09T12:02:15.094618+00:00'","'5BAF0A45'"
+"null","null","false","'ISO14443'","null","null","'Never'","null","'Accepted'","null","null","55","null","null","null","{
+  'yo': 'test'
+}","null","null","null","'2026-04-20T12:00:00+00:00'","'2026-04-20T12:00:00+00:00'","'TESTTLE'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","73","null","null","null","{
+  'name': '123456',
+  'color': 'blue',
+  'customer': 'fba8bb65-e642-47ee-825e-992070f96089'
+}","null","null","null","'2026-05-06T12:24:59.108825+00:00'","'2026-05-11T11:48:52.854963+00:00'","123456"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","60","null","null","null","{
+  'name': '02F9625C',
+  'color': 'blue',
+  'customer': '52bdb661-0eac-4a2b-bc8b-1fc46013c3b4'
+}","null","null","null","'2026-04-29T16:14:15.28008+00:00'","'2026-04-29T16:20:25.153226+00:00'","'02F9625C'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","65","null","null","null","{
+  'name': '32F4611B',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-04T12:21:01.657509+00:00'","'2026-05-04T12:21:01.657509+00:00'","'32F4611B'"
+"null","null","false","'MacAddress'","null","null","'Always'","null","'Accepted'","null","null","66","null","null","null","{
+  'name': 'VID:123456',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-04T12:42:57.146105+00:00'","'2026-05-04T12:42:57.146105+00:00'","'VID:123456'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","67","null","null","null","{
+  'name': 'test',
+  'color': 'red',
+  'customer': 'to'
+}","null","null","null","'2025-04-04T00:00:00+00:00'","'2025-04-04T00:00:00+00:00'","1122"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","72","null","null","null","{
+  'name': '6A70EB3C',
+  'color': 'blue',
+  'customer': '68d043fb-3761-4040-aee0-4e40a1c91f14'
+}","null","null","null","'2026-05-06T12:22:28.223722+00:00'","'2026-05-06T12:22:28.223722+00:00'","'6A70EB3C'"
+"null","null","false","'ISO14443'","null","null","'Always'","null","'Accepted'","null","null","129","null","null","null","{
+  'name': '123TEST456',
+  'color': 'blue',
+  'customer': '52bdb661-0eac-4a2b-bc8b-1fc46013c3b4'
+}","null","null","null","'2026-05-18T12:32:06.299633+00:00'","'2026-05-19T12:05:16.953669+00:00'","'123TEST456'"

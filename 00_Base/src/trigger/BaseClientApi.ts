@@ -34,7 +34,10 @@ import {
 import type { PaginatedParams } from './param/PaginatedParams.js';
 import type { ZodTypeAny } from 'zod';
 import { PartnerMtlsCertificateService } from '../util/PartnerMtlsCertificateService.js';
-import { shouldBroadcastToPartner } from '../util/helpers.js';
+import {
+  handleHttpMethodForPartner,
+  shouldBroadcastToPartner,
+} from '../util/helpers.js';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -320,15 +323,28 @@ export abstract class BaseClientApi {
       if (!shouldBroadcastToPartner(partner, moduleId, this.logger)) {
         continue;
       }
+      const HttpMethodForPartner = handleHttpMethodForPartner(
+        httpMethod,
+        moduleId,
+        partner,
+      );
+
+      console.log('!!!!partner', partner);
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,
       );
+      console.log('cpoCountryCode', cpoCountryCode);
+      console.log('cpoPartyId', cpoPartyId);
+      console.log('partner.countryCode', partner.countryCode);
+      console.log('partner.partyId', partner.partyId);
+      console.log('HttpMethodForPartner', HttpMethodForPartner);
+      console.log('body', body);
       const response = await this.request(
         cpoCountryCode,
         cpoPartyId,
         partner.countryCode!,
         partner.partyId!,
-        httpMethod,
+        HttpMethodForPartner,
         schema,
         partner.partnerProfileOCPI!,
         routingHeaders,

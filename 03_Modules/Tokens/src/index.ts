@@ -61,7 +61,12 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       'Handling Authorization Insert:',
       event,
     );
-    if (event._payload.tenantPartnerId) return;
+    if (event._payload.tenantPartnerId) {
+      this._logger.debug(
+        'Authorization Insert for tenant partner, skipping broadcast.',
+      );
+      return;
+    }
     const authorizationDto = event._payload;
 
     const tenants = authorizationDto.tenants as unknown as
@@ -97,7 +102,12 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       'Handling Authorization Update:',
       event,
     );
-    if (event._payload.tenantPartnerId) return;
+    if (event._payload.tenantPartnerId) {
+      this._logger.debug(
+        'Authorization Update for tenant partner, skipping broadcast.',
+      );
+      return;
+    }
     const authorizationDto = event._payload;
     const tenants = authorizationDto.tenants as unknown as
       | TenantDto[]
@@ -135,7 +145,12 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       'Handling Authorization Delete:',
       event,
     );
-    if (event._payload.tenantPartnerId) return;
+    if (event._payload.tenantPartnerId) {
+      this._logger.debug(
+        'Authorization Delete for tenant partner, skipping broadcast.',
+      );
+      return;
+    }
     const authorizationDto = event._payload;
     const tenants = authorizationDto.tenants as unknown as
       | TenantDto[]

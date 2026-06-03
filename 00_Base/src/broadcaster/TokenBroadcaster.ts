@@ -69,7 +69,11 @@ export class TokenBroadcaster extends BaseBroadcaster {
         interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
         schema: OcpiEmptyResponseSchema,
-        body: token,
+        body: {
+          party_id: tenant.partyId,
+          country_code: tenant.countryCode,
+          ...token,
+        },
         path: path,
       });
     } catch (e) {
