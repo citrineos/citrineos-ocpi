@@ -70,9 +70,9 @@ export class TokenBroadcaster extends BaseBroadcaster {
         httpMethod: method,
         schema: OcpiEmptyResponseSchema,
         body: {
+          ...token,
           party_id: tenant.partyId,
           country_code: tenant.countryCode,
-          ...token,
         },
         path: path,
       });

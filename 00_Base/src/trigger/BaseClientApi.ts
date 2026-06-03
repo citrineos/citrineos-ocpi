@@ -329,16 +329,9 @@ export abstract class BaseClientApi {
         partner,
       );
 
-      console.log('!!!!partner', partner);
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,
       );
-      console.log('cpoCountryCode', cpoCountryCode);
-      console.log('cpoPartyId', cpoPartyId);
-      console.log('partner.countryCode', partner.countryCode);
-      console.log('partner.partyId', partner.partyId);
-      console.log('HttpMethodForPartner', HttpMethodForPartner);
-      console.log('body', body);
       const response = await this.request(
         cpoCountryCode,
         cpoPartyId,

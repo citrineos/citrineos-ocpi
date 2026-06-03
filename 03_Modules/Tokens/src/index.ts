@@ -145,12 +145,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       'Handling Authorization Delete:',
       event,
     );
-    if (event._payload.tenantPartnerId) {
-      this._logger.debug(
-        'Authorization Delete for tenant partner, skipping broadcast.',
-      );
-      return;
-    }
+    if (event._payload.tenantPartnerId) return;
     const authorizationDto = event._payload;
     const tenants = authorizationDto.tenants as unknown as
       | TenantDto[]
