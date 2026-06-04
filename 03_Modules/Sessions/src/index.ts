@@ -20,8 +20,6 @@ import {
   OcpiModule,
   RabbitMqDtoReceiver,
   SessionBroadcaster,
-  Role,
-  shouldBroadcast,
 } from '@citrineos/ocpi-base';
 import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
@@ -75,17 +73,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     );
     const transactionDto = event._payload;
     const tenant = transactionDto.tenant;
-    if (
-      !shouldBroadcast(
-        tenant,
-        Role.CPO,
-        event._context,
-        this._logger,
-        String(transactionDto.id),
-      )
-    ) {
-      return;
-    }
     await this.sessionBroadcaster.broadcastPutSession(tenant!, transactionDto);
   }
 
@@ -105,17 +92,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     );
     const transactionDto = event._payload;
     const tenant = transactionDto.tenant;
-    if (
-      !shouldBroadcast(
-        tenant,
-        Role.CPO,
-        event._context,
-        this._logger,
-        String(transactionDto.id),
-      )
-    ) {
-      return;
-    }
     await this.sessionBroadcaster.broadcastPatchSession(
       tenant!,
       transactionDto,
@@ -157,17 +133,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     );
     const meterValueDto = event._payload;
     const tenant = meterValueDto.tenant;
-    if (
-      !shouldBroadcast(
-        tenant,
-        Role.CPO,
-        event._context,
-        this._logger,
-        String(meterValueDto.id),
-      )
-    ) {
-      return;
-    }
     if (meterValueDto.transactionDatabaseId) {
       this._logger.debug(
         `Meter Value belongs to Transaction: ${meterValueDto.transactionDatabaseId}`,

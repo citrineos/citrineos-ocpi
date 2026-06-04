@@ -7,8 +7,6 @@ import { TokensModuleApi } from './module/TokensModuleApi.js';
 import {
   AbstractDtoModule,
   AsDtoEventHandler,
-  Role,
-  shouldBroadcast,
   type IDtoEvent,
   type OcpiConfig,
 } from '@citrineos/ocpi-base';
@@ -78,16 +76,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     for (const tenant of tenants) {
-      if (
-        !tenant ||
-        !shouldBroadcast(
-          tenant,
-          Role.EMSP,
-          event._context,
-          this._logger,
-          String(authorizationDto.id),
-        )
-      ) {
+      if (!tenant) {
         continue;
       }
       await this.tokenBroadcaster.broadcastPutToken(tenant, authorizationDto);
@@ -122,16 +111,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     for (const tenant of tenants) {
-      if (
-        !tenant ||
-        !shouldBroadcast(
-          tenant,
-          Role.EMSP,
-          event._context,
-          this._logger,
-          String(authorizationDto.id),
-        )
-      ) {
+      if (!tenant) {
         return;
       }
       await this.tokenBroadcaster.broadcastPatchToken(
@@ -168,16 +148,7 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
     for (const tenant of tenants) {
-      if (
-        !tenant ||
-        !shouldBroadcast(
-          tenant,
-          Role.EMSP,
-          event._context,
-          this._logger,
-          String(authorizationDto.id),
-        )
-      ) {
+      if (!tenant) {
         continue;
       }
       await this.tokenBroadcaster.broadcastDeleteToken(

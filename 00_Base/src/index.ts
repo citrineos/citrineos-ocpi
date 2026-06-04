@@ -539,4 +539,4 @@ export {
 export { ChargingProfileResponseSchemaName } from './model/ChargingProfileResponse.js';
 export { ChargingProfileResponseSchema } from './model/ChargingProfileResponse.js';
 export { DB_BROADCAST_LOG_PREFIX, logDbBroadcast } from './util/logging.js';
-export { shouldBroadcast } from './util/helpers.js';
+export { shouldBroadcastToPartner } from './util/helpers.js';
