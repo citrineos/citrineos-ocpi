@@ -67,10 +67,6 @@ export type Authorizations_Paginated_Bool_Exp = {
   tenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
   tenants?: InputMaybe<AuthorizationTenants_Bool_Exp>;
 };
-export type AuthorizationTenants_Bool_Exp = {
-  tenant?: InputMaybe<Tenants_Bool_Exp>;
-  tenantId?: InputMaybe<Int_Comparison_Exp>;
-};
 export type Timestamptz_Comparison_Exp = {
   _gte?: InputMaybe<Scalars['timestamptz']['input']>;
   _lte?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -89,6 +85,8 @@ export type String_Comparison_Exp = {
 export type Tariffs_Insert_Input = any;
 export type Sessions_Insert_Input = any;
 export type Sessions_Set_Input = any;
+export type Tariffs_Set_Input = any;
+export type TariffElements_Insert_Input = any;
 export type Evses_Insert_Input = any;
 export type ConnectorTariffs_Insert_Input = any;
 export type Connectors_Insert_Input = any;
@@ -107,6 +105,10 @@ export type Cdrs_Bool_Exp = {
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   lastUpdated?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type AuthorizationTenants_Bool_Exp = {
+  tenant?: InputMaybe<Tenants_Bool_Exp>;
+  tenantId?: InputMaybe<Int_Comparison_Exp>;
 };
 export type SessionDbRow = {
   id: number;
@@ -1382,6 +1384,53 @@ export type CreateOrUpdatePartnerTariffMutationResult = {
     endDateTime?: any | null,
     tenantPartnerId?: number | null,
     updatedAt: any,
+    roamingPartnerId?: number | null,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null
+  } | null
+};
+
+export type CreateOrUpdatePartnerTariffRoamingPartnerMutationVariables = Exact<{
+  object: Tariffs_Insert_Input;
+}>;
+
+
+export type CreateOrUpdatePartnerTariffRoamingPartnerMutationResult = {
+  insert_Tariffs_one?: {
+    id: number,
+    ocpiTariffId?: string | null,
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tenantPartnerId?: number | null,
+    updatedAt: any,
+    roamingPartnerId?: number | null,
     tenant: {
       countryCode?: string | null,
       partyId?: string | null
@@ -1538,6 +1587,182 @@ export type GetTariffIdByOcpiIdQueryResult = {
   }>
 };
 
+export type FindPartnerTariffQueryVariables = Exact<{
+  ocpiTariffId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type FindPartnerTariffQueryResult = {
+  Tariffs: Array<{
+    id: number
+  }>
+};
+
+export type FindPartnerTariffP2pQueryVariables = Exact<{
+  ocpiTariffId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type FindPartnerTariffP2pQueryResult = {
+  Tariffs: Array<{
+    id: number
+  }>
+};
+
+export type UpdatePartnerTariffByPkMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+  set: Tariffs_Set_Input;
+}>;
+
+
+export type UpdatePartnerTariffByPkMutationResult = {
+  update_Tariffs_by_pk?: {
+    id: number,
+    ocpiTariffId?: string | null,
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tenantPartnerId?: number | null,
+    roamingPartnerId?: number | null,
+    updatedAt: any,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>
+  } | null
+};
+
+export type InsertPartnerTariffMutationVariables = Exact<{
+  object: Tariffs_Insert_Input;
+}>;
+
+
+export type InsertPartnerTariffMutationResult = {
+  insert_Tariffs_one?: {
+    id: number,
+    ocpiTariffId?: string | null,
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tenantPartnerId?: number | null,
+    roamingPartnerId?: number | null,
+    updatedAt: any,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>
+  } | null
+};
+
+export type InsertTariffElementsMutationVariables = Exact<{
+  objects: Array<TariffElements_Insert_Input> | TariffElements_Insert_Input;
+}>;
+
+
+export type InsertTariffElementsMutationResult = {
+  insert_TariffElements?: {
+    affected_rows: number
+  } | null
+};
+
+export type UpdatePartnerTariffMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+  set: Tariffs_Set_Input;
+}>;
+
+
+export type UpdatePartnerTariffMutationResult = {
+  update_Tariffs_by_pk?: {
+    id: number,
+    ocpiTariffId?: string | null,
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tenantPartnerId?: number | null,
+    roamingPartnerId?: number | null,
+    updatedAt: any,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>
+  } | null
+};
+
 export type UpdateTenantPartnerProfileMutationVariables = Exact<{
   partnerId: Scalars['Int']['input'];
   input: Scalars['jsonb']['input'];
@@ -1581,6 +1806,7 @@ export type GetTenantPartnerByServerTokenQueryResult = {
       serverProfileOCPI?: any | null
     },
     roamingPartners: Array<{
+      id: number,
       countryCode: string,
       partyId: string
     }>

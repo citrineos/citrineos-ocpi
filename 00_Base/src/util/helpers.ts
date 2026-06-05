@@ -2,12 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+<<<<<<< HEAD
 import {
   logDbBroadcast,
   ModuleId,
   Role,
   type TenantPartnersListQueryResult,
 } from '../index.js';
+=======
+import { logDbBroadcast, Role, type IDtoEventContext } from '../index.js';
+import type { TenantDto, TenantPartnerDto } from '@zetra/citrineos-base';
+>>>>>>> 331a6db (feat: tariff upsert for hub)
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
@@ -52,4 +57,19 @@ export const shouldBroadcastToPartner = (
     return false;
   }
   return true;
+};
+
+export const getRoamingPartner = (
+  tenantPartner: TenantPartnerDto,
+  country_code: string,
+  party_id: string,
+) => {
+  if ((tenantPartner.roamingPartners?.length ?? 0) > 0) {
+    return tenantPartner.roamingPartners?.find(
+      (roamingPartner) =>
+        roamingPartner.countryCode === country_code &&
+        roamingPartner.partyId === party_id,
+    );
+  }
+  return null;
 };

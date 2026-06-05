@@ -331,6 +331,7 @@ export class LocationsService {
         undefined,
         partnerRow.awsSecretCertificateArn,
       );
+      console.log('resp', resp);
 
       for (const item of (resp as any).data) {
         processedLocations++;

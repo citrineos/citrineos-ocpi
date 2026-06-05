@@ -413,18 +413,19 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    const partnerErr = validateUrlMatchesTenantPartner(
-      countryCode,
-      partyId,
-      tenantPartner,
-    );
-    if (partnerErr) return partnerErr;
-    const bodyErr = validateLocationBodyMatchesUrl(
-      countryCode,
-      partyId,
-      location,
-    );
-    if (bodyErr) return bodyErr;
+    console.log('tenantPartner', tenantPartner);
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
+    // const bodyErr = validateLocationBodyMatchesUrl(
+    //   countryCode,
+    //   partyId,
+    //   location,
+    // );
+    // if (bodyErr) return bodyErr;
 
     await this.upsertLocationForPartner(location, locationId, tenantPartner);
 
