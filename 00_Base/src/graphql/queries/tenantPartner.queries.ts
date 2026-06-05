@@ -25,6 +25,10 @@ export const GET_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
         partyId
         serverProfileOCPI
       }
+      roamingPartners: RoamingPartners {
+        countryCode
+        partyId
+      }
     }
   }
 `;

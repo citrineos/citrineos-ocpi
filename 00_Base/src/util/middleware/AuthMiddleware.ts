@@ -86,7 +86,6 @@ export class AuthMiddleware
             'Credentials not found for given token',
           );
         }
-
         if (
           !registrationModules.some((value) =>
             (context.request.originalUrl as string).includes(value),
@@ -113,12 +112,20 @@ export class AuthMiddleware
             fromCountryCode && fromPartyId && toCountryCode && toPartyId;
 
           if (hasRoutingHeaders) {
-            if (
-              tenantPartner.countryCode !== fromCountryCode ||
-              tenantPartner.partyId !== fromPartyId ||
-              tenantPartner.tenant.countryCode !== toCountryCode ||
-              tenantPartner.tenant.partyId !== toPartyId
-            ) {
+            const isFromHeaderValid =
+              (tenantPartner.countryCode === fromCountryCode &&
+                tenantPartner.partyId === fromPartyId) ||
+              (tenantPartner.roamingPartners?.some(
+                (rp) =>
+                  rp.countryCode === fromCountryCode &&
+                  rp.partyId === fromPartyId,
+              ) ??
+                false);
+            const isToHeaderValid =
+              tenantPartner.tenant &&
+              tenantPartner.tenant?.countryCode === toCountryCode &&
+              tenantPartner.tenant?.partyId === toPartyId;
+            if (!isFromHeaderValid || !isToHeaderValid) {
               logger.debug(
                 `String token matched tenantPartner with incorrect routing headers - ${tenantPartner.countryCode}:${fromCountryCode}, ${tenantPartner.partyId}:${fromPartyId}, ${tenantPartner.tenant.countryCode}:${toCountryCode}, ${tenantPartner.tenant.partyId}:${toPartyId}`,
               );
