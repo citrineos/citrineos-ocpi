@@ -122,10 +122,9 @@ export class AuthMiddleware
               ) ??
                 false);
             const isToHeaderValid =
-              (tenantPartner.tenant?.countryCode === toCountryCode &&
-                tenantPartner.tenant?.partyId === toPartyId) ||
-              (tenantPartner.countryCode === toCountryCode &&
-                tenantPartner.partyId === toPartyId); // only if you intend to=integration party
+              tenantPartner.tenant &&
+              tenantPartner.tenant?.countryCode === toCountryCode &&
+              tenantPartner.tenant?.partyId === toPartyId;
             if (!isFromHeaderValid || !isToHeaderValid) {
               logger.debug(
                 `String token matched tenantPartner with incorrect routing headers - ${tenantPartner.countryCode}:${fromCountryCode}, ${tenantPartner.partyId}:${fromPartyId}, ${tenantPartner.tenant.countryCode}:${toCountryCode}, ${tenantPartner.tenant.partyId}:${toPartyId}`,
