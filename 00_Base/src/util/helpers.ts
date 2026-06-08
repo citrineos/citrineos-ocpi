@@ -3,10 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TenantPartnerDto } from '@zetra/citrineos-base';
+import { HttpMethod } from '@zetra/citrineos-base';
+import { Container } from 'typedi';
+
 import {
   logDbBroadcast,
   ModuleId,
+  OcpiConfigToken,
   Role,
+  type OcpiConfig,
   type TenantPartnersListQueryResult,
 } from '../index.js';
 
@@ -125,3 +130,20 @@ export async function findThenUpsert<
   if (!updated?.id) throw new Error('Update failed');
   return updated;
 }
+
+export const handleHttpMethodForPartner = (
+  httpMethod: HttpMethod,
+  moduleId: ModuleId,
+  partner: BroadcastPartner,
+) => {
+  const config = Container.get<OcpiConfig>(OcpiConfigToken);
+  if (
+    moduleId === ModuleId.Tokens &&
+    httpMethod === HttpMethod.Patch &&
+    partner.countryCode === config.gireve?.countryCode &&
+    partner.partyId === config.gireve?.partyId
+  ) {
+    return HttpMethod.Put;
+  }
+  return httpMethod;
+};

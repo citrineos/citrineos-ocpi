@@ -89,7 +89,15 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const locationDto = event._payload;
     const tenant = locationDto.tenant;
     // if the location is owned by a tenant partner, don't broadcast
-    if ((locationDto as any).ownerTenantPartnerId != null) return;
+    if ((locationDto as any).ownerTenantPartnerId != null) {
+      logDbBroadcast(
+        this._logger,
+        'debug',
+        'Location Insert for tenant partner, skipping broadcast.',
+        event,
+      );
+      return;
+    }
 
     await this.locationsBroadcaster.broadcastPutLocation(tenant!, locationDto);
   }
@@ -115,8 +123,15 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     if (
       locationDto.ownerTenantPartnerId != null ||
       event._payload?.ownerTenantPartnerId != null
-    )
+    ) {
+      logDbBroadcast(
+        this._logger,
+        'debug',
+        'Location Update for tenant partner, skipping broadcast.',
+        event,
+      );
       return;
+    }
 
     // if the location is not owned by a tenant partner, we can broadcast the update
     await this.locationsBroadcaster.broadcastPatchLocation(
@@ -186,8 +201,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     if (
       evseDto.ocpiUid != null ||
       event._payload?.ownerTenantPartner?.id != null
-    )
+    ) {
+      this._logger.debug('Evse Update for tenant partner, skipping broadcast.');
       return;
+    }
 
     // if the evse is not owned by a tenant partner, we can broadcast the update
     const tenant = evseDto.tenant;

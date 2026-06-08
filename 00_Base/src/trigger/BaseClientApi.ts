@@ -34,7 +34,10 @@ import {
 import type { PaginatedParams } from './param/PaginatedParams.js';
 import type { ZodTypeAny } from 'zod';
 import { PartnerMtlsCertificateService } from '../util/PartnerMtlsCertificateService.js';
-import { shouldBroadcastToPartner } from '../util/helpers.js';
+import {
+  handleHttpMethodForPartner,
+  shouldBroadcastToPartner,
+} from '../util/helpers.js';
 
 export interface RequiredOcpiParams {
   clientUrl: string;
@@ -187,6 +190,22 @@ export abstract class BaseClientApi {
       }
     }
     options.queryParameters = queryParameters;
+    // typed-rest-client only applies queryParameters on GET/DELETE, not PUT/PATCH/POST
+    if (
+      httpMethod !== HttpMethod.Get &&
+      httpMethod !== HttpMethod.Delete &&
+      Object.keys(queryParameters.params).length > 0
+    ) {
+      const search = new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(queryParameters.params).map(([k, v]) => [
+            k,
+            Array.isArray(v) ? v.join(',') : String(v),
+          ]),
+        ),
+      ).toString();
+      url += (url.includes('?') ? '&' : '?') + search;
+    }
     const restClient = awsSecretCertificateArn?.trim()
       ? await this.partnerMtlsCertificateService.getRestClient(
           awsSecretCertificateArn,
@@ -320,6 +339,12 @@ export abstract class BaseClientApi {
       if (!shouldBroadcastToPartner(partner, moduleId, this.logger)) {
         continue;
       }
+      const HttpMethodForPartner = handleHttpMethodForPartner(
+        httpMethod,
+        moduleId,
+        partner,
+      );
+
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,
       );
@@ -328,7 +353,7 @@ export abstract class BaseClientApi {
         cpoPartyId,
         partner.countryCode!,
         partner.partyId!,
-        httpMethod,
+        HttpMethodForPartner,
         schema,
         partner.partnerProfileOCPI!,
         routingHeaders,

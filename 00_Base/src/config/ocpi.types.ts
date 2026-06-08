@@ -187,6 +187,13 @@ export const ocpiConfigInputSchema = z.object({
       awsRegion: z.string().optional(),
     })
     .optional(),
+
+  gireve: z
+    .object({
+      countryCode: z.string().optional(),
+      partyId: z.coerce.string().optional(),
+    })
+    .optional(),
 });
 
 export type OcpiConfigInput = z.infer<typeof ocpiConfigInputSchema>;
@@ -340,6 +347,13 @@ export const ocpiConfigSchema = z.object({
     .object({
       secretCacheTtlSeconds: z.number().int().positive(),
       awsRegion: z.string().optional(),
+    })
+    .optional(),
+
+  gireve: z
+    .object({
+      countryCode: z.string().optional(),
+      partyId: z.coerce.string().optional(),
     })
     .optional(),
 });

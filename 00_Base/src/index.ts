@@ -451,6 +451,7 @@ export class OcpiServer extends KoaServer {
             '[Request]',
             ctx.method,
             ctx.path,
+            ctx.url,
             rawBody || '(empty)',
           );
 
