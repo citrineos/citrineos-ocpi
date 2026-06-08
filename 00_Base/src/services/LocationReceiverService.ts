@@ -88,7 +88,6 @@ import {
   LocationMapper,
 } from '../mapper/index.js';
 import type {
-  RoamingPartnerDto,
   TenantPartnerDto,
 } from '@zetra/citrineos-base';
 
