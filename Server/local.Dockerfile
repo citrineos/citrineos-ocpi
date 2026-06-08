@@ -13,9 +13,6 @@ WORKDIR /usr/local/apps/citrineos-ocpi
 RUN cp local-package.json package.json
 
 RUN npm run install-all
-# Diagnostics — remove after confirmed
-RUN ls -la node_modules/@zetra/citrineos-base && \
-    head -40 node_modules/@zetra/citrineos-base/dist/interfaces/dto/tenant.partner.dto.d.ts
 RUN npm run build
 
 FROM --platform=$BUILDPLATFORM node:24-alpine

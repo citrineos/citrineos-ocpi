@@ -87,9 +87,7 @@ import {
   EvseMapper,
   LocationMapper,
 } from '../mapper/index.js';
-import type {
-  TenantPartnerDto,
-} from '@zetra/citrineos-base';
+import type { TenantPartnerDto } from '@zetra/citrineos-base';
 
 import type { LocationDTO, LocationEvseDTO } from '../model/DTO/LocationDTO.js';
 import type { EvseResponse } from '../model/DTO/EvseDTO.js';
