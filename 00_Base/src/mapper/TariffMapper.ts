@@ -235,9 +235,13 @@ export class TariffMapper {
     roamingPartner?: RoamingPartnerDto | null,
   ): {
     coreTariff: Partial<TariffDto> & { ocpiTariffId?: string };
-    TariffElements: Array<{ priceComponents: any; restrictions: any }>;
+    TariffElements: Array<{
+      priceComponents: any;
+      restrictions: any;
+      createdAt: string;
+      updatedAt: string;
+    }>;
   } {
-    console.log('roamingPartner !!!', roamingPartner);
     const coreFields = TariffMapper.mapElementsToCoreTariff(tariff.elements);
     const now = new Date().toISOString();
 

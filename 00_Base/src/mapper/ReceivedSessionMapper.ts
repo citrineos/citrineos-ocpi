@@ -13,6 +13,7 @@ export class ReceivedSessionMapper {
     session: Session,
     tenantId: number,
     tenantPartnerId: number,
+    roamingPartnerId: number | null,
   ): Record<string, unknown> {
     const now = new Date().toISOString();
     return {
@@ -38,6 +39,7 @@ export class ReceivedSessionMapper {
       lastUpdated: new Date(session.last_updated).toISOString(),
       tenantId,
       tenantPartnerId,
+      ...(roamingPartnerId != null && { roamingPartnerId }),
       createdAt: now,
       updatedAt: now,
     };

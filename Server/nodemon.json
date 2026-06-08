@@ -10,7 +10,11 @@
     "../../citrineos-ocpi/03_Modules/ChargingProfiles",
     "../../citrineos-ocpi/03_Modules/Tokens",
     "../../citrineos-ocpi/03_Modules/Cdrs",
-    "../../citrineos-ocpi/03_Modules/DtoRouter"
+    "../../citrineos-ocpi/03_Modules/DtoRouter",
+    "../../citrineos-core/00_Base/src",
+    "../../citrineos-core/02_Util/src",
+    "../../citrineos-core/01_Data/src",
+    "../../citrineos-core/03_Modules/Tenant/src"
   ],
   "ext": "ts,js",
   "ignore": ["**/dist/**", "**/node_modules/**"],

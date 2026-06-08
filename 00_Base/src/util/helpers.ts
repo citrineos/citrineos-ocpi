@@ -2,17 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-<<<<<<< HEAD
+
+import type { TenantPartnerDto } from '@zetra/citrineos-base';
 import {
   logDbBroadcast,
   ModuleId,
   Role,
   type TenantPartnersListQueryResult,
 } from '../index.js';
-=======
-import { logDbBroadcast, Role, type IDtoEventContext } from '../index.js';
-import type { TenantDto, TenantPartnerDto } from '@zetra/citrineos-base';
->>>>>>> 331a6db (feat: tariff upsert for hub)
+
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
@@ -73,3 +71,58 @@ export const getRoamingPartner = (
   }
   return null;
 };
+
+interface SimpleGraphQLClient {
+  request<T>(query: string, variables?: object): Promise<T>;
+}
+
+type WithId = { id: number };
+
+export async function findThenUpsert<
+  TResult extends WithId,
+  TFindVars extends object = object,
+  TInsertVars extends object = object,
+  TUpdateVars extends object = object,
+>(
+  client: SimpleGraphQLClient,
+  opts: {
+    findQuery: string;
+    findVars: TFindVars;
+    findResultKey: string;
+    insertQuery: string;
+    insertVars: TInsertVars;
+    insertResultKey: string;
+    updateQuery: string;
+    updateVars: (existingId: number) => TUpdateVars;
+    updateResultKey: string;
+    beforeUpdate?: (existingId: number) => Promise<void>;
+  },
+): Promise<TResult> {
+  const findResult = await client.request<Record<string, WithId[]>>(
+    opts.findQuery,
+    opts.findVars,
+  );
+  const existing = findResult[opts.findResultKey]?.[0];
+
+  if (!existing) {
+    const insertResult = await client.request<Record<string, TResult>>(
+      opts.insertQuery,
+      opts.insertVars,
+    );
+    const inserted = insertResult[opts.insertResultKey];
+    if (!inserted?.id) throw new Error('Insert failed');
+    return inserted;
+  }
+
+  if (opts.beforeUpdate) {
+    await opts.beforeUpdate(existing.id);
+  }
+
+  const updateResult = await client.request<Record<string, TResult>>(
+    opts.updateQuery,
+    opts.updateVars(existing.id),
+  );
+  const updated = updateResult[opts.updateResultKey];
+  if (!updated?.id) throw new Error('Update failed');
+  return updated;
+}

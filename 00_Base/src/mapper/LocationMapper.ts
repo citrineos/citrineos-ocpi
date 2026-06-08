@@ -23,6 +23,7 @@ import {
   type LocationFacilityEnumType,
   type LocationParkingEnumType,
   type TenantPartnerDto,
+  type RoamingPartnerDto,
 } from '@zetra/citrineos-base';
 import {
   ChargingStationCapabilityEnum,
@@ -115,11 +116,12 @@ export class LocationMapper {
   static fromGraphqlReceiver(
     location: LocationReceiverDTO,
     tenantPartner: TenantPartnerDto,
+    roamingPartner: RoamingPartnerDto | null,
   ): LocationDTO {
     return {
       id: location.ocpiId!,
-      country_code: tenantPartner.countryCode!,
-      party_id: tenantPartner.partyId!,
+      country_code: roamingPartner?.countryCode ?? tenantPartner.countryCode!,
+      party_id: roamingPartner?.partyId ?? tenantPartner.partyId!,
       publish: location.publishUpstream ?? false,
       name: location.name,
       address: location.address ?? '',

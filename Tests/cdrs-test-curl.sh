@@ -36,11 +36,27 @@ OCPI_VERSION="${OCPI_VERSION:-2.2.1}"
 RECEIVER_PREFIX="$OCPI_BASE/emsp/$OCPI_VERSION"
 CDR_ENDPOINT="$RECEIVER_PREFIX/cdrs"
 
-AUTH_TOKEN="${AUTH_TOKEN:-Token MTE5ODVjODUtMDE4ZS00MTI3LTg1NzQtOGVkOGFmMmVlNDEx}"
- 
+AUTH_TOKEN="Token YmMzZjk0NjQtZjVmMS00MDdkLWI4OTQtODg0ODZlZmVkYmE2"
+
+# OCPI headers: CPO partner FR/108 -> our eMSP FR/ZET
+# OCPI_HEADERS=(
+#   -H "Authorization: $AUTH_TOKEN"
+#   -H "X-Request-ID: $(uuidgen 2>/dev/null || echo test-req-001)"
+#   -H "X-Correlation-ID: $(uuidgen 2>/dev/null || echo test-corr-001)"
+#   -H "OCPI-from-country-code: FR"
+#   -H "OCPI-from-party-id: 108"
+#   -H "OCPI-to-country-code: FR"
+#   -H "OCPI-to-party-id: ZET"
+# )
+
 OCPI_HEADERS=(
   -H "Authorization: $AUTH_TOKEN"
-  -H "Content-Type: application/json"
+  -H "X-Request-ID: $(uuidgen 2>/dev/null || echo test-req-001)"
+  -H "X-Correlation-ID: $(uuidgen 2>/dev/null || echo test-corr-001)"
+  -H "OCPI-from-country-code: FR"
+  -H "OCPI-from-party-id: 108"
+  -H "OCPI-to-country-code: FR"
+  -H "OCPI-to-party-id: ZET"
 )
  
 # ---------------------------------------------------------------------------
@@ -394,7 +410,7 @@ CDR_RESERVATION_ID="CDR-RESERVATION-001"
 MINIMAL_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-MINIMAL-001",
   "start_date_time": "2025-03-10T08:00:00Z",
   "end_date_time": "2025-03-10T09:00:00Z",
@@ -424,7 +440,7 @@ MINIMAL_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-MIN-01",
       "currency": "EUR",
       "elements": [
@@ -451,7 +467,7 @@ EOF
 FULL_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-FULL-001",
   "start_date_time": "2025-04-01T14:00:00Z",
   "end_date_time": "2025-04-01T16:30:00Z",
@@ -486,7 +502,7 @@ FULL_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-FULL-01",
       "currency": "EUR",
       "elements": [
@@ -530,7 +546,7 @@ EOF
 ORIGINAL_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-ORIG-001",
   "start_date_time": "2025-05-01T10:00:00Z",
   "end_date_time": "2025-05-01T11:00:00Z",
@@ -559,7 +575,7 @@ ORIGINAL_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-CREDIT-01",
       "currency": "EUR",
       "elements": [
@@ -586,7 +602,7 @@ EOF
 CREDIT_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-ORIG-001-C",
   "start_date_time": "2025-05-01T10:00:00Z",
   "end_date_time": "2025-05-01T11:00:00Z",
@@ -615,7 +631,7 @@ CREDIT_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-CREDIT-01",
       "currency": "EUR",
       "elements": [
@@ -644,7 +660,7 @@ EOF
 MULTIPERIOD_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-MULTIPERIOD-001",
   "start_date_time": "2025-06-01T16:00:00Z",
   "end_date_time": "2025-06-01T19:00:00Z",
@@ -674,7 +690,7 @@ MULTIPERIOD_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-MULTI-01",
       "currency": "EUR",
       "elements": [
@@ -720,7 +736,7 @@ EOF
 SIGNED_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-SIGNED-001",
   "start_date_time": "2025-07-01T09:00:00Z",
   "end_date_time": "2025-07-01T10:00:00Z",
@@ -795,7 +811,7 @@ EOF
 HOME_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-HOME-001",
   "start_date_time": "2025-08-01T22:00:00Z",
   "end_date_time": "2025-08-02T06:00:00Z",
@@ -824,7 +840,7 @@ HOME_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-HOME-01",
       "currency": "EUR",
       "elements": [
@@ -852,7 +868,7 @@ EOF
 RESERVATION_CDR_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-RESERVATION-001",
   "start_date_time": "2025-09-01T12:00:00Z",
   "end_date_time": "2025-09-01T12:30:00Z",
@@ -882,7 +898,7 @@ RESERVATION_CDR_JSON=$(cat <<'EOF'
   "tariffs": [
     {
       "country_code": "FR",
-      "party_id": "POT",
+      "party_id": "108",
       "id": "TARIFF-RES-01",
       "currency": "EUR",
       "elements": [
@@ -927,7 +943,7 @@ if [ -n "$(get_location_url "$CDR_MINIMAL_ID")" ]; then
   assert_ocpi_success "$body" "GET minimal CDR"
   assert_field  "$body" "data.id"           "$CDR_MINIMAL_ID"
   assert_field  "$body" "data.country_code" "FR"
-  assert_field  "$body" "data.party_id"     "POT"
+  assert_field  "$body" "data.party_id"     "108"
 else
   echo -e "  ${YELLOW}SKIP — no Location URL captured from CDR-1${RESET}"
 fi
@@ -1131,7 +1147,7 @@ separator "CDR-11. POST CDR missing required field (total_cost) — OCPI error"
 MISSING_FIELD_JSON=$(cat <<'EOF'
 {
   "country_code": "FR",
-  "party_id": "POT",
+  "party_id": "108",
   "id": "CDR-MISSING-FIELD-001",
   "start_date_time": "2025-01-01T00:00:00Z",
   "end_date_time": "2025-01-01T01:00:00Z",

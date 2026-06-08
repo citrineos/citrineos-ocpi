@@ -13,8 +13,8 @@
 #   {sessions_endpoint_url}/{country_code}/{party_id}/{session_id}
 #
 # In this test:
-#   - Our platform acts as eMSP: FR/ZTA (the Tenant)
-#   - Partner CPO: FR/TMS (the TenantPartner)
+#   - Our platform acts as eMSP: FR/ZET (the Tenant)
+#   - Partner CPO: FR/108 (the TenantPartner)
 #
 # Prerequisites:
 #   1. Server running on localhost:8085
@@ -35,17 +35,27 @@ RECEIVER_PREFIX="$OCPI_BASE/emsp/$OCPI_VERSION"
 SENDER_BASE_URL="$SENDER_PREFIX/sessions"
 RECEIVER_BASE_URL="$RECEIVER_PREFIX/sessions"
 
-AUTH_TOKEN="Token YjU5ZGNlYTctZWM4My00NjQwLTllNTEtZWY0MjA2NDgwMDc0"
+AUTH_TOKEN="Token YmMzZjk0NjQtZjVmMS00MDdkLWI4OTQtODg0ODZlZmVkYmE2"
 
-# OCPI headers: CPO partner FR/TMS -> our eMSP FR/ZTA
+# OCPI headers: CPO partner FR/108 -> our eMSP FR/ZET
+# OCPI_HEADERS=(
+#   -H "Authorization: $AUTH_TOKEN"
+#   -H "X-Request-ID: $(uuidgen 2>/dev/null || echo test-req-001)"
+#   -H "X-Correlation-ID: $(uuidgen 2>/dev/null || echo test-corr-001)"
+#   -H "OCPI-from-country-code: FR"
+#   -H "OCPI-from-party-id: 108"
+#   -H "OCPI-to-country-code: FR"
+#   -H "OCPI-to-party-id: ZET"
+# )
+
 OCPI_HEADERS=(
   -H "Authorization: $AUTH_TOKEN"
   -H "X-Request-ID: $(uuidgen 2>/dev/null || echo test-req-001)"
   -H "X-Correlation-ID: $(uuidgen 2>/dev/null || echo test-corr-001)"
   -H "OCPI-from-country-code: FR"
-  -H "OCPI-from-party-id: TMS"
+  -H "OCPI-from-party-id: 108"
   -H "OCPI-to-country-code: FR"
-  -H "OCPI-to-party-id: ZTA"
+  -H "OCPI-to-party-id: ZET"
 )
 
 GREEN='\033[0;32m'
@@ -103,46 +113,46 @@ run_curl() {
 
 # ===========================================================================
 # PHASE 1 — CREATE (Receiver PUT)
-# The CPO (FR/TMS) pushes sessions to our eMSP (FR/ZTA).
+# The CPO (FR/108) pushes sessions to our eMSP (FR/ZET).
 # URL uses CPO's country_code/party_id per OCPI 2.2.1 spec.
-# The session is stored with a tenantPartnerId linking it to FR/TMS.
+# The session is stored with a tenantPartnerId linking it to FR/108.
 # ===========================================================================
 
-separator "1. PUT /sessions/FR/TMS/sess-001 — Create session 1 (ACTIVE charging session)"
+separator "1. PUT /sessions/FR/108/sess-001 — Create session 1 (ACTIVE charging session)"
 run_curl 200 \
-  -X PUT "$RECEIVER_BASE_URL/FR/TMS/sess-001" \
+  -X PUT "$RECEIVER_BASE_URL/FR/108/sess-001" \
   "${OCPI_HEADERS[@]}" \
   -H "Content-Type: application/json" \
   -d '{
     "country_code": "FR",
-    "party_id": "TMS",
+    "party_id": "108",
     "id": "sess-001",
     "start_date_time": "2024-06-15T10:00:00Z",
     "kwh": 5.2,
     "cdr_token": {
       "uid": "TOKEN-001",
       "type": "RFID",
-      "contract_id": "FRZTA-CONTRACT-001",
+      "contract_id": "FRZET-CONTRACT-001",
       "country_code": "FR",
-      "party_id": "ZTA"
+      "party_id": "ZET"
     },
     "auth_method": "WHITELIST",
     "location_id": "LOC-001",
-    "evse_uid": "FR*TMS*E001",
+    "evse_uid": "FR*108*E001",
     "connector_id": "1",
     "currency": "EUR",
     "status": "ACTIVE",
     "last_updated": "2024-06-15T10:15:00Z"
   }'
 
-separator "2. PUT /sessions/FR/TMS/sess-002 — Create session 2 (COMPLETED with charging periods)"
+separator "2. PUT /sessions/FR/108/sess-002 — Create session 2 (COMPLETED with charging periods)"
 run_curl 200 \
-  -X PUT "$RECEIVER_BASE_URL/FR/TMS/sess-002" \
+  -X PUT "$RECEIVER_BASE_URL/FR/108/sess-002" \
   "${OCPI_HEADERS[@]}" \
   -H "Content-Type: application/json" \
   -d '{
     "country_code": "FR",
-    "party_id": "TMS",
+    "party_id": "108",
     "id": "sess-002",
     "start_date_time": "2024-06-14T14:00:00Z",
     "end_date_time": "2024-06-14T15:30:00Z",
@@ -150,13 +160,13 @@ run_curl 200 \
     "cdr_token": {
       "uid": "TOKEN-002",
       "type": "RFID",
-      "contract_id": "FRZTA-CONTRACT-002",
+      "contract_id": "FRZET-CONTRACT-002",
       "country_code": "FR",
-      "party_id": "ZTA"
+      "party_id": "ZET"
     },
     "auth_method": "WHITELIST",
     "location_id": "LOC-002",
-    "evse_uid": "FR*TMS*E002",
+    "evse_uid": "FR*108*E002",
     "connector_id": "2",
     "currency": "EUR",
     "charging_periods": [
@@ -189,28 +199,28 @@ run_curl 200 \
 # Retrieve sessions stored from partner CPO.
 # ===========================================================================
 
-separator "3. GET /sessions/FR/TMS/sess-001 — Retrieve session 1"
+separator "3. GET /sessions/FR/108/sess-001 — Retrieve session 1"
 run_curl 200 \
-  "$RECEIVER_BASE_URL/FR/TMS/sess-001" \
+  "$RECEIVER_BASE_URL/FR/108/sess-001" \
   "${OCPI_HEADERS[@]}"
 
-separator "4. GET /sessions/FR/TMS/sess-002 — Retrieve session 2"
+separator "4. GET /sessions/FR/108/sess-002 — Retrieve session 2"
 run_curl 200 \
-  "$RECEIVER_BASE_URL/FR/TMS/sess-002" \
+  "$RECEIVER_BASE_URL/FR/108/sess-002" \
   "${OCPI_HEADERS[@]}"
 
-separator "5. GET /sessions/FR/TMS/nonexistent — Non-existent session (expect 404)"
+separator "5. GET /sessions/FR/108/nonexistent — Non-existent session (expect 404)"
 run_curl 404 \
-  "$RECEIVER_BASE_URL/FR/TMS/nonexistent" \
+  "$RECEIVER_BASE_URL/FR/108/nonexistent" \
   "${OCPI_HEADERS[@]}"
 
 # ===========================================================================
 # PHASE 3 — UPDATE (Receiver PATCH + Receiver PUT replace)
 # ===========================================================================
 
-separator "6. PATCH /sessions/FR/TMS/sess-001 — Update kwh and add charging period"
+separator "6. PATCH /sessions/FR/108/sess-001 — Update kwh and add charging period"
 run_curl 200 \
-  -X PATCH "$RECEIVER_BASE_URL/FR/TMS/sess-001" \
+  -X PATCH "$RECEIVER_BASE_URL/FR/108/sess-001" \
   "${OCPI_HEADERS[@]}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -228,19 +238,19 @@ run_curl 200 \
     "last_updated": "2024-06-15T10:30:00Z"
   }'
 
-separator "7. GET /sessions/FR/TMS/sess-001 — Verify the patch"
+separator "7. GET /sessions/FR/108/sess-001 — Verify the patch"
 run_curl 200 \
-  "$RECEIVER_BASE_URL/FR/TMS/sess-001" \
+  "$RECEIVER_BASE_URL/FR/108/sess-001" \
   "${OCPI_HEADERS[@]}"
 
-separator "8. PUT /sessions/FR/TMS/sess-001 — Replace session 1 (mark COMPLETED)"
+separator "8. PUT /sessions/FR/108/sess-001 — Replace session 1 (mark COMPLETED)"
 run_curl 200 \
-  -X PUT "$RECEIVER_BASE_URL/FR/TMS/sess-001" \
+  -X PUT "$RECEIVER_BASE_URL/FR/108/sess-001" \
   "${OCPI_HEADERS[@]}" \
   -H "Content-Type: application/json" \
   -d '{
     "country_code": "FR",
-    "party_id": "TMS",
+    "party_id": "108",
     "id": "sess-001",
     "start_date_time": "2024-06-15T10:00:00Z",
     "end_date_time": "2024-06-15T11:00:00Z",
@@ -248,13 +258,13 @@ run_curl 200 \
     "cdr_token": {
       "uid": "TOKEN-001",
       "type": "RFID",
-      "contract_id": "FRZTA-CONTRACT-001",
+      "contract_id": "FRZET-CONTRACT-001",
       "country_code": "FR",
-      "party_id": "ZTA"
+      "party_id": "ZET"
     },
     "auth_method": "WHITELIST",
     "location_id": "LOC-001",
-    "evse_uid": "FR*TMS*E001",
+    "evse_uid": "FR*108*E001",
     "connector_id": "1",
     "currency": "EUR",
     "charging_periods": [
@@ -274,9 +284,9 @@ run_curl 200 \
     "last_updated": "2024-06-15T11:00:00Z"
   }'
 
-separator "9. GET /sessions/FR/TMS/sess-001 — Verify the replacement"
+separator "9. GET /sessions/FR/108/sess-001 — Verify the replacement"
 run_curl 200 \
-  "$RECEIVER_BASE_URL/FR/TMS/sess-001" \
+  "$RECEIVER_BASE_URL/FR/108/sess-001" \
   "${OCPI_HEADERS[@]}"
 
 # ===========================================================================
@@ -302,9 +312,9 @@ run_curl 200 \
 # PHASE 5 — EDGE CASES
 # ===========================================================================
 
-separator "12. PATCH /sessions/FR/TMS/nonexistent — Patch non-existent (expect error)"
+separator "12. PATCH /sessions/FR/108/nonexistent — Patch non-existent (expect error)"
 run_curl 404 \
-  -X PATCH "$RECEIVER_BASE_URL/FR/TMS/nonexistent" \
+  -X PATCH "$RECEIVER_BASE_URL/FR/108/nonexistent" \
   "${OCPI_HEADERS[@]}" \
   -H "Content-Type: application/json" \
   -d '{

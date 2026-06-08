@@ -49,6 +49,16 @@ import type {
   GetTariffByPartnerQueryVariables,
   UpsertConnectorTariffOcpiPartnerMutationVariables,
   UpsertConnectorTariffOcpiPartnerMutationResult,
+  GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+  GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryVariables,
+  GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryResult,
+  GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryVariables,
+  GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+  GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryVariables,
+  GetPartnerEvseByOcpiIdAndRoamingPartnerIdQueryResult,
+  GetPartnerEvseByOcpiIdAndRoamingPartnerIdQueryVariables,
+  GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryResult,
+  GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryVariables,
 } from '../graphql/index.js';
 import {
   OcpiGraphqlClient,
@@ -65,22 +75,33 @@ import {
   GET_PARTNER_EVSE_BY_OCPI_ID,
   GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID,
   GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID,
+  GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID,
   UPDATE_CONNECTOR_PATCH_MUTATION,
   GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY,
+  GET_EVSE_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY,
   UPSERT_CONNECTOR_TARIFF_OCPIPARTNER_MUTATION,
   GET_TARIFF_BY_PARTNER_QUERY,
   DELETE_OCPI_CONNECTOR_TARIFF_MUTATION,
+  GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY,
+  INSERT_LOCATION_MUTATION,
+  UPDATE_LOCATION_MUTATION,
+  GET_PARTNER_EVSE_BY_OCPI_ID_AND_ROAMING_PARTNER_ID_QUERY,
+  GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID,
 } from '../graphql/index.js';
 import {
   ConnectorMapper,
   EvseMapper,
   LocationMapper,
 } from '../mapper/index.js';
-import type { TenantPartnerDto } from '@zetra/citrineos-base';
+import type {
+  RoamingPartnerDto,
+  TenantPartnerDto,
+} from '@zetra/citrineos-base';
 
 import type { LocationDTO, LocationEvseDTO } from '../model/DTO/LocationDTO.js';
 import type { EvseResponse } from '../model/DTO/EvseDTO.js';
 import type { ConnectorResponse } from '../model/DTO/ConnectorDTO.js';
+import { findThenUpsert, getRoamingPartner } from '../util/helpers.js';
 
 function ocpiCiEquals(a: string, b: string): boolean {
   return a.trim().toUpperCase() === b.trim().toUpperCase();
@@ -170,24 +191,51 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      const partnerErr = validateUrlMatchesTenantPartner(
+      // const partnerErr = validateUrlMatchesTenantPartner(
+      //   countryCode,
+      //   partyId,
+      //   tenantPartner,
+      // );
+      // if (partnerErr) return partnerErr;
+      const roamingPartner = getRoamingPartner(
+        tenantPartner,
         countryCode,
         partyId,
-        tenantPartner,
       );
-      if (partnerErr) return partnerErr;
-      const variables = {
-        id: locationId,
-        partnerId: tenantPartner.id,
-      };
-      const response = await this.ocpiGraphqlClient.request<
-        GetLocationByOcpiIdAndPartnerIdQueryResult,
-        GetLocationByOcpiIdAndPartnerIdQueryVariables
-      >(GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY, variables);
-      const location = LocationMapper.fromGraphqlReceiver(
-        response.Locations[0],
-        tenantPartner,
-      );
+      const roamingPartnerId = roamingPartner?.id ?? null;
+      const tenantPartnerId = tenantPartner.id;
+      let location;
+
+      if (roamingPartnerId) {
+        const response = await this.ocpiGraphqlClient.request<
+          GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+          GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryVariables
+        >(GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY, {
+          id: locationId,
+          partnerId: tenantPartnerId,
+          roamingPartnerId,
+        });
+        GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY;
+        location = LocationMapper.fromGraphqlReceiver(
+          response.Locations[0],
+          tenantPartner,
+          roamingPartner ?? null,
+        );
+      } else {
+        const response = await this.ocpiGraphqlClient.request<
+          GetLocationByOcpiIdAndPartnerIdQueryResult,
+          GetLocationByOcpiIdAndPartnerIdQueryVariables
+        >(GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY, {
+          id: locationId,
+          partnerId: tenantPartnerId,
+        });
+        location = LocationMapper.fromGraphqlReceiver(
+          response.Locations[0],
+          tenantPartner,
+          null,
+        );
+      }
+
       return buildOcpiResponse(
         OcpiResponseStatusCode.GenericSuccessCode,
         location,
@@ -220,21 +268,44 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      const partnerErr = validateUrlMatchesTenantPartner(
-        countryCode,
-        partyId,
-        tenantPartner,
-      );
-      if (partnerErr) return partnerErr as EvseResponse;
+      // const partnerErr = validateUrlMatchesTenantPartner(
+      //   countryCode,
+      //   partyId,
+      //   tenantPartner,
+      // );
+      // if (partnerErr) return partnerErr as EvseResponse;
       const variables = {
         locationId: locationId,
         partnerId: tenantPartner.id,
         evseUid: evseUid,
       };
-      const response = await this.ocpiGraphqlClient.request<
-        GetEvseByOcpiIdAndPartnerIdQueryResult,
-        GetEvseByOcpiIdAndPartnerIdQueryVariables
-      >(GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY, variables);
+      const roamingPartner = getRoamingPartner(
+        tenantPartner,
+        countryCode,
+        partyId,
+      );
+      const roamingPartnerId = roamingPartner?.id ?? null;
+
+      const response =
+        roamingPartnerId != null
+          ? await this.ocpiGraphqlClient.request<
+              GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+              GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryVariables
+            >(GET_EVSE_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY, {
+              locationId,
+              partnerId: tenantPartner.id,
+              evseUid,
+              roamingPartnerId,
+            })
+          : await this.ocpiGraphqlClient.request<
+              GetEvseByOcpiIdAndPartnerIdQueryResult,
+              GetEvseByOcpiIdAndPartnerIdQueryVariables
+            >(GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY, {
+              locationId,
+              partnerId: tenantPartner.id,
+              evseUid,
+            });
+
       if (!response.Evses[0]) {
         throw new NotFoundException(
           `Evse ${evseUid} not found for location ${locationId}`,
@@ -274,22 +345,46 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      const partnerErr = validateUrlMatchesTenantPartner(
+      // const partnerErr = validateUrlMatchesTenantPartner(
+      //   countryCode,
+      //   partyId,
+      //   tenantPartner,
+      // );
+      // if (partnerErr) return partnerErr as ConnectorResponse;
+      const roamingPartner = getRoamingPartner(
+        tenantPartner,
         countryCode,
         partyId,
-        tenantPartner,
       );
-      if (partnerErr) return partnerErr as ConnectorResponse;
-      const variables = {
-        locationId: locationId,
-        partnerId: tenantPartner.id,
-        evseUid: evseUid,
-        connectorId: connectorId,
-      };
-      const response = await this.ocpiGraphqlClient.request<
-        GetConnectorByOcpiIdAndEvseIdQueryResult,
-        GetConnectorByOcpiIdAndEvseIdQueryVariables
-      >(GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID, variables);
+      const roamingPartnerId = roamingPartner?.id ?? null;
+
+      const response =
+        roamingPartnerId != null
+          ? await this.ocpiGraphqlClient.request<
+              GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryResult,
+              GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryVariables
+            >(GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID, {
+              locationId,
+              partnerId: tenantPartner.id,
+              evseUid,
+              connectorId,
+              roamingPartnerId,
+            })
+          : await this.ocpiGraphqlClient.request<
+              GetConnectorByOcpiIdAndEvseIdQueryResult,
+              GetConnectorByOcpiIdAndEvseIdQueryVariables
+            >(GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID, {
+              locationId,
+              partnerId: tenantPartner.id,
+              evseUid,
+              connectorId,
+            });
+
+      if (!response.Connectors[0]) {
+        throw new NotFoundException(
+          `Connector ${connectorId} not found for EVSE ${evseUid} at location ${locationId}`,
+        );
+      }
       const connector = ConnectorMapper.fromGraphqlReceiver(
         response.Connectors[0],
       );
@@ -315,6 +410,26 @@ export class LocationReceiverService {
     locationId: string,
     tenantPartner: TenantPartnerDto,
   ): Promise<void> {
+    if (!tenantPartner?.id) {
+      throw new UnauthorizedException('Credentials not found for given token');
+    }
+
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      location.country_code,
+      location.party_id,
+    );
+
+    if (
+      (tenantPartner.countryCode !== location.country_code ||
+        tenantPartner.partyId !== location.party_id) &&
+      !roamingPartner
+    ) {
+      throw new Error(
+        'Tenant partner country code and party id do not match the location request or roaming partner not found',
+      );
+    }
+
     const coordinates = {
       type: 'Point',
       coordinates: [
@@ -322,72 +437,85 @@ export class LocationReceiverService {
         Number(location?.coordinates?.latitude),
       ],
     };
-    const response = await this.ocpiGraphqlClient.request<
-      UpsertLocationMutationResult,
-      UpsertLocationMutationVariables
-    >(UPSERT_LOCATION_MUTATION, {
-      object: {
-        ocpiId: locationId,
-        ownerTenantPartnerId: tenantPartner.id,
-        tenantId: tenantPartner.tenantId,
-        coordinates: coordinates,
-        name: location.name,
-        address: location.address,
-        city: location.city,
-        country: location.country,
-        postalCode: location.postal_code,
-        state: location.state ?? null,
-        parkingType: location.parking_type ?? null,
-        timeZone: location.time_zone ?? null,
-        operator: location.operator ?? null,
-        suboperator: location.suboperator ?? null,
-        owner: location.owner ?? null,
-        chargingWhenClosed: location.charging_when_closed ?? null,
-        relatedLocations: location.related_locations ?? null,
-        publishUpstream: location.publish ?? false,
-        publishAllowedTo: location.publish_allowed_to ?? null,
-        energyMix: location.energy_mix ?? null,
-        openingHours: location.opening_times ?? null,
-        facilities: location.facilities ?? null,
-        images: location.images ?? null,
-        directions: location.directions ?? null,
-        createdAt: new Date(),
-        updatedAt: location.last_updated ?? new Date(),
-      },
-    });
 
-    if (!response.insert_Locations_one?.id) {
-      throw new Error('Failed to insert location');
-    }
-
-    if (!tenantPartner.id) {
-      throw new UnauthorizedException('Credentials not found for given token');
-    }
-
-    const variables = {
-      locationId: response.insert_Locations_one.id,
-      partnerId: tenantPartner.id,
+    const base = {
+      ocpiId: locationId,
+      ownerTenantPartnerId: tenantPartner.id,
+      tenantId: tenantPartner.tenantId,
+      coordinates,
+      name: location.name,
+      address: location.address,
+      city: location.city,
+      country: location.country,
+      postalCode: location.postal_code,
+      state: location.state ?? null,
+      parkingType: location.parking_type ?? null,
+      timeZone: location.time_zone ?? null,
+      operator: location.operator ?? null,
+      suboperator: location.suboperator ?? null,
+      owner: location.owner ?? null,
+      chargingWhenClosed: location.charging_when_closed ?? null,
+      relatedLocations: location.related_locations ?? null,
+      publishUpstream: location.publish ?? false,
+      publishAllowedTo: location.publish_allowed_to ?? null,
+      energyMix: location.energy_mix ?? null,
+      openingHours: location.opening_times ?? null,
+      facilities: location.facilities ?? null,
+      images: location.images ?? null,
+      directions: location.directions ?? null,
     };
 
-    let idChargingStationAssociatedWithLocation = null;
+    const locationDbRow = await findThenUpsert(this.ocpiGraphqlClient, {
+      findQuery:
+        roamingPartner?.id != null
+          ? GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY
+          : GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY,
+      findVars:
+        roamingPartner?.id != null
+          ? {
+              id: locationId,
+              partnerId: tenantPartner.id,
+              roamingPartnerId: roamingPartner.id,
+            }
+          : { id: locationId, partnerId: tenantPartner.id },
+      findResultKey: 'Locations',
+      insertQuery: INSERT_LOCATION_MUTATION,
+      insertVars: {
+        object: {
+          ...base,
+          ...(roamingPartner?.id != null && {
+            roamingPartnerId: roamingPartner.id,
+          }),
+          createdAt: new Date(),
+          updatedAt: location.last_updated ?? new Date(),
+        },
+      },
+      insertResultKey: 'insert_Locations_one',
+      updateQuery: UPDATE_LOCATION_MUTATION,
+      updateVars: (id) => ({
+        id,
+        set: { ...base, updatedAt: location.last_updated ?? new Date() },
+      }),
+      updateResultKey: 'update_Locations_by_pk',
+    });
+
     const stationIdFoundResponse = await this.ocpiGraphqlClient.request<
       GetChargingStationByLocationAndOwnerPartnerQueryResult,
       GetChargingStationByLocationAndOwnerPartnerQueryVariables
-    >(GET_CHARGING_STATION_BY_LOCATION_ID_AND_OWNER_PARTNER_ID, variables);
+    >(GET_CHARGING_STATION_BY_LOCATION_ID_AND_OWNER_PARTNER_ID, {
+      locationId: locationDbRow.id,
+      partnerId: tenantPartner.id,
+    });
 
-    if (stationIdFoundResponse.ChargingStations.length === 0) {
-      const responseCreateVirtualChargingStation =
-        await this.createVirtualChargingStationForPartnerAndLocation(
-          response.insert_Locations_one.id.toString(),
-          tenantPartner,
-        );
-      idChargingStationAssociatedWithLocation =
-        responseCreateVirtualChargingStation?.insert_ChargingStations_one?.id ??
-        null;
-    } else {
-      idChargingStationAssociatedWithLocation =
-        stationIdFoundResponse.ChargingStations[0].id;
-    }
+    const idChargingStationAssociatedWithLocation =
+      stationIdFoundResponse.ChargingStations.length === 0
+        ? ((
+            await this.createVirtualChargingStationForPartnerAndLocation(
+              locationDbRow.id.toString(),
+              tenantPartner,
+            )
+          )?.insert_ChargingStations_one?.id ?? null)
+        : stationIdFoundResponse.ChargingStations[0].id;
 
     if (!idChargingStationAssociatedWithLocation) {
       throw new Error('Failed to create virtual charging station');
@@ -413,7 +541,6 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    console.log('tenantPartner', tenantPartner);
     // const partnerErr = validateUrlMatchesTenantPartner(
     //   countryCode,
     //   partyId,
@@ -644,20 +771,40 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    const partnerErr = validateUrlMatchesTenantPartner(
-      countryCode,
-      partyId,
-      tenantPartner,
-    );
-    if (partnerErr) return partnerErr;
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
 
     const variables = { id: locationId, partnerId: tenantPartner.id };
-    const response = await this.ocpiGraphqlClient.request<
-      GetLocationByOcpiIdAndPartnerIdQueryResult,
-      GetLocationByOcpiIdAndPartnerIdQueryVariables
-    >(GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY, variables);
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      countryCode,
+      partyId,
+    );
 
-    if (!response.Locations || response.Locations.length === 0) {
+    // Find location scoped to roaming partner or direct peer
+    const response =
+      roamingPartner?.id != null
+        ? await this.ocpiGraphqlClient.request<
+            GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+            GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryVariables
+          >(GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY, {
+            id: locationId,
+            partnerId: tenantPartner.id,
+            roamingPartnerId: roamingPartner.id,
+          })
+        : await this.ocpiGraphqlClient.request<
+            GetLocationByOcpiIdAndPartnerIdQueryResult,
+            GetLocationByOcpiIdAndPartnerIdQueryVariables
+          >(GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY, {
+            id: locationId,
+            partnerId: tenantPartner.id,
+          });
+
+    if (!response.Locations?.length) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,
         'Unknown location',
@@ -666,56 +813,38 @@ export class LocationReceiverService {
 
     const locRow = response.Locations[0];
     const ownerTenantPartner = locRow?.ownerTenantPartner;
-    const tenantErr = validateLocationTenantPartnerMatchesUrl(
-      {
-        countryCode: ownerTenantPartner?.countryCode,
-        partyId: ownerTenantPartner?.partyId,
-      },
-      countryCode,
-      partyId,
-    );
-    if (tenantErr) return tenantErr;
+    // const tenantErr = validateLocationTenantPartnerMatchesUrl(
+    //   {
+    //     countryCode: ownerTenantPartner?.countryCode,
+    //     partyId: ownerTenantPartner?.partyId,
+    //   },
+    //   countryCode,
+    //   partyId,
+    // );
+    // if (tenantErr) return tenantErr;
 
-    const evseVariables = {
-      partnerId: tenantPartner.id,
-      locationId: locationId,
-      evseId: evseUid,
-    };
-    const evseResponse = await this.ocpiGraphqlClient.request<
-      GetEvseByLocationAndOwnerPartnerQueryResult,
-      GetEvseByLocationAndOwnerPartnerQueryVariables
-    >(GET_EVSE_BY_LOCATION_ID_AND_OWNER_PARTNER_ID, evseVariables);
-    const location_id = evseResponse.Locations[0].id;
+    const location_id = locRow.id;
+    const chargingPool = locRow.chargingPool ?? [];
 
-    const internalLocationIdStr = String(evseResponse.Locations[0].id);
-
-    if (evseResponse.Locations[0].chargingPool.length === 0) {
+    let stationId: string;
+    if (chargingPool.length === 0) {
       const created =
         await this.createVirtualChargingStationForPartnerAndLocation(
-          internalLocationIdStr,
+          String(location_id),
           tenantPartner,
         );
-      const stationId = created?.insert_ChargingStations_one?.id;
-      if (!stationId) {
+      const createdStationId = created?.insert_ChargingStations_one?.id;
+      if (createdStationId == null) {
         return buildOcpiErrorResponse(
           OcpiResponseStatusCode.ServerGenericError,
           'Failed to create charging station for location',
         ) as LocationResponse;
       }
-      await this.upsertEvseForPartner(
-        tenantPartner,
-        evseUid,
-        evse,
-        String(stationId),
-      );
+      stationId = String(createdStationId);
     } else {
-      await this.upsertEvseForPartner(
-        tenantPartner,
-        evseUid,
-        evse,
-        evseResponse.Locations[0].chargingPool[0].id,
-      );
+      stationId = String(chargingPool[0].id);
     }
+    await this.upsertEvseForPartner(tenantPartner, evseUid, evse, stationId);
 
     // cascade timestamps to parents : location
     const locationResponse = await this.ocpiGraphqlClient.request<
@@ -750,22 +879,46 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    const partnerErr = validateUrlMatchesTenantPartner(
+
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
+
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
       countryCode,
       partyId,
-      tenantPartner,
     );
-    if (partnerErr) return partnerErr;
 
-    const variables = {
-      locationId: locationId,
-      partnerId: tenantPartner.id,
-      evseUid: evseUid,
-    };
-    const lookupResponse = await this.ocpiGraphqlClient.request<
-      GetEvseByOcpiIdAndPartnerIdQueryResult,
-      GetEvseByOcpiIdAndPartnerIdQueryVariables
-    >(GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY, variables);
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
+
+    const lookupResponse =
+      roamingPartner?.id != null
+        ? await this.ocpiGraphqlClient.request<
+            GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+            GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryVariables
+          >(GET_EVSE_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY, {
+            locationId,
+            partnerId: tenantPartner.id,
+            roamingPartnerId: roamingPartner.id,
+            evseUid,
+          })
+        : await this.ocpiGraphqlClient.request<
+            GetEvseByOcpiIdAndPartnerIdQueryResult,
+            GetEvseByOcpiIdAndPartnerIdQueryVariables
+          >(GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY, {
+            locationId,
+            partnerId: tenantPartner.id,
+            evseUid,
+          });
 
     const chargingStation = lookupResponse?.Evses[0]?.ChargingStation;
     const evse = lookupResponse?.Evses[0];
@@ -865,6 +1018,12 @@ export class LocationReceiverService {
 
     if (has(input, 'last_updated'))
       out.updatedAt = new Date(input.last_updated as any);
+    if (has(input, 'opening_times'))
+      out.openingHours = input.opening_times ?? null;
+    if (has(input, 'directions')) out.directions = input.directions ?? null;
+    if (has(input, 'facilities')) out.facilities = input.facilities ?? null;
+    if (has(input, 'images')) out.images = input.images ?? null;
+    if (has(input, 'energy_mix')) out.energyMix = input.energy_mix ?? null;
 
     return out;
   }
@@ -883,12 +1042,12 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    const partnerErr = validateUrlMatchesTenantPartner(
-      countryCode,
-      partyId,
-      tenantPartner,
-    );
-    if (partnerErr) return partnerErr;
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
 
     if (!location.last_updated) {
       return buildOcpiErrorResponse(
@@ -897,21 +1056,63 @@ export class LocationReceiverService {
       ) as LocationResponse;
     }
 
-    const variables = { partnerId: tenantPartner.id, locationId };
-    const response = await this.ocpiGraphqlClient.request<
-      GetPartnerLocationByOcpiIdQueryResult,
-      GetPartnerLocationByOcpiIdQueryVariables
-    >(GET_PARTNER_LOCATION_BY_OCPI_ID, variables);
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      countryCode,
+      partyId,
+    );
+    const roamingPartnerId = roamingPartner?.id ?? null;
+    const tenantPartnerId = tenantPartner.id;
 
-    if (!response.Locations || response.Locations.length === 0) {
-      return buildOcpiErrorResponse(
-        OcpiResponseStatusCode.ClientUnknownLocation,
-        'Unknown location',
-      ) as LocationResponse;
+    let dbLocationId: number;
+    let locRow: { id: number; openingHours?: unknown };
+
+    if (roamingPartnerId) {
+      const response = await this.ocpiGraphqlClient.request<
+        GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
+        GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryVariables
+      >(GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY, {
+        partnerId: tenantPartnerId,
+        id: locationId,
+        roamingPartnerId,
+      });
+      if (!response.Locations?.length) {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientUnknownLocation,
+          'Unknown location',
+        ) as LocationResponse;
+      }
+      locRow = response.Locations[0];
+      dbLocationId = locRow.id;
+    } else {
+      const response = await this.ocpiGraphqlClient.request<
+        GetPartnerLocationByOcpiIdQueryResult,
+        GetPartnerLocationByOcpiIdQueryVariables
+      >(GET_PARTNER_LOCATION_BY_OCPI_ID, {
+        partnerId: tenantPartnerId,
+        locationId,
+      });
+      if (!response.Locations?.length) {
+        return buildOcpiErrorResponse(
+          OcpiResponseStatusCode.ClientUnknownLocation,
+          'Unknown location',
+        ) as LocationResponse;
+      }
+      locRow = response.Locations[0];
+      dbLocationId = locRow.id;
+    }
+    let patchInput = location;
+    if (location.opening_times != null) {
+      patchInput = {
+        ...location,
+        opening_times: {
+          ...((locRow.openingHours as object) ?? {}),
+          ...location.opening_times,
+        },
+      };
     }
 
-    const dbLocationId = response.Locations[0].id;
-    const locationPatch = this.mapLocationPatch(location);
+    const locationPatch = this.mapLocationPatch(patchInput);
     const locationResponse = await this.ocpiGraphqlClient.request<any, any>(
       UPDATE_LOCATION_PATCH_MUTATION,
       {
@@ -981,12 +1182,12 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    const partnerErr = validateUrlMatchesTenantPartner(
-      countryCode,
-      partyId,
-      tenantPartner,
-    );
-    if (partnerErr) return partnerErr;
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
 
     if (!evse.last_updated) {
       return buildOcpiErrorResponse(
@@ -995,14 +1196,41 @@ export class LocationReceiverService {
       ) as LocationResponse;
     }
 
-    const lookupResponse = await this.ocpiGraphqlClient.request<
-      GetPartnerEvseByOcpiIdsQueryResult,
-      GetPartnerEvseByOcpiIdsQueryVariables
-    >(GET_PARTNER_EVSE_BY_OCPI_ID, {
-      partnerId: tenantPartner.id,
-      locationId: locationId,
-      evseUid: evseUid,
-    });
+    // const lookupResponse = await this.ocpiGraphqlClient.request<
+    //   GetPartnerEvseByOcpiIdsQueryResult,
+    //   GetPartnerEvseByOcpiIdsQueryVariables
+    // >(GET_PARTNER_EVSE_BY_OCPI_ID, {
+    //   partnerId: tenantPartner.id,
+    //   locationId: locationId,
+    //   evseUid: evseUid,
+    // });
+
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      countryCode,
+      partyId,
+    );
+    const roamingPartnerId = roamingPartner?.id ?? null;
+    const tenantPartnerId = tenantPartner.id;
+    const lookupResponse =
+      roamingPartner?.id != null
+        ? await this.ocpiGraphqlClient.request<
+            GetPartnerEvseByOcpiIdAndRoamingPartnerIdQueryResult,
+            GetPartnerEvseByOcpiIdAndRoamingPartnerIdQueryVariables
+          >(GET_PARTNER_EVSE_BY_OCPI_ID_AND_ROAMING_PARTNER_ID_QUERY, {
+            locationId,
+            partnerId: tenantPartner.id,
+            roamingPartnerId: roamingPartner.id,
+            evseUid,
+          })
+        : await this.ocpiGraphqlClient.request<
+            GetPartnerEvseByOcpiIdsQueryResult,
+            GetPartnerEvseByOcpiIdsQueryVariables
+          >(GET_PARTNER_EVSE_BY_OCPI_ID, {
+            locationId,
+            partnerId: tenantPartner.id,
+            evseUid,
+          });
 
     if (!lookupResponse.Locations || lookupResponse.Locations.length === 0) {
       return buildOcpiErrorResponse(
@@ -1094,12 +1322,12 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    const partnerErr = validateUrlMatchesTenantPartner(
-      countryCode,
-      partyId,
-      tenantPartner,
-    );
-    if (partnerErr) return partnerErr;
+    // const partnerErr = validateUrlMatchesTenantPartner(
+    //   countryCode,
+    //   partyId,
+    //   tenantPartner,
+    // );
+    // if (partnerErr) return partnerErr;
 
     if (!connector.last_updated) {
       return buildOcpiErrorResponse(
@@ -1108,15 +1336,47 @@ export class LocationReceiverService {
       ) as LocationResponse;
     }
 
-    const lookupResponse = await this.ocpiGraphqlClient.request<
-      GetPartnerConnectorByOcpiIdAndEvseIdQueryResult,
-      GetPartnerConnectorByOcpiIdAndEvseIdQueryVariables
-    >(GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID, {
-      partnerId: tenantPartner.id,
-      locationId,
-      evseUid,
-      connectorId,
-    });
+    // const lookupResponse = await this.ocpiGraphqlClient.request<
+    //   GetPartnerConnectorByOcpiIdAndEvseIdQueryResult,
+    //   GetPartnerConnectorByOcpiIdAndEvseIdQueryVariables
+    // >(GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID, {
+    //   partnerId: tenantPartner.id,
+    //   locationId,
+    //   evseUid,
+    //   connectorId,
+    // });
+
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      countryCode,
+      partyId,
+    );
+    const roamingPartnerId = roamingPartner?.id ?? null;
+    const tenantPartnerId = tenantPartner.id;
+    const lookupResponse =
+      roamingPartner?.id != null
+        ? await this.ocpiGraphqlClient.request<
+            GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryResult,
+            GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryVariables
+          >(
+            GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID,
+            {
+              locationId,
+              partnerId: tenantPartner.id,
+              roamingPartnerId: roamingPartner.id,
+              evseUid,
+              connectorId,
+            },
+          )
+        : await this.ocpiGraphqlClient.request<
+            GetPartnerConnectorByOcpiIdAndEvseIdQueryResult,
+            GetPartnerConnectorByOcpiIdAndEvseIdQueryVariables
+          >(GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID, {
+            locationId,
+            partnerId: tenantPartner.id,
+            evseUid,
+            connectorId,
+          });
     if (!lookupResponse.Locations || lookupResponse.Locations.length === 0) {
       return buildOcpiErrorResponse(
         OcpiResponseStatusCode.ClientUnknownLocation,

@@ -24,6 +24,8 @@ import {
   GET_TENANT_PARTNER_BY_SERVER_TOKEN,
   OcpiGraphqlClient,
 } from '../../graphql/index.js';
+import { getRoamingPartner } from '../helpers.js';
+import type { TenantPartnerDto } from '@zetra/citrineos-base';
 
 const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
 const registrationModules: string[] = ['versions', 'credentials'];
@@ -78,8 +80,6 @@ export class AuthMiddleware
         >(GET_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
 
         const tenantPartner = response.TenantPartners[0];
-        console.log('tenantPartner !!!', tenantPartner);
-        console.log("TOKEN !!!", token);
         if (!tenantPartner) {
           logger.debug(
             `Authorization failed - tenant partner not found for token`,
@@ -114,15 +114,15 @@ export class AuthMiddleware
             fromCountryCode && fromPartyId && toCountryCode && toPartyId;
 
           if (hasRoutingHeaders) {
+            const roamingPartner = getRoamingPartner(
+              tenantPartner as TenantPartnerDto,
+              fromCountryCode,
+              fromPartyId,
+            );
             const isFromHeaderValid =
               (tenantPartner.countryCode === fromCountryCode &&
                 tenantPartner.partyId === fromPartyId) ||
-              (tenantPartner.roamingPartners?.some(
-                (rp) =>
-                  rp.countryCode === fromCountryCode &&
-                  rp.partyId === fromPartyId,
-              ) ??
-                false);
+              roamingPartner;
             const isToHeaderValid =
               tenantPartner.tenant &&
               tenantPartner.tenant?.countryCode === toCountryCode &&
@@ -134,6 +134,9 @@ export class AuthMiddleware
               throw new UnauthorizedException(
                 'Credentials not found for given token 2',
               );
+            }
+            if (roamingPartner) {
+              context.state.roamingPartner = roamingPartner;
             }
           } else {
             const match = (context.request.path as string).match(

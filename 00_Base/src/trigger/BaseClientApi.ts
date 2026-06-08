@@ -194,15 +194,6 @@ export abstract class BaseClientApi {
         )
       : this.restClient;
 
-    console.log('!!!!restClient', restClient);
-    console.log('!!!!url', url);
-    console.log('!!!!options', options);
-    console.log('!!!!body', body);
-    console.log('!!!!httpMethod', httpMethod);
-    console.log('!!!!schema', schema);
-    console.log('!!!!partnerProfile', partnerProfile);
-    console.log('!!!!routingHeaders', routingHeaders);
-    console.log('!!!!awsSecretCertificateArn', awsSecretCertificateArn);
     switch (httpMethod) {
       case HttpMethod.Get:
         this.logger.debug(`Sending GET request to ${url}`);

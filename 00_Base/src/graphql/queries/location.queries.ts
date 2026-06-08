@@ -446,6 +446,125 @@ export const GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY = gql`
   }
 `;
 
+export const GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY = gql`
+  query GetLocationByOcpiIdPartnerAndRoamingPartnerId(
+    $id: String!
+    $partnerId: Int!
+    $roamingPartnerId: Int!
+  ) {
+    Locations(
+      where: {
+        ocpiId: { _eq: $id }
+        ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
+      }
+    ) {
+      ocpiId
+      id
+      name
+      address
+      city
+      coordinates
+      country
+      createdAt
+      facilities
+      openingHours
+      parkingType
+      postalCode
+      publishUpstream
+      publishAllowedTo
+      state
+      timeZone
+      updatedAt
+      tenant: Tenant {
+        partyId
+        countryCode
+      }
+      ownerTenantPartner: OwnerTenantPartner {
+        partyId
+        countryCode
+      }
+      operator
+      suboperator
+      owner
+      relatedLocations
+      energyMix
+      images
+      directions
+      chargingWhenClosed
+      chargingPool: ChargingStations {
+        id
+        isOnline
+        protocol
+        capabilities
+        chargePointVendor
+        chargePointModel
+        chargePointSerialNumber
+        chargeBoxSerialNumber
+        coordinates
+        firmwareVersion
+        floorLevel
+        iccid
+        imsi
+        meterType
+        meterSerialNumber
+        parkingRestrictions
+        createdAt
+        updatedAt
+        evses: Evses {
+          id
+          stationId
+          evseTypeId
+          evseId
+          physicalReference
+          capabilities
+          directions
+          images
+          statusSchedule
+          ocpiStatus
+          ocpiUid
+          coordinates
+          floorLevel
+          parkingRestrictions
+          removed
+          createdAt
+          updatedAt
+          connectors: Connectors {
+            id
+            ocpiId
+            stationId
+            evseId
+            connectorId
+            evseTypeConnectorId
+            format
+            maximumAmperage
+            maximumPowerWatts
+            maximumVoltage
+            powerType
+            termsAndConditionsUrl
+            type
+            status
+            errorCode
+            timestamp
+            info
+            vendorId
+            vendorErrorCode
+            createdAt
+            updatedAt
+            tariffs: ConnectorTariffsOcpiPartner {
+              id
+              tariffOcpiId
+              connectorOcpiId
+              tariffId
+              connectorId
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GET_EVSE_BY_LOCATION_ID_AND_OWNER_PARTNER_ID = gql`
   query GetEvseByLocationAndOwnerPartner(
     $partnerId: Int!
@@ -466,6 +585,22 @@ export const GET_EVSE_BY_LOCATION_ID_AND_OWNER_PARTNER_ID = gql`
           evseId
         }
       }
+    }
+  }
+`;
+
+export const INSERT_LOCATION_MUTATION = gql`
+  mutation InsertLocation($object: Locations_insert_input!) {
+    insert_Locations_one(object: $object) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_LOCATION_MUTATION = gql`
+  mutation UpdateLocation($id: Int!, $set: Locations_set_input!) {
+    update_Locations_by_pk(pk_columns: { id: $id }, _set: $set) {
+      id
     }
   }
 `;
@@ -513,10 +648,12 @@ export const GET_PARTNER_LOCATION_BY_OCPI_ID = gql`
       where: {
         ocpiId: { _eq: $locationId }
         ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _is_null: true }
       }
     ) {
       id
       tenantId
+      openingHours
     }
   }
 `;

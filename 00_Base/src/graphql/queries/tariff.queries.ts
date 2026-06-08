@@ -294,6 +294,24 @@ export const DELETE_TARIFF_BY_PARTNER_MUTATION = gql`
   }
 `;
 
+export const DELETE_TARIFF_BY_ROAMING_PARTNER_MUTATION = gql`
+  mutation DeleteTariffByRoamingPartner(
+    $ocpiTariffId: String!
+    $tenantPartnerId: Int!
+    $roamingPartnerId: Int!
+  ) {
+    delete_Tariffs(
+      where: {
+        ocpiTariffId: { _eq: $ocpiTariffId }
+        tenantPartnerId: { _eq: $tenantPartnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
+      }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 export const GET_TARIFF_BY_OCPI_ID_QUERY = gql`
   query GetTariffByOcpiId(
     $ocpiTariffId: String!
@@ -355,6 +373,58 @@ export const GET_TARIFF_BY_PARTNER_QUERY = gql`
       where: {
         ocpiTariffId: { _eq: $ocpiTariffId }
         tenantPartnerId: { _eq: $tenantPartnerId }
+      }
+    ) {
+      authorizationAmount
+      createdAt
+      currency
+      id
+      ocpiTariffId
+      paymentFee
+      pricePerKwh
+      pricePerMin
+      pricePerSession
+      stationId
+      taxRate
+      tariffAltText
+      tariffType
+      tariffAltUrl
+      minPrice
+      maxPrice
+      energyMix
+      startDateTime
+      endDateTime
+      tenantPartnerId
+      updatedAt
+      tenant: Tenant {
+        countryCode
+        partyId
+      }
+      tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      TariffElements {
+        id
+        priceComponents
+        restrictions
+      }
+    }
+  }
+`;
+
+export const GET_TARIFF_BY_PARTNER_ROAMING_PARTNER_QUERY = gql`
+  query GetTariffByPartnerRoamingPartner(
+    $ocpiTariffId: String!
+    $tenantPartnerId: Int!
+    $roamingPartnerId: Int!
+  ) {
+    Tariffs(
+      where: {
+        ocpiTariffId: { _eq: $ocpiTariffId }
+        tenantPartnerId: { _eq: $tenantPartnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
       }
     ) {
       authorizationAmount

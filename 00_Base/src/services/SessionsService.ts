@@ -15,21 +15,29 @@ import type {
   GetTransactionsQueryVariables,
   Sessions_Bool_Exp,
   Transactions_Bool_Exp,
-  UpdateSessionMutationResult,
-  UpdateSessionMutationVariables,
-  UpsertSessionMutationResult,
-  UpsertSessionMutationVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetSessionByOcpiIdRoamingQueryVariables,
+  GetSessionByOcpiIdRoamingQueryResult,
+  FindSessionRoamingQueryVariables,
+  FindSessionRoamingQueryResult,
+  UpdateSessionByPkMutationVariables,
+  UpdateSessionByPkMutationResult,
+  FindSessionP2pQueryVariables,
+  FindSessionP2pQueryResult,
+  InsertSessionMutationResult,
 } from '../graphql/index.js';
 import {
   GET_SESSION_BY_OCPI_ID,
   GET_SESSIONS_PAGINATED,
   GET_TRANSACTIONS_QUERY,
   OcpiGraphqlClient,
-  UPDATE_SESSION_MUTATION,
-  UPSERT_SESSION_MUTATION,
+  INSERT_SESSION_MUTATION,
   GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_SESSION_BY_OCPI_ID_ROAMING_QUERY,
+  UPDATE_SESSION_BY_PK_MUTATION,
+  FIND_SESSION_ROAMING_QUERY,
+  FIND_SESSION_P2P_QUERY,
 } from '../graphql/index.js';
 import { ReceivedSessionMapper, SessionMapper } from '../mapper/index.js';
 import type { TransactionDto } from '@zetra/citrineos-base';
@@ -43,6 +51,7 @@ import type { PullSummary } from '../model/DTO/PullPartnerModulesBody.js';
 import { buildPaginatedParams } from '../trigger/param/PaginatedParams.js';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { z } from 'zod';
+import { findThenUpsert, getRoamingPartner } from '../util/helpers.js';
 
 @Service()
 export class SessionsService {
@@ -109,16 +118,32 @@ export class SessionsService {
     partyId: string,
     sessionId: string,
     tenantPartnerId: number,
+    tenantPartner: TenantPartnerDto,
   ): Promise<Session | undefined> {
-    const result = await this.ocpiGraphqlClient.request<
-      GetSessionByOcpiIdQueryResult,
-      GetSessionByOcpiIdQueryVariables
-    >(GET_SESSION_BY_OCPI_ID, {
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
       countryCode,
       partyId,
-      ocpiSessionId: sessionId,
-      tenantPartnerId,
-    });
+    );
+    const roamingPartnerId = roamingPartner?.id ?? null;
+
+    const result =
+      roamingPartnerId != null
+        ? await this.ocpiGraphqlClient.request<
+            GetSessionByOcpiIdRoamingQueryResult,
+            GetSessionByOcpiIdRoamingQueryVariables
+          >(GET_SESSION_BY_OCPI_ID_ROAMING_QUERY, {
+            ocpiSessionId: sessionId,
+            tenantPartnerId: tenantPartnerId,
+            roamingPartnerId: roamingPartnerId,
+          })
+        : await this.ocpiGraphqlClient.request<
+            GetSessionByOcpiIdQueryResult,
+            GetSessionByOcpiIdQueryVariables
+          >(GET_SESSION_BY_OCPI_ID, {
+            ocpiSessionId: sessionId,
+            tenantPartnerId,
+          });
 
     const row = result.Sessions?.[0];
     if (!row) return undefined;
@@ -166,23 +191,64 @@ export class SessionsService {
     session: Session,
     tenantId: number,
     tenantPartnerId: number,
+    tenantPartner: TenantPartnerDto,
   ): Promise<Session> {
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      session.country_code,
+      session.party_id,
+    );
+
+    if (
+      (tenantPartner.countryCode !== session.country_code ||
+        tenantPartner.partyId !== session.party_id) &&
+      !roamingPartner
+    ) {
+      throw new Error(
+        'Tenant partner does not match session or roaming partner not found',
+      );
+    }
+
+    const roamingPartnerId = roamingPartner?.id ?? null;
+
     const object = ReceivedSessionMapper.mapFromOcpi(
       session,
       tenantId,
       tenantPartnerId,
+      roamingPartnerId,
     );
-    const result = await this.ocpiGraphqlClient.request<
-      UpsertSessionMutationResult,
-      UpsertSessionMutationVariables
-    >(UPSERT_SESSION_MUTATION, { object });
 
-    if (!result.insert_Sessions_one) {
-      throw new Error(
-        `Failed to upsert session ${session.id} for ${session.country_code}/${session.party_id}`,
-      );
-    }
-    return ReceivedSessionMapper.mapToOcpi(result.insert_Sessions_one);
+    type SessionResult = NonNullable<
+      InsertSessionMutationResult['insert_Sessions_one']
+    >;
+
+    const sessionDbRow = await findThenUpsert<SessionResult>(
+      this.ocpiGraphqlClient,
+      {
+        findQuery:
+          roamingPartnerId != null
+            ? FIND_SESSION_ROAMING_QUERY
+            : FIND_SESSION_P2P_QUERY,
+        findVars:
+          roamingPartnerId != null
+            ? { ocpiSessionId: session.id, tenantPartnerId, roamingPartnerId }
+            : { ocpiSessionId: session.id, tenantPartnerId },
+        findResultKey: 'Sessions',
+        insertQuery: INSERT_SESSION_MUTATION,
+        insertVars: { object },
+        insertResultKey: 'insert_Sessions_one',
+        updateQuery: UPDATE_SESSION_BY_PK_MUTATION,
+        updateVars: (id) => ({
+          id,
+          set: ReceivedSessionMapper.mapPartialFromOcpi(session), // or full map minus immutable fields
+        }),
+        updateResultKey: 'update_Sessions_by_pk',
+      },
+    );
+
+    if (!sessionDbRow)
+      throw new Error(`Failed to reload session ${session.id}`);
+    return ReceivedSessionMapper.mapToOcpi(sessionDbRow);
   }
 
   /**
@@ -194,6 +260,7 @@ export class SessionsService {
     sessionId: string,
     tenantPartnerId: number,
     partial: Partial<Session>,
+    tenantPartner: TenantPartnerDto,
   ): Promise<Session> {
     // get the existing session to merge the charging_periods with the partial
     const existing_session = await this.getSessionByOcpiId(
@@ -201,6 +268,7 @@ export class SessionsService {
       partyId,
       sessionId,
       tenantPartnerId,
+      tenantPartner,
     );
     if (!existing_session) {
       throw new NotFoundException(
@@ -225,18 +293,45 @@ export class SessionsService {
     }
 
     const set = ReceivedSessionMapper.mapPartialFromOcpi(mergedPartial);
-    const result = await this.ocpiGraphqlClient.request<
-      UpdateSessionMutationResult,
-      UpdateSessionMutationVariables
-    >(UPDATE_SESSION_MUTATION, {
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
       countryCode,
       partyId,
-      ocpiSessionId: sessionId,
-      tenantPartnerId,
+    );
+    const findResult =
+      roamingPartner?.id != null
+        ? await this.ocpiGraphqlClient.request<
+            FindSessionRoamingQueryResult,
+            FindSessionRoamingQueryVariables
+          >(FIND_SESSION_ROAMING_QUERY, {
+            ocpiSessionId: sessionId,
+            tenantPartnerId,
+            roamingPartnerId: roamingPartner.id,
+          })
+        : await this.ocpiGraphqlClient.request<
+            FindSessionP2pQueryResult,
+            FindSessionP2pQueryVariables
+          >(FIND_SESSION_P2P_QUERY, {
+            ocpiSessionId: sessionId,
+            tenantPartnerId,
+          });
+
+    const dbId = findResult.Sessions[0]?.id;
+    if (!dbId) {
+      throw new NotFoundException(
+        `Session ${sessionId} not found for ${countryCode}/${partyId}`,
+      );
+    }
+
+    const result = await this.ocpiGraphqlClient.request<
+      UpdateSessionByPkMutationResult,
+      UpdateSessionByPkMutationVariables
+    >(UPDATE_SESSION_BY_PK_MUTATION, {
+      id: dbId,
       set,
     });
 
-    const updated = result.update_Sessions?.returning?.[0];
+    const updated = result.update_Sessions_by_pk;
     if (!updated) {
       throw new NotFoundException(
         `Session ${sessionId} not found for ${countryCode}/${partyId}`,
@@ -333,7 +428,12 @@ export class SessionsService {
         }
         const session = item as Session;
         try {
-          await this.upsertSession(session, partner.tenantId!, partner.id!);
+          await this.upsertSession(
+            session,
+            partner.tenantId!,
+            partner.id!,
+            partner,
+          );
           upsertSucceededSessions++;
           this.logger.info(
             `PullPartnerSessions: upserted session ${String(session.id)}`,

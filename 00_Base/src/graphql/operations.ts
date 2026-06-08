@@ -183,6 +183,55 @@ export type GetCdrByiIdQueryResult = {
   }>
 };
 
+export type GetCdrByiIdAndRoamingPartnerQueryVariables = Exact<{
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+  id: Scalars['Int']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetCdrByiIdAndRoamingPartnerQueryResult = {
+  Cdrs: Array<{
+    id: number,
+    ocpiCdrId: string,
+    countryCode: string,
+    partyId: string,
+    startDateTime: any,
+    endDateTime: any,
+    sessionId?: string | null,
+    cdrToken: any,
+    authMethod: string,
+    authorizationReference?: string | null,
+    cdrLocation: any,
+    meterId?: string | null,
+    currency: string,
+    tariffs?: any | null,
+    chargingPeriods: any,
+    signedData?: any | null,
+    totalCost: any,
+    totalFixedCost?: any | null,
+    totalEnergy: any,
+    totalEnergyCost?: any | null,
+    totalTime: any,
+    totalTimeCost?: any | null,
+    totalParkingTime?: any | null,
+    totalParkingCost?: any | null,
+    totalReservationCost?: any | null,
+    remark?: string | null,
+    invoiceReferenceId?: string | null,
+    credit?: boolean | null,
+    creditReferenceId?: string | null,
+    homeChargingCompensation?: boolean | null,
+    lastUpdated: any,
+    tenantId: number,
+    tenantPartnerId: number,
+    createdAt?: any | null,
+    updatedAt?: any | null
+  }>
+};
+
 export type GetCdrsPaginatedQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -271,8 +320,34 @@ export type InsertCdrMutationResult = {
     tenantId: number,
     tenantPartnerId: number,
     createdAt?: any | null,
-    updatedAt?: any | null
+    updatedAt?: any | null,
+    roamingPartnerId?: number | null
   } | null
+};
+
+export type FindCdrP2pQueryVariables = Exact<{
+  ocpiCdrId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type FindCdrP2pQueryResult = {
+  Cdrs: Array<{
+    id: number
+  }>
+};
+
+export type FindCdrRoamingQueryVariables = Exact<{
+  ocpiCdrId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type FindCdrRoamingQueryResult = {
+  Cdrs: Array<{
+    id: number
+  }>
 };
 
 export type GetChargingStationByIdQueryVariables = Exact<{
@@ -419,6 +494,71 @@ export type GetPartnerConnectorByOcpiIdAndEvseIdQueryResult = {
   }>
 };
 
+export type GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryVariables = Exact<{
+  partnerId: Scalars['Int']['input'];
+  locationId: Scalars['String']['input'];
+  evseUid: Scalars['String']['input'];
+  connectorId: Scalars['String']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryResult = {
+  Locations: Array<{
+    id: number,
+    chargingPool: Array<{
+      id: string,
+      evses: Array<{
+        id: number,
+        connectors: Array<{
+          id: number
+        }>
+      }>
+    }>
+  }>
+};
+
+export type GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryVariables = Exact<{
+  partnerId: Scalars['Int']['input'];
+  locationId: Scalars['String']['input'];
+  evseUid: Scalars['String']['input'];
+  connectorId: Scalars['String']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerIdQueryResult = {
+  Connectors: Array<{
+    id: number,
+    ocpiId?: string | null,
+    evseId?: number | null,
+    stationId: string,
+    connectorId?: number | null,
+    format?: string | null,
+    maximumAmperage?: number | null,
+    maximumPowerWatts?: number | null,
+    maximumVoltage?: number | null,
+    powerType?: string | null,
+    termsAndConditionsUrl?: string | null,
+    type?: string | null,
+    status?: string | null,
+    errorCode?: string | null,
+    timestamp?: any | null,
+    info?: string | null,
+    vendorId?: string | null,
+    vendorErrorCode?: string | null,
+    createdAt: any,
+    updatedAt: any,
+    tariffs: Array<{
+      id: number,
+      tariffOcpiId: string,
+      connectorOcpiId: string,
+      tariffId: number,
+      connectorId: number
+    }>
+  }>
+};
+
 export type GetConnectorByOcpiIdAndEvseIdQueryVariables = Exact<{
   partnerId: Scalars['Int']['input'];
   locationId: Scalars['String']['input'];
@@ -525,6 +665,25 @@ export type GetPartnerEvseByOcpiIdsQueryResult = {
   }>
 };
 
+export type GetPartnerEvseByOcpiIdAndRoamingPartnerIdQueryVariables = Exact<{
+  partnerId: Scalars['Int']['input'];
+  locationId: Scalars['String']['input'];
+  evseUid: Scalars['String']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetPartnerEvseByOcpiIdAndRoamingPartnerIdQueryResult = {
+  Locations: Array<{
+    id: number,
+    chargingPool: Array<{
+      evses: Array<{
+        id: number
+      }>
+    }>
+  }>
+};
+
 export type UpdateEvsePatchMutationVariables = Exact<{
   id: Scalars['Int']['input'];
   changes: Evses_Set_Input;
@@ -570,6 +729,72 @@ export type GetEvseByOcpiIdAndPartnerIdQueryResult = {
         id: number,
         ocpiId?: string | null,
         ownerTenantPartnerId?: number | null,
+        updatedAt: any
+      }
+    } | null,
+    connectors: Array<{
+      id: number,
+      evseId?: number | null,
+      ocpiId?: string | null,
+      stationId: string,
+      connectorId?: number | null,
+      format?: string | null,
+      maximumAmperage?: number | null,
+      maximumPowerWatts?: number | null,
+      maximumVoltage?: number | null,
+      powerType?: string | null,
+      termsAndConditionsUrl?: string | null,
+      type?: string | null,
+      status?: string | null,
+      errorCode?: string | null,
+      timestamp?: any | null,
+      createdAt: any,
+      updatedAt: any,
+      tariffs: Array<{
+        id: number,
+        tariffOcpiId: string,
+        connectorOcpiId: string,
+        tariffId: number,
+        connectorId: number
+      }>
+    }>
+  }>
+};
+
+export type GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryVariables = Exact<{
+  partnerId: Scalars['Int']['input'];
+  locationId: Scalars['String']['input'];
+  evseUid: Scalars['String']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryResult = {
+  Evses: Array<{
+    id: number,
+    stationId?: string | null,
+    evseTypeId?: number | null,
+    evseId?: string | null,
+    ocpiUid?: string | null,
+    physicalReference?: string | null,
+    removed?: boolean | null,
+    createdAt: any,
+    updatedAt: any,
+    floorLevel?: string | null,
+    capabilities?: any | null,
+    parkingRestrictions?: any | null,
+    statusSchedule?: any | null,
+    images?: any | null,
+    directions?: any | null,
+    coordinates?: any | null,
+    ocpiStatus?: string | null,
+    ChargingStation?: {
+      id: string,
+      location: {
+        id: number,
+        ocpiId?: string | null,
+        ownerTenantPartnerId?: number | null,
+        roamingPartnerId?: number | null,
         updatedAt: any
       }
     } | null,
@@ -1056,6 +1281,120 @@ export type GetLocationByOcpiIdAndPartnerIdQueryResult = {
   }>
 };
 
+export type GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+  partnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult = {
+  Locations: Array<{
+    ocpiId?: string | null,
+    id: number,
+    name?: string | null,
+    address?: string | null,
+    city?: string | null,
+    coordinates?: any | null,
+    country?: string | null,
+    createdAt: any,
+    facilities?: any | null,
+    openingHours?: any | null,
+    parkingType?: string | null,
+    postalCode?: string | null,
+    publishUpstream?: boolean | null,
+    publishAllowedTo?: any | null,
+    state?: string | null,
+    timeZone?: string | null,
+    updatedAt: any,
+    operator?: any | null,
+    suboperator?: any | null,
+    owner?: any | null,
+    relatedLocations?: any | null,
+    energyMix?: any | null,
+    images?: any | null,
+    directions?: any | null,
+    chargingWhenClosed?: boolean | null,
+    tenant: {
+      partyId?: string | null,
+      countryCode?: string | null
+    },
+    ownerTenantPartner?: {
+      partyId: string,
+      countryCode: string
+    } | null,
+    chargingPool: Array<{
+      id: string,
+      isOnline?: boolean | null,
+      protocol?: string | null,
+      capabilities?: any | null,
+      chargePointVendor?: string | null,
+      chargePointModel?: string | null,
+      chargePointSerialNumber?: string | null,
+      chargeBoxSerialNumber?: string | null,
+      coordinates?: any | null,
+      firmwareVersion?: string | null,
+      floorLevel?: string | null,
+      iccid?: string | null,
+      imsi?: string | null,
+      meterType?: string | null,
+      meterSerialNumber?: string | null,
+      parkingRestrictions?: any | null,
+      createdAt: any,
+      updatedAt: any,
+      evses: Array<{
+        id: number,
+        stationId?: string | null,
+        evseTypeId?: number | null,
+        evseId?: string | null,
+        physicalReference?: string | null,
+        capabilities?: any | null,
+        directions?: any | null,
+        images?: any | null,
+        statusSchedule?: any | null,
+        ocpiStatus?: string | null,
+        ocpiUid?: string | null,
+        coordinates?: any | null,
+        floorLevel?: string | null,
+        parkingRestrictions?: any | null,
+        removed?: boolean | null,
+        createdAt: any,
+        updatedAt: any,
+        connectors: Array<{
+          id: number,
+          ocpiId?: string | null,
+          stationId: string,
+          evseId?: number | null,
+          connectorId?: number | null,
+          evseTypeConnectorId?: number | null,
+          format?: string | null,
+          maximumAmperage?: number | null,
+          maximumPowerWatts?: number | null,
+          maximumVoltage?: number | null,
+          powerType?: string | null,
+          termsAndConditionsUrl?: string | null,
+          type?: string | null,
+          status?: string | null,
+          errorCode?: string | null,
+          timestamp?: any | null,
+          info?: string | null,
+          vendorId?: string | null,
+          vendorErrorCode?: string | null,
+          createdAt: any,
+          updatedAt: any,
+          tariffs: Array<{
+            id: number,
+            tariffOcpiId: string,
+            connectorOcpiId: string,
+            tariffId: number,
+            connectorId: number
+          }>
+        }>
+      }>
+    }>
+  }>
+};
+
 export type GetEvseByLocationAndOwnerPartnerQueryVariables = Exact<{
   partnerId: Scalars['Int']['input'];
   locationId: Scalars['String']['input'];
@@ -1074,6 +1413,29 @@ export type GetEvseByLocationAndOwnerPartnerQueryResult = {
       }>
     }>
   }>
+};
+
+export type InsertLocationMutationVariables = Exact<{
+  object: Locations_Insert_Input;
+}>;
+
+
+export type InsertLocationMutationResult = {
+  insert_Locations_one?: {
+    id: number
+  } | null
+};
+
+export type UpdateLocationMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+  set: Locations_Set_Input;
+}>;
+
+
+export type UpdateLocationMutationResult = {
+  update_Locations_by_pk?: {
+    id: number
+  } | null
 };
 
 export type UpsertLocationMutationVariables = Exact<{
@@ -1096,7 +1458,8 @@ export type GetPartnerLocationByOcpiIdQueryVariables = Exact<{
 export type GetPartnerLocationByOcpiIdQueryResult = {
   Locations: Array<{
     id: number,
-    tenantId: number
+    tenantId: number,
+    openingHours?: any | null
   }>
 };
 
@@ -1113,9 +1476,59 @@ export type UpdateLocationPatchMutationResult = {
   } | null
 };
 
+export type SessionFieldsFragment = {
+  id: number,
+  ocpiSessionId: string,
+  countryCode: string,
+  partyId: string,
+  startDateTime: any,
+  endDateTime?: any | null,
+  kwh: any,
+  cdrToken: any,
+  authMethod: string,
+  authorizationReference?: string | null,
+  locationId: string,
+  evseUid: string,
+  connectorId: string,
+  meterId?: string | null,
+  currency: string,
+  chargingPeriods?: any | null,
+  totalCost?: any | null,
+  status: string,
+  lastUpdated: any,
+  tenantId: number,
+  tenantPartnerId: number,
+  roamingPartnerId?: number | null,
+  createdAt?: any | null,
+  updatedAt?: any | null
+};
+
+export type FindSessionP2pQueryVariables = Exact<{
+  ocpiSessionId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type FindSessionP2pQueryResult = {
+  Sessions: Array<{
+    id: number
+  }>
+};
+
+export type FindSessionRoamingQueryVariables = Exact<{
+  ocpiSessionId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type FindSessionRoamingQueryResult = {
+  Sessions: Array<{
+    id: number
+  }>
+};
+
 export type GetSessionByOcpiIdQueryVariables = Exact<{
-  countryCode: Scalars['String']['input'];
-  partyId: Scalars['String']['input'];
   ocpiSessionId: Scalars['String']['input'];
   tenantPartnerId: Scalars['Int']['input'];
 }>;
@@ -1144,6 +1557,43 @@ export type GetSessionByOcpiIdQueryResult = {
     lastUpdated: any,
     tenantId: number,
     tenantPartnerId: number,
+    roamingPartnerId?: number | null,
+    createdAt?: any | null,
+    updatedAt?: any | null
+  }>
+};
+
+export type GetSessionByOcpiIdRoamingQueryVariables = Exact<{
+  ocpiSessionId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetSessionByOcpiIdRoamingQueryResult = {
+  Sessions: Array<{
+    id: number,
+    ocpiSessionId: string,
+    countryCode: string,
+    partyId: string,
+    startDateTime: any,
+    endDateTime?: any | null,
+    kwh: any,
+    cdrToken: any,
+    authMethod: string,
+    authorizationReference?: string | null,
+    locationId: string,
+    evseUid: string,
+    connectorId: string,
+    meterId?: string | null,
+    currency: string,
+    chargingPeriods?: any | null,
+    totalCost?: any | null,
+    status: string,
+    lastUpdated: any,
+    tenantId: number,
+    tenantPartnerId: number,
+    roamingPartnerId?: number | null,
     createdAt?: any | null,
     updatedAt?: any | null
   }>
@@ -1179,17 +1629,18 @@ export type GetSessionsPaginatedQueryResult = {
     lastUpdated: any,
     tenantId: number,
     tenantPartnerId: number,
+    roamingPartnerId?: number | null,
     createdAt?: any | null,
     updatedAt?: any | null
   }>
 };
 
-export type UpsertSessionMutationVariables = Exact<{
+export type InsertSessionMutationVariables = Exact<{
   object: Sessions_Insert_Input;
 }>;
 
 
-export type UpsertSessionMutationResult = {
+export type InsertSessionMutationResult = {
   insert_Sessions_one?: {
     id: number,
     ocpiSessionId: string,
@@ -1212,14 +1663,48 @@ export type UpsertSessionMutationResult = {
     lastUpdated: any,
     tenantId: number,
     tenantPartnerId: number,
+    roamingPartnerId?: number | null,
+    createdAt?: any | null,
+    updatedAt?: any | null
+  } | null
+};
+
+export type UpdateSessionByPkMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+  set: Sessions_Set_Input;
+}>;
+
+
+export type UpdateSessionByPkMutationResult = {
+  update_Sessions_by_pk?: {
+    id: number,
+    ocpiSessionId: string,
+    countryCode: string,
+    partyId: string,
+    startDateTime: any,
+    endDateTime?: any | null,
+    kwh: any,
+    cdrToken: any,
+    authMethod: string,
+    authorizationReference?: string | null,
+    locationId: string,
+    evseUid: string,
+    connectorId: string,
+    meterId?: string | null,
+    currency: string,
+    chargingPeriods?: any | null,
+    totalCost?: any | null,
+    status: string,
+    lastUpdated: any,
+    tenantId: number,
+    tenantPartnerId: number,
+    roamingPartnerId?: number | null,
     createdAt?: any | null,
     updatedAt?: any | null
   } | null
 };
 
 export type UpdateSessionMutationVariables = Exact<{
-  countryCode: Scalars['String']['input'];
-  partyId: Scalars['String']['input'];
   ocpiSessionId: Scalars['String']['input'];
   tenantPartnerId: Scalars['Int']['input'];
   set: Sessions_Set_Input;
@@ -1250,6 +1735,7 @@ export type UpdateSessionMutationResult = {
       lastUpdated: any,
       tenantId: number,
       tenantPartnerId: number,
+      roamingPartnerId?: number | null,
       createdAt?: any | null,
       updatedAt?: any | null
     }>
@@ -1471,6 +1957,19 @@ export type DeleteTariffByPartnerMutationResult = {
   } | null
 };
 
+export type DeleteTariffByRoamingPartnerMutationVariables = Exact<{
+  ocpiTariffId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type DeleteTariffByRoamingPartnerMutationResult = {
+  delete_Tariffs?: {
+    affected_rows: number
+  } | null
+};
+
 export type GetTariffByOcpiIdQueryVariables = Exact<{
   ocpiTariffId: Scalars['String']['input'];
   countryCode: Scalars['String']['input'];
@@ -1525,6 +2024,53 @@ export type GetTariffByPartnerQueryVariables = Exact<{
 
 
 export type GetTariffByPartnerQueryResult = {
+  Tariffs: Array<{
+    authorizationAmount?: any | null,
+    createdAt: any,
+    currency: any,
+    id: number,
+    ocpiTariffId?: string | null,
+    paymentFee?: any | null,
+    pricePerKwh: any,
+    pricePerMin?: any | null,
+    pricePerSession?: any | null,
+    stationId?: string | null,
+    taxRate?: any | null,
+    tariffAltText?: string | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tenantPartnerId?: number | null,
+    updatedAt: any,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>
+  }>
+};
+
+export type GetTariffByPartnerRoamingPartnerQueryVariables = Exact<{
+  ocpiTariffId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetTariffByPartnerRoamingPartnerQueryResult = {
   Tariffs: Array<{
     authorizationAmount?: any | null,
     createdAt: any,
