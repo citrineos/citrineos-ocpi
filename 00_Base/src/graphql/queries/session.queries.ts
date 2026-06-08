@@ -4,35 +4,6 @@
 
 import { gql } from 'graphql-request';
 
-const SESSION_FIELDS = gql`
-  fragment SessionFields on Sessions {
-    id
-    ocpiSessionId
-    countryCode
-    partyId
-    startDateTime
-    endDateTime
-    kwh
-    cdrToken
-    authMethod
-    authorizationReference
-    locationId
-    evseUid
-    connectorId
-    meterId
-    currency
-    chargingPeriods
-    totalCost
-    status
-    lastUpdated
-    tenantId
-    tenantPartnerId
-    roamingPartnerId
-    createdAt
-    updatedAt
-  }
-`;
-
 export const FIND_SESSION_P2P_QUERY = gql`
   query FindSessionP2p($ocpiSessionId: String!, $tenantPartnerId: Int!) {
     Sessions(

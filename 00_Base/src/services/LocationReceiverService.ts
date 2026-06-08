@@ -17,15 +17,11 @@ import { NotFoundException } from '../exception/NotFoundException.js';
 import type {
   InsertChargingStationMutationResult,
   InsertChargingStationMutationVariables,
-  UpsertLocationMutationResult,
-  UpsertLocationMutationVariables,
   UpsertEvseMutationResult,
   UpsertEvseMutationVariables,
   GetLocationByOcpiIdAndPartnerIdQueryResult,
   GetLocationByOcpiIdAndPartnerIdQueryVariables,
   UpsertConnectorMutationVariables,
-  GetEvseByLocationAndOwnerPartnerQueryResult,
-  GetEvseByLocationAndOwnerPartnerQueryVariables,
   UpdateLocationPatchMutationVariables,
   UpdateLocationPatchMutationResult,
   GetEvseByOcpiIdAndPartnerIdQueryResult,
@@ -63,11 +59,9 @@ import type {
 import {
   OcpiGraphqlClient,
   GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY,
-  GET_EVSE_BY_LOCATION_ID_AND_OWNER_PARTNER_ID,
   UPSERT_EVSE_MUTATION,
   UPSERT_CONNECTOR_MUTATION,
   INSERT_CHARGING_STATION_MUTATION,
-  UPSERT_LOCATION_MUTATION,
   GET_CHARGING_STATION_BY_LOCATION_ID_AND_OWNER_PARTNER_ID,
   GET_PARTNER_LOCATION_BY_OCPI_ID,
   UPDATE_LOCATION_PATCH_MUTATION,
@@ -107,24 +101,6 @@ function ocpiCiEquals(a: string, b: string): boolean {
   return a.trim().toUpperCase() === b.trim().toUpperCase();
 }
 
-/** OCPI: URL segments must match the authenticated CPO partner when present. */
-function validateUrlMatchesTenantPartner(
-  countryCode: string,
-  partyId: string,
-  tenantPartner: TenantPartnerDto,
-): LocationResponse | undefined {
-  const cc = tenantPartner.countryCode;
-  const pid = tenantPartner.partyId;
-  if (cc == null || pid == null) return undefined;
-  if (!ocpiCiEquals(cc, countryCode) || !ocpiCiEquals(pid, partyId)) {
-    return buildOcpiErrorResponse(
-      OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
-      'country_code and party_id in URL must match the authenticated partner',
-    ) as LocationResponse;
-  }
-  return undefined;
-}
-
 function validateLocationBodyMatchesUrl(
   countryCode: string,
   partyId: string,
@@ -137,24 +113,6 @@ function validateLocationBodyMatchesUrl(
     return buildOcpiErrorResponse(
       OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
       'country_code and party_id in URL must match the Location object',
-    ) as LocationResponse;
-  }
-  return undefined;
-}
-
-function validateLocationTenantPartnerMatchesUrl(
-  tenant: { countryCode?: string | null; partyId?: string | null } | undefined,
-  countryCode: string,
-  partyId: string,
-): LocationResponse | undefined {
-  if (!tenant?.countryCode || !tenant?.partyId) return undefined;
-  if (
-    !ocpiCiEquals(tenant.countryCode, countryCode) ||
-    !ocpiCiEquals(tenant.partyId, partyId)
-  ) {
-    return buildOcpiErrorResponse(
-      OcpiResponseStatusCode.ClientInvalidOrMissingParameters,
-      'country_code and party_id in URL must match the Location tenant',
     ) as LocationResponse;
   }
   return undefined;
@@ -191,12 +149,6 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      // const partnerErr = validateUrlMatchesTenantPartner(
-      //   countryCode,
-      //   partyId,
-      //   tenantPartner,
-      // );
-      // if (partnerErr) return partnerErr;
       const roamingPartner = getRoamingPartner(
         tenantPartner,
         countryCode,
@@ -215,12 +167,6 @@ export class LocationReceiverService {
           partnerId: tenantPartnerId,
           roamingPartnerId,
         });
-        GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY;
-        location = LocationMapper.fromGraphqlReceiver(
-          response.Locations[0],
-          tenantPartner,
-          roamingPartner ?? null,
-        );
       } else {
         const response = await this.ocpiGraphqlClient.request<
           GetLocationByOcpiIdAndPartnerIdQueryResult,
@@ -268,12 +214,6 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      // const partnerErr = validateUrlMatchesTenantPartner(
-      //   countryCode,
-      //   partyId,
-      //   tenantPartner,
-      // );
-      // if (partnerErr) return partnerErr as EvseResponse;
       const variables = {
         locationId: locationId,
         partnerId: tenantPartner.id,
@@ -345,12 +285,6 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      // const partnerErr = validateUrlMatchesTenantPartner(
-      //   countryCode,
-      //   partyId,
-      //   tenantPartner,
-      // );
-      // if (partnerErr) return partnerErr as ConnectorResponse;
       const roamingPartner = getRoamingPartner(
         tenantPartner,
         countryCode,
@@ -541,18 +475,12 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
-    // const bodyErr = validateLocationBodyMatchesUrl(
-    //   countryCode,
-    //   partyId,
-    //   location,
-    // );
-    // if (bodyErr) return bodyErr;
+    const bodyErr = validateLocationBodyMatchesUrl(
+      countryCode,
+      partyId,
+      location,
+    );
+    if (bodyErr) return bodyErr;
 
     await this.upsertLocationForPartner(location, locationId, tenantPartner);
 
@@ -771,12 +699,6 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
 
     const variables = { id: locationId, partnerId: tenantPartner.id };
     const roamingPartner = getRoamingPartner(
@@ -813,15 +735,6 @@ export class LocationReceiverService {
 
     const locRow = response.Locations[0];
     const ownerTenantPartner = locRow?.ownerTenantPartner;
-    // const tenantErr = validateLocationTenantPartnerMatchesUrl(
-    //   {
-    //     countryCode: ownerTenantPartner?.countryCode,
-    //     partyId: ownerTenantPartner?.partyId,
-    //   },
-    //   countryCode,
-    //   partyId,
-    // );
-    // if (tenantErr) return tenantErr;
 
     const location_id = locRow.id;
     const chargingPool = locRow.chargingPool ?? [];
@@ -880,25 +793,11 @@ export class LocationReceiverService {
       throw new UnauthorizedException('Credentials not found for given token');
     }
 
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
-
     const roamingPartner = getRoamingPartner(
       tenantPartner,
       countryCode,
       partyId,
     );
-
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
 
     const lookupResponse =
       roamingPartner?.id != null
@@ -1042,12 +941,6 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
 
     if (!location.last_updated) {
       return buildOcpiErrorResponse(
@@ -1182,12 +1075,6 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
 
     if (!evse.last_updated) {
       return buildOcpiErrorResponse(
@@ -1195,15 +1082,6 @@ export class LocationReceiverService {
         'PATCH requires last_updated',
       ) as LocationResponse;
     }
-
-    // const lookupResponse = await this.ocpiGraphqlClient.request<
-    //   GetPartnerEvseByOcpiIdsQueryResult,
-    //   GetPartnerEvseByOcpiIdsQueryVariables
-    // >(GET_PARTNER_EVSE_BY_OCPI_ID, {
-    //   partnerId: tenantPartner.id,
-    //   locationId: locationId,
-    //   evseUid: evseUid,
-    // });
 
     const roamingPartner = getRoamingPartner(
       tenantPartner,
@@ -1322,12 +1200,6 @@ export class LocationReceiverService {
     if (!tenantPartner.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
-    // const partnerErr = validateUrlMatchesTenantPartner(
-    //   countryCode,
-    //   partyId,
-    //   tenantPartner,
-    // );
-    // if (partnerErr) return partnerErr;
 
     if (!connector.last_updated) {
       return buildOcpiErrorResponse(
@@ -1335,16 +1207,6 @@ export class LocationReceiverService {
         'PATCH requires last_updated',
       ) as LocationResponse;
     }
-
-    // const lookupResponse = await this.ocpiGraphqlClient.request<
-    //   GetPartnerConnectorByOcpiIdAndEvseIdQueryResult,
-    //   GetPartnerConnectorByOcpiIdAndEvseIdQueryVariables
-    // >(GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID, {
-    //   partnerId: tenantPartner.id,
-    //   locationId,
-    //   evseUid,
-    //   connectorId,
-    // });
 
     const roamingPartner = getRoamingPartner(
       tenantPartner,

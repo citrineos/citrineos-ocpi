@@ -12,7 +12,6 @@ import type {
   GetTransactionsQueryResult,
   GetTransactionsQueryVariables,
   InsertCdrMutationResult,
-  InsertCdrMutationVariables,
   Transactions_Bool_Exp,
   GetCdrByiIdQueryResult,
   GetCdrByiIdQueryVariables,
