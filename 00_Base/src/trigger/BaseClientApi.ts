@@ -190,6 +190,22 @@ export abstract class BaseClientApi {
       }
     }
     options.queryParameters = queryParameters;
+    // typed-rest-client only applies queryParameters on GET/DELETE, not PUT/PATCH/POST
+    if (
+      httpMethod !== HttpMethod.Get &&
+      httpMethod !== HttpMethod.Delete &&
+      Object.keys(queryParameters.params).length > 0
+    ) {
+      const search = new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(queryParameters.params).map(([k, v]) => [
+            k,
+            Array.isArray(v) ? v.join(',') : String(v),
+          ]),
+        ),
+      ).toString();
+      url += (url.includes('?') ? '&' : '?') + search;
+    }
     const restClient = awsSecretCertificateArn?.trim()
       ? await this.partnerMtlsCertificateService.getRestClient(
           awsSecretCertificateArn,

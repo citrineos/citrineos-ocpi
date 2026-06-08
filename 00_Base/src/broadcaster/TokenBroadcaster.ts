@@ -62,6 +62,9 @@ export class TokenBroadcaster extends BaseBroadcaster {
     path: string,
   ): Promise<void> {
     try {
+      const otherParams: Record<string, string> | undefined = token.type
+        ? { type: token.type }
+        : undefined;
       await this.tokensClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
@@ -75,6 +78,7 @@ export class TokenBroadcaster extends BaseBroadcaster {
           country_code: tenant.countryCode,
         },
         path: path,
+        otherParams,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Token failed for ${path}`, e);
