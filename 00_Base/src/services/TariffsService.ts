@@ -14,11 +14,10 @@ import type { TenantPartnerDto, Endpoint } from '@zetra/citrineos-base';
 import { buildPaginatedParams } from '../trigger/param/PaginatedParams.js';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { z } from 'zod';
+import { findThenUpsert, getRoamingPartner } from '../util/helpers.js';
 import type {
   CreateOrUpdateTariffMutationResult,
   CreateOrUpdateTariffMutationVariables,
-  CreateOrUpdatePartnerTariffMutationResult,
-  CreateOrUpdatePartnerTariffMutationVariables,
   DeleteTariffByPartnerMutationResult,
   DeleteTariffByPartnerMutationVariables,
   GetTariffByKeyQueryResult,
@@ -34,10 +33,16 @@ import type {
   Tariffs_Bool_Exp,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetTariffByPartnerRoamingPartnerQueryResult,
+  GetTariffByPartnerRoamingPartnerQueryVariables,
+  DeleteTariffByRoamingPartnerMutationResult,
+  DeleteTariffByRoamingPartnerMutationVariables,
+  InsertTariffElementsMutationVariables,
+  InsertTariffElementsMutationResult,
 } from '../graphql/index.js';
 import {
   CREATE_OR_UPDATE_TARIFF_MUTATION,
-  CREATE_OR_UPDATE_PARTNER_TARIFF_MUTATION,
+  INSERT_PARTNER_TARIFF_MUTATION,
   DELETE_TARIFF_BY_PARTNER_MUTATION,
   GET_TARIFF_BY_KEY_QUERY,
   GET_TARIFF_BY_OCPI_ID_QUERY,
@@ -45,9 +50,14 @@ import {
   GET_TARIFFS_QUERY,
   GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY,
   OcpiGraphqlClient,
-  GET_TARIFF_ID_BY_OCPI_ID_QUERY,
   DELETE_TARIFF_ELEMENTS_MUTATION,
   GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  FIND_PARTNER_TARIFF_QUERY,
+  FIND_PARTNER_TARIFF_P2P_QUERY,
+  UPDATE_PARTNER_TARIFF_MUTATION,
+  GET_TARIFF_BY_PARTNER_ROAMING_PARTNER_QUERY,
+  DELETE_TARIFF_BY_ROAMING_PARTNER_MUTATION,
+  INSERT_TARIFF_ELEMENTS_MUTATION,
 } from '../graphql/index.js';
 import { NotFoundException } from '../exception/NotFoundException.js';
 import { TariffMapper, type TariffMapInput } from '../mapper/index.js';
@@ -90,17 +100,51 @@ export class TariffsService {
     countryCode: string,
     partyId: string,
     tariffId: string,
+    tenantPartner?: TenantPartnerDto,
     isPartnerLookup = false,
   ): Promise<TariffDTO | undefined> {
     if (isPartnerLookup) {
-      const tpResult = await this.ocpiGraphqlClient.request<
-        GetTenantPartnerIdByCountryPartyQueryResult,
-        GetTenantPartnerIdByCountryPartyQueryVariables
-      >(GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY, { countryCode, partyId });
-      const tenantPartnerId = tpResult.TenantPartners?.[0]?.id;
+      let tpResult = null;
+      let tenantPartnerId = tenantPartner?.id ?? null;
+      if (!tenantPartner) {
+        tpResult = await this.ocpiGraphqlClient.request<
+          GetTenantPartnerIdByCountryPartyQueryResult,
+          GetTenantPartnerIdByCountryPartyQueryVariables
+        >(GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY, { countryCode, partyId });
+        tenantPartner = tpResult.TenantPartners?.[0] as TenantPartnerDto;
+      }
       if (tenantPartnerId === undefined) {
         return undefined;
       }
+
+      const roamingPartner = getRoamingPartner(
+        tenantPartner,
+        countryCode,
+        partyId,
+      );
+      const roamingPartnerId = roamingPartner?.id ?? null;
+      tenantPartnerId = tenantPartner?.id ?? null;
+
+      if (!tenantPartnerId) {
+        return undefined;
+      }
+
+      if (roamingPartnerId) {
+        const result = await this.ocpiGraphqlClient.request<
+          GetTariffByPartnerRoamingPartnerQueryResult,
+          GetTariffByPartnerRoamingPartnerQueryVariables
+        >(GET_TARIFF_BY_PARTNER_ROAMING_PARTNER_QUERY, {
+          ocpiTariffId: tariffId,
+          tenantPartnerId,
+          roamingPartnerId,
+        });
+        const tariff = result.Tariffs?.[0];
+        if (tariff) {
+          return TariffMapper.mapForReceiver(tariff as TariffMapInput);
+        }
+        return undefined;
+      }
+
       const result = await this.ocpiGraphqlClient.request<
         GetTariffByPartnerQueryResult,
         GetTariffByPartnerQueryVariables
@@ -178,50 +222,102 @@ export class TariffsService {
     tariffRequest: PutTariffRequest,
     tenantId?: number,
     tenantPartnerId?: number,
+    tenantPartner?: TenantPartnerDto,
   ): Promise<TariffDTO> {
+    if (!tenantPartner) {
+      throw new Error('Tenant partner not found');
+    }
+
+    const roamingPartner = getRoamingPartner(
+      tenantPartner,
+      tariffRequest.country_code,
+      tariffRequest.party_id,
+    );
+
+    if (
+      (tenantPartner.countryCode !== tariffRequest.country_code ||
+        tenantPartner.partyId !== tariffRequest.party_id) &&
+      !roamingPartner
+    ) {
+      throw new Error(
+        'Tenant partner country code and party id do not match the tariff request or roaming partner not found',
+      );
+    }
+
     const { coreTariff, TariffElements } = TariffMapper.mapFromOcpi(
       tariffRequest,
       tenantId,
       tenantPartnerId,
+      roamingPartner,
     );
 
     const object = {
       ...coreTariff,
-      TariffElements: {
-        data: TariffElements,
-      },
+      TariffElements: { data: TariffElements },
     };
 
-    if (tenantPartnerId !== undefined) {
-      // Delete existing elements first to avoid accumulation on repeated PUTs
-      const existing = await this.ocpiGraphqlClient.request<any, any>(
-        GET_TARIFF_ID_BY_OCPI_ID_QUERY,
-        { ocpiTariffId: tariffRequest.id, tenantPartnerId },
-      );
-      const existingId = existing?.Tariffs?.[0]?.id;
-      if (existingId) {
-        await this.ocpiGraphqlClient.request<any, any>(
-          DELETE_TARIFF_ELEMENTS_MUTATION,
-          { tariffId: existingId },
-        );
-      }
+    if (!tenantPartner.id) {
+      throw new Error('Tenant partner not found');
     }
 
     if (tenantPartnerId !== undefined) {
-      const result = await this.ocpiGraphqlClient.request<
-        CreateOrUpdatePartnerTariffMutationResult,
-        CreateOrUpdatePartnerTariffMutationVariables
-      >(CREATE_OR_UPDATE_PARTNER_TARIFF_MUTATION, { object });
-      if (!result.insert_Tariffs_one) {
-        throw new Error(
-          `Failed to create or update tariff ${tariffRequest.id}`,
-        );
-      }
-      return TariffMapper.mapForReceiver(
-        result.insert_Tariffs_one as TariffMapInput,
+      const roamingPartnerId = roamingPartner?.id ?? null;
+
+      type TariffResult =
+        GetTariffByPartnerRoamingPartnerQueryResult['Tariffs'][number];
+
+      const tariff = await findThenUpsert<TariffResult>(
+        this.ocpiGraphqlClient,
+        {
+          findQuery:
+            roamingPartnerId != null
+              ? FIND_PARTNER_TARIFF_QUERY
+              : FIND_PARTNER_TARIFF_P2P_QUERY,
+          findVars:
+            roamingPartnerId != null
+              ? {
+                  ocpiTariffId: tariffRequest.id,
+                  tenantPartnerId,
+                  roamingPartnerId,
+                }
+              : { ocpiTariffId: tariffRequest.id, tenantPartnerId },
+          findResultKey: 'Tariffs',
+          insertQuery: INSERT_PARTNER_TARIFF_MUTATION,
+          insertVars: { object },
+          insertResultKey: 'insert_Tariffs_one',
+          updateQuery: UPDATE_PARTNER_TARIFF_MUTATION,
+          updateVars: (id) => ({ id, set: coreTariff }),
+          updateResultKey: 'update_Tariffs_by_pk',
+          beforeUpdate: async (id) => {
+            await this.ocpiGraphqlClient.request(
+              DELETE_TARIFF_ELEMENTS_MUTATION,
+              { tariffId: id },
+            );
+
+            if (TariffElements.length > 0) {
+              await this.ocpiGraphqlClient.request<
+                InsertTariffElementsMutationResult,
+                InsertTariffElementsMutationVariables
+              >(INSERT_TARIFF_ELEMENTS_MUTATION, {
+                objects: TariffElements.map((el) => ({
+                  tariffId: id,
+                  priceComponents: el.priceComponents,
+                  restrictions: el.restrictions,
+                  createdAt: el.createdAt,
+                  updatedAt: el.updatedAt,
+                })),
+              });
+            }
+          },
+        },
       );
+      if (!tariff) {
+        throw new Error(`Failed to retrieve tariff ${tariffRequest.id}`);
+      }
+      return TariffMapper.mapForReceiver(tariff as TariffMapInput);
     }
 
+    // Non-partner path (tenant own tariff)
     const result = await this.ocpiGraphqlClient.request<
       CreateOrUpdateTariffMutationResult,
       CreateOrUpdateTariffMutationVariables
@@ -239,18 +335,46 @@ export class TariffsService {
     partyId: string,
     tariffId: string,
     isPartnerLookup = false,
+    tenantPartner?: TenantPartnerDto,
   ): Promise<void> {
     if (isPartnerLookup) {
-      const tpResult = await this.ocpiGraphqlClient.request<
-        GetTenantPartnerIdByCountryPartyQueryResult,
-        GetTenantPartnerIdByCountryPartyQueryVariables
-      >(GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY, { countryCode, partyId });
-      const tenantPartnerId = tpResult.TenantPartners?.[0]?.id;
-      if (tenantPartnerId === undefined) {
+      if (!tenantPartner) {
         throw new NotFoundException(
           `Tariff ${tariffId} not found for ${countryCode}/${partyId}`,
         );
       }
+
+      const roamingPartner = getRoamingPartner(
+        tenantPartner,
+        countryCode,
+        partyId,
+      );
+      const roamingPartnerId = roamingPartner?.id ?? null;
+      const tenantPartnerId = tenantPartner.id;
+      if (!tenantPartnerId) {
+        throw new NotFoundException(
+          `Tariff ${tariffId} not found for ${countryCode}/${partyId}`,
+        );
+      }
+
+      if (roamingPartnerId != null) {
+        const result = await this.ocpiGraphqlClient.request<
+          DeleteTariffByRoamingPartnerMutationResult,
+          DeleteTariffByRoamingPartnerMutationVariables
+        >(DELETE_TARIFF_BY_ROAMING_PARTNER_MUTATION, {
+          ocpiTariffId: tariffId,
+          tenantPartnerId,
+          roamingPartnerId,
+        });
+        if (!result.delete_Tariffs?.affected_rows) {
+          throw new NotFoundException(
+            `Tariff ${tariffId} not found for ${countryCode}/${partyId}`,
+          );
+        }
+        return;
+      }
+
+      // P2P case
       const result = await this.ocpiGraphqlClient.request<
         DeleteTariffByPartnerMutationResult,
         DeleteTariffByPartnerMutationVariables
@@ -270,6 +394,7 @@ export class TariffsService {
       countryCode,
       partyId,
       tariffId,
+      undefined,
       false,
     );
     if (!tariff) {
@@ -369,6 +494,7 @@ export class TariffsService {
             tariff as PutTariffRequest,
             partner.tenantId!,
             partner.id!,
+            partner,
           );
           upsertSucceededTariffs++;
           this.logger.info(

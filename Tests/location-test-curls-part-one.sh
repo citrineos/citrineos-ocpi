@@ -8,8 +8,8 @@
 # Every PUT/PATCH is followed by a GET that asserts the expected fields.
 #
 # In this test:
-#   - Our platform acts as eMSP: FR/ZTA (the Tenant)
-#   - Partner CPO: FR/TMS (the TenantPartner)
+#   - Our platform acts as eMSP: FR/ZET (the Tenant)
+#   - Partner CPO: FR/108 (the TenantPartner)
 #
 # Usage:
 #   chmod +x locations-test-curls.sh
@@ -19,17 +19,17 @@ OCPI_BASE="${OCPI_BASE:-http://127.0.0.1:8085/ocpi}"
 OCPI_VERSION="${OCPI_VERSION:-2.2.1}"
 SENDER_PREFIX="$OCPI_BASE/cpo/$OCPI_VERSION"
 RECEIVER_PREFIX="$OCPI_BASE/emsp/$OCPI_VERSION"
-BASE_URL="$RECEIVER_PREFIX/locations/FR/TMS"
+BASE_URL="$RECEIVER_PREFIX/locations/FR/108"
 
-AUTH_TOKEN="Token YjU5ZGNlYTctZWM4My00NjQwLTllNTEtZWY0MjA2NDgwMDc0"
+AUTH_TOKEN="Token YmMzZjk0NjQtZjVmMS00MDdkLWI4OTQtODg0ODZlZmVkYmE2"
 OCPI_HEADERS=(
   -H "Authorization: $AUTH_TOKEN"
   -H "X-Request-ID: $(uuidgen 2>/dev/null || echo test-req-001)"
   -H "X-Correlation-ID: $(uuidgen 2>/dev/null || echo test-corr-001)"
   -H "OCPI-from-country-code: FR"
-  -H "OCPI-from-party-id: TMS"
+  -H "OCPI-from-party-id: 108"
   -H "OCPI-to-country-code: FR"
-  -H "OCPI-to-party-id: ZTA"
+  -H "OCPI-to-party-id: ZET"
 )
 
 GREEN='\033[0;32m'
@@ -205,7 +205,7 @@ assert_ocpi_error() {
 # ===========================================================================
 # PHASE 0 — Seed tariffs required by location tests
 # ===========================================================================
-TARIFF_BASE_URL="$RECEIVER_PREFIX/tariffs/FR/TMS"
+TARIFF_BASE_URL="$RECEIVER_PREFIX/tariffs/FR/108"
 
 seed_tariff() {
   local tariff_id="$1"
@@ -216,7 +216,7 @@ seed_tariff() {
     -d "{
       \"id\": \"$tariff_id\",
       \"country_code\": \"FR\",
-      \"party_id\": \"TMS\",
+      \"party_id\": \"108\",
       \"currency\": \"EUR\",
       \"type\": \"REGULAR\",
       \"elements\": [
@@ -254,7 +254,7 @@ do_curl 200 \
   -H "Content-Type: application/json" \
   -d '{
     "country_code": "FR",
-    "party_id": "TMS",
+    "party_id": "108",
     "id": "LOC-TEST-015",
     "publish": true,
     "name": "Paris Charging Hub",
@@ -271,7 +271,7 @@ do_curl 200 \
     "evses": [
       {
         "uid": "EVSE-001",
-        "evse_id": "FR*TMS*E000000001",
+        "evse_id": "FR*108*E000000001",
         "status": "AVAILABLE",
         "status_schedule": [
           { "period_begin": "2025-01-01T00:00:00Z", "period_end": "2025-12-31T23:59:59Z", "status": "AVAILABLE" }
@@ -308,7 +308,7 @@ do_curl 200 \
       },
       {
         "uid": "EVSE-002",
-        "evse_id": "FR*TMS*E000000002",
+        "evse_id": "FR*108*E000000002",
         "status": "CHARGING",
         "capabilities": ["CONTACTLESS_CARD_SUPPORT", "CREDIT_CARD_PAYABLE", "REMOTE_START_STOP_CAPABLE"],
         "connectors": [
@@ -327,8 +327,8 @@ do_curl 200 \
     ],
     "directions": [ { "language": "en", "text": "Located next to the Louvre entrance, near bus stop 42" } ],
     "operator": {
-      "name": "TMSCharge", "website": "https://tmscharge.example.com",
-      "logo": { "url": "https://tmscharge.example.com/logo.png", "category": "OPERATOR", "type": "png", "width": 200, "height": 200 }
+      "name": "108Charge", "website": "https://108charge.example.com",
+      "logo": { "url": "https://108charge.example.com/logo.png", "category": "OPERATOR", "type": "png", "width": 200, "height": 200 }
     },
     "suboperator": { "name": "SubCharge Paris", "website": "https://subcharge.example.com" },
     "owner": { "name": "City of Paris", "website": "https://paris.fr" },
@@ -363,7 +363,7 @@ do_curl 200 \
 separator "2. GET /LOC-TEST-015 — Assert full location round-trip"
 body=$(do_curl 200 "$BASE_URL/LOC-TEST-015" "${OCPI_HEADERS[@]}")
 echo "  -- Location --"
-assert_field   "$body" "data.party_id"                          "TMS"
+assert_field   "$body" "data.party_id"                          "108"
 assert_field   "$body" "data.country_code"                      "FR"
 assert_field   "$body" "data.id"                                "LOC-TEST-015"
 assert_field   "$body" "data.publish"                           "true"
@@ -377,7 +377,7 @@ assert_field   "$body" "data.time_zone"                         "Europe/Paris"
 assert_field   "$body" "data.charging_when_closed"              "true"
 assert_field   "$body" "data.coordinates.latitude"              "48.857489"
 assert_field   "$body" "data.coordinates.longitude"             "2.351074"
-assert_field   "$body" "data.operator.name"                     "TMSCharge"
+assert_field   "$body" "data.operator.name"                     "108Charge"
 assert_field   "$body" "data.suboperator.name"                  "SubCharge Paris"
 assert_field   "$body" "data.owner.name"                        "City of Paris"
 assert_field   "$body" "data.energy_mix.is_green_energy"        "true"
@@ -391,7 +391,7 @@ assert_length  "$body" "data.directions"                        "1"
 assert_length  "$body" "data.related_locations"                 "1"
 echo "  -- EVSE-001 --"
 
-evse001=$(get_evse_json "$body" "EVSE-001" "FR*TMS*E000000001")
+evse001=$(get_evse_json "$body" "EVSE-001" "FR*108*E000000001")
 if [ "$evse001" = "__MISSING__" ]; then
   echo -e "    ${RED}✗${RESET} EVSE-001 not found by uid/evse_id"
   FAIL=$((FAIL + 1))
@@ -424,7 +424,7 @@ else
 fi
 
 echo "  -- EVSE-002 --"
-evse002=$(get_evse_json "$body" "EVSE-002" "FR*TMS*E000000002")
+evse002=$(get_evse_json "$body" "EVSE-002" "FR*108*E000000002")
 if [ "$evse002" = "__MISSING__" ]; then
   echo -e "    ${RED}✗${RESET} EVSE-002 not found by uid/evse_id"
   FAIL=$((FAIL + 1))
@@ -446,7 +446,7 @@ separator "3. GET /LOC-TEST-015/EVSE-001 — Assert EVSE object"
 body=$(do_curl 200 "$BASE_URL/LOC-TEST-015/EVSE-001" "${OCPI_HEADERS[@]}")
 assert_field   "$body" "data.uid"             "EVSE-001"
 assert_field   "$body" "data.status"          "AVAILABLE"
-assert_field   "$body" "data.evse_id"         "FR*TMS*E000000001"
+assert_field   "$body" "data.evse_id"         "FR*108*E000000001"
 assert_field   "$body" "data.floor_level"     "-1"
 assert_contains "$body" "data.capabilities"   "RFID_READER"
 assert_length  "$body" "data.connectors"      "2"
@@ -472,7 +472,7 @@ do_curl 200 \
   -H "Content-Type: application/json" \
   -d '{
     "uid": "EVSE-003",
-    "evse_id": "FR*TMS*E000000003",
+    "evse_id": "FR*108*E000000003",
     "status": "AVAILABLE",
     "capabilities": ["RFID_READER", "REMOTE_START_STOP_CAPABLE"],
     "connectors": [
@@ -556,7 +556,7 @@ assert_field   "$body" "data.parking_type"      "PARKING_GARAGE"
 echo "  -- unchanged --"
 assert_field   "$body" "data.city"              "Paris"
 assert_field   "$body" "data.country"           "FRA"
-assert_field   "$body" "data.operator.name"     "TMSCharge"
+assert_field   "$body" "data.operator.name"     "108Charge"
 assert_field   "$body" "data.energy_mix.supplier_name" "GreenPower FR"
 assert_length  "$body" "data.evses"             "3"
 

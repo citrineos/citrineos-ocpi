@@ -15,7 +15,7 @@ import { OcpiHeaders } from '../../model/OcpiHeaders';
 import { PaginatedParams } from '../../controllers/param/PaginatedParams';
 import {
   GET_SESSION_BY_OCPI_ID,
-  UPSERT_SESSION_MUTATION,
+  INSERT_SESSION_MUTATION,
   UPDATE_SESSION_MUTATION,
 } from '../../graphql/queries/session.queries';
 import { GET_TRANSACTIONS_QUERY } from '../../graphql/queries/transaction.queries';
@@ -205,7 +205,7 @@ describe('SessionsService', () => {
       const result = await service.upsertSession(mockOcpiSession, 1, 42);
 
       expect(mockGraphqlClient.request).toHaveBeenCalledWith(
-        UPSERT_SESSION_MUTATION,
+        INSERT_SESSION_MUTATION,
         expect.objectContaining({
           object: expect.objectContaining({
             ocpiSessionId: 'sess-001',

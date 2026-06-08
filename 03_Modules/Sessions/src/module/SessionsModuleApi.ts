@@ -127,12 +127,14 @@ export class SessionsModuleApi
         'Tenant partner information not available',
       );
     }
+    const tenantPartner = ctx?.state?.tenantPartner;
 
     const session = await this.sessionsService.getSessionByOcpiId(
       countryCode,
       partyId,
       sessionId,
       tenantPartnerId,
+      tenantPartner,
     );
 
     if (!session) {
@@ -164,6 +166,7 @@ export class SessionsModuleApi
   ): Promise<OcpiEmptyResponse> {
     const tenantId: number | undefined = ctx?.state?.tenantPartner?.tenant?.id;
     const tenantPartnerId: number | undefined = ctx?.state?.tenantPartner?.id;
+    const tenantPartner = ctx?.state?.tenantPartner;
 
     if (tenantId === undefined || tenantPartnerId === undefined) {
       throw new InvalidParamException('Tenant information not available');
@@ -180,6 +183,7 @@ export class SessionsModuleApi
       session,
       tenantId,
       tenantPartnerId,
+      tenantPartner,
     );
 
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
@@ -201,6 +205,7 @@ export class SessionsModuleApi
     @Ctx() ctx?: any,
   ): Promise<OcpiEmptyResponse> {
     const tenantPartnerId: number | undefined = ctx?.state?.tenantPartner?.id;
+    const tenantPartner = ctx?.state?.tenantPartner;
 
     if (tenantPartnerId === undefined) {
       throw new InvalidParamException(
@@ -220,6 +225,7 @@ export class SessionsModuleApi
       sessionId,
       tenantPartnerId,
       sessionBody,
+      tenantPartner,
     );
 
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);

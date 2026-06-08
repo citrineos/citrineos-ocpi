@@ -59,6 +59,7 @@ services:
     #     condition: service_healthy
     volumes:
       - ../../citrineos-ocpi:/usr/local/apps/citrineos-ocpi:cached
+      - ../../citrineos-core:/usr/local/apps/citrineos-core:cached
       - /usr/local/apps/citrineos-ocpi/node_modules
       - /usr/local/apps/citrineos-core/node_modules
     ports:

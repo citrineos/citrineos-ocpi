@@ -12,7 +12,7 @@ import {
   Param,
   Put,
 } from 'routing-controllers';
-import { HttpStatus } from '@zetra/citrineos-base';
+import { HttpStatus, type TenantPartnerDto } from '@zetra/citrineos-base';
 import type {
   OcpiEmptyResponse,
   PaginatedTariffResponse,
@@ -116,11 +116,15 @@ export class TariffsModuleApi
     @Param('country_code') countryCode: string,
     @Param('party_id') partyId: string,
     @Param('tariff_id') tariffId: string,
+    @Ctx() ctx?: any,
   ) {
+    const tenantPartner: TenantPartnerDto | undefined =
+      ctx?.state?.tenantPartner;
     const tariff = await this.tariffService.getTariffByOcpiId(
       countryCode,
       partyId,
       tariffId,
+      tenantPartner,
       true,
     );
 
@@ -162,6 +166,7 @@ export class TariffsModuleApi
       tariffRequest,
       tenantId,
       tenantPartnerId,
+      ctx?.state?.tenantPartner,
     );
 
     return buildOcpiResponse<TariffDTO>(
@@ -180,8 +185,17 @@ export class TariffsModuleApi
     @Param('country_code') countryCode: string,
     @Param('party_id') partyId: string,
     @Param('tariff_id') tariffId: string,
+    @Ctx() ctx?: any,
   ): Promise<OcpiEmptyResponse> {
-    await this.tariffService.deleteTariff(countryCode, partyId, tariffId, true);
+    const tenantPartner: TenantPartnerDto | undefined =
+      ctx?.state?.tenantPartner;
+    await this.tariffService.deleteTariff(
+      countryCode,
+      partyId,
+      tariffId,
+      true,
+      tenantPartner,
+    );
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 

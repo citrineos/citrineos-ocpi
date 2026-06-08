@@ -39,6 +39,7 @@ export const GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID = gql`
       where: {
         ocpiId: { _eq: $locationId }
         ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _is_null: true }
       }
     ) {
       id
@@ -50,6 +51,89 @@ export const GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID = gql`
             id
           }
         }
+      }
+    }
+  }
+`;
+
+export const GET_PARTNER_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID = gql`
+  query GetPartnerConnectorByOcpiIdAndEvseIdAndRoamingPartnerId(
+    $partnerId: Int!
+    $locationId: String!
+    $evseUid: String!
+    $connectorId: String!
+    $roamingPartnerId: Int!
+  ) {
+    Locations(
+      where: {
+        ocpiId: { _eq: $locationId }
+        ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
+      }
+    ) {
+      id
+      chargingPool: ChargingStations {
+        id
+        evses: Evses(where: { ocpiUid: { _eq: $evseUid } }) {
+          id
+          connectors: Connectors(where: { ocpiId: { _eq: $connectorId } }) {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID = gql`
+  query GetConnectorByOcpiIdAndEvseIdAndRoamingPartnerId(
+    $partnerId: Int!
+    $locationId: String!
+    $evseUid: String!
+    $connectorId: String!
+    $roamingPartnerId: Int!
+  ) {
+    Connectors(
+      where: {
+        ocpiId: { _eq: $connectorId }
+        Evse: {
+          ocpiUid: { _eq: $evseUid }
+          ChargingStation: {
+            Location: {
+              ocpiId: { _eq: $locationId }
+              ownerTenantPartnerId: { _eq: $partnerId }
+              roamingPartnerId: { _eq: $roamingPartnerId }
+            }
+          }
+        }
+      }
+    ) {
+      id
+      ocpiId
+      evseId
+      stationId
+      connectorId
+      format
+      maximumAmperage
+      maximumPowerWatts
+      maximumVoltage
+      powerType
+      termsAndConditionsUrl
+      type
+      status
+      errorCode
+      timestamp
+      info
+      vendorId
+      vendorErrorCode
+      createdAt
+      updatedAt
+      tariffs: ConnectorTariffsOcpiPartner {
+        id
+        tariffOcpiId
+        connectorOcpiId
+        tariffId
+        connectorId
       }
     }
   }

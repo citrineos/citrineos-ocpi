@@ -193,6 +193,7 @@ export abstract class BaseClientApi {
           `CitrineOS OCPI ${this.CONTROLLER_PATH}`,
         )
       : this.restClient;
+
     switch (httpMethod) {
       case HttpMethod.Get:
         this.logger.debug(`Sending GET request to ${url}`);

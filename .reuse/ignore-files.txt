@@ -16,6 +16,7 @@ Server/nodemon.json
 Server/tsconfig.docker.json
 migrations/tsconfig.json
 package-lock.json
+local-package.json
 renovate.json
 seeders/package.json
 seeders/tsconfig.json

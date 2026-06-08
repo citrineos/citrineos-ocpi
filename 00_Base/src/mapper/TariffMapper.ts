@@ -8,7 +8,7 @@ import { TariffDimensionType } from '../model/TariffDimensionType.js';
 import type { TariffElement } from '../model/TariffElement.js';
 import { TariffType } from '../model/TariffType.js';
 import { MINUTES_IN_HOUR } from '../util/Consts.js';
-import type { TariffDto } from '@zetra/citrineos-base';
+import type { TariffDto, RoamingPartnerDto } from '@zetra/citrineos-base';
 import type { Price } from '../model/Price.js';
 import type { EnergyMix } from '../model/EnergyMix.js';
 
@@ -232,9 +232,15 @@ export class TariffMapper {
     tariff: PutTariffRequest,
     tenantId?: number,
     tenantPartnerId?: number,
+    roamingPartner?: RoamingPartnerDto | null,
   ): {
     coreTariff: Partial<TariffDto> & { ocpiTariffId?: string };
-    TariffElements: Array<{ priceComponents: any; restrictions: any }>;
+    TariffElements: Array<{
+      priceComponents: any;
+      restrictions: any;
+      createdAt: string;
+      updatedAt: string;
+    }>;
   } {
     const coreFields = TariffMapper.mapElementsToCoreTariff(tariff.elements);
     const now = new Date().toISOString();
@@ -254,6 +260,9 @@ export class TariffMapper {
       endDateTime: tariff.end_date_time ?? null,
       createdAt: now,
       updatedAt: now,
+      ...(roamingPartner?.id != null && {
+        roamingPartnerId: roamingPartner.id,
+      }),
       ...(tenantId !== undefined && { tenantId }),
       ...(tenantPartnerId !== undefined && { tenantPartnerId }),
       ...coreFields,

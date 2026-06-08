@@ -41,6 +41,31 @@ export const GET_PARTNER_EVSE_BY_OCPI_ID = gql`
       where: {
         ocpiId: { _eq: $locationId }
         ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _is_null: true }
+      }
+    ) {
+      id
+      chargingPool: ChargingStations {
+        evses: Evses(where: { ocpiUid: { _eq: $evseUid } }) {
+          id
+        }
+      }
+    }
+  }
+`;
+
+export const GET_PARTNER_EVSE_BY_OCPI_ID_AND_ROAMING_PARTNER_ID_QUERY = gql`
+  query GetPartnerEvseByOcpiIdAndRoamingPartnerId(
+    $partnerId: Int!
+    $locationId: String!
+    $evseUid: String!
+    $roamingPartnerId: Int!
+  ) {
+    Locations(
+      where: {
+        ocpiId: { _eq: $locationId }
+        ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
       }
     ) {
       id
@@ -102,6 +127,82 @@ export const GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY = gql`
           id
           ocpiId
           ownerTenantPartnerId
+          updatedAt
+        }
+      }
+      connectors: Connectors {
+        id
+        evseId
+        ocpiId
+        stationId
+        connectorId
+        format
+        maximumAmperage
+        maximumPowerWatts
+        maximumVoltage
+        powerType
+        termsAndConditionsUrl
+        type
+        status
+        errorCode
+        timestamp
+        createdAt
+        updatedAt
+        tariffs: ConnectorTariffsOcpiPartner {
+          id
+          tariffOcpiId
+          connectorOcpiId
+          tariffId
+          connectorId
+        }
+      }
+    }
+  }
+`;
+
+export const GET_EVSE_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY = gql`
+  query GetEvseByOcpiIdPartnerAndRoamingPartnerId(
+    $partnerId: Int!
+    $locationId: String!
+    $evseUid: String!
+    $roamingPartnerId: Int!
+  ) {
+    Evses(
+      where: {
+        ocpiUid: { _eq: $evseUid }
+        ChargingStation: {
+          Location: {
+            ocpiId: { _eq: $locationId }
+            ownerTenantPartnerId: { _eq: $partnerId }
+            roamingPartnerId: { _eq: $roamingPartnerId }
+          }
+        }
+      }
+    ) {
+      id
+      stationId
+      evseTypeId
+      evseId
+      ocpiUid
+      physicalReference
+      removed
+      createdAt
+      updatedAt
+      floorLevel
+      capabilities
+      parkingRestrictions
+      statusSchedule
+      images
+      directions
+      coordinates
+      ocpiStatus
+      ChargingStation {
+        id
+        location: Location {
+          id
+          ocpiId
+          ownerTenantPartnerId
+          roamingPartnerId
           updatedAt
         }
       }

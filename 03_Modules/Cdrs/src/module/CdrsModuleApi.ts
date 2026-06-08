@@ -6,7 +6,10 @@ import type { ICdrsModuleApi } from './ICdrsModuleApi.js';
 
 import { Ctx, Get, JsonController, Param, Post } from 'routing-controllers';
 import { HttpStatus } from '@zetra/citrineos-base';
-import type { TenantPartnerDto } from '@zetra/citrineos-base';
+import type {
+  RoamingPartnerDto,
+  TenantPartnerDto,
+} from '@zetra/citrineos-base';
 import type {
   OcpiErrorResponse,
   PullPartnerModulesBody,
@@ -92,7 +95,8 @@ export class CdrsModuleApi extends BaseController implements ICdrsModuleApi {
   @AsOcpiFunctionalEndpoint({ skipTenantPartnerUrlValidation: true })
   async getCdrById(@Param('cdr_id') cdrId: number, @Ctx() ctx: any) {
     const tenantPartner = ctx.state.tenantPartner as TenantPartnerDto;
-    return this.cdrsService.getCdrById(cdrId, tenantPartner);
+    const roamingPartner = ctx.state.roamingPartner as RoamingPartnerDto;
+    return this.cdrsService.getCdrById(cdrId, tenantPartner, roamingPartner);
   }
 
   @Post('/')

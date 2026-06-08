@@ -92,6 +92,7 @@ export type Authorizations_Paginated_Bool_Exp = {
   TenantPartner?: InputMaybe<TenantPartners_Bool_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
   tenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
+  tenants?: InputMaybe<AuthorizationTenants_Bool_Exp>;
 };
 export type Timestamptz_Comparison_Exp = {
   _gte?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -111,6 +112,31 @@ export type String_Comparison_Exp = {
 export type Tariffs_Insert_Input = any;
 export type Sessions_Insert_Input = any;
 export type Sessions_Set_Input = any;
+export type Tariffs_Set_Input = any;
+export type TariffElements_Insert_Input = any;
+export type Evses_Insert_Input = any;
+export type ConnectorTariffs_Insert_Input = any;
+export type Connectors_Insert_Input = any;
+export type ChargingStations_Insert_Input = any;
+export type Evses_Set_Input = any;
+export type Connectors_Set_Input = any;
+export type Locations_Insert_Input = any;
+export type Locations_Set_Input = any;
+export type Cdrs_Insert_Input = any;
+export type Cdrs_Set_Input = any;
+export type Cdrs_Bool_Exp = {
+  countryCode?: InputMaybe<String_Comparison_Exp>;
+  partyId?: InputMaybe<String_Comparison_Exp>;
+  ocpiCdrId?: InputMaybe<String_Comparison_Exp>;
+  tenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  lastUpdated?: InputMaybe<Timestamptz_Comparison_Exp>;
+  Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type AuthorizationTenants_Bool_Exp = {
+  tenant?: InputMaybe<Tenants_Bool_Exp>;
+  tenantId?: InputMaybe<Int_Comparison_Exp>;
+};
 export type SessionDbRow = {
   id: number;
   ocpiSessionId: string;
