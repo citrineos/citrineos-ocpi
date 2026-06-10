@@ -163,6 +163,8 @@ async function main() {
           continue;
         }
         const tokenDto = TokensMapper.toDto(token);
+        tokenDto.country_code = OUR_COUNTRY_CODE ?? '';
+        tokenDto.party_id = OUR_PARTY_ID ?? '';
         // Send token to partner
         await putTokenToPartner(tokenDto, url, authorizationToken);
         pushed++;

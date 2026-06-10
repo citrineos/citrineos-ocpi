@@ -11,6 +11,7 @@
     "../../citrineos-ocpi/03_Modules/Tokens",
     "../../citrineos-ocpi/03_Modules/Cdrs",
     "../../citrineos-ocpi/03_Modules/DtoRouter",
+    "../../citrineos-ocpi/03_Modules/Tariffs",
     "../../citrineos-core/00_Base/src",
     "../../citrineos-core/02_Util/src",
     "../../citrineos-core/01_Data/src",

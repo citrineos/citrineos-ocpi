@@ -132,7 +132,7 @@ export class AuthMiddleware
                 `String token matched tenantPartner with incorrect routing headers - ${tenantPartner.countryCode}:${fromCountryCode}, ${tenantPartner.partyId}:${fromPartyId}, ${tenantPartner.tenant.countryCode}:${toCountryCode}, ${tenantPartner.tenant.partyId}:${toPartyId}`,
               );
               throw new UnauthorizedException(
-                'Credentials not found for given token',
+                'Credentials not found for given token 2',
               );
             }
             if (roamingPartner) {
@@ -152,7 +152,7 @@ export class AuthMiddleware
               ) {
                 logger.debug(`URL params mismatch with token tenant partner`);
                 throw new UnauthorizedException(
-                  'Credentials not found for given token',
+                  'Credentials not found for given token 3',
                 );
               }
             } else if (
@@ -168,7 +168,7 @@ export class AuthMiddleware
                   `Body attributes mismatch with token tenant partner`,
                 );
                 throw new UnauthorizedException(
-                  'Credentials not found for given token',
+                  'Credentials not found for given token 4',
                 );
               }
             } else {
@@ -177,7 +177,7 @@ export class AuthMiddleware
                   `No URL params found for ${context.request.method} ${context.request.url}`,
                 );
                 throw new UnauthorizedException(
-                  'Credentials not found for given token',
+                  'Credentials not found for given token 5',
                 );
               }
             }

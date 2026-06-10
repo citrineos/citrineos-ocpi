@@ -19,5 +19,8 @@ fi
 npm run build --prefix ../
 npm run migrate --prefix ../
 
+# Kill any previous inspector processes before starting
+pkill -f "node --inspect=0.0.0.0:9229" || true
+
 # Start the server
-node --inspect=0.0.0.0:9229 ./dist/index.js
+exec node --inspect=0.0.0.0:9229 ./dist/index.js

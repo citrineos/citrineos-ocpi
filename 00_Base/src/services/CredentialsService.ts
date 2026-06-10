@@ -162,15 +162,19 @@ export class CredentialsService {
     return RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner);
   }
 
-  async deleteCredentials(token: string): Promise<void> {
+  async deleteCredentials(token: string, partnerId: number): Promise<void> {
+    if(!partnerId) {
+      throw new NotFoundError('Partner ID not found');
+    }
     const response = await this.ocpiGraphqlClient.request<
-      DeleteTenantPartnerByServerTokenMutationResult,
-      DeleteTenantPartnerByServerTokenMutationVariables
-    >(DELETE_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
-    if (!response.delete_TenantPartners?.affected_rows) {
-      throw new NotFoundError(
-        'No client information found for the provided token',
-      );
+      UpdateTenantPartnerProfileMutationResult,
+      UpdateTenantPartnerProfileMutationVariables
+    >(UPDATE_TENANT_PARTNER_PROFILE, {
+      partnerId: partnerId,
+      input: {inactive: true},
+    });
+    if (!response.update_TenantPartners?.affected_rows) {
+      throw new NotFoundError('Failed to deactivate tenant partner');
     }
   }
 
