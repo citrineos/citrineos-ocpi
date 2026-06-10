@@ -428,23 +428,4 @@ export class TokensModuleApi
   //   }
   //   return jobStatus;
   // }
-
-  /**
-   * ADMIN ENDPOINTS
-   */
-  @Post('/push-tokens-to-partners')
-  @AsAdminEndpoint()
-  async PullPartnerLocations() // @BodyWithSchema(
-  //   PullPartnerModulesBodySchema,
-  //   PullPartnerModulesBodySchemaName,
-  // )
-  // body: PullPartnerModulesBody,
-  {
-    // this.logger.info('PullPartnerLocations', body);
-    // const summary = await this.locationsService.PullPartnerLocations(body);
-    // return buildOcpiResponse(
-    //   OcpiResponseStatusCode.GenericSuccessCode,
-    //   summary,
-    // );
-  }
 }

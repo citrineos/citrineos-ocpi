@@ -13,8 +13,6 @@ import { NotRegisteredException } from '../exception/NotRegisteredException.js';
 import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
 import { CredentialsClientApi } from '../trigger/CredentialsClientApi.js';
 import type {
-  DeleteTenantPartnerByServerTokenMutationResult,
-  DeleteTenantPartnerByServerTokenMutationVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   UpdateTenantPartnerProfileMutationResult,
@@ -22,7 +20,6 @@ import type {
 } from '../graphql/index.js';
 import {
   DELETE_TENANT_PARTNER_BY_ID,
-  DELETE_TENANT_PARTNER_BY_SERVER_TOKEN,
   GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
   OcpiGraphqlClient,
   UPDATE_TENANT_PARTNER_PROFILE,
@@ -163,7 +160,7 @@ export class CredentialsService {
   }
 
   async deleteCredentials(token: string, partnerId: number): Promise<void> {
-    if(!partnerId) {
+    if (!partnerId) {
       throw new NotFoundError('Partner ID not found');
     }
     const response = await this.ocpiGraphqlClient.request<
@@ -171,7 +168,7 @@ export class CredentialsService {
       UpdateTenantPartnerProfileMutationVariables
     >(UPDATE_TENANT_PARTNER_PROFILE, {
       partnerId: partnerId,
-      input: {inactive: true},
+      input: { inactive: true },
     });
     if (!response.update_TenantPartners?.affected_rows) {
       throw new NotFoundError('Failed to deactivate tenant partner');

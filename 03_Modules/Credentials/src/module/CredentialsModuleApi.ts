@@ -146,9 +146,7 @@ export class CredentialsModuleApi
     this.logger.info('putCredentials', version, credentials);
     const tenantPartner = ctx!.state!.tenantPartner as TenantPartnerDto;
     if (!tenantPartner) {
-      throw new UnauthorizedException(
-        'Credentials not found for given token',
-      );
+      throw new UnauthorizedException('Credentials not found for given token');
     }
     const matchingRole = credentials.roles.find(
       (r) =>
@@ -156,9 +154,7 @@ export class CredentialsModuleApi
         r.party_id === tenantPartner.partyId,
     );
     if (!matchingRole) {
-      throw new UnauthorizedException(
-        'Credentials not found for given token',
-      );
+      throw new UnauthorizedException('Credentials not found for given token');
     }
     const serverCredentials = await this.credentialsService?.putCredentials(
       tenantPartner,
