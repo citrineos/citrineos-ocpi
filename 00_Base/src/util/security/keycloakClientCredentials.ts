@@ -42,7 +42,10 @@ function buildTokenUrl(config: KeycloakClientCredentialsConfig): string {
   if (config.tokenUrl) {
     return config.tokenUrl;
   }
-  const baseUrl = (config.url ?? 'http://keycloak:8180/auth').replace(/\/$/, '');
+  const baseUrl = (config.url ?? 'http://keycloak:8180/auth').replace(
+    /\/$/,
+    '',
+  );
   const realm = config.realm ?? 'patterm';
   return `${baseUrl}/realms/${realm}/protocol/openid-connect/token`;
 }
