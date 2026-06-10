@@ -307,3 +307,4 @@ data
 
 # ocpi
 03_Modules/citrineos-ocpi
+tmp/*
