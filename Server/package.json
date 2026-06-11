@@ -31,7 +31,7 @@
     "@types/bcrypt": "5.0.2",
     "@types/uuid": "9.0.1",
     "nodemon": "2.0.22",
-    "ts-node": "10.9.1",
+    "ts-node": "10.9.2",
     "tsx": "^4.21.0",
     "typescript": "5.0.4"
   },
