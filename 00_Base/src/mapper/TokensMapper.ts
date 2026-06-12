@@ -7,6 +7,7 @@ import type {
   AuthorizationStatusEnumType,
   AuthorizationWhitelistEnumType,
   IdTokenEnumType,
+  TenantDto,
 } from '@zetra/citrineos-base';
 import {
   AuthorizationStatusEnum,
@@ -17,15 +18,52 @@ import {
 import { TokenType } from '../model/TokenType.js';
 import type { TokenDTO } from '../model/DTO/TokenDTO.js';
 import { WhitelistType } from '../model/WhitelistType.js';
+import type { Tenant } from '@zetra/citrineos-data';
 
 export class TokensMapper {
   public static toDto(authorization: AuthorizationDto): TokenDTO {
     const tenant = authorization.tenants?.[0]?.tenant;
+    console.log('authorization', authorization);
+    console.log('tenant', tenant);
+    console.log('authorization.tenantPartner', authorization.tenantPartner);
+    console.log('authorization.idToken', authorization.idToken);
+    console.log('authorization.idTokenType', authorization.idTokenType);
+    console.log('authorization.additionalInfo', authorization.additionalInfo);
+    console.log('authorization.status', authorization.status);
+    console.log('authorization.language1', authorization.language1);
+    console.log('authorization.realTimeAuth', authorization.realTimeAuth);
 
     const tokenDto: TokenDTO = {
       country_code:
         authorization.tenantPartner?.countryCode ?? tenant?.countryCode ?? '',
       party_id: authorization.tenantPartner?.partyId ?? tenant?.partyId ?? '',
+      uid: authorization.idToken,
+      type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
+        authorization.idTokenType ? authorization.idTokenType : null,
+      ),
+      contract_id: this.getContractId(authorization),
+      visual_number: TokensMapper.getVisualNumber(authorization),
+      issuer: TokensMapper.getIssuer(authorization),
+      group_id: authorization.groupAuthorization?.idToken,
+      valid: authorization.status === AuthorizationStatusEnum.Accepted,
+      whitelist: TokensMapper.mapRealTimeEnumType(authorization.realTimeAuth),
+      language: authorization.language1,
+      // default_profile_type: token.default_profile_type,
+      // energy_contract: token.energy_contract,
+      last_updated: authorization.updatedAt!,
+    };
+
+    return tokenDto;
+  }
+
+  public static toDtoSender(
+    authorization: AuthorizationDto,
+    tenantOwner: TenantDto,
+  ): TokenDTO {
+    const tokenDto: TokenDTO = {
+      country_code:
+        authorization.tenantPartner?.countryCode ?? tenantOwner.countryCode ?? '',
+      party_id: authorization.tenantPartner?.partyId ?? tenantOwner.partyId ?? '',
       uid: authorization.idToken,
       type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
         authorization.idTokenType ? authorization.idTokenType : null,

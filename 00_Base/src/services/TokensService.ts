@@ -62,6 +62,7 @@ import { OcpiHeaders } from '../model/OcpiHeaders.js';
 import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
 import { AuthorizationInfoAllowed } from '../model/AuthorizationInfoAllowed.js';
 import type { AuthorizationInfo } from '../model/AuthorizationInfo.js';
+import type { TenantPartner } from '@zetra/citrineos-data';
 
 @Service()
 export class TokensService {
@@ -271,8 +272,9 @@ export class TokensService {
     >(GET_AUTHORIZATIONS_PAGINATED, { limit, offset, where });
     const mappedTokens: TokenDTO[] = [];
     for (const auth of result.Authorizations) {
+      console.log('auth', auth);
       try {
-        mappedTokens.push(TokensMapper.toDto(auth as AuthorizationDto));
+        mappedTokens.push(TokensMapper.toDtoSender(auth as AuthorizationDto, tenant));
       } catch (e) {
         this.logger.warn(
           `Skipping authorization ${auth.id} during paginated listing: ${e}`,

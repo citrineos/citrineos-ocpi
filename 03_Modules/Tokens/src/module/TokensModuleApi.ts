@@ -73,6 +73,7 @@ import {
   WrongClientAccessException,
 } from '@citrineos/ocpi-base';
 import type { ITokensModuleApi } from './ITokensModuleApi.js';
+import type { TenantPartner } from '@zetra/citrineos-data';
 
 const MOCK_TOKEN_RESPONSE = await generateMockForSchema(
   TokenResponseSchema,
