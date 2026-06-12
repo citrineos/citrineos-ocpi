@@ -53,8 +53,11 @@ export class TokensMapper {
   ): TokenDTO {
     const tokenDto: TokenDTO = {
       country_code:
-        authorization.tenantPartner?.countryCode ?? tenantOwner.countryCode ?? '',
-      party_id: authorization.tenantPartner?.partyId ?? tenantOwner.partyId ?? '',
+        authorization.tenantPartner?.countryCode ??
+        tenantOwner.countryCode ??
+        '',
+      party_id:
+        authorization.tenantPartner?.partyId ?? tenantOwner.partyId ?? '',
       uid: authorization.idToken,
       type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
         authorization.idTokenType ? authorization.idTokenType : null,

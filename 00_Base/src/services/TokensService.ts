@@ -273,7 +273,9 @@ export class TokensService {
     const mappedTokens: TokenDTO[] = [];
     for (const auth of result.Authorizations) {
       try {
-        mappedTokens.push(TokensMapper.toDtoSender(auth as AuthorizationDto, tenant));
+        mappedTokens.push(
+          TokensMapper.toDtoSender(auth as AuthorizationDto, tenant),
+        );
       } catch (e) {
         this.logger.warn(
           `Skipping authorization ${auth.id} during paginated listing: ${e}`,
