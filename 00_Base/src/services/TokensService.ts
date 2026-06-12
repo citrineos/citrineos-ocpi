@@ -272,7 +272,6 @@ export class TokensService {
     >(GET_AUTHORIZATIONS_PAGINATED, { limit, offset, where });
     const mappedTokens: TokenDTO[] = [];
     for (const auth of result.Authorizations) {
-      console.log('auth', auth);
       try {
         mappedTokens.push(TokensMapper.toDtoSender(auth as AuthorizationDto, tenant));
       } catch (e) {

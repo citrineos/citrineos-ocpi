@@ -23,15 +23,6 @@ import type { Tenant } from '@zetra/citrineos-data';
 export class TokensMapper {
   public static toDto(authorization: AuthorizationDto): TokenDTO {
     const tenant = authorization.tenants?.[0]?.tenant;
-    console.log('authorization', authorization);
-    console.log('tenant', tenant);
-    console.log('authorization.tenantPartner', authorization.tenantPartner);
-    console.log('authorization.idToken', authorization.idToken);
-    console.log('authorization.idTokenType', authorization.idTokenType);
-    console.log('authorization.additionalInfo', authorization.additionalInfo);
-    console.log('authorization.status', authorization.status);
-    console.log('authorization.language1', authorization.language1);
-    console.log('authorization.realTimeAuth', authorization.realTimeAuth);
 
     const tokenDto: TokenDTO = {
       country_code:
