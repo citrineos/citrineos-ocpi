@@ -20,7 +20,7 @@ import type {
 } from '../graphql/index.js';
 import {
   DELETE_TENANT_PARTNER_BY_ID,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   OcpiGraphqlClient,
   UPDATE_TENANT_PARTNER_PROFILE,
 } from '../graphql/index.js';
@@ -187,7 +187,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: cpoCountryCode,
       cpoPartyId: cpoPartyId,
       clientCountryCode: partnerRole.country_code,
@@ -272,7 +272,7 @@ export class CredentialsService {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
         GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-      >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+      >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
         cpoCountryCode: credentialsRequest.role.country_code,
         cpoPartyId: credentialsRequest.role.party_id,
         clientCountryCode: credentialsRequest.mspCountryCode,
@@ -419,7 +419,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: request.serverCountryCode,
       cpoPartyId: request.serverPartyId,
       clientCountryCode: request.clientCountryCode,
@@ -447,7 +447,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: credentialsRequest.role.country_code,
       cpoPartyId: credentialsRequest.role.party_id,
       clientCountryCode: credentialsRequest.mspCountryCode,

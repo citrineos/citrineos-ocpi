@@ -51,7 +51,7 @@ import {
   GET_EVSE_BY_ID_QUERY,
   GET_LOCATION_BY_OCPID_ID_QUERY,
   GET_LOCATIONS_QUERY,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
 import {
@@ -281,7 +281,7 @@ export class LocationsService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: ourCountryCode,
       cpoPartyId: ourPartyId,
       clientCountryCode: cpoCountryCode,
