@@ -128,8 +128,6 @@ export abstract class BaseClientApi {
     roamingPartnerCountryCode?: string | null,
     roamingPartnerPartyId?: string | null,
   ): Promise<any> {
-    console.log('roamingPartnerCountryCode', roamingPartnerCountryCode);
-    console.log('roamingPartnerPartyId', roamingPartnerPartyId);
     if (!partnerProfile) {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
@@ -171,7 +169,6 @@ export abstract class BaseClientApi {
         additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = toPartyId;
       }
     }
-    console.log('additionalHeaders', additionalHeaders);
     const options: IRequestOptions = { additionalHeaders };
     const queryParameters: IRequestQueryParams = {
       params: otherParams || {},

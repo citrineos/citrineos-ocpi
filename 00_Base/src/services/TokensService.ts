@@ -62,7 +62,6 @@ import type { LocationReferences } from '../model/LocationReferences.js';
 import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
-import { OcpiHeaders } from '../model/OcpiHeaders.js';
 import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
 import { AuthorizationInfoAllowed } from '../model/AuthorizationInfoAllowed.js';
 import type { AuthorizationInfo } from '../model/AuthorizationInfo.js';

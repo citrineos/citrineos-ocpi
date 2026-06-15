@@ -18,7 +18,6 @@ import {
 import { TokenType } from '../model/TokenType.js';
 import type { TokenDTO } from '../model/DTO/TokenDTO.js';
 import { WhitelistType } from '../model/WhitelistType.js';
-import type { Tenant } from '@zetra/citrineos-data';
 
 export class TokensMapper {
   public static toDto(authorization: AuthorizationDto): TokenDTO {
