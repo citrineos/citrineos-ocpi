@@ -182,7 +182,7 @@ export class TokensMapper {
       case WhitelistType.NEVER:
         return AuthorizationWhitelistEnum.Never;
       case WhitelistType.ALWAYS:
-        return AuthorizationWhitelistEnum.Always;
+        return null;
       default:
         return undefined;
     }
