@@ -178,9 +178,12 @@ export class CredentialsModuleApi
   async deleteCredentials(
     @VersionNumberParam() _version: VersionNumber,
     @AuthToken() token: string,
+    @Ctx() ctx: any,
   ): Promise<OcpiEmptyResponse> {
     this.logger.info('deleteCredentials', _version);
-    await this.credentialsService?.deleteCredentials(token);
+    const tenantPartner = ctx.state.tenantPartner as TenantPartnerDto;
+    const partnerId = tenantPartner.id!;
+    await this.credentialsService?.deleteCredentials(token, partnerId);
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }
 
