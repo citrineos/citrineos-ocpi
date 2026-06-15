@@ -28,6 +28,7 @@ import type {
   SingleTokenRequest,
   TokenDTO,
   TokenResponse,
+  PushPartnerModulesBody,
 } from '@citrineos/ocpi-base';
 import {
   AsAdminEndpoint,
@@ -71,9 +72,10 @@ import {
   VersionNumberParam,
   WhitelistType,
   WrongClientAccessException,
+  PushPartnerModulesBodySchema,
+  PushPartnerModulesBodySchemaName,
 } from '@citrineos/ocpi-base';
 import type { ITokensModuleApi } from './ITokensModuleApi.js';
-import type { TenantPartner } from '@zetra/citrineos-data';
 
 const MOCK_TOKEN_RESPONSE = await generateMockForSchema(
   TokenResponseSchema,
@@ -366,8 +368,26 @@ export class TokensModuleApi
   }
 
   /**
-   * Admin Endpoints
-   **/
+   * ADMIN ENDPOINTS
+   */
+  @Post('/push-tokens-partner')
+  @AsAdminEndpoint()
+  async PushPartnerTokens(
+    @BodyWithSchema(
+      PushPartnerModulesBodySchema,
+      PushPartnerModulesBodySchemaName,
+    )
+    body: PushPartnerModulesBody,
+  ) {
+    this.logger.info('PushPartnerTokens', body);
+
+    const summary = await this.tokensService.pushPartnerTokens(body);
+
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      summary,
+    );
+  }
   // @Post('/fetch')
   // async fetchTokens(
   //   @VersionNumberParam() version: VersionNumber,
