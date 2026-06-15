@@ -264,6 +264,8 @@ export class LocationsService {
       limit,
       date_from,
       date_to,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     } = body;
 
     this.logger.info(
@@ -272,6 +274,8 @@ export class LocationsService {
       ourPartyId,
       cpoCountryCode,
       cpoPartyId,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
@@ -330,6 +334,8 @@ export class LocationsService {
         undefined,
         undefined,
         partnerRow.awsSecretCertificateArn,
+        roamingPartnerCountryCode ?? null,
+        roamingPartnerPartyId ?? null,
       );
 
       for (const item of (resp as any).data) {

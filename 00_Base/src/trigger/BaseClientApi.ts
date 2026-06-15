@@ -125,7 +125,11 @@ export abstract class BaseClientApi {
     otherParams?: Record<string, string | number | (string | number)[]>,
     path?: string,
     awsSecretCertificateArn?: string | null,
+    roamingPartnerCountryCode?: string | null,
+    roamingPartnerPartyId?: string | null,
   ): Promise<any> {
+    console.log('roamingPartnerCountryCode', roamingPartnerCountryCode);
+    console.log('roamingPartnerPartyId', roamingPartnerPartyId);
     if (!partnerProfile) {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
@@ -158,9 +162,16 @@ export abstract class BaseClientApi {
     if (routingHeaders) {
       additionalHeaders[OcpiHttpHeader.OcpiFromCountryCode] = fromCountryCode;
       additionalHeaders[OcpiHttpHeader.OcpiFromPartyId] = fromPartyId;
-      additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] = toCountryCode;
-      additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = toPartyId;
+      if (roamingPartnerCountryCode && roamingPartnerPartyId) {
+        additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] =
+          roamingPartnerCountryCode;
+        additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = roamingPartnerPartyId;
+      } else {
+        additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] = toCountryCode;
+        additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = toPartyId;
+      }
     }
+    console.log('additionalHeaders', additionalHeaders);
     const options: IRequestOptions = { additionalHeaders };
     const queryParameters: IRequestQueryParams = {
       params: otherParams || {},
