@@ -370,18 +370,18 @@ export class TokensModuleApi
   /**
    * ADMIN ENDPOINTS
    */
-  @Post('/push-tokens-partner')
+  @Post('/push-tokens-to-partner')
   @AsAdminEndpoint()
-  async PushPartnerTokens(
+  async PushTokensToPartner(
     @BodyWithSchema(
       PushPartnerModulesBodySchema,
       PushPartnerModulesBodySchemaName,
     )
     body: PushPartnerModulesBody,
   ) {
-    this.logger.info('PushPartnerTokens', body);
+    this.logger.info('PushTokensToPartner', body);
 
-    const summary = await this.tokensService.pushPartnerTokens(body);
+    const summary = await this.tokensService.pushTokensToPartner(body);
 
     return buildOcpiResponse(
       OcpiResponseStatusCode.GenericSuccessCode,

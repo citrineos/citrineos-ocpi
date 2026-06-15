@@ -480,7 +480,9 @@ export class TokensService {
     ];
   }
 
-  async pushPartnerTokens(body: PushPartnerModulesBody): Promise<PushSummary> {
+  async pushTokensToPartner(
+    body: PushPartnerModulesBody,
+  ): Promise<PushSummary> {
     const {
       ourCountryCode,
       ourPartyId,
@@ -493,7 +495,7 @@ export class TokensService {
     } = body;
 
     this.logger.info(
-      'PushPartnerTokens',
+      'PushTokensToPartner',
       ourCountryCode,
       ourPartyId,
       cpoCountryCode,
