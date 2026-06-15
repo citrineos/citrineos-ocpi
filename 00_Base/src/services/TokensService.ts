@@ -66,7 +66,6 @@ import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
 import { AuthorizationInfoAllowed } from '../model/AuthorizationInfoAllowed.js';
 import type { AuthorizationInfo } from '../model/AuthorizationInfo.js';
 import type { Tenant, TenantPartner } from '@zetra/citrineos-data';
-import type { PullPartnerModulesBody } from '../model/DTO/PullPartnerModulesBody.js';
 import type {
   PushPartnerModulesBody,
   PushSummary,
@@ -515,7 +514,6 @@ export class TokensService {
     if (!partnerRow?.partnerProfileOCPI) {
       throw new Error('Tenant partner missing partnerProfileOCPI');
     }
-    const partner = partnerRow as TenantPartner;
 
     const endpoints = tenantPartner.TenantPartners[0].partnerProfileOCPI!
       .endpoints as Endpoint[];
