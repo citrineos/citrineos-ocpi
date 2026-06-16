@@ -414,6 +414,8 @@ export class TariffsService {
       limit,
       date_from,
       date_to,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     } = body;
 
     this.logger.info(
@@ -422,6 +424,8 @@ export class TariffsService {
       ourPartyId,
       cpoCountryCode,
       cpoPartyId,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
@@ -480,6 +484,8 @@ export class TariffsService {
         undefined,
         undefined,
         partnerRow.awsSecretCertificateArn,
+        roamingPartnerCountryCode ?? null,
+        roamingPartnerPartyId ?? null,
       );
 
       for (const item of (resp as any).data) {
