@@ -16,12 +16,14 @@ import {
   OcpiGraphqlClient,
   READ_AUTHORIZATION,
   UPDATE_TOKEN_MUTATION,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
 } from '../graphql/index.js';
 import { TokensMapper } from '../mapper/index.js';
 
 import type {
   AuthorizationDto,
   ChargingStationDto,
+  Endpoint,
   TenantDto,
 } from '@zetra/citrineos-base';
 import { AuthorizationStatusEnum, IdTokenEnum } from '@zetra/citrineos-base';
@@ -44,6 +46,8 @@ import type {
   ReadAuthorizationsQueryVariables,
   UpdateAuthorizationMutationResult,
   UpdateAuthorizationMutationVariables,
+  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
 } from '../graphql/operations.js';
 import { UnknownTokenException } from '../exception/UnknownTokenException.js';
 import type { AdditionalInfoType } from '@zetra/citrineos-base/dist/ocpp/model/2.0.1/index.js';
@@ -58,11 +62,16 @@ import type { LocationReferences } from '../model/LocationReferences.js';
 import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
 import { OcpiResponseStatusCode } from '../model/OcpiResponse.js';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
-import { OcpiHeaders } from '../model/OcpiHeaders.js';
 import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
 import { AuthorizationInfoAllowed } from '../model/AuthorizationInfoAllowed.js';
 import type { AuthorizationInfo } from '../model/AuthorizationInfo.js';
-import type { TenantPartner } from '@zetra/citrineos-data';
+import type { Tenant, TenantPartner } from '@zetra/citrineos-data';
+import type {
+  PushPartnerModulesBody,
+  PushSummary,
+} from '../model/DTO/PushPartnerModulesBody.js';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { HttpMethod } from '@zetra/citrineos-base';
 
 @Service()
 export class TokensService {
@@ -467,5 +476,134 @@ export class TokensService {
       AdditionalInfoType,
       ...AdditionalInfoType[],
     ];
+  }
+
+  async pushTokensToPartner(
+    body: PushPartnerModulesBody,
+  ): Promise<PushSummary> {
+    const {
+      ourCountryCode,
+      ourPartyId,
+      cpoCountryCode,
+      cpoPartyId,
+      offset,
+      limit,
+      date_from,
+      date_to,
+    } = body;
+
+    this.logger.info(
+      'PushTokensToPartner',
+      ourCountryCode,
+      ourPartyId,
+      cpoCountryCode,
+      cpoPartyId,
+    );
+
+    const tenantPartner = await this.ocpiGraphqlClient.request<
+      GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+      GetTenantPartnerByCpoClientAndModuleIdQueryVariables
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
+      cpoCountryCode: ourCountryCode,
+      cpoPartyId: ourPartyId,
+      clientCountryCode: cpoCountryCode,
+      clientPartyId: cpoPartyId,
+    });
+
+    const partnerRow = tenantPartner.TenantPartners[0];
+    if (!partnerRow?.partnerProfileOCPI) {
+      throw new Error('Tenant partner missing partnerProfileOCPI');
+    }
+
+    const endpoints = tenantPartner.TenantPartners[0].partnerProfileOCPI!
+      .endpoints as Endpoint[];
+    const url = endpoints.find(
+      (e: Endpoint) => e.identifier === 'tokens_RECEIVER',
+    )?.url;
+
+    if (!url) {
+      throw new Error('No Tokens URL found');
+    }
+
+    const where: Authorizations_Paginated_Bool_Exp = {
+      tenantPartnerId: { _is_null: true },
+      tenants: {
+        tenant: {
+          countryCode: { _eq: ourCountryCode },
+          partyId: { _eq: ourPartyId },
+        },
+      },
+    };
+    if (date_from || date_to) {
+      where.updatedAt = {};
+      if (date_from) where.updatedAt._gte = new Date(date_from).toISOString();
+      if (date_to) where.updatedAt._lte = new Date(date_to).toISOString();
+    }
+    const partnerProfile = partnerRow.partnerProfileOCPI!;
+    const tenantOwner = partnerRow.tenant! as Tenant;
+    let currentOffset = offset;
+    let hasMore = true;
+    let processed = 0;
+    let pushSucceeded = 0;
+    let pushFailed = 0;
+    let skippedInvalid = 0;
+    while (hasMore) {
+      const result = await this.ocpiGraphqlClient.request<
+        GetAuthorizationsPaginatedQueryResult,
+        GetAuthorizationsPaginatedQueryVariables
+      >(GET_AUTHORIZATIONS_PAGINATED, { limit, offset: currentOffset, where });
+
+      const batch = result.Authorizations ?? [];
+      if (batch.length === 0) {
+        break;
+      }
+      for (const auth of batch) {
+        processed++;
+        try {
+          const tokenDto = TokensMapper.toDtoSender(
+            auth as AuthorizationDto,
+            tenantOwner,
+          );
+          const path = `/${tokenDto.country_code}/${tokenDto.party_id}/${encodeURIComponent(tokenDto.uid)}`;
+          await this.tokensClientApi.request(
+            ourCountryCode,
+            ourPartyId,
+            cpoCountryCode,
+            cpoPartyId,
+            HttpMethod.Put,
+            OcpiEmptyResponseSchema,
+            partnerProfile,
+            true,
+            url,
+            tokenDto,
+            undefined,
+            undefined,
+            path,
+            partnerRow.awsSecretCertificateArn,
+          );
+          pushSucceeded++;
+        } catch (err) {
+          if (String(err).includes('Issuer not found')) {
+            skippedInvalid++;
+          } else {
+            pushFailed++;
+            this.logger.error(
+              `pushPartnerTokens failed for auth ${auth.id}`,
+              err,
+            );
+          }
+        }
+      }
+      currentOffset += batch.length;
+      hasMore = batch.length === limit;
+    }
+
+    return {
+      module: 'tokens',
+      processed: processed,
+      pushSucceeded,
+      pushFailed,
+      skippedInvalid,
+    };
   }
 }

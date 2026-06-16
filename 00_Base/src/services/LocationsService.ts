@@ -51,7 +51,7 @@ import {
   GET_EVSE_BY_ID_QUERY,
   GET_LOCATION_BY_OCPID_ID_QUERY,
   GET_LOCATIONS_QUERY,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
 import {
@@ -264,6 +264,8 @@ export class LocationsService {
       limit,
       date_from,
       date_to,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     } = body;
 
     this.logger.info(
@@ -272,12 +274,14 @@ export class LocationsService {
       ourPartyId,
       cpoCountryCode,
       cpoPartyId,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: ourCountryCode,
       cpoPartyId: ourPartyId,
       clientCountryCode: cpoCountryCode,
@@ -330,6 +334,8 @@ export class LocationsService {
         undefined,
         undefined,
         partnerRow.awsSecretCertificateArn,
+        roamingPartnerCountryCode ?? null,
+        roamingPartnerPartyId ?? null,
       );
 
       for (const item of (resp as any).data) {

@@ -232,6 +232,11 @@ export {
   PullPartnerModulesBodySchema,
   PullPartnerModulesBodySchemaName,
 } from './model/DTO/PullPartnerModulesBody.js';
+export type { PushPartnerModulesBody } from './model/DTO/PushPartnerModulesBody.js';
+export {
+  PushPartnerModulesBodySchema,
+  PushPartnerModulesBodySchemaName,
+} from './model/DTO/PushPartnerModulesBody.js';
 export {
   UID_FORMAT,
   EXTRACT_EVSE_ID,

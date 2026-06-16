@@ -27,7 +27,7 @@ import type {
   TenantPartnersListQueryVariables,
 } from '../graphql/index.js';
 import {
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   LIST_TENANT_PARTNERS_BY_CPO,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
@@ -125,12 +125,14 @@ export abstract class BaseClientApi {
     otherParams?: Record<string, string | number | (string | number)[]>,
     path?: string,
     awsSecretCertificateArn?: string | null,
+    roamingPartnerCountryCode?: string | null,
+    roamingPartnerPartyId?: string | null,
   ): Promise<any> {
     if (!partnerProfile) {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
         GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-      >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+      >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
         cpoCountryCode: fromCountryCode,
         cpoPartyId: fromPartyId,
         clientCountryCode: toCountryCode,
@@ -158,8 +160,14 @@ export abstract class BaseClientApi {
     if (routingHeaders) {
       additionalHeaders[OcpiHttpHeader.OcpiFromCountryCode] = fromCountryCode;
       additionalHeaders[OcpiHttpHeader.OcpiFromPartyId] = fromPartyId;
-      additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] = toCountryCode;
-      additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = toPartyId;
+      if (roamingPartnerCountryCode && roamingPartnerPartyId) {
+        additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] =
+          roamingPartnerCountryCode;
+        additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = roamingPartnerPartyId;
+      } else {
+        additionalHeaders[OcpiHttpHeader.OcpiToCountryCode] = toCountryCode;
+        additionalHeaders[OcpiHttpHeader.OcpiToPartyId] = toPartyId;
+      }
     }
     const options: IRequestOptions = { additionalHeaders };
     const queryParameters: IRequestQueryParams = {

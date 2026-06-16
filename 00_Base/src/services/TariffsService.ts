@@ -51,7 +51,7 @@ import {
   GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY,
   OcpiGraphqlClient,
   DELETE_TARIFF_ELEMENTS_MUTATION,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   FIND_PARTNER_TARIFF_QUERY,
   FIND_PARTNER_TARIFF_P2P_QUERY,
   UPDATE_PARTNER_TARIFF_MUTATION,
@@ -414,6 +414,8 @@ export class TariffsService {
       limit,
       date_from,
       date_to,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     } = body;
 
     this.logger.info(
@@ -422,12 +424,14 @@ export class TariffsService {
       ourPartyId,
       cpoCountryCode,
       cpoPartyId,
+      roamingPartnerCountryCode,
+      roamingPartnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: ourCountryCode,
       cpoPartyId: ourPartyId,
       clientCountryCode: cpoCountryCode,
@@ -480,6 +484,8 @@ export class TariffsService {
         undefined,
         undefined,
         partnerRow.awsSecretCertificateArn,
+        roamingPartnerCountryCode ?? null,
+        roamingPartnerPartyId ?? null,
       );
 
       for (const item of (resp as any).data) {
