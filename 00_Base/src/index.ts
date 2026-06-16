@@ -314,6 +314,7 @@ export { TokensService } from './services/TokensService.js';
 // export { TokensAdminService } from './services/TokensAdminService.js';
 export { LocationsService } from './services/LocationsService.js';
 export { LocationReceiverService } from './services/LocationReceiverService.js';
+export { LocationsPullService } from './services/LocationsPullService.js';
 export { VersionService } from './services/VersionService.js';
 export { SessionsService } from './services/SessionsService.js';
 // export { AdminLocationsService } from './services/AdminLocationsService.js';

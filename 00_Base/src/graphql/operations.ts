@@ -1476,31 +1476,42 @@ export type UpdateLocationPatchMutationResult = {
   } | null
 };
 
-export type SessionFieldsFragment = {
-  id: number,
-  ocpiSessionId: string,
-  countryCode: string,
-  partyId: string,
-  startDateTime: any,
-  endDateTime?: any | null,
-  kwh: any,
-  cdrToken: any,
-  authMethod: string,
-  authorizationReference?: string | null,
-  locationId: string,
-  evseUid: string,
-  connectorId: string,
-  meterId?: string | null,
-  currency: string,
-  chargingPeriods?: any | null,
-  totalCost?: any | null,
-  status: string,
-  lastUpdated: any,
-  tenantId: number,
-  tenantPartnerId: number,
-  roamingPartnerId?: number | null,
-  createdAt?: any | null,
-  updatedAt?: any | null
+export type GetKnownLocationIdsWithRoamingPartnerIdQueryVariables = Exact<{
+  partnerId: Scalars['Int']['input'];
+  roamingPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetKnownLocationIdsWithRoamingPartnerIdQueryResult = {
+  Locations: Array<{
+    ocpiId?: string | null,
+    id: number
+  }>
+};
+
+export type GetKnownLocationIdsQueryVariables = Exact<{
+  partnerId: Scalars['Int']['input'];
+}>;
+
+
+export type GetKnownLocationIdsQueryResult = {
+  Locations: Array<{
+    ocpiId?: string | null,
+    id: number
+  }>
+};
+
+export type MarkLocationRemovedMutationVariables = Exact<{
+  locationId: Scalars['Int']['input'];
+  partnerId: Scalars['Int']['input'];
+}>;
+
+
+export type MarkLocationRemovedMutationResult = {
+  update_Locations_by_pk?: {
+    ocpiId?: string | null,
+    id: number
+  } | null
 };
 
 export type FindSessionP2pQueryVariables = Exact<{
@@ -2425,7 +2436,12 @@ export type GetTenantPartnerByCpoClientAndModuleIdQueryResult = {
       countryCode?: string | null,
       partyId?: string | null,
       serverProfileOCPI?: any | null
-    }
+    },
+    roamingPartners: Array<{
+      id: number,
+      countryCode: string,
+      partyId: string
+    }>
   }>
 };
 

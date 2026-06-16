@@ -666,3 +666,41 @@ export const UPDATE_LOCATION_PATCH_MUTATION = gql`
     }
   }
 `;
+
+export const GET_KNOWN_LOCATION_IDS_QUERY_WITH_ROAMING_PARTNER_ID = gql`
+  query GetKnownLocationIdsWithRoamingPartnerId(
+    $partnerId: Int!
+    $roamingPartnerId: Int!
+  ) {
+    Locations(
+      where: {
+        ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
+      }
+    ) {
+      ocpiId
+      id
+    }
+  }
+`;
+
+export const GET_KNOWN_LOCATION_IDS_QUERY = gql`
+  query GetKnownLocationIds($partnerId: Int!) {
+    Locations(where: { ownerTenantPartnerId: { _eq: $partnerId } }) {
+      ocpiId
+      id
+    }
+  }
+`;
+
+export const MARK_LOCATION_REMOVED_QUERY = gql`
+  mutation MarkLocationRemoved($locationId: Int!, $partnerId: Int!) {
+    update_Locations_by_pk(
+      pk_columns: { id: $locationId }
+      _set: { removed: true }
+    ) {
+      ocpiId
+      id
+    }
+  }
+`;

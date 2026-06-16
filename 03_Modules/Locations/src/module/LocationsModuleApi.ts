@@ -60,6 +60,7 @@ import {
   LocationResponseSchemaName,
   LocationsService,
   LocationReceiverService,
+  LocationsPullService,
   ModuleId,
   OcpiHeaders,
   OcpiResponseStatusCode,
@@ -109,6 +110,7 @@ export class LocationsModuleApi
   constructor(
     readonly locationsService: LocationsService,
     readonly locationsReceiverService: LocationReceiverService,
+    readonly locationsPullService: LocationsPullService,
   ) {
     super();
   }
@@ -480,7 +482,7 @@ export class LocationsModuleApi
   ) {
     this.logger.info('PullPartnerLocations', body);
 
-    const summary = await this.locationsService.PullPartnerLocations(body);
+    const summary = await this.locationsPullService.PullPartnerLocations(body);
 
     return buildOcpiResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
