@@ -111,6 +111,9 @@ export class LocationsService {
         countryCode: { _eq: ocpiHeaders.toCountryCode },
         partyId: { _eq: ocpiHeaders.toPartyId },
       },
+      ownerTenantPartnerId: { _is_null: true },
+      roamingPartnerId: { _is_null: true },
+      removed: { _eq: false },
     };
     const dateFilters: any = {};
     if (paginatedParams?.dateFrom)
@@ -120,6 +123,7 @@ export class LocationsService {
     if (Object.keys(dateFilters).length > 0) {
       where.updatedAt = dateFilters;
     }
+
     const variables = {
       limit,
       offset,

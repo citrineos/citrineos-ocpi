@@ -317,7 +317,7 @@ export class EvseMapper {
               connectors.some((con) => con!.id === c.id!.toString()),
             ),
           )
-        : EvseStatus.UNKNOWN,
+        : EvseStatus.REMOVED,
       capabilities: station.capabilities
         ?.map((c) => EvseMapper.mapEvseCapabilities(c))
         .filter((c) => c !== null),
@@ -436,6 +436,13 @@ export class EvseMapper {
     if (!connectors || connectors.length === 0) {
       return EvseStatus.UNKNOWN;
     }
+    console.log('connectors', connectors);
+    console.log('connectors.length', connectors.length);
+    console.log(
+      'available connectors',
+      connectors.filter((c) => c.status === ConnectorStatusEnum.Available)
+        .length,
+    );
 
     const anyInUse = connectors.some(
       (c) =>
@@ -473,7 +480,7 @@ export class EvseMapper {
       return EvseStatus.OUTOFORDER;
     }
 
-    return EvseStatus.UNKNOWN;
+    return EvseStatus.REMOVED;
   }
 
   static mapEvseParkingRestrictions(

@@ -340,7 +340,7 @@ export class LocationReceiverService {
     location: LocationDTO,
     locationId: string,
     tenantPartner: TenantPartnerDto,
-  ): Promise<void> {
+  ): Promise<{ locationId: number; chargingStationId: string }> {
     if (!tenantPartner?.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
@@ -452,6 +452,8 @@ export class LocationReceiverService {
       throw new Error('Failed to create virtual charging station');
     }
 
+    console.log('UPSERT LOCATION', location);
+    console.log('UPSERT EVSES FOR LOCATION', location.evses);
     for (const evse of location.evses ?? []) {
       await this.upsertEvseForPartner(
         tenantPartner,
@@ -460,6 +462,11 @@ export class LocationReceiverService {
         idChargingStationAssociatedWithLocation,
       );
     }
+
+    return {
+      locationId: locationDbRow.id,
+      chargingStationId: idChargingStationAssociatedWithLocation,
+    };
   }
 
   async putLocationByCountryPartyAndId(

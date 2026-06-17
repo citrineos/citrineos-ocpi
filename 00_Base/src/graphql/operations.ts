@@ -32,8 +32,15 @@ export type Authorizations_Set_Input = {
   updatedAt: Scalars['timestamptz']['input'];
 };
 export type Locations_Bool_Exp = {
+  ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
+  roamingPartnerId?: InputMaybe<Int_Comparison_Exp>;
+  removed?: InputMaybe<Boolean_Comparison_Exp>;
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Boolean_Comparison_Exp = {
+  _eq?: InputMaybe<Scalars['Boolean']['input']>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
 };
 export type Tariffs_Bool_Exp = {
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -632,6 +639,18 @@ export type DeleteOcpiConnectorTariffMutationVariables = Exact<{
 export type DeleteOcpiConnectorTariffMutationResult = {
   delete_ConnectorTariffs?: {
     affected_rows: number
+  } | null
+};
+
+export type MarkConnectorDeletedMutationVariables = Exact<{
+  connectorId: Scalars['Int']['input'];
+  deletedAt: Scalars['timestamptz']['input'];
+}>;
+
+
+export type MarkConnectorDeletedMutationResult = {
+  update_Connectors_by_pk?: {
+    id: number
   } | null
 };
 
@@ -1268,6 +1287,7 @@ export type GetLocationByOcpiIdAndPartnerIdQueryResult = {
           vendorErrorCode?: string | null,
           createdAt: any,
           updatedAt: any,
+          deletedAt?: any | null,
           tariffs: Array<{
             id: number,
             tariffOcpiId: string,
@@ -1382,6 +1402,7 @@ export type GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult = {
           vendorErrorCode?: string | null,
           createdAt: any,
           updatedAt: any,
+          deletedAt?: any | null,
           tariffs: Array<{
             id: number,
             tariffOcpiId: string,
@@ -1503,13 +1524,24 @@ export type GetKnownLocationIdsQueryResult = {
 
 export type MarkLocationRemovedMutationVariables = Exact<{
   locationId: Scalars['Int']['input'];
-  partnerId: Scalars['Int']['input'];
+  deletedAt: Scalars['timestamptz']['input'];
 }>;
 
 
 export type MarkLocationRemovedMutationResult = {
   update_Locations_by_pk?: {
     ocpiId?: string | null,
+    id: number
+  } | null
+};
+
+export type MarkEvseRemovedMutationVariables = Exact<{
+  evseId: Scalars['Int']['input'];
+}>;
+
+
+export type MarkEvseRemovedMutationResult = {
+  update_Evses_by_pk?: {
     id: number
   } | null
 };
