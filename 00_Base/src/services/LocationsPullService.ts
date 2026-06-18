@@ -415,13 +415,15 @@ export class LocationsPullService {
     let markedRemoved: number | undefined;
     let markRemovedFailed: number | undefined;
     if (isFullMode) {
-      const { markedRemoved: markedRemovedTemp, markRemovedFailed: markRemovedFailedTemp } =
-        await this.syncDeletedLocations(
-          partner,
-          roamingPartnerCountryCode ?? null,
-          roamingPartnerPartyId ?? null,
-          seenLocationIds,
-        );
+      const {
+        markedRemoved: markedRemovedTemp,
+        markRemovedFailed: markRemovedFailedTemp,
+      } = await this.syncDeletedLocations(
+        partner,
+        roamingPartnerCountryCode ?? null,
+        roamingPartnerPartyId ?? null,
+        seenLocationIds,
+      );
       markedRemoved = markedRemovedTemp;
       markRemovedFailed = markRemovedFailedTemp;
     }
