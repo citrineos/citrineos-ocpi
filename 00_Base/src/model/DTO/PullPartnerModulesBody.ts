@@ -33,6 +33,8 @@ export type PullSummary = {
   upsertSucceeded: number;
   upsertFailed: number;
   skippedInvalid: number;
+  LocationsMarkedRemoved: number;
+  LocationsMarkedRemovedFailed: number;
 };
 
 export const PullSummarySchema = z.object({
@@ -41,4 +43,6 @@ export const PullSummarySchema = z.object({
   upsertSucceeded: z.number(),
   upsertFailed: z.number(),
   skippedInvalid: z.number(),
+  LocationsMarkedRemoved: z.number().optional(),
+  LocationsMarkedRemovedFailed: z.number().optional(),
 });

@@ -452,8 +452,6 @@ export class LocationReceiverService {
       throw new Error('Failed to create virtual charging station');
     }
 
-    console.log('UPSERT LOCATION', location);
-    console.log('UPSERT EVSES FOR LOCATION', location.evses);
     for (const evse of location.evses ?? []) {
       await this.upsertEvseForPartner(
         tenantPartner,

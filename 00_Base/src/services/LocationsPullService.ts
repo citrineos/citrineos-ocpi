@@ -130,19 +130,17 @@ export class LocationsPullService {
     roamingPartnerCountryCode: string | null,
     roamingPartnerPartyId: string | null,
     seenLocationIds: Set<string>,
-  ): Promise<void> {
-    let markedRemoved = 0;
-    let markRemovedFailed = 0;
+  ): Promise<{ markedRemoved: number; markRemovedFailed: number }> {
+    let markedRemoved: number = 0;
+    let markRemovedFailed: number = 0;
     const existingIds = await this.getKnownLocationIds(
       partner,
       roamingPartnerCountryCode ?? null,
       roamingPartnerPartyId ?? null,
     );
-    console.log('existingIds', existingIds);
     const missingIds = existingIds.filter(
       (locationRef) => !seenLocationIds.has(locationRef.ocpiId),
     );
-    console.log('missingIds', missingIds);
     for (const locationRef of missingIds) {
       try {
         await this.markLocationRemoved(locationRef.id, partner);
@@ -155,6 +153,10 @@ export class LocationsPullService {
         );
       }
     }
+    return {
+      markedRemoved: markedRemoved,
+      markRemovedFailed: markRemovedFailed,
+    };
   }
 
   async markEvseRemoved(evseId: number): Promise<void> {
@@ -170,7 +172,10 @@ export class LocationsPullService {
     await this.ocpiGraphqlClient.request<
       MarkConnectorDeletedMutationResult,
       MarkConnectorDeletedMutationVariables
-    >(MARK_CONNECTOR_DELETED_QUERY, { connectorId, deletedAt: new Date().toISOString() });
+    >(MARK_CONNECTOR_DELETED_QUERY, {
+      connectorId,
+      deletedAt: new Date().toISOString(),
+    });
   }
 
   async reconcileEvsesForLocation(
@@ -250,28 +255,6 @@ export class LocationsPullService {
         }
       }
     }
-
-    // const locationRow = result.Locations[0];
-    // if (!locationRow) return;
-
-    // const dbEvses: KnownEvseRef[] =
-    // locationRow.chargingPool
-    //   ?.flatMap((cs) => cs.evses ?? [])
-    //   .filter(
-    //     (e) => e.id != null && e.ocpiUid != null && e.removed !== true,
-    //   )
-    //   .map((e) => ({
-    //     id: e.id!,
-    //     ocpiUid: e.ocpiUid!,
-    //   })) ?? [];
-
-    // const missingEvses = dbEvses.filter(
-    //   (e) => !payloadEvseUids.has(e.ocpiUid),
-    // );
-
-    // for (const evse of missingEvses) {
-    //   await this.markEvseRemoved(evse.id);
-    // }
   }
 
   async PullPartnerLocations(
@@ -304,7 +287,6 @@ export class LocationsPullService {
 
     const isFullMode = date_from == null && date_to == null;
     const seenLocationIds = new Set<string>();
-    const seenEvseIds = new Set<string>();
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
@@ -381,13 +363,9 @@ export class LocationsPullService {
               String(location.id),
               partner,
             );
-          // for (const evse of location.evses ?? []) {
-          //   seenEvseIds.add(String(evse.id));
-          // }
-          console.log('upserted', upserted);
+
           if (!isFullMode) {
             const evses = location.evses ?? [];
-            console.log('evses', evses);
             if (
               evses.length > 0 &&
               evses.every((e) => e.status === 'REMOVED')
@@ -434,18 +412,14 @@ export class LocationsPullService {
       }
     }
 
-    let markedRemoved = 0;
-    let markRemovedFailed = 0;
-    // loop for roaming partner ??,
     if (isFullMode) {
-      console.log('PULLING FULL MODE LOCATIONS');
-      await this.syncDeletedLocations(
-        partner,
-        roamingPartnerCountryCode ?? null,
-        roamingPartnerPartyId ?? null,
-        seenLocationIds,
-      );
-      // await this.syncDeletedEvses(partner, roamingPartnerCountryCode ?? null, roamingPartnerPartyId ?? null, seenEvseIds);
+      const { markedRemoved, markRemovedFailed } =
+        await this.syncDeletedLocations(
+          partner,
+          roamingPartnerCountryCode ?? null,
+          roamingPartnerPartyId ?? null,
+          seenLocationIds,
+        );
     }
 
     return {
@@ -454,6 +428,8 @@ export class LocationsPullService {
       upsertSucceeded: upsertSucceededLocations,
       upsertFailed: upsertFailedLocations,
       skippedInvalid: skippedInvalidLocations,
+      LocationsMarkedRemoved: markedRemoved,
+      LocationsMarkedRemovedFailed: markRemovedFailed,
     };
   }
 }
