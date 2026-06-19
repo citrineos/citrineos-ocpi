@@ -207,7 +207,7 @@ export class LocationsPullService {
             GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryResult,
             GetLocationByOcpiIdPartnerAndRoamingPartnerIdQueryVariables
           >(GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY, {
-            id: locationOcpiId, // ← not locationId
+            id: locationOcpiId,
             partnerId: partner.id,
             roamingPartnerId,
           })
@@ -215,7 +215,7 @@ export class LocationsPullService {
             GetLocationByOcpiIdAndPartnerIdQueryResult,
             GetLocationByOcpiIdAndPartnerIdQueryVariables
           >(GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY, {
-            id: locationOcpiId, // ← not locationId
+            id: locationOcpiId,
             partnerId: partner.id,
           });
 
@@ -238,6 +238,7 @@ export class LocationsPullService {
         ) ?? [];
 
     for (const evse of dbEvses) {
+      // in full mode, if evse is not in the payload, mark it as removed
       if (fullMode) {
         if (!payloadEvseUids.has(evse.ocpiUid!)) {
           await this.markEvseRemoved(evse.id!);
@@ -249,6 +250,8 @@ export class LocationsPullService {
       const dbConnectors = (evse.connectors ?? []).filter(
         (c) => c.id != null && c.deletedAt === null,
       );
+      // if connector is not in the payload, mark it as removed
+      // in full mode AND in not full mode
       for (const connector of dbConnectors) {
         if (!payloadConnectorIds.has(connector.ocpiId!)) {
           await this.markConnectorRemoved(connector.id!);
@@ -285,6 +288,7 @@ export class LocationsPullService {
       date_to,
     );
 
+    // if date_from and date_to are not set, it means we are in full pull mode
     const isFullMode = date_from == null && date_to == null;
     const seenLocationIds = new Set<string>();
 
@@ -364,6 +368,7 @@ export class LocationsPullService {
               partner,
             );
 
+          // in not full mode, if all evses are removed, mark the location as removed
           if (!isFullMode) {
             const evses = location.evses ?? [];
             if (
@@ -383,9 +388,10 @@ export class LocationsPullService {
               partyId: location.party_id,
             };
           }
+          // reconcile evse statuses
           await this.reconcileEvsesForLocation(
             partner,
-            String(location.id), // location OCPI id
+            String(location.id),
             location.evses ?? [],
             roamingPartnerCountryCode ?? roamingPartner?.countryCode ?? null,
             roamingPartnerPartyId ?? roamingPartner?.partyId ?? null,
@@ -414,6 +420,7 @@ export class LocationsPullService {
 
     let markedRemoved: number | undefined;
     let markRemovedFailed: number | undefined;
+    // in full mode, if locations are not in the response, mark them as removed
     if (isFullMode) {
       const {
         markedRemoved: markedRemovedTemp,
