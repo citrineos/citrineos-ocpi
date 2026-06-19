@@ -11,8 +11,8 @@ import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../PaginatedResponse.js';
 export const PushPartnerModulesBodySchema = z.object({
   ourCountryCode: z.string().min(2).max(2),
   ourPartyId: z.string().min(1).max(3),
-  cpoCountryCode: z.string().min(2).max(2),
-  cpoPartyId: z.string().min(1).max(3),
+  partnerCountryCode: z.string().min(2).max(2),
+  partnerPartyId: z.string().min(1).max(3),
   offset: z.number().int().min(0).optional().default(DEFAULT_OFFSET),
   limit: z.number().int().min(1).optional().default(DEFAULT_LIMIT),
   date_from: z.union([z.coerce.date(), z.string()]).optional(),

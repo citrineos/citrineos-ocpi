@@ -43,23 +43,12 @@ import type {
   GetLocationsQueryResult,
   GetLocationsQueryVariables,
   Locations_Bool_Exp,
-  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
-  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
-  GetKnownLocationIdsQueryResult,
-  GetKnownLocationIdsQueryVariables,
-  GetKnownLocationIdsWithRoamingPartnerIdQueryResult,
-  GetKnownLocationIdsWithRoamingPartnerIdQueryVariables,
-  MarkLocationRemovedMutationResult,
-  MarkLocationRemovedMutationVariables,
 } from '../graphql/index.js';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
   GET_EVSE_BY_ID_QUERY,
-  GET_KNOWN_LOCATION_IDS_QUERY,
-  GET_KNOWN_LOCATION_IDS_QUERY_WITH_ROAMING_PARTNER_ID,
   GET_LOCATION_BY_OCPID_ID_QUERY,
   GET_LOCATIONS_QUERY,
-  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   MARK_LOCATION_REMOVED_QUERY,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
@@ -71,13 +60,9 @@ import {
 import type {
   ChargingStationDto,
   ConnectorDto,
-  Endpoint,
   EvseDto,
   LocationDto,
 } from '@zetra/citrineos-base';
-import { HttpMethod } from '@zetra/citrineos-base';
-import { z } from 'zod';
-import { getRoamingPartner } from '../util/helpers.js';
 
 export type KnownLocationRef = {
   id: number;

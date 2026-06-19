@@ -33,7 +33,8 @@ import {
   GET_TRANSACTIONS_QUERY,
   OcpiGraphqlClient,
   INSERT_SESSION_MUTATION,
-  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
+,
   GET_SESSION_BY_OCPI_ID_ROAMING_QUERY,
   UPDATE_SESSION_BY_PK_MUTATION,
   FIND_SESSION_ROAMING_QUERY,
@@ -346,8 +347,8 @@ export class SessionsService {
     const {
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
       offset,
       limit,
       date_from,
@@ -358,18 +359,19 @@ export class SessionsService {
       'PullPartnerSessions',
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
-      cpoCountryCode: ourCountryCode,
-      cpoPartyId: ourPartyId,
-      clientCountryCode: cpoCountryCode,
-      clientPartyId: cpoPartyId,
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
+, {
+      ourCountryCode: ourCountryCode,
+      ourPartyId: ourPartyId,
+      partnerCountryCode: partnerCountryCode,
+      partnerPartyId: partnerPartyId,
     });
 
     const partnerRow = tenantPartner.TenantPartners[0];
@@ -406,8 +408,8 @@ export class SessionsService {
       const resp = await this.sessionsClientApi.request(
         ourCountryCode,
         ourPartyId,
-        cpoCountryCode,
-        cpoPartyId,
+        partnerCountryCode,
+        partnerPartyId,
         HttpMethod.Get,
         z.any(),
         tenantPartner.TenantPartners[0].partnerProfileOCPI!,

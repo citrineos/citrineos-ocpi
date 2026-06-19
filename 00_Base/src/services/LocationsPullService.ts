@@ -35,7 +35,8 @@ import type {
 import {
   GET_KNOWN_LOCATION_IDS_QUERY,
   GET_KNOWN_LOCATION_IDS_QUERY_WITH_ROAMING_PARTNER_ID,
-  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
+,
   MARK_LOCATION_REMOVED_QUERY,
   GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY,
   OcpiGraphqlClient,
@@ -266,8 +267,8 @@ export class LocationsPullService {
     const {
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
       offset,
       limit,
       date_from,
@@ -280,8 +281,8 @@ export class LocationsPullService {
       'PullPartnerLocations',
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
       roamingPartnerCountryCode,
       roamingPartnerPartyId,
       date_from,
@@ -295,11 +296,12 @@ export class LocationsPullService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
-      cpoCountryCode: ourCountryCode,
-      cpoPartyId: ourPartyId,
-      clientCountryCode: cpoCountryCode,
-      clientPartyId: cpoPartyId,
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
+, {
+      ourCountryCode: ourCountryCode,
+      ourPartyId: ourPartyId,
+      partnerCountryCode: partnerCountryCode,
+      partnerPartyId: partnerPartyId,
     });
 
     const partnerRow = tenantPartner.TenantPartners[0];
@@ -336,8 +338,8 @@ export class LocationsPullService {
       const resp = await this.locationsClientApi.request(
         ourCountryCode,
         ourPartyId,
-        cpoCountryCode,
-        cpoPartyId,
+        partnerCountryCode,
+        partnerPartyId,
         HttpMethod.Get,
         z.any(),
         tenantPartner.TenantPartners[0].partnerProfileOCPI!,

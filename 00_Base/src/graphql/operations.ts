@@ -2448,10 +2448,10 @@ export type DeleteTenantPartnerByServerTokenMutationResult = {
 };
 
 export type GetTenantPartnerByCpoClientAndModuleIdQueryVariables = Exact<{
-  cpoCountryCode: Scalars['String']['input'];
-  cpoPartyId: Scalars['String']['input'];
-  clientCountryCode?: InputMaybe<Scalars['String']['input']>;
-  clientPartyId?: InputMaybe<Scalars['String']['input']>;
+  ourCountryCode: Scalars['String']['input'];
+  ourPartyId: Scalars['String']['input'];
+  partnerCountryCode?: InputMaybe<Scalars['String']['input']>;
+  partnerPartyId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
