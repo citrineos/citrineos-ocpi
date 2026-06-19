@@ -2,6 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// this script is used to invalidate all tokens for a partner
+// (by setting the valid flag to false) this will prevent the partner from using the tokens
+// if the partner pull tokens from us and tokens is valid in DB, they will still retrieve it
+// if you want pull to fail, you need to delete some mandatatory fields in additionalInfo (not used in citrine core like issuer)
+
 import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '@citrineos/ocpi-base';
 import { TokensMapper } from '@citrineos/ocpi-base/src/mapper/TokensMapper.js';
 import type { Endpoint } from '@zetra/citrineos-base';
@@ -20,7 +25,7 @@ const OUR_PARTY_ID = process.env.OUR_PARTY_ID;
 const PARTNER_COUNTRY_CODE = process.env.PARTNER_COUNTRY_CODE;
 const PARTNER_PARTY_ID = process.env.PARTNER_PARTY_ID;
 
-const LIMIT = Number(process.env.LIMIT ?? 200);
+const LIMIT = Number(process.env.LIMIT ?? 1);
 
 if (!HASURA_URL || !ADMIN_SECRET)
   throw new Error('Missing HASURA_URL / HASURA_ADMIN_SECRET');
@@ -90,6 +95,38 @@ async function putTokenToPartner(
   return bodyText;
 }
 
+async function patchInvalidTokenToPartner(
+  token: any,
+  url: string,
+  authorizationToken: string,
+) {
+  const authorizationTokenB64 = Buffer.from(
+    authorizationToken,
+    'utf8',
+  ).toString('base64');
+  if (!OUR_COUNTRY_CODE || !OUR_PARTY_ID || !token.uid)
+    throw new Error('Missing OUR_COUNTRY_CODE / OUR_PARTY_ID / token.uid');
+  const formattedUrl = `${url}/US/default/${encodeURIComponent(token.uid)}`;
+  console.log('formattedUrl', formattedUrl);
+  const res = await fetch(formattedUrl, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${authorizationTokenB64}`,
+      'X-Request-ID': crypto.randomUUID(),
+      'X-Correlation-ID': crypto.randomUUID(),
+    },
+    body: JSON.stringify({
+      valid: false,
+      last_updated: token.last_updated ?? token.updatedAt,
+    }),
+  });
+
+  const bodyText = await res.text();
+  if (!res.ok) throw new Error(`Partner PUT failed ${res.status}: ${bodyText}`);
+  return bodyText;
+}
+
 async function main() {
   let offset = 0;
   let pushed = 0;
@@ -151,6 +188,7 @@ async function main() {
       continue;
     }
     for (const token of tokens) {
+      console.log('token', token);
       try {
         const partnerTenantId = partnerInfo.tenant.id;
 
@@ -162,19 +200,23 @@ async function main() {
           console.log('This token is not for this partner', token);
           continue;
         }
-        const tokenDto = TokensMapper.toDto(token);
+        const tokenDto = TokensMapper.toDtoSender(token, partnerInfo.tenant);
+        console.log('tokenDto', tokenDto);
         // Send token to partner
-        await putTokenToPartner(tokenDto, url, authorizationToken);
+        await patchInvalidTokenToPartner(tokenDto, url, authorizationToken);
         pushed++;
       } catch (e) {
         console.error('Error pushing token to partner', e);
         failed++;
         failures.push({ id: token.id, err: String(e) });
       }
+      // hasMore = false;
+      // break;
     }
     offset += tokens.length;
     console.log({ offset, pushed, failed });
   }
+  hasMore = false;
   console.log('Done', { pushed, failed });
 }
 
