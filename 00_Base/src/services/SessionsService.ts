@@ -33,8 +33,7 @@ import {
   GET_TRANSACTIONS_QUERY,
   OcpiGraphqlClient,
   INSERT_SESSION_MUTATION,
-  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
   GET_SESSION_BY_OCPI_ID_ROAMING_QUERY,
   UPDATE_SESSION_BY_PK_MUTATION,
   FIND_SESSION_ROAMING_QUERY,
@@ -366,8 +365,7 @@ export class SessionsService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: ourCountryCode,
       ourPartyId: ourPartyId,
       partnerCountryCode: partnerCountryCode,

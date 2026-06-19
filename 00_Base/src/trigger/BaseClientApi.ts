@@ -27,8 +27,7 @@ import type {
   TenantPartnersListQueryVariables,
 } from '../graphql/index.js';
 import {
-  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
   LIST_TENANT_PARTNERS_BY_CPO,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
@@ -133,8 +132,7 @@ export abstract class BaseClientApi {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
         GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-      >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+      >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
         ourCountryCode: fromCountryCode,
         ourPartyId: fromPartyId,
         partnerCountryCode: toCountryCode,

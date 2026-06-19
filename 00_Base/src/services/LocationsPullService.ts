@@ -35,8 +35,7 @@ import type {
 import {
   GET_KNOWN_LOCATION_IDS_QUERY,
   GET_KNOWN_LOCATION_IDS_QUERY_WITH_ROAMING_PARTNER_ID,
-  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
   MARK_LOCATION_REMOVED_QUERY,
   GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY,
   OcpiGraphqlClient,
@@ -296,8 +295,7 @@ export class LocationsPullService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: ourCountryCode,
       ourPartyId: ourPartyId,
       partnerCountryCode: partnerCountryCode,

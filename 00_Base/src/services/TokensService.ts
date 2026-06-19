@@ -16,8 +16,7 @@ import {
   OcpiGraphqlClient,
   READ_AUTHORIZATION,
   UPDATE_TOKEN_MUTATION,
-  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
 } from '../graphql/index.js';
 import { TokensMapper } from '../mapper/index.js';
 
@@ -504,8 +503,7 @@ export class TokensService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: ourCountryCode,
       ourPartyId: ourPartyId,
       partnerCountryCode: partnerCountryCode,

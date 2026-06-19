@@ -51,8 +51,7 @@ import {
   GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY,
   OcpiGraphqlClient,
   DELETE_TARIFF_ELEMENTS_MUTATION,
-  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
   FIND_PARTNER_TARIFF_QUERY,
   FIND_PARTNER_TARIFF_P2P_QUERY,
   UPDATE_PARTNER_TARIFF_MUTATION,
@@ -432,8 +431,7 @@ export class TariffsService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: ourCountryCode,
       ourPartyId: ourPartyId,
       partnerCountryCode: partnerCountryCode,

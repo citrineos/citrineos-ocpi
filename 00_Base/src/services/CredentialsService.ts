@@ -20,8 +20,7 @@ import type {
 } from '../graphql/index.js';
 import {
   DELETE_TENANT_PARTNER_BY_ID,
-  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
   OcpiGraphqlClient,
   UPDATE_TENANT_PARTNER_PROFILE,
 } from '../graphql/index.js';
@@ -188,8 +187,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: cpoCountryCode,
       ourPartyId: cpoPartyId,
       partnerCountryCode: partnerRole.country_code,
@@ -274,8 +272,7 @@ export class CredentialsService {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
         GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-      >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+      >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
         ourCountryCode: credentialsRequest.role.country_code,
         ourPartyId: credentialsRequest.role.party_id,
         partnerCountryCode: credentialsRequest.mspCountryCode,
@@ -422,8 +419,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: request.serverCountryCode,
       ourPartyId: request.serverPartyId,
       partnerCountryCode: request.clientCountryCode,
@@ -451,8 +447,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: credentialsRequest.role.country_code,
       ourPartyId: credentialsRequest.role.party_id,
       partnerCountryCode: credentialsRequest.mspCountryCode,

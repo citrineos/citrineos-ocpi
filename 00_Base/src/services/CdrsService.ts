@@ -21,8 +21,7 @@ import type {
   GetCdrByiIdAndRoamingPartnerQueryVariables,
 } from '../graphql/index.js';
 import { HttpMethod } from '@zetra/citrineos-base';
-import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
- } from '../graphql/index.js';
+import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '../graphql/index.js';
 import { GET_TRANSACTIONS_QUERY, OcpiGraphqlClient } from '../graphql/index.js';
 import { CdrMapper } from '../mapper/index.js';
 import type {
@@ -323,8 +322,7 @@ export class CdrsService {
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
-, {
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
       ourCountryCode: ourCountryCode,
       ourPartyId: ourPartyId,
       partnerCountryCode: partnerCountryCode,

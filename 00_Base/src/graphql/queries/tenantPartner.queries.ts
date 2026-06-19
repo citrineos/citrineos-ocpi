@@ -82,8 +82,7 @@ export const DELETE_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
   }
 `;
 
-export const GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY
- = gql`
+export const GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY = gql`
   query GetTenantPartnerByCpoClientAndModuleId(
     $ourCountryCode: String!
     $ourPartyId: String!
