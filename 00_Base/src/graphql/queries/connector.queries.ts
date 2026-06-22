@@ -225,3 +225,14 @@ export const DELETE_OCPI_CONNECTOR_TARIFF_MUTATION = gql`
     }
   }
 `;
+
+export const MARK_CONNECTOR_DELETED_QUERY = gql`
+  mutation MarkConnectorDeleted($connectorId: Int!, $deletedAt: timestamptz!) {
+    update_Connectors_by_pk(
+      pk_columns: { id: $connectorId }
+      _set: { deletedAt: $deletedAt }
+    ) {
+      id
+    }
+  }
+`;

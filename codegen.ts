@@ -59,8 +59,15 @@ export type Authorizations_Set_Input = {
   updatedAt: Scalars['timestamptz']['input'];
 };
 export type Locations_Bool_Exp = {
+  ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
+  roamingPartnerId?: InputMaybe<Int_Comparison_Exp>;
+  removed?: InputMaybe<Boolean_Comparison_Exp>;
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
+};
+export type Boolean_Comparison_Exp = {
+  _eq?: InputMaybe<Scalars['Boolean']['input']>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
 };
 export type Tariffs_Bool_Exp = {
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;

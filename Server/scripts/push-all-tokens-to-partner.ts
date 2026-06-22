@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { GET_TENANT_PARTNER_BY_CPO_AND_CLIENT } from '@citrineos/ocpi-base';
+import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '@citrineos/ocpi-base';
 import { TokensMapper } from '@citrineos/ocpi-base/src/mapper/TokensMapper.js';
 import type { Endpoint } from '@zetra/citrineos-base';
 import dotenv from 'dotenv';
@@ -48,11 +48,11 @@ async function gql(query: string, variables: Record<string, any> = {}) {
 }
 
 async function getPartnerInfo() {
-  const data = await gql(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
-    cpoCountryCode: OUR_COUNTRY_CODE,
-    cpoPartyId: OUR_PARTY_ID,
-    clientCountryCode: PARTNER_COUNTRY_CODE,
-    clientPartyId: PARTNER_PARTY_ID,
+  const data = await gql(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
+    ourCountryCode: OUR_COUNTRY_CODE,
+    ourPartyId: OUR_PARTY_ID,
+    partnerCountryCode: PARTNER_COUNTRY_CODE,
+    partnerPartyId: PARTNER_PARTY_ID,
   });
   return data.TenantPartners[0];
 }

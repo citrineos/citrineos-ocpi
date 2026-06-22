@@ -148,6 +148,8 @@ export class TokensMapper {
         return TokenType.AD_HOC_USER;
       case IdTokenEnum.Central:
         return TokenType.APP_USER;
+      case IdTokenEnum.Other:
+        return TokenType.OTHER;
       case null:
         return TokenType.OTHER;
       default:

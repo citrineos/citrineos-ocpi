@@ -43,15 +43,13 @@ import type {
   GetLocationsQueryResult,
   GetLocationsQueryVariables,
   Locations_Bool_Exp,
-  GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
-  GetTenantPartnerByCpoClientAndModuleIdQueryResult,
 } from '../graphql/index.js';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
   GET_EVSE_BY_ID_QUERY,
   GET_LOCATION_BY_OCPID_ID_QUERY,
   GET_LOCATIONS_QUERY,
-  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
+  MARK_LOCATION_REMOVED_QUERY,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
 import {
@@ -62,12 +60,14 @@ import {
 import type {
   ChargingStationDto,
   ConnectorDto,
-  Endpoint,
   EvseDto,
   LocationDto,
 } from '@zetra/citrineos-base';
-import { HttpMethod } from '@zetra/citrineos-base';
-import { z } from 'zod';
+
+export type KnownLocationRef = {
+  id: number;
+  ocpiId: string;
+};
 
 @Service()
 export class LocationsService {
@@ -96,6 +96,9 @@ export class LocationsService {
         countryCode: { _eq: ocpiHeaders.toCountryCode },
         partyId: { _eq: ocpiHeaders.toPartyId },
       },
+      ownerTenantPartnerId: { _is_null: true },
+      roamingPartnerId: { _is_null: true },
+      removed: { _eq: false },
     };
     const dateFilters: any = {};
     if (paginatedParams?.dateFrom)
@@ -105,6 +108,7 @@ export class LocationsService {
     if (Object.keys(dateFilters).length > 0) {
       where.updatedAt = dateFilters;
     }
+
     const variables = {
       limit,
       offset,
@@ -250,134 +254,5 @@ export class LocationsService {
         (e as Error).message,
       ) as ConnectorResponse;
     }
-  }
-
-  async PullPartnerLocations(
-    body: PullPartnerModulesBody,
-  ): Promise<PullSummary> {
-    const {
-      ourCountryCode,
-      ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
-      offset,
-      limit,
-      date_from,
-      date_to,
-      roamingPartnerCountryCode,
-      roamingPartnerPartyId,
-    } = body;
-
-    this.logger.info(
-      'PullPartnerLocations',
-      ourCountryCode,
-      ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
-      roamingPartnerCountryCode,
-      roamingPartnerPartyId,
-    );
-
-    const tenantPartner = await this.ocpiGraphqlClient.request<
-      GetTenantPartnerByCpoClientAndModuleIdQueryResult,
-      GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
-      cpoCountryCode: ourCountryCode,
-      cpoPartyId: ourPartyId,
-      clientCountryCode: cpoCountryCode,
-      clientPartyId: cpoPartyId,
-    });
-
-    const partnerRow = tenantPartner.TenantPartners[0];
-    if (!partnerRow?.partnerProfileOCPI) {
-      throw new Error('Tenant partner missing partnerProfileOCPI');
-    }
-    const partner = partnerRow as TenantPartnerDto;
-
-    const endpoints = tenantPartner.TenantPartners[0].partnerProfileOCPI!
-      .endpoints as Endpoint[];
-    const url = endpoints.find(
-      (e: Endpoint) => e.identifier === 'locations_SENDER',
-    )?.url;
-
-    if (!url) {
-      throw new Error('No locations URL found');
-    }
-
-    const paginated = buildPaginatedParams(
-      offset,
-      limit,
-      date_from != null ? new Date(date_from) : undefined,
-      date_to != null ? new Date(date_to) : undefined,
-    );
-
-    let currentOffset = offset;
-    let hasMore = true;
-    let processedLocations = 0;
-    let upsertSucceededLocations = 0;
-    let upsertFailedLocations = 0;
-    let skippedInvalidLocations = 0;
-
-    while (hasMore) {
-      const resp = await this.locationsClientApi.request(
-        ourCountryCode,
-        ourPartyId,
-        cpoCountryCode,
-        cpoPartyId,
-        HttpMethod.Get,
-        z.any(),
-        tenantPartner.TenantPartners[0].partnerProfileOCPI!,
-        true,
-        url,
-        undefined,
-        { ...paginated, offset: currentOffset },
-        undefined,
-        undefined,
-        partnerRow.awsSecretCertificateArn,
-        roamingPartnerCountryCode ?? null,
-        roamingPartnerPartyId ?? null,
-      );
-
-      for (const item of (resp as any).data) {
-        processedLocations++;
-        if (item == null || typeof item !== 'object' || !('id' in item)) {
-          skippedInvalidLocations++;
-          continue;
-        }
-        const location = item as LocationDTO;
-        try {
-          await this.locationReceiverService.upsertLocationForPartner(
-            location,
-            String(location.id),
-            partner,
-          );
-          upsertSucceededLocations++;
-          this.logger.info(
-            `PullPartnerLocations: upserted location ${String(location.id)}`,
-          );
-        } catch (err) {
-          upsertFailedLocations++;
-          this.logger.error(
-            `PullPartnerLocations: failed for location ${String(location.id)}`,
-            err,
-          );
-        }
-      }
-
-      const nextOffset: number | undefined = (resp as any).offset;
-      if (nextOffset != null) {
-        currentOffset = nextOffset;
-      } else {
-        hasMore = false;
-      }
-    }
-
-    return {
-      module: 'locations',
-      processed: processedLocations,
-      upsertSucceeded: upsertSucceededLocations,
-      upsertFailed: upsertFailedLocations,
-      skippedInvalid: skippedInvalidLocations,
-    };
   }
 }

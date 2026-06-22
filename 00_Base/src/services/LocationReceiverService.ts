@@ -340,7 +340,7 @@ export class LocationReceiverService {
     location: LocationDTO,
     locationId: string,
     tenantPartner: TenantPartnerDto,
-  ): Promise<void> {
+  ): Promise<{ locationId: number; chargingStationId: string }> {
     if (!tenantPartner?.id) {
       throw new UnauthorizedException('Credentials not found for given token');
     }
@@ -460,6 +460,11 @@ export class LocationReceiverService {
         idChargingStationAssociatedWithLocation,
       );
     }
+
+    return {
+      locationId: locationDbRow.id,
+      chargingStationId: idChargingStationAssociatedWithLocation,
+    };
   }
 
   async putLocationByCountryPartyAndId(

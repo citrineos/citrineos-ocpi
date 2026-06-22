@@ -82,21 +82,21 @@ export const DELETE_TENANT_PARTNER_BY_SERVER_TOKEN = gql`
   }
 `;
 
-export const GET_TENANT_PARTNER_BY_CPO_AND_CLIENT = gql`
+export const GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY = gql`
   query GetTenantPartnerByCpoClientAndModuleId(
-    $cpoCountryCode: String!
-    $cpoPartyId: String!
-    $clientCountryCode: String
-    $clientPartyId: String
+    $ourCountryCode: String!
+    $ourPartyId: String!
+    $partnerCountryCode: String
+    $partnerPartyId: String
   ) {
     TenantPartners(
       where: {
         Tenant: {
-          countryCode: { _eq: $cpoCountryCode }
-          partyId: { _eq: $cpoPartyId }
+          countryCode: { _eq: $ourCountryCode }
+          partyId: { _eq: $ourPartyId }
         }
-        countryCode: { _eq: $clientCountryCode }
-        partyId: { _eq: $clientPartyId }
+        countryCode: { _eq: $partnerCountryCode }
+        partyId: { _eq: $partnerPartyId }
       }
     ) {
       id

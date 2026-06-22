@@ -432,6 +432,7 @@ export const GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
+            deletedAt
             tariffs: ConnectorTariffsOcpiPartner {
               id
               tariffOcpiId
@@ -551,6 +552,7 @@ export const GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
+            deletedAt
             tariffs: ConnectorTariffsOcpiPartner {
               id
               tariffOcpiId
@@ -663,6 +665,55 @@ export const UPDATE_LOCATION_PATCH_MUTATION = gql`
     update_Locations_by_pk(pk_columns: { id: $id }, _set: $changes) {
       id
       updatedAt
+    }
+  }
+`;
+
+export const GET_KNOWN_LOCATION_IDS_QUERY_WITH_ROAMING_PARTNER_ID = gql`
+  query GetKnownLocationIdsWithRoamingPartnerId(
+    $partnerId: Int!
+    $roamingPartnerId: Int!
+  ) {
+    Locations(
+      where: {
+        ownerTenantPartnerId: { _eq: $partnerId }
+        roamingPartnerId: { _eq: $roamingPartnerId }
+      }
+    ) {
+      ocpiId
+      id
+    }
+  }
+`;
+
+export const GET_KNOWN_LOCATION_IDS_QUERY = gql`
+  query GetKnownLocationIds($partnerId: Int!) {
+    Locations(where: { ownerTenantPartnerId: { _eq: $partnerId } }) {
+      ocpiId
+      id
+    }
+  }
+`;
+
+export const MARK_LOCATION_REMOVED_QUERY = gql`
+  mutation MarkLocationRemoved($locationId: Int!, $deletedAt: timestamptz!) {
+    update_Locations_by_pk(
+      pk_columns: { id: $locationId }
+      _set: { deletedAt: $deletedAt }
+    ) {
+      ocpiId
+      id
+    }
+  }
+`;
+
+export const MARK_EVSE_REMOVED_QUERY = gql`
+  mutation MarkEvseRemoved($evseId: Int!) {
+    update_Evses_by_pk(
+      pk_columns: { id: $evseId }
+      _set: { ocpiStatus: "REMOVED" }
+    ) {
+      id
     }
   }
 `;

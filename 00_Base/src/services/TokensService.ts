@@ -16,7 +16,7 @@ import {
   OcpiGraphqlClient,
   READ_AUTHORIZATION,
   UPDATE_TOKEN_MUTATION,
-  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
 } from '../graphql/index.js';
 import { TokensMapper } from '../mapper/index.js';
 
@@ -484,8 +484,8 @@ export class TokensService {
     const {
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
       offset,
       limit,
       date_from,
@@ -496,18 +496,18 @@ export class TokensService {
       'PushTokensToPartner',
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
-      cpoCountryCode: ourCountryCode,
-      cpoPartyId: ourPartyId,
-      clientCountryCode: cpoCountryCode,
-      clientPartyId: cpoPartyId,
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
+      ourCountryCode: ourCountryCode,
+      ourPartyId: ourPartyId,
+      partnerCountryCode: partnerCountryCode,
+      partnerPartyId: partnerPartyId,
     });
 
     const partnerRow = tenantPartner.TenantPartners[0];
@@ -568,8 +568,8 @@ export class TokensService {
           await this.tokensClientApi.request(
             ourCountryCode,
             ourPartyId,
-            cpoCountryCode,
-            cpoPartyId,
+            partnerCountryCode,
+            partnerPartyId,
             HttpMethod.Put,
             OcpiEmptyResponseSchema,
             partnerProfile,

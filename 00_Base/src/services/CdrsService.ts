@@ -21,7 +21,7 @@ import type {
   GetCdrByiIdAndRoamingPartnerQueryVariables,
 } from '../graphql/index.js';
 import { HttpMethod } from '@zetra/citrineos-base';
-import { GET_TENANT_PARTNER_BY_CPO_AND_CLIENT } from '../graphql/index.js';
+import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '../graphql/index.js';
 import { GET_TRANSACTIONS_QUERY, OcpiGraphqlClient } from '../graphql/index.js';
 import { CdrMapper } from '../mapper/index.js';
 import type {
@@ -303,8 +303,8 @@ export class CdrsService {
     const {
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
       offset,
       limit,
       date_from,
@@ -315,18 +315,18 @@ export class CdrsService {
       'PullPartnerCdrs',
       ourCountryCode,
       ourPartyId,
-      cpoCountryCode,
-      cpoPartyId,
+      partnerCountryCode,
+      partnerPartyId,
     );
 
     const tenantPartner = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
-      cpoCountryCode: ourCountryCode,
-      cpoPartyId: ourPartyId,
-      clientCountryCode: cpoCountryCode,
-      clientPartyId: cpoPartyId,
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
+      ourCountryCode: ourCountryCode,
+      ourPartyId: ourPartyId,
+      partnerCountryCode: partnerCountryCode,
+      partnerPartyId: partnerPartyId,
     });
 
     const partnerRow = tenantPartner.TenantPartners[0];
@@ -363,8 +363,8 @@ export class CdrsService {
       const resp = await this.cdrsClientApi.request(
         ourCountryCode,
         ourPartyId,
-        cpoCountryCode,
-        cpoPartyId,
+        partnerCountryCode,
+        partnerPartyId,
         HttpMethod.Get,
         z.any(),
         tenantPartner.TenantPartners[0].partnerProfileOCPI!,
