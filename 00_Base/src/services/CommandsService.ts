@@ -69,7 +69,11 @@ export class CommandsService {
       case CommandType.RESERVE_NOW:
         return this.handleReserveNow(payload as ReserveNow, tenantPartner);
       case CommandType.START_SESSION:
-        return this.handleStartSession(payload as StartSession, tenantPartner, roamingPartner);
+        return this.handleStartSession(
+          payload as StartSession,
+          tenantPartner,
+          roamingPartner,
+        );
       case CommandType.STOP_SESSION:
         return this.handleStopSession(payload as StopSession, tenantPartner);
       case CommandType.UNLOCK_CONNECTOR:
