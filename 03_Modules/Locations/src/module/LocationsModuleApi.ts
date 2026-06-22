@@ -331,6 +331,9 @@ export class LocationsModuleApi
         evse,
         tenantPartner,
       );
+    if (err?.status_code === OcpiResponseStatusCode.ClientUnknownLocation) {
+      ctx.status = HttpStatus.NOT_FOUND;
+    }
     if (err) return err;
     return buildOcpiEmptyResponse(OcpiResponseStatusCode.GenericSuccessCode);
   }

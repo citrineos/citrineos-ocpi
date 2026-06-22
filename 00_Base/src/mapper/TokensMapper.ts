@@ -7,6 +7,7 @@ import type {
   AuthorizationStatusEnumType,
   AuthorizationWhitelistEnumType,
   IdTokenEnumType,
+  TenantDto,
 } from '@zetra/citrineos-base';
 import {
   AuthorizationStatusEnum,
@@ -26,6 +27,36 @@ export class TokensMapper {
       country_code:
         authorization.tenantPartner?.countryCode ?? tenant?.countryCode ?? '',
       party_id: authorization.tenantPartner?.partyId ?? tenant?.partyId ?? '',
+      uid: authorization.idToken,
+      type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
+        authorization.idTokenType ? authorization.idTokenType : null,
+      ),
+      contract_id: this.getContractId(authorization),
+      visual_number: TokensMapper.getVisualNumber(authorization),
+      issuer: TokensMapper.getIssuer(authorization),
+      group_id: authorization.groupAuthorization?.idToken,
+      valid: authorization.status === AuthorizationStatusEnum.Accepted,
+      whitelist: TokensMapper.mapRealTimeEnumType(authorization.realTimeAuth),
+      language: authorization.language1,
+      // default_profile_type: token.default_profile_type,
+      // energy_contract: token.energy_contract,
+      last_updated: authorization.updatedAt!,
+    };
+
+    return tokenDto;
+  }
+
+  public static toDtoSender(
+    authorization: AuthorizationDto,
+    tenantOwner: TenantDto,
+  ): TokenDTO {
+    const tokenDto: TokenDTO = {
+      country_code:
+        authorization.tenantPartner?.countryCode ??
+        tenantOwner.countryCode ??
+        '',
+      party_id:
+        authorization.tenantPartner?.partyId ?? tenantOwner.partyId ?? '',
       uid: authorization.idToken,
       type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
         authorization.idTokenType ? authorization.idTokenType : null,
@@ -150,7 +181,7 @@ export class TokensMapper {
       case WhitelistType.NEVER:
         return AuthorizationWhitelistEnum.Never;
       case WhitelistType.ALWAYS:
-        return null;
+        return AuthorizationWhitelistEnum.Always;
       default:
         return undefined;
     }

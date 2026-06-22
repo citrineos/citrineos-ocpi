@@ -8,7 +8,7 @@ import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../PaginatedResponse.js';
 /**
  * Admin trigger body: OCPI identity + optional GET List pagination (Sender 8.2.1.1).
  */
-export const PullPartnerModulesBodySchema = z.object({
+export const PushPartnerModulesBodySchema = z.object({
   ourCountryCode: z.string().min(2).max(2),
   ourPartyId: z.string().min(1).max(3),
   cpoCountryCode: z.string().min(2).max(2),
@@ -17,28 +17,26 @@ export const PullPartnerModulesBodySchema = z.object({
   limit: z.number().int().min(1).optional().default(DEFAULT_LIMIT),
   date_from: z.union([z.coerce.date(), z.string()]).optional(),
   date_to: z.union([z.coerce.date(), z.string()]).optional(),
-  roamingPartnerCountryCode: z.string().min(2).max(2),
-  roamingPartnerPartyId: z.string().min(1).max(3),
 });
 
-export const PullPartnerModulesBodySchemaName = 'PullPartnerModulesBodySchema';
+export const PushPartnerModulesBodySchemaName = 'PushPartnerModulesBodySchema';
 
-export type PullPartnerModulesBody = z.infer<
-  typeof PullPartnerModulesBodySchema
+export type PushPartnerModulesBody = z.infer<
+  typeof PushPartnerModulesBodySchema
 >;
 
-export type PullSummary = {
+export type PushSummary = {
   module: string;
   processed: number;
-  upsertSucceeded: number;
-  upsertFailed: number;
+  pushSucceeded: number;
+  pushFailed: number;
   skippedInvalid: number;
 };
 
-export const PullSummarySchema = z.object({
+export const PushSummarySchema = z.object({
   module: z.string(),
   processed: z.number(),
-  upsertSucceeded: z.number(),
-  upsertFailed: z.number(),
+  pushSucceeded: z.number(),
+  pushFailed: z.number(),
   skippedInvalid: z.number(),
 });

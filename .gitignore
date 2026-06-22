@@ -308,3 +308,7 @@ data
 # ocpi
 03_Modules/citrineos-ocpi
 tmp/*
+
+Server/docker-compose-local-*.yml
+Server/scripts/.env
+Server/scripts/files

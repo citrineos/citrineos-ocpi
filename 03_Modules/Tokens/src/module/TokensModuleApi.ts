@@ -28,6 +28,7 @@ import type {
   SingleTokenRequest,
   TokenDTO,
   TokenResponse,
+  PushPartnerModulesBody,
 } from '@citrineos/ocpi-base';
 import {
   AsAdminEndpoint,
@@ -71,6 +72,8 @@ import {
   VersionNumberParam,
   WhitelistType,
   WrongClientAccessException,
+  PushPartnerModulesBodySchema,
+  PushPartnerModulesBodySchemaName,
 } from '@citrineos/ocpi-base';
 import type { ITokensModuleApi } from './ITokensModuleApi.js';
 
@@ -365,8 +368,26 @@ export class TokensModuleApi
   }
 
   /**
-   * Admin Endpoints
-   **/
+   * ADMIN ENDPOINTS
+   */
+  @Post('/push-tokens-to-partner')
+  @AsAdminEndpoint()
+  async PushTokensToPartner(
+    @BodyWithSchema(
+      PushPartnerModulesBodySchema,
+      PushPartnerModulesBodySchemaName,
+    )
+    body: PushPartnerModulesBody,
+  ) {
+    this.logger.info('PushTokensToPartner', body);
+
+    const summary = await this.tokensService.pushTokensToPartner(body);
+
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      summary,
+    );
+  }
   // @Post('/fetch')
   // async fetchTokens(
   //   @VersionNumberParam() version: VersionNumber,

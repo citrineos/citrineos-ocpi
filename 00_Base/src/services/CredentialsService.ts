@@ -13,8 +13,6 @@ import { NotRegisteredException } from '../exception/NotRegisteredException.js';
 import type { CredentialsRoleDTO } from '../model/DTO/CredentialsRoleDTO.js';
 import { CredentialsClientApi } from '../trigger/CredentialsClientApi.js';
 import type {
-  DeleteTenantPartnerByServerTokenMutationResult,
-  DeleteTenantPartnerByServerTokenMutationVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   UpdateTenantPartnerProfileMutationResult,
@@ -22,8 +20,7 @@ import type {
 } from '../graphql/index.js';
 import {
   DELETE_TENANT_PARTNER_BY_ID,
-  DELETE_TENANT_PARTNER_BY_SERVER_TOKEN,
-  GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT,
+  GET_TENANT_PARTNER_BY_CPO_AND_CLIENT,
   OcpiGraphqlClient,
   UPDATE_TENANT_PARTNER_PROFILE,
 } from '../graphql/index.js';
@@ -162,15 +159,19 @@ export class CredentialsService {
     return RegistrationMapper.tenantPartnerToCredentialsDto(tenantPartner);
   }
 
-  async deleteCredentials(token: string): Promise<void> {
+  async deleteCredentials(token: string, partnerId: number): Promise<void> {
+    if (!partnerId) {
+      throw new NotFoundError('Partner ID not found');
+    }
     const response = await this.ocpiGraphqlClient.request<
-      DeleteTenantPartnerByServerTokenMutationResult,
-      DeleteTenantPartnerByServerTokenMutationVariables
-    >(DELETE_TENANT_PARTNER_BY_SERVER_TOKEN, { serverToken: token });
-    if (!response.delete_TenantPartners?.affected_rows) {
-      throw new NotFoundError(
-        'No client information found for the provided token',
-      );
+      UpdateTenantPartnerProfileMutationResult,
+      UpdateTenantPartnerProfileMutationVariables
+    >(UPDATE_TENANT_PARTNER_PROFILE, {
+      partnerId: partnerId,
+      input: { inactive: true },
+    });
+    if (!response.update_TenantPartners?.affected_rows) {
+      throw new NotFoundError('Failed to deactivate tenant partner');
     }
   }
 
@@ -186,7 +187,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: cpoCountryCode,
       cpoPartyId: cpoPartyId,
       clientCountryCode: partnerRole.country_code,
@@ -271,7 +272,7 @@ export class CredentialsService {
       const response = await this.ocpiGraphqlClient.request<
         GetTenantPartnerByCpoClientAndModuleIdQueryResult,
         GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-      >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+      >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
         cpoCountryCode: credentialsRequest.role.country_code,
         cpoPartyId: credentialsRequest.role.party_id,
         clientCountryCode: credentialsRequest.mspCountryCode,
@@ -418,7 +419,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: request.serverCountryCode,
       cpoPartyId: request.serverPartyId,
       clientCountryCode: request.clientCountryCode,
@@ -446,7 +447,7 @@ export class CredentialsService {
     const response = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
-    >(GET_TENANT_PARTNER_BY_CPO_AND_AND_CLIENT, {
+    >(GET_TENANT_PARTNER_BY_CPO_AND_CLIENT, {
       cpoCountryCode: credentialsRequest.role.country_code,
       cpoPartyId: credentialsRequest.role.party_id,
       clientCountryCode: credentialsRequest.mspCountryCode,
