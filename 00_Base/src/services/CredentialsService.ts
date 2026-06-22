@@ -452,6 +452,9 @@ export class CredentialsService {
       clientCountryCode: credentialsRequest.mspCountryCode,
       clientPartyId: credentialsRequest.mspPartyId,
     });
+    if (!response.TenantPartners.length) {
+      throw new NotFoundError('TenantPartner not found');
+    }
     const tenantPartner = response.TenantPartners[0] as TenantPartnerDto;
     if (tenantPartner.partnerProfileOCPI) {
       throw new Error(

@@ -4,7 +4,10 @@
 
 import type { ICommandsModuleApi } from './ICommandsModuleApi.js';
 import { Body, Ctx, JsonController, Param, Post } from 'routing-controllers';
-import type { TenantPartnerDto } from '@zetra/citrineos-base';
+import type {
+  RoamingPartnerDto,
+  TenantPartnerDto,
+} from '@zetra/citrineos-base';
 import { HttpStatus, OCPPVersion } from '@zetra/citrineos-base';
 import type {
   CancelReservation,
@@ -135,6 +138,7 @@ export class CommandsModuleApi
       commandType,
       validationResult.data,
       ctx!.state!.tenantPartner as TenantPartnerDto,
+      ctx!.state!.roamingPartner as RoamingPartnerDto,
     );
   }
 

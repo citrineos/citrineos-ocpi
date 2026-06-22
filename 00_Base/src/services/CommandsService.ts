@@ -32,6 +32,7 @@ import { OcpiConfigToken } from '../config/ocpi.types.js';
 import type {
   ChargingStationDto,
   TenantPartnerDto,
+  RoamingPartnerDto,
 } from '@zetra/citrineos-base';
 import { EXTRACT_STATION_ID } from '../model/DTO/EvseDTO.js';
 
@@ -57,6 +58,7 @@ export class CommandsService {
       | StopSession
       | UnlockConnector,
     tenantPartner: TenantPartnerDto,
+    roamingPartner: RoamingPartnerDto,
   ): Promise<OcpiCommandResponse> {
     switch (commandType) {
       case CommandType.CANCEL_RESERVATION:
@@ -67,7 +69,7 @@ export class CommandsService {
       case CommandType.RESERVE_NOW:
         return this.handleReserveNow(payload as ReserveNow, tenantPartner);
       case CommandType.START_SESSION:
-        return this.handleStartSession(payload as StartSession, tenantPartner);
+        return this.handleStartSession(payload as StartSession, tenantPartner, roamingPartner);
       case CommandType.STOP_SESSION:
         return this.handleStopSession(payload as StopSession, tenantPartner);
       case CommandType.UNLOCK_CONNECTOR:
@@ -110,6 +112,7 @@ export class CommandsService {
   private async handleStartSession(
     startSession: StartSession,
     tenantPartner: TenantPartnerDto,
+    roamingPartner: RoamingPartnerDto,
   ): Promise<OcpiCommandResponse> {
     if (!startSession.evse_uid) {
       this.logger.error('EVSE UID is required for StartSession command');
@@ -122,8 +125,12 @@ export class CommandsService {
       );
     }
     if (
-      tenantPartner.countryCode !== startSession.token.country_code ||
-      tenantPartner.partyId !== startSession.token.party_id
+      (!roamingPartner &&
+        (tenantPartner.countryCode !== startSession.token.country_code ||
+          tenantPartner.partyId !== startSession.token.party_id)) ||
+      (roamingPartner &&
+        (roamingPartner.countryCode !== startSession.token.country_code ||
+          roamingPartner.partyId !== startSession.token.party_id))
     ) {
       this.logger.error('Token information does not match credentials');
       return ResponseGenerator.buildInvalidOrMissingParametersResponse(
