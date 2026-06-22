@@ -419,7 +419,6 @@ export abstract class BaseClientApi {
           (result as any).offset = this.getOffsetFromLink(cleanedLink);
         }
       }
-      console.log('result !!!!', result);
       // Parse and validate using Zod
       return schema.parse(result);
     } else {
