@@ -356,23 +356,30 @@ export abstract class BaseClientApi {
       this.logger.debug(
         `Requesting partner ${partner.countryCode}_${partner.partyId}`,
       );
-      const response = await this.request(
-        cpoCountryCode,
-        cpoPartyId,
-        partner.countryCode!,
-        partner.partyId!,
-        HttpMethodForPartner,
-        schema,
-        partner.partnerProfileOCPI!,
-        routingHeaders,
-        url,
-        body,
-        paginatedParams,
-        otherParams,
-        path,
-        partner.awsSecretCertificateArn ?? undefined,
-      );
-      responses.push(response);
+      try {
+        const response = await this.request(
+          cpoCountryCode,
+          cpoPartyId,
+          partner.countryCode!,
+          partner.partyId!,
+          HttpMethodForPartner,
+          schema,
+          partner.partnerProfileOCPI!,
+          routingHeaders,
+          url,
+          body,
+          paginatedParams,
+          otherParams,
+          path,
+          partner.awsSecretCertificateArn ?? undefined,
+        );
+        responses.push(response);
+      } catch (e) {
+        this.logger.error(
+          `request failed for ${partner.countryCode}/${partner.partyId}`,
+          e,
+        );
+      }
     }
     return responses;
   }
@@ -412,7 +419,6 @@ export abstract class BaseClientApi {
           (result as any).offset = this.getOffsetFromLink(cleanedLink);
         }
       }
-
       // Parse and validate using Zod
       return schema.parse(result);
     } else {

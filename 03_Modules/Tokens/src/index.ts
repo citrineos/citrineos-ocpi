@@ -84,7 +84,14 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       if (!tenant) {
         continue;
       }
-      await this.tokenBroadcaster.broadcastPutToken(tenant, authorizationDto);
+      try {
+        await this.tokenBroadcaster.broadcastPutToken(tenant, authorizationDto);
+      } catch (e) {
+        this._logger.error(
+          `broadcastPutToken failed for ${tenant.countryCode}/${tenant.partyId}/${authorizationDto.idToken}`,
+          e,
+        );
+      }
     }
   }
 
@@ -124,10 +131,17 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       if (!tenant) {
         return;
       }
-      await this.tokenBroadcaster.broadcastPatchToken(
-        tenant!,
-        authorizationDto,
-      );
+      try {
+        await this.tokenBroadcaster.broadcastPatchToken(
+          tenant!,
+          authorizationDto,
+        );
+      } catch (e) {
+        this._logger.error(
+          `broadcastPatchToken failed for ${tenant.countryCode}/${tenant.partyId}/${authorizationDto.idToken}`,
+          e,
+        );
+      }
     }
   }
 
@@ -169,10 +183,17 @@ export class TokensModule extends AbstractDtoModule implements OcpiModule {
       if (!tenant) {
         continue;
       }
-      await this.tokenBroadcaster.broadcastDeleteToken(
-        tenant,
-        authorizationDto,
-      );
+      try {
+        await this.tokenBroadcaster.broadcastDeleteToken(
+          tenant,
+          authorizationDto,
+        );
+      } catch (e) {
+        this._logger.error(
+          `broadcastDeleteToken failed for ${tenant.countryCode}/${tenant.partyId}/${authorizationDto.idToken}`,
+          e,
+        );
+      }
     }
   }
 }
