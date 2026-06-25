@@ -49,6 +49,8 @@ Server/src/assets/logo.png
 03_Modules/Tokens/tsconfig.json
 03_Modules/Versions/package.json
 03_Modules/Versions/tsconfig.json
+03_Modules/AdminModule/package.json
+03_Modules/AdminModule/tsconfig.json
 Server/data/directus/uploads/444686d6-e2ae-48dd-9844-9bc40f3b83a1.png
 Server/data/directus/uploads/444686d6-e2ae-48dd-9844-9bc40f3b83a1__589fd140dc03b11360453048b8c68765d61556b2.png
 Server/data/directus/uploads/79611a20-d15c-472f-8a81-ba50a8d520cc.png

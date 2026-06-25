@@ -31,6 +31,8 @@
     "03_Modules/Tokens/**/*.json",
     "03_Modules/DtoRouter/**/*.ts",
     "03_Modules/DtoRouter/**/*.json",
+    "03_Modules/AdminModule/**/*.ts",
+    "03_Modules/AdminModule/**/*.json",
     "Server/**/*.ts",
     "Server/**/*.cjs",
     "Server/**/*.json",

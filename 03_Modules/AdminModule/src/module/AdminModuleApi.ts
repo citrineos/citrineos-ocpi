@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 import {
   AsAdminEndpoint,
   BaseController,
@@ -12,7 +15,6 @@ import {
 import { JsonController, Post, Body } from 'routing-controllers';
 import { Service } from 'typedi';
 import { RoamingPartnerService } from '@citrineos/ocpi-base';
-import type { PullSummary } from '@citrineos/ocpi-base/src/model/DTO/PullPartnerModulesBody.js';
 
 @JsonController('/admin')
 @Service()
