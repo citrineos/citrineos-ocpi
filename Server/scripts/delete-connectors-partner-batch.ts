@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// this script is used to delete connectors for a partner
+
 import dotenv from 'dotenv';
 import path from 'path';
 

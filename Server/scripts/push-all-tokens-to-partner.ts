@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// this script is used to push all tokens to a partner
+
 import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '@citrineos/ocpi-base';
 import { TokensMapper } from '@citrineos/ocpi-base/src/mapper/TokensMapper.js';
 import type { Endpoint } from '@zetra/citrineos-base';

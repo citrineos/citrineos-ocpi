@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// this script is used to convert the authorization for OCPI escpecially change tenant + add additional info for real time auth.
+
 import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.resolve(import.meta.dirname, '.env') });

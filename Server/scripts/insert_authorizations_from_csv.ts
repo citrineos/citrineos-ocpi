@@ -16,7 +16,6 @@ const TABLE = 'Authorizations';
 const CSV_FILE = process.env.CSV_FILE;
 const CHUNK_SIZE = 500;
 
-// Parse CSV
 const raw = fs.readFileSync(resolve(__dirname, CSV_FILE!), 'utf-8');
 function cleanValue(val: string) {
   if (val === 'null' || val === '') return null;
@@ -45,7 +44,6 @@ const rows = parse(raw, { columns: true, skip_empty_lines: true })
   }));
 console.log(`Parsed ${rows.length} rows`);
 
-// Insert mutation
 const MUTATION = `
   mutation Insert($objects: [${TABLE}_insert_input!]!) {
     insert_${TABLE}(
@@ -77,7 +75,6 @@ async function insertChunk(chunk: any[] | Record<string, any>[]) {
   return json.data[`insert_${TABLE}`].affected_rows;
 }
 
-// Run in batches
 let total = 0;
 for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
   const chunk = rows.slice(i, i + CHUNK_SIZE);

@@ -35,7 +35,6 @@ async function gql(query: string, variables: Record<string, unknown> = {}) {
   return json.data;
 }
 
-// 1. Fetch all rows
 const data = await gql(`
   {
     ${TABLE} {

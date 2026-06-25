@@ -202,7 +202,6 @@ async function main() {
         }
         const tokenDto = TokensMapper.toDtoSender(token, partnerInfo.tenant);
         console.log('tokenDto', tokenDto);
-        // Send token to partner
         await patchInvalidTokenToPartner(tokenDto, url, authorizationToken);
         pushed++;
       } catch (e) {
