@@ -86,7 +86,7 @@ export class LocationsService {
     ocpiHeaders: OcpiHeaders,
     paginatedParams?: PaginatedParams,
   ): Promise<PaginatedLocationResponse> {
-    this.logger.debug(
+    this.logger.info(
       `Getting all locations with headers ${JSON.stringify(ocpiHeaders)} and parameters ${JSON.stringify(paginatedParams)}`,
     );
     const limit = paginatedParams?.limit ?? DEFAULT_LIMIT;

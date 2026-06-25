@@ -97,7 +97,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       transactionDto,
     );
     if (transactionDto.isActive === false) {
-      this._logger.debug(`Transaction is no longer active: ${event._eventId}`);
+      this._logger.info(`Transaction is no longer active: ${event._eventId}`);
 
       const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
         GetTransactionByTransactionIdQueryResult,

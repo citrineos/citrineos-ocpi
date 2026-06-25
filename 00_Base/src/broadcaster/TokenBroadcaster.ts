@@ -64,8 +64,8 @@ export class TokenBroadcaster extends BaseBroadcaster {
 
       const body = {
         ...token,
-      }
-      if(method === HttpMethod.Put) {
+      };
+      if (method === HttpMethod.Put) {
         body.party_id = tenant.partyId!;
         body.country_code = tenant.countryCode!;
       }

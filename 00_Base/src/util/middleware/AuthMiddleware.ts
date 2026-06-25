@@ -65,7 +65,7 @@ export class AuthMiddleware
 
     if (!permittedRoutes.includes(context.request.originalUrl)) {
       if (!authHeader) {
-        logger.debug(
+        logger.info(
           `No authorization header found for ${context.request.method} ${context.request.url}`,
         );
         return this.throwError(context);
@@ -81,7 +81,7 @@ export class AuthMiddleware
 
         const tenantPartner = response.TenantPartners[0];
         if (!tenantPartner) {
-          logger.debug(
+          logger.info(
             `Authorization failed - tenant partner not found for token`,
           );
           throw new UnauthorizedException(
@@ -128,7 +128,7 @@ export class AuthMiddleware
               tenantPartner.tenant?.countryCode === toCountryCode &&
               tenantPartner.tenant?.partyId === toPartyId;
             if (!isFromHeaderValid || !isToHeaderValid) {
-              logger.debug(
+              logger.info(
                 `String token matched tenantPartner with incorrect routing headers - ${tenantPartner.countryCode}:${fromCountryCode}, ${tenantPartner.partyId}:${fromPartyId}, ${tenantPartner.tenant.countryCode}:${toCountryCode}, ${tenantPartner.tenant.partyId}:${toPartyId}`,
               );
               throw new UnauthorizedException(
@@ -150,7 +150,7 @@ export class AuthMiddleware
                 tenantPartner.countryCode !== countryCode ||
                 tenantPartner.partyId !== partyId
               ) {
-                logger.debug(`URL params mismatch with token tenant partner`);
+                logger.info(`URL params mismatch with token tenant partner`);
                 throw new UnauthorizedException(
                   'Credentials not found for given token',
                 );
@@ -164,7 +164,7 @@ export class AuthMiddleware
                   context.request.body.country_code ||
                 tenantPartner.partyId !== context.request.body.party_id
               ) {
-                logger.debug(
+                logger.info(
                   `Body attributes mismatch with token tenant partner`,
                 );
                 throw new UnauthorizedException(
@@ -173,7 +173,7 @@ export class AuthMiddleware
               }
             } else {
               if (!context.state.skipTenantPartnerUrlValidation) {
-                logger.debug(
+                logger.info(
                   `No URL params found for ${context.request.method} ${context.request.url}`,
                 );
                 throw new UnauthorizedException(
@@ -186,15 +186,15 @@ export class AuthMiddleware
 
         context.state.tenantPartner = tenantPartner;
       } catch (error: any) {
-        logger.debug(
+        logger.info(
           `Authorization error: ${error?.message ?? '(no message)'} | ${error?.stack ?? JSON.stringify(error)}`,
         );
 
-        logger.debug(`Authorization error: ${error.message}`);
+        logger.info(`Authorization error: ${error.message}`);
         return this.throwError(context);
       }
     } else {
-      logger.debug('Route is permitted, skipping authentication');
+      logger.info('Route is permitted, skipping authentication');
     }
     return await next();
   }

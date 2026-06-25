@@ -40,6 +40,9 @@
     },
     {
       "path": "../03_Modules/DtoRouter"
+    },
+    {
+      "path": "../03_Modules/AdminModule"
     }
   ]
 }
