@@ -53,29 +53,44 @@ export class AdminModuleApi extends BaseController {
       limit: 20,
     };
 
-    void Promise.allSettled([
-      this.tariffsService.pullPartnerTariffs({
-        ...pullBody,
-        offset: 0,
-        limit: 100,
-      }),
-      this.locationsPullService.PullPartnerLocations({
-        ...pullBody,
-        offset: 0,
-        limit: 20,
-      }),
-    ]).then(([tariffs, locations]) => {
-      if (tariffs.status === 'fulfilled') {
-        this.logger.info('Tariffs pull completed', tariffs.value);
-      } else {
-        this.logger.error('Failed to pull tariffs', tariffs.reason);
+    void (async () => {
+      try {
+        const tariffs = await this.tariffsService.pullPartnerTariffs({
+          ...pullBody,
+          offset: 0,
+          limit: 100,
+        });
+        this.logger.info('Tariffs pull completed', tariffs);
+
+        const locations = await this.locationsPullService.PullPartnerLocations({
+          ...pullBody,
+          offset: 0,
+          limit: 20,
+        });
+        this.logger.info('Locations pull completed', locations);
+      } catch (err) {
+        this.logger.error('Failed to pull partner data', err);
       }
-      if (locations.status === 'fulfilled') {
-        this.logger.info('Locations pull completed', locations.value);
-      } else {
-        this.logger.error('Failed to pull locations', locations.reason);
-      }
-    });
+    })();
+  
     return { status: 'accepted' };
+  }
+
+
+  @Post('/create-roaming-partner-cpo')
+  @AsAdminEndpoint()
+  async createRoamingPartner(
+    @BodyWithSchema(
+      OnboardRoamingPartnerBodySchema,
+      OnboardRoamingPartnerBodySchemaName,
+    )
+    body: OnboardRoamingPartnerBody,
+  ): Promise<{ status: string }> {
+    const roamingPartnerId =
+      await this.roamingPartnerService.createRoamingPartner(body);
+    if (!roamingPartnerId) {
+      return { status: 'failed To create roaming partner' };
+    }
+    return { status: 'roaming partner created' };
   }
 }
