@@ -25,6 +25,8 @@ export const shouldBroadcastToPartner = (
   moduleId: ModuleId,
   logger: Logger<ILogObj>,
 ) => {
+  const config = Container.get<OcpiConfig>(OcpiConfigToken);
+
   if (!tenantPartner || !tenantPartner.countryCode || !tenantPartner.partyId) {
     logDbBroadcast(
       logger,
@@ -56,6 +58,15 @@ export const shouldBroadcastToPartner = (
       'info',
       `Tenant Partner ${tenantPartner.id} is not a ${requiredRole} for module ${moduleId}, should not be broadcasted.`,
     );
+    return false;
+  }
+
+  if (
+    moduleId !== ModuleId.Tokens &&
+    tenantPartner.partyId === config.gireve?.partyId &&
+    tenantPartner.countryCode === config.gireve?.countryCode
+  ) {
+    logDbBroadcast(logger, 'info', `Broadcast as CPO to Gireve disabled`);
     return false;
   }
   return true;
