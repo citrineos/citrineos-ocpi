@@ -2,10 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// this script is used to convert the authorization for OCPI escpecially change tenant + add additional info for real time auth.
+// this script is used to disable pulling tokens for our partners
+// (by removing issuer from additionalInfo) this will prevent the partner from pulling tokens
+// because the mapping requires the issuer to be present and will fail if it's not present
 
 import dotenv from 'dotenv';
 import path from 'path';
+import { exit } from 'process';
 dotenv.config({ path: path.resolve(import.meta.dirname, '.env') });
 
 const HASURA_URL = process.env.HASURA_URL;
@@ -32,7 +35,6 @@ async function gql(query: string, variables: Record<string, unknown> = {}) {
   return json.data;
 }
 
-// 1. Fetch all rows
 const data = await gql(`
   {
     ${TABLE} {
@@ -41,6 +43,11 @@ const data = await gql(`
       idTokenType
       status
       additionalInfo
+      TenantPartner {
+        id
+        countryCode
+        partyId
+      }
       tenants {
         tenantId
       }
@@ -50,19 +57,6 @@ const data = await gql(`
 
 const rows = data[TABLE];
 console.log(`Fetched ${rows.length} rows`);
-const tenantData = await gql(`
-  {
-    AuthorizationTenants(where: { tenantId: { _eq: ${NEW_TENANT_ID} } }) {
-      authorizationId
-    }
-  }
-`);
-const existingTenantAuthIds = new Set<number>(
-  tenantData.AuthorizationTenants.map((r: any) => r.authorizationId),
-);
-console.log(
-  `Found ${existingTenantAuthIds.size} existing AuthorizationTenant rows for tenant ${NEW_TENANT_ID}`,
-);
 
 const UPDATE_MUTATION = `
   mutation Update($id: Int!, $changes: ${TABLE}_set_input!) {
@@ -84,33 +78,26 @@ const INSERT_TENANT_MUTATION = `
 
 for (const row of rows) {
   const tenantIds = row.tenants?.map((t: any) => t.tenantId) ?? [];
-  if (tenantIds.includes(OLD_TENANT_ID) && row.idTokenType !== 'MacAddress') {
+  console.log('tenantIds', tenantIds);
+  console.log('row.idTokenType', row.idTokenType);
+  console.log('row.TenantPartner?.id', row.TenantPartner?.id);
+  if (
+    tenantIds.includes(OLD_TENANT_ID) &&
+    row.idTokenType !== 'MacAddress' &&
+    !row.TenantPartner?.id
+  ) {
     const additionalInfo = [
       { type: 'eMAID', additionalIdToken: `FR*ZET*${row.idToken}` },
       { type: 'visual_number', additionalIdToken: `${row.idToken}` },
       { type: 'issuer', additionalIdToken: 'Zetra' },
     ];
+    console.log('row', row);
 
-    const { id, tenants, ...rest } = row;
-    const changes = { ...rest, realTimeAuth: 'Always', additionalInfo };
-
-    await gql(UPDATE_MUTATION, { id, changes });
-    console.log(`Updated Authorization row ${id}`);
-
-    if (!existingTenantAuthIds.has(id)) {
-      await gql(INSERT_TENANT_MUTATION, {
-        authorizationId: id,
-        tenantId: NEW_TENANT_ID,
-      });
-      console.log(
-        `Inserted AuthorizationTenant for authorizationId=${id}, tenantId=${NEW_TENANT_ID}`,
-      );
-    } else {
-      console.log(
-        `AuthorizationTenant already exists for authorizationId=${id}, skipping`,
-      );
-    }
+    const changes = { additionalInfo };
+    console.log('changes', changes);
+    await gql(UPDATE_MUTATION, { id: row.id, changes });
   }
 }
 
 console.log('Done');
+console.log('rows length', rows.length);

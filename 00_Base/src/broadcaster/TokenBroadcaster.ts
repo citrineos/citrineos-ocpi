@@ -12,9 +12,8 @@ import { InterfaceRole } from '../model/InterfaceRole.js';
 import type { AuthorizationDto, TenantDto } from '@zetra/citrineos-base';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { TokensMapper } from '../mapper/index.js';
-import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { TokenResponseSchema } from '../model/DTO/TokenDTO.js';
 import type { TokenDTO } from '../model/DTO/TokenDTO.js';
-
 @Service()
 export class TokenBroadcaster extends BaseBroadcaster {
   constructor(
@@ -47,6 +46,7 @@ export class TokenBroadcaster extends BaseBroadcaster {
     tokenDto: Partial<AuthorizationDto>,
   ): Promise<void> {
     const token = TokensMapper.toPartialDto(tokenDto);
+    token.valid = false;
     const path = `/${tenant.countryCode}/${tenant.partyId}/${token.uid}`;
     await this.broadcastToken(tenant, token, HttpMethod.Patch, path);
   }
@@ -61,18 +61,22 @@ export class TokenBroadcaster extends BaseBroadcaster {
       const tokenTypeParam: Record<string, string> | undefined = token.type
         ? { type: token.type }
         : undefined;
+
+      const body = {
+        ...token,
+      };
+      if (method === HttpMethod.Put) {
+        body.party_id = tenant.partyId!;
+        body.country_code = tenant.countryCode!;
+      }
       await this.tokensClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
         moduleId: ModuleId.Tokens,
         interfaceRole: InterfaceRole.RECEIVER,
         httpMethod: method,
-        schema: OcpiEmptyResponseSchema,
-        body: {
-          ...token,
-          party_id: tenant.partyId,
-          country_code: tenant.countryCode,
-        },
+        schema: TokenResponseSchema,
+        body: body,
         path: path,
         otherParams: tokenTypeParam,
       });

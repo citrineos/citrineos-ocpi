@@ -503,7 +503,7 @@ export class TariffsService {
             partner,
           );
           upsertSucceededTariffs++;
-          this.logger.info(
+          this.logger.debug(
             `PullPartnerModules: upserted tariff ${String(tariff.id)}`,
           );
         } catch (err) {

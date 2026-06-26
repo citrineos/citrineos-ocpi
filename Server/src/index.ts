@@ -32,6 +32,7 @@ import { createLocalOcpiConfig } from './config/envs/local.js';
 import { createDockerOcpiConfig } from './config/envs/docker.js';
 import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
+import { AdminModule } from '@citrineos/ocpi-admin';
 
 export class CitrineOSServer {
   /**
@@ -126,6 +127,7 @@ export class CitrineOSServer {
       TariffsModule,
       CdrsModule,
       TokensModule,
+      AdminModule,
     ];
   }
 

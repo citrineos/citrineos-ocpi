@@ -60,7 +60,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     const tariffDto = event._payload;
 
     if (isPartnerReceivedTariff(tariffDto)) {
-      this._logger.info(
+      this._logger.debug(
         `Tariff ${tariffDto.id} received from partner (tenantPartnerId=${getTenantPartnerId(tariffDto)}), skipping broadcast.`,
       );
       return;
@@ -82,7 +82,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     const tariffDto = event._payload;
 
     if (isPartnerReceivedTariff(tariffDto)) {
-      this._logger.info(
+      this._logger.debug(
         `Tariff ${tariffDto.id} received from partner (tenantPartnerId=${getTenantPartnerId(tariffDto)}), skipping broadcast.`,
       );
       return;
@@ -102,7 +102,7 @@ export class TariffsModule extends AbstractDtoModule implements OcpiModule {
     const tariffDto = event._payload;
 
     if (isPartnerReceivedTariff(tariffDto)) {
-      this._logger.info(
+      this._logger.debug(
         `Tariff ${tariffDto.id} received from partner (tenantPartnerId=${getTenantPartnerId(tariffDto)}), skipping broadcast.`,
       );
       return;

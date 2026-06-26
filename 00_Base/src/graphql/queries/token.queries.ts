@@ -177,7 +177,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
     $idToken: citext!
     $idTokenType: String!
     $additionalInfo: jsonb
-    $status: String!
+    $status: authorization_status!
     $language1: String
     $groupAuthorizationId: Int
     $realTimeAuth: String

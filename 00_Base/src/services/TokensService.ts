@@ -540,7 +540,7 @@ export class TokensService {
       if (date_to) where.updatedAt._lte = new Date(date_to).toISOString();
     }
     const partnerProfile = partnerRow.partnerProfileOCPI!;
-    const tenantOwner = partnerRow.tenant! as Tenant;
+    const tenantOwner = partnerRow.tenant! as TenantDto;
     let currentOffset = offset;
     let hasMore = true;
     let processed = 0;

@@ -70,6 +70,7 @@
     "./03_Modules/Tariffs",
     "./03_Modules/Cdrs",
     "./03_Modules/Tokens",
+    "./03_Modules/AdminModule",
     "./03_Modules/Certificates",
     "./03_Modules/DtoRouter",
     "./Server"

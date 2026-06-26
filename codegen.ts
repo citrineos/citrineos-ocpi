@@ -49,14 +49,15 @@ export type Scalars = {
   numeric: { input: any; output: any; }
   timestamptz: { input: any; output: any; }
   citext: { input: string; output: string; }
+  authorization_status: { input: string; output: string; }
 };
 export type Authorizations_Set_Input = {
   additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
+  status?: InputMaybe<Scalars['authorization_status']['input']>;
 };
 export type Locations_Bool_Exp = {
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;

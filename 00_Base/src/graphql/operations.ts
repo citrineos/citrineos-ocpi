@@ -22,14 +22,15 @@ export type Scalars = {
   numeric: { input: any; output: any; }
   timestamptz: { input: any; output: any; }
   citext: { input: string; output: string; }
+  authorization_status: { input: string; output: string; }
 };
 export type Authorizations_Set_Input = {
   additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
+  status?: InputMaybe<Scalars['authorization_status']['input']>;
 };
 export type Locations_Bool_Exp = {
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
@@ -1546,6 +1547,19 @@ export type MarkEvseRemovedMutationResult = {
   } | null
 };
 
+export type CreateRoamingPartnerMutationVariables = Exact<{
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+  tenantPartnerId: Scalars['Int']['input'];
+}>;
+
+
+export type CreateRoamingPartnerMutationResult = {
+  insert_RoamingPartners_one?: {
+    id: number
+  } | null
+};
+
 export type FindSessionP2pQueryVariables = Exact<{
   ocpiSessionId: Scalars['String']['input'];
   tenantPartnerId: Scalars['Int']['input'];
@@ -2530,7 +2544,7 @@ export type ReadAuthorizationsQueryResult = {
     idToken: any,
     idTokenType?: string | null,
     additionalInfo?: any | null,
-    status: string,
+    status: any,
     realTimeAuth: string,
     language1?: string | null,
     groupAuthorizationId?: number | null,
@@ -2569,7 +2583,7 @@ export type UpdateAuthorizationMutationResult = {
       idToken: any,
       idTokenType?: string | null,
       additionalInfo?: any | null,
-      status: string,
+      status: any,
       realTimeAuth: string,
       language1?: string | null,
       groupAuthorizationId?: number | null,
@@ -2606,7 +2620,7 @@ export type GetAuthorizationByTokenQueryResult = {
     idTokenType?: string | null,
     additionalInfo?: any | null,
     groupAuthorizationId?: number | null,
-    status: string,
+    status: any,
     realTimeAuth: string,
     language1?: string | null,
     createdAt: any,
@@ -2641,7 +2655,7 @@ export type GetAuthorizationByIdQueryResult = {
     idTokenType?: string | null,
     additionalInfo?: any | null,
     groupAuthorizationId?: number | null,
-    status: string,
+    status: any,
     realTimeAuth: string,
     language1?: string | null,
     createdAt: any,
@@ -2670,7 +2684,7 @@ export type CreateAuthorizationMutationVariables = Exact<{
   idToken: Scalars['citext']['input'];
   idTokenType: Scalars['String']['input'];
   additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
-  status: Scalars['String']['input'];
+  status: Scalars['authorization_status']['input'];
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
@@ -2687,7 +2701,7 @@ export type CreateAuthorizationMutationResult = {
     idToken: any,
     idTokenType?: string | null,
     additionalInfo?: any | null,
-    status: string,
+    status: any,
     realTimeAuth: string,
     language1?: string | null,
     groupAuthorizationId?: number | null,
@@ -2724,7 +2738,7 @@ export type GetAuthorizationsPaginatedQueryResult = {
     idToken: any,
     idTokenType?: string | null,
     additionalInfo?: any | null,
-    status: string,
+    status: any,
     realTimeAuth: string,
     language1?: string | null,
     groupAuthorizationId?: number | null,

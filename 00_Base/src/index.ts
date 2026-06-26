@@ -232,6 +232,11 @@ export {
   PullPartnerModulesBodySchema,
   PullPartnerModulesBodySchemaName,
 } from './model/DTO/PullPartnerModulesBody.js';
+export type { OnboardRoamingPartnerBody } from './model/DTO/OnboardRoamingPartnerBody.js';
+export {
+  OnboardRoamingPartnerBodySchema,
+  OnboardRoamingPartnerBodySchemaName,
+} from './model/DTO/OnboardRoamingPartnerBody.js';
 export type { PushPartnerModulesBody } from './model/DTO/PushPartnerModulesBody.js';
 export {
   PushPartnerModulesBodySchema,
@@ -317,6 +322,7 @@ export { LocationReceiverService } from './services/LocationReceiverService.js';
 export { LocationsPullService } from './services/LocationsPullService.js';
 export { VersionService } from './services/VersionService.js';
 export { SessionsService } from './services/SessionsService.js';
+export { RoamingPartnerService } from './services/RoamingPartnerService.js';
 // export { AdminLocationsService } from './services/AdminLocationsService.js';
 
 // Export AsyncJob types

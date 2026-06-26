@@ -70,7 +70,7 @@ export class DtoRouter implements IDtoRouter {
     await this._subscriber.subscribe(
       eventId,
       async (event: { eventType: DtoEventType; payload: T }) => {
-        this._logger.info(
+        this._logger.debug(
           `${eventId} received event for eventType ${eventType} and objectType ${objectType}: ${JSON.stringify(event)}`,
         );
         const dtoEvent = new DtoEvent(
