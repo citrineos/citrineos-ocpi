@@ -72,10 +72,9 @@ export class AdminModuleApi extends BaseController {
         this.logger.error('Failed to pull partner data', err);
       }
     })();
-  
+
     return { status: 'accepted' };
   }
-
 
   @Post('/create-roaming-partner-cpo')
   @AsAdminEndpoint()

@@ -60,17 +60,13 @@ export const shouldBroadcastToPartner = (
     );
     return false;
   }
-  
+
   if (
     moduleId !== ModuleId.Tokens &&
     tenantPartner.partyId === config.gireve?.partyId &&
     tenantPartner.countryCode === config.gireve?.countryCode
   ) {
-    logDbBroadcast(
-      logger,
-      'info',
-      `Broadcast as CPO to Gireve disabled`,
-    );
+    logDbBroadcast(logger, 'info', `Broadcast as CPO to Gireve disabled`);
     return false;
   }
   return true;
