@@ -49,7 +49,7 @@ export default {
           },
         ],
       },
-      credentialsRole: {
+      credentialsRoles: {
         role: 'CPO',
         businessDetails: {
           logo: {

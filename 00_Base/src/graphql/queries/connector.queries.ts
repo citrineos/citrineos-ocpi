@@ -128,7 +128,7 @@ export const GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID = gql`
       vendorErrorCode
       createdAt
       updatedAt
-      tariffs: ConnectorTariffsOcpiPartner {
+      tariffs: ConnectorTariffs {
         id
         tariffOcpiId
         connectorOcpiId
@@ -180,7 +180,7 @@ export const GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID = gql`
       vendorErrorCode
       createdAt
       updatedAt
-      tariffs: ConnectorTariffsOcpiPartner {
+      tariffs: ConnectorTariffs {
         id
         tariffOcpiId
         connectorOcpiId

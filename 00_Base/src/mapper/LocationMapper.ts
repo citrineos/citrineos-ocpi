@@ -533,6 +533,8 @@ export class EvseMapper {
 
 export class ConnectorMapper {
   static fromGraphql(connector: ConnectorDto): ConnectorDTO | undefined {
+    console.log('CONNECTOR TARIFFS !!!!!! ', connector.tariffs);
+
     const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
       id: connector.id?.toString(),
@@ -542,7 +544,10 @@ export class ConnectorMapper {
       max_voltage: connector.maximumVoltage || undefined,
       max_amperage: connector.maximumAmperage || undefined,
       max_electric_power: connector.maximumPowerWatts || undefined,
-      tariff_ids: connector.tariffs?.map((t) => t.id!.toString()),
+      tariff_ids: connector.tariffs?.map(
+        (t: any) =>
+          t.tariffOcpiId ?? t.Tariff?.ocpiTariffId ?? t.tariffId?.toString(),
+      ),
       terms_and_conditions: connector.termsAndConditionsUrl,
       last_updated: connector.updatedAt!,
     };

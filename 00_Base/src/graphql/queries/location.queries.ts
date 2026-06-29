@@ -4,8 +4,12 @@
 
 import { gql } from 'graphql-request';
 
-export const GET_LOCATIONS_QUERY = gql`
-  query GetLocations($limit: Int, $offset: Int, $where: Locations_bool_exp!) {
+export const GET_OUR_LOCATIONS_QUERY = gql`
+  query GetOurLocations(
+    $limit: Int
+    $offset: Int
+    $where: Locations_bool_exp!
+  ) {
     Locations(
       offset: $offset
       limit: $limit
@@ -83,6 +87,16 @@ export const GET_LOCATIONS_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
+            tariffs: ConnectorTariffs(
+              where: { tenantPartnerId: { _is_null: true } }
+            ) {
+              tariffOcpiId
+              tariffId
+              Tariff {
+                ocpiTariffId
+                id
+              }
+            }
           }
         }
       }
@@ -90,8 +104,8 @@ export const GET_LOCATIONS_QUERY = gql`
   }
 `;
 
-export const GET_LOCATION_BY_ID_QUERY = gql`
-  query GetLocationById($id: Int!) {
+export const GET_OUR_LOCATION_BY_ID_QUERY = gql`
+  query GetOurLocationById($id: Int!) {
     Locations(where: { id: { _eq: $id } }) {
       id
       name
@@ -109,6 +123,8 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
       timeZone
       updatedAt
       tenant: Tenant {
+        name
+        isUserTenant
         partyId
         countryCode
       }
@@ -162,6 +178,16 @@ export const GET_LOCATION_BY_ID_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
+            tariffs: ConnectorTariffs(
+              where: { tenantPartnerId: { _is_null: true } }
+            ) {
+              tariffOcpiId
+              tariffId
+              Tariff {
+                ocpiTariffId
+                id
+              }
+            }
           }
         }
       }
@@ -242,7 +268,7 @@ export const GET_LOCATION_BY_OCPID_ID_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
-            tariffs: ConnectorTariffsOcpiPartner {
+            tariffs: ConnectorTariffs {
               id
               tariffOcpiId
               connectorOcpiId
@@ -433,7 +459,7 @@ export const GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY = gql`
             createdAt
             updatedAt
             deletedAt
-            tariffs: ConnectorTariffsOcpiPartner {
+            tariffs: ConnectorTariffs {
               id
               tariffOcpiId
               connectorOcpiId
@@ -553,7 +579,7 @@ export const GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY = gql`
             createdAt
             updatedAt
             deletedAt
-            tariffs: ConnectorTariffsOcpiPartner {
+            tariffs: ConnectorTariffs {
               id
               tariffOcpiId
               connectorOcpiId

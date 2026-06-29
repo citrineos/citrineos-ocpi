@@ -148,7 +148,7 @@ export const GET_EVSE_BY_OCPI_ID_AND_PARTNER_ID_QUERY = gql`
         timestamp
         createdAt
         updatedAt
-        tariffs: ConnectorTariffsOcpiPartner {
+        tariffs: ConnectorTariffs {
           id
           tariffOcpiId
           connectorOcpiId
@@ -224,7 +224,7 @@ export const GET_EVSE_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY = gql`
         timestamp
         createdAt
         updatedAt
-        tariffs: ConnectorTariffsOcpiPartner {
+        tariffs: ConnectorTariffs {
           id
           tariffOcpiId
           connectorOcpiId

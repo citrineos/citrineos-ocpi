@@ -37,6 +37,48 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
   }
 `;
 
+export const GET_TARIFF_FOR_BROADCAST_QUERY = gql`
+  query GetTariffForBroadcast(
+    $id: Int!
+    $countryCode: String!
+    $partyId: String!
+  ) {
+    Tariffs(
+      where: {
+        id: { _eq: $id }
+        tenantPartnerId: { _is_null: true }
+        Tenant: {
+          countryCode: { _eq: $countryCode }
+          partyId: { _eq: $partyId }
+        }
+      }
+    ) {
+      id
+      ocpiTariffId
+      currency
+      updatedAt
+      startDateTime
+      endDateTime
+      tariffType
+      tariffAltUrl
+      minPrice
+      maxPrice
+      energyMix
+      tariffAltText
+      tenantPartnerId
+      TariffElements {
+        id
+        priceComponents
+        restrictions
+      }
+      tenant: Tenant {
+        countryCode
+        partyId
+      }
+    }
+  }
+`;
+
 export const GET_TARIFFS_QUERY = gql`
   query GetTariffs($limit: Int, $offset: Int, $where: Tariffs_bool_exp!) {
     Tariffs(
@@ -50,15 +92,23 @@ export const GET_TARIFFS_QUERY = gql`
       currency
       id
       ocpiTariffId
-      paymentFee
-      pricePerKwh
-      pricePerMin
-      pricePerSession
-      stationId
-      taxRate
       tariffAltText
       tenantPartnerId
       updatedAt
+      startDateTime
+      endDateTime
+      tariffType
+      tariffAltUrl
+      minPrice
+      maxPrice
+      energyMix
+      startDateTime
+      endDateTime
+      TariffElements {
+        id
+        priceComponents
+        restrictions
+      }
       tenant: Tenant {
         countryCode
         partyId
@@ -655,6 +705,56 @@ export const UPDATE_PARTNER_TARIFF_MUTATION = gql`
         id
         priceComponents
         restrictions
+      }
+    }
+  }
+`;
+
+export const GET_TARIFFS_PAGINATED = gql`
+  query GetTariffsPaginated(
+    $limit: Int
+    $offset: Int
+    $where: Tariffs_bool_exp!
+  ) {
+    Tariffs(
+      limit: $limit
+      offset: $offset
+      order_by: { createdAt: asc }
+      where: $where
+    ) {
+      id
+      createdAt
+      updatedAt
+      tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      authorizationAmount
+      createdAt
+      currency
+      id
+      ocpiTariffId
+      tariffAltText
+      tenantPartnerId
+      updatedAt
+      startDateTime
+      endDateTime
+      tariffType
+      tariffAltUrl
+      minPrice
+      maxPrice
+      energyMix
+      startDateTime
+      endDateTime
+      TariffElements {
+        id
+        priceComponents
+        restrictions
+      }
+      tenant: Tenant {
+        countryCode
+        partyId
       }
     }
   }

@@ -102,6 +102,7 @@ export class TariffMapper {
   }
 
   public static mapForReceiver(coreTariff: TariffMapInput): TariffDTO {
+    console.log('MAP FOR RECEIVER CORE TARIFF ', coreTariff);
     let tariffAltText: Array<{ language: string; text: string }> | undefined;
     if (coreTariff.tariffAltText) {
       if (typeof coreTariff.tariffAltText === 'string') {
@@ -117,6 +118,8 @@ export class TariffMapper {
         }>;
       }
     }
+
+    console.log('CORE TARIFF ', coreTariff);
 
     const elements: TariffElement[] =
       (coreTariff as any).TariffElements?.length > 0
@@ -153,6 +156,82 @@ export class TariffMapper {
       start_date_time: toOptionalDate(coreTariff.startDateTime),
       end_date_time: toOptionalDate(coreTariff.endDateTime),
       last_updated: toDate(coreTariff.updatedAt),
+    };
+  }
+
+  public static mapForReceiverOCPI(coreTariff: TariffMapInput): TariffDTO {
+    console.log('MAP FOR RECEIVER CORE TARIFF ', coreTariff);
+    let tariffAltText: Array<{ language: string; text: string }> | undefined;
+    if (coreTariff.tariffAltText) {
+      if (typeof coreTariff.tariffAltText === 'string') {
+        try {
+          tariffAltText = JSON.parse(coreTariff.tariffAltText);
+        } catch {
+          tariffAltText = undefined;
+        }
+      } else if (Array.isArray(coreTariff.tariffAltText)) {
+        tariffAltText = coreTariff.tariffAltText as Array<{
+          language: string;
+          text: string;
+        }>;
+      }
+    }
+
+    if ((coreTariff as any).TariffElements?.length === 0) {
+      throw new Error(
+        `Tariff ${coreTariff.ocpiTariffId} has no TariffElements`,
+      );
+    }
+
+    console.log('CORE TARIFF ', coreTariff);
+
+    const elements: TariffElement[] = (coreTariff.TariffElements ?? []).map(
+      (el) => ({
+        price_components:
+          el.priceComponents as TariffElement['price_components'],
+        restrictions: el.restrictions ?? undefined,
+      }),
+    );
+
+    const countryCode =
+      coreTariff.tenantPartner?.countryCode ?? coreTariff.tenant?.countryCode;
+    const partyId =
+      coreTariff.tenantPartner?.partyId ?? coreTariff.tenant?.partyId;
+
+    if (!countryCode || !partyId) {
+      throw new Error(
+        `Tariff ${coreTariff.id ?? coreTariff.ocpiTariffId} has neither tenantPartner nor tenant country/party identifiers`,
+      );
+    }
+
+    return {
+      id: (coreTariff as any).ocpiTariffId ?? coreTariff.id!.toString(),
+      country_code: countryCode,
+      party_id: partyId,
+      currency: coreTariff.currency!,
+      elements: elements,
+      start_date_time: toDate(coreTariff.startDateTime),
+      end_date_time: toOptionalDate(coreTariff.endDateTime),
+      last_updated: toDate(coreTariff.updatedAt),
+      ...(coreTariff.tariffType != null &&
+        toTariffType(coreTariff.tariffType) != null && {
+          type: toTariffType(coreTariff.tariffType)!,
+        }),
+      ...(tariffAltText != null && tariffAltText.length > 0 && {
+        tariff_alt_text: tariffAltText,
+      }),
+      ...(coreTariff.tariffAltUrl != null && {
+        tariff_alt_url: coreTariff.tariffAltUrl,
+      }),
+      ...(coreTariff.minPrice != null && {
+        min_price: coreTariff.minPrice as Price,
+      }),
+      ...(coreTariff.maxPrice != null && {
+        max_price: coreTariff.maxPrice as Price,
+      }),
+      ...(coreTariff.energyMix != null && {
+        energy_mix: coreTariff.energyMix as EnergyMix,
+      }),
     };
   }
 

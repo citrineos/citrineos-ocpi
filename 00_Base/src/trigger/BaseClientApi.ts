@@ -234,6 +234,7 @@ export abstract class BaseClientApi {
         );
       case HttpMethod.Put:
         this.logger.info(`Sending PUT request to ${url}`);
+        console.log('PUT BODY ', body);
         return this.replaceRaw<T>(url, body, options, restClient).then(
           (response) => this.handleResponse(schema, response),
         );

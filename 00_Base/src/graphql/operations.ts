@@ -847,14 +847,14 @@ export type GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryResult = {
   }>
 };
 
-export type GetLocationsQueryVariables = Exact<{
+export type GetOurLocationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   where: Locations_Bool_Exp;
 }>;
 
 
-export type GetLocationsQueryResult = {
+export type GetOurLocationsQueryResult = {
   Locations: Array<{
     id: number,
     name?: string | null,
@@ -926,19 +926,27 @@ export type GetLocationsQueryResult = {
           vendorId?: string | null,
           vendorErrorCode?: string | null,
           createdAt: any,
-          updatedAt: any
+          updatedAt: any,
+          tariffs: Array<{
+            tariffOcpiId: string,
+            tariffId: number,
+            Tariff: {
+              ocpiTariffId?: string | null,
+              id: number
+            }
+          }>
         }>
       }>
     }>
   }>
 };
 
-export type GetLocationByIdQueryVariables = Exact<{
+export type GetOurLocationByIdQueryVariables = Exact<{
   id: Scalars['Int']['input'];
 }>;
 
 
-export type GetLocationByIdQueryResult = {
+export type GetOurLocationByIdQueryResult = {
   Locations: Array<{
     id: number,
     name?: string | null,
@@ -956,6 +964,8 @@ export type GetLocationByIdQueryResult = {
     timeZone?: string | null,
     updatedAt: any,
     tenant: {
+      name: string,
+      isUserTenant: boolean,
       partyId?: string | null,
       countryCode?: string | null
     },
@@ -1008,7 +1018,15 @@ export type GetLocationByIdQueryResult = {
           vendorId?: string | null,
           vendorErrorCode?: string | null,
           createdAt: any,
-          updatedAt: any
+          updatedAt: any,
+          tariffs: Array<{
+            tariffOcpiId: string,
+            tariffId: number,
+            Tariff: {
+              ocpiTariffId?: string | null,
+              id: number
+            }
+          }>
         }>
       }>
     }>
@@ -1829,6 +1847,40 @@ export type GetTariffByKeyQueryResult = {
   }>
 };
 
+export type GetTariffForBroadcastQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+}>;
+
+
+export type GetTariffForBroadcastQueryResult = {
+  Tariffs: Array<{
+    id: number,
+    ocpiTariffId?: string | null,
+    currency: any,
+    updatedAt: any,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    tariffAltText?: string | null,
+    tenantPartnerId?: number | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    }
+  }>
+};
+
 export type GetTariffsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1843,15 +1895,21 @@ export type GetTariffsQueryResult = {
     currency: any,
     id: number,
     ocpiTariffId?: string | null,
-    paymentFee?: any | null,
-    pricePerKwh: any,
-    pricePerMin?: any | null,
-    pricePerSession?: any | null,
-    stationId?: string | null,
-    taxRate?: any | null,
     tariffAltText?: string | null,
     tenantPartnerId?: number | null,
     updatedAt: any,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
     tenant: {
       countryCode?: string | null,
       partyId?: string | null
@@ -2364,6 +2422,47 @@ export type UpdatePartnerTariffMutationResult = {
       restrictions?: any | null
     }>
   } | null
+};
+
+export type GetTariffsPaginatedQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  where: Tariffs_Bool_Exp;
+}>;
+
+
+export type GetTariffsPaginatedQueryResult = {
+  Tariffs: Array<{
+    id: number,
+    createdAt: any,
+    updatedAt: any,
+    authorizationAmount?: any | null,
+    currency: any,
+    ocpiTariffId?: string | null,
+    tariffAltText?: string | null,
+    tenantPartnerId?: number | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    }
+  }>
 };
 
 export type UpdateTenantPartnerProfileMutationVariables = Exact<{
