@@ -8,7 +8,6 @@ import type { QueryInterface } from 'sequelize';
 
 export default {
   up: async (queryInterface: QueryInterface) => {
-    // Shared notify function: Tariffs row changes + TariffElements child changes
     await queryInterface.sequelize.query(`
         CREATE OR REPLACE FUNCTION "TariffNotify"()
         RETURNS trigger AS $$

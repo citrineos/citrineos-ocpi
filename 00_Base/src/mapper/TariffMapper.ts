@@ -217,9 +217,10 @@ export class TariffMapper {
         toTariffType(coreTariff.tariffType) != null && {
           type: toTariffType(coreTariff.tariffType)!,
         }),
-      ...(tariffAltText != null && tariffAltText.length > 0 && {
-        tariff_alt_text: tariffAltText,
-      }),
+      ...(tariffAltText != null &&
+        tariffAltText.length > 0 && {
+          tariff_alt_text: tariffAltText,
+        }),
       ...(coreTariff.tariffAltUrl != null && {
         tariff_alt_url: coreTariff.tariffAltUrl,
       }),
