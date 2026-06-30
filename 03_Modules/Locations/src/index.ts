@@ -90,7 +90,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     logDbBroadcast(this._logger, 'debug', 'Handling Location Insert:', event);
     const locationDto = event._payload;
 
-    console.log('LOCATION DTO !!!', locationDto);
     const tenant = locationDto.tenant;
     // if the location is owned by a tenant partner, don't broadcast
     if ((locationDto as any).ownerTenantPartnerId != null) {
@@ -119,7 +118,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       }
     >,
   ): Promise<void> {
-    console.log('LOCATION UPDATE EVENT !!!', event);
     logDbBroadcast(this._logger, 'debug', 'Handling Location Update:', event);
     const locationDto = event._payload;
     const tenant = locationDto.tenant;
@@ -244,11 +242,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const connectorDto = event._payload;
     const tenant = connectorDto.tenant;
     if ((connectorDto as any).ocpiId != null) return;
-    console.log('CONNECTOR INSERT EVENT !!!', event, 'dto  !!! ', connectorDto);
-    if (event.isStatusChanged) {
-      console.log('STATUS CHANGED !!!', event.isStatusChanged);
-      return;
-    }
     const chargingStationResponse = await this.ocpiGraphqlClient.request<
       GetChargingStationByIdQueryResult,
       GetChargingStationByIdQueryVariables
@@ -279,23 +272,12 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     logDbBroadcast(this._logger, 'debug', 'Handling Connector Update:', event);
     const connectorDto = event._payload;
 
-    console.log('CONNECTOR UPDATE EVENT !!!', event, 'dto  !!! ', connectorDto);
-
     // if the connector is owned by a tenant partner, don't broadcast
     if (
       connectorDto.ocpiId != null ||
       event._payload?.ownerTenantPartner?.id != null
     )
       return;
-
-      // const changedKeys = getConnectorChangedKeys(connectorDto);
-      // const statusChanged = changedKeys.includes('status');
-      // const statusOnly = changedKeys.length === 1 && changedKeys[0] === 'status';
-
-      // console.log('STATUS CHANGED !!!', statusChanged, 'STATUS ONLY !!!', statusOnly);
-      // console.log('CHANGED KEYS !!!', changedKeys);
-    
-
     // if the connector is not owned by a tenant partner, we can broadcast the update
     const tenant = connectorDto.tenant;
 

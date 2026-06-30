@@ -99,8 +99,6 @@ export class TariffsModuleApi
       paginationParams,
     );
 
-    console.log('GET TARIFFS ');
-
     return {
       data: data,
       total: count,

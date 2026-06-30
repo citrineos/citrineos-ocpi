@@ -80,7 +80,6 @@ export class LocationMapper {
   }
 
   static fromGraphql(location: LocationDto): LocationDTO {
-  console.log('LOCATION !!!', location.coordinates.coordinates);
     return {
       id: location.id!.toString(),
       country_code: location.tenant!.countryCode!,
@@ -542,7 +541,6 @@ export class EvseMapper {
 
 export class ConnectorMapper {
   static fromGraphql(connector: ConnectorDto): ConnectorDTO | undefined {
-    // console.log('CONNECTOR TARIFFS !!!!!! ', connector.tariffs);
 
     const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {

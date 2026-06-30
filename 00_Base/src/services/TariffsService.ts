@@ -195,8 +195,6 @@ export class TariffsService {
     ocpiHeaders: OcpiHeaders,
     paginationParams?: PaginatedParams,
   ): Promise<{ data: TariffDTO[]; count: number }> {
-    console.log('GET TARIFFS HEADER ', ocpiHeaders);
-    console.log('GET TARIFFS PAGINATION PARAMS ', paginationParams);
     const limit = paginationParams?.limit ?? DEFAULT_LIMIT;
     const offset = paginationParams?.offset ?? DEFAULT_OFFSET;
     const where = {
@@ -224,7 +222,6 @@ export class TariffsService {
       GetTariffsQueryVariables
     >(GET_TARIFFS_QUERY, variables);
 
-    console.log('GET TARIFFS RESULT !!! ', result);
     const mappedTariffs: TariffDTO[] = [];
     for (const tariff of result.Tariffs) {
       mappedTariffs.push(

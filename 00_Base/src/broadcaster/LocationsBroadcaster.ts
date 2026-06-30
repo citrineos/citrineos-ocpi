@@ -119,7 +119,6 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   ): Promise<void> {
     const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
-    console.log('BROADCAST PATCH EVSE STATUS !!!', evseDto, EvseStatus);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(tenant, { status: EvseStatus }, HttpMethod.Patch, path);
   }

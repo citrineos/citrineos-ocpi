@@ -102,7 +102,6 @@ export class TariffMapper {
   }
 
   public static mapForReceiver(coreTariff: TariffMapInput): TariffDTO {
-    console.log('MAP FOR RECEIVER CORE TARIFF ', coreTariff);
     let tariffAltText: Array<{ language: string; text: string }> | undefined;
     if (coreTariff.tariffAltText) {
       if (typeof coreTariff.tariffAltText === 'string') {
@@ -118,8 +117,6 @@ export class TariffMapper {
         }>;
       }
     }
-
-    console.log('CORE TARIFF ', coreTariff);
 
     const elements: TariffElement[] =
       (coreTariff as any).TariffElements?.length > 0
@@ -160,7 +157,6 @@ export class TariffMapper {
   }
 
   public static mapForReceiverOCPI(coreTariff: TariffMapInput): TariffDTO {
-    console.log('MAP FOR RECEIVER CORE TARIFF ', coreTariff);
     let tariffAltText: Array<{ language: string; text: string }> | undefined;
     if (coreTariff.tariffAltText) {
       if (typeof coreTariff.tariffAltText === 'string') {
@@ -182,8 +178,6 @@ export class TariffMapper {
         `Tariff ${coreTariff.ocpiTariffId} has no TariffElements`,
       );
     }
-
-    console.log('CORE TARIFF ', coreTariff);
 
     const elements: TariffElement[] = (coreTariff.TariffElements ?? []).map(
       (el) => ({

@@ -41,7 +41,6 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     tariff?: Partial<Tariff>,
   ): Promise<void> {
     try {
-      console.log('BROADCAST TARIFF ', tariff);
       await this.tariffsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
         cpoPartyId: tenant.partyId!,
@@ -61,7 +60,6 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     tenant: TenantDto,
     tariffDto: Partial<TariffDto>,
   ): Promise<void> {
-    console.log('BROADCAST PUT TARIFF ', tariffDto);
     // // if (!tariffDto.currency || !tariffDto.pricePerKwh) {
     this.logger.debug(
       `Fetching data for Tariff ${tariffDto.id} to fill required fields for broadcast PUT`,
@@ -80,10 +78,6 @@ export class TariffsBroadcaster extends BaseBroadcaster {
       );
       return;
     }
-    console.log('BROADCAST PUT TARIFF RESPONSE !!!', tariffResponse);
-    // tariffDto.currency = tariffResponse.Tariffs[0].currency;
-    // tariffDto.pricePerKwh = tariffResponse.Tariffs[0].pricePerKwh;
-    // }
 
     const tariff = TariffMapper.mapForReceiverOCPI(tariffResponse.Tariffs[0]);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${tariff.id}`;
