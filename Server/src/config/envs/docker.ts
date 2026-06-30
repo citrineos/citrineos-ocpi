@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OcpiConfigInput } from '@citrineos/ocpi-base';
+import { buildCommandsKeycloakConfig } from './keycloak.js';
 
 export function createDockerOcpiConfig(): OcpiConfigInput {
   return {
@@ -72,6 +73,7 @@ export function createDockerOcpiConfig(): OcpiConfigInput {
       ocpiBaseUrl:
         process.env.COMMANDS_OCPI_BASE_URL || 'http://citrineos-ocpi:8085/ocpi',
       coreHeaders: JSON.parse(process.env.COMMANDS_CORE_HEADERS || '{}'),
+      keycloak: buildCommandsKeycloakConfig(),
       ocpp1_6: {
         remoteStartTransactionRequestUrl:
           process.env.COMMANDS_OCPP1_6_REMOTE_START_TRANSACTION_REQUEST_URL ||

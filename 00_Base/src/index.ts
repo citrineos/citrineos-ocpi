@@ -16,7 +16,7 @@ import { CacheWrapper } from './util/CacheWrapper.js';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
 import * as packageJson from '../../package.json' with { type: 'json' };
 import type { OcpiConfig } from './config/ocpi.types.js';
-import { OcpiConfigToken } from './config/ocpi.types.js';
+import { AjvToken, OcpiConfigToken } from './config/ocpi.types.js';
 import type { IDtoModule } from './events/index.js';
 import { OcpiGraphqlClient } from './graphql/index.js';
 import { HealthController } from './util/KoaServerHealthController.js';
@@ -532,7 +532,7 @@ export class OcpiServer extends KoaServer {
       mode: 'fast',
       formats: ['date-time'],
     });
-    Container.set(Ajv, ajv);
+    Container.set(AjvToken, ajv);
 
     this.onContainerInitialized();
   }

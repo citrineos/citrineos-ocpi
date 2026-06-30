@@ -14,6 +14,7 @@ import type {
   StopSession,
   UnlockConnector,
 } from '../../index.js';
+import { AjvToken } from '../../config/ocpi.types.js';
 import {
   CommandResultType,
   CommandType,
@@ -29,6 +30,7 @@ import { OcpiGraphqlClient } from '../../graphql/index.js';
 import { CommandsClientApi } from '../../trigger/CommandsClientApi.js';
 import qs from 'qs';
 import type { Ajv } from 'ajv';
+import { getKeycloakClientCredentialsToken } from '../security/keycloakClientCredentials.js';
 
 export const OCPP_COMMAND_HANDLER = new Token<OCPPCommandHandler>(
   'OCPP_COMMAND_HANDLER',
@@ -37,7 +39,7 @@ export const OCPP_COMMAND_HANDLER = new Token<OCPPCommandHandler>(
 export abstract class OCPPCommandHandler {
   abstract readonly supportedVersion: OCPPVersion;
 
-  @Inject()
+  @Inject(AjvToken)
   private ajv!: Ajv;
 
   @Inject()
@@ -87,6 +89,26 @@ export abstract class OCPPCommandHandler {
     commandId: string,
   ): Promise<void>;
 
+  protected async resolveCoreRequestHeaders(
+    additionalHeaders?: Record<string, string>,
+  ): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {
+      ...(this.config.commands.coreHeaders ?? {}),
+      ...(additionalHeaders ?? {}),
+    };
+
+    const keycloak = this.config.commands.keycloak;
+    if (keycloak) {
+      const token = await getKeycloakClientCredentialsToken(
+        keycloak,
+        this.logger,
+      );
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
   protected async sendOCPPMessage(
     url: string,
     payload: any,
@@ -95,6 +117,10 @@ export abstract class OCPPCommandHandler {
     responseUrl: string,
     commandId: string,
   ): Promise<void> {
+    options.additionalHeaders = await this.resolveCoreRequestHeaders(
+      options.additionalHeaders as Record<string, string> | undefined,
+    );
+
     this.logger.debug('Sending OCPP request', {
       url,
       payload,

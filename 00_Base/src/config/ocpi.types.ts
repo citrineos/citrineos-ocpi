@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Ajv } from 'ajv';
 import { z } from 'zod';
 import { Token } from 'typedi';
 
@@ -155,6 +156,15 @@ export const ocpiConfigInputSchema = z.object({
     timeout: z.number().int().positive().default(30).optional(),
     ocpiBaseUrl: z.string().default('http://localhost:8085/ocpi').optional(),
     coreHeaders: z.record(z.string()).optional(),
+    keycloak: z
+      .object({
+        tokenUrl: z.string().url().optional(),
+        url: z.string().optional(),
+        realm: z.string().optional(),
+        clientId: z.string().min(1),
+        clientSecret: z.string().min(1),
+      })
+      .optional(),
     ocpp1_6: z.object({
       remoteStartTransactionRequestUrl: z.string(),
       remoteStopTransactionRequestUrl: z.string(),
@@ -326,6 +336,15 @@ export const ocpiConfigSchema = z.object({
     timeout: z.number().int().positive(),
     ocpiBaseUrl: z.string(),
     coreHeaders: z.record(z.string()).optional(),
+    keycloak: z
+      .object({
+        tokenUrl: z.string().url().optional(),
+        url: z.string().optional(),
+        realm: z.string().optional(),
+        clientId: z.string().min(1),
+        clientSecret: z.string().min(1),
+      })
+      .optional(),
     ocpp1_6: z.object({
       remoteStartTransactionRequestUrl: z.string(),
       remoteStopTransactionRequestUrl: z.string(),
@@ -361,3 +380,4 @@ export const ocpiConfigSchema = z.object({
 export type OIDCConfig = z.infer<typeof oidcConfigSchema>;
 export type OcpiConfig = z.infer<typeof ocpiConfigSchema>;
 export const OcpiConfigToken = new Token<OcpiConfig>('ocpi.config');
+export const AjvToken = new Token<Ajv>('ajv');
