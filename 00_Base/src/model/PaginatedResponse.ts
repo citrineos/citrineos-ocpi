@@ -38,6 +38,5 @@ export const buildOcpiPaginatedResponse = <T extends z.ZodTypeAny>(
     total,
     limit,
     offset,
-    link: '', // default or you can make this an arg
   };
 };

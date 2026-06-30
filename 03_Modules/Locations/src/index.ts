@@ -12,6 +12,7 @@ import {
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
+  EvseMapper,
   GET_CHARGING_STATION_BY_ID_QUERY,
   LocationsBroadcaster,
   OcpiConfigToken,
@@ -87,6 +88,8 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleLocationInsert(event: IDtoEvent<LocationDto>): Promise<void> {
     logDbBroadcast(this._logger, 'debug', 'Handling Location Insert:', event);
     const locationDto = event._payload;
+
+    console.log('LOCATION DTO !!!', locationDto);
     const tenant = locationDto.tenant;
     // if the location is owned by a tenant partner, don't broadcast
     if ((locationDto as any).ownerTenantPartnerId != null) {
@@ -115,6 +118,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       }
     >,
   ): Promise<void> {
+    console.log('LOCATION UPDATE EVENT !!!', event);
     logDbBroadcast(this._logger, 'debug', 'Handling Location Update:', event);
     const locationDto = event._payload;
     const tenant = locationDto.tenant;
@@ -175,11 +179,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     if (!chargingStationResponse.ChargingStations[0]) {
       this._logger.error(
         `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
-      );
-      return;
-    }
-    const chargingStationDto = chargingStationResponse
-      .ChargingStations[0] as ChargingStationDto;
+        );
+        return;
+      }
+      const chargingStationDto = chargingStationResponse
+        .ChargingStations[0] as ChargingStationDto;
 
     await this.locationsBroadcaster.broadcastPutEvse(
       tenant!,
@@ -269,6 +273,8 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     logDbBroadcast(this._logger, 'debug', 'Handling Connector Update:', event);
     const connectorDto = event._payload;
 
+    console.log('CONNECTOR UPDATE EVENT !!!', event, 'dto  !!! ', connectorDto);
+
     // if the connector is owned by a tenant partner, don't broadcast
     if (
       connectorDto.ocpiId != null ||
@@ -293,6 +299,32 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     }
     connectorDto.chargingStation = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
+
+      // const station = chargingStationResponse.ChargingStations[0] as ChargingStationDto;
+      // const statusChanged = connectorDto.status != null; 
+
+      // if (statusChanged) {
+      //   const evse = station.evses?.find((e) => e.id === connectorDto.evseId);
+      //   if (!evse) {
+      //     logDbBroadcast(this._logger, 'error', `EVSE ${connectorDto.evseId} not found`);
+      //     return;
+      //   }
+      //   const evseConnectors = (station.connectors ?? []).filter(
+      //     (c) => c.evseId === connectorDto.evseId,
+      //   );
+      //   const status = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
+      //   await this.locationsBroadcaster.broadcastPatchEvse(tenant!, {
+      //     id: evse.id,
+      //     stationId: connectorDto.stationId,
+      //     evseId: evse.evseId,
+      //     updatedAt: connectorDto.updatedAt,
+      //     connectors: evseConnectors, // needed for fromPartialGraphql status calc
+      //   }, station);
+      //   // status is not an OCPI connector field — don't also PATCH connector for status-only
+      //   return;
+      // }
+      // await this.locationsBroadcaster.broadcastPatchConnector(tenant!, connectorDto);
+      
 
     // TODO: filter out status updates, since they should only apply at the EVSE level
 

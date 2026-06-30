@@ -10,6 +10,9 @@ export const GET_OUR_LOCATIONS_QUERY = gql`
     $offset: Int
     $where: Locations_bool_exp!
   ) {
+    Locations_aggregate(where: $where) {
+      aggregate { count }
+    }
     Locations(
       offset: $offset
       limit: $limit

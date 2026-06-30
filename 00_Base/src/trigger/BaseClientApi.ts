@@ -240,6 +240,7 @@ export abstract class BaseClientApi {
         );
       case HttpMethod.Patch:
         this.logger.info(`Sending PATCH request to ${url}`);
+        console.log('PATCH BODY ', body);
         return this.updateRaw<T>(url, body, options, restClient).then(
           (response) => this.handleResponse(schema, response),
         );

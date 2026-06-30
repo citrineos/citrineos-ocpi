@@ -89,7 +89,7 @@ export class LocationsService {
       },
       ownerTenantPartnerId: { _is_null: true },
       roamingPartnerId: { _is_null: true },
-      removed: { _eq: false },
+      deletedAt: { _is_null: true },
     };
     const dateFilters: any = {};
     if (paginatedParams?.dateFrom)
@@ -111,6 +111,8 @@ export class LocationsService {
       GetOurLocationsQueryVariables
     >(GET_OUR_LOCATIONS_QUERY, variables);
 
+    console.log('GET LOCATIONS RESPONSE !!!', response);
+
     // Map GraphQL DTOs to OCPI DTOs
     const locations =
       response.Locations.map((value) =>
@@ -118,9 +120,13 @@ export class LocationsService {
       ) ?? [];
     const locationsTotal = locations.length;
 
+    const total = response.Locations_aggregate?.aggregate?.count ?? 0;
+
+    console.log('TOTAL LOCATIONS !!!', total);
+
     return buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
-      locationsTotal,
+      total,
       limit,
       offset,
       locations,
