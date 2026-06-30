@@ -178,11 +178,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     if (!chargingStationResponse.ChargingStations[0]) {
       this._logger.error(
         `Charging Station not found for ID ${evseDto.stationId}, cannot broadcast.`,
-        );
-        return;
-      }
-      const chargingStationDto = chargingStationResponse
-        .ChargingStations[0] as ChargingStationDto;
+      );
+      return;
+    }
+    const chargingStationDto = chargingStationResponse
+      .ChargingStations[0] as ChargingStationDto;
 
     await this.locationsBroadcaster.broadcastPutEvse(
       tenant!,
@@ -296,31 +296,31 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     connectorDto.chargingStation = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-      if (event.isStatusChanged) {
-        const chargingStationDto = connectorDto.chargingStation!;
-        const evseDto = chargingStationDto.evses?.find(
-          (e: EvseDto) => e.id === connectorDto.evseId,
-        );
-        if (!evseDto) {
-          this._logger.error(
-            `EVSE ${connectorDto.evseId} not found on station ${connectorDto.stationId}`,
-          );
-          return;
-        }
-        const evseConnectors =
-        chargingStationDto.connectors?.filter(
-          (c: ConnectorDto) => c.evseId === connectorDto.evseId,
-        ) ?? [];
-        const evseStatus = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
-      
-        await this.locationsBroadcaster.broadcastPatchEvseStatus(
-          tenant!,
-          evseDto,
-          chargingStationDto,
-          evseStatus,
+    if (event.isStatusChanged) {
+      const chargingStationDto = connectorDto.chargingStation!;
+      const evseDto = chargingStationDto.evses?.find(
+        (e: EvseDto) => e.id === connectorDto.evseId,
+      );
+      if (!evseDto) {
+        this._logger.error(
+          `EVSE ${connectorDto.evseId} not found on station ${connectorDto.stationId}`,
         );
         return;
       }
+      const evseConnectors =
+        chargingStationDto.connectors?.filter(
+          (c: ConnectorDto) => c.evseId === connectorDto.evseId,
+        ) ?? [];
+      const evseStatus = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
+
+      await this.locationsBroadcaster.broadcastPatchEvseStatus(
+        tenant!,
+        evseDto,
+        chargingStationDto,
+        evseStatus,
+      );
+      return;
+    }
 
     await this.locationsBroadcaster.broadcastPatchConnector(
       tenant!,

@@ -20,11 +20,14 @@ interface IPgNotification {
   operation: DtoEventType;
   data: any;
   isStatusChanged?: boolean;
-
 }
 
 type EventHandler<T = any> = {
-  handleEvent: (event: { eventType: DtoEventType; payload: T; isStatusChanged?: boolean }) => void;
+  handleEvent: (event: {
+    eventType: DtoEventType;
+    payload: T;
+    isStatusChanged?: boolean;
+  }) => void;
   handleError: (error: any) => void;
   handleDisconnect?: () => void;
 };
@@ -69,22 +72,22 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
       `Executed migrations: ${migrations.map((m) => m.name).join(', ')}`,
     );
 */
-  this._pgClient.on('notification', (msg: Notification) => {
-    const handler = this.eventHandlers.get(msg.channel);
-    if (!handler) return;
+    this._pgClient.on('notification', (msg: Notification) => {
+      const handler = this.eventHandlers.get(msg.channel);
+      if (!handler) return;
 
-    try {
-      const payload: IPgNotification = JSON.parse(msg.payload ?? '{}');
-      handler.handleEvent({
-        eventType: payload.operation,
-        payload: payload.data,
-        isStatusChanged: payload.isStatusChanged,
-      });
-    } catch (err) {
-      this._logger.error(`Failed to parse notification payload:`, err);
-      handler.handleError(err);
-    }
-  });
+      try {
+        const payload: IPgNotification = JSON.parse(msg.payload ?? '{}');
+        handler.handleEvent({
+          eventType: payload.operation,
+          payload: payload.data,
+          isStatusChanged: payload.isStatusChanged,
+        });
+      } catch (err) {
+        this._logger.error(`Failed to parse notification payload:`, err);
+        handler.handleError(err);
+      }
+    });
 
     const callDisconnectHandlers = () => {
       const called = new Set<() => void>();

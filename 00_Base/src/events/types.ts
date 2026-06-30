@@ -179,7 +179,11 @@ export interface IDtoEventSubscriber {
    */
   subscribe<T extends IDtoPayload>(
     eventId: string,
-    handleEvent: (event: { eventType: DtoEventType; payload: T; isStatusChanged?: boolean }) => void,
+    handleEvent: (event: {
+      eventType: DtoEventType;
+      payload: T;
+      isStatusChanged?: boolean;
+    }) => void,
     handleError: (error: any) => void,
     handleDisconnect?: () => void,
   ): Promise<boolean>;

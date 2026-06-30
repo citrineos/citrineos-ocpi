@@ -89,10 +89,9 @@ export class LocationMapper {
       address: location.address,
       city: location.city,
       postal_code: location.postalCode,
-      ...(
-        location.state != null && {
-          state: location.state,
-        }),
+      ...(location.state != null && {
+        state: location.state,
+      }),
       country: location.country,
       coordinates: {
         latitude: location.coordinates.coordinates[0].toString(),
@@ -324,10 +323,10 @@ export class EvseMapper {
       capabilities: station.capabilities
         ?.map((c) => EvseMapper.mapEvseCapabilities(c))
         .filter((c) => c !== null),
-        ...(evse.physicalReference != null &&
-          evse.physicalReference !== '' && {
-            physical_reference: evse.physicalReference,
-          }),
+      ...(evse.physicalReference != null &&
+        evse.physicalReference !== '' && {
+          physical_reference: evse.physicalReference,
+        }),
       coordinates: station.coordinates
         ? {
             longitude: station.coordinates.coordinates[0].toString(),
@@ -541,7 +540,6 @@ export class EvseMapper {
 
 export class ConnectorMapper {
   static fromGraphql(connector: ConnectorDto): ConnectorDTO | undefined {
-
     const logger = Container.get(Logger);
     const partialConnector: Partial<ConnectorDTO> = {
       id: connector.id?.toString(),
@@ -800,7 +798,7 @@ export class ConnectorMapper {
         return ConnectorType.TESLA_S;
       default:
         logger.warn(`Unknown ConnectorType ${connectorType}`);
-      return undefined;
+        return undefined;
     }
   }
 
