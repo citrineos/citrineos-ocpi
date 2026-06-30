@@ -15,6 +15,7 @@ export interface IDtoEventHandlerDefinition {
   eventId: string;
   method: Function;
   methodName: string;
+  isStatusChanged?: boolean;
 }
 
 /**

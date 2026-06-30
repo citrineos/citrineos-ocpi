@@ -64,6 +64,7 @@ export interface IDtoEvent<T extends IDtoPayload> {
    * The payload of the event
    */
   _payload: T;
+  isStatusChanged?: boolean;
 }
 
 /**
@@ -178,7 +179,7 @@ export interface IDtoEventSubscriber {
    */
   subscribe<T extends IDtoPayload>(
     eventId: string,
-    handleEvent: (event: { eventType: DtoEventType; payload: T }) => void,
+    handleEvent: (event: { eventType: DtoEventType; payload: T; isStatusChanged?: boolean }) => void,
     handleError: (error: any) => void,
     handleDisconnect?: () => void,
   ): Promise<boolean>;
@@ -228,6 +229,7 @@ export class DtoEvent<T extends IDtoPayload> implements IDtoEvent<T> {
   _eventId: string;
   _context: IDtoEventContext;
   _payload: T;
+  isStatusChanged?: boolean | undefined;
 
   /**
    * Constructs a new instance of DtoEvent.
@@ -243,12 +245,14 @@ export class DtoEvent<T extends IDtoPayload> implements IDtoEvent<T> {
     payload: T,
     eventType?: DtoEventType,
     objectType?: DtoEventObjectType,
+    isStatusChanged?: boolean,
   ) {
     this._eventId = eventId;
     this._context = context;
     this._payload = payload;
     this._context.eventType = eventType || context.eventType;
     this._context.objectType = objectType || context.objectType;
+    this.isStatusChanged = isStatusChanged;
   }
 
   /**

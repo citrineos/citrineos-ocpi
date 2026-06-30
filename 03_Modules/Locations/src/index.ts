@@ -32,6 +32,7 @@ import type {
 } from '@zetra/citrineos-base';
 import { Inject, Service } from 'typedi';
 import { logDbBroadcast } from '@citrineos/ocpi-base';
+import type { EvseStatus } from '@citrineos/ocpi-base/src/model/EvseStatus.js';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi.js';
 export type { ILocationsModuleApi } from './module/ILocationsModuleApi.js';
@@ -243,6 +244,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const connectorDto = event._payload;
     const tenant = connectorDto.tenant;
     if ((connectorDto as any).ocpiId != null) return;
+    console.log('CONNECTOR INSERT EVENT !!!', event, 'dto  !!! ', connectorDto);
+    if (event.isStatusChanged) {
+      console.log('STATUS CHANGED !!!', event.isStatusChanged);
+      return;
+    }
     const chargingStationResponse = await this.ocpiGraphqlClient.request<
       GetChargingStationByIdQueryResult,
       GetChargingStationByIdQueryVariables
@@ -282,6 +288,14 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     )
       return;
 
+      // const changedKeys = getConnectorChangedKeys(connectorDto);
+      // const statusChanged = changedKeys.includes('status');
+      // const statusOnly = changedKeys.length === 1 && changedKeys[0] === 'status';
+
+      // console.log('STATUS CHANGED !!!', statusChanged, 'STATUS ONLY !!!', statusOnly);
+      // console.log('CHANGED KEYS !!!', changedKeys);
+    
+
     // if the connector is not owned by a tenant partner, we can broadcast the update
     const tenant = connectorDto.tenant;
 
@@ -300,33 +314,31 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     connectorDto.chargingStation = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-      // const station = chargingStationResponse.ChargingStations[0] as ChargingStationDto;
-      // const statusChanged = connectorDto.status != null; 
-
-      // if (statusChanged) {
-      //   const evse = station.evses?.find((e) => e.id === connectorDto.evseId);
-      //   if (!evse) {
-      //     logDbBroadcast(this._logger, 'error', `EVSE ${connectorDto.evseId} not found`);
-      //     return;
-      //   }
-      //   const evseConnectors = (station.connectors ?? []).filter(
-      //     (c) => c.evseId === connectorDto.evseId,
-      //   );
-      //   const status = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
-      //   await this.locationsBroadcaster.broadcastPatchEvse(tenant!, {
-      //     id: evse.id,
-      //     stationId: connectorDto.stationId,
-      //     evseId: evse.evseId,
-      //     updatedAt: connectorDto.updatedAt,
-      //     connectors: evseConnectors, // needed for fromPartialGraphql status calc
-      //   }, station);
-      //   // status is not an OCPI connector field — don't also PATCH connector for status-only
-      //   return;
-      // }
-      // await this.locationsBroadcaster.broadcastPatchConnector(tenant!, connectorDto);
+      if (event.isStatusChanged) {
+        const chargingStationDto = connectorDto.chargingStation!;
+        const evseDto = chargingStationDto.evses?.find(
+          (e: EvseDto) => e.id === connectorDto.evseId,
+        );
+        if (!evseDto) {
+          this._logger.error(
+            `EVSE ${connectorDto.evseId} not found on station ${connectorDto.stationId}`,
+          );
+          return;
+        }
+        const evseConnectors =
+        chargingStationDto.connectors?.filter(
+          (c: ConnectorDto) => c.evseId === connectorDto.evseId,
+        ) ?? [];
+        const evseStatus = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
       
-
-    // TODO: filter out status updates, since they should only apply at the EVSE level
+        await this.locationsBroadcaster.broadcastPatchEvseStatus(
+          tenant!,
+          evseDto,
+          chargingStationDto,
+          evseStatus,
+        );
+        return;
+      }
 
     await this.locationsBroadcaster.broadcastPatchConnector(
       tenant!,

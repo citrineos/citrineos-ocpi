@@ -28,6 +28,7 @@ import {
   LocationMapper,
 } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import type { EvseStatus } from '../model/EvseStatus.js';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -109,6 +110,20 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
   }
+
+  async broadcastPatchEvseStatus(
+    tenant: TenantDto,
+    evseDto: EvseDto,
+    chargingStationDto: ChargingStationDto,
+    EvseStatus: EvseStatus,
+  ): Promise<void> {
+    const locationId = chargingStationDto?.locationId;
+    if (!locationId) throw new Error('Location ID missing in EVSE data');
+    console.log('BROADCAST PATCH EVSE STATUS !!!', evseDto, EvseStatus);
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
+    await this.broadcastEvse(tenant, { status: EvseStatus }, HttpMethod.Patch, path);
+  }
+
 
   private async broadcastEvse(
     tenant: TenantDto,
