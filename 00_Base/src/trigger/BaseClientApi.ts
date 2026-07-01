@@ -234,13 +234,13 @@ export abstract class BaseClientApi {
         );
       case HttpMethod.Put:
         this.logger.info(`Sending PUT request to ${url}`);
-        console.log('PUT BODY ', body);
+        this.logger.info(`PUT BODY ${JSON.stringify(body)}`);
         return this.replaceRaw<T>(url, body, options, restClient).then(
           (response) => this.handleResponse(schema, response),
         );
       case HttpMethod.Patch:
         this.logger.info(`Sending PATCH request to ${url}`);
-        console.log('PATCH BODY ', body);
+        this.logger.info(`PATCH BODY ${JSON.stringify(body)}`);
         return this.updateRaw<T>(url, body, options, restClient).then(
           (response) => this.handleResponse(schema, response),
         );

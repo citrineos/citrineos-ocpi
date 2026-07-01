@@ -36,6 +36,8 @@ export const GET_OUR_LOCATIONS_QUERY = gql`
       state
       timeZone
       updatedAt
+      operator
+      owner
       tenant: Tenant {
         name
         isUserTenant

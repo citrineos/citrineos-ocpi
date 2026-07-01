@@ -114,6 +114,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   async broadcastPatchEvseStatus(
     tenant: TenantDto,
     evseDto: EvseDto,
+    lastUpdated: Date,
     chargingStationDto: ChargingStationDto,
     EvseStatus: EvseStatus,
   ): Promise<void> {
@@ -122,7 +123,26 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(
       tenant,
-      { status: EvseStatus },
+      { status: EvseStatus,     last_updated: new Date(lastUpdated),
+      },
+      HttpMethod.Patch,
+      path,
+    );
+  }
+
+  async broadcastPatchConnectorTariffs(
+    tenant: TenantDto,
+    locationId: string | number,
+    stationId: string,
+    evseId: number,
+    connectorId: number,
+    tariffIds: string[],
+    lastUpdated: Date,
+  ): Promise<void> {
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}/${connectorId}`;
+    await this.broadcastConnector(
+      tenant,
+      { tariff_ids: tariffIds, last_updated: lastUpdated },
       HttpMethod.Patch,
       path,
     );
@@ -195,4 +215,5 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       this.logger.error(`broadcast${method}Connector failed for ${path}`, e);
     }
   }
+
 }

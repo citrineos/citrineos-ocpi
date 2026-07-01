@@ -31,6 +31,7 @@ export enum DtoEventObjectType {
   MeterValue = 'MeterValue',
   Tariff = 'Tariff',
   Authorization = 'Authorization',
+  ConnectorTariff = 'ConnectorTariff',
 }
 
 /**

@@ -656,6 +656,30 @@ export type MarkConnectorDeletedMutationResult = {
   } | null
 };
 
+export type GetOwnConnectorForTariffBroadcastQueryVariables = Exact<{
+  connectorId: Scalars['Int']['input'];
+}>;
+
+
+export type GetOwnConnectorForTariffBroadcastQueryResult = {
+  Connectors_by_pk?: {
+    id: number,
+    stationId: string,
+    evseId?: number | null,
+    updatedAt: any,
+    ChargingStation: {
+      locationId: number,
+      Location: {
+        id: number,
+        ownerTenantPartnerId?: number | null
+      }
+    },
+    tariffs: Array<{
+      tariffOcpiId: string
+    }>
+  } | null
+};
+
 export type UpsertEvseMutationVariables = Exact<{
   object: Evses_Insert_Input;
 }>;
@@ -877,6 +901,8 @@ export type GetOurLocationsQueryResult = {
     state?: string | null,
     timeZone?: string | null,
     updatedAt: any,
+    operator?: any | null,
+    owner?: any | null,
     tenant: {
       name: string,
       isUserTenant: boolean,

@@ -157,7 +157,6 @@ export class TariffsModuleApi
     tariffBody: PutTariffRequest,
     @Ctx() ctx?: any,
   ) {
-    console.log('PUT TARIFF ', tariffBody);
     const tenantId: number | undefined = ctx?.state?.tenantPartner?.tenant?.id;
     const tenantPartnerId: number | undefined = ctx?.state?.tenantPartner?.id;
     const tariffRequest: PutTariffRequest = {

@@ -112,6 +112,8 @@ export class LocationMapper {
         ? LocationMapper.mapLocationHours(location.openingHours)
         : undefined,
       last_updated: location.updatedAt!,
+      operator: location.operator as LocationDTO['operator'],
+      owner: location.owner as LocationDTO['owner'],
     };
   }
 
