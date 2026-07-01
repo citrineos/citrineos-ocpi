@@ -562,7 +562,7 @@ export class TariffsService {
     } = body;
 
     this.logger.info(
-      'PushTokensToPartner',
+      'PushTariffsToPartner',
       ourCountryCode,
       ourPartyId,
       partnerCountryCode,
@@ -587,11 +587,11 @@ export class TariffsService {
     const endpoints = tenantPartner.TenantPartners[0].partnerProfileOCPI!
       .endpoints as Endpoint[];
     const url = endpoints.find(
-      (e: Endpoint) => e.identifier === 'tokens_RECEIVER',
+      (e: Endpoint) => e.identifier === 'tariffs_RECEIVER',
     )?.url;
 
     if (!url) {
-      throw new Error('No Tokens URL found');
+      throw new Error('No Tariffs URL found');
     }
 
     const where: Tariffs_Bool_Exp = {
@@ -654,7 +654,7 @@ export class TariffsService {
           } else {
             pushFailed++;
             this.logger.error(
-              `pushPartnerTokens failed for tariff ${tariff.id}`,
+              `pushPartnerTariffs failed for tariff ${tariff.id}`,
               err,
             );
           }
@@ -665,7 +665,7 @@ export class TariffsService {
     }
 
     return {
-      module: 'tokens',
+      module: 'tariffs',
       processed: processed,
       pushSucceeded,
       pushFailed,
