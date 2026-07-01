@@ -237,24 +237,25 @@ export const MARK_CONNECTOR_DELETED_QUERY = gql`
   }
 `;
 
-
 export const GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY = gql`
-query GetOwnConnectorForTariffBroadcast($connectorId: Int!) {
-  Connectors_by_pk(id: $connectorId) {
-    id
-    stationId
-    evseId
-    updatedAt
-    ChargingStation {
-      locationId
-      Location {
-        id
-        ownerTenantPartnerId
+  query GetOwnConnectorForTariffBroadcast($connectorId: Int!) {
+    Connectors_by_pk(id: $connectorId) {
+      id
+      stationId
+      evseId
+      updatedAt
+      ChargingStation {
+        locationId
+        Location {
+          id
+          ownerTenantPartnerId
+        }
+      }
+      tariffs: ConnectorTariffs(
+        where: { tenantPartnerId: { _is_null: true } }
+      ) {
+        tariffOcpiId
       }
     }
-    tariffs: ConnectorTariffs(where: { tenantPartnerId: { _is_null: true } }) {
-      tariffOcpiId
-    }
   }
-}
 `;

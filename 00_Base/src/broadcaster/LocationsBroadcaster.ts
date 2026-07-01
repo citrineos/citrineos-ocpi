@@ -123,8 +123,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(
       tenant,
-      { status: EvseStatus,     last_updated: new Date(lastUpdated),
-      },
+      { status: EvseStatus, last_updated: new Date(lastUpdated) },
       HttpMethod.Patch,
       path,
     );
@@ -215,5 +214,4 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       this.logger.error(`broadcast${method}Connector failed for ${path}`, e);
     }
   }
-
 }

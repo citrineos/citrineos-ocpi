@@ -334,8 +334,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
 
-    
-
     // await this.locationsBroadcaster.broadcastPatchConnector(
     //   tenant!,
     //   connectorDto,
@@ -357,30 +355,34 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     DtoEventObjectType.ConnectorTariff,
     'ConnectorTariffNotification',
   )
-  async handleConnectorTariffChange(event: IDtoEvent<ConnectorTariffNotifyPayload>): Promise<void> {
+  async handleConnectorTariffChange(
+    event: IDtoEvent<ConnectorTariffNotifyPayload>,
+  ): Promise<void> {
     const payload = event._payload;
-  
+
     // Safety: own tariffs only
     if (payload.tenantPartnerId != null) return;
 
     const connector = await this.ocpiGraphqlClient.request<
-    GetOwnConnectorForTariffBroadcastQueryResult,
-    GetOwnConnectorForTariffBroadcastQueryVariables
-  >(GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY, { connectorId: payload.connectorId });
-  
+      GetOwnConnectorForTariffBroadcastQueryResult,
+      GetOwnConnectorForTariffBroadcastQueryVariables
+    >(GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY, {
+      connectorId: payload.connectorId,
+    });
+
     const row = connector.Connectors_by_pk;
     if (!row) return;
-  
+
     // Skip partner-owned locations
     if (row.ChargingStation?.Location?.ownerTenantPartnerId != null) return;
-  
+
     const tenant = payload.tenant;
     const locationId = row.ChargingStation!.locationId!;
     const tariffIds =
       row.tariffs?.map((t) => t.tariffOcpiId).filter(Boolean) ??
       payload.tariff_ids ??
       [];
-  
+
     await this.locationsBroadcaster.broadcastPatchConnectorTariffs(
       tenant!,
       locationId,
@@ -391,6 +393,4 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       new Date(payload.updatedAt ?? row.updatedAt),
     );
   }
-
-  
 }
