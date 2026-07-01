@@ -376,8 +376,7 @@ export class TokensService {
           `Unknown charging station ${realTimeAuthRequest.stationId} at location ${realTimeAuthRequest.locationId}`,
         );
       }
-      const chargingStation = chargingStationResponse
-        .ChargingStations[0] as ChargingStationDto;
+      const chargingStation = chargingStationResponse.ChargingStations[0];
       locationReferences = {
         location_id: realTimeAuthRequest.locationId.toString(),
         evse_uids: chargingStation.evses!.map((evse) =>

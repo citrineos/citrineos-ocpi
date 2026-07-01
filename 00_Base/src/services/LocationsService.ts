@@ -5,14 +5,6 @@ import type { ILogObj } from 'tslog';
 import { Logger } from 'tslog';
 import { Service } from 'typedi';
 import { LocationsClientApi } from '../trigger/LocationsClientApi.js';
-import { buildPaginatedParams } from '../trigger/param/PaginatedParams.js';
-import type {
-  PullPartnerModulesBody,
-  PullSummary,
-} from '../model/DTO/PullPartnerModulesBody.js';
-
-import type { TenantPartnerDto } from '@zetra/citrineos-base';
-import type { LocationDTO } from '../model/DTO/LocationDTO.js';
 import { LocationReceiverService } from './LocationReceiverService.js';
 import type {
   LocationResponse,
@@ -40,16 +32,15 @@ import type {
   GetConnectorByIdQueryVariables,
   GetEvseByIdQueryResult,
   GetEvseByIdQueryVariables,
-  GetLocationsQueryResult,
-  GetLocationsQueryVariables,
+  GetOurLocationsQueryResult,
+  GetOurLocationsQueryVariables,
   Locations_Bool_Exp,
 } from '../graphql/index.js';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
   GET_EVSE_BY_ID_QUERY,
   GET_LOCATION_BY_OCPID_ID_QUERY,
-  GET_LOCATIONS_QUERY,
-  MARK_LOCATION_REMOVED_QUERY,
+  GET_OUR_LOCATIONS_QUERY,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
 import {
@@ -98,7 +89,7 @@ export class LocationsService {
       },
       ownerTenantPartnerId: { _is_null: true },
       roamingPartnerId: { _is_null: true },
-      removed: { _eq: false },
+      deletedAt: { _is_null: true },
     };
     const dateFilters: any = {};
     if (paginatedParams?.dateFrom)
@@ -116,20 +107,22 @@ export class LocationsService {
     };
 
     const response = await this.ocpiGraphqlClient.request<
-      GetLocationsQueryResult,
-      GetLocationsQueryVariables
-    >(GET_LOCATIONS_QUERY, variables);
+      GetOurLocationsQueryResult,
+      GetOurLocationsQueryVariables
+    >(GET_OUR_LOCATIONS_QUERY, variables);
 
     // Map GraphQL DTOs to OCPI DTOs
     const locations =
       response.Locations.map((value) =>
-        LocationMapper.fromGraphql(value as LocationDto),
+        LocationMapper.fromGraphql(value as unknown as LocationDto),
       ) ?? [];
     const locationsTotal = locations.length;
 
+    const total = response.Locations_aggregate?.aggregate?.count ?? 0;
+
     return buildOcpiPaginatedResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
-      locationsTotal,
+      total,
       limit,
       offset,
       locations,

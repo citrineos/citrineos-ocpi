@@ -35,7 +35,7 @@ export type Authorizations_Set_Input = {
 export type Locations_Bool_Exp = {
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
   roamingPartnerId?: InputMaybe<Int_Comparison_Exp>;
-  removed?: InputMaybe<Boolean_Comparison_Exp>;
+  deletedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
 };
@@ -78,6 +78,7 @@ export type Authorizations_Paginated_Bool_Exp = {
 export type Timestamptz_Comparison_Exp = {
   _gte?: InputMaybe<Scalars['timestamptz']['input']>;
   _lte?: InputMaybe<Scalars['timestamptz']['input']>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
 };
 export type Tenants_Bool_Exp = {
   countryCode?: InputMaybe<String_Comparison_Exp>;
@@ -655,6 +656,30 @@ export type MarkConnectorDeletedMutationResult = {
   } | null
 };
 
+export type GetOwnConnectorForTariffBroadcastQueryVariables = Exact<{
+  connectorId: Scalars['Int']['input'];
+}>;
+
+
+export type GetOwnConnectorForTariffBroadcastQueryResult = {
+  Connectors_by_pk?: {
+    id: number,
+    stationId: string,
+    evseId?: number | null,
+    updatedAt: any,
+    ChargingStation: {
+      locationId: number,
+      Location: {
+        id: number,
+        ownerTenantPartnerId?: number | null
+      }
+    },
+    tariffs: Array<{
+      tariffOcpiId: string
+    }>
+  } | null
+};
+
 export type UpsertEvseMutationVariables = Exact<{
   object: Evses_Insert_Input;
 }>;
@@ -847,14 +872,113 @@ export type GetEvseByOcpiIdPartnerAndRoamingPartnerIdQueryResult = {
   }>
 };
 
-export type GetLocationsQueryVariables = Exact<{
+export type GetOurLocationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   where: Locations_Bool_Exp;
 }>;
 
 
-export type GetLocationsQueryResult = {
+export type GetOurLocationsQueryResult = {
+  Locations_aggregate: {
+    aggregate?: {
+      count: number
+    } | null
+  },
+  Locations: Array<{
+    id: number,
+    name?: string | null,
+    address?: string | null,
+    city?: string | null,
+    coordinates?: any | null,
+    country?: string | null,
+    createdAt: any,
+    facilities?: any | null,
+    openingHours?: any | null,
+    parkingType?: string | null,
+    postalCode?: string | null,
+    publishUpstream?: boolean | null,
+    state?: string | null,
+    timeZone?: string | null,
+    updatedAt: any,
+    operator?: any | null,
+    owner?: any | null,
+    tenant: {
+      name: string,
+      isUserTenant: boolean,
+      partyId?: string | null,
+      countryCode?: string | null
+    },
+    chargingPool: Array<{
+      id: string,
+      isOnline?: boolean | null,
+      protocol?: string | null,
+      capabilities?: any | null,
+      chargePointVendor?: string | null,
+      chargePointModel?: string | null,
+      chargePointSerialNumber?: string | null,
+      chargeBoxSerialNumber?: string | null,
+      coordinates?: any | null,
+      firmwareVersion?: string | null,
+      floorLevel?: string | null,
+      iccid?: string | null,
+      imsi?: string | null,
+      meterType?: string | null,
+      meterSerialNumber?: string | null,
+      parkingRestrictions?: any | null,
+      locationId: number,
+      createdAt: any,
+      updatedAt: any,
+      evses: Array<{
+        id: number,
+        stationId?: string | null,
+        evseTypeId?: number | null,
+        evseId?: string | null,
+        physicalReference?: string | null,
+        removed?: boolean | null,
+        createdAt: any,
+        updatedAt: any,
+        connectors: Array<{
+          id: number,
+          stationId: string,
+          evseId?: number | null,
+          connectorId?: number | null,
+          evseTypeConnectorId?: number | null,
+          format?: string | null,
+          maximumAmperage?: number | null,
+          maximumPowerWatts?: number | null,
+          maximumVoltage?: number | null,
+          powerType?: string | null,
+          termsAndConditionsUrl?: string | null,
+          type?: string | null,
+          status?: string | null,
+          errorCode?: string | null,
+          timestamp?: any | null,
+          info?: string | null,
+          vendorId?: string | null,
+          vendorErrorCode?: string | null,
+          createdAt: any,
+          updatedAt: any,
+          tariffs: Array<{
+            tariffOcpiId: string,
+            tariffId: number,
+            Tariff: {
+              ocpiTariffId?: string | null,
+              id: number
+            }
+          }>
+        }>
+      }>
+    }>
+  }>
+};
+
+export type GetOurLocationByIdQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type GetOurLocationByIdQueryResult = {
   Locations: Array<{
     id: number,
     name?: string | null,
@@ -926,89 +1050,15 @@ export type GetLocationsQueryResult = {
           vendorId?: string | null,
           vendorErrorCode?: string | null,
           createdAt: any,
-          updatedAt: any
-        }>
-      }>
-    }>
-  }>
-};
-
-export type GetLocationByIdQueryVariables = Exact<{
-  id: Scalars['Int']['input'];
-}>;
-
-
-export type GetLocationByIdQueryResult = {
-  Locations: Array<{
-    id: number,
-    name?: string | null,
-    address?: string | null,
-    city?: string | null,
-    coordinates?: any | null,
-    country?: string | null,
-    createdAt: any,
-    facilities?: any | null,
-    openingHours?: any | null,
-    parkingType?: string | null,
-    postalCode?: string | null,
-    publishUpstream?: boolean | null,
-    state?: string | null,
-    timeZone?: string | null,
-    updatedAt: any,
-    tenant: {
-      partyId?: string | null,
-      countryCode?: string | null
-    },
-    chargingPool: Array<{
-      id: string,
-      isOnline?: boolean | null,
-      protocol?: string | null,
-      capabilities?: any | null,
-      chargePointVendor?: string | null,
-      chargePointModel?: string | null,
-      chargePointSerialNumber?: string | null,
-      chargeBoxSerialNumber?: string | null,
-      coordinates?: any | null,
-      firmwareVersion?: string | null,
-      floorLevel?: string | null,
-      iccid?: string | null,
-      imsi?: string | null,
-      meterType?: string | null,
-      meterSerialNumber?: string | null,
-      parkingRestrictions?: any | null,
-      locationId: number,
-      createdAt: any,
-      updatedAt: any,
-      evses: Array<{
-        id: number,
-        stationId?: string | null,
-        evseTypeId?: number | null,
-        evseId?: string | null,
-        physicalReference?: string | null,
-        removed?: boolean | null,
-        createdAt: any,
-        updatedAt: any,
-        connectors: Array<{
-          id: number,
-          stationId: string,
-          evseId?: number | null,
-          connectorId?: number | null,
-          evseTypeConnectorId?: number | null,
-          format?: string | null,
-          maximumAmperage?: number | null,
-          maximumPowerWatts?: number | null,
-          maximumVoltage?: number | null,
-          powerType?: string | null,
-          termsAndConditionsUrl?: string | null,
-          type?: string | null,
-          status?: string | null,
-          errorCode?: string | null,
-          timestamp?: any | null,
-          info?: string | null,
-          vendorId?: string | null,
-          vendorErrorCode?: string | null,
-          createdAt: any,
-          updatedAt: any
+          updatedAt: any,
+          tariffs: Array<{
+            tariffOcpiId: string,
+            tariffId: number,
+            Tariff: {
+              ocpiTariffId?: string | null,
+              id: number
+            }
+          }>
         }>
       }>
     }>
@@ -1829,6 +1879,40 @@ export type GetTariffByKeyQueryResult = {
   }>
 };
 
+export type GetTariffForBroadcastQueryVariables = Exact<{
+  id: Scalars['Int']['input'];
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+}>;
+
+
+export type GetTariffForBroadcastQueryResult = {
+  Tariffs: Array<{
+    id: number,
+    ocpiTariffId?: string | null,
+    currency: any,
+    updatedAt: any,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    tariffAltText?: string | null,
+    tenantPartnerId?: number | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    }
+  }>
+};
+
 export type GetTariffsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -1843,15 +1927,21 @@ export type GetTariffsQueryResult = {
     currency: any,
     id: number,
     ocpiTariffId?: string | null,
-    paymentFee?: any | null,
-    pricePerKwh: any,
-    pricePerMin?: any | null,
-    pricePerSession?: any | null,
-    stationId?: string | null,
-    taxRate?: any | null,
     tariffAltText?: string | null,
     tenantPartnerId?: number | null,
     updatedAt: any,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
     tenant: {
       countryCode?: string | null,
       partyId?: string | null
@@ -2364,6 +2454,47 @@ export type UpdatePartnerTariffMutationResult = {
       restrictions?: any | null
     }>
   } | null
+};
+
+export type GetTariffsPaginatedQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  where: Tariffs_Bool_Exp;
+}>;
+
+
+export type GetTariffsPaginatedQueryResult = {
+  Tariffs: Array<{
+    id: number,
+    createdAt: any,
+    updatedAt: any,
+    authorizationAmount?: any | null,
+    currency: any,
+    ocpiTariffId?: string | null,
+    tariffAltText?: string | null,
+    tenantPartnerId?: number | null,
+    startDateTime?: any | null,
+    endDateTime?: any | null,
+    tariffType?: string | null,
+    tariffAltUrl?: string | null,
+    minPrice?: any | null,
+    maxPrice?: any | null,
+    energyMix?: any | null,
+    tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    }
+  }>
 };
 
 export type UpdateTenantPartnerProfileMutationVariables = Exact<{

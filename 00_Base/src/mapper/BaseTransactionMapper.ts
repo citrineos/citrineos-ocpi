@@ -19,14 +19,14 @@ import { LocationsService } from '../services/LocationsService.js';
 import type {
   GetAuthorizationByIdQueryResult,
   GetAuthorizationByIdQueryVariables,
-  GetLocationByIdQueryResult,
-  GetLocationByIdQueryVariables,
+  GetOurLocationByIdQueryResult,
+  GetOurLocationByIdQueryVariables,
   GetTariffByKeyQueryResult,
   GetTariffByKeyQueryVariables,
 } from '../graphql/index.js';
 import {
   GET_AUTHORIZATION_BY_ID,
-  GET_LOCATION_BY_ID_QUERY,
+  GET_OUR_LOCATION_BY_ID_QUERY,
   GET_TARIFF_BY_KEY_QUERY,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
@@ -48,10 +48,10 @@ export abstract class BaseTransactionMapper {
     for (const transaction of transactions) {
       if (!transaction.location && transaction.locationId) {
         const result = await this.ocpiGraphqlClient.request<
-          GetLocationByIdQueryResult,
-          GetLocationByIdQueryVariables
-        >(GET_LOCATION_BY_ID_QUERY, { id: transaction.locationId });
-        transaction.location = result.Locations[0] as LocationDto;
+          GetOurLocationByIdQueryResult,
+          GetOurLocationByIdQueryVariables
+        >(GET_OUR_LOCATION_BY_ID_QUERY, { id: transaction.locationId });
+        transaction.location = result.Locations[0] as unknown as LocationDto;
       }
       const location = transaction.location;
       if (!location) {

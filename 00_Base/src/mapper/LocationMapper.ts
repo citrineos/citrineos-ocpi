@@ -89,11 +89,13 @@ export class LocationMapper {
       address: location.address,
       city: location.city,
       postal_code: location.postalCode,
-      state: location.state,
+      ...(location.state != null && {
+        state: location.state,
+      }),
       country: location.country,
       coordinates: {
-        longitude: location.coordinates.coordinates[0].toString(),
-        latitude: location.coordinates.coordinates[1].toString(),
+        latitude: location.coordinates.coordinates[0].toString(),
+        longitude: location.coordinates.coordinates[1].toString(),
       },
       time_zone: location.timeZone,
       evses: location.chargingPool
@@ -110,6 +112,8 @@ export class LocationMapper {
         ? LocationMapper.mapLocationHours(location.openingHours)
         : undefined,
       last_updated: location.updatedAt!,
+      operator: location.operator as LocationDTO['operator'],
+      owner: location.owner as LocationDTO['owner'],
     };
   }
 
@@ -321,7 +325,10 @@ export class EvseMapper {
       capabilities: station.capabilities
         ?.map((c) => EvseMapper.mapEvseCapabilities(c))
         .filter((c) => c !== null),
-      physical_reference: evse.physicalReference,
+      ...(evse.physicalReference != null &&
+        evse.physicalReference !== '' && {
+          physical_reference: evse.physicalReference,
+        }),
       coordinates: station.coordinates
         ? {
             longitude: station.coordinates.coordinates[0].toString(),
@@ -332,7 +339,9 @@ export class EvseMapper {
         ?.map((r) => EvseMapper.mapEvseParkingRestrictions(r))
         .filter((r) => r !== null),
       connectors: connectors || [],
-      floor_level: station.floorLevel,
+      ...(station.floorLevel != null && {
+        floor_level: station.floorLevel,
+      }),
       last_updated: evse.updatedAt!,
     };
   }
@@ -542,7 +551,10 @@ export class ConnectorMapper {
       max_voltage: connector.maximumVoltage || undefined,
       max_amperage: connector.maximumAmperage || undefined,
       max_electric_power: connector.maximumPowerWatts || undefined,
-      tariff_ids: connector.tariffs?.map((t) => t.id!.toString()),
+      tariff_ids: connector.tariffs?.map(
+        (t: any) =>
+          t.tariffOcpiId ?? t.Tariff?.ocpiTariffId ?? t.tariffId?.toString(),
+      ),
       terms_and_conditions: connector.termsAndConditionsUrl,
       last_updated: connector.updatedAt!,
     };
@@ -664,6 +676,128 @@ export class ConnectorMapper {
         return ConnectorType.TESLA_R;
       case ConnectorTypeEnum.TeslaS:
         return ConnectorType.TESLA_S;
+      //both sides
+      // OCPI values already stored in DB → return ConnectorType for API
+      case 'CHADEMO':
+      case ConnectorType.CHADEMO:
+        return ConnectorType.CHADEMO;
+      case 'CHAOJI':
+      case ConnectorType.CHAOJI:
+        return ConnectorType.CHAOJI;
+      case 'DOMESTIC_A':
+      case ConnectorType.DOMESTIC_A:
+        return ConnectorType.DOMESTIC_A;
+      case 'DOMESTIC_B':
+      case ConnectorType.DOMESTIC_B:
+        return ConnectorType.DOMESTIC_B;
+      case 'DOMESTIC_C':
+      case ConnectorType.DOMESTIC_C:
+        return ConnectorType.DOMESTIC_C;
+      case 'DOMESTIC_D':
+      case ConnectorType.DOMESTIC_D:
+        return ConnectorType.DOMESTIC_D;
+      case 'DOMESTIC_E':
+      case ConnectorType.DOMESTIC_E:
+        return ConnectorType.DOMESTIC_E;
+      case 'DOMESTIC_F':
+      case ConnectorType.DOMESTIC_F:
+        return ConnectorType.DOMESTIC_F;
+      case 'DOMESTIC_G':
+      case ConnectorType.DOMESTIC_G:
+        return ConnectorType.DOMESTIC_G;
+      case 'DOMESTIC_H':
+      case ConnectorType.DOMESTIC_H:
+        return ConnectorType.DOMESTIC_H;
+      case 'DOMESTIC_I':
+      case ConnectorType.DOMESTIC_I:
+        return ConnectorType.DOMESTIC_I;
+      case 'DOMESTIC_J':
+      case ConnectorType.DOMESTIC_J:
+        return ConnectorType.DOMESTIC_J;
+      case 'DOMESTIC_K':
+      case ConnectorType.DOMESTIC_K:
+        return ConnectorType.DOMESTIC_K;
+      case 'DOMESTIC_L':
+      case ConnectorType.DOMESTIC_L:
+        return ConnectorType.DOMESTIC_L;
+      case 'DOMESTIC_M':
+      case ConnectorType.DOMESTIC_M:
+        return ConnectorType.DOMESTIC_M;
+      case 'DOMESTIC_N':
+      case ConnectorType.DOMESTIC_N:
+        return ConnectorType.DOMESTIC_N;
+      case 'DOMESTIC_O':
+      case ConnectorType.DOMESTIC_O:
+        return ConnectorType.DOMESTIC_O;
+      case 'GBT_AC':
+      case ConnectorType.GBT_AC:
+        return ConnectorType.GBT_AC;
+      case 'GBT_DC':
+      case ConnectorType.GBT_DC:
+        return ConnectorType.GBT_DC;
+      case 'IEC_60309_2_single_16':
+      case ConnectorType.IEC_60309_2_single_16:
+        return ConnectorType.IEC_60309_2_single_16;
+      case 'IEC_60309_2_three_16':
+      case ConnectorType.IEC_60309_2_three_16:
+        return ConnectorType.IEC_60309_2_three_16;
+      case 'IEC_60309_2_three_32':
+      case ConnectorType.IEC_60309_2_three_32:
+        return ConnectorType.IEC_60309_2_three_32;
+      case 'IEC_60309_2_three_64':
+      case ConnectorType.IEC_60309_2_three_64:
+        return ConnectorType.IEC_60309_2_three_64;
+      case 'IEC_62196_T1':
+      case ConnectorType.IEC_62196_T1:
+        return ConnectorType.IEC_62196_T1;
+      case 'IEC_62196_T1_COMBO':
+      case ConnectorType.IEC_62196_T1_COMBO:
+        return ConnectorType.IEC_62196_T1_COMBO;
+      case 'IEC_62196_T2':
+      case ConnectorType.IEC_62196_T2:
+        return ConnectorType.IEC_62196_T2;
+      case 'IEC_62196_T2_COMBO':
+      case ConnectorType.IEC_62196_T2_COMBO:
+        return ConnectorType.IEC_62196_T2_COMBO;
+      case 'IEC_62196_T3A':
+      case ConnectorType.IEC_62196_T3A:
+        return ConnectorType.IEC_62196_T3A;
+      case 'IEC_62196_T3C':
+      case ConnectorType.IEC_62196_T3C:
+        return ConnectorType.IEC_62196_T3C;
+      case 'NEMA_5_20':
+      case ConnectorType.NEMA_5_20:
+        return ConnectorType.NEMA_5_20;
+      case 'NEMA_6_30':
+      case ConnectorType.NEMA_6_30:
+        return ConnectorType.NEMA_6_30;
+      case 'NEMA_6_50':
+      case ConnectorType.NEMA_6_50:
+        return ConnectorType.NEMA_6_50;
+      case 'NEMA_10_30':
+      case ConnectorType.NEMA_10_30:
+        return ConnectorType.NEMA_10_30;
+      case 'NEMA_10_50':
+      case ConnectorType.NEMA_10_50:
+        return ConnectorType.NEMA_10_50;
+      case 'NEMA_14_30':
+      case ConnectorType.NEMA_14_30:
+        return ConnectorType.NEMA_14_30;
+      case 'NEMA_14_50':
+      case ConnectorType.NEMA_14_50:
+        return ConnectorType.NEMA_14_50;
+      case 'PANTOGRAPH_BOTTOM_UP':
+      case ConnectorType.PANTOGRAPH_BOTTOM_UP:
+        return ConnectorType.PANTOGRAPH_BOTTOM_UP;
+      case 'PANTOGRAPH_TOP_DOWN':
+      case ConnectorType.PANTOGRAPH_TOP_DOWN:
+        return ConnectorType.PANTOGRAPH_TOP_DOWN;
+      case 'TESLA_R':
+      case ConnectorType.TESLA_R:
+        return ConnectorType.TESLA_R;
+      case 'TESLA_S':
+      case ConnectorType.TESLA_S:
+        return ConnectorType.TESLA_S;
       default:
         logger.warn(`Unknown ConnectorType ${connectorType}`);
         return undefined;
@@ -675,10 +809,16 @@ export class ConnectorMapper {
   ): ConnectorFormat | undefined {
     const logger = Container.get(Logger);
     switch (connectorFormat) {
-      case ConnectorFormatEnum.Cable:
-        return ConnectorFormat.CABLE;
+      case 'Socket':
+      case 'SOCKET':
       case ConnectorFormatEnum.Socket:
+      case ConnectorFormatEnum.SOCKET:
         return ConnectorFormat.SOCKET;
+      case 'Cable':
+      case 'CABLE':
+      case ConnectorFormatEnum.Cable:
+      case ConnectorFormatEnum.CABLE:
+        return ConnectorFormat.CABLE;
       default:
         logger.warn(`Unknown Format ${connectorFormat}`);
         return undefined;

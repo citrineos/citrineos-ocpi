@@ -4,6 +4,8 @@
 import type {
   GetChargingStationByIdQueryResult,
   GetChargingStationByIdQueryVariables,
+  GetOwnConnectorForTariffBroadcastQueryVariables,
+  GetOwnConnectorForTariffBroadcastQueryResult,
   IDtoEvent,
   OcpiConfig,
 } from '@citrineos/ocpi-base';
@@ -12,7 +14,9 @@ import {
   AsDtoEventHandler,
   DtoEventObjectType,
   DtoEventType,
+  EvseMapper,
   GET_CHARGING_STATION_BY_ID_QUERY,
+  GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY,
   LocationsBroadcaster,
   OcpiConfigToken,
   OcpiGraphqlClient,
@@ -31,6 +35,7 @@ import type {
 } from '@zetra/citrineos-base';
 import { Inject, Service } from 'typedi';
 import { logDbBroadcast } from '@citrineos/ocpi-base';
+import type { EvseStatus } from '@citrineos/ocpi-base/src/model/EvseStatus.js';
 
 export { LocationsModuleApi } from './module/LocationsModuleApi.js';
 export type { ILocationsModuleApi } from './module/ILocationsModuleApi.js';
@@ -52,6 +57,14 @@ type ConnectorNotifyPayload = Partial<ConnectorDto> & {
     countryCode?: string;
   };
   ocpiId?: string | null;
+};
+type ConnectorTariffNotifyPayload = {
+  connectorId: number;
+  tenantId: number;
+  tenantPartnerId?: number | null;
+  tariff_ids?: string[];
+  updatedAt: string;
+  tenant?: TenantDto;
 };
 @Service()
 export class LocationsModule extends AbstractDtoModule implements OcpiModule {
@@ -87,6 +100,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleLocationInsert(event: IDtoEvent<LocationDto>): Promise<void> {
     logDbBroadcast(this._logger, 'debug', 'Handling Location Insert:', event);
     const locationDto = event._payload;
+
     const tenant = locationDto.tenant;
     // if the location is owned by a tenant partner, don't broadcast
     if ((locationDto as any).ownerTenantPartnerId != null) {
@@ -99,7 +113,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       return;
     }
 
-    await this.locationsBroadcaster.broadcastPutLocation(tenant!, locationDto);
+    // await this.locationsBroadcaster.broadcastPutLocation(tenant!, locationDto);
   }
 
   @AsDtoEventHandler(
@@ -134,10 +148,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     }
 
     // if the location is not owned by a tenant partner, we can broadcast the update
-    await this.locationsBroadcaster.broadcastPatchLocation(
-      tenant!,
-      locationDto,
-    );
+    // await this.locationsBroadcaster.broadcastPatchLocation(
+    //   tenant!,
+    //   locationDto,
+    // );
   }
 
   @AsDtoEventHandler(
@@ -181,11 +195,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const chargingStationDto = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPutEvse(
-      tenant!,
-      evseDto,
-      chargingStationDto,
-    );
+    // await this.locationsBroadcaster.broadcastPutEvse(
+    //   tenant!,
+    //   evseDto,
+    //   chargingStationDto,
+    // );
   }
 
   @AsDtoEventHandler(
@@ -222,11 +236,11 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     const chargingStationDto = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPatchEvse(
-      tenant!,
-      evseDto,
-      chargingStationDto,
-    );
+    // await this.locationsBroadcaster.broadcastPatchEvse(
+    //   tenant!,
+    //   evseDto,
+    //   chargingStationDto,
+    // );
   }
 
   @AsDtoEventHandler(
@@ -252,10 +266,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     connectorDto.chargingStation = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-    await this.locationsBroadcaster.broadcastPutConnector(
-      tenant!,
-      connectorDto,
-    );
+    // await this.locationsBroadcaster.broadcastPutConnector(
+    //   tenant!,
+    //   connectorDto,
+    // );
   }
 
   @AsDtoEventHandler(
@@ -275,7 +289,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       event._payload?.ownerTenantPartner?.id != null
     )
       return;
-
     // if the connector is not owned by a tenant partner, we can broadcast the update
     const tenant = connectorDto.tenant;
 
@@ -294,11 +307,90 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     connectorDto.chargingStation = chargingStationResponse
       .ChargingStations[0] as ChargingStationDto;
 
-    // TODO: filter out status updates, since they should only apply at the EVSE level
+    if (event.isStatusChanged) {
+      const chargingStationDto = connectorDto.chargingStation!;
+      const evseDto = chargingStationDto.evses?.find(
+        (e: EvseDto) => e.id === connectorDto.evseId,
+      );
+      if (!evseDto) {
+        this._logger.error(
+          `EVSE ${connectorDto.evseId} not found on station ${connectorDto.stationId}`,
+        );
+        return;
+      }
+      const evseConnectors =
+        chargingStationDto.connectors?.filter(
+          (c: ConnectorDto) => c.evseId === connectorDto.evseId,
+        ) ?? [];
+      const evseStatus = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
 
-    await this.locationsBroadcaster.broadcastPatchConnector(
+      await this.locationsBroadcaster.broadcastPatchEvseStatus(
+        tenant!,
+        evseDto,
+        connectorDto.updatedAt!,
+        chargingStationDto,
+        evseStatus,
+      );
+      return;
+    }
+
+    // await this.locationsBroadcaster.broadcastPatchConnector(
+    //   tenant!,
+    //   connectorDto,
+    // );
+  }
+
+  @AsDtoEventHandler(
+    DtoEventType.INSERT,
+    DtoEventObjectType.ConnectorTariff,
+    'ConnectorTariffNotification',
+  )
+  @AsDtoEventHandler(
+    DtoEventType.UPDATE,
+    DtoEventObjectType.ConnectorTariff,
+    'ConnectorTariffNotification',
+  )
+  @AsDtoEventHandler(
+    DtoEventType.DELETE,
+    DtoEventObjectType.ConnectorTariff,
+    'ConnectorTariffNotification',
+  )
+  async handleConnectorTariffChange(
+    event: IDtoEvent<ConnectorTariffNotifyPayload>,
+  ): Promise<void> {
+    const payload = event._payload;
+
+    // Safety: own tariffs only
+    if (payload.tenantPartnerId != null) return;
+
+    const connector = await this.ocpiGraphqlClient.request<
+      GetOwnConnectorForTariffBroadcastQueryResult,
+      GetOwnConnectorForTariffBroadcastQueryVariables
+    >(GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY, {
+      connectorId: payload.connectorId,
+    });
+
+    const row = connector.Connectors_by_pk;
+    if (!row) return;
+
+    // Skip partner-owned locations
+    if (row.ChargingStation?.Location?.ownerTenantPartnerId != null) return;
+
+    const tenant = payload.tenant;
+    const locationId = row.ChargingStation!.locationId!;
+    const tariffIds =
+      row.tariffs?.map((t) => t.tariffOcpiId).filter(Boolean) ??
+      payload.tariff_ids ??
+      [];
+
+    await this.locationsBroadcaster.broadcastPatchConnectorTariffs(
       tenant!,
-      connectorDto,
+      locationId,
+      row.stationId!,
+      row.evseId!,
+      row.id!,
+      tariffIds,
+      new Date(payload.updatedAt ?? row.updatedAt),
     );
   }
 }

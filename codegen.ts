@@ -62,7 +62,7 @@ export type Authorizations_Set_Input = {
 export type Locations_Bool_Exp = {
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
   roamingPartnerId?: InputMaybe<Int_Comparison_Exp>;
-  removed?: InputMaybe<Boolean_Comparison_Exp>;
+  deletedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
 };
@@ -105,6 +105,7 @@ export type Authorizations_Paginated_Bool_Exp = {
 export type Timestamptz_Comparison_Exp = {
   _gte?: InputMaybe<Scalars['timestamptz']['input']>;
   _lte?: InputMaybe<Scalars['timestamptz']['input']>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
 };
 export type Tenants_Bool_Exp = {
   countryCode?: InputMaybe<String_Comparison_Exp>;

@@ -4,14 +4,116 @@
 
 import { gql } from 'graphql-request';
 
-export const GET_LOCATIONS_QUERY = gql`
-  query GetLocations($limit: Int, $offset: Int, $where: Locations_bool_exp!) {
+export const GET_OUR_LOCATIONS_QUERY = gql`
+  query GetOurLocations(
+    $limit: Int
+    $offset: Int
+    $where: Locations_bool_exp!
+  ) {
+    Locations_aggregate(where: $where) {
+      aggregate {
+        count
+      }
+    }
     Locations(
       offset: $offset
       limit: $limit
       order_by: { createdAt: asc }
       where: $where
     ) {
+      id
+      name
+      address
+      city
+      coordinates
+      country
+      createdAt
+      facilities
+      openingHours
+      parkingType
+      postalCode
+      publishUpstream
+      state
+      timeZone
+      updatedAt
+      operator
+      owner
+      tenant: Tenant {
+        name
+        isUserTenant
+        partyId
+        countryCode
+      }
+      chargingPool: ChargingStations {
+        id
+        isOnline
+        protocol
+        capabilities
+        chargePointVendor
+        chargePointModel
+        chargePointSerialNumber
+        chargeBoxSerialNumber
+        coordinates
+        firmwareVersion
+        floorLevel
+        iccid
+        imsi
+        meterType
+        meterSerialNumber
+        parkingRestrictions
+        locationId
+        createdAt
+        updatedAt
+        evses: Evses {
+          id
+          stationId
+          evseTypeId
+          evseId
+          physicalReference
+          removed
+          createdAt
+          updatedAt
+          connectors: Connectors {
+            id
+            stationId
+            evseId
+            connectorId
+            evseTypeConnectorId
+            format
+            maximumAmperage
+            maximumPowerWatts
+            maximumVoltage
+            powerType
+            termsAndConditionsUrl
+            type
+            status
+            errorCode
+            timestamp
+            info
+            vendorId
+            vendorErrorCode
+            createdAt
+            updatedAt
+            tariffs: ConnectorTariffs(
+              where: { tenantPartnerId: { _is_null: true } }
+            ) {
+              tariffOcpiId
+              tariffId
+              Tariff {
+                ocpiTariffId
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_OUR_LOCATION_BY_ID_QUERY = gql`
+  query GetOurLocationById($id: Int!) {
+    Locations(where: { id: { _eq: $id } }) {
       id
       name
       address
@@ -83,85 +185,16 @@ export const GET_LOCATIONS_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
-          }
-        }
-      }
-    }
-  }
-`;
-
-export const GET_LOCATION_BY_ID_QUERY = gql`
-  query GetLocationById($id: Int!) {
-    Locations(where: { id: { _eq: $id } }) {
-      id
-      name
-      address
-      city
-      coordinates
-      country
-      createdAt
-      facilities
-      openingHours
-      parkingType
-      postalCode
-      publishUpstream
-      state
-      timeZone
-      updatedAt
-      tenant: Tenant {
-        partyId
-        countryCode
-      }
-      chargingPool: ChargingStations {
-        id
-        isOnline
-        protocol
-        capabilities
-        chargePointVendor
-        chargePointModel
-        chargePointSerialNumber
-        chargeBoxSerialNumber
-        coordinates
-        firmwareVersion
-        floorLevel
-        iccid
-        imsi
-        meterType
-        meterSerialNumber
-        parkingRestrictions
-        locationId
-        createdAt
-        updatedAt
-        evses: Evses {
-          id
-          stationId
-          evseTypeId
-          evseId
-          physicalReference
-          removed
-          createdAt
-          updatedAt
-          connectors: Connectors {
-            id
-            stationId
-            evseId
-            connectorId
-            evseTypeConnectorId
-            format
-            maximumAmperage
-            maximumPowerWatts
-            maximumVoltage
-            powerType
-            termsAndConditionsUrl
-            type
-            status
-            errorCode
-            timestamp
-            info
-            vendorId
-            vendorErrorCode
-            createdAt
-            updatedAt
+            tariffs: ConnectorTariffs(
+              where: { tenantPartnerId: { _is_null: true } }
+            ) {
+              tariffOcpiId
+              tariffId
+              Tariff {
+                ocpiTariffId
+                id
+              }
+            }
           }
         }
       }
@@ -242,7 +275,7 @@ export const GET_LOCATION_BY_OCPID_ID_QUERY = gql`
             vendorErrorCode
             createdAt
             updatedAt
-            tariffs: ConnectorTariffsOcpiPartner {
+            tariffs: ConnectorTariffs {
               id
               tariffOcpiId
               connectorOcpiId
@@ -433,7 +466,7 @@ export const GET_LOCATION_BY_OCPI_ID_AND_PARTNER_ID_QUERY = gql`
             createdAt
             updatedAt
             deletedAt
-            tariffs: ConnectorTariffsOcpiPartner {
+            tariffs: ConnectorTariffs {
               id
               tariffOcpiId
               connectorOcpiId
@@ -553,7 +586,7 @@ export const GET_LOCATION_BY_OCPI_ID_PARTNER_AND_ROAMING_PARTNER_ID_QUERY = gql`
             createdAt
             updatedAt
             deletedAt
-            tariffs: ConnectorTariffsOcpiPartner {
+            tariffs: ConnectorTariffs {
               id
               tariffOcpiId
               connectorOcpiId

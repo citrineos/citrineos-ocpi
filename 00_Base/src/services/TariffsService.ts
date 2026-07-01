@@ -10,11 +10,20 @@ import type { PutTariffRequest } from '../model/DTO/tariffs/PutTariffRequest.js'
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../model/PaginatedResponse.js';
 import { OcpiHeaders } from '../model/OcpiHeaders.js';
 import { PaginatedParams } from '../controllers/param/PaginatedParams.js';
-import type { TenantPartnerDto, Endpoint } from '@zetra/citrineos-base';
+import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import type {
+  TenantPartnerDto,
+  Endpoint,
+  AuthorizationDto,
+} from '@zetra/citrineos-base';
 import { buildPaginatedParams } from '../trigger/param/PaginatedParams.js';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { z } from 'zod';
 import { findThenUpsert, getRoamingPartner } from '../util/helpers.js';
+import type {
+  PushPartnerModulesBody,
+  PushSummary,
+} from '../model/DTO/PushPartnerModulesBody.js';
 import type {
   CreateOrUpdateTariffMutationResult,
   CreateOrUpdateTariffMutationVariables,
@@ -39,6 +48,8 @@ import type {
   DeleteTariffByRoamingPartnerMutationVariables,
   InsertTariffElementsMutationVariables,
   InsertTariffElementsMutationResult,
+  GetTariffsPaginatedQueryResult,
+  GetTariffsPaginatedQueryVariables,
 } from '../graphql/index.js';
 import {
   CREATE_OR_UPDATE_TARIFF_MUTATION,
@@ -58,6 +69,7 @@ import {
   GET_TARIFF_BY_PARTNER_ROAMING_PARTNER_QUERY,
   DELETE_TARIFF_BY_ROAMING_PARTNER_MUTATION,
   INSERT_TARIFF_ELEMENTS_MUTATION,
+  GET_TARIFFS_PAGINATED,
 } from '../graphql/index.js';
 import { NotFoundException } from '../exception/NotFoundException.js';
 import { TariffMapper, type TariffMapInput } from '../mapper/index.js';
@@ -66,6 +78,7 @@ import type {
   PullSummary,
 } from '../model/DTO/PullPartnerModulesBody.js';
 import { TariffsClientApi } from '../trigger/TariffsClientApi.js';
+import type { TenantDto } from '@zetra/citrineos-base';
 
 @Service()
 export class TariffsService {
@@ -208,9 +221,12 @@ export class TariffsService {
       GetTariffsQueryResult,
       GetTariffsQueryVariables
     >(GET_TARIFFS_QUERY, variables);
+
     const mappedTariffs: TariffDTO[] = [];
     for (const tariff of result.Tariffs) {
-      mappedTariffs.push(TariffMapper.mapForSender(tariff as TariffMapInput));
+      mappedTariffs.push(
+        TariffMapper.mapForReceiverOCPI(tariff as TariffMapInput),
+      );
     }
     return {
       data: mappedTariffs,
@@ -528,6 +544,132 @@ export class TariffsService {
       upsertSucceeded: upsertSucceededTariffs,
       upsertFailed: upsertFailedTariffs,
       skippedInvalid: skippedInvalidTariffs,
+    };
+  }
+
+  async pushTariffsToPartner(
+    body: PushPartnerModulesBody,
+  ): Promise<PushSummary> {
+    const {
+      ourCountryCode,
+      ourPartyId,
+      partnerCountryCode,
+      partnerPartyId,
+      offset,
+      limit,
+      date_from,
+      date_to,
+    } = body;
+
+    this.logger.info(
+      'PushTariffsToPartner',
+      ourCountryCode,
+      ourPartyId,
+      partnerCountryCode,
+      partnerPartyId,
+    );
+
+    const tenantPartner = await this.ocpiGraphqlClient.request<
+      GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+      GetTenantPartnerByCpoClientAndModuleIdQueryVariables
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
+      ourCountryCode: ourCountryCode,
+      ourPartyId: ourPartyId,
+      partnerCountryCode: partnerCountryCode,
+      partnerPartyId: partnerPartyId,
+    });
+
+    const partnerRow = tenantPartner.TenantPartners[0];
+    if (!partnerRow?.partnerProfileOCPI) {
+      throw new Error('Tenant partner missing partnerProfileOCPI');
+    }
+
+    const endpoints = tenantPartner.TenantPartners[0].partnerProfileOCPI!
+      .endpoints as Endpoint[];
+    const url = endpoints.find(
+      (e: Endpoint) => e.identifier === 'tariffs_RECEIVER',
+    )?.url;
+
+    if (!url) {
+      throw new Error('No Tariffs URL found');
+    }
+
+    const where: Tariffs_Bool_Exp = {
+      tenantPartnerId: { _is_null: true },
+      Tenant: {
+        countryCode: { _eq: ourCountryCode },
+        partyId: { _eq: ourPartyId },
+      },
+    };
+    if (date_from || date_to) {
+      where.updatedAt = {};
+      if (date_from) where.updatedAt._gte = new Date(date_from).toISOString();
+      if (date_to) where.updatedAt._lte = new Date(date_to).toISOString();
+    }
+    const partnerProfile = partnerRow.partnerProfileOCPI!;
+    const tenantOwner = partnerRow.tenant! as TenantDto;
+    let currentOffset = offset;
+    let hasMore = true;
+    let processed = 0;
+    let pushSucceeded = 0;
+    let pushFailed = 0;
+    let skippedInvalid = 0;
+    while (hasMore) {
+      const result = await this.ocpiGraphqlClient.request<
+        GetTariffsPaginatedQueryResult,
+        GetTariffsPaginatedQueryVariables
+      >(GET_TARIFFS_PAGINATED, { limit, offset: currentOffset, where });
+
+      const batch = result.Tariffs ?? [];
+      if (batch.length === 0) {
+        break;
+      }
+      for (const tariff of batch) {
+        processed++;
+        try {
+          const tariffDto = TariffMapper.mapForReceiverOCPI(
+            tariff as TariffMapInput,
+          );
+          const path = `/${tariffDto.country_code}/${tariffDto.party_id}/${encodeURIComponent(tariffDto.id)}`;
+          await this.tariffsClientApi.request(
+            ourCountryCode,
+            ourPartyId,
+            partnerCountryCode,
+            partnerPartyId,
+            HttpMethod.Put,
+            OcpiEmptyResponseSchema,
+            partnerProfile,
+            true,
+            url,
+            tariffDto,
+            undefined,
+            undefined,
+            path,
+            partnerRow.awsSecretCertificateArn,
+          );
+          pushSucceeded++;
+        } catch (err) {
+          if (String(err).includes('Issuer not found')) {
+            skippedInvalid++;
+          } else {
+            pushFailed++;
+            this.logger.error(
+              `pushPartnerTariffs failed for tariff ${tariff.id}`,
+              err,
+            );
+          }
+        }
+      }
+      currentOffset += batch.length;
+      hasMore = batch.length === limit;
+    }
+
+    return {
+      module: 'tariffs',
+      processed: processed,
+      pushSucceeded,
+      pushFailed,
+      skippedInvalid,
     };
   }
 }

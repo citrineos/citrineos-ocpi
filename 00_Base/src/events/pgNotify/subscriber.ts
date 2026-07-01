@@ -19,10 +19,15 @@ const { Client: PgClient } = pg;
 interface IPgNotification {
   operation: DtoEventType;
   data: any;
+  isStatusChanged?: boolean;
 }
 
 type EventHandler<T = any> = {
-  handleEvent: (event: { eventType: DtoEventType; payload: T }) => void;
+  handleEvent: (event: {
+    eventType: DtoEventType;
+    payload: T;
+    isStatusChanged?: boolean;
+  }) => void;
   handleError: (error: any) => void;
   handleDisconnect?: () => void;
 };
@@ -76,6 +81,7 @@ export class PgNotifyEventSubscriber implements IDtoEventSubscriber {
         handler.handleEvent({
           eventType: payload.operation,
           payload: payload.data,
+          isStatusChanged: payload.isStatusChanged,
         });
       } catch (err) {
         this._logger.error(`Failed to parse notification payload:`, err);

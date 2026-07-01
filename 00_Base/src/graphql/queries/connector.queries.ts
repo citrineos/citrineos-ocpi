@@ -128,7 +128,7 @@ export const GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID_AND_ROAMING_PARTNER_ID = gql`
       vendorErrorCode
       createdAt
       updatedAt
-      tariffs: ConnectorTariffsOcpiPartner {
+      tariffs: ConnectorTariffs {
         id
         tariffOcpiId
         connectorOcpiId
@@ -180,7 +180,7 @@ export const GET_CONNECTOR_BY_OCPI_ID_AND_EVSE_ID = gql`
       vendorErrorCode
       createdAt
       updatedAt
-      tariffs: ConnectorTariffsOcpiPartner {
+      tariffs: ConnectorTariffs {
         id
         tariffOcpiId
         connectorOcpiId
@@ -233,6 +233,29 @@ export const MARK_CONNECTOR_DELETED_QUERY = gql`
       _set: { deletedAt: $deletedAt }
     ) {
       id
+    }
+  }
+`;
+
+export const GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY = gql`
+  query GetOwnConnectorForTariffBroadcast($connectorId: Int!) {
+    Connectors_by_pk(id: $connectorId) {
+      id
+      stationId
+      evseId
+      updatedAt
+      ChargingStation {
+        locationId
+        Location {
+          id
+          ownerTenantPartnerId
+        }
+      }
+      tariffs: ConnectorTariffs(
+        where: { tenantPartnerId: { _is_null: true } }
+      ) {
+        tariffOcpiId
+      }
     }
   }
 `;

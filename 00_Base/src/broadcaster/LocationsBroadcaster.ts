@@ -28,6 +28,7 @@ import {
   LocationMapper,
 } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import type { EvseStatus } from '../model/EvseStatus.js';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -108,6 +109,42 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     if (!evse) throw new Error('Failed to map EVSE data');
     const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
+  }
+
+  async broadcastPatchEvseStatus(
+    tenant: TenantDto,
+    evseDto: EvseDto,
+    lastUpdated: Date,
+    chargingStationDto: ChargingStationDto,
+    EvseStatus: EvseStatus,
+  ): Promise<void> {
+    const locationId = chargingStationDto?.locationId;
+    if (!locationId) throw new Error('Location ID missing in EVSE data');
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
+    await this.broadcastEvse(
+      tenant,
+      { status: EvseStatus, last_updated: new Date(lastUpdated) },
+      HttpMethod.Patch,
+      path,
+    );
+  }
+
+  async broadcastPatchConnectorTariffs(
+    tenant: TenantDto,
+    locationId: string | number,
+    stationId: string,
+    evseId: number,
+    connectorId: number,
+    tariffIds: string[],
+    lastUpdated: Date,
+  ): Promise<void> {
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}/${connectorId}`;
+    await this.broadcastConnector(
+      tenant,
+      { tariff_ids: tariffIds, last_updated: lastUpdated },
+      HttpMethod.Patch,
+      path,
+    );
   }
 
   private async broadcastEvse(

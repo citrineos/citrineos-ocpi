@@ -15,11 +15,12 @@ import type { Tariff } from '../model/Tariff.js';
 import { TariffMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import type {
-  GetTariffByKeyQueryResult,
-  GetTariffByKeyQueryVariables,
+  GetTariffForBroadcastQueryResult,
+  GetTariffForBroadcastQueryVariables,
 } from '../graphql/index.js';
 import {
   GET_TARIFF_BY_KEY_QUERY,
+  GET_TARIFF_FOR_BROADCAST_QUERY,
   OcpiGraphqlClient,
 } from '../graphql/index.js';
 
@@ -59,29 +60,26 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     tenant: TenantDto,
     tariffDto: Partial<TariffDto>,
   ): Promise<void> {
-    if (!tariffDto.currency || !tariffDto.pricePerKwh) {
-      this.logger.debug(
-        `Currency or pricePerKwh missing in Tariff ${tariffDto.id}, fetching data.`,
+    // // if (!tariffDto.currency || !tariffDto.pricePerKwh) {
+    this.logger.debug(
+      `Fetching data for Tariff ${tariffDto.id} to fill required fields for broadcast PUT`,
+    );
+    const tariffResponse = await this.ocpiGraphqlClient.request<
+      GetTariffForBroadcastQueryResult,
+      GetTariffForBroadcastQueryVariables
+    >(GET_TARIFF_FOR_BROADCAST_QUERY, {
+      id: tariffDto.id!,
+      countryCode: tenant.countryCode!,
+      partyId: tenant.partyId!,
+    });
+    if (!tariffResponse?.Tariffs[0]) {
+      this.logger.error(
+        `Failed to fetch Tariff ${tariffDto.id} data from GraphQL to fill required fields for broadcast PUT`,
       );
-      const tariffResponse = await this.ocpiGraphqlClient.request<
-        GetTariffByKeyQueryResult,
-        GetTariffByKeyQueryVariables
-      >(GET_TARIFF_BY_KEY_QUERY, {
-        id: tariffDto.id!,
-        countryCode: tenant.countryCode!,
-        partyId: tenant.partyId!,
-      });
-      if (!tariffResponse?.Tariffs[0]) {
-        this.logger.error(
-          `Failed to fetch Tariff ${tariffDto.id} data from GraphQL to fill required fields for broadcast PUT`,
-        );
-        return;
-      }
-      tariffDto.currency = tariffResponse.Tariffs[0].currency;
-      tariffDto.pricePerKwh = tariffResponse.Tariffs[0].pricePerKwh;
+      return;
     }
 
-    const tariff = TariffMapper.mapForSender(tariffDto);
+    const tariff = TariffMapper.mapForReceiverOCPI(tariffResponse.Tariffs[0]);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${tariff.id}`;
     await this.broadcast(tenant, HttpMethod.Put, path, tariff);
   }

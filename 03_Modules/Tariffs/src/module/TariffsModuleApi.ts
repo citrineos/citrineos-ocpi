@@ -17,6 +17,7 @@ import type {
   OcpiEmptyResponse,
   PaginatedTariffResponse,
   PullPartnerModulesBody,
+  PushPartnerModulesBody,
   PutTariffRequest,
   TariffDTO,
 } from '@citrineos/ocpi-base';
@@ -49,6 +50,8 @@ import {
   PullPartnerModulesBodySchemaName,
   PullPartnerModulesBodySchema,
   AsAdminEndpoint,
+  PushPartnerModulesBodySchemaName,
+  PushPartnerModulesBodySchema,
 } from '@citrineos/ocpi-base';
 import { Service } from 'typedi';
 
@@ -214,6 +217,25 @@ export class TariffsModuleApi
     this.logger.info('PullPartnerTariffs', body);
 
     const summary = await this.tariffService.pullPartnerTariffs(body);
+
+    return buildOcpiResponse(
+      OcpiResponseStatusCode.GenericSuccessCode,
+      summary,
+    );
+  }
+
+  @Post('/push-tariffs-to-partner')
+  @AsAdminEndpoint()
+  async PushTariffsToPartner(
+    @BodyWithSchema(
+      PushPartnerModulesBodySchema,
+      PushPartnerModulesBodySchemaName,
+    )
+    body: PushPartnerModulesBody,
+  ) {
+    this.logger.info('PushTariffsToPartner', body);
+
+    const summary = await this.tariffService.pushTariffsToPartner(body);
 
     return buildOcpiResponse(
       OcpiResponseStatusCode.GenericSuccessCode,
