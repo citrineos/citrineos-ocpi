@@ -419,6 +419,10 @@ export abstract class BaseClientApi {
           (result as any).offset = this.getOffsetFromLink(cleanedLink);
         }
       }
+      this.logger.info('OCPI response before Zod parse', {
+        statusCode: response.statusCode,
+        body: result,
+      });
       // Parse and validate using Zod
       return schema.parse(result);
     } else {
