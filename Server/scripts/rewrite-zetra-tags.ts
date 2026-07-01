@@ -30,6 +30,14 @@ for (const file of files) {
       }
     }
   }
+  if (pkg.overrides) {
+    for (const key of Object.keys(pkg.overrides)) {
+      if (key.startsWith('@zetra/')) {
+        pkg.overrides[key] = tag;
+        changed = true;
+      }
+    }
+  }
   if (changed) {
     writeFileSync(file, JSON.stringify(pkg, null, 2));
     console.log(`Updated ${file} → @zetra/*: ${tag}`);
