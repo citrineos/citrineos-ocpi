@@ -76,10 +76,9 @@
     "./Server"
   ],
   "dependencies": {
-    "@zetra/citrineos-base": "file:../citrineos-core/00_Base",
-    "@zetra/citrineos-util": "file:../citrineos-core/02_Util",
-    "@zetra/citrineos-data": "file:../citrineos-core/01_Data",
-    "@zetra/citrineos-tenant": "file:../citrineos-core/03_Modules/Tenant",
+    "@zetra/citrineos-base": "prod",
+    "@zetra/citrineos-data": "prod",
+    "@zetra/citrineos-util": "prod",
     "@zetra/citrineos-certificates": "prod",
     "@zetra/citrineos-configuration": "prod",
     "@zetra/citrineos-evdriver": "prod",
@@ -87,13 +86,8 @@
     "@zetra/citrineos-reporting": "prod",
     "@zetra/citrineos-ocpprouter": "prod",
     "@zetra/citrineos-smartcharging": "prod",
+    "@zetra/citrineos-tenant": "prod",
     "@zetra/citrineos-transactions": "prod",
     "csv-parse": "^6.2.1"
-  },
-  "overrides": {
-    "@zetra/citrineos-base": "file:../citrineos-core/00_Base",
-    "@zetra/citrineos-util": "file:../citrineos-core/02_Util",
-    "@zetra/citrineos-data": "file:../citrineos-core/01_Data",
-    "@zetra/citrineos-tenant": "file:../citrineos-core/03_Modules/Tenant"
   }
 }
