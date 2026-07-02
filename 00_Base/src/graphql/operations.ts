@@ -664,19 +664,39 @@ export type GetOwnConnectorForTariffBroadcastQueryVariables = Exact<{
 export type GetOwnConnectorForTariffBroadcastQueryResult = {
   Connectors_by_pk?: {
     id: number,
-    stationId: string,
     evseId?: number | null,
+    stationId: string,
     updatedAt: any,
+    tariffs: Array<{
+      tariffOcpiId: string
+    }>,
     ChargingStation: {
       locationId: number,
       Location: {
-        id: number,
         ownerTenantPartnerId?: number | null
       }
     },
-    tariffs: Array<{
-      tariffOcpiId: string
-    }>
+    Evse?: {
+      Connectors: Array<{
+        id: number,
+        stationId: string,
+        evseId?: number | null,
+        timestamp?: any | null,
+        ocpiId?: string | null,
+        connectorId?: number | null,
+        format?: string | null,
+        type?: string | null,
+        powerType?: string | null,
+        maximumAmperage?: number | null,
+        maximumVoltage?: number | null,
+        maximumPowerWatts?: number | null,
+        status?: string | null,
+        updatedAt: any,
+        tariffs: Array<{
+          tariffOcpiId: string
+        }>
+      }>
+    } | null
   } | null
 };
 
@@ -2998,7 +3018,9 @@ export type GetTransactionByTransactionIdQueryResult = {
       } | null
     } | null,
     chargingStation?: {
-      id: string
+      id: string,
+      isOnline?: boolean | null,
+      protocol?: string | null
     } | null,
     transactionEvents: Array<{
       id: number,

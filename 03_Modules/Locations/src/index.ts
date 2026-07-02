@@ -360,15 +360,27 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   ): Promise<void> {
     const payload = event._payload;
 
-    // Safety: own tariffs only
     if (payload.tenantPartnerId != null) return;
 
+    // according to OCPI we should to set a tariff update the body should be something like this:
+    // {
+    //   "tariff_ids": ["15"],
+    //   "last_updated": "2019-06-24T12:39:09Z"
+    // }
+    // but as gireve put tariff on EVSE they require
+    //"PATCH  ToIOP_receiver_locations-evse" :
+    // You have transfer the status (=AVAILABLE) of the evse
+    // AND you also transfer the information of the new tariff.ID associated to the connector.
+    // so we need to get the evse and the connectors and the tariffs and broadcast the evse status and the connectors with the new tariff
+
+    //query to get the connector and the tariffs and evse with all the connectors (for gireve receiver)
     const connector = await this.ocpiGraphqlClient.request<
       GetOwnConnectorForTariffBroadcastQueryResult,
       GetOwnConnectorForTariffBroadcastQueryVariables
     >(GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY, {
       connectorId: payload.connectorId,
     });
+    console.log('connector BROADCAST EVSE ', connector);
 
     const row = connector.Connectors_by_pk;
     if (!row) return;
@@ -383,11 +395,28 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       payload.tariff_ids ??
       [];
 
+    // broadcast the tariff update for non gireve partners in OCPI specs format
     await this.locationsBroadcaster.broadcastPatchConnectorTariffs(
       tenant!,
       locationId,
       row.stationId!,
       row.evseId!,
+      row.id,
+      tariffIds,
+      new Date(payload.updatedAt ?? row.updatedAt),
+    );
+
+    const evseConnectors = row.Evse?.Connectors ?? [];
+    if (evseConnectors.length === 0) return;
+
+    // broadcast the tariff update for gireve partners in Gireve specs format
+    // by sending a patch request to the evse with the new tariff and all the connectors of the evse
+    await this.locationsBroadcaster.broadcastPatchConnectorTariffsGireve(
+      tenant!,
+      locationId,
+      row.stationId!,
+      row.evseId!,
+      evseConnectors as unknown as ConnectorDto[],
       row.id!,
       tariffIds,
       new Date(payload.updatedAt ?? row.updatedAt),

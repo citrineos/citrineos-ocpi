@@ -29,6 +29,8 @@ import {
 } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import type { EvseStatus } from '../model/EvseStatus.js';
+import { isGirevePartner } from '../util/helpers.js';
+import type { BroadcastParams } from '../trigger/BaseClientApi.js';
 
 @Service()
 export class LocationsBroadcaster extends BaseBroadcaster {
@@ -65,6 +67,9 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     location: Partial<LocationDTO>,
     method: HttpMethod,
     path: string,
+    partnerFilter?: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
   ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -76,6 +81,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: location,
         path: path,
+        partnerFilter,
       });
     } catch (e) {
       this.logger.error(
@@ -144,6 +150,45 @@ export class LocationsBroadcaster extends BaseBroadcaster {
       { tariff_ids: tariffIds, last_updated: lastUpdated },
       HttpMethod.Patch,
       path,
+      (p) => !isGirevePartner(p),
+    );
+  }
+
+  async broadcastPatchConnectorTariffsGireve(
+    tenant: TenantDto,
+    locationId: string | number,
+    stationId: string,
+    evseId: number,
+    evseConnectors: ConnectorDto[],
+    changedConnectorId: number,
+    tariffIds: string[],
+    lastUpdated: Date,
+  ): Promise<void> {
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(stationId, evseId)}`;
+    const status = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
+    const connectors = evseConnectors
+      .map((c) => {
+        const mapped = ConnectorMapper.fromGraphql(c);
+        if (!mapped) return undefined;
+        const ocpiId = c.ocpiId ?? String(c.id);
+        if (c.id === changedConnectorId) {
+          return {
+            ...mapped,
+            id: ocpiId,
+            tariff_ids: tariffIds,
+            last_updated: lastUpdated,
+          };
+        }
+        return { ...mapped, id: ocpiId };
+      })
+      .filter((c): c is ConnectorDTO => c !== undefined);
+
+    await this.broadcastEvse(
+      tenant,
+      { status, connectors, last_updated: lastUpdated },
+      HttpMethod.Patch,
+      path,
+      (p) => isGirevePartner(p),
     );
   }
 
@@ -152,6 +197,9 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     evseData: Partial<EvseDTO>,
     method: HttpMethod,
     path: string,
+    partnerFilter?: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
   ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -163,6 +211,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: evseData,
         path: path,
+        partnerFilter,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Evse failed for ${path}`, e);
@@ -198,6 +247,9 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     connectorData: Partial<ConnectorDTO>,
     method: HttpMethod,
     path: string,
+    partnerFilter?: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
   ): Promise<void> {
     try {
       await this.locationsClientApi.broadcastToClients({
@@ -209,6 +261,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: connectorData,
         path: path,
+        partnerFilter,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Connector failed for ${path}`, e);
