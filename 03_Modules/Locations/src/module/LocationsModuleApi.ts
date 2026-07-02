@@ -373,7 +373,7 @@ export class LocationsModuleApi
    * Sender Interface: GET /locations
    */
   @Get()
-  @AsOcpiFunctionalEndpoint()
+  @AsOcpiFunctionalEndpoint({ skipTenantPartnerUrlValidation: true })
   @ResponseSchema(
     PaginatedLocationResponseSchema,
     PaginatedLocationResponseSchemaName,
