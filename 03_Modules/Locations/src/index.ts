@@ -380,7 +380,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     >(GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY, {
       connectorId: payload.connectorId,
     });
-    console.log('connector BROADCAST EVSE ', connector);
 
     const row = connector.Connectors_by_pk;
     if (!row) return;
@@ -395,6 +394,10 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       payload.tariff_ids ??
       [];
 
+    
+    const evseConnectors = row.Evse?.Connectors ?? [];
+    if (evseConnectors.length === 0) return;
+
     // broadcast the tariff update for non gireve partners in OCPI specs format
     await this.locationsBroadcaster.broadcastPatchConnectorTariffs(
       tenant!,
@@ -405,9 +408,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       tariffIds,
       new Date(payload.updatedAt ?? row.updatedAt),
     );
-
-    const evseConnectors = row.Evse?.Connectors ?? [];
-    if (evseConnectors.length === 0) return;
 
     // broadcast the tariff update for gireve partners in Gireve specs format
     // by sending a patch request to the evse with the new tariff and all the connectors of the evse
