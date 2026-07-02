@@ -394,7 +394,6 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       payload.tariff_ids ??
       [];
 
-    
     const evseConnectors = row.Evse?.Connectors ?? [];
     if (evseConnectors.length === 0) return;
 
