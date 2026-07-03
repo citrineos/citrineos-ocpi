@@ -183,7 +183,7 @@ export class LocationsService {
         GetEvseByIdQueryVariables
       >(GET_EVSE_BY_ID_QUERY, variables);
       const evse = EvseMapper.fromGraphql(
-        response.Locations[0].chargingPool[0] as ChargingStationDto,
+        response.Locations[0].chargingPool[0] as unknown as ChargingStationDto,
         response.Locations[0].chargingPool[0].evses[0] as EvseDto,
       );
       return buildOcpiResponse(OcpiResponseStatusCode.GenericSuccessCode, evse);

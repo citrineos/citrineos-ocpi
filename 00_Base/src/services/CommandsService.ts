@@ -35,10 +35,8 @@ import type {
   TenantPartnerDto,
   RoamingPartnerDto,
 } from '@zetra/citrineos-base';
-import {
-  EXTRACT_EVSE_ID,
-  EXTRACT_STATION_ID,
-} from '../model/DTO/EvseDTO.js';
+import { EXTRACT_EVSE_ID, EXTRACT_STATION_ID } from '../model/DTO/EvseDTO.js';
+import { ChargingStationMapper } from '../mapper/ChargingStationMapper.js';
 import { EvseMapper } from '../mapper/LocationMapper.js';
 import { EvseStatus } from '../model/EvseStatus.js';
 import type { OcpiHeaders } from '../model/OcpiHeaders.js';
@@ -167,10 +165,12 @@ export class CommandsService {
     >(GET_CHARGING_STATION_BY_ID_QUERY, {
       id: EXTRACT_STATION_ID(startSession.evse_uid!),
     });
-    const stationRow = chargingStationResponse.ChargingStations[0];
+    const stationContext = ChargingStationMapper.fromGetByIdQueryRowWithContext(
+      chargingStationResponse.ChargingStations[0],
+    );
     if (
-      !stationRow ||
-      stationRow.locationId?.toString() !== startSession.location_id
+      !stationContext ||
+      stationContext.station.locationId?.toString() !== startSession.location_id
     ) {
       this.logger.error('Charging station not found for evse_uid', {
         evseUid: startSession.evse_uid,
@@ -183,9 +183,8 @@ export class CommandsService {
         'Unknown charging station',
       );
     }
-    const chargingStation = stationRow as ChargingStationDto;
-    const activeTransactionConnectorIds =
-      EvseMapper.activeTransactionConnectorIds(stationRow);
+    const { station: chargingStation, activeTransactionConnectorIds } =
+      stationContext;
     if (!chargingStation.isOnline) {
       this.logger.error('Charging station is offline', {
         stationId: chargingStation.id,
@@ -318,7 +317,21 @@ export class CommandsService {
         'Session is already stopped',
       );
     }
-    const chargingStation = transaction.chargingStation as ChargingStationDto;
+    const chargingStation = ChargingStationMapper.fromTransactionQueryRow(
+      transaction.chargingStation,
+    );
+    if (!chargingStation) {
+      this.logger.error('Charging station not found for transaction', {
+        transactionId: transaction.transactionId,
+      });
+      return ResponseGenerator.buildInvalidOrMissingParametersResponse(
+        {
+          result: CommandResponseType.REJECTED,
+          timeout: this.config.commands.timeout,
+        },
+        'Unknown charging station',
+      );
+    }
     if (!chargingStation.isOnline) {
       this.logger.error('Charging station is offline', {
         stationId: chargingStation.id,
@@ -358,10 +371,12 @@ export class CommandsService {
     >(GET_CHARGING_STATION_BY_ID_QUERY, {
       id: EXTRACT_STATION_ID(unlockConnector.evse_uid!),
     });
+    const chargingStation = ChargingStationMapper.fromGetByIdQueryRow(
+      chargingStationResponse.ChargingStations[0],
+    );
     if (
-      !chargingStationResponse.ChargingStations[0] ||
-      chargingStationResponse.ChargingStations[0].locationId?.toString() !==
-        unlockConnector.location_id
+      !chargingStation ||
+      chargingStation.locationId?.toString() !== unlockConnector.location_id
     ) {
       this.logger.error('Charging station not found for evse_uid', {
         evseUid: unlockConnector.evse_uid,
@@ -374,8 +389,6 @@ export class CommandsService {
         'Unknown charging station',
       );
     }
-    const chargingStation = chargingStationResponse
-      .ChargingStations[0] as ChargingStationDto;
     if (!chargingStation.isOnline) {
       this.logger.error('Charging station is offline', {
         stationId: chargingStation.id,

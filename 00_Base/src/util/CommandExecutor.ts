@@ -460,7 +460,7 @@ export class CommandExecutor {
     commandId: string,
     response: any,
   ): Promise<void> {
-    const cached = await this.cache.get(
+    const cached = await this.cache.get<string>(
       commandId,
       COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
     );

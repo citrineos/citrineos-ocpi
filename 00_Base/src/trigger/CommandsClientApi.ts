@@ -89,7 +89,7 @@ export class CommandsClientApi extends BaseClientApi {
     toCountryCode: string,
     toPartyId: string,
   ) {
-    const cached = await this.cache.get(
+    const cached = await this.cache.get<string>(
       commandId,
       COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
     );

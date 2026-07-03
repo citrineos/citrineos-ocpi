@@ -628,10 +628,10 @@ export class ConnectorMapper {
   }
 
   static mapConnectorType(
-    connectorType: ConnectorTypeEnumType | null | undefined,
+    connectorType: ConnectorTypeEnumType | string | null | undefined,
   ): ConnectorType | undefined {
     const logger = Container.get(Logger);
-    switch (connectorType) {
+    switch (connectorType as ConnectorTypeEnumType | string) {
       case ConnectorTypeEnum.CHAdeMO:
         return ConnectorType.CHADEMO;
       case ConnectorTypeEnum.ChaoJi:
@@ -833,19 +833,19 @@ export class ConnectorMapper {
   }
 
   static mapConnectorFormat(
-    connectorFormat: ConnectorFormatEnumType | null | undefined,
+    connectorFormat: ConnectorFormatEnumType | string | null | undefined,
   ): ConnectorFormat | undefined {
     const logger = Container.get(Logger);
-    switch (connectorFormat) {
+    switch (connectorFormat as ConnectorFormatEnumType | string) {
       case 'Socket':
-      case 'SOCKET':
       case ConnectorFormatEnum.Socket:
-      case ConnectorFormatEnum.SOCKET:
         return ConnectorFormat.SOCKET;
       case 'Cable':
-      case 'CABLE':
       case ConnectorFormatEnum.Cable:
-      case ConnectorFormatEnum.CABLE:
+        return ConnectorFormat.CABLE;
+      case 'SOCKET':
+        return ConnectorFormat.SOCKET;
+      case 'CABLE':
         return ConnectorFormat.CABLE;
       default:
         logger.warn(`Unknown Format ${connectorFormat}`);

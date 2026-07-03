@@ -7,5 +7,6 @@ export * from './ReceivedSessionMapper.js';
 export * from './SessionMapper.js';
 export * from './TariffMapper.js';
 export * from './LocationMapper.js';
+export * from './ChargingStationMapper.js';
 export * from './RegistrationMapper.js';
 export * from './TokensMapper.js';
