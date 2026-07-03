@@ -50,6 +50,11 @@ export const GET_CHARGING_STATION_BY_ID_QUERY = gql`
         createdAt
         updatedAt
       }
+      activeTransactions: Transactions(where: { isActive: { _eq: true } }) {
+        id
+        connectorId
+        evseId
+      }
       tenant: Tenant {
         partyId
         countryCode

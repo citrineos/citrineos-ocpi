@@ -409,6 +409,11 @@ export type GetChargingStationByIdQueryResult = {
       createdAt: any,
       updatedAt: any
     }>,
+    activeTransactions: Array<{
+      id: number,
+      connectorId?: number | null,
+      evseId?: number | null
+    }>,
     tenant: {
       partyId?: string | null,
       countryCode?: string | null
