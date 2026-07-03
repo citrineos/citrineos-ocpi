@@ -322,7 +322,12 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
         chargingStationDto.connectors?.filter(
           (c: ConnectorDto) => c.evseId === connectorDto.evseId,
         ) ?? [];
-      const evseStatus = EvseMapper.mapEvseStatusFromConnectors(evseConnectors);
+      const evseStatus = EvseMapper.mapEvseStatusFromConnectors(
+        evseConnectors,
+        EvseMapper.activeTransactionConnectorIds(
+          chargingStationResponse.ChargingStations[0],
+        ),
+      );
 
       await this.locationsBroadcaster.broadcastPatchEvseStatus(
         tenant!,

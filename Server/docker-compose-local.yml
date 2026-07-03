@@ -35,6 +35,7 @@ services:
   #     retries: 5
 
   citrineos-ocpi:
+    container_name: citrineos-ocpi
     build:
       context: ../../
       dockerfile: ./citrineos-ocpi/Server/local.Dockerfile
@@ -43,15 +44,19 @@ services:
     environment:
       APP_NAME: 'all'
       APP_ENV: 'docker'
-      DB_HOST: 'ocpp-db'
+      DB_HOST: 'postgres'
       AMQP_URL: 'amqp://guest:guest@amqp-broker:5672'
       AMQP_EXCHANGE: 'citrineos'
-      CITRINEOS_OCPI_GRAPHQL_ENDPOINT: 'http://172.17.0.1:8090/v1/graphql'
+      CITRINEOS_OCPI_GRAPHQL_ENDPOINT: 'http://citrine-graphql-engine:8080/v1/graphql'
       CITRINEOS_OCPI_GRAPHQL_HEADERS: '{"x-hasura-admin-secret":"password"}'
       CITRINEOS_OCPI_OIDC_JWKSURI: 'http://keycloak:8180/auth/realms/patterm/protocol/openid-connect/certs'
-      CITRINEOS_OCPI_OIDC_ISSUER: 'http://keycloak:8180/auth/realms/patterm'
+      CITRINEOS_OCPI_OIDC_ISSUER: 'http://localhost:8180/auth/realms/patterm'
       CITRINEOS_OCPI_OIDC_AUDIENCE: 'citrineos-ocpi'
       CITRINEOS_OCPI_OIDC_RATELIMIT: 'true'
+      KEYCLOAK_URL: 'http://keycloak:8180/auth'
+      KEYCLOAK_REALM: 'patterm'
+      KEYCLOAK_CLIENT_ID: 'timeseries_api'
+      KEYCLOAK_CLIENT_SECRET: '${KEYCLOAK_CLIENT_SECRET}'
     # depends_on:
     #   ocpp-db:
     #     condition: service_healthy
@@ -61,10 +66,18 @@ services:
       - ../../citrineos-ocpi:/usr/local/apps/citrineos-ocpi:cached
       - ../../citrineos-core:/usr/local/apps/citrineos-core:cached
       - /usr/local/apps/citrineos-ocpi/node_modules
+      - /usr/local/apps/citrineos-ocpi/Server/node_modules
       - /usr/local/apps/citrineos-core/node_modules
     ports:
       - 8085:8085
       # - 9229:9229
+    networks:
+      - patterm
+
+networks:
+  patterm:
+    external: true
+    name: patterm_default
 
   # directus:
   #   image: ghcr.io/citrineos/citrineos-directus:latest
