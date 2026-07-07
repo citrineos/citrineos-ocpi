@@ -72,8 +72,26 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       event,
     );
     const transactionDto = event._payload;
+    const transaction = await this.ocpiGraphqlClient.request<
+      GetTransactionByTransactionIdQueryResult,
+      GetTransactionByTransactionIdQueryVariables
+    >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+      transactionId: transactionDto.transactionId!,
+    });
+    if (!transaction.Transactions[0]) {
+      this._logger.error(
+        `Transaction not found for ID ${transactionDto.transactionId}, cannot broadcast.`,
+      );
+      return;
+    }
+
     const tenant = transactionDto.tenant;
-    await this.sessionBroadcaster.broadcastPutSession(tenant!, transactionDto);
+
+    await this.sessionBroadcaster.broadcastPutSession(
+      tenant!,
+      transaction.Transactions[0] as TransactionDto,
+      transaction.Transactions[0].authorization?.tenantPartner?.id,
+    );
   }
 
   @AsDtoEventHandler(
@@ -91,27 +109,26 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       event,
     );
     const transactionDto = event._payload;
+    const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
+      GetTransactionByTransactionIdQueryResult,
+      GetTransactionByTransactionIdQueryVariables
+    >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+      transactionId: transactionDto.transactionId!,
+    });
+    if (!fullTransactionDtoResponse.Transactions[0]) {
+      this._logger.error(
+        `Full Transaction DTO not found for ID ${transactionDto.transactionId}, cannot broadcast.`,
+      );
+      return;
+    }
     const tenant = transactionDto.tenant;
     await this.sessionBroadcaster.broadcastPatchSession(
       tenant!,
       transactionDto,
+      fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner?.id,
     );
     if (transactionDto.isActive === false) {
       this._logger.info(`Transaction is no longer active: ${event._eventId}`);
-
-      const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
-        GetTransactionByTransactionIdQueryResult,
-        GetTransactionByTransactionIdQueryVariables
-      >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
-        transactionId: transactionDto.transactionId!,
-      });
-
-      if (!fullTransactionDtoResponse.Transactions[0]) {
-        this._logger.error(
-          `Full Transaction DTO not found for ID ${transactionDto.transactionId}, cannot broadcast.`,
-        );
-        return;
-      }
 
       const fullTransactionDto = fullTransactionDtoResponse
         .Transactions[0] as TransactionDto;
@@ -134,6 +151,12 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     const meterValueDto = event._payload;
     const tenant = meterValueDto.tenant;
     if (meterValueDto.transactionDatabaseId) {
+      const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
+        GetTransactionByTransactionIdQueryResult,
+        GetTransactionByTransactionIdQueryVariables
+      >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+        transactionId: meterValueDto.transactionId!,
+      });
       this._logger.debug(
         `Meter Value belongs to Transaction: ${meterValueDto.transactionDatabaseId}`,
       );
@@ -144,9 +167,16 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
         return;
       }
 
+      if (!fullTransactionDtoResponse.Transactions[0]) {
+        this._logger.error(`Transaction not found for meter value ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
+        );
+        return;
+      }
+
       await this.sessionBroadcaster.broadcastPatchSessionChargingPeriod(
         tenant!,
         meterValueDto,
+        fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner?.id,
       );
     }
   }

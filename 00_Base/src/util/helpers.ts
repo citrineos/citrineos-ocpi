@@ -18,6 +18,9 @@ import {
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
+
+
+import type { BroadcastParams } from '../trigger/BaseClientApi.js';
 type BroadcastPartner = TenantPartnersListQueryResult['TenantPartners'][number];
 
 export const shouldBroadcastToPartner = (
@@ -169,3 +172,10 @@ export const isGirevePartner = (partner: {
     partner.partyId === config.gireve?.partyId
   );
 };
+
+export function tokenOwnerPartnerFilter(
+  tokenOwnerTenantPartnerId: number,
+): NonNullable<BroadcastParams<never>['partnerFilter']> {
+  return (partner: BroadcastPartner) =>
+    partner.id === tokenOwnerTenantPartnerId;
+}
