@@ -38,12 +38,12 @@ export class CdrBroadcaster extends BaseBroadcaster {
     }
     const cdrDto = cdrs[0];
     const tokenOwnerTenantPartnerId =
-    transactionDto.authorization?.tenantPartner?.id;
+      transactionDto.authorization?.tenantPartner?.id;
     if (tokenOwnerTenantPartnerId == null) {
       this.logger.debug('No token owner partner, skipping CDR broadcast');
       return;
     }
-  
+
     try {
       await this.cdrsClientApi.broadcastToClients({
         cpoCountryCode: cdrDto.country_code!,

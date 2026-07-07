@@ -38,21 +38,33 @@ export class SessionBroadcaster extends BaseBroadcaster {
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(tenant, session, HttpMethod.Put, path, tokenOwnerTenantPartnerId);
+    await this.broadcastSession(
+      tenant,
+      session,
+      HttpMethod.Put,
+      path,
+      tokenOwnerTenantPartnerId,
+    );
   }
 
   async broadcastPatchSession(
     tenant: TenantDto,
     transactionDto: Partial<TransactionDto>,
     tokenOwnerTenantPartnerId?: number | null,
-    ): Promise<void> {
+  ): Promise<void> {
     const session =
       await this.sessionMapper.mapPartialTransactionToPartialSession(
         transactionDto,
       );
 
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(tenant, session, HttpMethod.Patch, path, tokenOwnerTenantPartnerId);
+    await this.broadcastSession(
+      tenant,
+      session,
+      HttpMethod.Patch,
+      path,
+      tokenOwnerTenantPartnerId,
+    );
   }
 
   async broadcastPatchSessionChargingPeriod(

@@ -125,7 +125,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     await this.sessionBroadcaster.broadcastPatchSession(
       tenant!,
       transactionDto,
-      fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner?.id,
+      fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner
+        ?.id,
     );
     if (transactionDto.isActive === false) {
       this._logger.info(`Transaction is no longer active: ${event._eventId}`);
@@ -168,7 +169,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       }
 
       if (!fullTransactionDtoResponse.Transactions[0]) {
-        this._logger.error(`Transaction not found for meter value ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
+        this._logger.error(
+          `Transaction not found for meter value ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
         );
         return;
       }
@@ -176,7 +178,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       await this.sessionBroadcaster.broadcastPatchSessionChargingPeriod(
         tenant!,
         meterValueDto,
-        fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner?.id,
+        fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner
+          ?.id,
       );
     }
   }

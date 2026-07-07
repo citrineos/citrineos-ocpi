@@ -18,8 +18,6 @@ import {
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
 
-
-
 import type { BroadcastParams } from '../trigger/BaseClientApi.js';
 type BroadcastPartner = TenantPartnersListQueryResult['TenantPartners'][number];
 
