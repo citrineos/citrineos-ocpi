@@ -114,7 +114,7 @@ function mergeOcpiConfigFromEnvVars<T extends Record<string, any>>(
         if (finalKey) {
           const raw = currentConfigKeyMap[finalKey];
           const propertyName = typeof raw === 'string' ? raw : finalKey;
-          currentConfigPart[propertyName] = parseEnvValue(value);
+          currentConfigPart[propertyName] = parseEnvValue(value, propertyName);
         } else {
           errors.push(
             `Invalid environment variable key: ${fullEnvKey} (final part: ${finalPart})`,
@@ -134,10 +134,20 @@ function mergeOcpiConfigFromEnvVars<T extends Record<string, any>>(
 /**
  * Parse environment variable value to appropriate type
  */
-function parseEnvValue(value: string): any {
+function parseEnvValue(value: string, propertyName?: string): any {
+  // OCPI party IDs are 3-char strings; preserve values like "007" verbatim.
+  if (propertyName?.toLowerCase() === 'partyid') {
+    return value;
+  }
+
   // Handle booleans
   if (value.toLowerCase() === 'true') return true;
   if (value.toLowerCase() === 'false') return false;
+
+  // Preserve leading-zero numerics (e.g. "007") as strings.
+  if (/^0\d+$/.test(value)) {
+    return value;
+  }
 
   // Handle numbers
   if (/^\d+$/.test(value)) {
