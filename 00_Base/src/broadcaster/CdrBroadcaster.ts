@@ -43,7 +43,6 @@ export class CdrBroadcaster extends BaseBroadcaster {
       this.logger.debug('No token owner partner, skipping CDR broadcast');
       return;
     }
-
     try {
       await this.cdrsClientApi.broadcastToClients({
         cpoCountryCode: cdrDto.country_code!,
