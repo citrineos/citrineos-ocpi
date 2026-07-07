@@ -158,3 +158,14 @@ export const handleHttpMethodForPartner = (
   }
   return httpMethod;
 };
+
+export const isGirevePartner = (partner: {
+  countryCode?: string;
+  partyId?: string;
+}) => {
+  const config = Container.get<OcpiConfig>(OcpiConfigToken);
+  return (
+    partner.countryCode === config.gireve?.countryCode &&
+    partner.partyId === config.gireve?.partyId
+  );
+};

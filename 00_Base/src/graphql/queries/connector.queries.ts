@@ -237,24 +237,48 @@ export const MARK_CONNECTOR_DELETED_QUERY = gql`
   }
 `;
 
+// one query to get the connector and the tariffs and evse with all the connectors (for gireve receiver)
 export const GET_OWN_CONNECTOR_FOR_TARIFF_BROADCAST_QUERY = gql`
   query GetOwnConnectorForTariffBroadcast($connectorId: Int!) {
     Connectors_by_pk(id: $connectorId) {
       id
-      stationId
       evseId
+      stationId
       updatedAt
-      ChargingStation {
-        locationId
-        Location {
-          id
-          ownerTenantPartnerId
-        }
-      }
       tariffs: ConnectorTariffs(
         where: { tenantPartnerId: { _is_null: true } }
       ) {
         tariffOcpiId
+      }
+      ChargingStation {
+        locationId
+        Location {
+          ownerTenantPartnerId
+        }
+      }
+      Evse {
+        Connectors(order_by: { connectorId: asc }) {
+          id
+          stationId
+          evseId
+
+          timestamp
+          ocpiId
+          connectorId
+          format
+          type
+          powerType
+          maximumAmperage
+          maximumVoltage
+          maximumPowerWatts
+          status
+          updatedAt
+          tariffs: ConnectorTariffs(
+            where: { tenantPartnerId: { _is_null: true } }
+          ) {
+            tariffOcpiId
+          }
+        }
       }
     }
   }

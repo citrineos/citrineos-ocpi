@@ -70,6 +70,9 @@ export interface BroadcastParams<T extends ZodTypeAny> {
   paginatedParams?: PaginatedParams;
   otherParams?: Record<string, string | number | (string | number)[]>;
   path?: string;
+  partnerFilter?: (
+    partner: TenantPartnersListQueryResult['TenantPartners'][number],
+  ) => boolean;
 }
 
 export interface TriggerRequestOptions extends IRequestOptions {
@@ -327,6 +330,7 @@ export abstract class BaseClientApi {
       paginatedParams,
       otherParams,
       path,
+      partnerFilter,
     } = params;
     this.logger.info(
       `Broadcasting to clients for ${moduleId}_${interfaceRole}`,
@@ -345,6 +349,9 @@ export abstract class BaseClientApi {
     const partners = response.TenantPartners;
     for (const partner of partners) {
       if (!shouldBroadcastToPartner(partner, moduleId, this.logger)) {
+        continue;
+      }
+      if (partnerFilter && !partnerFilter(partner)) {
         continue;
       }
       const HttpMethodForPartner = handleHttpMethodForPartner(
