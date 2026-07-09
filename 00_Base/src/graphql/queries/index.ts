@@ -15,3 +15,4 @@ export * from './token.queries.js';
 export * from './transaction.queries.js';
 export * from './evse.queries.js';
 export * from './connector.queries.js';
+export * from './gireveBroadcastRetry.queries.js';

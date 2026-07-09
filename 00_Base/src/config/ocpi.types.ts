@@ -202,6 +202,15 @@ export const ocpiConfigInputSchema = z.object({
     .object({
       countryCode: z.string().optional(),
       partyId: z.coerce.string().optional(),
+      /**
+       * How often to retry failed Gireve broadcasts (in seconds).
+       * Used by the outbox/worker retry mechanism.
+       */
+      retryIntervalSeconds: z.number().int().positive().default(300).optional(),
+      /** Max rows claimed per CronJob run. */
+      retryBatchSize: z.number().int().positive().default(50).optional(),
+      /** Release processing locks older than this (seconds) at run start. */
+      retryStaleLockSeconds: z.number().int().positive().default(900).optional(),
     })
     .optional(),
 });
@@ -373,6 +382,15 @@ export const ocpiConfigSchema = z.object({
     .object({
       countryCode: z.string().optional(),
       partyId: z.coerce.string().optional(),
+      /**
+       * How often to retry failed Gireve broadcasts (in seconds).
+       * Used by the outbox/worker retry mechanism.
+       */
+      retryIntervalSeconds: z.number().int().positive().default(300).optional(),
+      /** Max rows claimed per CronJob run. */
+      retryBatchSize: z.number().int().positive().default(50).optional(),
+      /** Release processing locks older than this (seconds) at run start. */
+      retryStaleLockSeconds: z.number().int().positive().default(900).optional(),
     })
     .optional(),
 });

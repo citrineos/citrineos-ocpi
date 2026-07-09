@@ -1,5 +1,30 @@
 Scripts for the CitrineOS OCPI server
 
+### Gireve retry runner (CronJob entrypoint)
+
+The Gireve broadcast retry worker runs as a **one-shot** process, separate from the OCPI HTTP server pods. Use the same Docker image as `citrineos-ocpi` with a different command.
+
+Local / Docker (no full build required):
+
+```bash
+npm run gireve-retry
+```
+
+Production image (after `npm run build`):
+
+```bash
+npm run gireve-retry:dist
+```
+
+Kubernetes (sizopt): CronJob example — same env as the OCPI pod, `concurrencyPolicy: Forbid`, schedule aligned with `CITRINEOS_OCPI_GIREVE_RETRY_INTERVAL_SECONDS`:
+
+```yaml
+command: ["node", "Server/dist/gireve-retry/index.js"]
+env:
+  - name: APP_ENV
+    value: docker
+```
+
 ### convert_authorization_for_ocpi.ts - Converts the authorization for OCPI
 
 This script is used to convert the authorization for OCPI escpecially change tenant + add additional info for real time auth.

@@ -17,6 +17,8 @@
     "start-docker-compose": "docker compose -f docker-compose.yml up --force-recreate",
     "start-docker": "npx nodemon",
     "start-docker-cloud": "cross-env OCPI_ENV=docker npm run init-db --prefix ../ && node --inspect=0.0.0.0:9229 dist/index.js",
+    "gireve-retry": "cross-env APP_ENV=${APP_ENV:-docker} tsx src/gireve-retry/index.ts",
+    "gireve-retry:dist": "cross-env APP_ENV=${APP_ENV:-docker} node dist/gireve-retry/index.js",
     "start-everest": "cd ./everest && EVEREST_IMAGE_TAG=0.0.16 EVEREST_TARGET_URL=ws://host.docker.internal:8081/cp001 docker-compose up",
     "start-everest-windows": "cd ./everest && set EVEREST_IMAGE_TAG=0.0.16&& set EVEREST_TARGET_URL=ws://host.docker.internal:8081/cp001&& docker compose up -d"
   },
