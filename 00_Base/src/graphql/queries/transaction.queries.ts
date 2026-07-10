@@ -84,6 +84,24 @@ export const GET_TRANSACTION_BY_TRANSACTION_ID_QUERY = gql`
       authorizationId
       tariffId
       authorization: Authorization {
+        id
+        idToken
+        idTokenType
+        additionalInfo
+        status
+        realTimeAuth
+        language1
+        createdAt
+        updatedAt
+        groupAuthorization: GroupAuthorization {
+          idToken
+        }
+        tenants {
+          tenant {
+            countryCode
+            partyId
+          }
+        }
         tenantPartner: TenantPartner {
           id
           countryCode

@@ -150,10 +150,9 @@ export const handleHttpMethodForPartner = (
 ) => {
   const config = Container.get<OcpiConfig>(OcpiConfigToken);
   if (
-    moduleId === ModuleId.Tokens &&
+    (moduleId === ModuleId.Tokens || moduleId === ModuleId.Sessions) &&
     httpMethod === HttpMethod.Patch &&
-    partner.countryCode === config.gireve?.countryCode &&
-    partner.partyId === config.gireve?.partyId
+    isGirevePartner(partner)
   ) {
     return HttpMethod.Put;
   }

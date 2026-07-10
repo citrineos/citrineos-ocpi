@@ -13,12 +13,14 @@ import { InterfaceRole } from '../model/InterfaceRole.js';
 import type {
   MeterValueDto,
   TenantDto,
+  TenantPartnerDto,
   TransactionDto,
 } from '@zetra/citrineos-base';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { SessionMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
-import { tokenOwnerPartnerFilter } from '../util/helpers.js';
+import { isGirevePartner, tokenOwnerPartnerFilter } from '../util/helpers.js';
+import type { BroadcastParams } from '../trigger/BaseClientApi.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -38,32 +40,66 @@ export class SessionBroadcaster extends BaseBroadcaster {
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
+    if (!tokenOwnerTenantPartnerId) {
+      this.logger.debug('No token owner partner, skipping session broadcast');
+      return;
+    }
     await this.broadcastSession(
       tenant,
       session,
       HttpMethod.Put,
       path,
-      tokenOwnerTenantPartnerId,
+      tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
     );
   }
 
   async broadcastPatchSession(
     tenant: TenantDto,
-    transactionDto: Partial<TransactionDto>,
+    transactionDto: TransactionDto,
     tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
-    const session =
-      await this.sessionMapper.mapPartialTransactionToPartialSession(
-        transactionDto,
-      );
+    if (tokenOwnerTenantPartnerId == null) {
+      this.logger.debug('No token owner partner, skipping session broadcast');
+      return;
+    }
+    // const session =
+    //   await this.sessionMapper.mapPartialTransactionToPartialSession(
+    //     transactionDto,
+    //   );
 
-    const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
+    // const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
+    // await this.broadcastSession(
+    //   tenant,
+    //   session,
+    //   HttpMethod.Patch,
+    //   path,
+    //   tokenOwnerTenantPartnerId,
+    // );
+    const patchBody = await this.sessionMapper.mapIncrementalSessionPatch(
+      transactionDto as TransactionDto,
+    );
+    const putBody = await this.sessionMapper.mapTransactionToSession(
+      transactionDto as TransactionDto,
+    );
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${transactionDto.transactionId}`;
+    // Standard partners: PATCH incremental
+
+    const ownerId = tokenOwnerTenantPartnerId;
+
     await this.broadcastSession(
       tenant,
-      session,
+      patchBody,
       HttpMethod.Patch,
       path,
-      tokenOwnerTenantPartnerId,
+      (p) => p.id === ownerId && !isGirevePartner(p),
+    );
+
+    await this.broadcastSession(
+      tenant,
+      putBody,
+      HttpMethod.Put,
+      path,
+      (p) => p.id === ownerId && isGirevePartner(p),
     );
   }
 
@@ -82,7 +118,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
       { charging_periods },
       HttpMethod.Patch,
       path,
-      tokenOwnerTenantPartnerId,
+      tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId!),
     );
   }
 
@@ -91,12 +127,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
     session: Partial<Session>,
     method: HttpMethod,
     path: string,
-    tokenOwnerTenantPartnerId?: number | null,
+    partnerFilter?: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
   ): Promise<void> {
-    if (tokenOwnerTenantPartnerId == null) {
-      this.logger.debug('No token owner partner, skipping session broadcast');
-      return;
-    }
     try {
       await this.sessionsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
@@ -107,7 +141,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: session,
         path: path,
-        partnerFilter: tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
+        partnerFilter: partnerFilter,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Session failed for ${path}`, e);

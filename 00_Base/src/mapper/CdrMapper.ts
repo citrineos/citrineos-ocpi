@@ -113,7 +113,7 @@ export class CdrMapper extends BaseTransactionMapper {
       charging_periods: session.charging_periods || [],
       signed_data: await this.getSignedData(session),
       // TODO: Map based on OCPI Tariff
-      total_cost: this.calculateTotalCost(session.kwh, tariff.pricePerKwh),
+      total_cost: this.calculateTotalCost(session.kwh, tariff),
       total_fixed_cost: await this.calculateTotalFixedCost(tariff),
       total_energy: session.kwh,
       total_energy_cost: await this.calculateTotalEnergyCost(session, tariff),

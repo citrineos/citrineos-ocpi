@@ -1900,7 +1900,12 @@ export type GetTariffByKeyQueryResult = {
     tenant: {
       countryCode?: string | null,
       partyId?: string | null
-    }
+    },
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>
   }>
 };
 
@@ -3010,6 +3015,24 @@ export type GetTransactionByTransactionIdQueryResult = {
       partyId?: string | null
     },
     authorization?: {
+      id: number,
+      idToken: any,
+      idTokenType?: string | null,
+      additionalInfo?: any | null,
+      status: any,
+      realTimeAuth: string,
+      language1?: string | null,
+      createdAt: any,
+      updatedAt: any,
+      groupAuthorization?: {
+        idToken: any
+      } | null,
+      tenants: Array<{
+        tenant: {
+          countryCode?: string | null,
+          partyId?: string | null
+        }
+      }>,
       tenantPartner?: {
         id: number,
         countryCode: string,

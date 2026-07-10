@@ -65,12 +65,12 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   async handleTransactionInsert(
     event: IDtoEvent<TransactionDto>,
   ): Promise<void> {
-    logDbBroadcast(
-      this._logger,
-      'debug',
-      'Handling Transaction Insert:',
-      event,
-    );
+    // logDbBroadcast(
+    //   this._logger,
+    //   'debug',
+    //   'Handling Transaction Insert:',
+    //   event,
+    // );
     const transactionDto = event._payload;
     const transaction = await this.ocpiGraphqlClient.request<
       GetTransactionByTransactionIdQueryResult,
@@ -84,7 +84,8 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       );
       return;
     }
-
+    console.log('\n\ntransactionDto INSERT!!!', transactionDto);
+    console.log('\n\ntransaction INSERT!!!', transaction);
     const tenant = transactionDto.tenant;
 
     await this.sessionBroadcaster.broadcastPutSession(
@@ -102,32 +103,61 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   async handleTransactionUpdate(
     event: IDtoEvent<Partial<TransactionDto>>,
   ): Promise<void> {
-    logDbBroadcast(
-      this._logger,
-      'debug',
-      'Handling Transaction Update:',
-      event,
-    );
+    console.log('\n\nhandleTransaction UPDATe!!!', event);
+    // logDbBroadcast(
+    //   this._logger,
+    //   'debug',
+    //   'Handling Transaction Update:',
+    //   event,
+    // );
     const transactionDto = event._payload;
+    // const isEnd = transactionDto.isActive === false;
+    const hasMeterProgress =
+      transactionDto.totalKwh !== undefined ||
+      transactionDto.meterStart !== undefined;
+
     const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
       GetTransactionByTransactionIdQueryResult,
       GetTransactionByTransactionIdQueryVariables
     >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
       transactionId: transactionDto.transactionId!,
     });
+
+    const fullTx = fullTransactionDtoResponse.Transactions[0];
+    const isEnd =
+      transactionDto.isActive === false || fullTx.isActive === false;
+    const hasChargingStateChange = transactionDto.chargingState !== undefined;
+
+    console.log('transactionDto.isActive', transactionDto.isActive);
+    console.log('fullTx.isActive', fullTx.isActive);
+    console.log('\n\nisEnd!!!', isEnd);
+    if (!isEnd && !hasMeterProgress && !hasChargingStateChange) {
+      this._logger.info(
+        `Transaction is not end and has no meter progress: ${event._eventId}`,
+      );
+      return; // chargingState-only — don't PATCH
+    }
     if (!fullTransactionDtoResponse.Transactions[0]) {
       this._logger.error(
         `Full Transaction DTO not found for ID ${transactionDto.transactionId}, cannot broadcast.`,
       );
       return;
     }
+    const fullTransaction = {
+      ...fullTransactionDtoResponse.Transactions[0],
+      ...transactionDto,
+    } as TransactionDto;
+
+    console.log('\n\nfullTransaction CHNGED!!!', fullTransaction);
     const tenant = transactionDto.tenant;
+    // if (fullTransaction.meterValues && fullTransaction.meterValues.length > 1) {
     await this.sessionBroadcaster.broadcastPatchSession(
       tenant!,
-      transactionDto,
+      fullTransaction,
       fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner
         ?.id,
     );
+    // }
     if (transactionDto.isActive === false) {
       this._logger.info(`Transaction is no longer active: ${event._eventId}`);
 
@@ -137,50 +167,50 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     }
   }
 
-  @AsDtoEventHandler(
-    DtoEventType.INSERT,
-    DtoEventObjectType.MeterValue,
-    'MeterValueNotification',
-  )
-  async handleMeterValueInsert(event: IDtoEvent<MeterValueDto>): Promise<void> {
-    logDbBroadcast(
-      this._logger,
-      'debug',
-      'Handling Meter Value Insert:',
-      event,
-    );
-    const meterValueDto = event._payload;
-    const tenant = meterValueDto.tenant;
-    if (meterValueDto.transactionDatabaseId) {
-      const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
-        GetTransactionByTransactionIdQueryResult,
-        GetTransactionByTransactionIdQueryVariables
-      >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
-        transactionId: meterValueDto.transactionId!,
-      });
-      this._logger.debug(
-        `Meter Value belongs to Transaction: ${meterValueDto.transactionDatabaseId}`,
-      );
-      if (!meterValueDto.tariffId) {
-        this._logger.error(
-          `Tariff ID missing in Meter Value notification for Transaction ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
-        );
-        return;
-      }
+  // @AsDtoEventHandler(
+  //   DtoEventType.INSERT,
+  //   DtoEventObjectType.MeterValue,
+  //   'MeterValueNotification',
+  // )
+  // async handleMeterValueInsert(event: IDtoEvent<MeterValueDto>): Promise<void> {
+  //   logDbBroadcast(
+  //     this._logger,
+  //     'debug',
+  //     'Handling Meter Value Insert:',
+  //     event,
+  //   );
+  //   const meterValueDto = event._payload;
+  //   const tenant = meterValueDto.tenant;
+  //   if (meterValueDto.transactionDatabaseId) {
+  //     const fullTransactionDtoResponse = await this.ocpiGraphqlClient.request<
+  //       GetTransactionByTransactionIdQueryResult,
+  //       GetTransactionByTransactionIdQueryVariables
+  //     >(GET_TRANSACTION_BY_TRANSACTION_ID_QUERY, {
+  //       transactionId: meterValueDto.transactionId!,
+  //     });
+  //     this._logger.debug(
+  //       `Meter Value belongs to Transaction: ${meterValueDto.transactionDatabaseId}`,
+  //     );
+  //     if (!meterValueDto.tariffId) {
+  //       this._logger.error(
+  //         `Tariff ID missing in Meter Value notification for Transaction ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
+  //       );
+  //       return;
+  //     }
 
-      if (!fullTransactionDtoResponse.Transactions[0]) {
-        this._logger.error(
-          `Transaction not found for meter value ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
-        );
-        return;
-      }
+  //     if (!fullTransactionDtoResponse.Transactions[0]) {
+  //       this._logger.error(
+  //         `Transaction not found for meter value ${meterValueDto.transactionDatabaseId}, cannot broadcast.`,
+  //       );
+  //       return;
+  //     }
 
-      await this.sessionBroadcaster.broadcastPatchSessionChargingPeriod(
-        tenant!,
-        meterValueDto,
-        fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner
-          ?.id,
-      );
-    }
-  }
+  //     await this.sessionBroadcaster.broadcastPatchSessionChargingPeriod(
+  //       tenant!,
+  //       meterValueDto,
+  //       fullTransactionDtoResponse.Transactions[0].authorization?.tenantPartner
+  //         ?.id,
+  //     );
+  //   }
+  // }
 }

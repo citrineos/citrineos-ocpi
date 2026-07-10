@@ -33,6 +33,7 @@ import {
 import { LocationMapper } from './LocationMapper.js';
 import { TokensMapper } from './TokensMapper.js';
 import { TariffMapper } from './TariffMapper.js';
+import { TariffDimensionType } from '../model/TariffDimensionType.js';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -158,9 +159,47 @@ export abstract class BaseTransactionMapper {
     return transactionIdToOcpiTariffMap;
   }
 
-  protected calculateTotalCost(totalKwh: number, tariffCost: number): Price {
-    return {
-      excl_vat: Math.floor(totalKwh * tariffCost * 100) / 100,
-    };
+  protected calculateTotalCost(totalKwh: number, tariff: TariffDto): Price {
+    // const tariffPerKwh = tariff.TariffElements
+    console.log('\n\ntariff!!! TOTAL COST', tariff.TariffElements);
+    const tariffElement = tariff.TariffElements?.[0];
+    console.log('\n\ntariffElement!!! TOTAL COST', tariffElement);
+    if (tariffElement) {
+      const energyComponent = tariffElement.priceComponents?.find(
+        (component) => component.type === TariffDimensionType.ENERGY,
+      );
+
+      const pricePerKwh = energyComponent?.price ?? tariff.pricePerKwh ?? 0;
+      const taxRate = energyComponent?.vat ?? tariff.taxRate ?? 0;
+
+      console.log('\n\npricePerKwh!!! TOTAL COST', pricePerKwh);
+      console.log('\n\ntaxRate!!! TOTAL COST', taxRate);
+
+      if (pricePerKwh > 0 || totalKwh === 0) {
+        const priceExclVat = Math.round(totalKwh * pricePerKwh * 100) / 100;
+        const priceInclVat =
+          Math.round(priceExclVat * (1 + taxRate / 100) * 100) / 100;
+        console.log('\n\npriceExclVat!!! TOTAL COST', priceExclVat);
+        console.log('\n\npriceInclVat!!! TOTAL COST', priceInclVat);
+        return { excl_vat: priceExclVat, incl_vat: priceInclVat };
+      } else {
+        this.logger.error('No price per kwh found for tariff element', {
+          tariffElement,
+        });
+        return {
+          excl_vat: 0,
+          incl_vat: 0,
+        };
+      }
+    } else {
+      this.logger.error('No tariff element found for tariff', { tariff });
+      return {
+        excl_vat: 0,
+        incl_vat: 0,
+      };
+    }
+    // return {
+    //   excl_vat: Math.floor(totalKwh * 0.03 * 100) / 100,
+    // };
   }
 }

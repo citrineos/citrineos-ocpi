@@ -25,6 +25,7 @@ import { LocationsService } from '../services/LocationsService.js';
 import type { LocationDTO } from '../model/DTO/LocationDTO.js';
 import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
 import { OcpiGraphqlClient } from '../graphql/index.js';
+import { ChargingStateEnum } from '@zetra/citrineos-base';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -164,6 +165,37 @@ export class SessionMapper extends BaseTransactionMapper {
     return result;
   }
 
+  public async mapIncrementalSessionPatch(
+    transaction: TransactionDto,
+  ): Promise<Partial<Session>> {
+    const [locationMap, tokenMap, tariffMap] =
+      await this.getLocationsTokensAndTariffsMapsForTransactions([transaction]);
+    const tariff = tariffMap.get(transaction.transactionId!);
+    if (!tariff) {
+      throw new Error(
+        `Tariff not found for transaction ${transaction.transactionId}`,
+      );
+    }
+    const sorted = [...(transaction.meterValues ?? [])].sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
+    const periods =
+      sorted.length > 1
+        ? this.getChargingPeriods(sorted.slice(-2), String(tariff.id)).slice(-1)
+        : undefined;
+
+    return {
+      id: transaction.transactionId,
+      end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
+      kwh: transaction.totalKwh || 0,
+      status: this.getTransactionStatus(transaction),
+      last_updated: transaction.updatedAt,
+      total_cost: this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
+      ...(periods ? { charging_periods: periods } : {}),
+    };
+  }
+
   /**
    * Maps a partial transaction with available context data
    */
@@ -219,10 +251,7 @@ export class SessionMapper extends BaseTransactionMapper {
         transaction.endTime !== undefined
       ) {
         session.total_cost = transaction.endTime
-          ? this.calculateTotalCost(
-              transaction.totalKwh || 0,
-              tariff.pricePerKwh,
-            )
+          ? this.calculateTotalCost(transaction.totalKwh || 0, tariff)
           : null;
       }
     }
@@ -347,7 +376,7 @@ export class SessionMapper extends BaseTransactionMapper {
       // TODO: Fill in optional values
       authorization_reference: null,
       total_cost: transaction.endTime
-        ? this.calculateTotalCost(transaction.totalKwh || 0, tariff.pricePerKwh)
+        ? this.calculateTotalCost(transaction.totalKwh || 0, tariff)
         : null,
       meter_id: null,
     };
@@ -397,6 +426,9 @@ export class SessionMapper extends BaseTransactionMapper {
     meterValues: MeterValueDto[] = [],
     tariffId: string,
   ): ChargingPeriod[] {
+    // console.log('\ngetChargingPeriods!!!', meterValues, tariffId);
+    // console.log('\nmeterValues!!!', meterValues);
+    // console.log('\ntariffId!!!', tariffId);
     return meterValues
       .sort(
         (a, b) =>
@@ -502,6 +534,9 @@ export class SessionMapper extends BaseTransactionMapper {
 
   private getTransactionStatus(transaction: TransactionDto): SessionStatus {
     // TODO: Implement other session status
+    if (transaction.chargingState === ChargingStateEnum.EVConnected) {
+      return SessionStatus.PENDING;
+    }
     return transaction.endTime ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }
 }

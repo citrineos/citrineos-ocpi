@@ -248,6 +248,32 @@ export class TokensMapper {
   }
 
   public static getContractId(authorization: AuthorizationDto): string {
+    console.log(
+      '\n\nauthorization.additionalInfo!!!',
+      authorization.additionalInfo,
+    );
+    console.log(
+      '\n\nauthorization.additionalInfo.length!!!',
+      authorization.additionalInfo?.length,
+    );
+    console.log(
+      '\n\nauthorization.additionalInfo.find(info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID!!!',
+      authorization.additionalInfo!.find(
+        (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
+      ),
+    );
+    console.log(
+      '\n\nauthorization.additionalInfo.find(info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID!!!',
+      authorization.additionalInfo!.find(
+        (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
+      )?.additionalIdToken,
+    );
+    console.log(
+      '\n\nauthorization.additionalInfo.find(info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID!!!',
+      authorization.additionalInfo!.find(
+        (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
+      )?.additionalIdToken,
+    );
     const contractId = authorization.additionalInfo!.find(
       (info) => info.type === OCPP2_0_1.IdTokenEnumType.eMAID,
     )?.additionalIdToken;
