@@ -13,9 +13,9 @@
     "clean": "rm -rf dist/* tsconfig.tsbuildinfo",
     "fresh": "rm -rf node_modules package-lock.json && npm run clean",
     "copy-assets": "tsx ./copy-assets.ts ./src/assets ./dist/assets",
-    "start": "cross-env APP_NAME=all APP_ENV=local nodemon",
+    "start": "cross-env APP_NAME=all APP_ENV=local npx nodemon",
     "start-docker-compose": "docker compose -f docker-compose.yml up --force-recreate",
-    "start-docker": "nodemon",
+    "start-docker": "npx nodemon",
     "start-docker-cloud": "cross-env OCPI_ENV=docker npm run init-db --prefix ../ && node --inspect=0.0.0.0:9229 dist/index.js",
     "start-everest": "cd ./everest && EVEREST_IMAGE_TAG=0.0.16 EVEREST_TARGET_URL=ws://host.docker.internal:8081/cp001 docker-compose up",
     "start-everest-windows": "cd ./everest && set EVEREST_IMAGE_TAG=0.0.16&& set EVEREST_TARGET_URL=ws://host.docker.internal:8081/cp001&& docker compose up -d"

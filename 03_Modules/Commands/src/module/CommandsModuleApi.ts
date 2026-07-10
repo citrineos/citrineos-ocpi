@@ -29,9 +29,11 @@ import {
   CommandsService,
   CommandType,
   EnumParam,
+  FunctionalEndpointParams,
   generateMockForSchema,
   ModuleId,
   MultipleTypes,
+  OcpiHeaders,
   ReserveNowSchema,
   ReserveNowSchemaName,
   ResponseGenerator,
@@ -90,6 +92,7 @@ export class CommandsModuleApi
       | StartSession
       | StopSession
       | UnlockConnector,
+    @FunctionalEndpointParams() ocpiHeaders: OcpiHeaders,
     @Ctx() ctx: any,
   ): Promise<OcpiCommandResponse> {
     this.logger.debug('postCommand', commandType, payload);
@@ -139,6 +142,7 @@ export class CommandsModuleApi
       validationResult.data,
       ctx!.state!.tenantPartner as TenantPartnerDto,
       ctx!.state!.roamingPartner as RoamingPartnerDto,
+      ocpiHeaders,
     );
   }
 

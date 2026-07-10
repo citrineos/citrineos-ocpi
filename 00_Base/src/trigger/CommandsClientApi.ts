@@ -18,6 +18,10 @@ import {
   COMMAND_RESPONSE_URL_CACHE_RESOLVED,
 } from '../util/Consts.js';
 import { CacheWrapper } from '../util/CacheWrapper.js';
+import {
+  parseCommandCallbackContext,
+  swapRoutingForCallback,
+} from '../util/commandCallbackContext.js';
 
 @Service()
 export class CommandsClientApi extends BaseClientApi {
@@ -45,6 +49,14 @@ export class CommandsClientApi extends BaseClientApi {
     commandId: string,
     awsSecretCertificateArn?: string | null,
   ): Promise<OcpiEmptyResponse> {
+    const routing = await this.resolveCommandCallbackRouting(
+      commandId,
+      fromCountryCode,
+      fromPartyId,
+      toCountryCode,
+      toPartyId,
+    );
+
     await this.cache.set(
       commandId,
       COMMAND_RESPONSE_URL_CACHE_RESOLVED,
@@ -53,10 +65,10 @@ export class CommandsClientApi extends BaseClientApi {
     );
 
     return this.request(
-      fromCountryCode,
-      fromPartyId,
-      toCountryCode,
-      toPartyId,
+      routing.fromCountryCode,
+      routing.fromPartyId,
+      routing.toCountryCode,
+      routing.toPartyId,
       HttpMethod.Post,
       OcpiEmptyResponseSchema,
       partnerProfile,
@@ -68,5 +80,31 @@ export class CommandsClientApi extends BaseClientApi {
       undefined,
       awsSecretCertificateArn ?? undefined,
     );
+  }
+
+  private async resolveCommandCallbackRouting(
+    commandId: string,
+    fromCountryCode: string,
+    fromPartyId: string,
+    toCountryCode: string,
+    toPartyId: string,
+  ) {
+    const cached = await this.cache.get<string>(
+      commandId,
+      COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
+    );
+    const context =
+      cached && cached !== COMMAND_RESPONSE_URL_CACHE_RESOLVED
+        ? parseCommandCallbackContext(cached)
+        : null;
+    if (context) {
+      return swapRoutingForCallback(context);
+    }
+    return {
+      fromCountryCode: toCountryCode,
+      fromPartyId: toPartyId,
+      toCountryCode: fromCountryCode,
+      toPartyId: fromPartyId,
+    };
   }
 }

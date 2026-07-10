@@ -41,6 +41,11 @@ import {
   COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
   COMMAND_RESPONSE_URL_CACHE_RESOLVED,
 } from './Consts.js';
+import type { OcpiHeaders } from '../model/OcpiHeaders.js';
+import {
+  parseCommandCallbackContext,
+  serializeCommandCallbackContext,
+} from './commandCallbackContext.js';
 
 @Service()
 export class CommandExecutor {
@@ -70,11 +75,13 @@ export class CommandExecutor {
     startSession: StartSession,
     tenantPartner: TenantPartnerDto,
     chargingStation: ChargingStationDto,
+    ocpiHeaders: OcpiHeaders,
   ): Promise<void> {
     this.logger.info('Executing StartSession command', { startSession });
 
     const commandId = await this.generateCommandId(
       startSession.response_url,
+      ocpiHeaders,
       tenantPartner,
     );
 
@@ -101,11 +108,13 @@ export class CommandExecutor {
     stopSession: StopSession,
     tenantPartner: TenantPartnerDto,
     chargingStation: ChargingStationDto,
+    ocpiHeaders: OcpiHeaders,
   ): Promise<void> {
     this.logger.info('Executing StopSession command', { stopSession });
 
     const commandId = await this.generateCommandId(
       stopSession.response_url,
+      ocpiHeaders,
       tenantPartner,
     );
 
@@ -132,11 +141,13 @@ export class CommandExecutor {
     unlockConnector: UnlockConnector,
     tenantPartner: TenantPartnerDto,
     chargingStation: ChargingStationDto,
+    ocpiHeaders: OcpiHeaders,
   ): Promise<void> {
     this.logger.info('Executing UnlockConnector command', { unlockConnector });
 
     const commandId = await this.generateCommandId(
       unlockConnector.response_url,
+      ocpiHeaders,
       tenantPartner,
     );
 
@@ -449,16 +460,18 @@ export class CommandExecutor {
     commandId: string,
     response: any,
   ): Promise<void> {
-    const responseUrl: string | null = await this.cache.get(
+    const cached = await this.cache.get<string>(
       commandId,
       COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
     );
-    if (!responseUrl) {
+    if (!cached || cached === COMMAND_RESPONSE_URL_CACHE_RESOLVED) {
       this.logger.error('Response URL not found in cache', {
         commandId,
       });
       return;
     }
+    const callbackContext = parseCommandCallbackContext(cached);
+    const responseUrl = callbackContext?.responseUrl ?? cached;
 
     const tenantPartnerResponse = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByIdQueryResult,
@@ -505,12 +518,13 @@ export class CommandExecutor {
 
   private async generateCommandId(
     responseUrl: string,
+    ocpiHeaders: OcpiHeaders,
     tenantPartner: TenantPartnerDto,
   ): Promise<string> {
     const commandId = uuidv4();
     await this.cache.set(
       commandId,
-      responseUrl,
+      serializeCommandCallbackContext(responseUrl, ocpiHeaders),
       COMMAND_RESPONSE_URL_CACHE_NAMESPACE,
       this.config.commands.timeout,
     );

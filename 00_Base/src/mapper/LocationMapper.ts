@@ -441,13 +441,39 @@ export class EvseMapper {
     };
   }
 
-  static mapEvseStatusFromConnectors(connectors: ConnectorDto[]): EvseStatus {
+  static activeTransactionConnectorIds(station: {
+    activeTransactions?: Array<{ connectorId?: number | null }> | null;
+  }): ReadonlySet<number> {
+    return new Set(
+      station.activeTransactions
+        ?.map((transaction) => transaction.connectorId)
+        .filter((connectorId): connectorId is number => connectorId != null) ??
+        [],
+    );
+  }
+
+  static mapEvseStatusFromConnectors(
+    connectors: ConnectorDto[],
+    activeTransactionConnectorIds?: ReadonlySet<number>,
+  ): EvseStatus {
     if (!connectors || connectors.length === 0) {
       return EvseStatus.UNKNOWN;
     }
 
+    const isOccupiedWithActiveTransaction = (connector: ConnectorDto) =>
+      connector.status === ConnectorStatusEnum.Occupied &&
+      connector.id != null &&
+      activeTransactionConnectorIds?.has(connector.id) === true;
+
+    const isOccupiedWithoutActiveTransaction = (connector: ConnectorDto) =>
+      connector.status === ConnectorStatusEnum.Occupied &&
+      (activeTransactionConnectorIds === undefined ||
+        connector.id == null ||
+        !activeTransactionConnectorIds.has(connector.id));
+
     const anyInUse = connectors.some(
       (c) =>
+        isOccupiedWithActiveTransaction(c) ||
         c.status === ConnectorStatusEnum.Preparing ||
         c.status === ConnectorStatusEnum.Charging ||
         c.status === ConnectorStatusEnum.SuspendedEVSE ||
@@ -464,7 +490,9 @@ export class EvseMapper {
       return EvseStatus.RESERVED;
     }
     const anyAvailable = connectors.some(
-      (c) => c.status === ConnectorStatusEnum.Available,
+      (c) =>
+        c.status === ConnectorStatusEnum.Available ||
+        isOccupiedWithoutActiveTransaction(c),
     );
     if (anyAvailable) {
       return EvseStatus.AVAILABLE;
@@ -600,10 +628,10 @@ export class ConnectorMapper {
   }
 
   static mapConnectorType(
-    connectorType: ConnectorTypeEnumType | null | undefined,
+    connectorType: ConnectorTypeEnumType | string | null | undefined,
   ): ConnectorType | undefined {
     const logger = Container.get(Logger);
-    switch (connectorType) {
+    switch (connectorType as ConnectorTypeEnumType | string) {
       case ConnectorTypeEnum.CHAdeMO:
         return ConnectorType.CHADEMO;
       case ConnectorTypeEnum.ChaoJi:
@@ -805,19 +833,19 @@ export class ConnectorMapper {
   }
 
   static mapConnectorFormat(
-    connectorFormat: ConnectorFormatEnumType | null | undefined,
+    connectorFormat: ConnectorFormatEnumType | string | null | undefined,
   ): ConnectorFormat | undefined {
     const logger = Container.get(Logger);
-    switch (connectorFormat) {
+    switch (connectorFormat as ConnectorFormatEnumType | string) {
       case 'Socket':
-      case 'SOCKET':
       case ConnectorFormatEnum.Socket:
-      case ConnectorFormatEnum.SOCKET:
         return ConnectorFormat.SOCKET;
       case 'Cable':
-      case 'CABLE':
       case ConnectorFormatEnum.Cable:
-      case ConnectorFormatEnum.CABLE:
+        return ConnectorFormat.CABLE;
+      case 'SOCKET':
+        return ConnectorFormat.SOCKET;
+      case 'CABLE':
         return ConnectorFormat.CABLE;
       default:
         logger.warn(`Unknown Format ${connectorFormat}`);
