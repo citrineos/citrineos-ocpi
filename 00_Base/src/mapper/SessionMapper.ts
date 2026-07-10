@@ -193,10 +193,14 @@ export class SessionMapper extends BaseTransactionMapper {
     );
     const periods =
       sorted.length > 1
+<<<<<<< HEAD
         ? this.getChargingPeriods(
             sorted.slice(-2),
             String(tariff.ocpiTariffId),
           ).slice(-1)
+=======
+        ? this.getChargingPeriods(sorted.slice(-2), String(tariff.id)).slice(-1)
+>>>>>>> 39777b8 (feat: make sessions and CDRs Gireve compliant)
         : undefined;
 
     return {
@@ -205,8 +209,12 @@ export class SessionMapper extends BaseTransactionMapper {
       kwh: transaction.totalKwh || 0,
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt,
+<<<<<<< HEAD
       total_cost:
         this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
+=======
+      total_cost: this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
+>>>>>>> 39777b8 (feat: make sessions and CDRs Gireve compliant)
       ...(periods ? { charging_periods: periods } : {}),
     };
   }

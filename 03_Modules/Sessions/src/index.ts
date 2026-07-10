@@ -65,12 +65,12 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   async handleTransactionInsert(
     event: IDtoEvent<TransactionDto>,
   ): Promise<void> {
-    logDbBroadcast(
-      this._logger,
-      'debug',
-      'Handling Transaction Insert:',
-      event,
-    );
+    // logDbBroadcast(
+    //   this._logger,
+    //   'debug',
+    //   'Handling Transaction Insert:',
+    //   event,
+    // );
     const transactionDto = event._payload;
     const transaction = await this.ocpiGraphqlClient.request<
       GetTransactionByTransactionIdQueryResult,

@@ -145,7 +145,6 @@ export abstract class BaseClientApi {
       this.logger.error('Failed to write outbound request log', err);
     }
   }
-
   private redactHeaders(headers: IHeaders): IHeaders {
     const clone = { ...headers };
     if ('authorization' in clone && clone.authorization) {
