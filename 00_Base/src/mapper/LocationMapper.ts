@@ -313,7 +313,7 @@ export class EvseMapper {
     }
 
     return {
-      uid: UID_FORMAT(station.id, evse.id!),
+      uid: UID_FORMAT(station.id, evse.evseTypeId!),
       evse_id: evse.evseId,
       status: connectors
         ? EvseMapper.mapEvseStatusFromConnectors(
@@ -358,7 +358,7 @@ export class EvseMapper {
     }
 
     return {
-      uid: evse.ocpiUid ?? UID_FORMAT(stationId, evse.id),
+      uid: evse.ocpiUid ?? UID_FORMAT(stationId, evse.evseTypeId!),
       evse_id: evse.evseId,
       physical_reference: evse.physicalReference,
       connectors,

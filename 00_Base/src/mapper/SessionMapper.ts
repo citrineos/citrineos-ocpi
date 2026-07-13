@@ -76,8 +76,19 @@ export class SessionMapper extends BaseTransactionMapper {
     transaction: Partial<TransactionDto>,
   ): Promise<Partial<Session>> {
     // If we don't have a transaction ID, we can only map basic fields
+    const locationResponse = await this.locationsService.getLocationById(
+      transaction.locationId!,
+    );
+    
+    if (!locationResponse.data) {
+      throw new Error(
+        `Location ${transaction.locationId} not found: ${locationResponse.status_message}`,
+      );
+    }
+    
+    const locationDto: LocationDTO = locationResponse.data;
     if (!transaction.transactionId) {
-      return this.mapPartialTransactionWithoutContext(transaction);
+      return this.mapPartialTransactionWithoutContext(transaction, locationDto);
     }
 
     try {
@@ -102,7 +113,7 @@ export class SessionMapper extends BaseTransactionMapper {
         `Failed to fetch context for partial transaction ${transaction.transactionId}. Mapping without context.`,
         error,
       );
-      return this.mapPartialTransactionWithoutContext(transaction);
+      return this.mapPartialTransactionWithoutContext(transaction, locationDto);
     }
   }
 
@@ -191,7 +202,8 @@ export class SessionMapper extends BaseTransactionMapper {
       kwh: transaction.totalKwh || 0,
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt,
-      total_cost: this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
+      total_cost:
+        this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
       ...(periods ? { charging_periods: periods } : {}),
     };
   }
@@ -258,7 +270,7 @@ export class SessionMapper extends BaseTransactionMapper {
 
     // Map fields that depend on transaction structure
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as TransactionDto);
+      session.evse_uid = this.getEvseUid(transaction as TransactionDto, location as LocationDTO);
     }
 
     if (transaction.connectorId) {
@@ -293,6 +305,7 @@ export class SessionMapper extends BaseTransactionMapper {
    */
   private mapPartialTransactionWithoutContext(
     transaction: Partial<TransactionDto>,
+    location: LocationDTO,
   ): Partial<Session> {
     const session: Partial<Session> = {};
 
@@ -321,7 +334,7 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as TransactionDto);
+      session.evse_uid = this.getEvseUid(transaction as TransactionDto, location as LocationDTO);
     }
 
     if (transaction.connectorId) {
@@ -364,12 +377,12 @@ export class SessionMapper extends BaseTransactionMapper {
       // TODO: Implement other auth methods
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
-      evse_uid: this.getEvseUid(transaction),
+      evse_uid: this.getEvseUid(transaction, location),
       connector_id: transaction.connectorId!.toString(),
       currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
-        String(tariff?.id),
+        String(tariff?.ocpiTariffId),
       ),
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt!,
@@ -410,8 +423,24 @@ export class SessionMapper extends BaseTransactionMapper {
     return location.id ?? '';
   }
 
-  private getEvseUid(transaction: TransactionDto): string {
-    return UID_FORMAT(transaction.stationId, transaction.evseId!);
+  private getEvseUid(transaction: TransactionDto, location: LocationDTO): string {
+    const evseTypeId = this.resolveEvseTypeId(transaction);
+  
+    if (evseTypeId != null) {
+      return UID_FORMAT(transaction.stationId, evseTypeId);
+    }
+  
+  
+    throw new Error(
+      `Cannot resolve evse_uid for transaction ${transaction.transactionId}`,
+    );
+  }
+  
+  private resolveEvseTypeId(transaction: TransactionDto): number | undefined {
+    const station = transaction.location?.chargingPool?.find(
+      (s) => s.id === transaction.stationId,
+    );
+    return station?.evses?.find((e) => e.id === transaction.evseId)?.evseTypeId;
   }
 
   private getCurrency(location: LocationDTO): string {
