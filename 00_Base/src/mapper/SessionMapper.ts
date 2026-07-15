@@ -193,14 +193,10 @@ export class SessionMapper extends BaseTransactionMapper {
     );
     const periods =
       sorted.length > 1
-<<<<<<< HEAD
         ? this.getChargingPeriods(
             sorted.slice(-2),
             String(tariff.ocpiTariffId),
           ).slice(-1)
-=======
-        ? this.getChargingPeriods(sorted.slice(-2), String(tariff.id)).slice(-1)
->>>>>>> 39777b8 (feat: make sessions and CDRs Gireve compliant)
         : undefined;
 
     return {
