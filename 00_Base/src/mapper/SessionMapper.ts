@@ -470,9 +470,6 @@ export class SessionMapper extends BaseTransactionMapper {
     meterValues: MeterValueDto[] = [],
     tariffId: string,
   ): ChargingPeriod[] {
-    // console.log('\ngetChargingPeriods!!!', meterValues, tariffId);
-    // console.log('\nmeterValues!!!', meterValues);
-    // console.log('\ntariffId!!!', tariffId);
     return meterValues
       .sort(
         (a, b) =>

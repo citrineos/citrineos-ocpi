@@ -84,8 +84,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       );
       return;
     }
-    console.log('\n\ntransactionDto INSERT!!!', transactionDto);
-    console.log('\n\ntransaction INSERT!!!', transaction);
     const tenant = transactionDto.tenant;
 
     await this.sessionBroadcaster.broadcastPutSession(
@@ -103,7 +101,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   async handleTransactionUpdate(
     event: IDtoEvent<Partial<TransactionDto>>,
   ): Promise<void> {
-    console.log('\n\nhandleTransaction UPDATe!!!', event);
     logDbBroadcast(
       this._logger,
       'debug',
@@ -126,14 +123,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     const fullTx = fullTransactionDtoResponse.Transactions[0];
     const isEnd =
       transactionDto.isActive === false || fullTx.isActive === false;
-    console.log('isEnd!!!', isEnd);
-
     const hasChargingStateChange = transactionDto.chargingState !== undefined;
-    console.log('hasChargingStateChange!!!', hasChargingStateChange);
-
-    console.log('transactionDto.isActive', transactionDto.isActive);
-    console.log('fullTx.isActive', fullTx.isActive);
-    console.log('\n\nisEnd!!!', isEnd);
     if (!isEnd && !hasMeterProgress && !hasChargingStateChange) {
       this._logger.info(
         `Transaction is not end and has no meter progress: ${event._eventId}`,
@@ -151,7 +141,6 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       ...transactionDto,
     } as TransactionDto;
 
-    console.log('\n\nfullTransaction CHNGED!!!', fullTransaction);
     const tenant = transactionDto.tenant;
     // if (fullTransaction.meterValues && fullTransaction.meterValues.length > 1) {
     await this.sessionBroadcaster.broadcastPatchSession(
