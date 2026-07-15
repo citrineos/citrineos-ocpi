@@ -18,6 +18,7 @@ import type {
 import { HttpMethod } from '@zetra/citrineos-base';
 import { SessionMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
+import { tokenOwnerPartnerFilter } from '../util/helpers.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -32,28 +33,44 @@ export class SessionBroadcaster extends BaseBroadcaster {
   async broadcastPutSession(
     tenant: TenantDto,
     transactionDto: TransactionDto,
+    tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(tenant, session, HttpMethod.Put, path);
+    await this.broadcastSession(
+      tenant,
+      session,
+      HttpMethod.Put,
+      path,
+      tokenOwnerTenantPartnerId,
+    );
   }
 
   async broadcastPatchSession(
     tenant: TenantDto,
     transactionDto: Partial<TransactionDto>,
+    tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
     const session =
       await this.sessionMapper.mapPartialTransactionToPartialSession(
         transactionDto,
       );
+
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(tenant, session, HttpMethod.Patch, path);
+    await this.broadcastSession(
+      tenant,
+      session,
+      HttpMethod.Patch,
+      path,
+      tokenOwnerTenantPartnerId,
+    );
   }
 
   async broadcastPatchSessionChargingPeriod(
     tenant: TenantDto,
     meterValueDto: MeterValueDto,
+    tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
     const charging_periods = await this.sessionMapper.getChargingPeriods(
       [meterValueDto],
@@ -65,6 +82,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
       { charging_periods },
       HttpMethod.Patch,
       path,
+      tokenOwnerTenantPartnerId,
     );
   }
 
@@ -73,7 +91,12 @@ export class SessionBroadcaster extends BaseBroadcaster {
     session: Partial<Session>,
     method: HttpMethod,
     path: string,
+    tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
+    if (tokenOwnerTenantPartnerId == null) {
+      this.logger.debug('No token owner partner, skipping session broadcast');
+      return;
+    }
     try {
       await this.sessionsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
@@ -84,6 +107,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: session,
         path: path,
+        partnerFilter: tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Session failed for ${path}`, e);
