@@ -401,13 +401,20 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
 
     const evseConnectors = row.Evse?.Connectors ?? [];
     if (evseConnectors.length === 0) return;
+    const evseTypeId = row.Evse?.evseTypeId;
+    if (evseTypeId == null) {
+      this._logger.error(
+        `EVSE type ID not found for ID ${row.Evse?.id}, cannot broadcast.`,
+      );
+      return;
+    }
 
     // broadcast the tariff update for non gireve partners in OCPI specs format
     await this.locationsBroadcaster.broadcastPatchConnectorTariffs(
       tenant!,
       locationId,
       row.stationId!,
-      row.Evse?.evseTypeId!,
+      evseTypeId,
       row.id,
       tariffIds,
       new Date(payload.updatedAt ?? row.updatedAt),
@@ -419,7 +426,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
       tenant!,
       locationId,
       row.stationId!,
-      row.Evse?.evseTypeId!,
+      evseTypeId,
       evseConnectors as unknown as ConnectorDto[],
       row.id!,
       tariffIds,
