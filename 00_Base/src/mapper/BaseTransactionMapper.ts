@@ -164,7 +164,17 @@ export abstract class BaseTransactionMapper {
 
   protected calculateTotalCost(totalKwh: number, tariff: TariffDto): Price {
     // const tariffElement = tariff.TariffElements?.[0];
-    const tariffElement = (tariff as unknown as { TariffElements?: Array<{ priceComponents?: Array<{ type: string; price?: number; vat?: number }> }> }).TariffElements?.[0];
+    const tariffElement = (
+      tariff as unknown as {
+        TariffElements?: Array<{
+          priceComponents?: Array<{
+            type: string;
+            price?: number;
+            vat?: number;
+          }>;
+        }>;
+      }
+    ).TariffElements?.[0];
 
     if (tariffElement) {
       const energyComponent = tariffElement.priceComponents?.find(
