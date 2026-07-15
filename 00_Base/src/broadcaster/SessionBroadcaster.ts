@@ -92,7 +92,6 @@ export class SessionBroadcaster extends BaseBroadcaster {
 
     const ownerId = tokenOwnerTenantPartnerId;
 
-
     await this.broadcastSessionDeduped(
       txId,
       ownerId,
@@ -111,7 +110,6 @@ export class SessionBroadcaster extends BaseBroadcaster {
       path,
       (p) => p.id === ownerId && isGirevePartner(p),
     );
-  
   }
 
   async broadcastPatchSessionChargingPeriod(
@@ -166,7 +164,9 @@ export class SessionBroadcaster extends BaseBroadcaster {
     body: Partial<Session>,
     method: HttpMethod,
     path: string,
-    partnerFilter: BroadcastParams<typeof OcpiEmptyResponseSchema>['partnerFilter'],
+    partnerFilter: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
   ): Promise<void> {
     if (
       !this.dedupeService.shouldBroadcast(
@@ -202,5 +202,4 @@ export class SessionBroadcaster extends BaseBroadcaster {
   clearSessionBroadcastDedupe(transactionId: string): void {
     this.dedupeService.clear(transactionId);
   }
-  
 }

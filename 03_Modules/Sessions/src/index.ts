@@ -126,7 +126,10 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     const fullTx = fullTransactionDtoResponse.Transactions[0];
     const isEnd =
       transactionDto.isActive === false || fullTx.isActive === false;
+    console.log('isEnd!!!', isEnd);
+  
     const hasChargingStateChange = transactionDto.chargingState !== undefined;
+    console.log('hasChargingStateChange!!!', hasChargingStateChange);
 
     console.log('transactionDto.isActive', transactionDto.isActive);
     console.log('fullTx.isActive', fullTx.isActive);

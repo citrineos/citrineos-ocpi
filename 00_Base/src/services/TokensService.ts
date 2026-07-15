@@ -122,7 +122,7 @@ export class TokensService {
   ): Promise<AuthorizationDto> {
     const authorization =
       TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token);
-  
+
     const existingAuth = await this.ocpiGraphqlClient.request<
       GetAuthorizationByTokenQueryResult,
       GetAuthorizationByTokenQueryVariables
@@ -131,9 +131,9 @@ export class TokensService {
       idTokenType: authorization.idTokenType!,
       tenantPartnerId,
     });
-  
+
     const cacheExpiryDateTime = options?.cacheExpiryDateTime?.toISOString();
-  
+
     let groupAuthorizationId: number | undefined;
     if (token.group_id) {
       groupAuthorizationId = await this.handleGroupAuthorization(
@@ -142,7 +142,7 @@ export class TokensService {
         tenantPartnerId,
       );
     }
-  
+
     if (existingAuth.Authorizations.length > 0) {
       const result = await this.ocpiGraphqlClient.request<
         UpdateAuthorizationMutationResult,
@@ -163,7 +163,7 @@ export class TokensService {
           updatedAt: token.last_updated,
         },
       });
-  
+
       const row = result.update_Authorizations?.returning[0];
       if (!row) {
         throw new Error(
@@ -172,7 +172,7 @@ export class TokensService {
       }
       return row as AuthorizationDto;
     }
-  
+
     const timestamp = token.last_updated;
     const result = await this.ocpiGraphqlClient.request<
       CreateAuthorizationMutationResult,
@@ -193,7 +193,7 @@ export class TokensService {
       createdAt: timestamp,
       updatedAt: timestamp,
     });
-  
+
     const row = result.insert_Authorizations_one;
     if (!row) {
       throw new Error(
@@ -451,16 +451,23 @@ export class TokensService {
         `Failed to authorize token ${realTimeAuthRequest.idToken}`,
       );
     }
-    if(postTokenResult.data!.token && tenantPartner.tenant.id && tenantPartner.id) {
-
-      const roamingToken = { ...postTokenResult.data!.token, whitelist: WhitelistType.NEVER };
+    if (
+      postTokenResult.data!.token &&
+      tenantPartner.tenant.id &&
+      tenantPartner.id
+    ) {
+      const roamingToken = {
+        ...postTokenResult.data!.token,
+        whitelist: WhitelistType.NEVER,
+      };
       const cacheExpiryDateTime = new Date(Date.now() + 5 * 60 * 1000); // 5 min
       await this.persistRoamingAuthorization(
         roamingToken,
         tenantPartner.tenant.id,
         tenantPartner.id,
         { cacheExpiryDateTime },
-      );    }
+      );
+    }
 
     return {
       timestamp: postTokenResult.timestamp.toISOString(),

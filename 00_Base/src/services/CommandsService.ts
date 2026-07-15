@@ -242,12 +242,16 @@ export class CommandsService {
     }
     const tenantId = tenantPartner.tenant?.id;
     const tenantPartnerId = tenantPartner.id;
-    if(tenantId && tenantPartnerId) {
+    if (tenantId && tenantPartnerId) {
       await this.tokensService.persistRoamingAuthorization(
         { ...startSession.token, whitelist: WhitelistType.NEVER },
         tenantId,
         tenantPartnerId,
-        { cacheExpiryDateTime: new Date(Date.now() + this.config.commands.timeout * 1000) },
+        {
+          cacheExpiryDateTime: new Date(
+            Date.now() + this.config.commands.timeout * 1000,
+          ),
+        },
       );
     }
     this.commandExecutor
@@ -260,7 +264,7 @@ export class CommandsService {
       .catch((error) => {
         this.logger.error('Failed to execute StartSession command', error);
       });
-    
+
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,

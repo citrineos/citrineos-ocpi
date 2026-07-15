@@ -195,7 +195,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
         language1: $language1
         groupAuthorizationId: $groupAuthorizationId
         realTimeAuth: $realTimeAuth
-        cacheExpiryDateTime: $cacheExpiryDateTime 
+        cacheExpiryDateTime: $cacheExpiryDateTime
         createdAt: $createdAt
         updatedAt: $updatedAt
         tenants: { data: [{ tenantId: $tenantId }] }
