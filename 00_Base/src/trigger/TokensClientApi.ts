@@ -36,6 +36,19 @@ export class TokensClientApi extends BaseClientApi {
     return url;
   }
 
+  getUrlSender(partnerProfile: PartnerProfile): string {
+    const url = partnerProfile.endpoints?.find(
+      (value: Endpoint) =>
+        value.identifier === EndpointIdentifier.TOKENS_SENDER,
+    )?.url;
+    if (!url) {
+      throw new Error(
+        `No Tokens endpoint available for partnerProfile ${JSON.stringify(partnerProfile)}`,
+      );
+    }
+    return url;
+  }
+
   async getTokens(
     fromCountryCode: string,
     fromPartyId: string,
@@ -82,7 +95,7 @@ export class TokensClientApi extends BaseClientApi {
       AuthorizationInfoResponseSchema,
       partnerProfile,
       true,
-      `${this.getUrl(partnerProfile)}/${path}`,
+      `${this.getUrlSender(partnerProfile)}/${path}`,
       body,
       undefined,
       tokenTypeParam,
