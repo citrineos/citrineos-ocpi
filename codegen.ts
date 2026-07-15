@@ -56,6 +56,7 @@ export type Authorizations_Set_Input = {
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
   status?: InputMaybe<Scalars['authorization_status']['input']>;
 };

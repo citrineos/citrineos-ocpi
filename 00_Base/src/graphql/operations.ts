@@ -29,6 +29,7 @@ export type Authorizations_Set_Input = {
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
   status?: InputMaybe<Scalars['authorization_status']['input']>;
 };
@@ -2850,6 +2851,7 @@ export type CreateAuthorizationMutationVariables = Exact<{
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   createdAt: Scalars['timestamptz']['input'];
   updatedAt: Scalars['timestamptz']['input'];
 }>;
@@ -2866,6 +2868,7 @@ export type CreateAuthorizationMutationResult = {
     status: any,
     realTimeAuth: string,
     language1?: string | null,
+    cacheExpiryDateTime?: any | null,
     groupAuthorizationId?: number | null,
     tenants: Array<{
       tenantId: number,

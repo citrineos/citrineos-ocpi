@@ -40,6 +40,8 @@ import { ChargingStationMapper } from '../mapper/ChargingStationMapper.js';
 import { EvseMapper } from '../mapper/LocationMapper.js';
 import { EvseStatus } from '../model/EvseStatus.js';
 import type { OcpiHeaders } from '../model/OcpiHeaders.js';
+import { TokensService } from './TokensService.js';
+import { WhitelistType } from '../model/WhitelistType.js';
 
 @Service()
 export class CommandsService {
@@ -53,6 +55,9 @@ export class CommandsService {
   protected commandExecutor!: CommandExecutor;
 
   @Inject(OcpiConfigToken) readonly config!: OcpiConfig;
+
+  @Inject()
+  protected tokensService!: TokensService;
 
   public async postCommand(
     commandType: CommandType,
@@ -235,6 +240,16 @@ export class CommandsService {
         `EVSE is not available (${evseAvailability.status})`,
       );
     }
+    const tenantId = tenantPartner.tenant?.id;
+    const tenantPartnerId = tenantPartner.id;
+    if(tenantId && tenantPartnerId) {
+      await this.tokensService.persistRoamingAuthorization(
+        { ...startSession.token, whitelist: WhitelistType.NEVER },
+        tenantId,
+        tenantPartnerId,
+        { cacheExpiryDateTime: new Date(Date.now() + this.config.commands.timeout * 1000) },
+      );
+    }
     this.commandExecutor
       .executeStartSession(
         startSession,
@@ -245,6 +260,7 @@ export class CommandsService {
       .catch((error) => {
         this.logger.error('Failed to execute StartSession command', error);
       });
+    
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,
