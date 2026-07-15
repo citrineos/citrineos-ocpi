@@ -34,9 +34,7 @@ export class CdrMapper extends BaseTransactionMapper {
     transactions: TransactionDto[],
   ): Promise<CdrDTO[]> {
     try {
-      console.log('\nmapTransactionsToCdrs!!!!!!', transactions);
       const validTransactions = this.getCompletedTransactions(transactions);
-      console.log('\nvalidTransactions!!!!!!', validTransactions);
       const sessions = await this.mapTransactionsToSessions(validTransactions);
 
       const [transactionIdToTariffMap, transactionIdToLocationMap] =
@@ -139,7 +137,6 @@ export class CdrMapper extends BaseTransactionMapper {
   private formatChargingPeriodsCdr(
     chargingPeriods: ChargingPeriod[],
   ): ChargingPeriod[] {
-    console.log('\nformatChargingPeriodsCdr!!!', chargingPeriods);
     const SESSION_ONLY_DIMENSIONS = new Set([
       'CURRENT',
       'ENERGY_EXPORT',
