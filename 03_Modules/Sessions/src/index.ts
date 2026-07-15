@@ -65,12 +65,12 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
   async handleTransactionInsert(
     event: IDtoEvent<TransactionDto>,
   ): Promise<void> {
-    // logDbBroadcast(
-    //   this._logger,
-    //   'debug',
-    //   'Handling Transaction Insert:',
-    //   event,
-    // );
+    logDbBroadcast(
+      this._logger,
+      'debug',
+      'Handling Transaction Insert:',
+      event,
+    );
     const transactionDto = event._payload;
     const transaction = await this.ocpiGraphqlClient.request<
       GetTransactionByTransactionIdQueryResult,
@@ -104,12 +104,12 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     event: IDtoEvent<Partial<TransactionDto>>,
   ): Promise<void> {
     console.log('\n\nhandleTransaction UPDATe!!!', event);
-    // logDbBroadcast(
-    //   this._logger,
-    //   'debug',
-    //   'Handling Transaction Update:',
-    //   event,
-    // );
+    logDbBroadcast(
+      this._logger,
+      'debug',
+      'Handling Transaction Update:',
+      event,
+    );
     const transactionDto = event._payload;
     // const isEnd = transactionDto.isActive === false;
     const hasMeterProgress =
@@ -164,6 +164,10 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
       const fullTransactionDto = fullTransactionDtoResponse
         .Transactions[0] as TransactionDto;
       await this.cdrBroadcaster.broadcastPostCdr(fullTransactionDto);
+
+      this.sessionBroadcaster.clearSessionBroadcastDedupe(
+        transactionDto.transactionId!,
+      );
     }
   }
 

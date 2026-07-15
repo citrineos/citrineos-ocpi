@@ -441,9 +441,9 @@ export class CommandsService {
     connectorId?: string | null,
     activeTransactionConnectorIds?: ReadonlySet<number>,
   ): { available: boolean; status: EvseStatus } {
-    const evseId = Number(EXTRACT_EVSE_ID(evseUid));
+    const evseTypeId = Number(EXTRACT_EVSE_ID(evseUid));
     const evse = Array.from(chargingStation.evses || []).find(
-      (value) => value.id === evseId,
+      (value) => value.evseTypeId === evseTypeId,
     );
     if (!evse) {
       return { available: false, status: EvseStatus.UNKNOWN };
@@ -454,7 +454,7 @@ export class CommandsService {
 
     let connectors: ConnectorDto[] = Array.from(
       chargingStation.connectors || [],
-    ).filter((value) => value.evseId === evseId);
+    ).filter((value) => value.evseId === evse.id);
     if (connectorId) {
       connectors = connectors.filter(
         (value) => value.id?.toString() === connectorId,

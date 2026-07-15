@@ -682,6 +682,7 @@ export type GetOwnConnectorForTariffBroadcastQueryResult = {
       }
     },
     Evse?: {
+      evseTypeId?: number | null,
       Connectors: Array<{
         id: number,
         stationId: string,

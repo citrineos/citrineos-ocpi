@@ -79,13 +79,13 @@ export class SessionMapper extends BaseTransactionMapper {
     const locationResponse = await this.locationsService.getLocationById(
       transaction.locationId!,
     );
-    
+
     if (!locationResponse.data) {
       throw new Error(
         `Location ${transaction.locationId} not found: ${locationResponse.status_message}`,
       );
     }
-    
+
     const locationDto: LocationDTO = locationResponse.data;
     if (!transaction.transactionId) {
       return this.mapPartialTransactionWithoutContext(transaction, locationDto);
@@ -193,7 +193,10 @@ export class SessionMapper extends BaseTransactionMapper {
     );
     const periods =
       sorted.length > 1
-        ? this.getChargingPeriods(sorted.slice(-2), String(tariff.id)).slice(-1)
+        ? this.getChargingPeriods(
+            sorted.slice(-2),
+            String(tariff.ocpiTariffId),
+          ).slice(-1)
         : undefined;
 
     return {
@@ -270,7 +273,10 @@ export class SessionMapper extends BaseTransactionMapper {
 
     // Map fields that depend on transaction structure
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as TransactionDto, location as LocationDTO);
+      session.evse_uid = this.getEvseUid(
+        transaction as TransactionDto,
+        location as LocationDTO,
+      );
     }
 
     if (transaction.connectorId) {
@@ -281,7 +287,7 @@ export class SessionMapper extends BaseTransactionMapper {
     if (transaction.meterValues && tariff) {
       session.charging_periods = this.getChargingPeriods(
         transaction.meterValues,
-        String(tariff.id),
+        String(tariff.ocpiTariffId),
       );
     }
 
@@ -334,7 +340,10 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as TransactionDto, location as LocationDTO);
+      session.evse_uid = this.getEvseUid(
+        transaction as TransactionDto,
+        location as LocationDTO,
+      );
     }
 
     if (transaction.connectorId) {
@@ -423,19 +432,21 @@ export class SessionMapper extends BaseTransactionMapper {
     return location.id ?? '';
   }
 
-  private getEvseUid(transaction: TransactionDto, location: LocationDTO): string {
+  private getEvseUid(
+    transaction: TransactionDto,
+    location: LocationDTO,
+  ): string {
     const evseTypeId = this.resolveEvseTypeId(transaction);
-  
+
     if (evseTypeId != null) {
       return UID_FORMAT(transaction.stationId, evseTypeId);
     }
-  
-  
+
     throw new Error(
       `Cannot resolve evse_uid for transaction ${transaction.transactionId}`,
     );
   }
-  
+
   private resolveEvseTypeId(transaction: TransactionDto): number | undefined {
     const station = transaction.location?.chargingPool?.find(
       (s) => s.id === transaction.stationId,

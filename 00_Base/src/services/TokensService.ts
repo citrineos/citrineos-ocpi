@@ -380,7 +380,7 @@ export class TokensService {
       locationReferences = {
         location_id: realTimeAuthRequest.locationId.toString(),
         evse_uids: chargingStation.evses!.map((evse) =>
-          UID_FORMAT(chargingStation.id, evse.id!),
+          UID_FORMAT(chargingStation.id, evse.evseTypeId!),
         ),
       };
     }
