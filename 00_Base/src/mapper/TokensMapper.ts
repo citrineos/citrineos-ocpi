@@ -285,7 +285,9 @@ export class TokensMapper {
     return contractId;
   }
 
-  public static getVisualNumber(authorization: AuthorizationDto): string | null {
+  public static getVisualNumber(
+    authorization: AuthorizationDto,
+  ): string | null {
     const visualNumber = authorization.additionalInfo!.find(
       (info) => info.type === 'visual_number',
     )?.additionalIdToken;

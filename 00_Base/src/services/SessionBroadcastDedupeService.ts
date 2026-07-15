@@ -1,9 +1,12 @@
+// SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
 import { Service } from 'typedi';
 import { Logger, type ILogObj } from 'tslog';
 import type { Session } from '../model/Session.js';
 import { HttpMethod } from '@zetra/citrineos-base';
 
-type DedupeKey = string; // `${transactionId}:${partnerId}:${method}`
+type DedupeKey = string;
 
 @Service()
 export class SessionBroadcastDedupeService {
