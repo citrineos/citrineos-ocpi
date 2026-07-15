@@ -115,7 +115,8 @@ export abstract class BaseTransactionMapper {
           partyId: transaction.tenant!.partyId!,
         });
         if (result.Tariffs[0]) {
-          transaction.tariff = result.Tariffs[0] as TariffDto;
+          transaction.tariff = result.Tariffs[0] as unknown as TariffDto;
+          // transaction.tariff = result.Tariffs[0] as TariffDto;
         }
       }
       const tariff = transaction.tariff;
@@ -147,7 +148,9 @@ export abstract class BaseTransactionMapper {
             GetTariffByKeyQueryResult,
             GetTariffByKeyQueryVariables
           >(GET_TARIFF_BY_KEY_QUERY, tariffVariables);
-          const tariff = result.Tariffs[0] as TariffDto;
+          // const tariff = result.Tariffs[0] as TariffDto;
+          const tariff = result.Tariffs[0] as unknown as TariffDto;
+
           if (tariff) {
             transactionIdToOcpiTariffMap.set(
               session.id,
@@ -160,7 +163,9 @@ export abstract class BaseTransactionMapper {
   }
 
   protected calculateTotalCost(totalKwh: number, tariff: TariffDto): Price {
-    const tariffElement = tariff.TariffElements?.[0];
+    // const tariffElement = tariff.TariffElements?.[0];
+    const tariffElement = (tariff as unknown as { TariffElements?: Array<{ priceComponents?: Array<{ type: string; price?: number; vat?: number }> }> }).TariffElements?.[0];
+
     if (tariffElement) {
       const energyComponent = tariffElement.priceComponents?.find(
         (component) => component.type === TariffDimensionType.ENERGY,

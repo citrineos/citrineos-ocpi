@@ -205,12 +205,8 @@ export class SessionMapper extends BaseTransactionMapper {
       kwh: transaction.totalKwh || 0,
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt,
-<<<<<<< HEAD
       total_cost:
         this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
-=======
-      total_cost: this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
->>>>>>> 39777b8 (feat: make sessions and CDRs Gireve compliant)
       ...(periods ? { charging_periods: periods } : {}),
     };
   }
