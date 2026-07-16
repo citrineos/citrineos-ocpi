@@ -403,9 +403,7 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
     if (evseConnectors.length === 0) return;
     const evseTypeId = row.Evse?.evseTypeId;
     if (evseTypeId == null) {
-      this._logger.error(
-        `EVSE type ID not found, cannot broadcast.`,
-      );
+      this._logger.error(`EVSE type ID not found, cannot broadcast.`);
       return;
     }
 
