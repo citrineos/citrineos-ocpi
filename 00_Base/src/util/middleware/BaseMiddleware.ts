@@ -12,4 +12,16 @@ export class BaseMiddleware {
     const headers = context.req.headers;
     return headers[header.toLowerCase()];
   }
+
+  protected getRequestProtocol(context: Context): string {
+    const forwardedProto = this.getHeader(context, 'x-forwarded-proto');
+    if (typeof forwardedProto === 'string') {
+      return forwardedProto.split(',')[0].trim();
+    }
+    return context.request.protocol;
+  }
+
+  protected getRequestOrigin(context: Context): string {
+    return `${this.getRequestProtocol(context)}://${context.request.host}`;
+  }
 }
