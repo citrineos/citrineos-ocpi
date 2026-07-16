@@ -42,7 +42,7 @@ export class PaginatedMiddleware
     paginatedResponse: PaginatedResponse<any>,
   ) {
     const url = new URL(
-      `${context.request.protocol}://${context.request.host}${context.request.url}`,
+      `${this.getRequestOrigin(context)}${context.request.url}`,
     );
     const currentOffset = paginatedResponse.offset || DEFAULT_OFFSET;
     const limit = paginatedResponse.limit || DEFAULT_LIMIT;

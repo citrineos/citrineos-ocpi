@@ -438,6 +438,7 @@ export class OcpiServer extends KoaServer {
   private initKoaServer() {
     try {
       this.koa = new Koa();
+      this.koa.proxy = true;
       this.koa.use(async (ctx, next) => {
         if (['POST', 'PUT', 'PATCH'].includes(ctx.method)) {
           let rawBody = '';
