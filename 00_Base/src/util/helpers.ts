@@ -194,3 +194,16 @@ export function getTokenOwnerFromAuthorization(
 ): TokenOwnerPartner | null | undefined {
   return auth.roamingPartner ?? auth.tenantPartner;
 }
+
+export function getOcpiToFromAuthorization(
+  auth: AuthWithPartners | null | undefined,
+): { ocpiToCountryCode?: string; ocpiToPartyId?: string } {
+  const owner = getTokenOwnerFromAuthorization(auth ?? {});
+  if (!owner?.countryCode || !owner?.partyId) {
+    return {};
+  }
+  return {
+    ocpiToCountryCode: owner.countryCode,
+    ocpiToPartyId: owner.partyId,
+  };
+}
