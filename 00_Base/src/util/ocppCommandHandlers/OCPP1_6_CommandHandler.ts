@@ -36,7 +36,7 @@ export class OCPP1_6_CommandHandler extends OCPPCommandHandler {
     queryParameters.params['tenantId'] = tenantPartner.tenant!.id!;
     queryParameters.params['callbackUrl'] =
       this.config.commands.ocpiBaseUrl +
-      `/emsp/2.2.1/commands/callback/${tenantPartner.id}/${this.supportedVersion}/${CommandType.START_SESSION}/${commandId}`;
+      `/cpo/2.2.1/commands/callback/${tenantPartner.id}/${this.supportedVersion}/${CommandType.START_SESSION}/${commandId}`;
     options.queryParameters = queryParameters;
     const remoteStartTransactionRequest: OCPP1_6.RemoteStartTransactionRequest =
       {
