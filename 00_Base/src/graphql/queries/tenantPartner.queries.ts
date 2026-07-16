@@ -64,6 +64,11 @@ export const GET_TENANT_PARTNER_BY_ID = gql`
         partyId
         serverProfileOCPI
       }
+      roamingPartners: RoamingPartners {
+        id
+        countryCode
+        partyId
+      }
     }
   }
 `;

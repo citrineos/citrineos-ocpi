@@ -59,6 +59,7 @@ export type Authorizations_Set_Input = {
   cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
   status?: InputMaybe<Scalars['authorization_status']['input']>;
+  roamingPartnerId?: InputMaybe<Scalars['Int']['input']>;
 };
 export type Locations_Bool_Exp = {
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;

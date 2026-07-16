@@ -32,6 +32,7 @@ export type Authorizations_Set_Input = {
   cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
   status?: InputMaybe<Scalars['authorization_status']['input']>;
+  roamingPartnerId?: InputMaybe<Scalars['Int']['input']>;
 };
 export type Locations_Bool_Exp = {
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
@@ -2609,7 +2610,12 @@ export type GetTenantPartnerByIdQueryResult = {
       countryCode?: string | null,
       partyId?: string | null,
       serverProfileOCPI?: any | null
-    }
+    },
+    roamingPartners: Array<{
+      id: number,
+      countryCode: string,
+      partyId: string
+    }>
   } | null
 };
 
@@ -2743,6 +2749,7 @@ export type UpdateAuthorizationMutationResult = {
       id: number,
       createdAt: any,
       updatedAt: any,
+      roamingPartnerId?: number | null,
       idToken: any,
       idTokenType?: string | null,
       additionalInfo?: any | null,
@@ -2781,6 +2788,7 @@ export type GetAuthorizationByTokenQueryResult = {
     id: number,
     idToken: any,
     idTokenType?: string | null,
+    roamingPartnerId?: number | null,
     additionalInfo?: any | null,
     groupAuthorizationId?: number | null,
     status: any,
@@ -2789,6 +2797,11 @@ export type GetAuthorizationByTokenQueryResult = {
     createdAt: any,
     updatedAt: any,
     tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    roamingPartner?: {
       id: number,
       countryCode: string,
       partyId: string
@@ -2844,6 +2857,7 @@ export type GetAuthorizationByIdQueryResult = {
 export type CreateAuthorizationMutationVariables = Exact<{
   tenantId: Scalars['Int']['input'];
   tenantPartnerId: Scalars['Int']['input'];
+  roamingPartnerId?: InputMaybe<Scalars['Int']['input']>;
   idToken: Scalars['citext']['input'];
   idTokenType: Scalars['String']['input'];
   additionalInfo?: InputMaybe<Scalars['jsonb']['input']>;
@@ -2862,6 +2876,7 @@ export type CreateAuthorizationMutationResult = {
     id: number,
     createdAt: any,
     updatedAt: any,
+    roamingPartnerId?: number | null,
     idToken: any,
     idTokenType?: string | null,
     additionalInfo?: any | null,
@@ -2878,6 +2893,11 @@ export type CreateAuthorizationMutationResult = {
       }
     }>,
     tenantPartner?: {
+      id: number,
+      countryCode: string,
+      partyId: string
+    } | null,
+    roamingPartner?: {
       id: number,
       countryCode: string,
       partyId: string
@@ -3028,6 +3048,7 @@ export type GetTransactionByTransactionIdQueryResult = {
       language1?: string | null,
       createdAt: any,
       updatedAt: any,
+      roamingPartnerId?: number | null,
       groupAuthorization?: {
         idToken: any
       } | null,
@@ -3047,6 +3068,11 @@ export type GetTransactionByTransactionIdQueryResult = {
           countryCode?: string | null,
           partyId?: string | null
         }
+      } | null,
+      roamingPartner?: {
+        id: number,
+        countryCode: string,
+        partyId: string
       } | null
     } | null,
     chargingStation?: {
