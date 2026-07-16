@@ -53,7 +53,7 @@ const MOCK_COMMAND_RESPONSE = await generateMockForSchema(
   CommandResponseSchemaName,
 );
 
-@JsonController(`/emsp/:${versionIdParam}/${ModuleId.Commands}`)
+@JsonController(`/cpo/:${versionIdParam}/${ModuleId.Commands}`)
 @Service()
 export class CommandsModuleApi
   extends BaseController
