@@ -76,6 +76,8 @@ export interface BroadcastParams<T extends ZodTypeAny> {
   partnerFilter?: (
     partner: TenantPartnersListQueryResult['TenantPartners'][number],
   ) => boolean;
+  ocpiToCountryCode?: string | null;
+  ocpiToPartyId?: string | null;
 }
 
 export interface TriggerRequestOptions extends IRequestOptions {
@@ -395,6 +397,8 @@ export abstract class BaseClientApi {
       otherParams,
       path,
       partnerFilter,
+      ocpiToCountryCode,
+      ocpiToPartyId,
     } = params;
     this.logger.info(
       `Broadcasting to clients for ${moduleId}_${interfaceRole}`,
@@ -443,6 +447,8 @@ export abstract class BaseClientApi {
           otherParams,
           path,
           partner.awsSecretCertificateArn ?? undefined,
+          ocpiToCountryCode ?? undefined,
+          ocpiToPartyId ?? undefined,
         );
         responses.push(response);
       } catch (e) {

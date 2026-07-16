@@ -78,6 +78,9 @@ export type UpsertTokenOptions = {
   cacheExpiryDateTime?: Date;
 };
 
+import { getRoamingPartner } from '../util/helpers.js';
+import type { TenantPartnerDto } from '@zetra/citrineos-base';
+
 @Service()
 export class TokensService {
   constructor(
@@ -118,6 +121,7 @@ export class TokensService {
     token: TokenDTO,
     tenantId: number,
     tenantPartnerId: number,
+    roamingPartnerId?: number,
     options?: UpsertTokenOptions,
   ): Promise<AuthorizationDto> {
     const authorization =
@@ -156,6 +160,7 @@ export class TokensService {
           status: authorization.status!,
           language1: authorization.language1,
           groupAuthorizationId,
+          ...(roamingPartnerId != null && { roamingPartnerId }),
           ...(authorization.realTimeAuth != null && {
             realTimeAuth: authorization.realTimeAuth,
           }),
@@ -180,11 +185,13 @@ export class TokensService {
     >(CREATE_AUTHORIZATION_MUTATION, {
       tenantId,
       tenantPartnerId,
+      roamingPartnerId,
       idToken: authorization.idToken!,
       idTokenType: authorization.idTokenType!,
       additionalInfo: authorization.additionalInfo,
       status: authorization.status!,
       language1: authorization.language1,
+      ...(roamingPartnerId != null && { roamingPartnerId }),
       groupAuthorizationId,
       ...(authorization.realTimeAuth != null && {
         realTimeAuth: authorization.realTimeAuth,
@@ -213,18 +220,25 @@ export class TokensService {
       token,
       tenantId,
       tenantPartnerId,
+      undefined,
       options,
     );
     return TokensMapper.toDto(authorization);
   }
-
   async persistRoamingAuthorization(
     token: TokenDTO,
     tenantId: number,
     tenantPartnerId: number,
+    roamingPartnerId?: number,
     options?: UpsertTokenOptions,
   ): Promise<void> {
-    await this.upsertTokenInternal(token, tenantId, tenantPartnerId, options);
+    await this.upsertTokenInternal(
+      token,
+      tenantId,
+      tenantPartnerId,
+      roamingPartnerId,
+      options,
+    );
   }
 
   async patchToken(
@@ -461,10 +475,17 @@ export class TokensService {
         whitelist: WhitelistType.NEVER,
       };
       const cacheExpiryDateTime = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+      const roamingPartner = getRoamingPartner(
+        tenantPartner as TenantPartnerDto,
+        roamingToken.country_code,
+        roamingToken.party_id,
+      );
+
       await this.persistRoamingAuthorization(
         roamingToken,
         tenantPartner.tenant.id,
         tenantPartner.id,
+        roamingPartner?.id,
         { cacheExpiryDateTime },
       );
     }

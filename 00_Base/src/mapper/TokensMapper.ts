@@ -18,15 +18,22 @@ import {
 import { TokenType } from '../model/TokenType.js';
 import type { TokenDTO } from '../model/DTO/TokenDTO.js';
 import { WhitelistType } from '../model/WhitelistType.js';
+import {
+  getTokenOwnerFromAuthorization,
+  type AuthWithPartners,
+} from '../util/helpers.js';
 
 export class TokensMapper {
   public static toDto(authorization: AuthorizationDto): TokenDTO {
     const tenant = authorization.tenants?.[0]?.tenant;
 
+    const owner = getTokenOwnerFromAuthorization(
+      authorization as AuthWithPartners,
+    );
+
     const tokenDto: TokenDTO = {
-      country_code:
-        authorization.tenantPartner?.countryCode ?? tenant?.countryCode ?? '',
-      party_id: authorization.tenantPartner?.partyId ?? tenant?.partyId ?? '',
+      country_code: owner?.countryCode ?? tenant?.countryCode ?? '',
+      party_id: owner?.partyId ?? tenant?.partyId ?? '',
       uid: authorization.idToken,
       type: TokensMapper.mapOcppIdTokenTypeToOcpiTokenType(
         authorization.idTokenType ? authorization.idTokenType : null,

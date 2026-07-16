@@ -176,3 +176,33 @@ export function tokenOwnerPartnerFilter(
   return (partner: BroadcastPartner) =>
     partner.id === tokenOwnerTenantPartnerId;
 }
+
+type TokenOwnerPartner = {
+  id?: number;
+  countryCode?: string | null;
+  partyId?: string | null;
+};
+
+export type AuthWithPartners = {
+  roamingPartner?: TokenOwnerPartner | null;
+  tenantPartner?: TokenOwnerPartner | null;
+};
+
+export function getTokenOwnerFromAuthorization(
+  auth: AuthWithPartners,
+): TokenOwnerPartner | null | undefined {
+  return auth.roamingPartner ?? auth.tenantPartner;
+}
+
+export function getOcpiToFromAuthorization(
+  auth: AuthWithPartners | null | undefined,
+): { ocpiToCountryCode?: string; ocpiToPartyId?: string } {
+  const owner = getTokenOwnerFromAuthorization(auth ?? {});
+  if (!owner?.countryCode || !owner?.partyId) {
+    return {};
+  }
+  return {
+    ocpiToCountryCode: owner.countryCode,
+    ocpiToPartyId: owner.partyId,
+  };
+}

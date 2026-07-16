@@ -81,6 +81,7 @@ export const UPDATE_TOKEN_MUTATION = gql`
           countryCode
           partyId
         }
+        roamingPartnerId
         groupAuthorization: GroupAuthorization {
           idToken
         }
@@ -113,6 +114,12 @@ export const GET_AUTHORIZATION_BY_TOKEN = gql`
       idToken
       idTokenType
       tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      roamingPartnerId
+      roamingPartner: RoamingPartner {
         id
         countryCode
         partyId
@@ -174,6 +181,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
   mutation CreateAuthorization(
     $tenantId: Int!
     $tenantPartnerId: Int!
+    $roamingPartnerId: Int
     $idToken: citext!
     $idTokenType: String!
     $additionalInfo: jsonb
@@ -188,6 +196,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
     insert_Authorizations_one(
       object: {
         tenantPartnerId: $tenantPartnerId
+        roamingPartnerId: $roamingPartnerId
         idToken: $idToken
         idTokenType: $idTokenType
         additionalInfo: $additionalInfo
@@ -212,6 +221,12 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
         }
       }
       tenantPartner: TenantPartner {
+        id
+        countryCode
+        partyId
+      }
+      roamingPartnerId
+      roamingPartner: RoamingPartner {
         id
         countryCode
         partyId

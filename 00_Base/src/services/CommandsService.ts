@@ -42,6 +42,7 @@ import { EvseStatus } from '../model/EvseStatus.js';
 import type { OcpiHeaders } from '../model/OcpiHeaders.js';
 import { TokensService } from './TokensService.js';
 import { WhitelistType } from '../model/WhitelistType.js';
+import { getTokenOwnerFromAuthorization } from '../util/helpers.js';
 
 @Service()
 export class CommandsService {
@@ -247,6 +248,7 @@ export class CommandsService {
         { ...startSession.token, whitelist: WhitelistType.NEVER },
         tenantId,
         tenantPartnerId,
+        roamingPartner?.id,
         {
           cacheExpiryDateTime: new Date(
             Date.now() + this.config.commands.timeout * 1000,
@@ -296,12 +298,15 @@ export class CommandsService {
       );
     }
     const transaction = transactionResponse.Transactions[0];
-    const sessionTenantPartner = transaction.authorization?.tenantPartner;
+    // const sessionTenantPartner = transaction.authorization?.tenantPartner;
+    const sessionTokenOwner = getTokenOwnerFromAuthorization(
+      transaction.authorization ?? {},
+    );
     const requestingPartner = roamingPartner ?? tenantPartner;
-    if (sessionTenantPartner) {
+    if (sessionTokenOwner) {
       if (
-        requestingPartner.countryCode !== sessionTenantPartner.countryCode ||
-        requestingPartner.partyId !== sessionTenantPartner.partyId
+        requestingPartner.countryCode !== sessionTokenOwner.countryCode ||
+        requestingPartner.partyId !== sessionTokenOwner.partyId
       ) {
         this.logger.error('Token information does not match credentials');
         return ResponseGenerator.buildInvalidOrMissingParametersResponse(

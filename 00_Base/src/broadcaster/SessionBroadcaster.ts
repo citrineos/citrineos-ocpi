@@ -19,9 +19,13 @@ import type {
 import { HttpMethod } from '@zetra/citrineos-base';
 import { SessionMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
-import { isGirevePartner, tokenOwnerPartnerFilter } from '../util/helpers.js';
 import type { BroadcastParams } from '../trigger/BaseClientApi.js';
 import { SessionBroadcastDedupeService } from '../services/SessionBroadcastDedupeService.js';
+import {
+  getOcpiToFromAuthorization,
+  isGirevePartner,
+  tokenOwnerPartnerFilter,
+} from '../util/helpers.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -46,6 +50,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
+    const { ocpiToCountryCode, ocpiToPartyId } = getOcpiToFromAuthorization(
+      transactionDto.authorization,
+    );
+
     await this.broadcastSessionDeduped(
       session.id!,
       tokenOwnerTenantPartnerId,
@@ -54,6 +62,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
       HttpMethod.Put,
       path,
       tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
+      ocpiToCountryCode,
+      ocpiToPartyId,
     );
   }
 
@@ -66,6 +76,9 @@ export class SessionBroadcaster extends BaseBroadcaster {
       this.logger.debug('No token owner partner, skipping session broadcast');
       return;
     }
+    const { ocpiToCountryCode, ocpiToPartyId } = getOcpiToFromAuthorization(
+      transactionDto.authorization,
+    );
     // const session =
     //   await this.sessionMapper.mapPartialTransactionToPartialSession(
     //     transactionDto,
@@ -100,6 +113,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
       HttpMethod.Patch,
       path,
       (p) => p.id === ownerId && !isGirevePartner(p),
+      ocpiToCountryCode,
+      ocpiToPartyId,
     );
     await this.broadcastSessionDeduped(
       txId,
@@ -109,6 +124,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
       HttpMethod.Put,
       path,
       (p) => p.id === ownerId && isGirevePartner(p),
+      ocpiToCountryCode,
+      ocpiToPartyId,
     );
   }
 
@@ -139,6 +156,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
     partnerFilter?: BroadcastParams<
       typeof OcpiEmptyResponseSchema
     >['partnerFilter'],
+    ocpiToCountryCode?: string | null,
+    ocpiToPartyId?: string | null,
   ): Promise<void> {
     try {
       await this.sessionsClientApi.broadcastToClients({
@@ -151,6 +170,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
         body: session,
         path: path,
         partnerFilter: partnerFilter,
+        ocpiToCountryCode,
+        ocpiToPartyId,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Session failed for ${path}`, e);
@@ -167,6 +188,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
     partnerFilter: BroadcastParams<
       typeof OcpiEmptyResponseSchema
     >['partnerFilter'],
+    ocpiToCountryCode?: string | null,
+    ocpiToPartyId?: string | null,
   ): Promise<void> {
     if (
       !this.dedupeService.shouldBroadcast(
@@ -190,6 +213,8 @@ export class SessionBroadcaster extends BaseBroadcaster {
         body,
         path,
         partnerFilter,
+        ocpiToCountryCode,
+        ocpiToPartyId,
       });
       this.dedupeService.markSent(transactionId, partnerId, method, body);
     } catch (e) {

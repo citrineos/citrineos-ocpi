@@ -14,7 +14,10 @@ import type { TransactionDto } from '@zetra/citrineos-base';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { CdrMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
-import { tokenOwnerPartnerFilter } from '../util/helpers.js';
+import {
+  getOcpiToFromAuthorization,
+  tokenOwnerPartnerFilter,
+} from '../util/helpers.js';
 
 @Service()
 export class CdrBroadcaster extends BaseBroadcaster {
@@ -43,6 +46,10 @@ export class CdrBroadcaster extends BaseBroadcaster {
       this.logger.debug('No token owner partner, skipping CDR broadcast');
       return;
     }
+    const { ocpiToCountryCode, ocpiToPartyId } = getOcpiToFromAuthorization(
+      transactionDto.authorization,
+    );
+
     try {
       await this.cdrsClientApi.broadcastToClients({
         cpoCountryCode: cdrDto.country_code!,
@@ -53,6 +60,8 @@ export class CdrBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: cdrDto,
         partnerFilter: tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
+        ocpiToCountryCode,
+        ocpiToPartyId,
       });
     } catch (e) {
       this.logger.error(`broadcastPostCdr failed for CDR ${cdrDto.id}`, e);

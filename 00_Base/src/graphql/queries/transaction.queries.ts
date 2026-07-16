@@ -113,6 +113,12 @@ export const GET_TRANSACTION_BY_TRANSACTION_ID_QUERY = gql`
             partyId
           }
         }
+        roamingPartnerId
+        roamingPartner: RoamingPartner {
+          id
+          countryCode
+          partyId
+        }
       }
       chargingStation: ChargingStation {
         id
