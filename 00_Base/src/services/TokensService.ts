@@ -127,7 +127,7 @@ export class TokensService {
     const authorization =
       TokensMapper.mapOcpiTokenToPartialOcppAuthorization(token);
 
-      const existingAuth = await this.ocpiGraphqlClient.request<
+    const existingAuth = await this.ocpiGraphqlClient.request<
       GetAuthorizationByTokenQueryResult,
       GetAuthorizationByTokenQueryVariables
     >(GET_AUTHORIZATION_BY_TOKEN, {
@@ -149,9 +149,9 @@ export class TokensService {
 
     if (existingAuth.Authorizations.length > 0) {
       const result = await this.ocpiGraphqlClient.request<
-      UpdateAuthorizationMutationResult,
-      UpdateAuthorizationMutationVariables
-    >(UPDATE_TOKEN_MUTATION, {
+        UpdateAuthorizationMutationResult,
+        UpdateAuthorizationMutationVariables
+      >(UPDATE_TOKEN_MUTATION, {
         idToken: authorization.idToken!,
         type: authorization.idTokenType!,
         tenantPartnerId,
@@ -180,9 +180,9 @@ export class TokensService {
 
     const timestamp = token.last_updated;
     const result = await this.ocpiGraphqlClient.request<
-    CreateAuthorizationMutationResult,
-    CreateAuthorizationMutationVariables
-  >(CREATE_AUTHORIZATION_MUTATION, {
+      CreateAuthorizationMutationResult,
+      CreateAuthorizationMutationVariables
+    >(CREATE_AUTHORIZATION_MUTATION, {
       tenantId,
       tenantPartnerId,
       roamingPartnerId,
@@ -480,7 +480,7 @@ export class TokensService {
         roamingToken.country_code,
         roamingToken.party_id,
       );
-      
+
       await this.persistRoamingAuthorization(
         roamingToken,
         tenantPartner.tenant.id,

@@ -49,7 +49,7 @@ export class CdrBroadcaster extends BaseBroadcaster {
     const { ocpiToCountryCode, ocpiToPartyId } = getOcpiToFromAuthorization(
       transactionDto.authorization,
     );
-  
+
     try {
       await this.cdrsClientApi.broadcastToClients({
         cpoCountryCode: cdrDto.country_code!,

@@ -18,7 +18,10 @@ import {
 import { TokenType } from '../model/TokenType.js';
 import type { TokenDTO } from '../model/DTO/TokenDTO.js';
 import { WhitelistType } from '../model/WhitelistType.js';
-import { getTokenOwnerFromAuthorization, type AuthWithPartners } from '../util/helpers.js';
+import {
+  getTokenOwnerFromAuthorization,
+  type AuthWithPartners,
+} from '../util/helpers.js';
 
 export class TokensMapper {
   public static toDto(authorization: AuthorizationDto): TokenDTO {

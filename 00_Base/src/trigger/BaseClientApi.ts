@@ -396,7 +396,7 @@ export abstract class BaseClientApi {
       paginatedParams,
       otherParams,
       path,
-      partnerFilter,  
+      partnerFilter,
       ocpiToCountryCode,
       ocpiToPartyId,
     } = params;

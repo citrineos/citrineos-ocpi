@@ -21,7 +21,11 @@ import { SessionMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import type { BroadcastParams } from '../trigger/BaseClientApi.js';
 import { SessionBroadcastDedupeService } from '../services/SessionBroadcastDedupeService.js';
-import { getOcpiToFromAuthorization, isGirevePartner, tokenOwnerPartnerFilter } from '../util/helpers.js';
+import {
+  getOcpiToFromAuthorization,
+  isGirevePartner,
+  tokenOwnerPartnerFilter,
+} from '../util/helpers.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {

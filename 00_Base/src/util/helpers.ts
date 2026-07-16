@@ -177,7 +177,6 @@ export function tokenOwnerPartnerFilter(
     partner.id === tokenOwnerTenantPartnerId;
 }
 
-
 type TokenOwnerPartner = {
   id?: number;
   countryCode?: string | null;
