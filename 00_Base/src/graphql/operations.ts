@@ -29,6 +29,7 @@ export type Authorizations_Set_Input = {
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   updatedAt: Scalars['timestamptz']['input'];
   status?: InputMaybe<Scalars['authorization_status']['input']>;
 };
@@ -682,6 +683,7 @@ export type GetOwnConnectorForTariffBroadcastQueryResult = {
       }
     },
     Evse?: {
+      evseTypeId?: number | null,
       Connectors: Array<{
         id: number,
         stationId: string,
@@ -1900,7 +1902,12 @@ export type GetTariffByKeyQueryResult = {
     tenant: {
       countryCode?: string | null,
       partyId?: string | null
-    }
+    },
+    TariffElements: Array<{
+      id: number,
+      priceComponents: any,
+      restrictions?: any | null
+    }>
   }>
 };
 
@@ -2844,6 +2851,7 @@ export type CreateAuthorizationMutationVariables = Exact<{
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   createdAt: Scalars['timestamptz']['input'];
   updatedAt: Scalars['timestamptz']['input'];
 }>;
@@ -2860,6 +2868,7 @@ export type CreateAuthorizationMutationResult = {
     status: any,
     realTimeAuth: string,
     language1?: string | null,
+    cacheExpiryDateTime?: any | null,
     groupAuthorizationId?: number | null,
     tenants: Array<{
       tenantId: number,
@@ -3010,6 +3019,24 @@ export type GetTransactionByTransactionIdQueryResult = {
       partyId?: string | null
     },
     authorization?: {
+      id: number,
+      idToken: any,
+      idTokenType?: string | null,
+      additionalInfo?: any | null,
+      status: any,
+      realTimeAuth: string,
+      language1?: string | null,
+      createdAt: any,
+      updatedAt: any,
+      groupAuthorization?: {
+        idToken: any
+      } | null,
+      tenants: Array<{
+        tenant: {
+          countryCode?: string | null,
+          partyId?: string | null
+        }
+      }>,
       tenantPartner?: {
         id: number,
         countryCode: string,

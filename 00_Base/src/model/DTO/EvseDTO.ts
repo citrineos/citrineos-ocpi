@@ -17,8 +17,8 @@ import { ImageDTOSchema } from './ImageDTO.js';
 export const uidDelimiter = '::';
 export const UID_FORMAT = (
   stationId: string,
-  evseId: string | number,
-): string => `${stationId}${uidDelimiter}${evseId}`;
+  evseTypeId: string | number,
+): string => `${stationId}${uidDelimiter}${evseTypeId}`;
 
 export const EXTRACT_STATION_ID = (evseUid: string) => {
   const split = evseUid.split(uidDelimiter);

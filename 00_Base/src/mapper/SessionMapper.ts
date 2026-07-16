@@ -25,6 +25,7 @@ import { LocationsService } from '../services/LocationsService.js';
 import type { LocationDTO } from '../model/DTO/LocationDTO.js';
 import { UID_FORMAT } from '../model/DTO/EvseDTO.js';
 import { OcpiGraphqlClient } from '../graphql/index.js';
+import { ChargingStateEnum } from '@zetra/citrineos-base';
 
 @Service()
 export class SessionMapper extends BaseTransactionMapper {
@@ -75,8 +76,19 @@ export class SessionMapper extends BaseTransactionMapper {
     transaction: Partial<TransactionDto>,
   ): Promise<Partial<Session>> {
     // If we don't have a transaction ID, we can only map basic fields
+    const locationResponse = await this.locationsService.getLocationById(
+      transaction.locationId!,
+    );
+
+    if (!locationResponse.data) {
+      throw new Error(
+        `Location ${transaction.locationId} not found: ${locationResponse.status_message}`,
+      );
+    }
+
+    const locationDto: LocationDTO = locationResponse.data;
     if (!transaction.transactionId) {
-      return this.mapPartialTransactionWithoutContext(transaction);
+      return this.mapPartialTransactionWithoutContext(transaction, locationDto);
     }
 
     try {
@@ -101,7 +113,7 @@ export class SessionMapper extends BaseTransactionMapper {
         `Failed to fetch context for partial transaction ${transaction.transactionId}. Mapping without context.`,
         error,
       );
-      return this.mapPartialTransactionWithoutContext(transaction);
+      return this.mapPartialTransactionWithoutContext(transaction, locationDto);
     }
   }
 
@@ -164,6 +176,41 @@ export class SessionMapper extends BaseTransactionMapper {
     return result;
   }
 
+  public async mapIncrementalSessionPatch(
+    transaction: TransactionDto,
+  ): Promise<Partial<Session>> {
+    const [locationMap, tokenMap, tariffMap] =
+      await this.getLocationsTokensAndTariffsMapsForTransactions([transaction]);
+    const tariff = tariffMap.get(transaction.transactionId!);
+    if (!tariff) {
+      throw new Error(
+        `Tariff not found for transaction ${transaction.transactionId}`,
+      );
+    }
+    const sorted = [...(transaction.meterValues ?? [])].sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
+    const periods =
+      sorted.length > 1
+        ? this.getChargingPeriods(
+            sorted.slice(-2),
+            String(tariff.ocpiTariffId),
+          ).slice(-1)
+        : undefined;
+
+    return {
+      id: transaction.transactionId,
+      end_date_time: transaction.endTime ? new Date(transaction.endTime) : null,
+      kwh: transaction.totalKwh || 0,
+      status: this.getTransactionStatus(transaction),
+      last_updated: transaction.updatedAt,
+      total_cost:
+        this.calculateTotalCost(transaction.totalKwh || 0, tariff) ?? null,
+      ...(periods ? { charging_periods: periods } : {}),
+    };
+  }
+
   /**
    * Maps a partial transaction with available context data
    */
@@ -219,17 +266,17 @@ export class SessionMapper extends BaseTransactionMapper {
         transaction.endTime !== undefined
       ) {
         session.total_cost = transaction.endTime
-          ? this.calculateTotalCost(
-              transaction.totalKwh || 0,
-              tariff.pricePerKwh,
-            )
+          ? this.calculateTotalCost(transaction.totalKwh || 0, tariff)
           : null;
       }
     }
 
     // Map fields that depend on transaction structure
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as TransactionDto);
+      session.evse_uid = this.getEvseUid(
+        transaction as TransactionDto,
+        location as LocationDTO,
+      );
     }
 
     if (transaction.connectorId) {
@@ -240,7 +287,7 @@ export class SessionMapper extends BaseTransactionMapper {
     if (transaction.meterValues && tariff) {
       session.charging_periods = this.getChargingPeriods(
         transaction.meterValues,
-        String(tariff.id),
+        String(tariff.ocpiTariffId),
       );
     }
 
@@ -264,6 +311,7 @@ export class SessionMapper extends BaseTransactionMapper {
    */
   private mapPartialTransactionWithoutContext(
     transaction: Partial<TransactionDto>,
+    location: LocationDTO,
   ): Partial<Session> {
     const session: Partial<Session> = {};
 
@@ -292,7 +340,10 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     if (transaction.evseId && transaction.stationId) {
-      session.evse_uid = this.getEvseUid(transaction as TransactionDto);
+      session.evse_uid = this.getEvseUid(
+        transaction as TransactionDto,
+        location as LocationDTO,
+      );
     }
 
     if (transaction.connectorId) {
@@ -335,19 +386,19 @@ export class SessionMapper extends BaseTransactionMapper {
       // TODO: Implement other auth methods
       auth_method: AuthMethod.WHITELIST,
       location_id: this.getLocationId(location),
-      evse_uid: this.getEvseUid(transaction),
+      evse_uid: this.getEvseUid(transaction, location),
       connector_id: transaction.connectorId!.toString(),
       currency: tariff.currency,
       charging_periods: this.getChargingPeriods(
         transaction.meterValues,
-        String(tariff?.id),
+        String(tariff?.ocpiTariffId),
       ),
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt!,
       // TODO: Fill in optional values
       authorization_reference: null,
       total_cost: transaction.endTime
-        ? this.calculateTotalCost(transaction.totalKwh || 0, tariff.pricePerKwh)
+        ? this.calculateTotalCost(transaction.totalKwh || 0, tariff)
         : null,
       meter_id: null,
     };
@@ -381,8 +432,26 @@ export class SessionMapper extends BaseTransactionMapper {
     return location.id ?? '';
   }
 
-  private getEvseUid(transaction: TransactionDto): string {
-    return UID_FORMAT(transaction.stationId, transaction.evseId!);
+  private getEvseUid(
+    transaction: TransactionDto,
+    location: LocationDTO,
+  ): string {
+    const evseTypeId = this.resolveEvseTypeId(transaction);
+
+    if (evseTypeId != null) {
+      return UID_FORMAT(transaction.stationId, evseTypeId);
+    }
+
+    throw new Error(
+      `Cannot resolve evse_uid for transaction ${transaction.transactionId}`,
+    );
+  }
+
+  private resolveEvseTypeId(transaction: TransactionDto): number | undefined {
+    const station = transaction.location?.chargingPool?.find(
+      (s) => s.id === transaction.stationId,
+    );
+    return station?.evses?.find((e) => e.id === transaction.evseId)?.evseTypeId;
   }
 
   private getCurrency(location: LocationDTO): string {
@@ -502,6 +571,9 @@ export class SessionMapper extends BaseTransactionMapper {
 
   private getTransactionStatus(transaction: TransactionDto): SessionStatus {
     // TODO: Implement other session status
+    if (transaction.chargingState === ChargingStateEnum.EVConnected) {
+      return SessionStatus.PENDING;
+    }
     return transaction.endTime ? SessionStatus.COMPLETED : SessionStatus.ACTIVE;
   }
 }

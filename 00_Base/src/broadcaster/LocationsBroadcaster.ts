@@ -113,7 +113,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
     if (!locationId) throw new Error('Location ID missing in EVSE data');
     const evse = EvseMapper.fromPartialGraphql(chargingStationDto!, evseDto);
     if (!evse) throw new Error('Failed to map EVSE data');
-    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.evseTypeId!)}`;
     await this.broadcastEvse(tenant, evse, HttpMethod.Patch, path);
   }
 
@@ -126,7 +126,7 @@ export class LocationsBroadcaster extends BaseBroadcaster {
   ): Promise<void> {
     const locationId = chargingStationDto?.locationId;
     if (!locationId) throw new Error('Location ID missing in EVSE data');
-    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.id!)}`;
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${locationId}/${UID_FORMAT(evseDto.stationId!, evseDto.evseTypeId!)}`;
     await this.broadcastEvse(
       tenant,
       { status: EvseStatus, last_updated: new Date(lastUpdated) },

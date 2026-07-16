@@ -38,9 +38,10 @@ export type TariffMapInput = {
     partyId?: string | null;
   } | null;
   TariffElements?: Array<{
-    priceComponents: unknown;
+    id?: number;
+    priceComponents?: unknown;
     restrictions?: unknown | null;
-  }>;
+  }> | null;
   tariffType?: string | null;
   updatedAt?: string | Date;
   createdAt?: string | Date;

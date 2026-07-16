@@ -32,7 +32,7 @@ export class TokensMapper {
         authorization.idTokenType ? authorization.idTokenType : null,
       ),
       contract_id: this.getContractId(authorization),
-      visual_number: TokensMapper.getVisualNumber(authorization),
+      visual_number: TokensMapper.getVisualNumber(authorization) ?? undefined,
       issuer: TokensMapper.getIssuer(authorization),
       group_id: authorization.groupAuthorization?.idToken,
       valid: authorization.status === AuthorizationStatusEnum.Accepted,
@@ -259,14 +259,17 @@ export class TokensMapper {
     return contractId;
   }
 
-  public static getVisualNumber(authorization: AuthorizationDto): string {
+  public static getVisualNumber(
+    authorization: AuthorizationDto,
+  ): string | null {
     const visualNumber = authorization.additionalInfo!.find(
       (info) => info.type === 'visual_number',
     )?.additionalIdToken;
     if (!visualNumber) {
-      throw new Error(
-        'Visual number not found in authorization additional info, authorization is incomplete for OCPI token mapping. Please add additional info with type visual_number.',
-      );
+      return null;
+      // throw new Error(
+      //   'Visual number not found in authorization additional info, authorization is incomplete for OCPI token mapping. Please add additional info with type visual_number.',
+      // );
     }
     return visualNumber;
   }

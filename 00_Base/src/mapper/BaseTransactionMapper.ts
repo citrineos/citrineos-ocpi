@@ -33,6 +33,7 @@ import {
 import { LocationMapper } from './LocationMapper.js';
 import { TokensMapper } from './TokensMapper.js';
 import { TariffMapper } from './TariffMapper.js';
+import { TariffDimensionType } from '../model/TariffDimensionType.js';
 
 export abstract class BaseTransactionMapper {
   protected constructor(
@@ -114,7 +115,8 @@ export abstract class BaseTransactionMapper {
           partyId: transaction.tenant!.partyId!,
         });
         if (result.Tariffs[0]) {
-          transaction.tariff = result.Tariffs[0] as TariffDto;
+          transaction.tariff = result.Tariffs[0] as unknown as TariffDto;
+          // transaction.tariff = result.Tariffs[0] as TariffDto;
         }
       }
       const tariff = transaction.tariff;
@@ -146,7 +148,9 @@ export abstract class BaseTransactionMapper {
             GetTariffByKeyQueryResult,
             GetTariffByKeyQueryVariables
           >(GET_TARIFF_BY_KEY_QUERY, tariffVariables);
-          const tariff = result.Tariffs[0] as TariffDto;
+          // const tariff = result.Tariffs[0] as TariffDto;
+          const tariff = result.Tariffs[0] as unknown as TariffDto;
+
           if (tariff) {
             transactionIdToOcpiTariffMap.set(
               session.id,
@@ -158,9 +162,48 @@ export abstract class BaseTransactionMapper {
     return transactionIdToOcpiTariffMap;
   }
 
-  protected calculateTotalCost(totalKwh: number, tariffCost: number): Price {
-    return {
-      excl_vat: Math.floor(totalKwh * tariffCost * 100) / 100,
-    };
+  protected calculateTotalCost(totalKwh: number, tariff: TariffDto): Price {
+    // const tariffElement = tariff.TariffElements?.[0];
+    const tariffElement = (
+      tariff as unknown as {
+        TariffElements?: Array<{
+          priceComponents?: Array<{
+            type: string;
+            price?: number;
+            vat?: number;
+          }>;
+        }>;
+      }
+    ).TariffElements?.[0];
+
+    if (tariffElement) {
+      const energyComponent = tariffElement.priceComponents?.find(
+        (component) => component.type === TariffDimensionType.ENERGY,
+      );
+
+      const pricePerKwh = energyComponent?.price ?? tariff.pricePerKwh ?? 0;
+      const taxRate = energyComponent?.vat ?? tariff.taxRate ?? 0;
+
+      if (pricePerKwh > 0 || totalKwh === 0) {
+        const priceExclVat = Math.round(totalKwh * pricePerKwh * 100) / 100;
+        const priceInclVat =
+          Math.round(priceExclVat * (1 + taxRate / 100) * 100) / 100;
+        return { excl_vat: priceExclVat, incl_vat: priceInclVat };
+      } else {
+        this.logger.error('No price per kwh found for tariff element', {
+          tariffElement,
+        });
+        return {
+          excl_vat: 0,
+          incl_vat: 0,
+        };
+      }
+    } else {
+      this.logger.error('No tariff element found for tariff', { tariff });
+      return {
+        excl_vat: 0,
+        incl_vat: 0,
+      };
+    }
   }
 }

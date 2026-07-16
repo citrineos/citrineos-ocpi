@@ -13,12 +13,15 @@ import { InterfaceRole } from '../model/InterfaceRole.js';
 import type {
   MeterValueDto,
   TenantDto,
+  TenantPartnerDto,
   TransactionDto,
 } from '@zetra/citrineos-base';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { SessionMapper } from '../mapper/index.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
-import { tokenOwnerPartnerFilter } from '../util/helpers.js';
+import { isGirevePartner, tokenOwnerPartnerFilter } from '../util/helpers.js';
+import type { BroadcastParams } from '../trigger/BaseClientApi.js';
+import { SessionBroadcastDedupeService } from '../services/SessionBroadcastDedupeService.js';
 
 @Service()
 export class SessionBroadcaster extends BaseBroadcaster {
@@ -26,6 +29,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
     readonly logger: Logger<ILogObj>,
     readonly sessionsClientApi: SessionsClientApi,
     readonly sessionMapper: SessionMapper,
+    readonly dedupeService: SessionBroadcastDedupeService,
   ) {
     super();
   }
@@ -35,35 +39,76 @@ export class SessionBroadcaster extends BaseBroadcaster {
     transactionDto: TransactionDto,
     tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
+    if (!tokenOwnerTenantPartnerId) {
+      this.logger.debug('No token owner partner, skipping session broadcast');
+      return;
+    }
     const session =
       await this.sessionMapper.mapTransactionToSession(transactionDto);
     const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(
+    await this.broadcastSessionDeduped(
+      session.id!,
+      tokenOwnerTenantPartnerId,
       tenant,
       session,
       HttpMethod.Put,
       path,
-      tokenOwnerTenantPartnerId,
+      tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
     );
   }
 
   async broadcastPatchSession(
     tenant: TenantDto,
-    transactionDto: Partial<TransactionDto>,
+    transactionDto: TransactionDto,
     tokenOwnerTenantPartnerId?: number | null,
   ): Promise<void> {
-    const session =
-      await this.sessionMapper.mapPartialTransactionToPartialSession(
-        transactionDto,
-      );
+    if (tokenOwnerTenantPartnerId == null) {
+      this.logger.debug('No token owner partner, skipping session broadcast');
+      return;
+    }
+    // const session =
+    //   await this.sessionMapper.mapPartialTransactionToPartialSession(
+    //     transactionDto,
+    //   );
 
-    const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
-    await this.broadcastSession(
+    // const path = `/${tenant.countryCode}/${tenant.partyId}/${session.id}`;
+    // await this.broadcastSession(
+    //   tenant,
+    //   session,
+    //   HttpMethod.Patch,
+    //   path,
+    //   tokenOwnerTenantPartnerId,
+    // );
+    const patchBody = await this.sessionMapper.mapIncrementalSessionPatch(
+      transactionDto as TransactionDto,
+    );
+    const putBody = await this.sessionMapper.mapTransactionToSession(
+      transactionDto as TransactionDto,
+    );
+    const txId = transactionDto.transactionId!;
+
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${transactionDto.transactionId}`;
+    // Standard partners: PATCH incremental
+
+    const ownerId = tokenOwnerTenantPartnerId;
+
+    await this.broadcastSessionDeduped(
+      txId,
+      ownerId,
       tenant,
-      session,
+      patchBody,
       HttpMethod.Patch,
       path,
-      tokenOwnerTenantPartnerId,
+      (p) => p.id === ownerId && !isGirevePartner(p),
+    );
+    await this.broadcastSessionDeduped(
+      txId,
+      ownerId,
+      tenant,
+      putBody,
+      HttpMethod.Put,
+      path,
+      (p) => p.id === ownerId && isGirevePartner(p),
     );
   }
 
@@ -82,7 +127,7 @@ export class SessionBroadcaster extends BaseBroadcaster {
       { charging_periods },
       HttpMethod.Patch,
       path,
-      tokenOwnerTenantPartnerId,
+      tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId!),
     );
   }
 
@@ -91,12 +136,10 @@ export class SessionBroadcaster extends BaseBroadcaster {
     session: Partial<Session>,
     method: HttpMethod,
     path: string,
-    tokenOwnerTenantPartnerId?: number | null,
+    partnerFilter?: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
   ): Promise<void> {
-    if (tokenOwnerTenantPartnerId == null) {
-      this.logger.debug('No token owner partner, skipping session broadcast');
-      return;
-    }
     try {
       await this.sessionsClientApi.broadcastToClients({
         cpoCountryCode: tenant.countryCode!,
@@ -107,10 +150,56 @@ export class SessionBroadcaster extends BaseBroadcaster {
         schema: OcpiEmptyResponseSchema,
         body: session,
         path: path,
-        partnerFilter: tokenOwnerPartnerFilter(tokenOwnerTenantPartnerId),
+        partnerFilter: partnerFilter,
       });
     } catch (e) {
       this.logger.error(`broadcast${method}Session failed for ${path}`, e);
     }
+  }
+
+  private async broadcastSessionDeduped(
+    transactionId: string,
+    partnerId: number,
+    tenant: TenantDto,
+    body: Partial<Session>,
+    method: HttpMethod,
+    path: string,
+    partnerFilter: BroadcastParams<
+      typeof OcpiEmptyResponseSchema
+    >['partnerFilter'],
+  ): Promise<void> {
+    if (
+      !this.dedupeService.shouldBroadcast(
+        transactionId,
+        partnerId,
+        method,
+        body,
+      )
+    ) {
+      return;
+    }
+    this.dedupeService.markInFlight(transactionId, partnerId, method);
+    try {
+      await this.sessionsClientApi.broadcastToClients({
+        cpoCountryCode: tenant.countryCode!,
+        cpoPartyId: tenant.partyId!,
+        moduleId: ModuleId.Sessions,
+        interfaceRole: InterfaceRole.RECEIVER,
+        httpMethod: method,
+        schema: OcpiEmptyResponseSchema,
+        body,
+        path,
+        partnerFilter,
+      });
+      this.dedupeService.markSent(transactionId, partnerId, method, body);
+    } catch (e) {
+      this.dedupeService.markFailed(transactionId, partnerId, method);
+      this.logger.error(`broadcast${method}Session failed for ${path}`, e);
+      throw e;
+    }
+  }
+
+  clearSessionBroadcastDedupe(transactionId: string): void {
+    this.dedupeService.clear(transactionId);
   }
 }

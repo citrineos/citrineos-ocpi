@@ -33,6 +33,11 @@ export const GET_TARIFF_BY_KEY_QUERY = gql`
         countryCode
         partyId
       }
+      TariffElements {
+        id
+        priceComponents
+        restrictions
+      }
     }
   }
 `;

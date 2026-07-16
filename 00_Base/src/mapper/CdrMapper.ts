@@ -17,6 +17,7 @@ import { OcpiGraphqlClient } from '../graphql/index.js';
 import { LocationsService } from '../services/LocationsService.js';
 import type { TariffDto, TransactionDto } from '@zetra/citrineos-base';
 import type { CdrDTO, CdrEntity } from '../model/DTO/CdrDTO.js';
+import type { ChargingPeriod } from '../model/ChargingPeriod.js';
 
 @Service()
 export class CdrMapper extends BaseTransactionMapper {
@@ -34,7 +35,6 @@ export class CdrMapper extends BaseTransactionMapper {
   ): Promise<CdrDTO[]> {
     try {
       const validTransactions = this.getCompletedTransactions(transactions);
-
       const sessions = await this.mapTransactionsToSessions(validTransactions);
 
       const [transactionIdToTariffMap, transactionIdToLocationMap] =
@@ -110,10 +110,11 @@ export class CdrMapper extends BaseTransactionMapper {
       meter_id: session.meter_id,
       currency: session.currency,
       tariffs: [ocpiTariff],
-      charging_periods: session.charging_periods || [],
+      charging_periods:
+        this.formatChargingPeriodsCdr(session.charging_periods ?? []) || [],
       signed_data: await this.getSignedData(session),
       // TODO: Map based on OCPI Tariff
-      total_cost: this.calculateTotalCost(session.kwh, tariff.pricePerKwh),
+      total_cost: this.calculateTotalCost(session.kwh, tariff),
       total_fixed_cost: await this.calculateTotalFixedCost(tariff),
       total_energy: session.kwh,
       total_energy_cost: await this.calculateTotalEnergyCost(session, tariff),
@@ -131,6 +132,28 @@ export class CdrMapper extends BaseTransactionMapper {
       credit_reference_id: this.generateCreditReferenceId(session, tariff),
       last_updated: session.last_updated,
     };
+  }
+
+  private formatChargingPeriodsCdr(
+    chargingPeriods: ChargingPeriod[],
+  ): ChargingPeriod[] {
+    const SESSION_ONLY_DIMENSIONS = new Set([
+      'CURRENT',
+      'ENERGY_EXPORT',
+      'ENERGY_IMPORT',
+      'POWER',
+      'STATE_OF_CHARGE',
+    ]);
+
+    return chargingPeriods
+      .map((chargingPeriod) => ({
+        start_date_time: chargingPeriod.start_date_time,
+        tariff_id: chargingPeriod.tariff_id,
+        dimensions: chargingPeriod.dimensions.filter(
+          (d) => !SESSION_ONLY_DIMENSIONS.has(d.type),
+        ),
+      }))
+      .filter((cp) => cp.dimensions.length > 0);
   }
 
   private generateCdrId(session: Session): string {

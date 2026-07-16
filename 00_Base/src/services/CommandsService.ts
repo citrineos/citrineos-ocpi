@@ -40,6 +40,8 @@ import { ChargingStationMapper } from '../mapper/ChargingStationMapper.js';
 import { EvseMapper } from '../mapper/LocationMapper.js';
 import { EvseStatus } from '../model/EvseStatus.js';
 import type { OcpiHeaders } from '../model/OcpiHeaders.js';
+import { TokensService } from './TokensService.js';
+import { WhitelistType } from '../model/WhitelistType.js';
 
 @Service()
 export class CommandsService {
@@ -53,6 +55,9 @@ export class CommandsService {
   protected commandExecutor!: CommandExecutor;
 
   @Inject(OcpiConfigToken) readonly config!: OcpiConfig;
+
+  @Inject()
+  protected tokensService!: TokensService;
 
   public async postCommand(
     commandType: CommandType,
@@ -235,6 +240,20 @@ export class CommandsService {
         `EVSE is not available (${evseAvailability.status})`,
       );
     }
+    const tenantId = tenantPartner.tenant?.id;
+    const tenantPartnerId = tenantPartner.id;
+    if (tenantId && tenantPartnerId) {
+      await this.tokensService.persistRoamingAuthorization(
+        { ...startSession.token, whitelist: WhitelistType.NEVER },
+        tenantId,
+        tenantPartnerId,
+        {
+          cacheExpiryDateTime: new Date(
+            Date.now() + this.config.commands.timeout * 1000,
+          ),
+        },
+      );
+    }
     this.commandExecutor
       .executeStartSession(
         startSession,
@@ -245,6 +264,7 @@ export class CommandsService {
       .catch((error) => {
         this.logger.error('Failed to execute StartSession command', error);
       });
+
     return ResponseGenerator.buildGenericSuccessResponse({
       result: CommandResponseType.ACCEPTED,
       timeout: this.config.commands.timeout,
@@ -441,9 +461,9 @@ export class CommandsService {
     connectorId?: string | null,
     activeTransactionConnectorIds?: ReadonlySet<number>,
   ): { available: boolean; status: EvseStatus } {
-    const evseId = Number(EXTRACT_EVSE_ID(evseUid));
+    const evseTypeId = Number(EXTRACT_EVSE_ID(evseUid));
     const evse = Array.from(chargingStation.evses || []).find(
-      (value) => value.id === evseId,
+      (value) => value.evseTypeId === evseTypeId,
     );
     if (!evse) {
       return { available: false, status: EvseStatus.UNKNOWN };
@@ -454,7 +474,7 @@ export class CommandsService {
 
     let connectors: ConnectorDto[] = Array.from(
       chargingStation.connectors || [],
-    ).filter((value) => value.evseId === evseId);
+    ).filter((value) => value.evseId === evse.id);
     if (connectorId) {
       connectors = connectors.filter(
         (value) => value.id?.toString() === connectorId,
