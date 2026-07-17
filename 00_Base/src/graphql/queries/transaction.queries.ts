@@ -114,6 +114,7 @@ export const GET_TRANSACTION_BY_TRANSACTION_ID_QUERY = gql`
           }
         }
         roamingPartnerId
+        ocpiAuthMethod
         roamingPartner: RoamingPartner {
           id
           countryCode

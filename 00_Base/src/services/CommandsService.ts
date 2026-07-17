@@ -12,6 +12,7 @@ import { CommandType } from '../model/CommandType.js';
 import type { OcpiCommandResponse } from '../model/CommandResponse.js';
 import { CommandResponseType } from '../model/CommandResponse.js';
 // import { CommandExecutor } from '../util/CommandExecutor.js';
+import { AuthMethod } from '../model/AuthMethod.js';
 import { ResponseGenerator } from '../util/response.generator.js';
 import { CommandExecutor } from '../util/CommandExecutor.js';
 import type {
@@ -253,6 +254,7 @@ export class CommandsService {
           cacheExpiryDateTime: new Date(
             Date.now() + this.config.commands.timeout * 1000,
           ),
+          ocpiAuthMethod: AuthMethod.COMMAND,
         },
       );
     }

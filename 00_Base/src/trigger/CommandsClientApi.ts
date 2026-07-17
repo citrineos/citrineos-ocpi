@@ -49,6 +49,7 @@ export class CommandsClientApi extends BaseClientApi {
     commandId: string,
     awsSecretCertificateArn?: string | null,
   ): Promise<OcpiEmptyResponse> {
+    console.log('postCommandResult', fromCountryCode, fromPartyId, toCountryCode, toPartyId);
     const routing = await this.resolveCommandCallbackRouting(
       commandId,
       fromCountryCode,
@@ -97,6 +98,7 @@ export class CommandsClientApi extends BaseClientApi {
       cached && cached !== COMMAND_RESPONSE_URL_CACHE_RESOLVED
         ? parseCommandCallbackContext(cached)
         : null;
+    console.log('!!! context', context);
     if (context) {
       return swapRoutingForCallback(context);
     }

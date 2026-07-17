@@ -297,7 +297,7 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     // Set default auth method
-    session.auth_method = AuthMethod.WHITELIST;
+    session.auth_method = this.resolveAuthMethod(transaction);
 
     // Set optional fields that are typically null in your implementation
     session.authorization_reference = null;
@@ -355,7 +355,7 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     // Set defaults for fields that don't depend on external context
-    session.auth_method = AuthMethod.WHITELIST;
+    session.auth_method = this.resolveAuthMethod(transaction);
     session.authorization_reference = null;
     session.meter_id = null;
 
@@ -384,7 +384,7 @@ export class SessionMapper extends BaseTransactionMapper {
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
-      auth_method: AuthMethod.WHITELIST,
+      auth_method: this.resolveAuthMethod(transaction),
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction, location),
       connector_id: transaction.connectorId!.toString(),
@@ -430,6 +430,20 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     return location.id ?? '';
+  }
+
+  private resolveAuthMethod(
+    transaction: TransactionDto | Partial<TransactionDto>,
+  ): AuthMethod {
+    const method = transaction.authorization?.ocpiAuthMethod;
+    if (
+      method === AuthMethod.AUTH_REQUEST ||
+      method === AuthMethod.COMMAND ||
+      method === AuthMethod.WHITELIST
+    ) {
+      return method as AuthMethod;
+    }
+    return AuthMethod.WHITELIST;
   }
 
   private getEvseUid(

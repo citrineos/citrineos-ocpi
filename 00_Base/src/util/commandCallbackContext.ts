@@ -56,6 +56,7 @@ export function parseCommandCallbackContext(
 export function swapRoutingForCallback(
   context: CommandCallbackContext,
 ): OcpiRoutingHeaders {
+  console.log('swapRoutingForCallback', context);
   return {
     fromCountryCode: context.toCountryCode,
     fromPartyId: context.toPartyId,

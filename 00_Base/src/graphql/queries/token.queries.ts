@@ -189,6 +189,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
     $language1: String
     $groupAuthorizationId: Int
     $realTimeAuth: String
+    $ocpiAuthMethod: String
     $cacheExpiryDateTime: timestamptz
     $createdAt: timestamptz!
     $updatedAt: timestamptz!
@@ -204,6 +205,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
         language1: $language1
         groupAuthorizationId: $groupAuthorizationId
         realTimeAuth: $realTimeAuth
+        ocpiAuthMethod: $ocpiAuthMethod
         cacheExpiryDateTime: $cacheExpiryDateTime
         createdAt: $createdAt
         updatedAt: $updatedAt
@@ -240,6 +242,7 @@ export const CREATE_AUTHORIZATION_MUTATION = gql`
       status
       realTimeAuth
       language1
+      ocpiAuthMethod
       cacheExpiryDateTime
       groupAuthorizationId
     }
