@@ -2865,6 +2865,8 @@ export type CreateAuthorizationMutationVariables = Exact<{
   language1?: InputMaybe<Scalars['String']['input']>;
   groupAuthorizationId?: InputMaybe<Scalars['Int']['input']>;
   realTimeAuth?: InputMaybe<Scalars['String']['input']>;
+  ocpiAuthMethod?: InputMaybe<Scalars['String']['input']>;
+  ocpiAuthReference?: InputMaybe<Scalars['String']['input']>;
   cacheExpiryDateTime?: InputMaybe<Scalars['timestamptz']['input']>;
   createdAt: Scalars['timestamptz']['input'];
   updatedAt: Scalars['timestamptz']['input'];
@@ -2883,6 +2885,8 @@ export type CreateAuthorizationMutationResult = {
     status: any,
     realTimeAuth: string,
     language1?: string | null,
+    ocpiAuthMethod?: string | null,
+    ocpiAuthReference?: string | null,
     cacheExpiryDateTime?: any | null,
     groupAuthorizationId?: number | null,
     tenants: Array<{
@@ -3049,6 +3053,8 @@ export type GetTransactionByTransactionIdQueryResult = {
       createdAt: any,
       updatedAt: any,
       roamingPartnerId?: number | null,
+      ocpiAuthMethod?: string | null,
+      ocpiAuthReference?: string | null,
       groupAuthorization?: {
         idToken: any
       } | null,

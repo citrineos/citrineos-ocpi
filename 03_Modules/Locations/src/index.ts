@@ -162,12 +162,12 @@ export class LocationsModule extends AbstractDtoModule implements OcpiModule {
   async handleChargingStationUpdate(
     event: IDtoEvent<Partial<ChargingStationDto>>,
   ): Promise<void> {
-    logDbBroadcast(
-      this._logger,
-      'debug',
-      'Handling Charging Station Update:',
-      event,
-    );
+    // logDbBroadcast(
+    //   this._logger,
+    //   'debug',
+    //   'Handling Charging Station Update:',
+    //   event,
+    // );
     // Updates are Location/Evse PATCH requests
     // await this.locationsBroadcaster.broadcastPatchEvse(event._payload); // todo
   }

@@ -297,10 +297,11 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     // Set default auth method
-    session.auth_method = AuthMethod.WHITELIST;
+    session.auth_method = this.resolveAuthMethod(transaction);
 
     // Set optional fields that are typically null in your implementation
-    session.authorization_reference = null;
+    session.authorization_reference =
+      transaction.authorization?.ocpiAuthReference ?? null;
     session.meter_id = null;
 
     return session;
@@ -355,8 +356,9 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     // Set defaults for fields that don't depend on external context
-    session.auth_method = AuthMethod.WHITELIST;
-    session.authorization_reference = null;
+    session.auth_method = this.resolveAuthMethod(transaction);
+    session.authorization_reference =
+      transaction.authorization?.ocpiAuthReference ?? null;
     session.meter_id = null;
 
     return session;
@@ -384,7 +386,7 @@ export class SessionMapper extends BaseTransactionMapper {
       kwh: transaction.totalKwh || 0,
       cdr_token: this.createCdrToken(token),
       // TODO: Implement other auth methods
-      auth_method: AuthMethod.WHITELIST,
+      auth_method: this.resolveAuthMethod(transaction),
       location_id: this.getLocationId(location),
       evse_uid: this.getEvseUid(transaction, location),
       connector_id: transaction.connectorId!.toString(),
@@ -396,7 +398,8 @@ export class SessionMapper extends BaseTransactionMapper {
       status: this.getTransactionStatus(transaction),
       last_updated: transaction.updatedAt!,
       // TODO: Fill in optional values
-      authorization_reference: null,
+      authorization_reference:
+        transaction.authorization?.ocpiAuthReference ?? null,
       total_cost: transaction.endTime
         ? this.calculateTotalCost(transaction.totalKwh || 0, tariff)
         : null,
@@ -430,6 +433,20 @@ export class SessionMapper extends BaseTransactionMapper {
     }
 
     return location.id ?? '';
+  }
+
+  private resolveAuthMethod(
+    transaction: TransactionDto | Partial<TransactionDto>,
+  ): AuthMethod {
+    const method = transaction.authorization?.ocpiAuthMethod;
+    if (
+      method === AuthMethod.AUTH_REQUEST ||
+      method === AuthMethod.COMMAND ||
+      method === AuthMethod.WHITELIST
+    ) {
+      return method as AuthMethod;
+    }
+    return AuthMethod.WHITELIST;
   }
 
   private getEvseUid(

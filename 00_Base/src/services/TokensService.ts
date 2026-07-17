@@ -73,9 +73,11 @@ import type {
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { WhitelistType } from '../model/WhitelistType.js';
-
+import { AuthMethod } from '../model/AuthMethod.js';
 export type UpsertTokenOptions = {
   cacheExpiryDateTime?: Date;
+  ocpiAuthMethod?: AuthMethod;
+  ocpiAuthReference?: string;
 };
 
 import { getRoamingPartner } from '../util/helpers.js';
@@ -137,6 +139,8 @@ export class TokensService {
     });
 
     const cacheExpiryDateTime = options?.cacheExpiryDateTime?.toISOString();
+    const ocpiAuthMethod = options?.ocpiAuthMethod;
+    const ocpiAuthReference = options?.ocpiAuthReference;
 
     let groupAuthorizationId: number | undefined;
     if (token.group_id) {
@@ -165,6 +169,8 @@ export class TokensService {
             realTimeAuth: authorization.realTimeAuth,
           }),
           ...(cacheExpiryDateTime != null && { cacheExpiryDateTime }),
+          ...(ocpiAuthMethod != null && { ocpiAuthMethod }),
+          ...(ocpiAuthReference != null && { ocpiAuthReference }),
           updatedAt: token.last_updated,
         },
       });
@@ -197,6 +203,8 @@ export class TokensService {
         realTimeAuth: authorization.realTimeAuth,
       }),
       ...(cacheExpiryDateTime != null && { cacheExpiryDateTime }),
+      ...(ocpiAuthMethod != null && { ocpiAuthMethod }),
+      ...(ocpiAuthReference != null && { ocpiAuthReference }),
       createdAt: timestamp,
       updatedAt: timestamp,
     });
@@ -486,7 +494,11 @@ export class TokensService {
         tenantPartner.tenant.id,
         tenantPartner.id,
         roamingPartner?.id,
-        { cacheExpiryDateTime },
+        {
+          cacheExpiryDateTime,
+          ocpiAuthMethod: AuthMethod.AUTH_REQUEST,
+          ocpiAuthReference: realTimeAuthRequest.idToken,
+        },
       );
     }
 
