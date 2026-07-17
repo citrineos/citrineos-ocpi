@@ -140,15 +140,8 @@ export const CLAIM_GIREVE_BROADCAST_RETRIES = gql`
 export const RELEASE_STALE_GIREVE_RETRY_LOCKS = gql`
   mutation ReleaseStaleGireveRetryLocks($staleBefore: timestamptz!) {
     update_GireveBroadcastRetryQueues(
-      where: {
-        status: { _eq: "processing" }
-        lockedAt: { _lt: $staleBefore }
-      }
-      _set: {
-        status: "pending"
-        lockedAt: null
-        updatedAt: $staleBefore
-      }
+      where: { status: { _eq: "processing" }, lockedAt: { _lt: $staleBefore } }
+      _set: { status: "pending", lockedAt: null, updatedAt: $staleBefore }
     ) {
       affected_rows
     }

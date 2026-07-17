@@ -210,7 +210,12 @@ export const ocpiConfigInputSchema = z.object({
       /** Max rows claimed per CronJob run. */
       retryBatchSize: z.number().int().positive().default(50).optional(),
       /** Release processing locks older than this (seconds) at run start. */
-      retryStaleLockSeconds: z.number().int().positive().default(900).optional(),
+      retryStaleLockSeconds: z
+        .number()
+        .int()
+        .positive()
+        .default(900)
+        .optional(),
     })
     .optional(),
 });
@@ -390,7 +395,12 @@ export const ocpiConfigSchema = z.object({
       /** Max rows claimed per CronJob run. */
       retryBatchSize: z.number().int().positive().default(50).optional(),
       /** Release processing locks older than this (seconds) at run start. */
-      retryStaleLockSeconds: z.number().int().positive().default(900).optional(),
+      retryStaleLockSeconds: z
+        .number()
+        .int()
+        .positive()
+        .default(900)
+        .optional(),
     })
     .optional(),
 });

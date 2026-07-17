@@ -54,7 +54,9 @@ export class GireveBroadcastRetryWorker {
   /**
    * One-shot batch for CronJob: release stale locks, claim due rows, retry each.
    */
-  async runOnce(options?: { batchSize?: number }): Promise<GireveRetryRunResult> {
+  async runOnce(options?: {
+    batchSize?: number;
+  }): Promise<GireveRetryRunResult> {
     const batchSize = options?.batchSize ?? this.retryBatchSize;
     const staleLocksReleased = await this.outbox.releaseStaleLocks();
     const items = await this.outbox.claimDueRetries(batchSize);
