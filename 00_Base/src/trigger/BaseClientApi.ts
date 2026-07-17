@@ -266,7 +266,9 @@ export abstract class BaseClientApi {
         )
       : this.restClient;
 
-    this.logger.info(`Sending ${httpMethod} Headers: ${JSON.stringify(options.additionalHeaders)}`);
+    this.logger.info(
+      `Sending ${httpMethod} Headers: ${JSON.stringify(options.additionalHeaders)}`,
+    );
     switch (httpMethod) {
       case HttpMethod.Get:
         this.logger.info(`Sending GET request to ${url}`);

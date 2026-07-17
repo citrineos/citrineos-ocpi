@@ -140,6 +140,7 @@ export class TokensService {
 
     const cacheExpiryDateTime = options?.cacheExpiryDateTime?.toISOString();
     const ocpiAuthMethod = options?.ocpiAuthMethod;
+    const ocpiAuthReference = options?.ocpiAuthReference;
 
     let groupAuthorizationId: number | undefined;
     if (token.group_id) {
@@ -493,7 +494,11 @@ export class TokensService {
         tenantPartner.tenant.id,
         tenantPartner.id,
         roamingPartner?.id,
-        { cacheExpiryDateTime, ocpiAuthMethod: AuthMethod.AUTH_REQUEST },
+        {
+          cacheExpiryDateTime,
+          ocpiAuthMethod: AuthMethod.AUTH_REQUEST,
+          ocpiAuthReference: realTimeAuthRequest.idToken,
+        },
       );
     }
 

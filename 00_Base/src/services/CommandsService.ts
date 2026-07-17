@@ -255,6 +255,7 @@ export class CommandsService {
             Date.now() + this.config.commands.timeout * 1000,
           ),
           ocpiAuthMethod: AuthMethod.COMMAND,
+          ocpiAuthReference: startSession.authorization_reference ?? undefined,
         },
       );
     }
