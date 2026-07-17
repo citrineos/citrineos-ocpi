@@ -497,7 +497,8 @@ export class TokensService {
         {
           cacheExpiryDateTime,
           ocpiAuthMethod: AuthMethod.AUTH_REQUEST,
-          ocpiAuthReference: realTimeAuthRequest.idToken,
+          ocpiAuthReference:
+            postTokenResult.data?.authorization_reference ?? undefined,
         },
       );
     }
