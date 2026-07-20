@@ -59,6 +59,7 @@ services:
       KEYCLOAK_CLIENT_SECRET: '${KEYCLOAK_CLIENT_SECRET}'
       CITRINEOS_OCPI_GIREVE_COUNTRYCODE: 'FR'
       CITRINEOS_OCPI_GIREVE_PARTYID: '107'
+      CITRINEOS_OCPI_INCLUDE_STATUS_MESSAGE: 'false'
     # depends_on:
     #   ocpp-db:
     #     condition: service_healthy

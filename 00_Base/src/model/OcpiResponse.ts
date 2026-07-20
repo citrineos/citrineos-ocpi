@@ -29,13 +29,20 @@ export const OcpiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
     data: dataSchema.optional(),
   });
 
+/**
+ * When `CITRINEOS_OCPI_INCLUDE_STATUS_MESSAGE=false`, omit `status_message`
+ * from OCPI responses. Defaults to including it.
+ */
+export const includeOcpiStatusMessage = (): boolean =>
+  process.env.CITRINEOS_OCPI_INCLUDE_STATUS_MESSAGE?.toLowerCase() !== 'false';
+
 export const buildOcpiResponse = <T>(
   status_code: OcpiResponseStatusCode,
   data?: T,
   status_message?: string,
 ) => ({
   status_code,
-  status_message,
+  ...(includeOcpiStatusMessage() ? { status_message } : {}),
   data,
   timestamp: new Date(),
 });

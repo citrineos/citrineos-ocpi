@@ -4,7 +4,11 @@
 
 import { z } from 'zod';
 import { CredentialsDTOSchema } from './DTO/CredentialsDTO.js';
-import { OcpiResponseSchema, OcpiResponseStatusCode } from './OcpiResponse.js';
+import {
+  includeOcpiStatusMessage,
+  OcpiResponseSchema,
+  OcpiResponseStatusCode,
+} from './OcpiResponse.js';
 
 export const CredentialsResponseSchema =
   OcpiResponseSchema(CredentialsDTOSchema);
@@ -18,7 +22,7 @@ export const buildCredentialsResponse = (
   status_message?: string,
 ): z.infer<typeof CredentialsResponseSchema> => ({
   status_code,
-  status_message,
+  ...(includeOcpiStatusMessage() ? { status_message } : {}),
   data,
   timestamp: new Date(),
 });

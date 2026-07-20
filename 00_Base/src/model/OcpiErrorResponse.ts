@@ -12,7 +12,10 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Optional } from '../util/decorators/Optional.js';
-import { OcpiResponseStatusCode } from './OcpiResponse.js';
+import {
+  includeOcpiStatusMessage,
+  OcpiResponseStatusCode,
+} from './OcpiResponse.js';
 
 export class OcpiErrorResponse {
   @Optional()
@@ -40,7 +43,9 @@ export const buildOcpiErrorResponse = (
 ) => {
   const response = new OcpiErrorResponse();
   response.status_code = status_code;
-  response.status_message = status_message;
+  if (includeOcpiStatusMessage()) {
+    response.status_message = status_message;
+  }
   response.timestamp = new Date();
   return response;
 };
