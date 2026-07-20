@@ -51,12 +51,14 @@ services:
       CITRINEOS_OCPI_GRAPHQL_HEADERS: '{"x-hasura-admin-secret":"password"}'
       CITRINEOS_OCPI_OIDC_JWKSURI: 'http://keycloak:8180/auth/realms/patterm/protocol/openid-connect/certs'
       CITRINEOS_OCPI_OIDC_ISSUER: 'http://localhost:8180/auth/realms/patterm'
-      CITRINEOS_OCPI_OIDC_AUDIENCE: 'citrineos-ocpi'
+      CITRINEOS_OCPI_OIDC_AUDIENCE: 'timeseries_api'
       CITRINEOS_OCPI_OIDC_RATELIMIT: 'true'
       KEYCLOAK_URL: 'http://keycloak:8180/auth'
       KEYCLOAK_REALM: 'patterm'
       KEYCLOAK_CLIENT_ID: 'timeseries_api'
       KEYCLOAK_CLIENT_SECRET: '${KEYCLOAK_CLIENT_SECRET}'
+      CITRINEOS_OCPI_GIREVE_COUNTRYCODE: 'FR'
+      CITRINEOS_OCPI_GIREVE_PARTYID: '107'
     # depends_on:
     #   ocpp-db:
     #     condition: service_healthy

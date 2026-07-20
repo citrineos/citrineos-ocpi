@@ -37,7 +37,9 @@ import { PartnerMtlsCertificateService } from '../util/PartnerMtlsCertificateSer
 import {
   handleHttpMethodForPartner,
   shouldBroadcastToPartner,
+  isGirevePartner,
 } from '../util/helpers.js';
+import { GireveBroadcastRetryOutbox } from '../services/GireveBroadcastRetryOutbox.js';
 
 import { appendFileSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
@@ -93,6 +95,8 @@ export abstract class BaseClientApi {
   protected ocpiGraphqlClient!: OcpiGraphqlClient;
   @Inject()
   protected partnerMtlsCertificateService!: PartnerMtlsCertificateService;
+  @Inject()
+  protected gireveBroadcastRetryOutbox!: GireveBroadcastRetryOutbox;
 
   CONTROLLER_PATH = 'null';
   private restClient!: RestClient;
@@ -460,6 +464,77 @@ export abstract class BaseClientApi {
           `request failed for ${partner.countryCode}/${partner.partyId}`,
           e,
         );
+
+        // Best-effort: store failed Gireve pushes in an outbox so a worker can retry them later.
+        try {
+          const isRetryableModule =
+            moduleId === ModuleId.Sessions ||
+            moduleId === ModuleId.Cdrs ||
+            moduleId === ModuleId.Tariffs;
+
+          const targetIsGireve = isGirevePartner({
+            countryCode: partner.countryCode,
+            partyId: partner.partyId,
+          });
+
+          if (isRetryableModule && targetIsGireve) {
+            const computedResourceId =
+              body && typeof body === 'object' && (body as any).id != null
+                ? String((body as any).id)
+                : path
+                  ? path.split('/').filter(Boolean).pop()
+                  : undefined;
+
+            if (computedResourceId) {
+              const resourceType =
+                moduleId === ModuleId.Sessions
+                  ? 'session'
+                  : moduleId === ModuleId.Cdrs
+                    ? 'cdr'
+                    : 'tariff';
+
+              const lastError =
+                e instanceof Error
+                  ? (e.stack ?? e.message)
+                  : typeof e === 'string'
+                    ? e
+                    : (() => {
+                        try {
+                          return JSON.stringify(e);
+                        } catch {
+                          return String(e);
+                        }
+                      })();
+
+              await this.gireveBroadcastRetryOutbox.upsertOnFailure({
+                partnerTenantPartnerId: partner.id!,
+                cpoCountryCode,
+                cpoPartyId,
+                moduleId,
+                interfaceRole,
+                httpMethod: HttpMethodForPartner,
+                resourceType,
+                resourceId: computedResourceId,
+                ocpiPath: path,
+                payload: body ?? {},
+                lastError,
+              });
+            } else {
+              this.logger.warn(
+                'Gireve retry outbox: cannot compute resourceId, skipping',
+                {
+                  partner: `${partner.countryCode}/${partner.partyId}`,
+                  path,
+                },
+              );
+            }
+          }
+        } catch (queueErr) {
+          this.logger.error(
+            'Failed to upsert Gireve retry outbox (best-effort)',
+            queueErr,
+          );
+        }
       }
     }
     return responses;

@@ -57,7 +57,8 @@
     "generate": "graphql-codegen",
     "migrate:build": "tsc --project migrations/tsconfig.json",
     "migrate": "npm run migrate:build && npx sequelize-cli db:migrate && echo migration completed successfully",
-    "hasura:reload-metadata": "bash scripts/hasura-reload-metadata.sh"
+    "gireve-retry": "cross-env APP_ENV=${APP_ENV:-docker} tsx Server/src/gireve-retry/index.ts",
+    "gireve-retry:dist": "cross-env APP_ENV=${APP_ENV:-docker} node Server/dist/gireve-retry/index.js"
   },
   "workspaces": [
     "./00_Base",
