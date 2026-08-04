@@ -69,8 +69,8 @@ export default {
       const tenant = {
         id: 1,
         name: 'Default Tenant',
-        partyId: 'S44',
-        countryCode: 'US',
+        partyId: 'ZET',
+        countryCode: 'FR',
         serverProfileOCPI: JSON.stringify(serverProfileOCPI),
         createdAt: new Date('2025-08-07T17:55:00+00:00'),
         updatedAt: new Date('2025-08-07T17:55:00+00:00'),
@@ -80,8 +80,8 @@ export default {
       console.error('Error inserting tenant, will attempt update:', error);
 
       const tenantUpdate = {
-        partyId: 'S44',
-        countryCode: 'US',
+        partyId: 'ZET',
+        countryCode: 'FR',
         serverProfileOCPI: JSON.stringify(serverProfileOCPI),
         updatedAt: new Date('2025-08-07T17:55:00+00:00'),
       };
