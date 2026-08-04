@@ -28,7 +28,6 @@ export default {
       updatedAt: new Date('2025-08-07T17:55:00+00:00'),
     };
 
-
     await queryInterface.bulkInsert(
       'RoamingPartners',
       [roamingPartner],

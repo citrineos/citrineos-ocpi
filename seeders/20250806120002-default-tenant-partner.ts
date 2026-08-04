@@ -223,7 +223,7 @@ export default {
       tenantId: 1,
       partyId: 'CPO',
       countryCode: 'FR',
-        partnerProfileOCPI: JSON.stringify(partnerProfileOCPICPO),
+      partnerProfileOCPI: JSON.stringify(partnerProfileOCPICPO),
       createdAt: new Date('2025-08-07T17:55:00+00:00'),
       updatedAt: new Date('2025-08-07T17:55:00+00:00'),
     };
@@ -233,11 +233,10 @@ export default {
       tenantId: 1,
       partyId: '123',
       countryCode: 'FR',
-        partnerProfileOCPI: JSON.stringify(partnerProfileOCPIHUB),
+      partnerProfileOCPI: JSON.stringify(partnerProfileOCPIHUB),
       createdAt: new Date('2025-08-07T17:55:00+00:00'),
       updatedAt: new Date('2025-08-07T17:55:00+00:00'),
     };
-
 
     await queryInterface.bulkInsert(
       'TenantPartners',

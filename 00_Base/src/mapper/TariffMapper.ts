@@ -98,15 +98,18 @@ export class TariffMapper {
       restrictions: el.restrictions ?? undefined,
     }));
 
-      const countryCode =
-        coreTariff.roamingPartner?.countryCode ??
-        coreTariff.tenantPartner?.countryCode ??
-        coreTariff.tenant?.countryCode;
-      
-      const partyId =
-        coreTariff.roamingPartner?.partyId ??
-        coreTariff.tenantPartner?.partyId ??
-        coreTariff.tenant?.partyId;
+    const countryCode =
+      coreTariff.roamingPartner?.countryCode ??
+      coreTariff.tenantPartner?.countryCode ??
+      coreTariff.tenant?.countryCode;
+
+    const partyId =
+      coreTariff.roamingPartner?.partyId ??
+      coreTariff.tenantPartner?.partyId ??
+      coreTariff.tenant?.partyId;
+
+    console.log("!!! countryCode", countryCode);
+    console.log("partyId", partyId);
 
     if (!countryCode || !partyId) {
       throw new Error(
