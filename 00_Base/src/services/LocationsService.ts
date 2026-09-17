@@ -317,7 +317,6 @@ export class LocationsService {
     }
   }
 
-  // LocationsService.ts
   /**
    * Deletes a location from the OCPI system. This does not delete the location from the CPO system.
    * It changes the disableOCPI field to true in the location table and sends a PATCH with EVSE status to REMOVED.
