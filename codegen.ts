@@ -71,6 +71,7 @@ export type Locations_Bool_Exp = {
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   disableOCPI?: InputMaybe<Boolean_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
+  _or?: InputMaybe<Array<Locations_Bool_Exp>>;
 };
 export type Boolean_Comparison_Exp = {
   _eq?: InputMaybe<Scalars['Boolean']['input']>;
