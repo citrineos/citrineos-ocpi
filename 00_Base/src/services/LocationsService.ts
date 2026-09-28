@@ -18,7 +18,7 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
 } from '../model/PaginatedResponse.js';
-import { Role } from '../index.js';
+import { ModuleId, Role, shouldBroadcastToPartner } from '../index.js';
 
 import {
   buildOcpiResponse,
@@ -44,6 +44,8 @@ import type {
   GetTenantAndPartnersQueryVariables,
   GetOurLocationByIdQueryResult,
   GetOurLocationByIdQueryVariables,
+  TenantPartnersListQueryVariables,
+  TenantPartnersListQueryResult,
 } from '../graphql/index.js';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
@@ -52,7 +54,8 @@ import {
   GET_OUR_LOCATIONS_QUERY,
   OcpiGraphqlClient,
   UPDATE_LOCATION_PATCH_MUTATION,
-  GET_OUR_LOCATION_BY_ID_QUERY
+  GET_OUR_LOCATION_BY_ID_QUERY,
+  LIST_TENANT_PARTNERS_BY_CPO,
 } from '../graphql/index.js';
 import {
   ConnectorMapper,
@@ -69,6 +72,7 @@ import type {
 } from '@zetra/citrineos-base';
 import type { DeleteLocationBody, DeleteLocationSummary } from '../index.js';
 import { GET_TENANT_AND_PARTNERS } from '../graphql/queries/tenant.queries.js';
+import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 
 export type KnownLocationRef = {
   id: number;
@@ -332,19 +336,21 @@ export class LocationsService {
       patchFailed: 0,
     };
     try {
-      const tenant = await this.ocpiGraphqlClient.request<
-        GetTenantAndPartnersQueryResult,
-        GetTenantAndPartnersQueryVariables
-      >(GET_TENANT_AND_PARTNERS, {
-        countryCode: body.ourCountryCode,
-        partyId: body.ourPartyId,
+      const partners = await this.ocpiGraphqlClient.request<
+        TenantPartnersListQueryResult,
+        TenantPartnersListQueryVariables
+      >(LIST_TENANT_PARTNERS_BY_CPO, {
+        cpoCountryCode: body.ourCountryCode,
+        cpoPartyId: body.ourPartyId,
+        endpointIdentifier: EndpointIdentifier.LOCATIONS_RECEIVER,
       });
-      if (!tenant || !tenant.Tenants || tenant.Tenants.length === 0) {
-        this.logger.error(
-          `Tenant not found for country code ${body.ourCountryCode} and party id ${body.ourPartyId}`,
-        );
-        return { status: 'failed to find tenant', ...noPatchesAttempted };
-      }
+
+      // if (!tenant || !tenant.Tenants || tenant.Tenants.length === 0) {
+      //   this.logger.error(
+      //     `Tenant not found for country code ${body.ourCountryCode} and party id ${body.ourPartyId}`,
+      //   );
+      //   return { status: 'failed to find tenant', ...noPatchesAttempted };
+      // }
 
       const locationLookup = await this.ocpiGraphqlClient.request<
         GetOurLocationByIdQueryResult,
@@ -375,30 +381,27 @@ export class LocationsService {
 
       let patchSucceeded = 0;
       let patchFailed = 0;
-      for (const partner of tenant.Tenants[0].tenantPartners) {
-        if (
-          partner.partnerProfileOCPI?.roles.some(
-            (r: any) => r.role === Role.EMSP,
-          )
-        ) {
-          // for partner locations, send PATCH with EVSE status to REMOVED
-          try {
-            await this.locationsClientApi.patchLocationEVSEStatus(
-              body.ourCountryCode,
-              body.ourPartyId,
-              partner.countryCode,
-              partner.partyId,
-              partner.partnerProfileOCPI!,
-              body.locationId,
-              EvseStatus.REMOVED,
-            );
-            patchSucceeded++;
-          } catch (e) {
-            this.logger.error(
-              `Failed to PATCH EVSE status to partner ${partner.countryCode}/${partner.partyId} for location ${body.locationId}: ${(e as Error).message}`,
-            );
-            patchFailed++;
-          }
+      for (const partner of partners.TenantPartners) {
+        if (!shouldBroadcastToPartner(partner, ModuleId.Locations, this.logger))
+          continue;
+
+        try {
+          await this.locationsClientApi.patchLocationEVSEStatus(
+            body.ourCountryCode,
+            body.ourPartyId,
+            partner.countryCode,
+            partner.partyId,
+            partner.partnerProfileOCPI!,
+            body.locationId,
+            EvseStatus.REMOVED,
+            partner.awsSecretCertificateArn ?? undefined, // nouveau param à ajouter
+          );
+          patchSucceeded++;
+        } catch (e) {
+          this.logger.error(
+            `Failed to PATCH EVSE status to partner ${partner.countryCode}/${partner.partyId} for location ${body.locationId}: ${(e as Error).message}`,
+          );
+          patchFailed++;
         }
       }
 

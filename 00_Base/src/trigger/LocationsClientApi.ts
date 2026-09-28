@@ -157,6 +157,7 @@ export class LocationsClientApi extends BaseClientApi {
     partnerProfile: PartnerProfile,
     locationId: string,
     status: EvseStatus,
+    awsSecretCertificateArn?: string | null,
   ): Promise<OcpiEmptyResponse[]> {
     const lookup = await this.ocpiGraphqlClient.request<
       GetOurLocationByIdQueryResult,
@@ -189,6 +190,7 @@ export class LocationsClientApi extends BaseClientApi {
           locationId,
           evseUid,
           { status, last_updated },
+          awsSecretCertificateArn,
         ),
       ),
     );
@@ -203,6 +205,7 @@ export class LocationsClientApi extends BaseClientApi {
     locationId: string,
     evseUid: string,
     requestBody: Partial<EvseDTO>,
+    awsSecretCertificateArn?: string | null,
   ): Promise<OcpiEmptyResponse> {
     const path = `${fromCountryCode}/${fromPartyId}/${locationId}/${evseUid}`;
     return this.request(
@@ -216,6 +219,10 @@ export class LocationsClientApi extends BaseClientApi {
       true,
       `${this.getUrl(partnerProfile)}/${path}`,
       requestBody,
+      undefined, // paginatedParams
+      undefined, // otherParams
+      undefined, // path (already baked into url above)
+      awsSecretCertificateArn,
     );
   }
 

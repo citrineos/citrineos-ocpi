@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from 'zod';
-import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../PaginatedResponse.js';
 
 /**
  * Admin trigger body: OCPI identity + optional GET List pagination (Sender 8.2.1.1).
