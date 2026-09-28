@@ -40,12 +40,12 @@ export type Locations_Bool_Exp = {
   id?: InputMaybe<Int_Comparison_Exp>;
   _and?: InputMaybe<Array<Locations_Bool_Exp>>;
   _or?: InputMaybe<Array<Locations_Bool_Exp>>;
-  _not?: InputMaybe<Locations_Bool_Exp>;
+  disableOCPI?: InputMaybe<Boolean_Comparison_Exp>;
+  id?: InputMaybe<Int_Comparison_Exp>;
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
   roamingPartnerId?: InputMaybe<Int_Comparison_Exp>;
   deletedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
-  disableOCPI?: InputMaybe<Boolean_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
 };
 export type Boolean_Comparison_Exp = {
