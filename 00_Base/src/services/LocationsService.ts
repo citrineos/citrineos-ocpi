@@ -72,7 +72,6 @@ import type {
   PartnerProfile,
 } from '@zetra/citrineos-base';
 import type { DeleteLocationBody, DeleteLocationSummary } from '../index.js';
-import { GET_TENANT_AND_PARTNERS } from '../graphql/queries/tenant.queries.js';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 
 export type KnownLocationRef = {
