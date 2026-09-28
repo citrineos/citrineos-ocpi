@@ -16,9 +16,7 @@ export const DeleteLocationBodySchema = z.object({
 
 export const DeleteLocationBodySchemaName = 'DeleteLocationBodySchema';
 
-export type DeleteLocationBody = z.infer<
-  typeof DeleteLocationBodySchema   
->;
+export type DeleteLocationBody = z.infer<typeof DeleteLocationBodySchema>;
 
 export type DeleteLocationSummary = {
   patchSucceeded: number;

@@ -287,10 +287,7 @@ export class AdminModuleApi extends BaseController {
   @Post('/disable-location-ocpi')
   @AsAdminEndpoint()
   async deleteLocationOCPI(
-    @BodyWithSchema(
-      DeleteLocationBodySchema,
-      DeleteLocationBodySchemaName,
-    )
+    @BodyWithSchema(DeleteLocationBodySchema, DeleteLocationBodySchemaName)
     body: DeleteLocationBody,
   ): Promise<{ status: string } & DeleteLocationSummary> {
     return await this.locationsService.deleteLocationOCPI(body);

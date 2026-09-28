@@ -27,7 +27,7 @@ import {
 import { buildOcpiErrorResponse } from '../model/OcpiErrorResponse.js';
 import { OcpiHeaders } from '../model/OcpiHeaders.js';
 import { NotFoundException } from '../exception/NotFoundException.js';
-import { EvseStatus } from '../model/EvseStatus.js'
+import { EvseStatus } from '../model/EvseStatus.js';
 import type {
   GetLocationByOcpiIdQueryResult,
   GetLocationByOcpiIdQueryVariables,
@@ -317,100 +317,101 @@ export class LocationsService {
     }
   }
 
+  // LocationsService.ts
+  /**
+   * Deletes a location from the OCPI system. This does not delete the location from the CPO system.
+   * It changes the disableOCPI field to true in the location table and sends a PATCH with EVSE status to REMOVED.
+   */
+  async deleteLocationOCPI(
+    body: DeleteLocationBody,
+  ): Promise<{ status: string } & DeleteLocationSummary> {
+    this.logger.info(
+      `Deleting location from OCPI system with body ${JSON.stringify(body)}`,
+    );
+    const noPatchesAttempted: DeleteLocationSummary = {
+      patchSucceeded: 0,
+      patchFailed: 0,
+    };
+    try {
+      const tenant = await this.ocpiGraphqlClient.request<
+        GetTenantAndPartnersQueryResult,
+        GetTenantAndPartnersQueryVariables
+      >(GET_TENANT_AND_PARTNERS, {
+        countryCode: body.ourCountryCode,
+        partyId: body.ourPartyId,
+      });
+      if (!tenant || !tenant.Tenants || tenant.Tenants.length === 0) {
+        this.logger.error(
+          `Tenant not found for country code ${body.ourCountryCode} and party id ${body.ourPartyId}`,
+        );
+        return { status: 'failed to find tenant', ...noPatchesAttempted };
+      }
 
-// LocationsService.ts
-/**
- * Deletes a location from the OCPI system. This does not delete the location from the CPO system.
- * It changes the disableOCPI field to true in the location table and sends a PATCH with EVSE status to REMOVED.
- */
-async deleteLocationOCPI(
-  body: DeleteLocationBody,
-): Promise<{ status: string } & DeleteLocationSummary> {
-  this.logger.info(
-    `Deleting location from OCPI system with body ${JSON.stringify(body)}`,
-  );
-  const noPatchesAttempted: DeleteLocationSummary = {
-    patchSucceeded: 0,
-    patchFailed: 0,
-  };
-  try {
-    const tenant = await this.ocpiGraphqlClient.request<
-      GetTenantAndPartnersQueryResult,
-      GetTenantAndPartnersQueryVariables
-    >(GET_TENANT_AND_PARTNERS, {
-      countryCode: body.ourCountryCode,
-      partyId: body.ourPartyId,
-    });
-    if (!tenant || !tenant.Tenants || tenant.Tenants.length === 0) {
+      const locationLookup = await this.ocpiGraphqlClient.request<
+        GetOurLocationByIdQueryResult,
+        GetOurLocationByIdQueryVariables
+      >(GET_OUR_LOCATION_BY_ID_QUERY, { id: Number(body.locationId) });
+      const dbLocationId = locationLookup.Locations?.[0]?.id;
+      if (!dbLocationId) {
+        this.logger.error(`Location ${body.locationId} not found`);
+        return { status: 'failed to find location', ...noPatchesAttempted };
+      }
+
+      const result = await this.ocpiGraphqlClient.request<
+        UpdateLocationPatchMutationResult,
+        UpdateLocationPatchMutationVariables
+      >(UPDATE_LOCATION_PATCH_MUTATION, {
+        id: dbLocationId,
+        changes: { disableOCPI: true },
+      });
+      if (!result.update_Locations_by_pk) {
+        this.logger.error(
+          `Failed to disable OCPI for location ${body.locationId}`,
+        );
+        return {
+          status: 'failed to disable OCPI for location',
+          ...noPatchesAttempted,
+        };
+      }
+
+      let patchSucceeded = 0;
+      let patchFailed = 0;
+      for (const partner of tenant.Tenants[0].tenantPartners) {
+        if (
+          partner.partnerProfileOCPI?.roles.some(
+            (r: any) => r.role === Role.EMSP,
+          )
+        ) {
+          // for partner locations, send PATCH with EVSE status to REMOVED
+          try {
+            await this.locationsClientApi.patchLocationEVSEStatus(
+              body.ourCountryCode,
+              body.ourPartyId,
+              partner.countryCode,
+              partner.partyId,
+              partner.partnerProfileOCPI!,
+              body.locationId,
+              EvseStatus.REMOVED,
+            );
+            patchSucceeded++;
+          } catch (e) {
+            this.logger.error(
+              `Failed to PATCH EVSE status to partner ${partner.countryCode}/${partner.partyId} for location ${body.locationId}: ${(e as Error).message}`,
+            );
+            patchFailed++;
+          }
+        }
+      }
+
+      return { status: 'ok', patchSucceeded, patchFailed };
+    } catch (e) {
       this.logger.error(
-        `Tenant not found for country code ${body.ourCountryCode} and party id ${body.ourPartyId}`,
-      );
-      return { status: 'failed to find tenant', ...noPatchesAttempted };
-    }
-
-    const locationLookup = await this.ocpiGraphqlClient.request<
-      GetOurLocationByIdQueryResult,
-      GetOurLocationByIdQueryVariables
-    >(GET_OUR_LOCATION_BY_ID_QUERY, { id: Number(body.locationId) });
-    const dbLocationId = locationLookup.Locations?.[0]?.id;
-    if (!dbLocationId) {
-      this.logger.error(`Location ${body.locationId} not found`);
-      return { status: 'failed to find location', ...noPatchesAttempted };
-    }
-
-    const result = await this.ocpiGraphqlClient.request<
-      UpdateLocationPatchMutationResult,
-      UpdateLocationPatchMutationVariables
-    >(UPDATE_LOCATION_PATCH_MUTATION, {
-      id: dbLocationId,
-      changes: { disableOCPI: true },
-    });
-    if (!result.update_Locations_by_pk) {
-      this.logger.error(
-        `Failed to disable OCPI for location ${body.locationId}`,
+        `Failed to delete location from OCPI system: ${(e as Error).message}`,
       );
       return {
-        status: 'failed to disable OCPI for location',
+        status: 'failed to delete location from OCPI system',
         ...noPatchesAttempted,
       };
     }
-
-    let patchSucceeded = 0;
-    let patchFailed = 0;
-    for (const partner of tenant.Tenants[0].tenantPartners) {
-      if (partner.partnerProfileOCPI?.roles.some((r: any) => r.role === Role.EMSP)) {
-        // for partner locations, send PATCH with EVSE status to REMOVED
-        try {
-          await this.locationsClientApi.patchLocationEVSEStatus(
-            body.ourCountryCode,
-            body.ourPartyId,
-            partner.countryCode,
-            partner.partyId,
-            partner.partnerProfileOCPI!,
-            body.locationId,
-            EvseStatus.REMOVED,
-          );
-          patchSucceeded++;
-        } catch (e) {
-          this.logger.error(
-            `Failed to PATCH EVSE status to partner ${partner.countryCode}/${partner.partyId} for location ${body.locationId}: ${(e as Error).message}`,
-          );
-          patchFailed++;
-        }
-      }
-    }
-
-    return { status: 'ok', patchSucceeded, patchFailed };
-  } catch (e) {
-    this.logger.error(
-      `Failed to delete location from OCPI system: ${(e as Error).message}`,
-    );
-    return {
-      status: 'failed to delete location from OCPI system',
-      ...noPatchesAttempted,
-    };
   }
-}
-
-
 }
