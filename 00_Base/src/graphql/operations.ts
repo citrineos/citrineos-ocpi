@@ -20,6 +20,7 @@ export type Scalars = {
   json: { input: any; output: any; }
   jsonb: { input: any; output: any; }
   numeric: { input: any; output: any; }
+  date: { input: string; output: string; }
   timestamptz: { input: any; output: any; }
   citext: { input: string; output: string; }
   authorization_status: { input: string; output: string; }
