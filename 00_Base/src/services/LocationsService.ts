@@ -40,12 +40,12 @@ import type {
   Locations_Bool_Exp,
   UpdateLocationPatchMutationVariables,
   UpdateLocationPatchMutationResult,
-  GetTenantAndPartnersQueryResult,
-  GetTenantAndPartnersQueryVariables,
   GetOurLocationByIdQueryResult,
   GetOurLocationByIdQueryVariables,
   TenantPartnersListQueryVariables,
   TenantPartnersListQueryResult,
+  MarkEvseRemovedMutationResult,
+  MarkEvseRemovedMutationVariables,
 } from '../graphql/index.js';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
@@ -56,6 +56,7 @@ import {
   UPDATE_LOCATION_PATCH_MUTATION,
   GET_OUR_LOCATION_BY_ID_QUERY,
   LIST_TENANT_PARTNERS_BY_CPO,
+  MARK_EVSE_REMOVED_QUERY,
 } from '../graphql/index.js';
 import {
   ConnectorMapper,
@@ -345,13 +346,6 @@ export class LocationsService {
         endpointIdentifier: EndpointIdentifier.LOCATIONS_RECEIVER,
       });
 
-      // if (!tenant || !tenant.Tenants || tenant.Tenants.length === 0) {
-      //   this.logger.error(
-      //     `Tenant not found for country code ${body.ourCountryCode} and party id ${body.ourPartyId}`,
-      //   );
-      //   return { status: 'failed to find tenant', ...noPatchesAttempted };
-      // }
-
       const locationLookup = await this.ocpiGraphqlClient.request<
         GetOurLocationByIdQueryResult,
         GetOurLocationByIdQueryVariables
@@ -378,6 +372,25 @@ export class LocationsService {
           ...noPatchesAttempted,
         };
       }
+      const evseIds =
+        locationLookup.Locations?.[0]?.chargingPool?.flatMap((station) =>
+          station.evses.map((evse) => evse.id),
+        ) ?? [];
+
+      await Promise.all(
+        evseIds.map((evseId) =>
+          this.ocpiGraphqlClient
+            .request<
+              MarkEvseRemovedMutationResult,
+              MarkEvseRemovedMutationVariables
+            >(MARK_EVSE_REMOVED_QUERY, { evseId })
+            .catch((e) =>
+              this.logger.error(
+                `Failed to mark EVSE ${evseId} removed for location ${body.locationId}: ${(e as Error).message}`,
+              ),
+            ),
+        ),
+      );
 
       let patchSucceeded = 0;
       let patchFailed = 0;

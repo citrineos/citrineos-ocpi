@@ -27,15 +27,10 @@ import {
 } from '@zetra/citrineos-base';
 import { EvseStatus } from '../model/EvseStatus.js';
 import type {
-  GetLocationByOcpiIdQueryResult,
-  GetLocationByOcpiIdQueryVariables,
   GetOurLocationByIdQueryResult,
   GetOurLocationByIdQueryVariables,
 } from '../graphql/index.js';
-import {
-  GET_LOCATION_BY_OCPID_ID_QUERY,
-  GET_OUR_LOCATION_BY_ID_QUERY,
-} from '../graphql/index.js';
+import { GET_OUR_LOCATION_BY_ID_QUERY } from '../graphql/index.js';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
