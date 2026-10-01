@@ -348,6 +348,15 @@ export { LocationsPullService } from './services/LocationsPullService.js';
 export { VersionService } from './services/VersionService.js';
 export { SessionsService } from './services/SessionsService.js';
 export { RoamingPartnerService } from './services/RoamingPartnerService.js';
+export type {
+  RoamingPartnerRole,
+  UpsertRoamingPartnerResult,
+} from './services/RoamingPartnerService.js';
+export { PennylaneService } from './services/PennylaneService.js';
+export type {
+  PennylaneCompanyCustomerRequest,
+  PennylaneCompanyCustomerResponse,
+} from './services/PennylaneService.js';
 // export { AdminLocationsService } from './services/AdminLocationsService.js';
 
 // Export AsyncJob types

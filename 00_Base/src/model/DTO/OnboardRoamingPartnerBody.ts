@@ -12,11 +12,19 @@ export const OnboardRoamingPartnerBodySchema = z.object({
   ourPartyId: z.string().min(1).max(3),
   partnerCountryCode: z.string().min(2).max(2),
   partnerPartyId: z.string().min(1).max(3),
-  roamingPartnerCountryCode: z.string().min(2).max(2),
-  roamingPartnerPartyId: z.string().min(1).max(3),
-  roamingPartnerName: z.string().min(1).max(100),
-  roamingPartnerSignatureDate: z.string().min(1).max(100),
-  roamingPartnerContractStartDate: z.string().min(1).max(100),
+  roamingPartnerCountryCode: z
+    .string()
+    .regex(/^[A-Z]{2}$/, 'must be 2 uppercase letters'),
+  roamingPartnerPartyId: z
+    .string()
+    .regex(/^[A-Za-z0-9]{3}$/, 'must be 3 alphanumeric characters'),
+  roamingPartnerName: z.string().trim().min(1).max(100),
+  roamingPartnerSignatureDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}(T.*)?$/, 'must be a YYYY-MM-DD date'),
+  roamingPartnerContractStartDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}(T.*)?$/, 'must be a YYYY-MM-DD date'),
 });
 
 export const OnboardRoamingPartnerBodySchemaName =

@@ -12,6 +12,7 @@ export const CREATE_ROAMING_PARTNER = gql`
     $name: String!
     $signatureDate: date!
     $contractStartDate: date!
+    $roles: jsonb!
   ) {
     insert_RoamingPartners_one(
       object: {
@@ -21,9 +22,45 @@ export const CREATE_ROAMING_PARTNER = gql`
         name: $name
         signatureDate: $signatureDate
         contractStartDate: $contractStartDate
+        roles: $roles
       }
     ) {
       id
+    }
+  }
+`;
+
+export const GET_ROAMING_PARTNER_BY_IDENTITY = gql`
+  query GetRoamingPartnerByIdentity(
+    $tenantPartnerId: Int!
+    $countryCode: String!
+    $partyId: String!
+  ) {
+    RoamingPartners(
+      where: {
+        tenantPartnerId: { _eq: $tenantPartnerId }
+        countryCode: { _eq: $countryCode }
+        partyId: { _eq: $partyId }
+      }
+      limit: 1
+    ) {
+      id
+      name
+      signatureDate
+      contractStartDate
+      roles
+    }
+  }
+`;
+
+export const SET_ROAMING_PARTNER_ROLES = gql`
+  mutation SetRoamingPartnerRoles($id: Int!, $roles: jsonb!) {
+    update_RoamingPartners_by_pk(
+      pk_columns: { id: $id }
+      _set: { roles: $roles }
+    ) {
+      id
+      roles
     }
   }
 `;

@@ -137,6 +137,30 @@ export const GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY = gql`
   }
 `;
 
+export const GET_ROAMING_PARTNER_BY_IDENTITY = gql`
+  query GetRoamingPartnerByIdentity(
+    $tenantPartnerId: Int!
+    $countryCode: String!
+    $partyId: String!
+  ) {
+    RoamingPartners(
+      where: {
+        tenantPartnerId: { _eq: $tenantPartnerId }
+        countryCode: { _eq: $countryCode }
+        partyId: { _eq: $partyId }
+      }
+      limit: 1
+    ) {
+      id
+      name
+      signatureDate
+      contractStartDate
+      roles
+    }
+  }
+`;
+
+
 export const LIST_TENANT_PARTNERS_BY_CPO = gql`
   query TenantPartnersList(
     $cpoCountryCode: String!

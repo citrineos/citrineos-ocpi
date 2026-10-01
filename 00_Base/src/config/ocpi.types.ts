@@ -200,6 +200,13 @@ export const ocpiConfigInputSchema = z.object({
     })
     .optional(),
 
+  // Optional TS API (Pennylane customers); env: CITRINEOS_OCPI_TSAPI_URL
+  tsApi: z
+    .object({
+      url: z.string().url(),
+    })
+    .optional(),
+
   gireve: z
     .object({
       countryCode: z.string().optional(),
@@ -393,6 +400,12 @@ export const ocpiConfigSchema = z.object({
     .object({
       secretCacheTtlSeconds: z.number().int().positive(),
       awsRegion: z.string().optional(),
+    })
+    .optional(),
+
+  tsApi: z
+    .object({
+      url: z.string().url(),
     })
     .optional(),
 
