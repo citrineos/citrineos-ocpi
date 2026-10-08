@@ -34,6 +34,54 @@ export type OnboardRoamingPartnerBody = z.infer<
   typeof OnboardRoamingPartnerBodySchema
 >;
 
+/**
+ * EMSP onboarding body: roaming partner identity + the billing details used to
+ * create its Pennylane company customer (TS API). The customer name is
+ * roamingPartnerName.
+ */
+export const OnboardRoamingPartnerEmspBodySchema =
+  OnboardRoamingPartnerBodySchema.extend({
+    // Values accepted by the TS API.
+    paymentConditions: z.enum(['upon_receipt', '30_days']),
+    emails: z.array(z.string().email()).min(1),
+    billingAddress: z.object({
+      address: z.string().trim().min(1),
+      postalCode: z.string().trim().min(1),
+      city: z.string().trim().min(1),
+      countryAlpha2: z
+        .string()
+        .regex(/^[A-Z]{2}$/, 'must be 2 uppercase letters'),
+    }),
+    vatNumber: z
+      .string()
+      .regex(
+        /^[A-Z]{2}[A-Z0-9]{2,13}$/,
+        'must be a VAT number, e.g. FR32123456789',
+      ),
+    regNo: z.string().trim().min(1),
+    phone: z.string().regex(/^\+?[0-9 .()-]{6,20}$/, 'must be a phone number'),
+    recipient: z.string().trim().min(1),
+    billingIban: z
+      .string()
+      .regex(
+        /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/,
+        'must be an IBAN without spaces',
+      ),
+    notes: z.string().trim().min(1),
+    billingLanguage: z
+      .string()
+      .regex(/^[a-z]{2}_[A-Z]{2}$/, 'must be a locale, e.g. fr_FR'),
+    reference: z.string().trim().min(1).optional(),
+    externalReference: z.string().trim().min(1).optional(),
+  });
+
+export const OnboardRoamingPartnerEmspBodySchemaName =
+  'OnboardRoamingPartnerEmspBodySchema';
+
+export type OnboardRoamingPartnerEmspBody = z.infer<
+  typeof OnboardRoamingPartnerEmspBodySchema
+>;
+
 export type PullSummary = {
   module: string;
   processed: number;

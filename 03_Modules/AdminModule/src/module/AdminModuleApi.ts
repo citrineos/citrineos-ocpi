@@ -10,6 +10,7 @@ import {
   DEFAULT_OFFSET,
   GET_ALL_TENANT_PARTNERS,
   GET_TENANT_PARTNER_BY_ID,
+  InvalidParamException,
   LocationsPullService,
   NotFoundException,
   OcpiGraphqlClient,
@@ -18,8 +19,11 @@ import {
   OcpiResponseStatusCode,
   OnboardRoamingPartnerBodySchema,
   OnboardRoamingPartnerBodySchemaName,
+  OnboardRoamingPartnerEmspBodySchema,
+  OnboardRoamingPartnerEmspBodySchemaName,
   Paginated,
   PaginatedParams,
+  PennylaneService,
   SessionsService,
   type GetAllTenantPartnersQueryResult,
   type GetAllTenantPartnersQueryVariables,
@@ -32,10 +36,47 @@ import {
   type OnboardRoamingPartnerBody,
   type DeleteLocationBody,
   type DeleteLocationSummary,
+  type OnboardRoamingPartnerEmspBody,
+  type PennylaneCompanyCustomerRequest,
 } from '@citrineos/ocpi-base';
-import { Get, JsonController, Param, Post } from 'routing-controllers';
+import {
+  Get,
+  HeaderParam,
+  JsonController,
+  Param,
+  Post,
+} from 'routing-controllers';
 import { Service } from 'typedi';
 import { RoamingPartnerService } from '@citrineos/ocpi-base';
+
+const UPSERT_STATUS = {
+  created: 'roaming partner created',
+  role_added: 'role added to existing roaming partner',
+  unchanged: 'roaming partner already exists',
+} as const;
+
+const toPennylaneCompanyCustomer = (
+  body: OnboardRoamingPartnerEmspBody,
+): PennylaneCompanyCustomerRequest => ({
+  name: body.roamingPartnerName,
+  payment_conditions: body.paymentConditions,
+  emails: body.emails,
+  billing_address: {
+    address: body.billingAddress.address,
+    postal_code: body.billingAddress.postalCode,
+    city: body.billingAddress.city,
+    country_alpha2: body.billingAddress.countryAlpha2,
+  },
+  vat_number: body.vatNumber,
+  reg_no: body.regNo,
+  phone: body.phone,
+  recipient: body.recipient,
+  billing_iban: body.billingIban,
+  notes: body.notes,
+  billing_language: body.billingLanguage,
+  reference: body.reference,
+  external_reference: body.externalReference,
+});
 
 @JsonController('/admin')
 @Service()
@@ -49,6 +90,7 @@ export class AdminModuleApi extends BaseController {
     readonly cdrsService: CdrsService,
     readonly ocpiGraphqlClient: OcpiGraphqlClient,
     readonly locationsService: LocationsService,
+    readonly pennylaneService: PennylaneService,
   ) {
     super();
   }
@@ -214,17 +256,19 @@ export class AdminModuleApi extends BaseController {
 
   @Post('/onboard-roaming-partner-cpo')
   @AsAdminEndpoint()
-  async onboardRoamingPartner(
+  async onboardRoamingPartnerCpo(
     @BodyWithSchema(
       OnboardRoamingPartnerBodySchema,
       OnboardRoamingPartnerBodySchemaName,
     )
     body: OnboardRoamingPartnerBody,
   ): Promise<{ status: string }> {
-    const roamingPartnerId =
-      await this.roamingPartnerService.createRoamingPartner(body);
-    if (!roamingPartnerId) {
-      return { status: 'failed To create roaming partner' };
+    const { outcome } = await this.roamingPartnerService.upsertRoamingPartner(
+      body,
+      'CPO',
+    );
+    if (outcome === 'unchanged') {
+      return { status: 'already onboarded' };
     }
     const pullBody = {
       ourCountryCode: body.ourCountryCode,
@@ -262,19 +306,82 @@ export class AdminModuleApi extends BaseController {
 
   @Post('/create-roaming-partner-cpo')
   @AsAdminEndpoint()
-  async createRoamingPartner(
+  async createRoamingPartnerCpo(
     @BodyWithSchema(
       OnboardRoamingPartnerBodySchema,
       OnboardRoamingPartnerBodySchemaName,
     )
     body: OnboardRoamingPartnerBody,
   ): Promise<{ status: string }> {
-    const roamingPartnerId =
-      await this.roamingPartnerService.createRoamingPartner(body);
-    if (!roamingPartnerId) {
-      return { status: 'failed To create roaming partner' };
+    const { outcome } = await this.roamingPartnerService.upsertRoamingPartner(
+      body,
+      'CPO',
+    );
+    return { status: UPSERT_STATUS[outcome] };
+  }
+
+  @Post('/create-roaming-partner-emsp')
+  @AsAdminEndpoint()
+  async createRoamingPartnerEmsp(
+    @BodyWithSchema(
+      OnboardRoamingPartnerBodySchema,
+      OnboardRoamingPartnerBodySchemaName,
+    )
+    body: OnboardRoamingPartnerBody,
+  ): Promise<{ status: string }> {
+    const { outcome } = await this.roamingPartnerService.upsertRoamingPartner(
+      body,
+      'EMSP',
+    );
+    return { status: UPSERT_STATUS[outcome] };
+  }
+
+  @Post('/onboard-roaming-partner-emsp')
+  @AsAdminEndpoint()
+  async onboardRoamingPartnerEmsp(
+    @BodyWithSchema(
+      OnboardRoamingPartnerEmspBodySchema,
+      OnboardRoamingPartnerEmspBodySchemaName,
+    )
+    rawBody: OnboardRoamingPartnerEmspBody,
+    // Forwarded to the TS API, which trusts the same Keycloak realm.
+    @HeaderParam('authorization') authorization?: string,
+  ): Promise<{ status: string }> {
+    // BodyWithSchema only feeds the OpenAPI spec, it does not validate requests.
+    // Validate before the upsert so a bad billing body never leaves a partner
+    // without its Pennylane customer.
+    const parsed = OnboardRoamingPartnerEmspBodySchema.safeParse(rawBody);
+    if (!parsed.success) {
+      throw new InvalidParamException(
+        parsed.error.issues
+          .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+          .join('; '),
+      );
     }
-    return { status: 'roaming partner created' };
+    const body = parsed.data;
+
+    const { id, tenantPartnerId, outcome } =
+      await this.roamingPartnerService.upsertRoamingPartner(body, 'EMSP');
+    if (outcome !== 'created') {
+      return { status: UPSERT_STATUS[outcome] };
+    }
+
+    try {
+      await this.pennylaneService.createCompanyCustomer(
+        {
+          ...toPennylaneCompanyCustomer(body),
+          tenant_partner_id: tenantPartnerId,
+          roaming_partner_id: id,
+        },
+        authorization,
+      );
+      return { status: 'roaming partner created; pennylane customer created' };
+    } catch (err) {
+      this.logger.error('Failed to create Pennylane customer', err);
+      return {
+        status: 'roaming partner created; pennylane customer creation failed',
+      };
+    }
   }
 
   /**

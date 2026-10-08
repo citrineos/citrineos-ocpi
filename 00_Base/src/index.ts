@@ -238,10 +238,15 @@ export {
   PushPartnerSessionInfoBodySchema,
   PushPartnerSessionInfoBodySchemaName,
 } from './model/DTO/PushPartnerSessionInfo.js';
-export type { OnboardRoamingPartnerBody } from './model/DTO/OnboardRoamingPartnerBody.js';
+export type {
+  OnboardRoamingPartnerBody,
+  OnboardRoamingPartnerEmspBody,
+} from './model/DTO/OnboardRoamingPartnerBody.js';
 export {
   OnboardRoamingPartnerBodySchema,
   OnboardRoamingPartnerBodySchemaName,
+  OnboardRoamingPartnerEmspBodySchema,
+  OnboardRoamingPartnerEmspBodySchemaName,
 } from './model/DTO/OnboardRoamingPartnerBody.js';
 export {
   DeleteLocationBodySchema,

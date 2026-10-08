@@ -12,14 +12,37 @@ jest.mock('typed-rest-client', () => ({
 }));
 
 import { PennylaneService } from '../PennylaneService';
+import type { PennylaneCompanyCustomerRequest } from '../PennylaneService';
 import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
 
-const payload = { name: 'ABC Mobility' };
+const payload: PennylaneCompanyCustomerRequest = {
+  name: 'ABC Mobility',
+  payment_conditions: '30_days',
+  emails: ['compta@abc-mobility.example'],
+  billing_address: {
+    address: '12 rue de la Gare',
+    postal_code: '21190',
+    city: 'Meursault',
+    country_alpha2: 'FR',
+  },
+  vat_number: 'FR12345678901',
+  reg_no: '123456789',
+  phone: '+33380000000',
+  recipient: 'Service comptabilite',
+  billing_iban: 'FR7630006000011234567890189',
+  notes: 'Created from Patterm',
+  billing_language: 'fr_FR',
+};
 
 describe('PennylaneService.createCompanyCustomer', () => {
   let logger: { error: jest.Mock; info: jest.Mock };
 
-  const serviceWith = (tsApi?: { url: string }) =>
+  const configured = {
+    url: 'http://localhost:8080',
+    billingEntity: 'zetra_distribution',
+  };
+
+  const serviceWith = (tsApi?: { url: string; billingEntity?: string }) =>
     new PennylaneService(logger as any, { tsApi } as any);
 
   beforeEach(() => {
@@ -35,29 +58,40 @@ describe('PennylaneService.createCompanyCustomer', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('posts the payload to /api/v1/pennylane/company_customers on the configured url', async () => {
-    create.mockResolvedValue({ statusCode: 201, result: { id: 'cust_1' } });
+  it('throws a clear error when the billing entity is not configured', async () => {
+    await expect(
+      serviceWith({ url: 'http://localhost:8080' }).createCompanyCustomer(
+        payload,
+      ),
+    ).rejects.toThrow(/billing entity is not configured/);
+    expect(create).not.toHaveBeenCalled();
+  });
 
-    const result = await serviceWith({
-      url: 'http://localhost:8080',
-    }).createCompanyCustomer(payload);
+  it('posts the payload to /api/v1/pennylane/company_customers for the configured billing entity', async () => {
+    const created = { id: 42, name: 'ABC Mobility' };
+    create.mockResolvedValue({ statusCode: 201, result: created });
+
+    const result = await serviceWith(configured).createCompanyCustomer(payload);
 
     expect(restClientCtor).toHaveBeenCalledWith(
       expect.any(String),
       'http://localhost:8080',
     );
     expect(create).toHaveBeenCalledWith(
-      '/api/v1/pennylane/company_customers',
+      '/api/v1/pennylane/company_customers?billing_entity=zetra_distribution',
       payload,
       { additionalHeaders: { 'Content-Type': 'application/json' } },
     );
-    expect(result).toEqual({ id: 'cust_1' });
+    expect(result).toEqual(created);
   });
 
   it('forwards the Authorization header when one is given', async () => {
-    create.mockResolvedValue({ statusCode: 200, result: {} });
+    create.mockResolvedValue({
+      statusCode: 201,
+      result: { id: 42, name: 'ABC Mobility' },
+    });
 
-    await serviceWith({ url: 'http://localhost:8080' }).createCompanyCustomer(
+    await serviceWith(configured).createCompanyCustomer(
       payload,
       'Bearer abc.def.ghi',
     );
@@ -68,23 +102,19 @@ describe('PennylaneService.createCompanyCustomer', () => {
     });
   });
 
-  it('returns an empty object when the response has no body', async () => {
+  it('throws UnsuccessfulRequestException when the response has no body', async () => {
     create.mockResolvedValue({ statusCode: 204, result: null });
 
     await expect(
-      serviceWith({ url: 'http://localhost:8080' }).createCompanyCustomer(
-        payload,
-      ),
-    ).resolves.toEqual({});
+      serviceWith(configured).createCompanyCustomer(payload),
+    ).rejects.toThrow('TS API company customer response has no body');
   });
 
   it('throws UnsuccessfulRequestException on a non-2xx response', async () => {
     create.mockResolvedValue({ statusCode: 404, result: null });
 
     await expect(
-      serviceWith({ url: 'http://localhost:8080' }).createCompanyCustomer(
-        payload,
-      ),
+      serviceWith(configured).createCompanyCustomer(payload),
     ).rejects.toThrow(UnsuccessfulRequestException);
     expect(logger.error).toHaveBeenCalled();
   });
@@ -95,9 +125,7 @@ describe('PennylaneService.createCompanyCustomer', () => {
     );
 
     await expect(
-      serviceWith({ url: 'http://localhost:8080' }).createCompanyCustomer(
-        payload,
-      ),
+      serviceWith(configured).createCompanyCustomer(payload),
     ).rejects.toThrow('TS API company customer request failed with status 401');
     expect(logger.error).toHaveBeenCalled();
   });
@@ -106,9 +134,7 @@ describe('PennylaneService.createCompanyCustomer', () => {
     create.mockRejectedValue(new Error('ECONNREFUSED'));
 
     await expect(
-      serviceWith({ url: 'http://localhost:8080' }).createCompanyCustomer(
-        payload,
-      ),
+      serviceWith(configured).createCompanyCustomer(payload),
     ).rejects.toThrow(UnsuccessfulRequestException);
   });
 });

@@ -160,7 +160,11 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
       async (role) => {
         const result = await service.upsertRoamingPartner(body, role);
 
-        expect(result).toEqual({ id: 99, outcome: 'created' });
+        expect(result).toEqual({
+          id: 99,
+          tenantPartnerId: 7,
+          outcome: 'created',
+        });
         expect(callsTo(CREATE_ROAMING_PARTNER)).toHaveLength(1);
         expect(callsTo(CREATE_ROAMING_PARTNER)[0][1]).toEqual({
           countryCode: 'DE',
@@ -214,7 +218,11 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
 
       const result = await service.upsertRoamingPartner(body, 'CPO');
 
-      expect(result).toEqual({ id: 42, outcome: 'unchanged' });
+      expect(result).toEqual({
+        id: 42,
+        tenantPartnerId: 7,
+        outcome: 'unchanged',
+      });
       expect(callsTo(CREATE_ROAMING_PARTNER)).toHaveLength(0);
       expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(0);
     });
@@ -224,7 +232,11 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
 
       const result = await service.upsertRoamingPartner(body, 'CPO');
 
-      expect(result).toEqual({ id: 42, outcome: 'role_added' });
+      expect(result).toEqual({
+        id: 42,
+        tenantPartnerId: 7,
+        outcome: 'role_added',
+      });
       expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(1);
       expect(callsTo(SET_ROAMING_PARTNER_ROLES)[0][1]).toEqual({
         id: 42,

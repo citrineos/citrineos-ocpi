@@ -10,19 +10,38 @@ import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestEx
 
 const COMPANY_CUSTOMERS_PATH = '/api/v1/pennylane/company_customers';
 
-/**
- * Body of POST /api/v1/pennylane/company_customers on the TS API.
- * TODO: fill in the fields the TS API expects.
- */
+/** Body of POST /api/v1/pennylane/company_customers on the TS API. */
 export type PennylaneCompanyCustomerRequest = {
   name: string;
+  payment_conditions: string;
+  emails: string[];
+  billing_address: {
+    address: string;
+    postal_code: string;
+    city: string;
+    country_alpha2: string;
+  };
+  vat_number: string;
+  reg_no: string;
+  phone: string;
+  recipient: string;
+  billing_iban: string;
+  notes: string;
+  billing_language: string;
+  reference?: string;
+  external_reference?: string;
+  // CitrineOS ids the TS API links the customer to; never sent on to Pennylane.
+  tenant_partner_id?: number;
+  roaming_partner_id?: number;
 };
 
-/**
- * Response of POST /api/v1/pennylane/company_customers.
- * TODO: type the fields the TS API returns (at least the customer id).
- */
-export type PennylaneCompanyCustomerResponse = Record<string, unknown>;
+/** Response of POST /api/v1/pennylane/company_customers (subset). */
+export type PennylaneCompanyCustomerResponse = {
+  id: number;
+  name: string;
+  external_reference?: string | null;
+  created_at?: string | null;
+};
 
 @Service()
 export class PennylaneService {
@@ -32,9 +51,10 @@ export class PennylaneService {
   ) {}
 
   /**
-   * Creates a Pennylane company customer through the TS API.
-   * `authorization` is the full Authorization header value (e.g. "Bearer ...").
-   * TODO: decide where the token comes from; it is optional until then.
+   * Creates a Pennylane company customer through the TS API, billed by the
+   * configured billing entity.
+   * `authorization` is the caller's Authorization header value ("Bearer ..."),
+   * forwarded as is: the TS API accepts the same Keycloak realm.
    */
   async createCompanyCustomer(
     payload: PennylaneCompanyCustomerRequest,
@@ -43,7 +63,13 @@ export class PennylaneService {
     const baseUrl = this.config.tsApi?.url;
     if (!baseUrl) {
       throw new Error(
-        'TS API is not configured (set TS_API_URL or CITRINEOS_OCPI_TSAPI_URL)',
+        'TS API is not configured (set CITRINEOS_OCPI_TSAPI_URL)',
+      );
+    }
+    const billingEntity = this.config.tsApi?.billingEntity;
+    if (!billingEntity) {
+      throw new Error(
+        'TS API billing entity is not configured (set CITRINEOS_OCPI_TSAPI_BILLINGENTITY)',
       );
     }
 
@@ -51,7 +77,7 @@ export class PennylaneService {
     let response: IRestResponse<PennylaneCompanyCustomerResponse>;
     try {
       response = await client.create<PennylaneCompanyCustomerResponse>(
-        COMPANY_CUSTOMERS_PATH,
+        `${COMPANY_CUSTOMERS_PATH}?billing_entity=${encodeURIComponent(billingEntity)}`,
         payload,
         {
           additionalHeaders: {
@@ -84,6 +110,12 @@ export class PennylaneService {
       );
     }
 
-    return response.result ?? {};
+    if (!response.result) {
+      throw new UnsuccessfulRequestException(
+        'TS API company customer response has no body',
+        response,
+      );
+    }
+    return response.result;
   }
 }

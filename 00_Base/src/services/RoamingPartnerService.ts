@@ -30,6 +30,8 @@ export type RoamingPartnerRole = 'CPO' | 'EMSP';
 
 export type UpsertRoamingPartnerResult = {
   id: number;
+  // The hub's TenantPartner the roaming partner sits behind.
+  tenantPartnerId: number;
   outcome: 'created' | 'role_added' | 'unchanged';
 };
 
@@ -116,7 +118,7 @@ export class RoamingPartnerService {
         this.logger.error('Roaming partner insert returned no id');
         throw new Error('Failed to create roaming partner');
       }
-      return { id, outcome: 'created' };
+      return { id, tenantPartnerId: tenantPartner.id, outcome: 'created' };
     }
 
     const sameDetails =
@@ -132,13 +134,21 @@ export class RoamingPartnerService {
 
     const roles: RoamingPartnerRole[] = existing.roles ?? [];
     if (roles.includes(role)) {
-      return { id: existing.id, outcome: 'unchanged' };
+      return {
+        id: existing.id,
+        tenantPartnerId: tenantPartner.id,
+        outcome: 'unchanged',
+      };
     }
 
     await this.ocpiGraphqlClient.request<
       SetRoamingPartnerRolesMutationResult,
       SetRoamingPartnerRolesMutationVariables
     >(SET_ROAMING_PARTNER_ROLES, { id: existing.id, roles: [...roles, role] });
-    return { id: existing.id, outcome: 'role_added' };
+    return {
+      id: existing.id,
+      tenantPartnerId: tenantPartner.id,
+      outcome: 'role_added',
+    };
   }
 }
