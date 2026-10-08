@@ -126,7 +126,9 @@ describe('PennylaneService.createCompanyCustomer', () => {
 
     await expect(
       serviceWith(configured).createCompanyCustomer(payload),
-    ).rejects.toThrow('TS API company customer request failed with status 401');
+    ).rejects.toThrow(
+      'TS API company customer request failed with status 401: Failed request: (401)',
+    );
     expect(logger.error).toHaveBeenCalled();
   });
 

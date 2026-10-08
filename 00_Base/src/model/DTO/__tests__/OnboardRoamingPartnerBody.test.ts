@@ -2,7 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { OnboardRoamingPartnerEmspBodySchema } from '../OnboardRoamingPartnerBody';
+import {
+  OnboardRoamingPartnerEmspBodySchema,
+  OnboardTenantPartnerEmspBodySchema,
+} from '../OnboardRoamingPartnerBody';
 
 const identity = {
   ourCountryCode: 'FR',
@@ -101,5 +104,47 @@ describe('OnboardRoamingPartnerEmspBodySchema', () => {
     const { roamingPartnerName: _omitted, ...body } = validBody;
 
     expect(issuePaths(body)).toEqual(['roamingPartnerName']);
+  });
+});
+
+describe('OnboardTenantPartnerEmspBodySchema', () => {
+  const tenantBody = {
+    ourCountryCode: 'FR',
+    ourPartyId: 'ZET',
+    partnerCountryCode: 'FR',
+    partnerPartyId: 'MSP',
+    tenantPartnerName: 'Transports Test Florianne',
+    ...billing,
+  };
+
+  const tenantIssuePaths = (body: unknown) => {
+    const result = OnboardTenantPartnerEmspBodySchema.safeParse(body);
+    return result.success
+      ? []
+      : result.error.issues.map((issue) => issue.path.join('.'));
+  };
+
+  it('accepts the tenant partner identity + billing, without any roaming partner field', () => {
+    expect(tenantIssuePaths(tenantBody)).toEqual([]);
+  });
+
+  it.each([
+    'ourCountryCode',
+    'ourPartyId',
+    'partnerCountryCode',
+    'partnerPartyId',
+    'tenantPartnerName',
+    ...Object.keys(billing),
+  ])('requires %s', (field) => {
+    const body: Record<string, unknown> = { ...tenantBody };
+    delete body[field];
+
+    expect(tenantIssuePaths(body)).toEqual([field]);
+  });
+
+  it('applies the same billing rules as the roaming partner body', () => {
+    expect(
+      tenantIssuePaths({ ...tenantBody, paymentConditions: '45_days' }),
+    ).toEqual(['paymentConditions']);
   });
 });

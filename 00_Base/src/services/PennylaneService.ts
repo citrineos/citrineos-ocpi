@@ -93,9 +93,13 @@ export class PennylaneService {
         statusCode,
         message: (error as Error)?.message,
       });
+      // On an HTTP status the message is the TS API body (its `detail`), which
+      // tells the admin what to fix (VAT already used, partner already linked).
       throw new UnsuccessfulRequestException(
         `TS API company customer request failed${
-          statusCode ? ` with status ${statusCode}` : ''
+          statusCode
+            ? ` with status ${statusCode}: ${(error as Error)?.message}`
+            : ''
         }`,
       );
     }

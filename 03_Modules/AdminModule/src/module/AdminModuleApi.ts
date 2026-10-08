@@ -10,6 +10,7 @@ import {
   DEFAULT_OFFSET,
   GET_ALL_TENANT_PARTNERS,
   GET_TENANT_PARTNER_BY_ID,
+  GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY,
   InvalidParamException,
   LocationsPullService,
   NotFoundException,
@@ -21,6 +22,8 @@ import {
   OnboardRoamingPartnerBodySchemaName,
   OnboardRoamingPartnerEmspBodySchema,
   OnboardRoamingPartnerEmspBodySchemaName,
+  OnboardTenantPartnerEmspBodySchema,
+  OnboardTenantPartnerEmspBodySchemaName,
   Paginated,
   PaginatedParams,
   PennylaneService,
@@ -28,6 +31,8 @@ import {
   type GetAllTenantPartnersQueryResult,
   type GetAllTenantPartnersQueryVariables,
   type GetTenantPartnerByIdQueryResult,
+  type GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  type GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   type GetTenantPartnerByIdQueryVariables,
   DeleteLocationBodySchema,
   DeleteLocationBodySchemaName,
@@ -37,6 +42,8 @@ import {
   type DeleteLocationBody,
   type DeleteLocationSummary,
   type OnboardRoamingPartnerEmspBody,
+  type OnboardTenantPartnerEmspBody,
+  type PennylaneBilling,
   type PennylaneCompanyCustomerRequest,
 } from '@citrineos/ocpi-base';
 import {
@@ -55,10 +62,30 @@ const UPSERT_STATUS = {
   unchanged: 'roaming partner already exists',
 } as const;
 
+// BodyWithSchema only feeds the OpenAPI spec, it does not validate requests.
+const parseBody = <T>(
+  schema: { safeParse: (data: unknown) => any },
+  rawBody: unknown,
+): T => {
+  const parsed = schema.safeParse(rawBody);
+  if (!parsed.success) {
+    throw new InvalidParamException(
+      parsed.error.issues
+        .map(
+          (issue: { path: (string | number)[]; message: string }) =>
+            `${issue.path.join('.')}: ${issue.message}`,
+        )
+        .join('; '),
+    );
+  }
+  return parsed.data;
+};
+
 const toPennylaneCompanyCustomer = (
-  body: OnboardRoamingPartnerEmspBody,
+  name: string,
+  body: PennylaneBilling,
 ): PennylaneCompanyCustomerRequest => ({
-  name: body.roamingPartnerName,
+  name,
   payment_conditions: body.paymentConditions,
   emails: body.emails,
   billing_address: {
@@ -347,18 +374,12 @@ export class AdminModuleApi extends BaseController {
     // Forwarded to the TS API, which trusts the same Keycloak realm.
     @HeaderParam('authorization') authorization?: string,
   ): Promise<{ status: string }> {
-    // BodyWithSchema only feeds the OpenAPI spec, it does not validate requests.
     // Validate before the upsert so a bad billing body never leaves a partner
     // without its Pennylane customer.
-    const parsed = OnboardRoamingPartnerEmspBodySchema.safeParse(rawBody);
-    if (!parsed.success) {
-      throw new InvalidParamException(
-        parsed.error.issues
-          .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
-          .join('; '),
-      );
-    }
-    const body = parsed.data;
+    const body = parseBody<OnboardRoamingPartnerEmspBody>(
+      OnboardRoamingPartnerEmspBodySchema,
+      rawBody,
+    );
 
     const { id, tenantPartnerId, outcome } =
       await this.roamingPartnerService.upsertRoamingPartner(body, 'EMSP');
@@ -369,7 +390,7 @@ export class AdminModuleApi extends BaseController {
     try {
       await this.pennylaneService.createCompanyCustomer(
         {
-          ...toPennylaneCompanyCustomer(body),
+          ...toPennylaneCompanyCustomer(body.roamingPartnerName, body),
           tenant_partner_id: tenantPartnerId,
           roaming_partner_id: id,
         },
@@ -398,5 +419,57 @@ export class AdminModuleApi extends BaseController {
     body: DeleteLocationBody,
   ): Promise<{ status: string } & DeleteLocationSummary> {
     return await this.locationsService.deleteLocationOCPI(body);
+  }
+  
+  /**
+   * Creates the Pennylane customer of a direct (peer-to-peer) EMSP partner.
+   * The TenantPartner is never created here: it comes from the credentials
+   * exchange, so it must already exist. Nothing is written locally, so any TS
+   * API failure is returned to the caller as is.
+   */
+  @Post('/onboard-tenant-partner-emsp')
+  @AsAdminEndpoint()
+  async onboardTenantPartnerEmsp(
+    @BodyWithSchema(
+      OnboardTenantPartnerEmspBodySchema,
+      OnboardTenantPartnerEmspBodySchemaName,
+    )
+    rawBody: OnboardTenantPartnerEmspBody,
+    // Forwarded to the TS API, which trusts the same Keycloak realm.
+    @HeaderParam('authorization') authorization?: string,
+  ): Promise<{ status: string; pennylaneCustomerId: number }> {
+    const body = parseBody<OnboardTenantPartnerEmspBody>(
+      OnboardTenantPartnerEmspBodySchema,
+      rawBody,
+    );
+
+    const result = await this.ocpiGraphqlClient.request<
+      GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+      GetTenantPartnerByCpoClientAndModuleIdQueryVariables
+    >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
+      ourCountryCode: body.ourCountryCode,
+      ourPartyId: body.ourPartyId,
+      partnerCountryCode: body.partnerCountryCode,
+      partnerPartyId: body.partnerPartyId,
+    });
+    const tenantPartner = result.TenantPartners[0];
+    if (!tenantPartner) {
+      throw new NotFoundException(
+        `Tenant partner ${body.partnerCountryCode}-${body.partnerPartyId} not found for ${body.ourCountryCode}-${body.ourPartyId}; run the credentials exchange first`,
+      );
+    }
+
+    // No roaming_partner_id: a direct contract, not one through a hub.
+    const customer = await this.pennylaneService.createCompanyCustomer(
+      {
+        ...toPennylaneCompanyCustomer(body.tenantPartnerName, body),
+        tenant_partner_id: tenantPartner.id,
+      },
+      authorization,
+    );
+    return {
+      status: 'pennylane customer created',
+      pennylaneCustomerId: customer.id,
+    };
   }
 }

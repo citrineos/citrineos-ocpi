@@ -21,11 +21,18 @@ jest.mock('@citrineos/ocpi-base', () => {
     },
     OnboardRoamingPartnerEmspBodySchemaName:
       'OnboardRoamingPartnerEmspBodySchema',
+    OnboardTenantPartnerEmspBodySchema: {
+      safeParse: (data: unknown) => ({ success: true, data }),
+    },
+    OnboardTenantPartnerEmspBodySchemaName:
+      'OnboardTenantPartnerEmspBodySchema',
     OcpiResponseStatusCode: { GenericSuccessCode: 1000 },
     DEFAULT_LIMIT: 10,
     DEFAULT_OFFSET: 0,
     GET_ALL_TENANT_PARTNERS: 'GET_ALL_TENANT_PARTNERS',
     GET_TENANT_PARTNER_BY_ID: 'GET_TENANT_PARTNER_BY_ID',
+    GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY:
+      'GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY',
     NotFoundException: class NotFoundException extends Error {},
     InvalidParamException: class InvalidParamException extends Error {},
     OcpiHeaders: class {},
@@ -56,8 +63,7 @@ const body = {
   roamingPartnerContractStartDate: '2026-02-01',
 };
 
-const emspBody = {
-  ...body,
+const billing = {
   paymentConditions: '30_days' as const,
   emails: ['compta@acme-transports.fr'],
   billingAddress: {
@@ -77,6 +83,8 @@ const emspBody = {
   externalReference: 'patterm-company-1234',
 };
 
+const emspBody = { ...body, ...billing };
+
 const flushBackgroundWork = () =>
   new Promise((resolve) => setImmediate(resolve));
 
@@ -87,6 +95,7 @@ describe('AdminModuleApi roaming partner routes', () => {
   let pullPartnerTariffs: jest.Mock;
   let pullPartnerLocations: jest.Mock;
   let createCompanyCustomer: jest.Mock;
+  let graphqlRequest: jest.Mock;
 
   const givenOutcome = (outcome: Outcome) =>
     upsertRoamingPartner.mockResolvedValue({
@@ -101,6 +110,7 @@ describe('AdminModuleApi roaming partner routes', () => {
     pullPartnerTariffs = jest.fn().mockResolvedValue({ processed: 3 });
     pullPartnerLocations = jest.fn().mockResolvedValue({ processed: 5 });
     createCompanyCustomer = jest.fn().mockResolvedValue({});
+    graphqlRequest = jest.fn();
     api = new AdminModuleApi(
       logger as any,
       { upsertRoamingPartner } as any,
@@ -108,7 +118,7 @@ describe('AdminModuleApi roaming partner routes', () => {
       { PullPartnerLocations: pullPartnerLocations } as any,
       {} as any,
       {} as any,
-      {} as any,
+      { request: graphqlRequest } as any,
       { createCompanyCustomer } as any,
     );
   });
@@ -342,6 +352,91 @@ describe('AdminModuleApi roaming partner routes', () => {
         'conflict',
       );
       expect(createCompanyCustomer).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('POST /onboard-tenant-partner-emsp', () => {
+    const tenantBody = {
+      ourCountryCode: 'FR',
+      ourPartyId: 'ZTA',
+      partnerCountryCode: 'FR',
+      partnerPartyId: 'MSP',
+      tenantPartnerName: 'MSP Direct',
+      ...billing,
+    };
+
+    const givenTenantPartner = (rows: { id: number }[]) =>
+      graphqlRequest.mockResolvedValue({ TenantPartners: rows });
+
+    it('looks up the tenant partner by OCPI identity', async () => {
+      givenTenantPartner([{ id: 5 }]);
+      createCompanyCustomer.mockResolvedValue({ id: 42, name: 'MSP Direct' });
+
+      await api.onboardTenantPartnerEmsp(tenantBody);
+
+      expect(graphqlRequest).toHaveBeenCalledWith(
+        'GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY',
+        {
+          ourCountryCode: 'FR',
+          ourPartyId: 'ZTA',
+          partnerCountryCode: 'FR',
+          partnerPartyId: 'MSP',
+        },
+      );
+    });
+
+    it('creates the Pennylane customer linked to the tenant partner only, forwarding the token', async () => {
+      givenTenantPartner([{ id: 5 }]);
+      createCompanyCustomer.mockResolvedValue({ id: 42, name: 'MSP Direct' });
+
+      await expect(
+        api.onboardTenantPartnerEmsp(tenantBody, 'Bearer caller.token'),
+      ).resolves.toEqual({
+        status: 'pennylane customer created',
+        pennylaneCustomerId: 42,
+      });
+
+      const [payload, authorization] = createCompanyCustomer.mock.calls[0];
+      expect(payload).toEqual(
+        expect.objectContaining({
+          name: 'MSP Direct',
+          payment_conditions: '30_days',
+          vat_number: 'FR12345678901',
+          tenant_partner_id: 5,
+        }),
+      );
+      expect(payload).not.toHaveProperty('roaming_partner_id');
+      expect(authorization).toBe('Bearer caller.token');
+    });
+
+    it('rejects with NotFoundException and does not call the TS API when the tenant partner does not exist', async () => {
+      givenTenantPartner([]);
+
+      await expect(api.onboardTenantPartnerEmsp(tenantBody)).rejects.toThrow(
+        /Tenant partner FR-MSP not found for FR-ZTA/,
+      );
+      expect(createCompanyCustomer).not.toHaveBeenCalled();
+    });
+
+    it('returns the TS API failure to the caller', async () => {
+      givenTenantPartner([{ id: 5 }]);
+      createCompanyCustomer.mockRejectedValue(new Error('ts api 409'));
+
+      await expect(api.onboardTenantPartnerEmsp(tenantBody)).rejects.toThrow(
+        'ts api 409',
+      );
+    });
+
+    it('never creates or updates a roaming partner, nor pulls partner data', async () => {
+      givenTenantPartner([{ id: 5 }]);
+      createCompanyCustomer.mockResolvedValue({ id: 42, name: 'MSP Direct' });
+
+      await api.onboardTenantPartnerEmsp(tenantBody);
+      await flushBackgroundWork();
+
+      expect(upsertRoamingPartner).not.toHaveBeenCalled();
+      expect(pullPartnerTariffs).not.toHaveBeenCalled();
+      expect(pullPartnerLocations).not.toHaveBeenCalled();
     });
   });
 
