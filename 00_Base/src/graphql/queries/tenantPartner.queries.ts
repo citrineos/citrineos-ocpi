@@ -160,7 +160,6 @@ export const GET_ROAMING_PARTNER_BY_IDENTITY = gql`
   }
 `;
 
-
 export const LIST_TENANT_PARTNERS_BY_CPO = gql`
   query TenantPartnersList(
     $cpoCountryCode: String!
