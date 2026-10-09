@@ -26,8 +26,10 @@ import {
   OnboardTenantPartnerEmspBodySchemaName,
   Paginated,
   PaginatedParams,
+  PENNYLANE_PARTNER_ALREADY_LINKED,
   PennylaneService,
   SessionsService,
+  UnsuccessfulRequestException,
   type GetAllTenantPartnersQueryResult,
   type GetAllTenantPartnersQueryVariables,
   type GetTenantPartnerByIdQueryResult,
@@ -61,6 +63,9 @@ const UPSERT_STATUS = {
   role_added: 'role added to existing roaming partner',
   unchanged: 'roaming partner already exists',
 } as const;
+
+const pennylaneStatus = (created: boolean) =>
+  created ? 'pennylane customer created' : 'existing pennylane customer linked';
 
 // BodyWithSchema only feeds the OpenAPI spec, it does not validate requests.
 const parseBody = <T>(
@@ -373,7 +378,7 @@ export class AdminModuleApi extends BaseController {
     rawBody: OnboardRoamingPartnerEmspBody,
     // Forwarded to the TS API, which trusts the same Keycloak realm.
     @HeaderParam('authorization') authorization?: string,
-  ): Promise<{ status: string }> {
+  ): Promise<{ status: string; pennylaneCustomerId?: number }> {
     // Validate before the upsert so a bad billing body never leaves a partner
     // without its Pennylane customer.
     const body = parseBody<OnboardRoamingPartnerEmspBody>(
@@ -383,25 +388,45 @@ export class AdminModuleApi extends BaseController {
 
     const { id, tenantPartnerId, outcome } =
       await this.roamingPartnerService.upsertRoamingPartner(body, 'EMSP');
-    if (outcome !== 'created') {
-      return { status: UPSERT_STATUS[outcome] };
-    }
 
+    // Called for every outcome: the TS API is idempotent on the
+    // (tenant_partner_id, roaming_partner_id) link, so a retry after a failure,
+    // a CPO partner gaining EMSP and a backfilled partner all get a customer.
     try {
-      await this.pennylaneService.createCompanyCustomer(
-        {
-          ...toPennylaneCompanyCustomer(body.roamingPartnerName, body),
-          tenant_partner_id: tenantPartnerId,
-          roaming_partner_id: id,
-        },
-        authorization,
-      );
-      return { status: 'roaming partner created; pennylane customer created' };
-    } catch (err) {
-      this.logger.error('Failed to create Pennylane customer', err);
+      const { customer, created } =
+        await this.pennylaneService.createCompanyCustomer(
+          {
+            ...toPennylaneCompanyCustomer(body.roamingPartnerName, body),
+            tenant_partner_id: tenantPartnerId,
+            roaming_partner_id: id,
+          },
+          authorization,
+        );
       return {
-        status: 'roaming partner created; pennylane customer creation failed',
+        status: `${UPSERT_STATUS[outcome]}; ${pennylaneStatus(created)}`,
+        pennylaneCustomerId: customer.id,
       };
+    } catch (err) {
+      if (
+        err instanceof UnsuccessfulRequestException &&
+        err.statusCode === 409 &&
+        err.code === PENNYLANE_PARTNER_ALREADY_LINKED
+      ) {
+        return {
+          status: `${UPSERT_STATUS[outcome]}; pennylane customer already linked`,
+        };
+      }
+      this.logger.error('Failed to create Pennylane customer', err);
+      // The roaming partner is kept; retrying this route is safe.
+      throw new UnsuccessfulRequestException(
+        `${UPSERT_STATUS[outcome]}; pennylane customer creation failed: ${
+          (err as Error)?.message
+        }`,
+        undefined,
+        err instanceof UnsuccessfulRequestException
+          ? { statusCode: err.statusCode, code: err.code }
+          : undefined,
+      );
     }
   }
 
@@ -460,15 +485,16 @@ export class AdminModuleApi extends BaseController {
     }
 
     // No roaming_partner_id: a direct contract, not one through a hub.
-    const customer = await this.pennylaneService.createCompanyCustomer(
-      {
-        ...toPennylaneCompanyCustomer(body.tenantPartnerName, body),
-        tenant_partner_id: tenantPartner.id,
-      },
-      authorization,
-    );
+    const { customer, created } =
+      await this.pennylaneService.createCompanyCustomer(
+        {
+          ...toPennylaneCompanyCustomer(body.tenantPartnerName, body),
+          tenant_partner_id: tenantPartner.id,
+        },
+        authorization,
+      );
     return {
-      status: 'pennylane customer created',
+      status: pennylaneStatus(created),
       pennylaneCustomerId: customer.id,
     };
   }

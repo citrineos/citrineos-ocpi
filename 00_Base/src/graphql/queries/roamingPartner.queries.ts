@@ -53,14 +53,15 @@ export const GET_ROAMING_PARTNER_BY_IDENTITY = gql`
   }
 `;
 
-export const SET_ROAMING_PARTNER_ROLES = gql`
-  mutation SetRoamingPartnerRoles($id: Int!, $roles: jsonb!) {
-    update_RoamingPartners_by_pk(
-      pk_columns: { id: $id }
-      _set: { roles: $roles }
+// Single atomic UPDATE: appends the role only if it is not already present,
+// so concurrent calls cannot clobber each other (roles is NOT NULL DEFAULT []).
+export const ADD_ROAMING_PARTNER_ROLE = gql`
+  mutation AddRoamingPartnerRole($id: Int!, $role: jsonb!) {
+    append: update_RoamingPartners(
+      where: { id: { _eq: $id }, _not: { roles: { _contains: $role } } }
+      _append: { roles: $role }
     ) {
-      id
-      roles
+      affected_rows
     }
   }
 `;

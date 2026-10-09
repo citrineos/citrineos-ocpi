@@ -1864,16 +1864,15 @@ export type GetRoamingPartnerByIdentityQueryResult = {
   }>
 };
 
-export type SetRoamingPartnerRolesMutationVariables = Exact<{
+export type AddRoamingPartnerRoleMutationVariables = Exact<{
   id: Scalars['Int']['input'];
-  roles: Scalars['jsonb']['input'];
+  role: Scalars['jsonb']['input'];
 }>;
 
 
-export type SetRoamingPartnerRolesMutationResult = {
-  update_RoamingPartners_by_pk?: {
-    id: number,
-    roles: any
+export type AddRoamingPartnerRoleMutationResult = {
+  append?: {
+    affected_rows: number
   } | null
 };
 

@@ -361,10 +361,14 @@ export type {
   RoamingPartnerRole,
   UpsertRoamingPartnerResult,
 } from './services/RoamingPartnerService.js';
-export { PennylaneService } from './services/PennylaneService.js';
+export {
+  PennylaneService,
+  PENNYLANE_PARTNER_ALREADY_LINKED,
+} from './services/PennylaneService.js';
 export type {
   PennylaneCompanyCustomerRequest,
   PennylaneCompanyCustomerResponse,
+  PennylaneCompanyCustomerResult,
 } from './services/PennylaneService.js';
 // export { AdminLocationsService } from './services/AdminLocationsService.js';
 

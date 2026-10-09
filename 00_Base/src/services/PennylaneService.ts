@@ -10,6 +10,17 @@ import { UnsuccessfulRequestException } from '../exception/UnsuccessfulRequestEx
 
 const COMPANY_CUSTOMERS_PATH = '/api/v1/pennylane/company_customers';
 
+/**
+ * `detail.code` of the TS API 409 returned when the
+ * (tenant_partner_id, roaming_partner_id) pair is already linked to a customer.
+ */
+export const PENNYLANE_PARTNER_ALREADY_LINKED = 'ocpi_partner_already_linked';
+
+/** Error body of the TS API (FastAPI): `detail` is a message or an object. */
+type TsApiErrorBody = {
+  detail?: string | { code?: string; [key: string]: unknown };
+};
+
 /** Body of POST /api/v1/pennylane/company_customers on the TS API. */
 export type PennylaneCompanyCustomerRequest = {
   name: string;
@@ -43,6 +54,12 @@ export type PennylaneCompanyCustomerResponse = {
   created_at?: string | null;
 };
 
+/** `created` is false when the TS API linked an existing Pennylane customer (200, not 201). */
+export type PennylaneCompanyCustomerResult = {
+  customer: PennylaneCompanyCustomerResponse;
+  created: boolean;
+};
+
 @Service()
 export class PennylaneService {
   constructor(
@@ -59,7 +76,7 @@ export class PennylaneService {
   async createCompanyCustomer(
     payload: PennylaneCompanyCustomerRequest,
     authorization?: string,
-  ): Promise<PennylaneCompanyCustomerResponse> {
+  ): Promise<PennylaneCompanyCustomerResult> {
     const baseUrl = this.config.tsApi?.url;
     if (!baseUrl) {
       throw new Error(
@@ -87,20 +104,33 @@ export class PennylaneService {
         },
       );
     } catch (error) {
-      // typed-rest-client rejects on non-2xx statuses (other than 404)
-      const statusCode = (error as { statusCode?: number })?.statusCode;
+      // typed-rest-client rejects on non-2xx statuses (other than 404), with
+      // the status on `statusCode` and the parsed body on `result`.
+      const { statusCode, result, message } = error as {
+        statusCode?: number;
+        result?: TsApiErrorBody;
+        message?: string;
+      };
+      const detail = result?.detail;
+      const code = typeof detail === 'object' ? detail?.code : undefined;
       this.logger.error('TS API company customer request failed', {
         statusCode,
-        message: (error as Error)?.message,
+        code,
+        message,
       });
-      // On an HTTP status the message is the TS API body (its `detail`), which
-      // tells the admin what to fix (VAT already used, partner already linked).
+      // The TS API `detail` tells the admin what to fix (invalid VAT, ...).
+      const reason =
+        detail === undefined
+          ? message
+          : typeof detail === 'string'
+            ? detail
+            : JSON.stringify(detail);
       throw new UnsuccessfulRequestException(
         `TS API company customer request failed${
-          statusCode
-            ? ` with status ${statusCode}: ${(error as Error)?.message}`
-            : ''
-        }`,
+          statusCode ? ` with status ${statusCode}` : ''
+        }: ${reason}`,
+        undefined,
+        { statusCode, code },
       );
     }
 
@@ -120,6 +150,6 @@ export class PennylaneService {
         response,
       );
     }
-    return response.result;
+    return { customer: response.result, created: response.statusCode === 201 };
   }
 }

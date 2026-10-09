@@ -9,7 +9,7 @@ import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '../../graphql/qu
 import {
   CREATE_ROAMING_PARTNER,
   GET_ROAMING_PARTNER_BY_IDENTITY,
-  SET_ROAMING_PARTNER_ROLES,
+  ADD_ROAMING_PARTNER_ROLE,
 } from '../../graphql/queries/roamingPartner.queries';
 
 const body = {
@@ -37,6 +37,7 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
   let request: jest.Mock;
   let tenantPartnerRows: unknown[];
   let existingRows: unknown[];
+  let appendResult: { affected_rows: number };
 
   const callsTo = (document: unknown) =>
     request.mock.calls.filter(([doc]) => doc === document);
@@ -44,6 +45,7 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
   beforeEach(() => {
     tenantPartnerRows = [{ id: 7 }];
     existingRows = [];
+    appendResult = { affected_rows: 1 };
     request = jest.fn(async (document: unknown) => {
       if (document === GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY) {
         return { TenantPartners: tenantPartnerRows };
@@ -54,8 +56,8 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
       if (document === CREATE_ROAMING_PARTNER) {
         return { insert_RoamingPartners_one: { id: 99 } };
       }
-      if (document === SET_ROAMING_PARTNER_ROLES) {
-        return { update_RoamingPartners_by_pk: { id: 42 } };
+      if (document === ADD_ROAMING_PARTNER_ROLE) {
+        return { append: appendResult };
       }
       throw new Error('unexpected document');
     });
@@ -77,6 +79,22 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
       [
         'a malformed contract start date',
         { roamingPartnerContractStartDate: '01/02/2026' },
+      ],
+      [
+        'a signature date with a time part',
+        { roamingPartnerSignatureDate: '2026-01-15T00:00:00.000Z' },
+      ],
+      [
+        'a contract start date with a time part',
+        { roamingPartnerContractStartDate: '2026-02-01T10:30:00Z' },
+      ],
+      [
+        'an impossible signature date',
+        { roamingPartnerSignatureDate: '2026-02-30' },
+      ],
+      [
+        'an out-of-range contract start date',
+        { roamingPartnerContractStartDate: '2026-13-45' },
       ],
     ])('rejects %s before calling Hasura', async (_, override) => {
       await expect(
@@ -112,13 +130,9 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
       ).rejects.toThrow(/roamingPartnerCountryCode/);
     });
 
-    it('accepts ISO date-times and a mixed-case alphanumeric party id', async () => {
+    it('accepts a mixed-case alphanumeric party id', async () => {
       const result = await service.upsertRoamingPartner(
-        {
-          ...body,
-          roamingPartnerPartyId: 'a1B',
-          roamingPartnerSignatureDate: '2026-01-15T00:00:00.000Z',
-        },
+        { ...body, roamingPartnerPartyId: 'a1B' },
         'CPO',
       );
 
@@ -133,7 +147,7 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
       NotFoundException,
     );
     expect(callsTo(CREATE_ROAMING_PARTNER)).toHaveLength(0);
-    expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(0);
+    expect(callsTo(ADD_ROAMING_PARTNER_ROLE)).toHaveLength(0);
   });
 
   it('looks the hub up by our and partner identity', async () => {
@@ -175,7 +189,7 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
           contractStartDate: '2026-02-01',
           roles: [role],
         });
-        expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(0);
+        expect(callsTo(ADD_ROAMING_PARTNER_ROLE)).toHaveLength(0);
       },
     );
 
@@ -224,7 +238,7 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
         outcome: 'unchanged',
       });
       expect(callsTo(CREATE_ROAMING_PARTNER)).toHaveLength(0);
-      expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(0);
+      expect(callsTo(ADD_ROAMING_PARTNER_ROLE)).toHaveLength(0);
     });
 
     it('appends the role and returns role_added if it is missing', async () => {
@@ -237,12 +251,22 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
         tenantPartnerId: 7,
         outcome: 'role_added',
       });
-      expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(1);
-      expect(callsTo(SET_ROAMING_PARTNER_ROLES)[0][1]).toEqual({
+      expect(callsTo(ADD_ROAMING_PARTNER_ROLE)).toHaveLength(1);
+      expect(callsTo(ADD_ROAMING_PARTNER_ROLE)[0][1]).toEqual({
         id: 42,
-        roles: ['EMSP', 'CPO'],
+        role: 'CPO',
       });
       expect(callsTo(CREATE_ROAMING_PARTNER)).toHaveLength(0);
+    });
+
+    it('returns unchanged if the role was added concurrently', async () => {
+      existingRows = [existingRow];
+      appendResult = { affected_rows: 0 };
+
+      const result = await service.upsertRoamingPartner(body, 'CPO');
+
+      expect(result.outcome).toBe('unchanged');
+      expect(callsTo(ADD_ROAMING_PARTNER_ROLE)).toHaveLength(1);
     });
 
     it('treats null roles as empty', async () => {
@@ -251,25 +275,10 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
       const result = await service.upsertRoamingPartner(body, 'EMSP');
 
       expect(result.outcome).toBe('role_added');
-      expect(callsTo(SET_ROAMING_PARTNER_ROLES)[0][1]).toEqual({
+      expect(callsTo(ADD_ROAMING_PARTNER_ROLE)[0][1]).toEqual({
         id: 42,
-        roles: ['EMSP'],
+        role: 'EMSP',
       });
-    });
-
-    it('matches dates sent as ISO date-times against stored YYYY-MM-DD', async () => {
-      existingRows = [{ ...existingRow, roles: ['CPO'] }];
-
-      const result = await service.upsertRoamingPartner(
-        {
-          ...body,
-          roamingPartnerSignatureDate: '2026-01-15T00:00:00.000Z',
-          roamingPartnerContractStartDate: '2026-02-01T10:30:00Z',
-        },
-        'CPO',
-      );
-
-      expect(result.outcome).toBe('unchanged');
     });
   });
 
@@ -290,7 +299,7 @@ describe('RoamingPartnerService.upsertRoamingPartner', () => {
           service.upsertRoamingPartner({ ...body, ...override }, 'CPO'),
         ).rejects.toThrow(InvalidParamException);
         expect(callsTo(CREATE_ROAMING_PARTNER)).toHaveLength(0);
-        expect(callsTo(SET_ROAMING_PARTNER_ROLES)).toHaveLength(0);
+        expect(callsTo(ADD_ROAMING_PARTNER_ROLE)).toHaveLength(0);
       },
     );
 

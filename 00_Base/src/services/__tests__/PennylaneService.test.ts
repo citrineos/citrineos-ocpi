@@ -11,7 +11,10 @@ jest.mock('typed-rest-client', () => ({
   }),
 }));
 
-import { PennylaneService } from '../PennylaneService';
+import {
+  PENNYLANE_PARTNER_ALREADY_LINKED,
+  PennylaneService,
+} from '../PennylaneService';
 import type { PennylaneCompanyCustomerRequest } from '../PennylaneService';
 import { UnsuccessfulRequestException } from '../../exception/UnsuccessfulRequestException';
 
@@ -82,7 +85,16 @@ describe('PennylaneService.createCompanyCustomer', () => {
       payload,
       { additionalHeaders: { 'Content-Type': 'application/json' } },
     );
-    expect(result).toEqual(created);
+    expect(result).toEqual({ customer: created, created: true });
+  });
+
+  it('reports created false when the TS API linked an existing customer (200)', async () => {
+    const existing = { id: 42, name: 'ABC Mobility' };
+    create.mockResolvedValue({ statusCode: 200, result: existing });
+
+    await expect(
+      serviceWith(configured).createCompanyCustomer(payload),
+    ).resolves.toEqual({ customer: existing, created: false });
   });
 
   it('forwards the Authorization header when one is given', async () => {
@@ -132,11 +144,62 @@ describe('PennylaneService.createCompanyCustomer', () => {
     expect(logger.error).toHaveBeenCalled();
   });
 
+  it('puts a string TS API detail in the message and keeps the status code', async () => {
+    create.mockRejectedValue(
+      Object.assign(new Error('{"detail":"Invalid VAT number"}'), {
+        statusCode: 422,
+        result: { detail: 'Invalid VAT number' },
+      }),
+    );
+
+    const error = await serviceWith(configured)
+      .createCompanyCustomer(payload)
+      .catch((e) => e);
+
+    expect(error).toBeInstanceOf(UnsuccessfulRequestException);
+    expect(error.message).toBe(
+      'TS API company customer request failed with status 422: Invalid VAT number',
+    );
+    expect(error.statusCode).toBe(422);
+    expect(error.code).toBeUndefined();
+  });
+
+  it('keeps the status code and detail.code of a TS API 409', async () => {
+    const detail = {
+      code: PENNYLANE_PARTNER_ALREADY_LINKED,
+      tenant_partner_id: 2,
+      roaming_partner_id: 1,
+    };
+    create.mockRejectedValue(
+      Object.assign(new Error(JSON.stringify({ detail })), {
+        statusCode: 409,
+        result: { detail },
+      }),
+    );
+
+    const error = await serviceWith(configured)
+      .createCompanyCustomer(payload)
+      .catch((e) => e);
+
+    expect(error).toBeInstanceOf(UnsuccessfulRequestException);
+    expect(error.statusCode).toBe(409);
+    expect(error.code).toBe('ocpi_partner_already_linked');
+    expect(error.message).toBe(
+      `TS API company customer request failed with status 409: ${JSON.stringify(detail)}`,
+    );
+  });
+
   it('wraps a network error without a status code', async () => {
     create.mockRejectedValue(new Error('ECONNREFUSED'));
 
-    await expect(
-      serviceWith(configured).createCompanyCustomer(payload),
-    ).rejects.toThrow(UnsuccessfulRequestException);
+    const error = await serviceWith(configured)
+      .createCompanyCustomer(payload)
+      .catch((e) => e);
+
+    expect(error).toBeInstanceOf(UnsuccessfulRequestException);
+    expect(error.message).toBe(
+      'TS API company customer request failed: ECONNREFUSED',
+    );
+    expect(error.statusCode).toBeUndefined();
   });
 });

@@ -35,6 +35,20 @@ jest.mock('@citrineos/ocpi-base', () => {
       'GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY',
     NotFoundException: class NotFoundException extends Error {},
     InvalidParamException: class InvalidParamException extends Error {},
+    UnsuccessfulRequestException: class UnsuccessfulRequestException extends Error {
+      statusCode?: number;
+      code?: string;
+      constructor(
+        message: string,
+        _iRestResponse?: unknown,
+        upstream?: { statusCode?: number; code?: string },
+      ) {
+        super(message);
+        this.statusCode = upstream?.statusCode;
+        this.code = upstream?.code;
+      }
+    },
+    PENNYLANE_PARTNER_ALREADY_LINKED: 'ocpi_partner_already_linked',
     OcpiHeaders: class {},
     OcpiLogger: stubClass(),
     OcpiGraphqlClient: stubClass(),
@@ -47,6 +61,7 @@ jest.mock('@citrineos/ocpi-base', () => {
   };
 });
 
+import { UnsuccessfulRequestException } from '@citrineos/ocpi-base';
 import { AdminModuleApi } from '../module/AdminModuleApi.js';
 
 type Outcome = 'created' | 'role_added' | 'unchanged';
@@ -109,7 +124,10 @@ describe('AdminModuleApi roaming partner routes', () => {
     upsertRoamingPartner = jest.fn();
     pullPartnerTariffs = jest.fn().mockResolvedValue({ processed: 3 });
     pullPartnerLocations = jest.fn().mockResolvedValue({ processed: 5 });
-    createCompanyCustomer = jest.fn().mockResolvedValue({});
+    createCompanyCustomer = jest.fn().mockResolvedValue({
+      customer: { id: 7, name: 'ABC Mobility' },
+      created: true,
+    });
     graphqlRequest = jest.fn();
     api = new AdminModuleApi(
       logger as any,
@@ -276,6 +294,7 @@ describe('AdminModuleApi roaming partner routes', () => {
         api.onboardRoamingPartnerEmsp(emspBody, 'Bearer caller.token'),
       ).resolves.toEqual({
         status: 'roaming partner created; pennylane customer created',
+        pennylaneCustomerId: 7,
       });
       expect(upsertRoamingPartner).toHaveBeenCalledWith(emspBody, 'EMSP');
       expect(createCompanyCustomer).toHaveBeenCalledTimes(1);
@@ -310,29 +329,125 @@ describe('AdminModuleApi roaming partner routes', () => {
       ['role_added', 'role added to existing roaming partner'],
       ['unchanged', 'roaming partner already exists'],
     ] as const)(
-      'with outcome %s does not call the TS API and returns "%s"',
-      async (outcome, status) => {
+      'with outcome %s still creates the Pennylane customer',
+      async (outcome, upsertStatus) => {
         givenOutcome(outcome);
 
-        await expect(api.onboardRoamingPartnerEmsp(emspBody)).resolves.toEqual({
-          status,
+        await expect(
+          api.onboardRoamingPartnerEmsp(emspBody, 'Bearer caller.token'),
+        ).resolves.toEqual({
+          status: `${upsertStatus}; pennylane customer created`,
+          pennylaneCustomerId: 7,
         });
         expect(upsertRoamingPartner).toHaveBeenCalledWith(emspBody, 'EMSP');
-        expect(createCompanyCustomer).not.toHaveBeenCalled();
+        expect(createCompanyCustomer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'ABC Mobility',
+            tenant_partner_id: 2,
+            roaming_partner_id: 1,
+          }),
+          'Bearer caller.token',
+        );
       },
     );
 
-    it('keeps the partner and reports the failure when the TS API call fails', async () => {
+    it('reports a linked existing Pennylane customer instead of a created one', async () => {
       givenOutcome('created');
-      createCompanyCustomer.mockRejectedValue(new Error('ts api down'));
+      createCompanyCustomer.mockResolvedValue({
+        customer: { id: 9, name: 'ABC Mobility SAS' },
+        created: false,
+      });
 
       await expect(api.onboardRoamingPartnerEmsp(emspBody)).resolves.toEqual({
-        status: 'roaming partner created; pennylane customer creation failed',
+        status: 'roaming partner created; existing pennylane customer linked',
+        pennylaneCustomerId: 9,
       });
+    });
+
+    it.each([
+      ['created', 'roaming partner created'],
+      ['role_added', 'role added to existing roaming partner'],
+      ['unchanged', 'roaming partner already exists'],
+    ] as const)(
+      'with outcome %s treats the TS API "partner already linked" 409 as success',
+      async (outcome, upsertStatus) => {
+        givenOutcome(outcome);
+        createCompanyCustomer.mockRejectedValue(
+          new UnsuccessfulRequestException('already linked', undefined, {
+            statusCode: 409,
+            code: 'ocpi_partner_already_linked',
+          }),
+        );
+
+        await expect(api.onboardRoamingPartnerEmsp(emspBody)).resolves.toEqual({
+          status: `${upsertStatus}; pennylane customer already linked`,
+        });
+        expect(logger.error).not.toHaveBeenCalled();
+      },
+    );
+
+    it('rejects on a TS API 409 with another code', async () => {
+      givenOutcome('unchanged');
+      createCompanyCustomer.mockRejectedValue(
+        new UnsuccessfulRequestException('customer exists', undefined, {
+          statusCode: 409,
+          code: 'customer_already_exists',
+        }),
+      );
+
+      const error = await api
+        .onboardRoamingPartnerEmsp(emspBody)
+        .catch((e) => e);
+
+      expect(error).toBeInstanceOf(UnsuccessfulRequestException);
+      expect(error.message).toBe(
+        'roaming partner already exists; pennylane customer creation failed: customer exists',
+      );
+      expect(error.statusCode).toBe(409);
+      expect(error.code).toBe('customer_already_exists');
+    });
+
+    it('keeps the partner and rejects with the TS API status when the TS API fails', async () => {
+      givenOutcome('created');
+      createCompanyCustomer.mockRejectedValue(
+        new UnsuccessfulRequestException(
+          'TS API company customer request failed with status 502: Pennylane is unreachable',
+          undefined,
+          { statusCode: 502 },
+        ),
+      );
+
+      const error = await api
+        .onboardRoamingPartnerEmsp(emspBody)
+        .catch((e) => e);
+
+      expect(error).toBeInstanceOf(UnsuccessfulRequestException);
+      expect(error.message).toBe(
+        'roaming partner created; pennylane customer creation failed: TS API company customer request failed with status 502: Pennylane is unreachable',
+      );
+      expect(error.statusCode).toBe(502);
+      expect(upsertRoamingPartner).toHaveBeenCalledTimes(1);
       expect(logger.error).toHaveBeenCalledWith(
         'Failed to create Pennylane customer',
         expect.any(Error),
       );
+    });
+
+    it('rejects with UnsuccessfulRequestException when the TS API is not configured', async () => {
+      givenOutcome('created');
+      createCompanyCustomer.mockRejectedValue(
+        new Error('TS API is not configured (set CITRINEOS_OCPI_TSAPI_URL)'),
+      );
+
+      const error = await api
+        .onboardRoamingPartnerEmsp(emspBody)
+        .catch((e) => e);
+
+      expect(error).toBeInstanceOf(UnsuccessfulRequestException);
+      expect(error.message).toBe(
+        'roaming partner created; pennylane customer creation failed: TS API is not configured (set CITRINEOS_OCPI_TSAPI_URL)',
+      );
+      expect(error.statusCode).toBeUndefined();
     });
 
     it('does not run the CPO tariffs/locations pull', async () => {
@@ -370,7 +485,10 @@ describe('AdminModuleApi roaming partner routes', () => {
 
     it('looks up the tenant partner by OCPI identity', async () => {
       givenTenantPartner([{ id: 5 }]);
-      createCompanyCustomer.mockResolvedValue({ id: 42, name: 'MSP Direct' });
+      createCompanyCustomer.mockResolvedValue({
+        customer: { id: 42, name: 'MSP Direct' },
+        created: true,
+      });
 
       await api.onboardTenantPartnerEmsp(tenantBody);
 
@@ -387,7 +505,10 @@ describe('AdminModuleApi roaming partner routes', () => {
 
     it('creates the Pennylane customer linked to the tenant partner only, forwarding the token', async () => {
       givenTenantPartner([{ id: 5 }]);
-      createCompanyCustomer.mockResolvedValue({ id: 42, name: 'MSP Direct' });
+      createCompanyCustomer.mockResolvedValue({
+        customer: { id: 42, name: 'MSP Direct' },
+        created: true,
+      });
 
       await expect(
         api.onboardTenantPartnerEmsp(tenantBody, 'Bearer caller.token'),
@@ -407,6 +528,19 @@ describe('AdminModuleApi roaming partner routes', () => {
       );
       expect(payload).not.toHaveProperty('roaming_partner_id');
       expect(authorization).toBe('Bearer caller.token');
+    });
+
+    it('reports a linked existing Pennylane customer instead of a created one', async () => {
+      givenTenantPartner([{ id: 5 }]);
+      createCompanyCustomer.mockResolvedValue({
+        customer: { id: 43, name: 'MSP Direct SAS' },
+        created: false,
+      });
+
+      await expect(api.onboardTenantPartnerEmsp(tenantBody)).resolves.toEqual({
+        status: 'existing pennylane customer linked',
+        pennylaneCustomerId: 43,
+      });
     });
 
     it('rejects with NotFoundException and does not call the TS API when the tenant partner does not exist', async () => {
@@ -429,7 +563,10 @@ describe('AdminModuleApi roaming partner routes', () => {
 
     it('never creates or updates a roaming partner, nor pulls partner data', async () => {
       givenTenantPartner([{ id: 5 }]);
-      createCompanyCustomer.mockResolvedValue({ id: 42, name: 'MSP Direct' });
+      createCompanyCustomer.mockResolvedValue({
+        customer: { id: 42, name: 'MSP Direct' },
+        created: true,
+      });
 
       await api.onboardTenantPartnerEmsp(tenantBody);
       await flushBackgroundWork();

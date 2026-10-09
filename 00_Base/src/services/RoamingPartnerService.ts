@@ -10,8 +10,8 @@ import type {
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
   GetRoamingPartnerByIdentityQueryVariables,
   GetRoamingPartnerByIdentityQueryResult,
-  SetRoamingPartnerRolesMutationVariables,
-  SetRoamingPartnerRolesMutationResult,
+  AddRoamingPartnerRoleMutationVariables,
+  AddRoamingPartnerRoleMutationResult,
   OnboardRoamingPartnerBody,
   CreateRoamingPartnerMutationVariables,
   CreateRoamingPartnerMutationResult,
@@ -20,7 +20,7 @@ import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '../graphql/queri
 import {
   CREATE_ROAMING_PARTNER,
   GET_ROAMING_PARTNER_BY_IDENTITY,
-  SET_ROAMING_PARTNER_ROLES,
+  ADD_ROAMING_PARTNER_ROLE,
 } from '../graphql/queries/roamingPartner.queries.js';
 import { NotFoundException } from '../exception/NotFoundException.js';
 import { InvalidParamException } from '../exception/InvalidParamException.js';
@@ -34,9 +34,6 @@ export type UpsertRoamingPartnerResult = {
   tenantPartnerId: number;
   outcome: 'created' | 'role_added' | 'unchanged';
 };
-
-// Hasura returns `date` as YYYY-MM-DD; the body accepts any string.
-const toDateOnly = (value: string) => value.slice(0, 10);
 
 @Service()
 export class RoamingPartnerService {
@@ -123,9 +120,8 @@ export class RoamingPartnerService {
 
     const sameDetails =
       existing.name === roamingPartnerName &&
-      existing.signatureDate === toDateOnly(roamingPartnerSignatureDate) &&
-      existing.contractStartDate ===
-        toDateOnly(roamingPartnerContractStartDate);
+      existing.signatureDate === roamingPartnerSignatureDate &&
+      existing.contractStartDate === roamingPartnerContractStartDate;
     if (!sameDetails) {
       throw new InvalidParamException(
         `Roaming partner ${roamingPartnerCountryCode}-${roamingPartnerPartyId} already exists with different name or contract dates`,
@@ -141,14 +137,14 @@ export class RoamingPartnerService {
       };
     }
 
-    await this.ocpiGraphqlClient.request<
-      SetRoamingPartnerRolesMutationResult,
-      SetRoamingPartnerRolesMutationVariables
-    >(SET_ROAMING_PARTNER_ROLES, { id: existing.id, roles: [...roles, role] });
+    const added = await this.ocpiGraphqlClient.request<
+      AddRoamingPartnerRoleMutationResult,
+      AddRoamingPartnerRoleMutationVariables
+    >(ADD_ROAMING_PARTNER_ROLE, { id: existing.id, role });
     return {
       id: existing.id,
       tenantPartnerId: tenantPartner.id,
-      outcome: 'role_added',
+      outcome: added.append?.affected_rows ? 'role_added' : 'unchanged',
     };
   }
 }

@@ -19,12 +19,9 @@ export const OnboardRoamingPartnerBodySchema = z.object({
     .string()
     .regex(/^[A-Za-z0-9]{3}$/, 'must be 3 alphanumeric characters'),
   roamingPartnerName: z.string().trim().min(1).max(100),
-  roamingPartnerSignatureDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}(T.*)?$/, 'must be a YYYY-MM-DD date'),
-  roamingPartnerContractStartDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}(T.*)?$/, 'must be a YYYY-MM-DD date'),
+  // Strict YYYY-MM-DD (rejects time parts and impossible dates like 2026-02-30).
+  roamingPartnerSignatureDate: z.string().date(),
+  roamingPartnerContractStartDate: z.string().date(),
 });
 
 export const OnboardRoamingPartnerBodySchemaName =
