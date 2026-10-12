@@ -16,6 +16,13 @@ import { Inject } from 'typedi';
 import type { OcpiConfig } from '../../config/ocpi.types.js';
 import { OcpiConfigToken } from '../../config/ocpi.types.js';
 import { logDbBroadcast } from '../../util/logging.js';
+
+interface DtoSubscription {
+  eventType: DtoEventType;
+  objectType: DtoEventObjectType;
+  filter: { [k: string]: string };
+}
+
 /**
  * Implementation of a {@link IEventHandler} using RabbitMQ as the underlying transport.
  */
@@ -33,9 +40,15 @@ export class RabbitMqDtoReceiver
    * Fields
    */
   protected _connection?: amqplib.Connection;
+  protected _channelModel?: amqplib.ChannelModel;
   protected _channel?: amqplib.Channel;
   private _reconnecting = false;
   private _abortReconnectController?: AbortController;
+  // Queues are transient: the broker drops them with their connection or home node, so every
+  // subscription must be replayed after a reconnect or a consumer cancel.
+  private readonly _subscriptions: DtoSubscription[] = [];
+  private _queueSequence = 0;
+  private _lastRestoreFailureAt = 0;
 
   constructor(
     @Inject(OcpiConfigToken) config: OcpiConfig,
@@ -61,9 +74,6 @@ export class RabbitMqDtoReceiver
     objectType: DtoEventObjectType,
     filter?: { [k: string]: string },
   ): Promise<boolean> {
-    const exchange = this._config.messageBroker?.amqp?.exchange as string;
-    const queueName = `${RabbitMqDtoReceiver.QUEUE_PREFIX}${eventType}_${objectType}_${Date.now()}`;
-
     // Ensure that filter includes the x-match header set to all
     filter = filter
       ? {
@@ -77,23 +87,10 @@ export class RabbitMqDtoReceiver
     if (!this._channel) {
       throw new Error('RabbitMQ is down: cannot subscribe.');
     }
-    const channel = this._channel;
 
-    // Assert exchange and queue
-    await channel.assertExchange(exchange, 'headers', { durable: false });
-    await channel.assertQueue(queueName, {
-      durable: false,
-      autoDelete: true,
-      exclusive: false,
-    });
-
-    this._logger.debug(
-      `Bind ${queueName} on ${exchange} with filter ${JSON.stringify(filter)}.`,
-    );
-    await channel.bindQueue(queueName, exchange, '', filter);
-
-    // Start consuming messages
-    await channel.consume(queueName, (msg) => this._onEvent(msg, channel));
+    const subscription: DtoSubscription = { eventType, objectType, filter };
+    await this._declareAndConsume(this._channel, subscription);
+    this._subscriptions.push(subscription);
 
     return true;
   }
@@ -125,11 +122,23 @@ export class RabbitMqDtoReceiver
     while (!abortSignal?.aborted) {
       try {
         const connection = await amqplib.connect(url);
+        this._channelModel = connection;
         this._connection = connection.connection;
         const channel = await connection.createChannel();
         channel.on('error', (err) => {
           this._logger.error('AMQP channel error', err);
-          // TODO: add recovery logic
+        });
+        // The broker can close a channel while the connection stays up; a dead channel never
+        // consumes again, so rebuild everything on a fresh connection.
+        channel.on('close', () => {
+          // Deferred: on a connection loss the connection 'close' follows and supersedes this.
+          setImmediate(() => {
+            if (channel !== this._channel) return;
+            this._logger.warn(
+              'AMQP channel closed while connection is up. Forcing reconnect.',
+            );
+            this._forceReconnect(channel);
+          });
         });
         this._setupConnectionListeners();
         return channel;
@@ -184,19 +193,138 @@ export class RabbitMqDtoReceiver
     this._logger.warn('RabbitMQ connection lost. Attempting to reconnect...');
     this._channel = undefined;
     this._connection = undefined;
+    this._channelModel = undefined;
+    let channel: amqplib.Channel | undefined;
+    let restored = false;
     try {
-      this._channel = await this._connectWithRetry(
+      // A refused declare closes the channel in the same tick, whose handler lands back here at
+      // once: wait out the delay since the last failed restore, or it becomes a reconnect storm.
+      const wait =
+        this._lastRestoreFailureAt +
+        RabbitMqDtoReceiver.RECONNECT_DELAY -
+        Date.now();
+      if (wait > 0) {
+        await new Promise((resolve) => setTimeout(resolve, wait));
+      }
+      channel = await this._connectWithRetry(
         this._abortReconnectController.signal,
       );
-      this._logger.info('RabbitMQ reconnected successfully.');
+      this._channel = channel;
+      await this._resubscribeAll(channel);
+      restored = true;
+      this._lastRestoreFailureAt = 0;
+      this._logger.info(
+        `RabbitMQ reconnected successfully, ${this._subscriptions.length} subscription(s) restored.`,
+      );
     } catch (err) {
+      this._lastRestoreFailureAt = Date.now();
       this._logger.error(
-        'Failed to reconnect to RabbitMQ (context: _handleDisconnect)',
+        'Failed to reconnect or re-subscribe to RabbitMQ (context: _handleDisconnect)',
         err,
       );
     } finally {
       this._reconnecting = false;
     }
+    // Close events fired while re-subscribing were skipped by the guard above: start over,
+    // after a delay so a persistent broker error does not turn into a tight reconnect loop.
+    if (!restored && channel) {
+      const failedChannel = channel;
+      setTimeout(
+        () => this._forceReconnect(failedChannel),
+        RabbitMqDtoReceiver.RECONNECT_DELAY,
+      );
+    }
+  }
+
+  /**
+   * Declares a fresh transient queue for `subscription`, binds it and starts consuming.
+   */
+  private async _declareAndConsume(
+    channel: amqplib.Channel,
+    subscription: DtoSubscription,
+  ): Promise<void> {
+    const exchange = this._config.messageBroker?.amqp?.exchange as string;
+    // The sequence keeps names unique when several subscriptions are replayed in the same ms.
+    const queueName = `${RabbitMqDtoReceiver.QUEUE_PREFIX}${subscription.eventType}_${subscription.objectType}_${Date.now()}_${++this._queueSequence}`;
+
+    await channel.assertExchange(exchange, 'headers', { durable: false });
+    await channel.assertQueue(queueName, {
+      durable: false,
+      autoDelete: true,
+      exclusive: false,
+    });
+
+    this._logger.debug(
+      `Bind ${queueName} on ${exchange} with filter ${JSON.stringify(subscription.filter)}.`,
+    );
+    await channel.bindQueue(queueName, exchange, '', subscription.filter);
+
+    await channel.consume(queueName, (msg) => {
+      // amqplib signals a broker-side basic.cancel (queue deleted) with a null message.
+      if (msg === null) {
+        this._onConsumerCancelled(channel, subscription);
+        return;
+      }
+      void this._onEvent(msg, channel);
+    });
+  }
+
+  private async _resubscribeAll(channel: amqplib.Channel): Promise<void> {
+    for (const subscription of this._subscriptions) {
+      await this._declareAndConsume(channel, subscription);
+    }
+  }
+
+  /**
+   * Restores a subscription whose queue was deleted by the broker, e.g. when the RabbitMQ node
+   * hosting it goes down while our connection lives on another node: no reconnect happens, so
+   * without this the receiver silently stops consuming.
+   */
+  private _onConsumerCancelled(
+    channel: amqplib.Channel,
+    subscription: DtoSubscription,
+  ): void {
+    if (channel !== this._channel) {
+      // Superseded channel: the reconnect that replaced it re-subscribed everything.
+      return;
+    }
+    const label = `${subscription.eventType} ${subscription.objectType} ${subscription.filter.eventId ?? ''}`;
+    this._logger.warn(
+      `RabbitMQ cancelled the consumer for ${label} (queue deleted by the broker). Re-subscribing.`,
+    );
+    this._declareAndConsume(channel, subscription)
+      .then(() =>
+        this._logger.info(`Re-subscribed ${label} after consumer cancel.`),
+      )
+      .catch((error) => {
+        this._logger.error(
+          `Failed to re-subscribe ${label} after consumer cancel. Forcing reconnect.`,
+          error,
+        );
+        this._forceReconnect(channel);
+      });
+  }
+
+  /**
+   * Closes the current connection so that {@link _handleDisconnect} reconnects and re-subscribes
+   * everything. No-op if `channel` has already been superseded.
+   */
+  private _forceReconnect(channel: amqplib.Channel): void {
+    const channelModel = this._channelModel;
+    if (channel !== this._channel || !channelModel) {
+      return;
+    }
+    Promise.resolve()
+      .then(() => channelModel.close())
+      .catch((error) => {
+        this._logger.warn(
+          'Closing RabbitMQ connection failed, handling as disconnect.',
+          error,
+        );
+        if (this._channelModel === channelModel) {
+          void this._handleDisconnect();
+        }
+      });
   }
 
   /**
