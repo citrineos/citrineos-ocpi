@@ -17,12 +17,26 @@ export const DeleteLocationBodySchemaName = 'DeleteLocationBodySchema';
 
 export type DeleteLocationBody = z.infer<typeof DeleteLocationBodySchema>;
 
+export type DeleteLocationPartnerFailure = {
+  partner: string;
+  /** null = nothing was sent to this partner (pre-PATCH lookup failed); retry all EVSEs */
+  failedEvseUids: string[] | null;
+};
+
+/** Counts are per EVSE PATCH, not per partner. */
 export type DeleteLocationSummary = {
-  patchSucceeded: number;
-  patchFailed: number;
+  evsesSucceeded: number;
+  evsesFailed: number;
+  failures: DeleteLocationPartnerFailure[];
 };
 
 export const DeleteLocationSummarySchema = z.object({
-  patchSucceeded: z.number(),
-  patchFailed: z.number(),
+  evsesSucceeded: z.number(),
+  evsesFailed: z.number(),
+  failures: z.array(
+    z.object({
+      partner: z.string(),
+      failedEvseUids: z.array(z.string()).nullable(),
+    }),
+  ),
 });

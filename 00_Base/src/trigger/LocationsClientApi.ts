@@ -32,6 +32,10 @@ import type {
 } from '../graphql/index.js';
 import { GET_OUR_LOCATION_BY_ID_QUERY } from '../graphql/index.js';
 
+export type EvsePatchResult =
+  | { evseUid: string; ok: true }
+  | { evseUid: string; ok: false; error: string };
+
 @Service()
 export class LocationsClientApi extends BaseClientApi {
   CONTROLLER_PATH = ModuleId.Locations;
@@ -153,7 +157,7 @@ export class LocationsClientApi extends BaseClientApi {
     locationId: string,
     status: EvseStatus,
     awsSecretCertificateArn?: string | null,
-  ): Promise<OcpiEmptyResponse[]> {
+  ): Promise<EvsePatchResult[]> {
     const lookup = await this.ocpiGraphqlClient.request<
       GetOurLocationByIdQueryResult,
       GetOurLocationByIdQueryVariables
@@ -173,7 +177,8 @@ export class LocationsClientApi extends BaseClientApi {
 
     const last_updated = new Date();
 
-    return Promise.all(
+    // allSettled so every PATCH completes and each EVSE gets its own outcome
+    const results = await Promise.allSettled(
       evseUids.map((evseUid) =>
         this.patchEvse(
           fromCountryCode,
@@ -187,6 +192,16 @@ export class LocationsClientApi extends BaseClientApi {
           awsSecretCertificateArn,
         ),
       ),
+    );
+
+    return results.map((result, i) =>
+      result.status === 'fulfilled'
+        ? { evseUid: evseUids[i], ok: true as const }
+        : {
+            evseUid: evseUids[i],
+            ok: false as const,
+            error: (result.reason as Error)?.message ?? String(result.reason),
+          },
     );
   }
 

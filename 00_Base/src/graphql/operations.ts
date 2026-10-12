@@ -1817,6 +1817,17 @@ export type MarkEvseRemovedMutationResult = {
   } | null
 };
 
+export type MarkEvsesRemovedMutationVariables = Exact<{
+  evseIds: Array<Scalars['Int']['input']> | Scalars['Int']['input'];
+}>;
+
+
+export type MarkEvsesRemovedMutationResult = {
+  update_Evses?: {
+    affected_rows: number
+  } | null
+};
+
 export type CreateRoamingPartnerMutationVariables = Exact<{
   countryCode: Scalars['String']['input'];
   partyId: Scalars['String']['input'];

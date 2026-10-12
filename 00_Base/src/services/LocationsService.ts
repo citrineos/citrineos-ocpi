@@ -44,8 +44,8 @@ import type {
   GetOurLocationByIdQueryVariables,
   TenantPartnersListQueryVariables,
   TenantPartnersListQueryResult,
-  MarkEvseRemovedMutationResult,
-  MarkEvseRemovedMutationVariables,
+  MarkEvsesRemovedMutationResult,
+  MarkEvsesRemovedMutationVariables,
 } from '../graphql/index.js';
 import {
   GET_CONNECTOR_BY_ID_QUERY,
@@ -56,7 +56,7 @@ import {
   UPDATE_LOCATION_PATCH_MUTATION,
   GET_OUR_LOCATION_BY_ID_QUERY,
   LIST_TENANT_PARTNERS_BY_CPO,
-  MARK_EVSE_REMOVED_QUERY,
+  MARK_EVSES_REMOVED_MUTATION,
 } from '../graphql/index.js';
 import {
   ConnectorMapper,
@@ -71,7 +71,11 @@ import type {
   LocationDto,
   PartnerProfile,
 } from '@zetra/citrineos-base';
-import type { DeleteLocationBody, DeleteLocationSummary } from '../index.js';
+import type {
+  DeleteLocationBody,
+  DeleteLocationPartnerFailure,
+  DeleteLocationSummary,
+} from '../index.js';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 
 export type KnownLocationRef = {
@@ -332,8 +336,9 @@ export class LocationsService {
       `Deleting location from OCPI system with body ${JSON.stringify(body)}`,
     );
     const noPatchesAttempted: DeleteLocationSummary = {
-      patchSucceeded: 0,
-      patchFailed: 0,
+      evsesSucceeded: 0,
+      evsesFailed: 0,
+      failures: [],
     };
     try {
       const partners = await this.ocpiGraphqlClient.request<
@@ -376,29 +381,39 @@ export class LocationsService {
           station.evses.map((evse) => evse.id),
         ) ?? [];
 
-      await Promise.all(
-        evseIds.map((evseId) =>
-          this.ocpiGraphqlClient
-            .request<
-              MarkEvseRemovedMutationResult,
-              MarkEvseRemovedMutationVariables
-            >(MARK_EVSE_REMOVED_QUERY, { evseId })
-            .catch((e) =>
-              this.logger.error(
-                `Failed to mark EVSE ${evseId} removed for location ${body.locationId}: ${(e as Error).message}`,
-              ),
-            ),
-        ),
-      );
+      // Single mutation so the DB update is all-or-nothing. Partners are only
+      // PATCHed once our DB reflects REMOVED, so the two sides cannot diverge.
+      try {
+        const marked = await this.ocpiGraphqlClient.request<
+          MarkEvsesRemovedMutationResult,
+          MarkEvsesRemovedMutationVariables
+        >(MARK_EVSES_REMOVED_MUTATION, { evseIds });
+        const affected = marked.update_Evses?.affected_rows ?? 0;
+        if (affected !== evseIds.length) {
+          throw new Error(
+            `expected ${evseIds.length} EVSEs updated, got ${affected}`,
+          );
+        }
+      } catch (e) {
+        this.logger.error(
+          `Failed to mark EVSEs removed for location ${body.locationId}: ${(e as Error).message}`,
+        );
+        return {
+          status: 'failed to mark EVSEs removed',
+          ...noPatchesAttempted,
+        };
+      }
 
-      let patchSucceeded = 0;
-      let patchFailed = 0;
+      let evsesSucceeded = 0;
+      let evsesFailed = 0;
+      const failures: DeleteLocationPartnerFailure[] = [];
       for (const partner of partners.TenantPartners) {
         if (!shouldBroadcastToPartner(partner, ModuleId.Locations, this.logger))
           continue;
+        const partnerKey = `${partner.countryCode}/${partner.partyId}`;
 
         try {
-          await this.locationsClientApi.patchLocationEVSEStatus(
+          const results = await this.locationsClientApi.patchLocationEVSEStatus(
             body.ourCountryCode,
             body.ourPartyId,
             partner.countryCode,
@@ -406,18 +421,34 @@ export class LocationsService {
             partner.partnerProfileOCPI!,
             body.locationId,
             EvseStatus.REMOVED,
-            partner.awsSecretCertificateArn ?? undefined, // nouveau param à ajouter
+            // If the partner has an AWS secret certificate ARN, pass it to the LocationsClientApi for signing the request
+            // for exemple for Gireve as they require ssl client certificate authentication for their OCPI endpoints
+            partner.awsSecretCertificateArn ?? undefined,
           );
-          patchSucceeded++;
+          const failed = results.filter((r) => !r.ok);
+          evsesSucceeded += results.length - failed.length;
+          evsesFailed += failed.length;
+          for (const f of failed) {
+            this.logger.error(
+              `Failed to PATCH EVSE ${f.evseUid} status to partner ${partnerKey} for location ${body.locationId}: ${'error' in f ? f.error : ''}`,
+            );
+          }
+          if (failed.length > 0) {
+            failures.push({
+              partner: partnerKey,
+              failedEvseUids: failed.map((f) => f.evseUid),
+            });
+          }
         } catch (e) {
+          // Thrown before any PATCH was sent (location lookup failed)
           this.logger.error(
-            `Failed to PATCH EVSE status to partner ${partner.countryCode}/${partner.partyId} for location ${body.locationId}: ${(e as Error).message}`,
+            `Failed to prepare EVSE PATCHes for partner ${partnerKey} for location ${body.locationId}: ${(e as Error).message}`,
           );
-          patchFailed++;
+          failures.push({ partner: partnerKey, failedEvseUids: null });
         }
       }
 
-      return { status: 'ok', patchSucceeded, patchFailed };
+      return { status: 'ok', evsesSucceeded, evsesFailed, failures };
     } catch (e) {
       this.logger.error(
         `Failed to delete location from OCPI system: ${(e as Error).message}`,

@@ -757,3 +757,14 @@ export const MARK_EVSE_REMOVED_QUERY = gql`
     }
   }
 `;
+
+export const MARK_EVSES_REMOVED_MUTATION = gql`
+  mutation MarkEvsesRemoved($evseIds: [Int!]!) {
+    update_Evses(
+      where: { id: { _in: $evseIds } }
+      _set: { ocpiStatus: "REMOVED" }
+    ) {
+      affected_rows
+    }
+  }
+`;
