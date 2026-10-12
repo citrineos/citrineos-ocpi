@@ -421,8 +421,6 @@ export class LocationsService {
             partner.partnerProfileOCPI!,
             body.locationId,
             EvseStatus.REMOVED,
-            // If the partner has an AWS secret certificate ARN, pass it to the LocationsClientApi for signing the request
-            // for exemple for Gireve as they require ssl client certificate authentication for their OCPI endpoints
             partner.awsSecretCertificateArn ?? undefined,
           );
           const failed = results.filter((r) => !r.ok);

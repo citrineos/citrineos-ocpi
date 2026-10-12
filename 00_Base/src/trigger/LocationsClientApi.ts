@@ -156,6 +156,8 @@ export class LocationsClientApi extends BaseClientApi {
     partnerProfile: PartnerProfile,
     locationId: string,
     status: EvseStatus,
+    // If the partner has an AWS secret certificate ARN, pass it to the LocationsClientApi for signing the request
+    // for exemple for Gireve as they require ssl client certificate authentication for their OCPI endpoints
     awsSecretCertificateArn?: string | null,
   ): Promise<EvsePatchResult[]> {
     const lookup = await this.ocpiGraphqlClient.request<
