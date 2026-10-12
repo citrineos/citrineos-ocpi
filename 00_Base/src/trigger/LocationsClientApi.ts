@@ -159,7 +159,6 @@ export class LocationsClientApi extends BaseClientApi {
       GetOurLocationByIdQueryVariables
     >(GET_OUR_LOCATION_BY_ID_QUERY, { id: Number(locationId) });
 
-    console.log('lookup : ', lookup);
     const evseUids =
       lookup.Locations?.[0]?.chargingPool?.flatMap((station) =>
         station.evses

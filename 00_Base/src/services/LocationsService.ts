@@ -18,7 +18,7 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
 } from '../model/PaginatedResponse.js';
-import { ModuleId, Role, shouldBroadcastToPartner } from '../index.js';
+import { ModuleId, shouldBroadcastToPartner } from '../index.js';
 
 import {
   buildOcpiResponse,
