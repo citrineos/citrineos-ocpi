@@ -16,7 +16,7 @@ import { LocationResponseSchema } from '../model/DTO/LocationDTO.js';
 import type { OcpiEmptyResponse } from '../model/OcpiEmptyResponse.js';
 import { OcpiEmptyResponseSchema } from '../model/OcpiEmptyResponse.js';
 import type { EvseDTO, EvseResponse } from '../model/DTO/EvseDTO.js';
-import { EvseResponseSchema } from '../model/DTO/EvseDTO.js';
+import { EvseResponseSchema, UID_FORMAT } from '../model/DTO/EvseDTO.js';
 import { Service } from 'typedi';
 import { ModuleId } from '../model/ModuleId.js';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
@@ -25,6 +25,14 @@ import {
   HttpMethod,
   type PartnerProfile,
 } from '@zetra/citrineos-base';
+import { EvseStatus } from '../model/EvseStatus.js';
+import type {
+  GetLocationByOcpiIdQueryResult,
+  GetLocationByOcpiIdQueryVariables,
+  GetOurLocationByIdQueryResult,
+  GetOurLocationByIdQueryVariables,
+} from '../graphql/index.js';
+import { GET_LOCATION_BY_OCPID_ID_QUERY, GET_OUR_LOCATION_BY_ID_QUERY } from '../graphql/index.js';
 
 @Service()
 export class LocationsClientApi extends BaseClientApi {
@@ -137,6 +145,50 @@ export class LocationsClientApi extends BaseClientApi {
       requestBody,
     );
   }
+
+  async patchLocationEVSEStatus(
+  fromCountryCode: string,
+  fromPartyId: string,
+  toCountryCode: string,
+  toPartyId: string,
+  partnerProfile: PartnerProfile,
+  locationId: string,
+  status: EvseStatus,
+): Promise<OcpiEmptyResponse[]> {
+  const lookup = await this.ocpiGraphqlClient.request<
+    GetOurLocationByIdQueryResult, 
+    GetOurLocationByIdQueryVariables
+  >(GET_OUR_LOCATION_BY_ID_QUERY, { id: Number(locationId) });
+
+  console.log('lookup : ', lookup);
+  const evseUids =
+    lookup.Locations?.[0]?.chargingPool?.flatMap((station) =>
+      station.evses
+        .filter((evse) => evse.id)
+        .map((evse) => UID_FORMAT(station.id, evse.evseTypeId!)),
+    ) ?? [];
+
+  this.logger.info(`Patching EVSE status for location ${locationId} with ${evseUids.length} EVSEs to status ${status}`,
+  );
+  console.log('evseUids : ', evseUids);
+
+  const last_updated = new Date();
+
+  return Promise.all(
+    evseUids.map((evseUid) =>
+      this.patchEvse(
+        fromCountryCode,
+        fromPartyId,
+        toCountryCode,
+        toPartyId,
+        partnerProfile,
+        locationId,
+        evseUid,
+        { status, last_updated },
+      ),
+    ),
+  );
+}
 
   async patchEvse(
     fromCountryCode: string,

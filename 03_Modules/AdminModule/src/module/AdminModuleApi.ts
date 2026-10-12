@@ -21,12 +21,17 @@ import {
   Paginated,
   PaginatedParams,
   SessionsService,
-  TariffsService,
   type GetAllTenantPartnersQueryResult,
   type GetAllTenantPartnersQueryVariables,
   type GetTenantPartnerByIdQueryResult,
   type GetTenantPartnerByIdQueryVariables,
+  DeleteLocationBodySchema,
+  DeleteLocationBodySchemaName,
+  TariffsService,
+  LocationsService,
   type OnboardRoamingPartnerBody,
+  type DeleteLocationBody,
+  type DeleteLocationSummary,
 } from '@citrineos/ocpi-base';
 import { Get, JsonController, Param, Post } from 'routing-controllers';
 import { Service } from 'typedi';
@@ -43,6 +48,7 @@ export class AdminModuleApi extends BaseController {
     readonly sessionsService: SessionsService,
     readonly cdrsService: CdrsService,
     readonly ocpiGraphqlClient: OcpiGraphqlClient,
+    readonly locationsService: LocationsService,
   ) {
     super();
   }
@@ -269,5 +275,24 @@ export class AdminModuleApi extends BaseController {
       return { status: 'failed To create roaming partner' };
     }
     return { status: 'roaming partner created' };
+  }
+
+  /**
+   * Deletes a location from the OCPI system this does not delete the location from the CPO system.
+   * it change disableOCPI field to true in the location table.
+   * and send PUT with EVSE status to REMOVED
+   * @param body The request body containing location details.
+   * @returns A promise resolving to the deletion status.
+   */
+  @Post('/disable-location-ocpi')
+  @AsAdminEndpoint()
+  async deleteLocationOCPI(
+    @BodyWithSchema(
+      DeleteLocationBodySchema,
+      DeleteLocationBodySchemaName,
+    )
+    body: DeleteLocationBody,
+  ): Promise<{ status: string } & DeleteLocationSummary> {
+    return await this.locationsService.deleteLocationOCPI(body);
   }
 }

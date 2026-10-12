@@ -2707,6 +2707,27 @@ export type DeleteTenantPartnerByIdMutationResult = {
   } | null
 };
 
+export type GetTenantAndPartnersQueryVariables = Exact<{
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+}>;
+
+
+export type GetTenantAndPartnersQueryResult = {
+  Tenants: Array<{
+    id: number,
+    countryCode?: string | null,
+    partyId?: string | null,
+    serverProfileOCPI?: any | null,
+    tenantPartners: Array<{
+      id: number,
+      countryCode: string,
+      partyId: string,
+      partnerProfileOCPI?: any | null
+    }>
+  }>
+};
+
 export type GetTenantPartnerByServerTokenQueryVariables = Exact<{
   serverToken: Scalars['String']['input'];
 }>;
