@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import Koa from 'koa';
 import { createServer, type Server } from 'http';
 import type { AddressInfo } from 'net';
-import { isApiDocsExposed } from '../apiDocs.js';
+import { apiDocsAuthExemptRoutes, isApiDocsExposed } from '../apiDocs.js';
 import { KoaServer } from '../KoaServer.js';
 
 // The real spec helpers import the ESM-only @zetra/citrineos-base, which this jest setup cannot load.
@@ -54,6 +54,20 @@ describe('isApiDocsExposed', () => {
 
   it('exposes docs outside Kubernetes', () => {
     expect(isApiDocsExposed({}, () => undefined)).toBe(true);
+  });
+});
+
+describe('apiDocsAuthExemptRoutes', () => {
+  it('exempts no route from auth when docs are hidden', () => {
+    expect(apiDocsAuthExemptRoutes(false)).toEqual([]);
+  });
+
+  it('exempts the docs routes when docs are exposed', () => {
+    expect(apiDocsAuthExemptRoutes(true)).toEqual([
+      '/docs',
+      '/docs/spec',
+      '/favicon.png',
+    ]);
   });
 });
 
