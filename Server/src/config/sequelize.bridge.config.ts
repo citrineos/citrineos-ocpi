@@ -22,12 +22,12 @@ export default (async () => {
 
     const { host, port, database, username, password } = ocpiConfig.database;
 
+    // Never log the password: container stdout is shipped to the log store.
     console.log('[sequelize.bridge.config.ts] Loaded config for DB:', {
       host,
       port,
       database,
       username,
-      password,
     });
 
     return {
