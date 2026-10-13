@@ -15,6 +15,7 @@ import { routingControllersToSpec } from '../openapi-spec-helper/index.js';
 import { getAllSchemas } from '../openapi-spec-helper/schemas.js';
 import { koaSwagger } from 'koa2-swagger-ui';
 import { Server } from 'http';
+import { isApiDocsExposed } from './apiDocs.js';
 
 export class KoaServer {
   koa!: Koa;
@@ -50,7 +51,11 @@ export class KoaServer {
     this.initLogger();
   }
 
-  protected initKoaSwagger(info: InfoObject, servers: ServerObject[] = []) {
+  protected initKoaSwagger(
+    info: InfoObject,
+    servers: ServerObject[] = [],
+    exposeDocs: boolean = isApiDocsExposed(),
+  ) {
     this.storage = getMetadataArgsStorage();
     this.spec = routingControllersToSpec(
       this.storage,
@@ -76,6 +81,11 @@ export class KoaServer {
       },
       schemas: getAllSchemas(),
     };
+    // enexflow: koaSwagger serves /docs, /docs/spec and any path ending in /docs; this.spec stays built.
+    if (!exposeDocs) {
+      console.log('API docs are not served in this environment');
+      return;
+    }
     this.app.use(
       koaSwagger({
         routePrefix: '/docs',

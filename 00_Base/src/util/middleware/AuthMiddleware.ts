@@ -26,8 +26,9 @@ import {
 } from '../../graphql/index.js';
 import { getRoamingPartner } from '../helpers.js';
 import type { TenantPartnerDto } from '@zetra/citrineos-base';
+import { apiDocsAuthExemptRoutes } from '../apiDocs.js';
 
-const permittedRoutes: string[] = ['/docs', '/docs/spec', '/favicon.png'];
+const permittedRoutes: string[] = apiDocsAuthExemptRoutes();
 const registrationModules: string[] = ['versions', 'credentials'];
 
 /**
