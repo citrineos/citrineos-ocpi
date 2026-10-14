@@ -47,10 +47,10 @@ export type Scalars = {
   json: { input: any; output: any; }
   jsonb: { input: any; output: any; }
   numeric: { input: any; output: any; }
+  date: { input: string; output: string; }
   timestamptz: { input: any; output: any; }
   citext: { input: string; output: string; }
   authorization_status: { input: string; output: string; }
-  date: { input: string; output: string; }
   uuid: { input: string; output: string; }
 };
 export type Authorizations_Set_Input = {
@@ -65,15 +65,13 @@ export type Authorizations_Set_Input = {
 };
 export type Locations_Bool_Exp = {
   id?: InputMaybe<Int_Comparison_Exp>;
-  _and?: InputMaybe<Array<Locations_Bool_Exp>>;
-  _or?: InputMaybe<Array<Locations_Bool_Exp>>;
-  _not?: InputMaybe<Locations_Bool_Exp>;
   ownerTenantPartnerId?: InputMaybe<Int_Comparison_Exp>;
   roamingPartnerId?: InputMaybe<Int_Comparison_Exp>;
   deletedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   disableOCPI?: InputMaybe<Boolean_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
+  _or?: InputMaybe<Array<Locations_Bool_Exp>>;
 };
 export type Boolean_Comparison_Exp = {
   _eq?: InputMaybe<Scalars['Boolean']['input']>;

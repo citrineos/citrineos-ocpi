@@ -243,6 +243,16 @@ export {
   OnboardRoamingPartnerBodySchema,
   OnboardRoamingPartnerBodySchemaName,
 } from './model/DTO/OnboardRoamingPartnerBody.js';
+export {
+  DeleteLocationBodySchema,
+  DeleteLocationBodySchemaName,
+} from './model/DTO/DeleteLocationBody.js';
+export type { DeleteLocationBody } from './model/DTO/DeleteLocationBody.js';
+export type {
+  DeleteLocationPartnerFailure,
+  DeleteLocationSummary,
+} from './model/DTO/DeleteLocationBody.js';
+export { DeleteLocationSummarySchema } from './model/DTO/DeleteLocationBody.js';
 export type { PushPartnerModulesBody } from './model/DTO/PushPartnerModulesBody.js';
 export {
   PushPartnerModulesBodySchema,
