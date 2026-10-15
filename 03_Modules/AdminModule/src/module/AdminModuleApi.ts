@@ -445,7 +445,7 @@ export class AdminModuleApi extends BaseController {
   ): Promise<{ status: string } & DeleteLocationSummary> {
     return await this.locationsService.deleteLocationOCPI(body);
   }
-  
+
   /**
    * Creates the Pennylane customer of a direct (peer-to-peer) EMSP partner.
    * The TenantPartner is never created here: it comes from the credentials
