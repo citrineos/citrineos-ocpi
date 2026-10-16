@@ -122,6 +122,8 @@ export type Cdrs_Bool_Exp = {
   updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   lastUpdated?: InputMaybe<Timestamptz_Comparison_Exp>;
   Tenant?: InputMaybe<Tenants_Bool_Exp>;
+  FromTenantPartner?: InputMaybe<TenantPartners_Bool_Exp>;
+  ToTenantPartner?: InputMaybe<TenantPartners_Bool_Exp>;
 };
 export type AuthorizationTenants_Bool_Exp = {
   tenant?: InputMaybe<Tenants_Bool_Exp>;
@@ -1835,12 +1837,42 @@ export type CreateRoamingPartnerMutationVariables = Exact<{
   name: Scalars['String']['input'];
   signatureDate: Scalars['date']['input'];
   contractStartDate: Scalars['date']['input'];
+  roles: Scalars['jsonb']['input'];
 }>;
 
 
 export type CreateRoamingPartnerMutationResult = {
   insert_RoamingPartners_one?: {
     id: number
+  } | null
+};
+
+export type GetRoamingPartnerByIdentityQueryVariables = Exact<{
+  tenantPartnerId: Scalars['Int']['input'];
+  countryCode: Scalars['String']['input'];
+  partyId: Scalars['String']['input'];
+}>;
+
+
+export type GetRoamingPartnerByIdentityQueryResult = {
+  RoamingPartners: Array<{
+    id: number,
+    name?: string | null,
+    signatureDate?: any | null,
+    contractStartDate?: any | null,
+    roles: any
+  }>
+};
+
+export type AddRoamingPartnerRoleMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+  role: Scalars['jsonb']['input'];
+}>;
+
+
+export type AddRoamingPartnerRoleMutationResult = {
+  append?: {
+    affected_rows: number
   } | null
 };
 
@@ -2758,7 +2790,7 @@ export type GetTenantPartnerIdByCountryPartyQueryResult = {
   }>
 };
 
-export type GetAllTenantPartnersQueryVariables = Exact<{ [key: string]: never }>;
+export type GetAllTenantPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetAllTenantPartnersQueryResult = {
@@ -3169,6 +3201,10 @@ export type GetTransactionsQueryResult = {
     locationId?: number | null,
     authorizationId?: number | null,
     tariffId?: number | null,
+    tenant: {
+      countryCode?: string | null,
+      partyId?: string | null
+    },
     transactionEvents: Array<{
       id: number,
       eventType?: string | null,

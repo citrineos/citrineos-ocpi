@@ -238,10 +238,19 @@ export {
   PushPartnerSessionInfoBodySchema,
   PushPartnerSessionInfoBodySchemaName,
 } from './model/DTO/PushPartnerSessionInfo.js';
-export type { OnboardRoamingPartnerBody } from './model/DTO/OnboardRoamingPartnerBody.js';
+export type {
+  OnboardRoamingPartnerBody,
+  OnboardRoamingPartnerEmspBody,
+  OnboardTenantPartnerEmspBody,
+  PennylaneBilling,
+} from './model/DTO/OnboardRoamingPartnerBody.js';
 export {
   OnboardRoamingPartnerBodySchema,
   OnboardRoamingPartnerBodySchemaName,
+  OnboardRoamingPartnerEmspBodySchema,
+  OnboardRoamingPartnerEmspBodySchemaName,
+  OnboardTenantPartnerEmspBodySchema,
+  OnboardTenantPartnerEmspBodySchemaName,
 } from './model/DTO/OnboardRoamingPartnerBody.js';
 export {
   DeleteLocationBodySchema,
@@ -348,6 +357,19 @@ export { LocationsPullService } from './services/LocationsPullService.js';
 export { VersionService } from './services/VersionService.js';
 export { SessionsService } from './services/SessionsService.js';
 export { RoamingPartnerService } from './services/RoamingPartnerService.js';
+export type {
+  RoamingPartnerRole,
+  UpsertRoamingPartnerResult,
+} from './services/RoamingPartnerService.js';
+export {
+  PennylaneService,
+  PENNYLANE_PARTNER_ALREADY_LINKED,
+} from './services/PennylaneService.js';
+export type {
+  PennylaneCompanyCustomerRequest,
+  PennylaneCompanyCustomerResponse,
+  PennylaneCompanyCustomerResult,
+} from './services/PennylaneService.js';
 // export { AdminLocationsService } from './services/AdminLocationsService.js';
 
 // Export AsyncJob types

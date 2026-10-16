@@ -2,19 +2,38 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Service } from 'typedi';
-import { OcpiLogger } from '../index.js';
-import { OcpiGraphqlClient } from '../index.js';
+import { OcpiLogger } from '../util/OcpiLogger.js';
+import { OcpiGraphqlClient } from '../graphql/OcpiGraphqlClient.js';
 
 import type {
   GetTenantPartnerByCpoClientAndModuleIdQueryVariables,
   GetTenantPartnerByCpoClientAndModuleIdQueryResult,
+  GetRoamingPartnerByIdentityQueryVariables,
+  GetRoamingPartnerByIdentityQueryResult,
+  AddRoamingPartnerRoleMutationVariables,
+  AddRoamingPartnerRoleMutationResult,
   OnboardRoamingPartnerBody,
   CreateRoamingPartnerMutationVariables,
   CreateRoamingPartnerMutationResult,
 } from '../index.js';
 import { GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY } from '../graphql/queries/tenantPartner.queries.js';
-import type { TenantDto } from '@zetra/citrineos-base/dist/interfaces/dto/tenant.dto.js';
-import { CREATE_ROAMING_PARTNER } from '../graphql/queries/roamingPartner.queries.js';
+import {
+  CREATE_ROAMING_PARTNER,
+  GET_ROAMING_PARTNER_BY_IDENTITY,
+  ADD_ROAMING_PARTNER_ROLE,
+} from '../graphql/queries/roamingPartner.queries.js';
+import { NotFoundException } from '../exception/NotFoundException.js';
+import { InvalidParamException } from '../exception/InvalidParamException.js';
+import { OnboardRoamingPartnerBodySchema } from '../model/DTO/OnboardRoamingPartnerBody.js';
+
+export type RoamingPartnerRole = 'CPO' | 'EMSP';
+
+export type UpsertRoamingPartnerResult = {
+  id: number;
+  // The hub's TenantPartner the roaming partner sits behind.
+  tenantPartnerId: number;
+  outcome: 'created' | 'role_added' | 'unchanged';
+};
 
 @Service()
 export class RoamingPartnerService {
@@ -23,9 +42,25 @@ export class RoamingPartnerService {
     private readonly ocpiGraphqlClient: OcpiGraphqlClient,
   ) {}
 
-  async createRoamingPartner(
-    body: OnboardRoamingPartnerBody,
-  ): Promise<number | undefined> {
+  /**
+   * Idempotent create: inserts the roaming partner with `role`, or adds `role`
+   * to an existing row. Rejects if the row exists with a different name or
+   * contract dates, so a role add never overwrites contract data.
+   */
+  async upsertRoamingPartner(
+    rawBody: OnboardRoamingPartnerBody,
+    role: RoamingPartnerRole,
+  ): Promise<UpsertRoamingPartnerResult> {
+    // BodyWithSchema only feeds the OpenAPI spec, it does not validate requests.
+    const parsed = OnboardRoamingPartnerBodySchema.safeParse(rawBody);
+    if (!parsed.success) {
+      throw new InvalidParamException(
+        parsed.error.issues
+          .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+          .join('; '),
+      );
+    }
+    const body = parsed.data;
     const {
       ourCountryCode,
       ourPartyId,
@@ -37,43 +72,79 @@ export class RoamingPartnerService {
       roamingPartnerSignatureDate,
       roamingPartnerContractStartDate,
     } = body;
-    const tenantPartner = await this.ocpiGraphqlClient.request<
+
+    const tenantPartnerResult = await this.ocpiGraphqlClient.request<
       GetTenantPartnerByCpoClientAndModuleIdQueryResult,
       GetTenantPartnerByCpoClientAndModuleIdQueryVariables
     >(GET_TENANT_PARTNER_BY_OUR_AND_PARTNER_IDENTITY, {
-      ourCountryCode: ourCountryCode,
-      ourPartyId: ourPartyId,
-      partnerCountryCode: partnerCountryCode,
-      partnerPartyId: partnerPartyId,
+      ourCountryCode,
+      ourPartyId,
+      partnerCountryCode,
+      partnerPartyId,
     });
-
-    const tenant = tenantPartner.TenantPartners[0].tenant as TenantDto;
-
-    console.log(tenantPartner.TenantPartners[0]);
-    if (!tenantPartner.TenantPartners[0]) {
-      throw new Error('Tenant partner not found');
+    const tenantPartner = tenantPartnerResult.TenantPartners[0];
+    if (!tenantPartner) {
+      throw new NotFoundException('Tenant partner not found');
     }
 
-    try {
-      const roamingPartner = await this.ocpiGraphqlClient.request<
+    const existingResult = await this.ocpiGraphqlClient.request<
+      GetRoamingPartnerByIdentityQueryResult,
+      GetRoamingPartnerByIdentityQueryVariables
+    >(GET_ROAMING_PARTNER_BY_IDENTITY, {
+      tenantPartnerId: tenantPartner.id,
+      countryCode: roamingPartnerCountryCode,
+      partyId: roamingPartnerPartyId,
+    });
+    const existing = existingResult.RoamingPartners[0];
+
+    if (!existing) {
+      const created = await this.ocpiGraphqlClient.request<
         CreateRoamingPartnerMutationResult,
         CreateRoamingPartnerMutationVariables
       >(CREATE_ROAMING_PARTNER, {
         countryCode: roamingPartnerCountryCode,
         partyId: roamingPartnerPartyId,
-        tenantPartnerId: tenantPartner.TenantPartners[0].id,
+        tenantPartnerId: tenantPartner.id,
         name: roamingPartnerName,
         signatureDate: roamingPartnerSignatureDate,
         contractStartDate: roamingPartnerContractStartDate,
+        roles: [role],
       });
-      if (!roamingPartner) {
+      const id = created.insert_RoamingPartners_one?.id;
+      if (!id) {
+        this.logger.error('Roaming partner insert returned no id');
         throw new Error('Failed to create roaming partner');
       }
-      console.log(roamingPartner);
-      return roamingPartner.insert_RoamingPartners_one?.id;
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to create roaming partner');
+      return { id, tenantPartnerId: tenantPartner.id, outcome: 'created' };
     }
+
+    const sameDetails =
+      existing.name === roamingPartnerName &&
+      existing.signatureDate === roamingPartnerSignatureDate &&
+      existing.contractStartDate === roamingPartnerContractStartDate;
+    if (!sameDetails) {
+      throw new InvalidParamException(
+        `Roaming partner ${roamingPartnerCountryCode}-${roamingPartnerPartyId} already exists with different name or contract dates`,
+      );
+    }
+
+    const roles: RoamingPartnerRole[] = existing.roles ?? [];
+    if (roles.includes(role)) {
+      return {
+        id: existing.id,
+        tenantPartnerId: tenantPartner.id,
+        outcome: 'unchanged',
+      };
+    }
+
+    const added = await this.ocpiGraphqlClient.request<
+      AddRoamingPartnerRoleMutationResult,
+      AddRoamingPartnerRoleMutationVariables
+    >(ADD_ROAMING_PARTNER_ROLE, { id: existing.id, role });
+    return {
+      id: existing.id,
+      tenantPartnerId: tenantPartner.id,
+      outcome: added.append?.affected_rows ? 'role_added' : 'unchanged',
+    };
   }
 }
