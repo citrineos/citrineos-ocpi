@@ -17,6 +17,9 @@ module.exports = {
     '/dist/',
   ],
   moduleNameMapper: {
+    // packageVersion uses import.meta, which ts-jest's CJS transform rejects.
+    '^(\\.{1,2}/)+packageVersion(\\.js)?$':
+      '<rootDir>/00_Base/src/__mocks__/packageVersion.ts',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transformIgnorePatterns: ['node_modules/(?!(@citrineos|@zetra)/)'],

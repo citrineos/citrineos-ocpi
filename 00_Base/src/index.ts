@@ -15,8 +15,6 @@ import { Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper.js';
 // import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import type { OcpiConfig } from './config/ocpi.types.js';
 import { AjvToken, OcpiConfigToken } from './config/ocpi.types.js';
 import type { IDtoModule } from './events/index.js';
@@ -24,15 +22,7 @@ import { OcpiGraphqlClient } from './graphql/index.js';
 import { HealthController } from './util/KoaServerHealthController.js';
 import { Ajv } from 'ajv';
 import addFormats from 'ajv-formats';
-
-// `import.meta.url` is used indirectly (via eval) because ts-jest forces `module: commonjs`
-// for tests, which rejects `import.meta` at compile time even though the real ESM build needs it.
-const packageJson = JSON.parse(
-  readFileSync(
-    fileURLToPath(new URL('../../package.json', (0, eval)('import.meta.url'))),
-    'utf-8',
-  ),
-);
+import { packageVersion } from './packageVersion.js';
 
 export * from './broadcaster/index.js';
 export * from './mapper/index.js';
@@ -569,7 +559,7 @@ export class OcpiServer extends KoaServer {
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
-          version: packageJson.version,
+          version: packageVersion,
         },
         [
           {

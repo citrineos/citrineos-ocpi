@@ -25,9 +25,7 @@ import { Container } from 'typedi';
 // } from '../index.js';
 
 // Deep imports, NOT '../index.js'. The root barrel is a server bootstrap file: it
-// constructs KoaServer/Koa/Ajv at module scope and reads package.json through an
-// `(0, eval)('import.meta.url')` hack that only parses under ts-jest's CJS transform.
-// Importing it from a test is not viable, and reaching it from a leaf service also
+// constructs KoaServer/Koa/Ajv at module scope. Importing it from a test is not viable, and reaching it from a leaf service also
 // trips the broadcaster cycle (SessionsClientApi extends an unbound BaseClientApi).
 import { logDbBroadcast } from './logging.js';
 import { ModuleId } from '../model/ModuleId.js';
