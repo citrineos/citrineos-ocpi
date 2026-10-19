@@ -1,0 +1,5 @@
+{
+  "core": "ghcr.io/enexflow/citrineos-server:latest",
+  "hasura": "ghcr.io/enexflow/citrineos-hasura:latest",
+  "postgres": "postgis/postgis:16-3.5"
+}

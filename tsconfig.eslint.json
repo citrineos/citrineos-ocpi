@@ -42,9 +42,13 @@
     "seeders/**/*.json",
     "migrations/**/*.ts",
     "migrations/**/*.json",
+    "Tests/**/*.ts",
+    "Tests/**/*.mjs",
+    "Tests/**/*.json",
     "./db.sync.ts",
     "./jest.config.js",
-    "./codegen.ts"
+    "./codegen.ts",
+    "./vitest.config.ts"
   ],
   "compilerOptions": {
     "module": "NodeNext",

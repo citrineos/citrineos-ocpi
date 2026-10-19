@@ -8,6 +8,7 @@ jest.mock('../../mapper/index', () => ({
 }));
 
 import { TokensService } from '../TokensService';
+import type { TenantDto } from '@zetra/citrineos-base';
 import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
 import { OcpiLogger } from '../../util/OcpiLogger';
 import { TokensClientApi } from '../../trigger/TokensClientApi';
@@ -288,10 +289,14 @@ describe('TokensService', () => {
       paginatedParams.limit = 10;
       paginatedParams.offset = 0;
 
-      const result = await service.getTokensPaginated(
-        ocpiHeaders,
-        paginatedParams,
-      );
+      const tenant: TenantDto = {
+        name: 'test-tenant',
+        isUserTenant: false,
+        countryCode: 'FR',
+        partyId: 'ZTA',
+      };
+
+      const result = await service.getTokensPaginated(tenant, paginatedParams);
 
       expect(result.data).toHaveLength(1);
       expect(result.count).toBe(1);
@@ -304,9 +309,11 @@ describe('TokensService', () => {
           limit: 10,
           offset: 0,
           where: expect.objectContaining({
-            Tenant: {
-              countryCode: { _eq: 'FR' },
-              partyId: { _eq: 'ZTA' },
+            tenants: {
+              tenant: {
+                countryCode: { _eq: 'FR' },
+                partyId: { _eq: 'ZTA' },
+              },
             },
             tenantPartnerId: { _is_null: true },
           }),
@@ -319,7 +326,12 @@ describe('TokensService', () => {
         Authorizations: [],
       });
 
-      const ocpiHeaders = new OcpiHeaders('DE', 'ABC', 'FR', 'ZTA');
+      const tenant: TenantDto = {
+        name: 'test-tenant',
+        isUserTenant: false,
+        countryCode: 'FR',
+        partyId: 'ZTA',
+      };
       const dateFrom = new Date('2024-01-01');
       const dateTo = new Date('2024-12-31');
 
@@ -329,15 +341,17 @@ describe('TokensService', () => {
       paginatedParams.dateFrom = dateFrom;
       paginatedParams.dateTo = dateTo;
 
-      await service.getTokensPaginated(ocpiHeaders, paginatedParams);
+      await service.getTokensPaginated(tenant, paginatedParams);
 
       expect(mockGraphqlClient.request).toHaveBeenCalledWith(
         GET_AUTHORIZATIONS_PAGINATED,
         expect.objectContaining({
           where: expect.objectContaining({
-            Tenant: {
-              countryCode: { _eq: 'FR' },
-              partyId: { _eq: 'ZTA' },
+            tenants: {
+              tenant: {
+                countryCode: { _eq: 'FR' },
+                partyId: { _eq: 'ZTA' },
+              },
             },
             tenantPartnerId: { _is_null: true },
             updatedAt: {
@@ -354,9 +368,14 @@ describe('TokensService', () => {
         Authorizations: [],
       });
 
-      const ocpiHeaders = new OcpiHeaders('DE', 'ABC', 'FR', 'ZTA');
+      const tenant: TenantDto = {
+        name: 'test-tenant',
+        isUserTenant: false,
+        countryCode: 'FR',
+        partyId: 'ZTA',
+      };
 
-      const result = await service.getTokensPaginated(ocpiHeaders);
+      const result = await service.getTokensPaginated(tenant);
 
       expect(result.data).toHaveLength(0);
       expect(result.count).toBe(0);

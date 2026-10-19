@@ -6,52 +6,65 @@
  * Test our EMSP Endpoint for PUT/GET/DELETE tariffs. with a CPO partner.
  */
 
-import { afterEach, describe, expect, it } from "@jest/globals";
-import { RECEIVER_URL, SENDER_URL, http, ocpiCpoHeaders, graphqlQuery, ocpiHubHeaders } from "../../../../Tests/helpers/ocpi-client";
+import { afterEach, describe, expect, it } from '@jest/globals';
+import {
+  RECEIVER_URL,
+  SENDER_URL,
+  http,
+  ocpiCpoHeaders,
+  graphqlQuery,
+  ocpiHubHeaders,
+} from '../../../../Tests/helpers/ocpi-client';
 
-const CPO_COUNTRY = "FR";
-const CPO_PARTY = "CPO";
+const CPO_COUNTRY = 'FR';
+const CPO_PARTY = 'CPO';
 
 const TARIFF_STD = {
-  id: "tariff-std-001",
+  id: 'tariff-std-001',
   country_code: CPO_COUNTRY,
   party_id: CPO_PARTY,
-  currency: "EUR",
-  type: "REGULAR",
+  currency: 'EUR',
+  type: 'REGULAR',
   elements: [
     {
       price_components: [
-        { type: "ENERGY", price: 0.25, vat: 0.2, step_size: 1 },
-        { type: "FLAT", price: 1.5, vat: 0.2, step_size: 1 },
+        { type: 'ENERGY', price: 0.25, vat: 0.2, step_size: 1 },
+        { type: 'FLAT', price: 1.5, vat: 0.2, step_size: 1 },
       ],
     },
   ],
 };
 
-const TARIFF_UUID_ID = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
+const TARIFF_UUID_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 const TARIFF_UUID = {
   id: TARIFF_UUID_ID,
   country_code: CPO_COUNTRY,
   party_id: CPO_PARTY,
-  currency: "EUR",
+  currency: 'EUR',
   tariff_alt_text: [
-    { language: "fr", text: "Tarif heures creuses" },
-    { language: "en", text: "Off-peak tariff" },
+    { language: 'fr', text: 'Tarif heures creuses' },
+    { language: 'en', text: 'Off-peak tariff' },
   ],
-  elements: [{ price_components: [{ type: "ENERGY", price: 0.18, vat: 0.2, step_size: 1 }] }],
-};
-
-const TARIFF_NUMERIC = {
-  id: "42",
-  country_code: CPO_COUNTRY,
-  party_id: CPO_PARTY,
-  currency: "EUR",
-  type: "AD_HOC_PAYMENT",
   elements: [
     {
       price_components: [
-        { type: "ENERGY", price: 0.3, vat: 0.2, step_size: 1 },
-        { type: "TIME", price: 2.0, vat: 0.2, step_size: 60 },
+        { type: 'ENERGY', price: 0.18, vat: 0.2, step_size: 1 },
+      ],
+    },
+  ],
+};
+
+const TARIFF_NUMERIC = {
+  id: '42',
+  country_code: CPO_COUNTRY,
+  party_id: CPO_PARTY,
+  currency: 'EUR',
+  type: 'AD_HOC_PAYMENT',
+  elements: [
+    {
+      price_components: [
+        { type: 'ENERGY', price: 0.3, vat: 0.2, step_size: 1 },
+        { type: 'TIME', price: 2.0, vat: 0.2, step_size: 60 },
       ],
     },
   ],
@@ -60,9 +73,13 @@ const TARIFF_NUMERIC = {
 const ALL_TARIFFS = [TARIFF_STD, TARIFF_UUID, TARIFF_NUMERIC] as const;
 
 async function putTariff(tariff: (typeof ALL_TARIFFS)[number]) {
-  return http.put(`${RECEIVER_URL}/${CPO_COUNTRY}/${CPO_PARTY}/${tariff.id}`, tariff, {
-    headers: ocpiCpoHeaders(),
-  });
+  return http.put(
+    `${RECEIVER_URL}/${CPO_COUNTRY}/${CPO_PARTY}/${tariff.id}`,
+    tariff,
+    {
+      headers: ocpiCpoHeaders(),
+    },
+  );
 }
 
 async function getTariff(id: string) {
@@ -91,9 +108,9 @@ afterEach(async () => {
 });
 
 describe.each(ALL_TARIFFS.map((t) => [t.id, t] as const))(
-  "PUT + GET round trip: %s",
+  'PUT + GET round trip: %s',
   (_id, tariff) => {
-    it("creates the tariff and echoes matching data on GET", async () => {
+    it('creates the tariff and echoes matching data on GET', async () => {
       const putResp = await putTariff(tariff);
       expect(putResp.status).toBe(200);
       expect(putResp.data.status_code).toBe(1000); // OCPI success code
@@ -112,11 +129,15 @@ describe.each(ALL_TARIFFS.map((t) => [t.id, t] as const))(
       });
     });
 
-    it("maps and stores the tariff correctly in the DB (bypassing the API)", async () => {
+    it('maps and stores the tariff correctly in the DB (bypassing the API)', async () => {
       await putTariff(tariff);
 
       const result = await graphqlQuery<{
-        Tariffs: { ocpiTariffId: string; currency: string; TenantPartner: { countryCode: string; partyId: string } }[];
+        Tariffs: {
+          ocpiTariffId: string;
+          currency: string;
+          TenantPartner: { countryCode: string; partyId: string };
+        }[];
       }>(
         `query ($ocpiTariffId: String!) {
           Tariffs(where: { ocpiTariffId: { _eq: $ocpiTariffId } }) {
@@ -125,7 +146,7 @@ describe.each(ALL_TARIFFS.map((t) => [t.id, t] as const))(
             TenantPartner { countryCode partyId }
           }
         }`,
-        { ocpiTariffId: tariff.id }
+        { ocpiTariffId: tariff.id },
       );
 
       expect(result.Tariffs).toHaveLength(1);
@@ -134,23 +155,23 @@ describe.each(ALL_TARIFFS.map((t) => [t.id, t] as const))(
       expect(row.TenantPartner.countryCode).toBe(CPO_COUNTRY);
       expect(row.TenantPartner.partyId).toBe(CPO_PARTY);
     });
-  }
+  },
 );
 
-describe("error paths", () => {
-  it("returns 404 for a non-existent tariff", async () => {
-    const resp = await getTariff("non-existent-tariff-xyz");
+describe('error paths', () => {
+  it('returns 404 for a non-existent tariff', async () => {
+    const resp = await getTariff('non-existent-tariff-xyz');
     expect(resp.status).toBe(404);
   });
 
-  it("returns 404 when deleting a non-existent tariff", async () => {
-    const resp = await deleteTariff("non-existent-tariff-xyz");
+  it('returns 404 when deleting a non-existent tariff', async () => {
+    const resp = await deleteTariff('non-existent-tariff-xyz');
     expect(resp.status).toBe(404);
   });
 });
 
-describe("sender list + pagination", () => {
-  it("lists own tariffs and paginates distinctly across pages", async () => {
+describe('sender list + pagination', () => {
+  it('lists own tariffs and paginates distinctly across pages', async () => {
     const listResp = await http.get(SENDER_URL, { headers: ocpiCpoHeaders() });
     expect(listResp.status).toBe(200);
 
@@ -168,19 +189,19 @@ describe("sender list + pagination", () => {
   });
 });
 
-describe("update", () => {
-  it("adds a new price component on update and reflects it on GET", async () => {
+describe('update', () => {
+  it('adds a new price component on update and reflects it on GET', async () => {
     await putTariff(TARIFF_STD);
 
     const updated = {
       ...TARIFF_STD,
-      tariff_alt_text: [{ language: "fr", text: "Tarif standard mis a jour" }],
+      tariff_alt_text: [{ language: 'fr', text: 'Tarif standard mis a jour' }],
       elements: [
         {
           price_components: [
-            { type: "ENERGY", price: 0.28, vat: 0.2, step_size: 1 },
-            { type: "TIME", price: 2.4, vat: 0.2, step_size: 60 },
-            { type: "FLAT", price: 1.0, vat: 0.2, step_size: 1 },
+            { type: 'ENERGY', price: 0.28, vat: 0.2, step_size: 1 },
+            { type: 'TIME', price: 2.4, vat: 0.2, step_size: 60 },
+            { type: 'FLAT', price: 1.0, vat: 0.2, step_size: 1 },
           ],
         },
       ],
@@ -188,7 +209,7 @@ describe("update", () => {
     const putResp = await http.put(
       `${RECEIVER_URL}/${CPO_COUNTRY}/${CPO_PARTY}/${TARIFF_STD.id}`,
       updated,
-      { headers: ocpiCpoHeaders() }
+      { headers: ocpiCpoHeaders() },
     );
     expect(putResp.status).toBe(200);
 
@@ -196,7 +217,6 @@ describe("update", () => {
     expect(getResp.data.data.elements[0].price_components).toHaveLength(3);
   });
 });
-
 
 /**
  * Hub / roaming partner isolation tests.
@@ -218,10 +238,10 @@ describe("update", () => {
  * FR/107 TenantPartner (the hub), already exist in the DB — same prerequisite
  * as the bash script this test suite is based on.
  */
-describe("hub / roaming partner", () => {
-  const SHARED_ID = "TARIFF-SHARED-ID";
-  const CPO_A = { countryCode: "FR", partyId: "CPO" } as const;
-  const CPO_B = { countryCode: "FR", partyId: "BTU" } as const;
+describe('hub / roaming partner', () => {
+  const SHARED_ID = 'TARIFF-SHARED-ID';
+  const CPO_A = { countryCode: 'FR', partyId: 'CPO' } as const;
+  const CPO_B = { countryCode: 'FR', partyId: 'BTU' } as const;
 
   // Requests arrive via the hub (FR/107), so OCPI routing headers use 107 as
   // the sender and our own party (ZET) as the receiver. The country_code /
@@ -236,21 +256,33 @@ describe("hub / roaming partner", () => {
     return `${RECEIVER_URL}/${cpo.countryCode}/${cpo.partyId}/${id}`;
   }
 
-  async function putHubTariff(cpo: { countryCode: string; partyId: string }, body: unknown) {
-    return http.put(hubUrl(cpo, SHARED_ID), body, { headers: ocpiHubHeaders(cpo.partyId, cpo.countryCode) });
+  async function putHubTariff(
+    cpo: { countryCode: string; partyId: string },
+    body: unknown,
+  ) {
+    return http.put(hubUrl(cpo, SHARED_ID), body, {
+      headers: ocpiHubHeaders(cpo.partyId, cpo.countryCode),
+    });
   }
 
   async function getHubTariff(cpo: { countryCode: string; partyId: string }) {
-    console.log("getHubTariff", cpo.partyId, cpo.countryCode);
-    return http.get(hubUrl(cpo, SHARED_ID), { headers: ocpiHubHeaders(cpo.partyId, cpo.countryCode) });
+    console.log('getHubTariff', cpo.partyId, cpo.countryCode);
+    return http.get(hubUrl(cpo, SHARED_ID), {
+      headers: ocpiHubHeaders(cpo.partyId, cpo.countryCode),
+    });
   }
 
-  async function deleteHubTariff(cpo: { countryCode: string; partyId: string }) {
-    const resp = await http.delete(hubUrl(cpo, SHARED_ID), { headers: ocpiHubHeaders(cpo.partyId, cpo.countryCode) });
+  async function deleteHubTariff(cpo: {
+    countryCode: string;
+    partyId: string;
+  }) {
+    const resp = await http.delete(hubUrl(cpo, SHARED_ID), {
+      headers: ocpiHubHeaders(cpo.partyId, cpo.countryCode),
+    });
     if (resp.status !== 200 && resp.status !== 404) {
       console.warn(
         `cleanup DELETE hub ${cpo.countryCode}/${cpo.partyId}/${SHARED_ID}: ${resp.status}`,
-        resp.data
+        resp.data,
       );
     }
     return resp;
@@ -260,61 +292,66 @@ describe("hub / roaming partner", () => {
     id: SHARED_ID,
     country_code: CPO_A.countryCode,
     party_id: CPO_A.partyId,
-    currency: "EUR",
-    type: "REGULAR",
+    currency: 'EUR',
+    type: 'REGULAR',
     tariff_alt_text: [
-      { language: "fr", text: "Tarif CPO France - energie uniquement" },
-      { language: "en", text: "French CPO tariff - energy only" },
+      { language: 'fr', text: 'Tarif CPO France - energie uniquement' },
+      { language: 'en', text: 'French CPO tariff - energy only' },
     ],
     elements: [
       {
-        price_components: [{ type: "ENERGY", price: 0.25, vat: 20.0, step_size: 1 }],
+        price_components: [
+          { type: 'ENERGY', price: 0.25, vat: 20.0, step_size: 1 },
+        ],
       },
     ],
-    last_updated: "2026-01-01T00:00:00Z",
+    last_updated: '2026-01-01T00:00:00Z',
   };
 
   const tariffBCreate = {
     id: SHARED_ID,
     country_code: CPO_B.countryCode,
     party_id: CPO_B.partyId,
-    currency: "EUR",
-    type: "REGULAR",
+    currency: 'EUR',
+    type: 'REGULAR',
     tariff_alt_text: [
-      { language: "de", text: "Deutscher CPO Tarif - Zeit und Energie" },
-      { language: "en", text: "German CPO tariff - time and energy" },
+      { language: 'de', text: 'Deutscher CPO Tarif - Zeit und Energie' },
+      { language: 'en', text: 'German CPO tariff - time and energy' },
     ],
     elements: [
       {
         price_components: [
-          { type: "ENERGY", price: 0.3, vat: 19.0, step_size: 1 },
-          { type: "TIME", price: 2.0, vat: 19.0, step_size: 60 },
+          { type: 'ENERGY', price: 0.3, vat: 19.0, step_size: 1 },
+          { type: 'TIME', price: 2.0, vat: 19.0, step_size: 60 },
         ],
       },
     ],
-    last_updated: "2026-01-01T00:00:00Z",
+    last_updated: '2026-01-01T00:00:00Z',
   };
 
   const tariffAUpdate = {
     id: SHARED_ID,
     country_code: CPO_A.countryCode,
     party_id: CPO_A.partyId,
-    currency: "EUR",
-    type: "REGULAR",
+    currency: 'EUR',
+    type: 'REGULAR',
     tariff_alt_text: [
-      { language: "fr", text: "Tarif CPO France - mis a jour avec frais de depart" },
-      { language: "en", text: "French CPO tariff - updated with start fee" },
+      {
+        language: 'fr',
+        text: 'Tarif CPO France - mis a jour avec frais de depart',
+      },
+      { language: 'en', text: 'French CPO tariff - updated with start fee' },
     ],
     max_price: { excl_vat: 20.0, incl_vat: 24.0 },
     elements: [
       {
         price_components: [
-          { type: "FLAT", price: 1.0, vat: 20.0, step_size: 1 },
-          { type: "ENERGY", price: 0.28, vat: 20.0, step_size: 1 },
+          { type: 'FLAT', price: 1.0, vat: 20.0, step_size: 1 },
+          { type: 'ENERGY', price: 0.28, vat: 20.0, step_size: 1 },
         ],
       },
     ],
-    last_updated: "2026-06-01T00:00:00Z",
+    last_updated: '2026-06-01T00:00:00Z',
   };
 
   // Always clean up both roaming CPOs' shared-id tariff, even mid-failure.
@@ -323,7 +360,7 @@ describe("hub / roaming partner", () => {
     await deleteHubTariff(CPO_B);
   });
 
-  it("creates tariffs independently for two roaming CPOs sharing the same ocpiTariffId", async () => {
+  it('creates tariffs independently for two roaming CPOs sharing the same ocpiTariffId', async () => {
     const putA = await putHubTariff(CPO_A, tariffACreate);
     expect(putA.status).toBe(200);
 
@@ -332,15 +369,15 @@ describe("hub / roaming partner", () => {
 
     const getA = await getHubTariff(CPO_A);
     expect(getA.status).toBe(200);
-    expect(getA.data.data.country_code).toBe("FR");
-    expect(getA.data.data.party_id).toBe("CPO");
-    expect(getA.data.data.currency).toBe("EUR");
+    expect(getA.data.data.country_code).toBe('FR');
+    expect(getA.data.data.party_id).toBe('CPO');
+    expect(getA.data.data.currency).toBe('EUR');
     expect(getA.data.data.elements[0].price_components).toHaveLength(1); // ENERGY only
 
     const getB = await getHubTariff(CPO_B);
     expect(getB.status).toBe(200);
-    expect(getB.data.data.country_code).toBe("FR");
-    expect(getB.data.data.party_id).toBe("BTU");
+    expect(getB.data.data.country_code).toBe('FR');
+    expect(getB.data.data.party_id).toBe('BTU');
     expect(getB.data.data.elements[0].price_components).toHaveLength(2); // ENERGY + TIME
   });
 
@@ -356,7 +393,7 @@ describe("hub / roaming partner", () => {
     expect(getA.data.data.max_price.excl_vat).toBeCloseTo(20.0);
     expect(getA.data.data.max_price.incl_vat).toBeCloseTo(24.0);
     const aEnergy = getA.data.data.elements[0].price_components.find(
-      (c: { type: string }) => c.type === "ENERGY"
+      (c: { type: string }) => c.type === 'ENERGY',
     );
     expect(aEnergy.price).toBeCloseTo(0.28);
 
@@ -364,12 +401,12 @@ describe("hub / roaming partner", () => {
     const getB = await getHubTariff(CPO_B);
     expect(getB.data.data.elements[0].price_components).toHaveLength(2); // still ENERGY + TIME
     const bEnergy = getB.data.data.elements[0].price_components.find(
-      (c: { type: string }) => c.type === "ENERGY"
+      (c: { type: string }) => c.type === 'ENERGY',
     );
     expect(bEnergy.price).toBeCloseTo(0.3);
   });
 
-  it("replaces TariffElements on repeated PUTs instead of accumulating them", async () => {
+  it('replaces TariffElements on repeated PUTs instead of accumulating them', async () => {
     await putHubTariff(CPO_A, tariffACreate);
     await putHubTariff(CPO_A, tariffAUpdate);
 
@@ -394,28 +431,38 @@ describe("hub / roaming partner", () => {
 
     const getBStillThere = await getHubTariff(CPO_B);
     expect(getBStillThere.status).toBe(200);
-    expect(getBStillThere.data.data.party_id).toBe("BTU");
+    expect(getBStillThere.data.data.party_id).toBe('BTU');
   });
 
-  it("maps hub-forwarded tariffs to the correct RoamingPartner rows in the DB", async () => {
+  it('maps hub-forwarded tariffs to the correct RoamingPartner rows in the DB', async () => {
     await putHubTariff(CPO_A, tariffACreate);
     await putHubTariff(CPO_B, tariffBCreate);
 
     const result = await graphqlQuery<{
-      Tariffs: { ocpiTariffId: string; currency: string; TenantPartner: { countryCode: string; partyId: string } }[];
+      Tariffs: {
+        ocpiTariffId: string;
+        currency: string;
+        TenantPartner: { countryCode: string; partyId: string };
+        RoamingPartner: { countryCode: string; partyId: string };
+      }[];
     }>(
       `query ($ocpiTariffId: String!) {
         Tariffs(where: { ocpiTariffId: { _eq: $ocpiTariffId } }) {
           ocpiTariffId
           currency
           TenantPartner { countryCode partyId }
+          RoamingPartner { countryCode partyId }
         }
       }`,
-      { ocpiTariffId: SHARED_ID }
+      { ocpiTariffId: SHARED_ID },
     );
 
-    expect(result.Tariffs).toHaveLength(2);
-    const pairs = result.Tariffs.map((r) => `${r.TenantPartner.countryCode}/${r.TenantPartner.partyId}`);
-    expect(pairs).toEqual(expect.arrayContaining(["FR/CPO", "FR/BTU"]));
+    expect(result.Tariffs.every((t) => t.TenantPartner.partyId === '123')).toBe(
+      true,
+    );
+    const pairs = result.Tariffs.map(
+      (r) => `${r.RoamingPartner.countryCode}/${r.RoamingPartner.partyId}`,
+    );
+    expect(pairs).toEqual(expect.arrayContaining(['FR/CPO', 'FR/BTU']));
   });
 });

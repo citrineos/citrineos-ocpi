@@ -164,6 +164,14 @@ export class LocationReceiverService {
           partnerId: tenantPartnerId,
           roamingPartnerId,
         });
+        if (!response.Locations[0]) {
+          throw new NotFoundException(`Location ${locationId} not found`);
+        }
+        location = LocationMapper.fromGraphqlReceiver(
+          response.Locations[0],
+          tenantPartner,
+          roamingPartner ?? null,
+        );
       } else {
         const response = await this.ocpiGraphqlClient.request<
           GetLocationByOcpiIdAndPartnerIdQueryResult,
@@ -172,6 +180,9 @@ export class LocationReceiverService {
           id: locationId,
           partnerId: tenantPartnerId,
         });
+        if (!response.Locations[0]) {
+          throw new NotFoundException(`Location ${locationId} not found`);
+        }
         location = LocationMapper.fromGraphqlReceiver(
           response.Locations[0],
           tenantPartner,
@@ -211,11 +222,6 @@ export class LocationReceiverService {
           'Credentials not found for given token',
         );
       }
-      const variables = {
-        locationId: locationId,
-        partnerId: tenantPartner.id,
-        evseUid: evseUid,
-      };
       const roamingPartner = getRoamingPartner(
         tenantPartner,
         countryCode,
@@ -702,7 +708,6 @@ export class LocationReceiverService {
       throw new UnauthorizedException('Credentials not found for given token');
     }
 
-    const variables = { id: locationId, partnerId: tenantPartner.id };
     const roamingPartner = getRoamingPartner(
       tenantPartner,
       countryCode,
@@ -736,7 +741,6 @@ export class LocationReceiverService {
     }
 
     const locRow = response.Locations[0];
-    const ownerTenantPartner = locRow?.ownerTenantPartner;
 
     const location_id = locRow.id;
     const chargingPool = locRow.chargingPool ?? [];
@@ -1090,8 +1094,6 @@ export class LocationReceiverService {
       countryCode,
       partyId,
     );
-    const roamingPartnerId = roamingPartner?.id ?? null;
-    const tenantPartnerId = tenantPartner.id;
     const lookupResponse =
       roamingPartner?.id != null
         ? await this.ocpiGraphqlClient.request<
@@ -1215,8 +1217,6 @@ export class LocationReceiverService {
       countryCode,
       partyId,
     );
-    const roamingPartnerId = roamingPartner?.id ?? null;
-    const tenantPartnerId = tenantPartner.id;
     const lookupResponse =
       roamingPartner?.id != null
         ? await this.ocpiGraphqlClient.request<

@@ -6,14 +6,34 @@ import type { TenantPartnerDto } from '@zetra/citrineos-base';
 import { HttpMethod } from '@zetra/citrineos-base';
 import { Container } from 'typedi';
 
-import {
-  logDbBroadcast,
-  ModuleId,
-  OcpiConfigToken,
-  Role,
-  type OcpiConfig,
-  type TenantPartnersListQueryResult,
-} from '../index.js';
+// import {
+//   logDbBroadcast,
+//   ModuleId,
+//   OcpiConfigToken,
+//   Role,
+//   type OcpiConfig,
+//   type TenantPartnersListQueryResult,
+// } from '../index.js';
+
+// import {
+//   logDbBroadcast,
+//   ModuleId,
+//   OcpiConfigToken,
+//   Role,
+//   type OcpiConfig,
+//   type TenantPartnersListQueryResult,
+// } from '../index.js';
+
+// Deep imports, NOT '../index.js'. The root barrel is a server bootstrap file: it
+// constructs KoaServer/Koa/Ajv at module scope and reads package.json through an
+// `(0, eval)('import.meta.url')` hack that only parses under ts-jest's CJS transform.
+// Importing it from a test is not viable, and reaching it from a leaf service also
+// trips the broadcaster cycle (SessionsClientApi extends an unbound BaseClientApi).
+import { logDbBroadcast } from './logging.js';
+import { ModuleId } from '../model/ModuleId.js';
+import { Role } from '../model/Role.js';
+import { OcpiConfigToken, type OcpiConfig } from '../config/ocpi.types.js';
+import type { TenantPartnersListQueryResult } from '../graphql/operations.js';
 
 import { Logger } from 'tslog';
 import type { ILogObj } from 'tslog';
@@ -62,14 +82,6 @@ export const shouldBroadcastToPartner = (
     return false;
   }
 
-  // if (
-  //   moduleId !== ModuleId.Tokens &&
-  //   tenantPartner.partyId === config.gireve?.partyId &&
-  //   tenantPartner.countryCode === config.gireve?.countryCode
-  // ) {
-  //   logDbBroadcast(logger, 'info', `Broadcast as CPO to Gireve disabled`);
-  //   return false;
-  // }
   return true;
 };
 

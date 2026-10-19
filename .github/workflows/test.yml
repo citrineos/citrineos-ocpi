@@ -1,0 +1,86 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the CitrineOS Project
+#
+# SPDX-License-Identifier: Apache-2.0
+name: Tests
+
+# Bare pull_request, matching lint.yml and test-build-server.yml in this repo.
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit (jest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.4.1
+      
+      - name: Point @zetra/* deps at the right npm dist-tag
+        env:
+          NPM_TAG: ${{ github.base_ref == 'env/staging' && 'staging' || 'prod' }}
+        run: node Server/scripts/rewrite-zetra-tags.ts
+
+      - name: Install
+        run: npm run install-all
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test
+
+  integration:
+    name: Integration (vitest + Postgres + Hasura)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read      # pulling the two ghcr.io/enexflow images
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.4.1
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Point @zetra/* deps at the right npm dist-tag
+        env:
+          NPM_TAG: ${{ github.base_ref == 'env/staging' && 'staging' || 'prod' }}
+        run: node Server/scripts/rewrite-zetra-tags.ts
+
+
+      - name: Install
+        run: npm run install-all
+
+      # pretest:integration pulls the images listed in Tests/helpers/testImages.json,
+      # after Tests/helpers/resolveCoreImage.mjs swaps the core image for the newest
+      # staging-*/prod-* tag matching this PR's base branch (GITHUB_TOKEN reads that
+      # tag list from the GitHub Packages API; falls back to testImages.json's
+      # :latest if the lookup fails).
+      # testcontainers then uses the runner's own Docker daemon — no services: block.
+      - name: Integration tests
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run test:integration
+
+      - name: Container logs on failure
+        if: ${{ failure() }}
+        run: |
+          docker ps -a
+          for c in $(docker ps -aq); do echo "=== $c ==="; docker logs --tail=80 "$c" 2>&1 || true; done

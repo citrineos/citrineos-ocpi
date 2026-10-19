@@ -10,6 +10,7 @@
     "@graphql-codegen/typescript": "^4.1.6",
     "@graphql-codegen/typescript-operations": "^4.6.1",
     "@graphql-eslint/eslint-plugin": "^4.4.0",
+    "@testcontainers/postgresql": "^11.14.0",
     "@types/csv-parse": "^1.1.12",
     "@types/eslint__js": "8.42.3",
     "@types/jest": "^30.0.0",
@@ -21,14 +22,20 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "5.2.3",
     "jest": "^30.3.0",
+    "nock": "^14.0.17",
     "prettier": "^3.2.5",
     "sequelize-cli": "^6.6.2",
+    "testcontainers": "^11.14.0",
     "ts-jest": "^29.4.6",
     "typescript": "5.5.4",
-    "typescript-eslint": "^8.7.0"
+    "typescript-eslint": "^8.7.0",
+    "vitest": "^4.1.11"
   },
   "scripts": {
     "test": "jest --config jest.config.cjs",
+    "pretest:integration": "node ./Tests/helpers/pull-images.mjs",
+    "test:integration": "vitest run --config vitest.config.ts",
+    "test:all": "npm run test && npm run test:integration",
     "sync-db": "ts-node ./db.sync.ts",
     "init-db": "npx sequelize-cli db:migrate --debug && echo migration completed successfully",
     "seed-db": "npx sequelize-cli db:seed:all --debug",
@@ -78,17 +85,20 @@
   ],
   "dependencies": {
     "@zetra/citrineos-base": "prod",
-    "@zetra/citrineos-data": "prod",
-    "@zetra/citrineos-util": "prod",
     "@zetra/citrineos-certificates": "prod",
     "@zetra/citrineos-configuration": "prod",
+    "@zetra/citrineos-data": "prod",
     "@zetra/citrineos-evdriver": "prod",
     "@zetra/citrineos-monitoring": "prod",
-    "@zetra/citrineos-reporting": "prod",
     "@zetra/citrineos-ocpprouter": "prod",
+    "@zetra/citrineos-reporting": "prod",
     "@zetra/citrineos-smartcharging": "prod",
     "@zetra/citrineos-tenant": "prod",
     "@zetra/citrineos-transactions": "prod",
+    "@zetra/citrineos-util": "prod",
     "csv-parse": "^6.2.1"
+  },
+  "overrides": {
+    "@zetra/citrineos-base": "$@zetra/citrineos-base"
   }
 }

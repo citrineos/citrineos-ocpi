@@ -8,6 +8,8 @@ jest.mock('../../mapper/index', () => ({
 }));
 
 import { TariffsService } from '../TariffsService';
+import type { TenantPartnerDto } from '@zetra/citrineos-base';
+import { Logger } from 'tslog';
 import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
 import { OcpiHeaders } from '../../model/OcpiHeaders';
 import { PaginatedParams } from '../../controllers/param/PaginatedParams';
@@ -18,7 +20,7 @@ import {
   GET_TARIFF_BY_PARTNER_QUERY,
   GET_TARIFFS_QUERY,
   CREATE_OR_UPDATE_TARIFF_MUTATION,
-  CREATE_OR_UPDATE_PARTNER_TARIFF_MUTATION,
+  INSERT_PARTNER_TARIFF_MUTATION,
   DELETE_TARIFF_BY_PARTNER_MUTATION,
 } from '../../graphql/queries/tariff.queries';
 import { GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY } from '../../graphql/queries/tenantPartner.queries';
@@ -44,6 +46,18 @@ const mockCoreTariff = {
     countryCode: 'FR',
     partyId: 'HYX',
   },
+  TariffElements: [
+    {
+      priceComponents: [
+        {
+          type: TariffDimensionType.ENERGY,
+          price: 0.25,
+          vat: 0.2,
+          step_size: 1,
+        },
+      ],
+    },
+  ],
 };
 
 const mockPartnerTariff = {
@@ -68,7 +82,11 @@ describe('TariffsService', () => {
     mockGraphqlClient = {
       request: jest.fn(),
     } as any;
-    service = new TariffsService(mockGraphqlClient);
+    service = new TariffsService(
+      mockGraphqlClient,
+      new Logger({ type: 'hidden' }),
+      {} as any,
+    );
   });
 
   describe('getTariffByOcpiId', () => {
@@ -95,6 +113,7 @@ describe('TariffsService', () => {
         'DE',
         'CPO',
         'tariff-abc-123',
+        undefined,
         true,
       );
 
@@ -121,6 +140,7 @@ describe('TariffsService', () => {
         'DE',
         'CPO',
         'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+        undefined,
         true,
       );
 
@@ -179,8 +199,8 @@ describe('TariffsService', () => {
       );
       expect(result.data).toHaveLength(2);
       expect(result.count).toBe(2);
-      expect(result.data[0].id).toBe('1');
-      expect(result.data[1].id).toBe('2');
+      expect(result.data[0].id).toBe('FRHYXT000001');
+      expect(result.data[1].id).toBe('FRHYXT000002');
     });
 
     it('should apply date filters when provided', async () => {
@@ -242,10 +262,11 @@ describe('TariffsService', () => {
         },
         10,
         42,
+        { id: 42, countryCode: 'DE', partyId: 'CPO' } as unknown as TenantPartnerDto,
       );
 
       expect(mockGraphqlClient.request).toHaveBeenCalledWith(
-        CREATE_OR_UPDATE_PARTNER_TARIFF_MUTATION,
+        INSERT_PARTNER_TARIFF_MUTATION,
         expect.objectContaining({
           object: expect.objectContaining({
             ocpiTariffId: 'tariff-abc-123',
@@ -254,15 +275,11 @@ describe('TariffsService', () => {
           }),
         }),
       );
-      expect(result.id).toBe('tariff-abc-123');
+      expect(result!.id).toBe('tariff-abc-123');
     });
 
-    it('should use standard mutation when tenantPartnerId is not provided', async () => {
-      mockGraphqlClient.request.mockResolvedValue({
-        insert_Tariffs_one: mockCoreTariff,
-      });
-
-      await service.createOrUpdateTariff(
+    it('should return undefined when tenantPartnerId is not provided (own-tariff path is currently disabled)', async () => {
+      const result = await service.createOrUpdateTariff(
         {
           id: 'own-tariff-1',
           country_code: 'FR',
@@ -281,20 +298,15 @@ describe('TariffsService', () => {
           ],
         },
         10,
+        undefined,
+        { id: 5, countryCode: 'FR', partyId: 'HYX' } as unknown as TenantPartnerDto,
       );
 
-      expect(mockGraphqlClient.request).toHaveBeenCalledWith(
+      expect(mockGraphqlClient.request).not.toHaveBeenCalledWith(
         CREATE_OR_UPDATE_TARIFF_MUTATION,
-        expect.objectContaining({
-          object: expect.objectContaining({
-            ocpiTariffId: 'own-tariff-1',
-            tenantId: 10,
-          }),
-        }),
+        expect.anything(),
       );
-      const callArgs = mockGraphqlClient.request.mock.calls[0][1] as any;
-      expect(callArgs.object.tenantPartnerId).toBeUndefined();
-      expect(callArgs.object.id).toBeUndefined();
+      expect(result).toBeUndefined();
     });
 
     it('should handle UUID-format tariff IDs', async () => {
@@ -322,17 +334,18 @@ describe('TariffsService', () => {
         },
         10,
         42,
+        { id: 42, countryCode: 'DE', partyId: 'CPO' } as unknown as TenantPartnerDto,
       );
 
       expect(mockGraphqlClient.request).toHaveBeenCalledWith(
-        CREATE_OR_UPDATE_PARTNER_TARIFF_MUTATION,
+        INSERT_PARTNER_TARIFF_MUTATION,
         expect.objectContaining({
           object: expect.objectContaining({
             ocpiTariffId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
           }),
         }),
       );
-      expect(result.id).toBe('f47ac10b-58cc-4372-a567-0e02b2c3d479');
+      expect(result!.id).toBe('f47ac10b-58cc-4372-a567-0e02b2c3d479');
     });
 
     it('should throw when mutation returns null', async () => {
@@ -361,42 +374,46 @@ describe('TariffsService', () => {
           },
           10,
           42,
+          { id: 42, countryCode: 'FR', partyId: 'HYX' } as unknown as TenantPartnerDto,
         ),
-      ).rejects.toThrow('Failed to create or update tariff tariff-fail');
+      ).rejects.toThrow('Insert failed');
     });
   });
 
   describe('deleteTariff', () => {
     it('should use partner delete mutation with string ocpiTariffId', async () => {
-      mockGraphqlClient.request
-        .mockResolvedValueOnce({ TenantPartners: [{ id: 42 }] })
-        .mockResolvedValueOnce({
-          delete_Tariffs: { affected_rows: 1 },
-        });
+      mockGraphqlClient.request.mockResolvedValueOnce({
+        delete_Tariffs: { affected_rows: 1 },
+      });
 
-      await service.deleteTariff('DE', 'CPO', 'tariff-abc-123', true);
+      await service.deleteTariff(
+        'DE',
+        'CPO',
+        'tariff-abc-123',
+        true,
+        { id: 42, countryCode: 'DE', partyId: 'CPO' } as unknown as TenantPartnerDto,
+      );
 
       expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
         1,
-        GET_TENANT_PARTNER_ID_BY_COUNTRY_PARTY,
-        { countryCode: 'DE', partyId: 'CPO' },
-      );
-      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
-        2,
         DELETE_TARIFF_BY_PARTNER_MUTATION,
         { ocpiTariffId: 'tariff-abc-123', tenantPartnerId: 42 },
       );
     });
 
     it('should throw when partner tariff is not found', async () => {
-      mockGraphqlClient.request
-        .mockResolvedValueOnce({ TenantPartners: [{ id: 42 }] })
-        .mockResolvedValueOnce({
-          delete_Tariffs: { affected_rows: 0 },
-        });
+      mockGraphqlClient.request.mockResolvedValueOnce({
+        delete_Tariffs: { affected_rows: 0 },
+      });
 
       await expect(
-        service.deleteTariff('DE', 'CPO', 'non-existent-tariff', true),
+        service.deleteTariff(
+          'DE',
+          'CPO',
+          'non-existent-tariff',
+          true,
+          { id: 42, countryCode: 'DE', partyId: 'CPO' } as unknown as TenantPartnerDto,
+        ),
       ).rejects.toThrow('Tariff non-existent-tariff not found for DE/CPO');
     });
 

@@ -8,10 +8,18 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   setupFiles: ['reflect-metadata'],
+  // Tests/reference holds the old live-stack suites (they drove a running server on :8085).
+  // Kept as the spec for porting onto Tests/helpers/setupOcpiTestStack.ts; not runnable as-is.
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/Tests/reference/',
+    '\\.integration\\.test\\.ts$',
+    '/dist/',
+  ],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  transformIgnorePatterns: ['node_modules/(?!(@citrineos)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(@citrineos|@zetra)/)'],
   transform: {
     '^.+\\.[tj]sx?$': [
       'ts-jest',

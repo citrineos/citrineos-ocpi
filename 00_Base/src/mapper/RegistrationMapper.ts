@@ -11,8 +11,16 @@ import {
   type Image,
   OCPIVersionNumberEnum,
 } from '@zetra/citrineos-base';
-import type { CredentialsDTO } from '../index.js';
-import { ImageCategory, ImageType, Role, VersionNumber } from '../index.js';
+// Deep imports, NOT '../index.js' — see the note in util/helpers.ts. mapper/index.js
+// re-exports this file, so a barrel import here drags the server bootstrap into every
+// consumer of any mapper.
+import type { CredentialsDTO } from '../model/DTO/CredentialsDTO.js';
+import { ImageCategory } from '../model/ImageCategory.js';
+import { ImageType } from '../model/ImageType.js';
+import { Role } from '../model/Role.js';
+import { VersionNumber } from '../model/VersionNumber.js';
+// import type { CredentialsDTO } from '../index.js';
+// import { ImageCategory, ImageType, Role, VersionNumber } from '../index.js';
 import { EndpointIdentifier } from '../model/EndpointIdentifier.js';
 import type { Endpoint } from '../model/Endpoint.js';
 import { InterfaceRole } from '../model/InterfaceRole.js';

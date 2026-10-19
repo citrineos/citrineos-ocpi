@@ -121,8 +121,7 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     if (!fullTx) return;
     const isEnd =
       transactionDto.isActive === false || fullTx.isActive === false;
-    const hasChargingStateChange = transactionDto.chargingState !== undefined;
-    if (!isEnd && !hasMeterProgress && !hasChargingStateChange) {
+    if (!isEnd && !hasMeterProgress) {
       this._logger.info(
         `Transaction is not end and has no meter progress: ${event._eventId}`,
       );

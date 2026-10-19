@@ -108,9 +108,6 @@ export class TariffMapper {
       coreTariff.tenantPartner?.partyId ??
       coreTariff.tenant?.partyId;
 
-    console.log("!!! countryCode", countryCode);
-    console.log("partyId", partyId);
-
     if (!countryCode || !partyId) {
       throw new Error(
         `Tariff ${coreTariff.id ?? coreTariff.ocpiTariffId} has neither tenantPartner nor tenant country/party identifiers`,
