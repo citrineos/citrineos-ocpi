@@ -84,3 +84,47 @@ jobs:
         run: |
           docker ps -a
           for c in $(docker ps -aq); do echo "=== $c ==="; docker logs --tail=80 "$c" 2>&1 || true; done
+  e2e:
+    name: E2E (vitest + OCPI server over HTTP)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read      # pulling the two ghcr.io/enexflow images
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.4.1
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Point @zetra/* deps at the right npm dist-tag
+        env:
+          NPM_TAG: ${{ github.base_ref == 'env/staging' && 'staging' || 'prod' }}
+        run: node Server/scripts/rewrite-zetra-tags.ts
+
+      - name: Install
+        run: npm run install-all
+
+      # Tests/helpers/e2eGlobalSetup.ts runs the server from Server/dist.
+      - name: Build
+        run: npm run build
+
+      # Same stack as the integration job (pretest:e2e pulls Tests/helpers/testImages.json),
+      # plus RabbitMQ, the seeders/ data and the built server as a child process.
+      - name: E2E tests
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run test:e2e
+
+      - name: OCPI server log on failure
+        if: ${{ failure() }}
+        run: tail -n 300 e2e-server.log || true

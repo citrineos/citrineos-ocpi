@@ -35,13 +35,9 @@
  * instead of importing those constants.
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import {
-  http,
-  ocpiCpoHeaders,
-  graphqlQuery,
-} from '../../../../Tests/helpers/ocpi-client';
+import { http, ocpiCpoHeaders, graphqlQuery } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -287,7 +283,7 @@ describe('PATCH partial update', () => {
   });
 
   it('leaves existing charging_periods untouched when the patch omits them', async () => {
-    const id = `sess-patch-preserve-${RUN_ID}`;
+    const id = `sess-preserve-${RUN_ID}`;
     await putSession(id, completedSessionWithPeriods(id));
 
     const patchResp = await patchSession(id, {

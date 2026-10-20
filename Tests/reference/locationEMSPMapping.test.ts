@@ -41,13 +41,9 @@
  * 404 (see `LocationsModuleApi.patchEvseByCountryParty`).
  */
 
-import { beforeAll, describe, expect, it } from '@jest/globals';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import {
-  http,
-  ocpiCpoHeaders,
-  assertOcpiError,
-} from '../../../../Tests/helpers/ocpi-client';
+import { http, ocpiCpoHeaders, assertOcpiError } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';

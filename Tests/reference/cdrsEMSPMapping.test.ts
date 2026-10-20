@@ -22,9 +22,9 @@
  * exists at all.
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import { http, ocpiCpoHeaders } from '../../../Tests/helpers/ocpi-client';
+import { http, ocpiCpoHeaders } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -764,7 +764,7 @@ describe('eMSP receiver — CDR create + GET', () => {
   });
 
   it('posts a reservation-only CDR with #NA sentinel connector fields', async () => {
-    const id = `CDR-RESERVATION-${RUN_ID}`;
+    const id = `CDR-RESV-${RUN_ID}`;
     const post = await postCdr(reservationCdr(id));
     expect(post.status).toBe(200);
 

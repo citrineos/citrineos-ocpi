@@ -312,3 +312,6 @@ tmp/*
 Server/docker-compose-local-*.yml
 Server/scripts/.env
 Server/scripts/files
+
+# vitest e2e: OCPI server output (Tests/helpers/e2eGlobalSetup.ts)
+e2e-server.log

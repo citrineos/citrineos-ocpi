@@ -44,14 +44,14 @@
  * to HTTP 404.
  */
 
-import { beforeAll, describe, expect, it } from '@jest/globals';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
 import {
   http,
   ocpiHubHeaders,
   graphqlQuery,
   assertOcpiError,
-} from '../../../../Tests/helpers/ocpi-client';
+} from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -396,31 +396,31 @@ describe('hub / roaming partner isolation — location create, read, update', ()
 
     const result = await graphqlQuery<{
       Locations: {
-        ocpiLocationId: string;
-        TenantPartner: { countryCode: string; partyId: string };
+        ocpiId: string;
+        OwnerTenantPartner: { countryCode: string; partyId: string };
         RoamingPartner: { countryCode: string; partyId: string } | null;
       }[];
     }>(
-      `query ($ocpiLocationId: String!) {
-        Locations(where: { ocpiLocationId: { _eq: $ocpiLocationId } }) {
-          ocpiLocationId
-          TenantPartner { countryCode partyId }
+      `query ($ocpiId: String!) {
+        Locations(where: { ocpiId: { _eq: $ocpiId } }) {
+          ocpiId
+          OwnerTenantPartner { countryCode partyId }
           RoamingPartner { countryCode partyId }
         }
       }`,
-      { ocpiLocationId: SHARED_ID },
+      { ocpiId: SHARED_ID },
     );
 
     type LocationRow = {
-      ocpiLocationId: string;
-      TenantPartner: { countryCode: string; partyId: string };
+      ocpiId: string;
+      OwnerTenantPartner: { countryCode: string; partyId: string };
       RoamingPartner: { countryCode: string; partyId: string } | null;
     };
 
     expect(result.Locations.length).toBeGreaterThanOrEqual(2);
     expect(
       result.Locations.every(
-        (l: LocationRow) => l.TenantPartner.partyId === '123',
+        (l: LocationRow) => l.OwnerTenantPartner.partyId === '123',
       ),
     ).toBe(true);
     const pairs = result.Locations.map(

@@ -35,13 +35,9 @@
  * uid a previous run might have left behind.
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import {
-  http,
-  ocpiCpoHeaders,
-  graphqlQuery,
-} from '../../../../Tests/helpers/ocpi-client.js';
+import { http, ocpiCpoHeaders, graphqlQuery } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';

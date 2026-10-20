@@ -42,13 +42,9 @@
  * so repeated runs never collide with rows left behind by a previous run.
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import {
-  http,
-  ocpiHubHeaders,
-  graphqlQuery,
-} from '../../../Tests/helpers/ocpi-client';
+import { http, ocpiHubHeaders, graphqlQuery } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -265,7 +261,7 @@ describe('hub / roaming partner isolation', () => {
   });
 
   it("replacing CPO A's session via PUT does not affect CPO B's session with the same id", async () => {
-    const sharedId = `sess-replace-shared-${RUN_ID}`;
+    const sharedId = `sess-repl-shared-${RUN_ID}`;
     await putSession(
       CPO_A,
       sharedId,

@@ -6,7 +6,8 @@
  * Test our EMSP Endpoint for PUT/GET/DELETE tariffs. with a CPO partner.
  */
 
-import { afterEach, describe, expect, it } from '@jest/globals';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { randomUUID } from 'crypto';
 import {
   RECEIVER_URL,
   SENDER_URL,
@@ -14,7 +15,7 @@ import {
   ocpiCpoHeaders,
   graphqlQuery,
   ocpiHubHeaders,
-} from '../../../../Tests/helpers/ocpi-client';
+} from '../helpers/ocpi-client';
 
 const CPO_COUNTRY = 'FR';
 const CPO_PARTY = 'CPO';
@@ -171,6 +172,39 @@ describe('error paths', () => {
 });
 
 describe('sender list + pagination', () => {
+  // The sender interface only lists OUR tariffs (tenant FR/ZET, no tenantPartnerId),
+  // and nothing else in this file creates one: insert two so there is a second page.
+  beforeAll(async () => {
+    const runId = randomUUID().slice(0, 8);
+    // Distinct createdAt: GET_TARIFFS_QUERY orders by createdAt only, so equal values
+    // page non-deterministically (offset 1 can return the offset-0 row again).
+    const now = Date.now();
+    const ownTariff = (n: number, price: number) => ({
+      tenantId: 1,
+      currency: 'EUR',
+      ocpiTariffId: `OWN-PAGE-${n}-${runId}`,
+      startDateTime: '2025-01-01T00:00:00Z',
+      createdAt: new Date(now + n).toISOString(),
+      updatedAt: new Date(now + n).toISOString(),
+      // The sender mapper rejects a tariff without elements.
+      TariffElements: {
+        data: [
+          {
+            priceComponents: [{ type: 'ENERGY', price, step_size: 1 }],
+            createdAt: '2025-01-01T00:00:00Z',
+            updatedAt: '2025-01-01T00:00:00Z',
+          },
+        ],
+      },
+    });
+    await graphqlQuery(
+      `mutation ($objects: [Tariffs_insert_input!]!) {
+        insert_Tariffs(objects: $objects) { affected_rows }
+      }`,
+      { objects: [ownTariff(1, 0.3), ownTariff(2, 0.4)] },
+    );
+  });
+
   it('lists own tariffs and paginates distinctly across pages', async () => {
     const listResp = await http.get(SENDER_URL, { headers: ocpiCpoHeaders() });
     expect(listResp.status).toBe(200);

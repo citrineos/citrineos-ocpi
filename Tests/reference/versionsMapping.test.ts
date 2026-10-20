@@ -15,9 +15,9 @@
  * versionsUrl must match, and today it does not. See TENANT_ID below.
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import { http } from '../../../../Tests/helpers/ocpi-client';
+import { http } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -115,7 +115,7 @@ describe('GET /versions/{version} — version details (§4.2)', () => {
     const resp = await http.get(`${OCPI_BASE}/versions/${TENANT_ID}/2.0`, {
       headers: registrationHeaders(),
     });
-    // 3001 = unsupported version (§5.2)
-    expect(resp.status === 404 || resp.data?.status_code === 3001).toBe(true);
+    // Unknown version is an unknown resource: 404 (§5). 3002 = "Unsupported version" (§5.3).
+    expect(resp.status === 404 || resp.data?.status_code === 3002).toBe(true);
   });
 });

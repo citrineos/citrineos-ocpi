@@ -31,13 +31,9 @@
  * roaming partners).
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import {
-  http,
-  ocpiHubHeaders,
-  graphqlQuery,
-} from '../../../Tests/helpers/ocpi-client';
+import { http, ocpiHubHeaders, graphqlQuery } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -399,23 +395,29 @@ describe('hub / roaming partner isolation', () => {
       Cdrs: {
         ocpiCdrId: string;
         currency: string;
-        TenantPartner: { countryCode: string; partyId: string };
+        fromTenantPartnerId: number;
         RoamingPartner: { countryCode: string; partyId: string };
       }[];
+      TenantPartners: { id: number }[];
     }>(
       `query ($ocpiCdrId: String!) {
         Cdrs(where: { ocpiCdrId: { _eq: $ocpiCdrId } }) {
           ocpiCdrId
           currency
-          TenantPartner { countryCode partyId }
+          fromTenantPartnerId
           RoamingPartner { countryCode partyId }
+        }
+        TenantPartners(where: { countryCode: { _eq: "FR" }, partyId: { _eq: "123" } }) {
+          id
         }
       }`,
       { ocpiCdrId: id },
     );
 
     expect(result.Cdrs).toHaveLength(2);
-    expect(result.Cdrs.every((c) => c.TenantPartner.partyId === '123')).toBe(
+    // Cdrs has no relationship to the sending TenantPartner, only the FK column.
+    const hubId = result.TenantPartners[0].id;
+    expect(result.Cdrs.every((c) => c.fromTenantPartnerId === hubId)).toBe(
       true,
     );
     const pairs = result.Cdrs.map(
