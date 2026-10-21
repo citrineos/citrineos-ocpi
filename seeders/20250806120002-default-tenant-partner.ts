@@ -142,10 +142,11 @@ export default {
       },
     };
 
+    // Mirrors Gireve's IOP: FR/107 in preprod (FR/007 in prod), presenting role HUB.
     const partnerProfileOCPIHUB = {
       roles: [
         {
-          role: 'CPO',
+          role: 'HUB',
           businessDetails: {
             logo: {
               url: 'https://www.test-mobility.com/assets/brand/logo.svg',
@@ -231,7 +232,7 @@ export default {
     const tenantPartnerHUB = {
       id: 3,
       tenantId: 1,
-      partyId: '123',
+      partyId: '107',
       countryCode: 'FR',
       partnerProfileOCPI: JSON.stringify(partnerProfileOCPIHUB),
       createdAt: new Date('2025-08-07T17:55:00+00:00'),

@@ -24,7 +24,12 @@
 
 import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import { http, ocpiCpoHeaders } from '../helpers/ocpi-client';
+import {
+  http,
+  ocpiCpoHeaders,
+  assertOcpiError,
+  OcpiErrorCode,
+} from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -802,7 +807,7 @@ describe('eMSP receiver — error paths', () => {
   it('rejects a CDR missing the required total_cost field', async () => {
     const id = `CDR-MISSING-${RUN_ID}`;
     const resp = await postCdr(missingTotalCostCdr(id));
-    expect(resp.data.status_code).not.toBe(1000);
+    assertOcpiError(resp.data, OcpiErrorCode.InvalidOrMissingParameters);
   });
 });
 

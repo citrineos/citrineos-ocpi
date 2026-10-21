@@ -10,14 +10,14 @@
  *
  * Topology (mirrors tariffEHUBMapping.test.ts / cdrsHubMapping.test.ts):
  *   - Our platform acts as eMSP (the Tenant).
- *   - Hub (TenantPartner): FR/123, authenticated with HUB_AUTH_TOKEN.
+ *   - Hub (TenantPartner): FR/107, authenticated with HUB_AUTH_TOKEN.
  *   - Roaming CPO A (RoamingPartner under the hub): FR/CPO.
  *   - Roaming CPO B (RoamingPartner under the hub): FR/BTU.
  *
  * NOTE: the raw bash scripts used FR/CPO and DE/EVP as the two roaming
  * partners forwarded through hub FR/107. The seeded test DB
  * (seeders/20260803171237-default-roaming-partner.ts) only configures
- * FR/CPO and FR/BTU under the FR/123 hub tenant partner, so this suite
+ * FR/CPO and FR/BTU under the FR/107 hub tenant partner, so this suite
  * exercises isolation between those two instead — the scenario (two
  * roaming CPOs pushing locations/EVSEs/connectors with the SAME ids) is
  * identical. All "DE/EVP" references and bodies from the raw scripts are
@@ -51,6 +51,7 @@ import {
   ocpiHubHeaders,
   graphqlQuery,
   assertOcpiError,
+  OcpiErrorCode,
 } from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
@@ -420,7 +421,7 @@ describe('hub / roaming partner isolation — location create, read, update', ()
     expect(result.Locations.length).toBeGreaterThanOrEqual(2);
     expect(
       result.Locations.every(
-        (l: LocationRow) => l.OwnerTenantPartner.partyId === '123',
+        (l: LocationRow) => l.OwnerTenantPartner.partyId === '107',
       ),
     ).toBe(true);
     const pairs = result.Locations.map(
@@ -642,7 +643,7 @@ describe('hub / roaming partner isolation — connector PUT/PATCH, idempotency, 
 
     const getConnB = await getConnector(CPO_B, LOC_ID, 'EVSE-A', '3');
     expect(getConnB.status).toBe(200);
-    assertOcpiError(getConnB.data);
+    assertOcpiError(getConnB.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns OCPI errors for missing last_updated, independently per roaming partner', async () => {
@@ -650,23 +651,23 @@ describe('hub / roaming partner isolation — connector PUT/PATCH, idempotency, 
       tariff_ids: ['SHOULD-FAIL'],
     });
     expect(respA.status).toBe(200);
-    assertOcpiError(respA.data);
+    assertOcpiError(respA.data, OcpiErrorCode.InvalidOrMissingParameters);
 
     const respB = await patchEvse(CPO_B, LOC_ID, 'EVSE-A', {
       status: 'AVAILABLE',
     });
     expect(respB.status).toBe(200);
-    assertOcpiError(respB.data);
+    assertOcpiError(respB.data, OcpiErrorCode.InvalidOrMissingParameters);
   });
 
   it('returns OCPI errors for unknown connector ids, independently per roaming partner', async () => {
     const respA = await getConnector(CPO_A, LOC_ID, 'EVSE-A', '99');
     expect(respA.status).toBe(200);
-    assertOcpiError(respA.data);
+    assertOcpiError(respA.data, OcpiErrorCode.UnknownLocation);
 
     const respB = await getConnector(CPO_B, LOC_ID, 'EVSE-A', '99');
     expect(respB.status).toBe(200);
-    assertOcpiError(respB.data);
+    assertOcpiError(respB.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns an OCPI error for PATCH connector on an unknown EVSE for CPO A', async () => {
@@ -675,7 +676,7 @@ describe('hub / roaming partner isolation — connector PUT/PATCH, idempotency, 
       last_updated: '2026-09-01T10:00:00Z',
     });
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns HTTP 405 for DELETE on the location, for both roaming CPOs', async () => {

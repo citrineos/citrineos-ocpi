@@ -21,7 +21,7 @@ export const SENDER_URL = `${OCPI_BASE}/cpo/${OCPI_VERSION}/tariffs`;
 
 // seeders/20250806120002-default-tenant-partner.ts
 export const CPO_AUTH_TOKEN = '707b4484-0448-4baf-8acb-c79d73c75869'; // FR/CPO, direct
-export const HUB_AUTH_TOKEN = '3dff6358-637b-415f-9af7-7741d7df6672'; // FR/123, hub
+export const HUB_AUTH_TOKEN = '3dff6358-637b-415f-9af7-7741d7df6672'; // FR/107, hub (Gireve preprod)
 
 // seeders/20250806120001-default-tenant.ts
 const TENANT = { countryCode: 'FR', partyId: 'ZET' };
@@ -101,13 +101,31 @@ function ocpiHeaders(
 /** Direct (non-hub) CPO partner FR/CPO. */
 export const ocpiCpoHeaders = () => ocpiHeaders(CPO_AUTH_TOKEN, 'FR', 'CPO');
 
-/** Hub FR/123 forwarding on behalf of a roaming CPO (FR/CPO or FR/BTU). */
-export const ocpiHubHeaders = (partyId = '123', countryCode = 'FR') =>
-  ocpiHeaders(HUB_AUTH_TOKEN, countryCode, partyId);
+/** Gireve hub ids as seeded and configured (preprod FR/107; prod is FR/007). */
+export const HUB = { countryCode: 'FR', partyId: '107' } as const;
 
-/** OCPI client/server errors come back with a 2xxx/3xxx status_code in the body. */
-export function assertOcpiError(body: any): void {
-  expect(body?.status_code).toBeGreaterThanOrEqual(2000);
+/** Hub FR/107 forwarding on behalf of a roaming CPO (FR/CPO or FR/BTU). */
+export const ocpiHubHeaders = (
+  partyId: string = HUB.partyId,
+  countryCode: string = HUB.countryCode,
+) => ocpiHeaders(HUB_AUTH_TOKEN, countryCode, partyId);
+
+/**
+ * OCPI 2.2.1 §5 error codes the suites assert. Kept here rather than imported from
+ * 00_Base so the expected values come from the spec, not from the code under test.
+ */
+export const OcpiErrorCode = {
+  GenericClientError: 2000,
+  InvalidOrMissingParameters: 2001,
+  NotEnoughInformation: 2002,
+  UnknownLocation: 2003,
+  UnknownToken: 2004,
+} as const;
+export type OcpiErrorCode = (typeof OcpiErrorCode)[keyof typeof OcpiErrorCode];
+
+/** Asserts the exact OCPI status_code: "some 2xxx" would hide 2001 vs 2003 vs 2004 mix-ups. */
+export function assertOcpiError(body: any, expectedCode: OcpiErrorCode): void {
+  expect(body?.status_code).toBe(expectedCode);
 }
 
 export async function graphqlQuery<T>(

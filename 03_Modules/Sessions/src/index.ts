@@ -121,9 +121,13 @@ export class SessionsModule extends AbstractDtoModule implements OcpiModule {
     if (!fullTx) return;
     const isEnd =
       transactionDto.isActive === false || fullTx.isActive === false;
-    if (!isEnd && !hasMeterProgress) {
+    // chargingState drives the OCPI status (EVConnected -> PENDING, else ACTIVE),
+    // so a state-only update must still be pushed: Gireve exempts status changes
+    // from its meter-value throttle and treats ACTIVE as a key update.
+    const hasChargingStateChange = transactionDto.chargingState !== undefined;
+    if (!isEnd && !hasMeterProgress && !hasChargingStateChange) {
       this._logger.info(
-        `Transaction is not end and has no meter progress: ${event._eventId}`,
+        `Transaction is not end and has no meter progress or state change: ${event._eventId}`,
       );
       return;
     }

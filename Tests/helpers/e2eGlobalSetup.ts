@@ -7,7 +7,7 @@
  *
  * Those suites talk to a running OCPI server over HTTP, so on top of startOcpiTestStack
  * (Postgres migrated by the core image + this repo's triggers + Hasura) this boots:
- *   - the seeders/ data the suites assume (tenant FR/ZET, partners FR/CPO and hub FR/123,
+ *   - the seeders/ data the suites assume (tenant FR/ZET, partners FR/CPO and hub FR/107,
  *     roaming FR/CPO + FR/BTU under the hub),
  *   - RabbitMQ: the DtoRouter's RabbitMqDtoSender connects at startup, no broker = no server,
  *   - the built server (Server/dist/index.js) as a child process.
@@ -183,6 +183,10 @@ export default async function setup(): Promise<() => Promise<void>> {
         // any config path (00_Base/src/config/defineOcpiConfig.ts).
         CITRINEOS_OCPI_GRAPHQL_HEADERS: JSON.stringify(stack.graphqlHeaders),
         CITRINEOS_OCPI_OCPISERVER_PORT: String(port),
+        // The seeded hub is Gireve's preprod identity, so isGirevePartner() is true for
+        // it and the Gireve-specific branches (PATCH->PUT, retry outbox) actually run.
+        CITRINEOS_OCPI_GIREVE_COUNTRYCODE: 'FR',
+        CITRINEOS_OCPI_GIREVE_PARTYID: '107',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });

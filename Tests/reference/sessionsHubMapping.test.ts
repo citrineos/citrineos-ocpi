@@ -11,7 +11,7 @@
  *
  * Topology (mirrors tariffEHUBMapping.test.ts / cdrsHubMapping.test.ts):
  *   - Our platform acts as eMSP (the Tenant): FR/ZET.
- *   - Hub (TenantPartner): FR/123, authenticated with HUB_AUTH_TOKEN
+ *   - Hub (TenantPartner): FR/107, authenticated with HUB_AUTH_TOKEN
  *     (seeders/20250806120002-default-tenant-partner.ts, tenantPartnerHUB,
  *     id=3). The hub forwards both roaming CPOs' pushes with IDENTICAL
  *     routing headers — only the URL path distinguishes the originating CPO.
@@ -21,7 +21,7 @@
  * NOTE: the original bash scripts used DE/EVP as the second roaming partner
  * (and FR/107 as the hub's own party id). The seeded test DB
  * (seeders/20260803171237-default-roaming-partner.ts) only configures
- * FR/CPO and FR/BTU as RoamingPartners under the FR/123 hub tenant partner,
+ * FR/CPO and FR/BTU as RoamingPartners under the FR/107 hub tenant partner,
  * so — exactly as done in cdrsHubMapping.test.ts — this suite substitutes
  * FR/BTU for DE/EVP throughout. The scenario under test (two roaming
  * partners pushing sessions with colliding OCPI ids, and verifying they are
@@ -340,7 +340,7 @@ describe('hub / roaming partner isolation', () => {
 
     expect(result.Sessions).toHaveLength(2);
     expect(
-      result.Sessions.every((s) => s.TenantPartner.partyId === '123'),
+      result.Sessions.every((s) => s.TenantPartner.partyId === '107'),
     ).toBe(true);
     const pairs = result.Sessions.map(
       (s) => `${s.RoamingPartner?.countryCode}/${s.RoamingPartner?.partyId}`,

@@ -212,11 +212,39 @@ describe('SessionsModule broadcast wiring', () => {
   });
 
   describe('handleTransactionUpdate', () => {
-    it('skips the broadcast for a chargingState-only update with no meter progress', async () => {
+    it('broadcasts a PATCH for a chargingState-only update (PENDING -> ACTIVE)', async () => {
       const partial = {
         transactionId: 'tx-1',
         tenant,
         chargingState: 'Charging',
+      } as Partial<TransactionDto>;
+      const fullTx = {
+        ...baseTransaction,
+        isActive: true,
+        chargingState: 'EVConnected',
+      };
+      mockOcpiGraphqlClient.request.mockResolvedValueOnce({
+        Transactions: [fullTx],
+      });
+
+      await mod.handleTransactionUpdate(
+        makeEvent(partial, DtoEventType.UPDATE),
+      );
+
+      expect(broadcastPatchSession).toHaveBeenCalledTimes(1);
+      // The event payload wins over the stored row, so the mapper sees the new state.
+      expect(broadcastPatchSession).toHaveBeenCalledWith(
+        tenant,
+        expect.objectContaining({ chargingState: 'Charging' }),
+        42,
+      );
+      expect(broadcastPostCdr).not.toHaveBeenCalled();
+    });
+
+    it('skips the broadcast when there is no meter progress, no state change and no end', async () => {
+      const partial = {
+        transactionId: 'tx-1',
+        tenant,
       } as Partial<TransactionDto>;
       mockOcpiGraphqlClient.request.mockResolvedValueOnce({
         Transactions: [{ ...baseTransaction, isActive: true }],

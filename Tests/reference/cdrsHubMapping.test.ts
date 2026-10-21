@@ -9,13 +9,13 @@
  *
  * Topology (mirrors tariffEHUBMapping.test.ts):
  *   - Our platform acts as eMSP (the Tenant).
- *   - Hub (TenantPartner): FR/123, authenticated with HUB_AUTH_TOKEN.
+ *   - Hub (TenantPartner): FR/107, authenticated with HUB_AUTH_TOKEN.
  *   - Roaming CPO A (RoamingPartner under the hub): FR/CPO.
  *   - Roaming CPO B (RoamingPartner under the hub): FR/BTU.
  *
  * NOTE: the original bash script used FR*CPO / DE*EVP as the two roaming
  * partners. The seeded test DB (seeders/20260803171237-default-roaming-partner.ts)
- * only configures FR/CPO and FR/BTU under the FR/123 hub tenant partner, so
+ * only configures FR/CPO and FR/BTU under the FR/107 hub tenant partner, so
  * this suite exercises isolation between those two instead — the scenario
  * (two roaming partners posting a CDR with the same OCPI id) is identical.
  *
@@ -33,7 +33,13 @@
 
 import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import { http, ocpiHubHeaders, graphqlQuery } from '../helpers/ocpi-client';
+import {
+  http,
+  ocpiHubHeaders,
+  graphqlQuery,
+  assertOcpiError,
+  OcpiErrorCode,
+} from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -355,13 +361,13 @@ describe('hub / roaming partner isolation', () => {
       CPO_A,
       missingTotalCostCdr(CPO_A, `CDR-MISSING-A-${RUN_ID}`),
     );
-    expect(respA.data.status_code).not.toBe(1000);
+    assertOcpiError(respA.data, OcpiErrorCode.InvalidOrMissingParameters);
 
     const respB = await postCdr(
       CPO_B,
       missingTotalCostCdr(CPO_B, `CDR-MISSING-B-${RUN_ID}`),
     );
-    expect(respB.data.status_code).not.toBe(1000);
+    assertOcpiError(respB.data, OcpiErrorCode.InvalidOrMissingParameters);
   });
 
   it('rejects PUT/PATCH/DELETE on the CDR endpoint — CDRs are immutable', async () => {
@@ -407,7 +413,7 @@ describe('hub / roaming partner isolation', () => {
           fromTenantPartnerId
           RoamingPartner { countryCode partyId }
         }
-        TenantPartners(where: { countryCode: { _eq: "FR" }, partyId: { _eq: "123" } }) {
+        TenantPartners(where: { countryCode: { _eq: "FR" }, partyId: { _eq: "107" } }) {
           id
         }
       }`,

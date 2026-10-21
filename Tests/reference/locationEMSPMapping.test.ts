@@ -43,7 +43,12 @@
 
 import { beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
-import { http, ocpiCpoHeaders, assertOcpiError } from '../helpers/ocpi-client';
+import {
+  http,
+  ocpiCpoHeaders,
+  assertOcpiError,
+  OcpiErrorCode,
+} from '../helpers/ocpi-client';
 
 const OCPI_BASE = process.env.OCPI_BASE ?? 'http://localhost:8085/ocpi';
 const OCPI_VERSION = process.env.OCPI_VERSION ?? '2.2.1';
@@ -944,25 +949,25 @@ describe('error paths', () => {
       name: 'Should fail - no last_updated',
     });
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.InvalidOrMissingParameters);
   });
 
   it('returns an OCPI error (HTTP 200) for GET on an unknown location', async () => {
     const resp = await getLocation('LOC-NONEXISTENT-XYZ');
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns an OCPI error (HTTP 200) for GET on an unknown EVSE', async () => {
     const resp = await getEvse(LOC_ID, 'EVSE-999');
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns an OCPI error (HTTP 200) for GET on an unknown connector', async () => {
     const resp = await getConnector(LOC_ID, 'EVSE-A', '99');
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns an OCPI error for PATCH connector without last_updated', async () => {
@@ -970,7 +975,7 @@ describe('error paths', () => {
       tariff_ids: ['SHOULD-FAIL'],
     });
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.InvalidOrMissingParameters);
   });
 
   it('returns HTTP 404 for PATCH EVSE without last_updated on an unknown EVSE', async () => {
@@ -981,7 +986,7 @@ describe('error paths', () => {
       last_updated: '2025-09-01T10:00:00Z',
     });
     expect(resp.status).toBe(404);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns an OCPI error for PATCH connector on a non-existent EVSE', async () => {
@@ -990,7 +995,7 @@ describe('error paths', () => {
       last_updated: '2025-09-01T10:00:00Z',
     });
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 
   it('returns an OCPI error for PATCH connector on a non-existent location', async () => {
@@ -999,7 +1004,7 @@ describe('error paths', () => {
       last_updated: '2025-09-01T10:00:00Z',
     });
     expect(resp.status).toBe(200);
-    assertOcpiError(resp.data);
+    assertOcpiError(resp.data, OcpiErrorCode.UnknownLocation);
   });
 });
 
