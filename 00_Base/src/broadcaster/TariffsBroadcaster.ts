@@ -87,7 +87,10 @@ export class TariffsBroadcaster extends BaseBroadcaster {
     tenant: TenantDto,
     tariffDto: TariffDto,
   ): Promise<void> {
-    const path = `/${tenant.countryCode}/${tenant.partyId}/${tariffDto.id}`;
+    const ocpiId =
+      (tariffDto as any).ocpiTariffId ??
+      TariffMapper.formatOwnTariffId(tariffDto as any);
+    const path = `/${tenant.countryCode}/${tenant.partyId}/${ocpiId}`;
     await this.broadcast(tenant, HttpMethod.Delete, path);
   }
 }

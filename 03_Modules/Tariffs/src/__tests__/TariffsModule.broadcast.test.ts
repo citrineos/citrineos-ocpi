@@ -136,6 +136,7 @@ jest.mock('@citrineos/ocpi-base', () => {
     OcpiModule,
     RabbitMqDtoReceiver,
     TariffsBroadcaster,
+    logDbBroadcast: jest.fn(),
   };
 });
 
@@ -162,9 +163,7 @@ describe('TariffsModule broadcast skip for partner-received tariffs', () => {
 
   const ownTariff: TariffDto = {
     id: 1,
-    stationId: 'ST1',
     currency: 'EUR',
-    pricePerKwh: 0.25,
     tenant,
   };
 

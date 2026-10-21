@@ -2,68 +2,63 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { TariffMapper } from '../TariffMapper';
+import { TariffMapper, type TariffMapInput } from '../TariffMapper';
 import { TariffDimensionType } from '../../model/TariffDimensionType';
 import { TariffType } from '../../model/TariffType';
-import type { TariffDto } from '@zetra/citrineos-base';
 import type { PutTariffRequest } from '../../model/DTO/tariffs/PutTariffRequest';
 
 describe('TariffMapper', () => {
-  describe('map (core -> OCPI)', () => {
+  describe('mapForReceiver (core -> OCPI, EMSP-received tariff)', () => {
     it('should use ocpiTariffId when present (partner tariff)', () => {
-      const coreTariff = {
+      const coreTariff: TariffMapInput = {
         id: 42,
         ocpiTariffId: 'tariff-abc-123',
         currency: 'EUR',
-        pricePerKwh: 0.25,
-        taxRate: 0.2,
         updatedAt: new Date('2024-01-01T00:00:00Z'),
-        tenant: {
-          countryCode: 'FR',
-          partyId: 'HYX',
-        },
-      } as any;
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              {
+                type: TariffDimensionType.ENERGY,
+                price: 0.25,
+                vat: 0.2,
+                step_size: 1,
+              },
+            ],
+          },
+        ],
+      };
 
-      const result = TariffMapper.map(coreTariff);
+      const result = TariffMapper.mapForReceiver(coreTariff);
 
       expect(result.id).toBe('tariff-abc-123');
       expect(result.country_code).toBe('FR');
       expect(result.party_id).toBe('HYX');
     });
 
-    it('should use ocpiTariffId with UUID format', () => {
-      const coreTariff = {
-        id: 99,
-        ocpiTariffId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-        currency: 'EUR',
-        pricePerKwh: 0.18,
-        taxRate: 0.2,
-        updatedAt: new Date('2024-01-01T00:00:00Z'),
-        tenant: {
-          countryCode: 'DE',
-          partyId: 'CPO',
-        },
-      } as any;
-
-      const result = TariffMapper.map(coreTariff);
-
-      expect(result.id).toBe('f47ac10b-58cc-4372-a567-0e02b2c3d479');
-    });
-
     it('should fall back to id.toString() when ocpiTariffId is absent (own tariff)', () => {
-      const coreTariff: Partial<TariffDto> = {
+      const coreTariff: TariffMapInput = {
         id: 1,
         currency: 'EUR',
-        pricePerKwh: 0.25,
-        taxRate: 0.2,
+        tariffType: TariffType.AD_HOC_PAYMENT,
         updatedAt: new Date('2024-01-01T00:00:00Z'),
-        tenant: {
-          countryCode: 'FR',
-          partyId: 'HYX',
-        },
-      } as Partial<TariffDto>;
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              {
+                type: TariffDimensionType.ENERGY,
+                price: 0.25,
+                vat: 0.2,
+                step_size: 1,
+              },
+            ],
+          },
+        ],
+      };
 
-      const result = TariffMapper.map(coreTariff);
+      const result = TariffMapper.mapForReceiver(coreTariff);
 
       expect(result.id).toBe('1');
       expect(result.country_code).toBe('FR');
@@ -71,65 +66,155 @@ describe('TariffMapper', () => {
       expect(result.currency).toBe('EUR');
       expect(result.type).toBe(TariffType.AD_HOC_PAYMENT);
       expect(result.elements).toHaveLength(1);
-      expect(result.elements[0].price_components).toHaveLength(1);
-      expect(result.elements[0].price_components[0]).toEqual({
-        type: TariffDimensionType.ENERGY,
-        price: 0.25,
-        vat: 0.2,
-        step_size: 1,
-      });
+      expect(result.elements[0].price_components).toEqual([
+        {
+          type: TariffDimensionType.ENERGY,
+          price: 0.25,
+          vat: 0.2,
+          step_size: 1,
+        },
+      ]);
       expect(result.last_updated).toEqual(new Date('2024-01-01T00:00:00Z'));
     });
 
-    it('should include TIME and FLAT components when pricePerMin and pricePerSession are set', () => {
-      const coreTariff: Partial<TariffDto> = {
+    it('should map price_components and restrictions straight through from TariffElements', () => {
+      const coreTariff: TariffMapInput = {
         id: 2,
         currency: 'EUR',
-        pricePerKwh: 0.3,
-        pricePerMin: 0.01,
-        pricePerSession: 1.5,
-        taxRate: 0.19,
         updatedAt: new Date('2024-06-15T12:00:00Z'),
-        tenant: {
-          countryCode: 'DE',
-          partyId: 'ABC',
-        },
-      } as Partial<TariffDto>;
+        tenant: { countryCode: 'DE', partyId: 'ABC' },
+        TariffElements: [
+          {
+            priceComponents: [
+              {
+                type: TariffDimensionType.ENERGY,
+                price: 0.3,
+                vat: 0.19,
+                step_size: 1,
+              },
+              {
+                type: TariffDimensionType.TIME,
+                price: 0.6,
+                vat: 0.19,
+                step_size: 60,
+              },
+              {
+                type: TariffDimensionType.FLAT,
+                price: 1.5,
+                vat: 0.19,
+                step_size: 1,
+              },
+            ],
+            restrictions: { min_kwh: 5 },
+          },
+        ],
+      };
 
-      const result = TariffMapper.map(coreTariff);
+      const result = TariffMapper.mapForReceiver(coreTariff);
 
       expect(result.elements[0].price_components).toHaveLength(3);
-
-      const energyComponent = result.elements[0].price_components.find(
-        (pc) => pc.type === TariffDimensionType.ENERGY,
-      );
-      expect(energyComponent?.price).toBe(0.3);
-
-      const timeComponent = result.elements[0].price_components.find(
-        (pc) => pc.type === TariffDimensionType.TIME,
-      );
-      expect(timeComponent?.price).toBe(0.01 * 60);
-
-      const flatComponent = result.elements[0].price_components.find(
-        (pc) => pc.type === TariffDimensionType.FLAT,
-      );
-      expect(flatComponent?.price).toBe(1.5);
+      expect(result.elements[0].restrictions).toEqual({ min_kwh: 5 });
     });
 
-    it('should map tariff_alt_text when present as an array', () => {
-      const coreTariff: Partial<TariffDto> = {
+    it('should throw when there are no TariffElements', () => {
+      const coreTariff: TariffMapInput = {
         id: 3,
+        ocpiTariffId: 'tariff-no-elements',
         currency: 'EUR',
-        pricePerKwh: 0.2,
-        updatedAt: new Date('2024-01-01T00:00:00Z'),
-        tariffAltText: [{ language: 'en', text: 'Standard tariff' }] as any,
-        tenant: {
-          countryCode: 'FR',
-          partyId: 'HYX',
-        },
-      } as Partial<TariffDto>;
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [],
+      };
 
-      const result = TariffMapper.map(coreTariff);
+      expect(() => TariffMapper.mapForReceiver(coreTariff)).toThrow(
+        /has no TariffElements/,
+      );
+    });
+
+    it('should throw when neither tenantPartner, roamingPartner, nor tenant provide country/party', () => {
+      const coreTariff: TariffMapInput = {
+        id: 4,
+        currency: 'EUR',
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      expect(() => TariffMapper.mapForReceiver(coreTariff)).toThrow(
+        /neither tenantPartner nor tenant/,
+      );
+    });
+
+    it('should prefer roamingPartner, then tenantPartner, then tenant for country/party', () => {
+      const base: TariffMapInput = {
+        id: 5,
+        currency: 'EUR',
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+        tenant: { countryCode: 'FR', partyId: 'TEN' },
+        tenantPartner: { countryCode: 'DE', partyId: 'TNP' },
+        roamingPartner: { countryCode: 'BE', partyId: 'ROA' } as any,
+      };
+
+      expect(TariffMapper.mapForReceiver(base).country_code).toBe('BE');
+
+      const { roamingPartner, ...withoutRoaming } = base;
+      expect(TariffMapper.mapForReceiver(withoutRoaming).country_code).toBe(
+        'DE',
+      );
+
+      const { tenantPartner, ...tenantOnly } = withoutRoaming;
+      expect(TariffMapper.mapForReceiver(tenantOnly).country_code).toBe('FR');
+    });
+
+    it('should parse tariff_alt_text from a JSON string', () => {
+      const coreTariff: TariffMapInput = {
+        id: 6,
+        currency: 'EUR',
+        tariffAltText: JSON.stringify([
+          { language: 'en', text: 'Standard tariff' },
+        ]),
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.2, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      const result = TariffMapper.mapForReceiver(coreTariff);
+
+      expect(result.tariff_alt_text).toEqual([
+        { language: 'en', text: 'Standard tariff' },
+      ]);
+    });
+
+    it('should pass tariff_alt_text through as-is when already an array', () => {
+      const coreTariff: TariffMapInput = {
+        id: 7,
+        currency: 'EUR',
+        tariffAltText: [{ language: 'en', text: 'Standard tariff' }],
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.2, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      const result = TariffMapper.mapForReceiver(coreTariff);
 
       expect(result.tariff_alt_text).toEqual([
         { language: 'en', text: 'Standard tariff' },
@@ -137,59 +222,30 @@ describe('TariffMapper', () => {
     });
   });
 
-  describe('mapElementsToCoreTariff', () => {
-    it('should extract core pricing from tariff elements', () => {
-      const elements = [
-        {
-          price_components: [
-            {
-              type: TariffDimensionType.ENERGY,
-              price: 0.3,
-              vat: 0.19,
-              step_size: 1,
-            },
-            {
-              type: TariffDimensionType.TIME,
-              price: 0.6,
-              vat: 0.19,
-              step_size: 1,
-            },
-            {
-              type: TariffDimensionType.FLAT,
-              price: 2.0,
-              vat: 0.19,
-              step_size: 1,
-            },
-          ],
-        },
-      ];
+  describe('formatOwnTariffId', () => {
+    it('should format a zero-padded id with tenant country/party', () => {
+      const coreTariff: TariffMapInput = {
+        id: 7,
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+      };
 
-      const result = TariffMapper.mapElementsToCoreTariff(elements);
-
-      expect(result.pricePerKwh).toBe(0.3);
-      expect(result.pricePerMin).toBe(0.6 / 60);
-      expect(result.pricePerSession).toBe(2.0);
-      expect(result.taxRate).toBe(0.19);
+      expect(TariffMapper.formatOwnTariffId(coreTariff)).toBe('FRHYXT000007');
     });
 
-    it('should return zeros for missing price components', () => {
-      const elements = [
-        {
-          price_components: [],
-        },
-      ];
+    it('should throw when tenant country/party identifiers are missing', () => {
+      const coreTariff: TariffMapInput = {
+        id: 8,
+        tenant: { countryCode: 'FR' },
+      };
 
-      const result = TariffMapper.mapElementsToCoreTariff(elements);
-
-      expect(result.pricePerKwh).toBe(0);
-      expect(result.pricePerMin).toBe(0);
-      expect(result.pricePerSession).toBe(0);
-      expect(result.taxRate).toBe(0);
+      expect(() => TariffMapper.formatOwnTariffId(coreTariff)).toThrow(
+        /Tenant country\/party identifiers are required/,
+      );
     });
   });
 
   describe('mapFromOcpi (OCPI -> core)', () => {
-    it('should store OCPI tariff id as ocpiTariffId string and NOT as numeric id', () => {
+    it('should store the OCPI tariff id as ocpiTariffId and leave numeric id unset', () => {
       const ocpiTariff: PutTariffRequest = {
         id: 'tariff-abc-123',
         country_code: 'FR',
@@ -210,41 +266,40 @@ describe('TariffMapper', () => {
         ],
       };
 
-      const result = TariffMapper.mapFromOcpi(ocpiTariff);
+      const { coreTariff, TariffElements } =
+        TariffMapper.mapFromOcpi(ocpiTariff);
 
-      expect(result.ocpiTariffId).toBe('tariff-abc-123');
-      expect(result.id).toBeUndefined();
-      expect(result.currency).toBe('EUR');
-      expect(result.pricePerKwh).toBe(0.25);
-      expect(result.taxRate).toBe(0.2);
+      expect(coreTariff.ocpiTariffId).toBe('tariff-abc-123');
+      expect((coreTariff as any).id).toBeUndefined();
+      expect(coreTariff.currency).toBe('EUR');
+      expect((coreTariff as any).tariffType).toBe(TariffType.AD_HOC_PAYMENT);
+      expect(TariffElements).toHaveLength(1);
+      expect(TariffElements[0].priceComponents).toEqual(
+        ocpiTariff.elements[0].price_components,
+      );
     });
 
-    it('should handle UUID-format OCPI tariff ids', () => {
+    it('should default tariffType to null when type is absent', () => {
       const ocpiTariff: PutTariffRequest = {
-        id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+        id: 'tariff-no-type',
         country_code: 'DE',
         party_id: 'XYZ',
         currency: 'EUR',
         elements: [
           {
             price_components: [
-              {
-                type: TariffDimensionType.ENERGY,
-                price: 0.3,
-                step_size: 1,
-              },
+              { type: TariffDimensionType.ENERGY, price: 0.3, step_size: 1 },
             ],
           },
         ],
       };
 
-      const result = TariffMapper.mapFromOcpi(ocpiTariff);
+      const { coreTariff } = TariffMapper.mapFromOcpi(ocpiTariff);
 
-      expect(result.ocpiTariffId).toBe('f47ac10b-58cc-4372-a567-0e02b2c3d479');
-      expect(result.id).toBeUndefined();
+      expect((coreTariff as any).tariffType).toBeNull();
     });
 
-    it('should include tariff_alt_text if present', () => {
+    it('should include tariff_alt_text as a JSON string when present', () => {
       const ocpiTariff: PutTariffRequest = {
         id: 'tariff-alt-text-test',
         country_code: 'DE',
@@ -254,21 +309,17 @@ describe('TariffMapper', () => {
         elements: [
           {
             price_components: [
-              {
-                type: TariffDimensionType.ENERGY,
-                price: 0.3,
-                step_size: 1,
-              },
+              { type: TariffDimensionType.ENERGY, price: 0.3, step_size: 1 },
             ],
           },
         ],
       };
 
-      const result = TariffMapper.mapFromOcpi(ocpiTariff);
+      const { coreTariff } = TariffMapper.mapFromOcpi(ocpiTariff);
 
-      expect(JSON.parse(result.tariffAltText as unknown as string)).toEqual([
-        { language: 'de', text: 'Standardtarif' },
-      ]);
+      expect(JSON.parse(coreTariff.tariffAltText as unknown as string)).toEqual(
+        [{ language: 'de', text: 'Standardtarif' }],
+      );
     });
 
     it('should include tenantId and tenantPartnerId when provided', () => {
@@ -280,22 +331,16 @@ describe('TariffMapper', () => {
         elements: [
           {
             price_components: [
-              {
-                type: TariffDimensionType.ENERGY,
-                price: 0.25,
-                step_size: 1,
-              },
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
             ],
           },
         ],
       };
 
-      const result = TariffMapper.mapFromOcpi(ocpiTariff, 10, 42);
+      const { coreTariff } = TariffMapper.mapFromOcpi(ocpiTariff, 10, 42);
 
-      expect(result.ocpiTariffId).toBe('partner-tariff-55');
-      expect(result.id).toBeUndefined();
-      expect((result as any).tenantId).toBe(10);
-      expect((result as any).tenantPartnerId).toBe(42);
+      expect((coreTariff as any).tenantId).toBe(10);
+      expect((coreTariff as any).tenantPartnerId).toBe(42);
     });
 
     it('should not include tenantPartnerId when not provided', () => {
@@ -307,9 +352,59 @@ describe('TariffMapper', () => {
         elements: [
           {
             price_components: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      const { coreTariff } = TariffMapper.mapFromOcpi(ocpiTariff, 10);
+
+      expect((coreTariff as any).tenantId).toBe(10);
+      expect((coreTariff as any).tenantPartnerId).toBeUndefined();
+    });
+
+    it('should include roamingPartnerId when a roaming partner is provided', () => {
+      const ocpiTariff: PutTariffRequest = {
+        id: 'roaming-tariff-1',
+        country_code: 'FR',
+        party_id: 'HYX',
+        currency: 'EUR',
+        elements: [
+          {
+            price_components: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      const { coreTariff } = TariffMapper.mapFromOcpi(
+        ocpiTariff,
+        undefined,
+        undefined,
+        { id: 99 } as any,
+      );
+
+      expect((coreTariff as any).roamingPartnerId).toBe(99);
+    });
+  });
+
+  describe('mapForSender (core -> OCPI, CPO-sent tariff)', () => {
+    it('should use ocpiTariffId when present (partner tariff)', () => {
+      const coreTariff: TariffMapInput = {
+        id: 42,
+        ocpiTariffId: 'tariff-abc-123',
+        currency: 'EUR',
+        updatedAt: new Date('2024-01-01T00:00:00Z'),
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
               {
                 type: TariffDimensionType.ENERGY,
                 price: 0.25,
+                vat: 0.2,
                 step_size: 1,
               },
             ],
@@ -317,39 +412,154 @@ describe('TariffMapper', () => {
         ],
       };
 
-      const result = TariffMapper.mapFromOcpi(ocpiTariff, 10);
+      const result = TariffMapper.mapForSender(coreTariff);
 
-      expect((result as any).tenantId).toBe(10);
-      expect((result as any).tenantPartnerId).toBeUndefined();
+      expect(result.id).toBe('tariff-abc-123');
+      expect(result.country_code).toBe('FR');
+      expect(result.party_id).toBe('HYX');
+    });
+
+    it('should use formatOwnTariffId when ocpiTariffId is absent (own tariff)', () => {
+      const coreTariff: TariffMapInput = {
+        id: 7,
+        currency: 'EUR',
+        updatedAt: new Date('2024-01-01T00:00:00Z'),
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      const result = TariffMapper.mapForSender(coreTariff);
+
+      expect(result.id).toBe('FRHYXT000007');
+    });
+
+    it('should throw when TariffElements is an empty array', () => {
+      const coreTariff: TariffMapInput = {
+        id: 9,
+        ocpiTariffId: 'tariff-empty-elements',
+        currency: 'EUR',
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [],
+      };
+
+      expect(() => TariffMapper.mapForSender(coreTariff)).toThrow(
+        /has no TariffElements/,
+      );
+    });
+
+    it('should derive country/party from tenantPartner over tenant', () => {
+      const coreTariff: TariffMapInput = {
+        id: 10,
+        ocpiTariffId: 'tariff-tp',
+        currency: 'EUR',
+        tenant: { countryCode: 'FR', partyId: 'TEN' },
+        tenantPartner: { countryCode: 'DE', partyId: 'TNP' },
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      const result = TariffMapper.mapForSender(coreTariff);
+
+      expect(result.country_code).toBe('DE');
+      expect(result.party_id).toBe('TNP');
+    });
+
+    it('should include type only when tariffType is a valid, recognized value', () => {
+      const valid: TariffMapInput = {
+        id: 11,
+        ocpiTariffId: 'tariff-valid-type',
+        currency: 'EUR',
+        tariffType: TariffType.REGULAR,
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+      expect(TariffMapper.mapForSender(valid).type).toBe(TariffType.REGULAR);
+
+      const invalid: TariffMapInput = {
+        ...valid,
+        tariffType: 'NOT_A_REAL_TYPE',
+      };
+      expect(TariffMapper.mapForSender(invalid).type).toBeUndefined();
+    });
+
+    it('should omit tariff_alt_text when it resolves to an empty array', () => {
+      const coreTariff: TariffMapInput = {
+        id: 12,
+        ocpiTariffId: 'tariff-no-alt-text',
+        currency: 'EUR',
+        tariffAltText: [],
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              { type: TariffDimensionType.ENERGY, price: 0.25, step_size: 1 },
+            ],
+          },
+        ],
+      };
+
+      expect(
+        TariffMapper.mapForSender(coreTariff).tariff_alt_text,
+      ).toBeUndefined();
     });
   });
 
   describe('round-trip mapping', () => {
-    it('should preserve core pricing through map -> mapFromOcpi round trip', () => {
-      const coreTariff: Partial<TariffDto> = {
+    it('should preserve price_components through mapForReceiver -> mapFromOcpi round trip', () => {
+      const coreTariff: TariffMapInput = {
         id: 10,
         currency: 'EUR',
-        pricePerKwh: 0.25,
-        pricePerMin: 0.02,
-        pricePerSession: 1.0,
-        taxRate: 0.2,
         updatedAt: new Date('2024-01-01T00:00:00Z'),
-        tenant: {
-          countryCode: 'FR',
-          partyId: 'HYX',
-        },
-      } as Partial<TariffDto>;
+        tenant: { countryCode: 'FR', partyId: 'HYX' },
+        TariffElements: [
+          {
+            priceComponents: [
+              {
+                type: TariffDimensionType.ENERGY,
+                price: 0.25,
+                vat: 0.2,
+                step_size: 1,
+              },
+              {
+                type: TariffDimensionType.TIME,
+                price: 1.2,
+                vat: 0.2,
+                step_size: 60,
+              },
+              {
+                type: TariffDimensionType.FLAT,
+                price: 1.0,
+                vat: 0.2,
+                step_size: 1,
+              },
+            ],
+          },
+        ],
+      };
 
-      const ocpiTariff = TariffMapper.map(coreTariff);
-      const backToCore = TariffMapper.mapFromOcpi({
-        ...ocpiTariff,
-      });
+      const ocpiTariff = TariffMapper.mapForReceiver(coreTariff);
+      const { TariffElements } = TariffMapper.mapFromOcpi(ocpiTariff);
 
-      expect(backToCore.pricePerKwh).toBeCloseTo(0.25, 10);
-      expect(backToCore.pricePerMin).toBeCloseTo(0.02, 10);
-      expect(backToCore.pricePerSession).toBeCloseTo(1.0, 10);
-      expect(backToCore.taxRate).toBeCloseTo(0.2, 10);
-      expect(backToCore.currency).toBe('EUR');
+      expect(TariffElements[0].priceComponents).toEqual(
+        coreTariff.TariffElements![0].priceComponents,
+      );
     });
   });
 });

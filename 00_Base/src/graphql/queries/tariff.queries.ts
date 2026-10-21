@@ -472,6 +472,11 @@ export const GET_TARIFF_BY_PARTNER_ROAMING_PARTNER_QUERY = gql`
         countryCode
         partyId
       }
+      roamingPartner: RoamingPartner {
+        id
+        countryCode
+        partyId
+      }
       TariffElements {
         id
         priceComponents

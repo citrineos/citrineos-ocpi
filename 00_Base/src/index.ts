@@ -15,7 +15,6 @@ import { Logger } from 'tslog';
 import { CacheWrapper } from './util/CacheWrapper.js';
 // import { SessionBroadcaster } from './broadcaster/SessionBroadcaster';
 // import { CdrBroadcaster } from './broadcaster/CdrBroadcaster';
-import * as packageJson from '../../package.json' with { type: 'json' };
 import type { OcpiConfig } from './config/ocpi.types.js';
 import { AjvToken, OcpiConfigToken } from './config/ocpi.types.js';
 import type { IDtoModule } from './events/index.js';
@@ -23,6 +22,7 @@ import { OcpiGraphqlClient } from './graphql/index.js';
 import { HealthController } from './util/KoaServerHealthController.js';
 import { Ajv } from 'ajv';
 import addFormats from 'ajv-formats';
+import { packageVersion } from './packageVersion.js';
 
 export * from './broadcaster/index.js';
 export * from './mapper/index.js';
@@ -559,7 +559,7 @@ export class OcpiServer extends KoaServer {
       this.initKoaSwagger(
         {
           title: 'CitrineOS OCPI 2.2.1',
-          version: packageJson.default.version,
+          version: packageVersion,
         },
         [
           {

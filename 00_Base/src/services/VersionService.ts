@@ -48,11 +48,16 @@ export class VersionService {
       GetTenantByIdQueryVariables
     >(GET_TENANT_BY_ID, { id: tenantId });
     const tenant = response.Tenants[0] as TenantDto;
-    const tenantVersionEndpoints: Endpoint[] | undefined =
-      tenant.serverProfileOCPI?.versionEndpoints &&
-      tenant.serverProfileOCPI.versionEndpoints[
-        RegistrationMapper.toOCPIVersionNumber(version)
-      ];
+    let tenantVersionEndpoints: Endpoint[] | undefined;
+    try {
+      tenantVersionEndpoints =
+        tenant.serverProfileOCPI?.versionEndpoints?.[
+          RegistrationMapper.toOCPIVersionNumber(version)
+        ];
+    } catch {
+      // toOCPIVersionNumber throws for any version we don't implement: same 404 as a
+      // version this tenant doesn't expose (OCPI §5: unknown resource on GET → 404).
+    }
     if (!tenantVersionEndpoints) {
       throw new NotFoundError('Version not found');
     }

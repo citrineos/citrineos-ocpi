@@ -54,6 +54,14 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  {
     files: ['./00_Base/src/graphql/queries/*.ts'],
     plugins: {
       '@graphql-eslint': graphqlPlugin,

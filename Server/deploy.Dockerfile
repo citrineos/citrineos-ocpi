@@ -9,6 +9,11 @@ ARG NPM_TAG=prod
 
 RUN NPM_TAG=$NPM_TAG node /usr/local/apps/citrineos-ocpi/Server/scripts/rewrite-zetra-tags.ts
 
+# node:22 bundles npm 10.9.8, which has an arborist bug that intermittently
+# crashes with "Cannot read properties of null (reading 'edgesOut')" during
+# peer-set resolution (fixed in npm 11.6.0, see npm/cli#9787).
+RUN npm install -g npm@11.6.0
+
 # INSTALL
 RUN npm run install-all
 

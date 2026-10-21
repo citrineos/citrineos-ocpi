@@ -81,3 +81,4 @@ apps/ocpi-monitor/src/assets/logo.svg
 apps/ocpi-monitor/tsconfig.app.json
 apps/ocpi-monitor/tsconfig.json
 apps/ocpi-monitor/tsconfig.node.json
+Tests/helpers/testImages.json

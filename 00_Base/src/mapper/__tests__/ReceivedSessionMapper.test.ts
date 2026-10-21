@@ -80,7 +80,12 @@ const mockDbRow: SessionDbRow = {
 describe('ReceivedSessionMapper', () => {
   describe('mapFromOcpi', () => {
     it('should map an OCPI Session to DB insert input', () => {
-      const result = ReceivedSessionMapper.mapFromOcpi(mockSession, 1, 42);
+      const result = ReceivedSessionMapper.mapFromOcpi(
+        mockSession,
+        1,
+        42,
+        null,
+      );
 
       expect(result.ocpiSessionId).toBe('sess-001');
       expect(result.countryCode).toBe('FR');
@@ -106,6 +111,7 @@ describe('ReceivedSessionMapper', () => {
         sessionWithEnd as Session,
         1,
         42,
+        null,
       );
 
       expect(result.endDateTime).toBe('2024-06-15T12:00:00.000Z');
@@ -186,6 +192,24 @@ describe('ReceivedSessionMapper', () => {
       const result = ReceivedSessionMapper.mapPartialFromOcpi(partial);
 
       expect(result.endDateTime).toBeNull();
+    });
+
+    it('should include roamingPartnerId only when one is given', () => {
+      const withRoaming = ReceivedSessionMapper.mapFromOcpi(
+        mockSession,
+        1,
+        42,
+        7,
+      );
+      expect(withRoaming.roamingPartnerId).toBe(7);
+
+      const withoutRoaming = ReceivedSessionMapper.mapFromOcpi(
+        mockSession,
+        1,
+        42,
+        null,
+      );
+      expect(withoutRoaming).not.toHaveProperty('roamingPartnerId');
     });
   });
 });

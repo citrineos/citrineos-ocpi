@@ -2,6 +2,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @zetra/citrineos-base is ESM-only ("type": "module", ships only dist/*.js) and Jest's
+// CJS runtime cannot parse it — transformIgnorePatterns un-ignores @citrineos, not @zetra.
+// Reached via SessionsService -> SessionsClientApi -> BaseClientApi:14.
+// Same stub as SessionBroadcastDedupeService.test.ts / CdrsClientApi.http.test.ts.
+jest.mock('@zetra/citrineos-base', () => ({
+  HttpMethod: {
+    Get: 'GET',
+    Put: 'PUT',
+    Post: 'POST',
+    Patch: 'PATCH',
+    Delete: 'DELETE',
+  },
+  HttpHeader: { Authorization: 'Authorization' },
+}));
+
 jest.mock('../../mapper/index', () => ({
   ReceivedSessionMapper: jest.requireActual(
     '../../mapper/ReceivedSessionMapper',
@@ -9,14 +24,18 @@ jest.mock('../../mapper/index', () => ({
   SessionMapper: jest.fn(),
 }));
 
+import { Logger } from 'tslog';
+import type { ILogObj } from 'tslog';
 import { SessionsService } from '../SessionsService';
 import { OcpiGraphqlClient } from '../../graphql/OcpiGraphqlClient';
 import { OcpiHeaders } from '../../model/OcpiHeaders';
 import { PaginatedParams } from '../../controllers/param/PaginatedParams';
 import {
+  FIND_SESSION_P2P_QUERY,
   GET_SESSION_BY_OCPI_ID,
+  GET_SESSION_BY_OCPI_ID_ROAMING_QUERY,
   INSERT_SESSION_MUTATION,
-  UPDATE_SESSION_MUTATION,
+  UPDATE_SESSION_BY_PK_MUTATION,
 } from '../../graphql/queries/session.queries';
 import { GET_TRANSACTIONS_QUERY } from '../../graphql/queries/transaction.queries';
 import type { SessionDbRow } from '../../graphql/operations';
@@ -83,10 +102,31 @@ const mockOcpiSession: Session = {
   last_updated: new Date('2024-06-15T10:30:00Z'),
 } as any;
 
+/**
+ * Direct (P2P) partner: identity matches the session's country_code/party_id and it
+ * carries no roamingPartners, so getRoamingPartner() returns null and the service
+ * takes the P2P query branch.
+ */
+const mockTenantPartner = {
+  id: 42,
+  countryCode: 'FR',
+  partyId: 'TMS',
+  roamingPartners: [],
+} as any;
+
+/** Hub partner whose roamingPartners contain the session's FR/TMS identity. */
+const mockRoamingTenantPartner = {
+  id: 42,
+  countryCode: 'FR',
+  partyId: 'ZTA',
+  roamingPartners: [{ id: 7, countryCode: 'FR', partyId: 'TMS' }],
+} as any;
+
 describe('SessionsService', () => {
   let service: SessionsService;
   let mockGraphqlClient: jest.Mocked<OcpiGraphqlClient>;
   let mockSessionMapper: any;
+  let mockSessionsClientApi: any;
 
   beforeEach(() => {
     mockGraphqlClient = {
@@ -95,7 +135,17 @@ describe('SessionsService', () => {
     mockSessionMapper = {
       mapTransactionsToSessions: jest.fn().mockResolvedValue([]),
     };
-    service = new SessionsService(mockGraphqlClient, mockSessionMapper);
+    mockSessionsClientApi = {
+      getSession: jest.fn(),
+      putSession: jest.fn(),
+      patchSession: jest.fn(),
+    };
+    service = new SessionsService(
+      mockGraphqlClient,
+      new Logger<ILogObj>({ type: 'hidden' }),
+      mockSessionsClientApi,
+      mockSessionMapper,
+    );
   });
 
   describe('getSessions (Sender GET)', () => {
@@ -154,7 +204,7 @@ describe('SessionsService', () => {
   });
 
   describe('getSessionByOcpiId (Receiver GET)', () => {
-    it('should return a mapped session when found', async () => {
+    it('should use the P2P query and return a mapped session when found', async () => {
       mockGraphqlClient.request.mockResolvedValue({
         Sessions: [mockDbRow],
       });
@@ -164,13 +214,12 @@ describe('SessionsService', () => {
         'TMS',
         'sess-001',
         42,
+        mockTenantPartner,
       );
 
       expect(mockGraphqlClient.request).toHaveBeenCalledWith(
         GET_SESSION_BY_OCPI_ID,
         {
-          countryCode: 'FR',
-          partyId: 'TMS',
           ocpiSessionId: 'sess-001',
           tenantPartnerId: 42,
         },
@@ -182,6 +231,30 @@ describe('SessionsService', () => {
       expect(result!.kwh).toBe(12.5);
     });
 
+    it('should use the roaming query when the identity resolves to a roaming partner', async () => {
+      mockGraphqlClient.request.mockResolvedValue({
+        Sessions: [mockDbRow],
+      });
+
+      const result = await service.getSessionByOcpiId(
+        'FR',
+        'TMS',
+        'sess-001',
+        42,
+        mockRoamingTenantPartner,
+      );
+
+      expect(mockGraphqlClient.request).toHaveBeenCalledWith(
+        GET_SESSION_BY_OCPI_ID_ROAMING_QUERY,
+        {
+          ocpiSessionId: 'sess-001',
+          tenantPartnerId: 42,
+          roamingPartnerId: 7,
+        },
+      );
+      expect(result!.id).toBe('sess-001');
+    });
+
     it('should return undefined when session is not found', async () => {
       mockGraphqlClient.request.mockResolvedValue({ Sessions: [] });
 
@@ -190,6 +263,7 @@ describe('SessionsService', () => {
         'TMS',
         'nonexistent',
         42,
+        mockTenantPartner,
       );
 
       expect(result).toBeUndefined();
@@ -197,14 +271,25 @@ describe('SessionsService', () => {
   });
 
   describe('upsertSession (Receiver PUT)', () => {
-    it('should upsert and return the mapped session', async () => {
-      mockGraphqlClient.request.mockResolvedValue({
-        insert_Sessions_one: mockDbRow,
-      });
+    it('should insert when no existing row is found', async () => {
+      mockGraphqlClient.request
+        .mockResolvedValueOnce({ Sessions: [] })
+        .mockResolvedValueOnce({ insert_Sessions_one: mockDbRow });
 
-      const result = await service.upsertSession(mockOcpiSession, 1, 42);
+      const result = await service.upsertSession(
+        mockOcpiSession,
+        1,
+        42,
+        mockTenantPartner,
+      );
 
-      expect(mockGraphqlClient.request).toHaveBeenCalledWith(
+      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
+        1,
+        FIND_SESSION_P2P_QUERY,
+        { ocpiSessionId: 'sess-001', tenantPartnerId: 42 },
+      );
+      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
+        2,
         INSERT_SESSION_MUTATION,
         expect.objectContaining({
           object: expect.objectContaining({
@@ -219,61 +304,156 @@ describe('SessionsService', () => {
       expect(result.id).toBe('sess-001');
     });
 
-    it('should throw when mutation returns null', async () => {
-      mockGraphqlClient.request.mockResolvedValue({
-        insert_Sessions_one: null,
-      });
+    it('should update by pk when an existing row is found', async () => {
+      mockGraphqlClient.request
+        .mockResolvedValueOnce({ Sessions: [{ id: 99 }] })
+        .mockResolvedValueOnce({ update_Sessions_by_pk: mockDbRow });
+
+      const result = await service.upsertSession(
+        mockOcpiSession,
+        1,
+        42,
+        mockTenantPartner,
+      );
+
+      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
+        2,
+        UPDATE_SESSION_BY_PK_MUTATION,
+        expect.objectContaining({
+          id: 99,
+          set: expect.objectContaining({ kwh: 12.5, status: 'ACTIVE' }),
+        }),
+      );
+      expect(result.id).toBe('sess-001');
+    });
+
+    it('should throw when the insert returns null', async () => {
+      mockGraphqlClient.request
+        .mockResolvedValueOnce({ Sessions: [] })
+        .mockResolvedValueOnce({ insert_Sessions_one: null });
 
       await expect(
-        service.upsertSession(mockOcpiSession, 1, 42),
-      ).rejects.toThrow('Failed to upsert session sess-001 for FR/TMS');
+        service.upsertSession(mockOcpiSession, 1, 42, mockTenantPartner),
+      ).rejects.toThrow('Insert failed');
+    });
+
+    it('should throw when the partner matches neither the session nor a roaming partner', async () => {
+      const foreignPartner = {
+        id: 42,
+        countryCode: 'DE',
+        partyId: 'XXX',
+        roamingPartners: [],
+      } as any;
+
+      await expect(
+        service.upsertSession(mockOcpiSession, 1, 42, foreignPartner),
+      ).rejects.toThrow(
+        'Tenant partner does not match session or roaming partner not found',
+      );
+      expect(mockGraphqlClient.request).not.toHaveBeenCalled();
     });
   });
 
   describe('patchSession (Receiver PATCH)', () => {
-    it('should patch and return the updated session', async () => {
+    it('should patch by pk and return the updated session', async () => {
       const updatedRow = {
         ...mockDbRow,
         kwh: 25.0,
         status: 'COMPLETED',
         endDateTime: '2024-06-15T12:00:00.000Z',
       };
-      mockGraphqlClient.request.mockResolvedValue({
-        update_Sessions: { returning: [updatedRow] },
-      });
+      mockGraphqlClient.request
+        // 1. getSessionByOcpiId — the merge read
+        .mockResolvedValueOnce({ Sessions: [mockDbRow] })
+        // 2. resolve the DB pk
+        .mockResolvedValueOnce({ Sessions: [{ id: 1 }] })
+        // 3. the update itself
+        .mockResolvedValueOnce({ update_Sessions_by_pk: updatedRow });
 
-      const result = await service.patchSession('FR', 'TMS', 'sess-001', 42, {
-        kwh: 25.0,
-        status: 'COMPLETED' as any,
-        last_updated: new Date('2024-06-15T12:00:00Z'),
-      });
+      const result = await service.patchSession(
+        'FR',
+        'TMS',
+        'sess-001',
+        42,
+        {
+          kwh: 25.0,
+          status: 'COMPLETED' as any,
+          last_updated: new Date('2024-06-15T12:00:00Z'),
+        },
+        mockTenantPartner,
+      );
 
-      expect(mockGraphqlClient.request).toHaveBeenCalledWith(
-        UPDATE_SESSION_MUTATION,
+      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
+        2,
+        FIND_SESSION_P2P_QUERY,
+        { ocpiSessionId: 'sess-001', tenantPartnerId: 42 },
+      );
+      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
+        3,
+        UPDATE_SESSION_BY_PK_MUTATION,
         expect.objectContaining({
-          countryCode: 'FR',
-          partyId: 'TMS',
-          ocpiSessionId: 'sess-001',
-          tenantPartnerId: 42,
+          id: 1,
           set: expect.objectContaining({
             kwh: 25.0,
             status: 'COMPLETED',
+            lastUpdated: '2024-06-15T12:00:00.000Z',
           }),
         }),
       );
       expect(result.kwh).toBe(25.0);
     });
 
+    it('should append incoming charging_periods to the existing ones', async () => {
+      const existingPeriod = {
+        start_date_time: '2024-06-15T10:00:00.000Z',
+        dimensions: [{ type: 'ENERGY', volume: 5 }],
+      };
+      const incomingPeriod = {
+        start_date_time: '2024-06-15T11:00:00.000Z',
+        dimensions: [{ type: 'ENERGY', volume: 7 }],
+      };
+      mockGraphqlClient.request
+        .mockResolvedValueOnce({
+          Sessions: [{ ...mockDbRow, chargingPeriods: [existingPeriod] }],
+        })
+        .mockResolvedValueOnce({ Sessions: [{ id: 1 }] })
+        .mockResolvedValueOnce({ update_Sessions_by_pk: mockDbRow });
+
+      await service.patchSession(
+        'FR',
+        'TMS',
+        'sess-001',
+        42,
+        {
+          charging_periods: [incomingPeriod] as any,
+          last_updated: new Date('2024-06-15T12:00:00Z'),
+        },
+        mockTenantPartner,
+      );
+
+      expect(mockGraphqlClient.request).toHaveBeenNthCalledWith(
+        3,
+        UPDATE_SESSION_BY_PK_MUTATION,
+        expect.objectContaining({
+          set: expect.objectContaining({
+            chargingPeriods: [existingPeriod, incomingPeriod],
+          }),
+        }),
+      );
+    });
+
     it('should throw when session is not found', async () => {
-      mockGraphqlClient.request.mockResolvedValue({
-        update_Sessions: { returning: [] },
-      });
+      mockGraphqlClient.request.mockResolvedValue({ Sessions: [] });
 
       await expect(
-        service.patchSession('FR', 'TMS', 'nonexistent', 42, {
-          kwh: 10,
-          last_updated: new Date(),
-        }),
+        service.patchSession(
+          'FR',
+          'TMS',
+          'nonexistent',
+          42,
+          { kwh: 10, last_updated: new Date() },
+          mockTenantPartner,
+        ),
       ).rejects.toThrow('Session nonexistent not found for FR/TMS');
     });
   });

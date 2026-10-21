@@ -99,10 +99,9 @@ describe('TokensMapper', () => {
       const ownAuth = {
         ...mockAuthorization,
         tenantPartner: null,
-        tenant: {
-          countryCode: 'FR',
-          partyId: 'ZTA',
-        },
+        tenants: [
+          { tenantId: 1, tenant: { countryCode: 'FR', partyId: 'ZTA' } },
+        ],
       };
       const result = TokensMapper.toDto(ownAuth as unknown as AuthorizationDto);
 
@@ -228,8 +227,10 @@ describe('TokensMapper', () => {
       );
     });
 
-    it('should map ALWAYS to null', () => {
-      expect(TokensMapper.mapWhitelistType(WhitelistType.ALWAYS)).toBeNull();
+    it('should map ALWAYS to Always', () => {
+      expect(TokensMapper.mapWhitelistType(WhitelistType.ALWAYS)).toBe(
+        AuthorizationWhitelistEnum.Always,
+      );
     });
 
     it('should return undefined for undefined input', () => {

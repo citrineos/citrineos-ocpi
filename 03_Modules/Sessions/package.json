@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@citrineos/ocpi-base": "2.0.1",
+    "@zetra/citrineos-base": "file:../../../citrineos-core/00_Base",
     "tslog": "4.9.2"
   }
 }
