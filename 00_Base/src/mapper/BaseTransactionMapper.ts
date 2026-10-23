@@ -182,27 +182,22 @@ export abstract class BaseTransactionMapper {
       );
 
       const pricePerKwh = energyComponent?.price ?? 0;
-      const taxRate = energyComponent?.vat ?? tariff.taxRate ?? 0;
 
       if (pricePerKwh > 0 || totalKwh === 0) {
         const priceExclVat = Math.round(totalKwh * pricePerKwh * 100) / 100;
-        const priceInclVat =
-          Math.round(priceExclVat * (1 + taxRate / 100) * 100) / 100;
-        return { excl_vat: priceExclVat, incl_vat: priceInclVat };
+        return { excl_vat: priceExclVat };
       } else {
         this.logger.error('No price per kwh found for tariff element', {
           tariffElement,
         });
         return {
           excl_vat: 0,
-          incl_vat: 0,
         };
       }
     } else {
       this.logger.error('No tariff element found for tariff', { tariff });
       return {
         excl_vat: 0,
-        incl_vat: 0,
       };
     }
   }
